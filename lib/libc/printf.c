@@ -105,7 +105,7 @@ int vprintf(const char *fmt, va_list args)
 	int l_count;
 	long long int num;
 	unsigned long long int unum;
-	char *str;
+	const char *str;
 	char padc = '\0'; /* Padding character */
 	int padn; /* Number of characters to pad */
 	int count = 0; /* Number of printed characters */
@@ -142,7 +142,7 @@ loop:
 				count++;
 				break;
 			case 's':
-				str = va_arg(args, char *);
+				str = va_arg(args, const char *);
 				count += string_print(str);
 				break;
 			case 'p':
