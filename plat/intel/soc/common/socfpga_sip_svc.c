@@ -855,13 +855,15 @@ uint8_t sip_smc_ret_nbytes_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_arg
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mailbox_err 0%x, nbytes_ret %d\n",
 		__func__, resp->err_code, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }

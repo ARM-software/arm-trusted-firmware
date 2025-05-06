@@ -64,13 +64,15 @@ uint8_t fcs_get_attest_cert_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_ar
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mailbox_err 0x%x, nbytes_ret %d\n",
 		__func__, resp->err_code, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
@@ -114,13 +116,15 @@ uint8_t fcs_cs_get_digest_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mbox_err  0x%x, nbytes_ret %d\n", __func__,
 		resp->err_code, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
@@ -151,7 +155,6 @@ uint8_t fcs_cs_hash_sign_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_a
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: [0] 0%x, [1] 0x%x, [2] 0x%x, len_words %d\n",
 			__func__, resp->resp_data[0], resp->resp_data[1],
 			resp->resp_data[2], resp->rcvd_resp_len);
@@ -159,6 +162,9 @@ uint8_t fcs_cs_hash_sign_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_a
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
@@ -169,7 +175,6 @@ uint8_t fcs_cs_hash_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint64_t 
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: [0] 0%x, [1] 0x%x, [2] 0x%x, [3] 0x%x\n",
 			__func__, resp->resp_data[0], resp->resp_data[1],
 			resp->resp_data[2], resp->resp_data[3]);
@@ -177,6 +182,9 @@ uint8_t fcs_cs_hash_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint64_t 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
@@ -205,7 +213,6 @@ uint8_t fcs_cs_data_sign_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_a
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mbox_err 0x%x, nbytes_ret %d\n", __func__,
 		resp->err_code, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
@@ -213,6 +220,8 @@ uint8_t fcs_cs_data_sign_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_a
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
 
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 	return ret_args_len;
 }
 
@@ -240,7 +249,6 @@ uint8_t fcs_cs_get_public_key_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mbox_err 0x%x, nbytes_ret %u\n",
 			__func__, resp->err_code,
 			resp->rcvd_resp_len * MBOX_WORD_BYTE);
@@ -248,6 +256,9 @@ uint8_t fcs_cs_get_public_key_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
@@ -258,13 +269,15 @@ uint8_t fcs_cs_data_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint64_t 
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mbox_err 0x%x, nbytes_ret 0x%x\n",
 			__func__, resp->err_code, resp->rcvd_resp_len);
 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
@@ -275,7 +288,6 @@ uint8_t fcs_cs_ecdh_request_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_ar
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: [0] 0%x, [1] 0x%x, [2] 0x%x, len_words %d\n",
 			__func__, resp->resp_data[0], resp->resp_data[1],
 			resp->resp_data[2], resp->rcvd_resp_len);
@@ -283,6 +295,9 @@ uint8_t fcs_cs_ecdh_request_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_ar
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
