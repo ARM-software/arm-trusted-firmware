@@ -170,11 +170,6 @@ txe_loop:
 	tst	w2, #USART_ISR_TXE
 	beq	txe_loop
 	str	w0, [x1, #USART_TDR]
-	/* Check transmit complete flag */
-tc_loop:
-	ldr	w2, [x1, #USART_ISR]
-	tst	w2, #USART_ISR_TC
-	beq	tc_loop
 	ret
 endfunc console_stm32_core_putc
 
