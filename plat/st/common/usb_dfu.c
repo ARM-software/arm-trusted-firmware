@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 
 #include <platform_def.h>
 #include <usb_dfu.h>
@@ -53,6 +54,7 @@
 #define DFU_ABORT			6
 
 static bool usb_dfu_detach_req;
+static uint64_t detach_timeout;
 
 /*
  * usb_dfu_init
@@ -208,6 +210,8 @@ static void usb_dfu_detach(struct usb_handle *pdev, struct usb_setup_req *req)
 		hdfu->dev_status = DFU_ERROR_NONE;
 	}
 
+	/* Timeout that lets the core handle interrupts before detach */
+	detach_timeout = timeout_init_us(100); /* usec */
 	usb_dfu_detach_req = true;
 }
 
@@ -512,25 +516,25 @@ void usb_dfu_register(struct usb_handle *pdev, struct usb_dfu_handle *phandle)
 
 int usb_dfu_loop(struct usb_handle *pdev, const struct usb_dfu_media *pmedia)
 {
-	uint32_t it_count;
 	enum usb_status ret;
 	struct usb_dfu_handle *hdfu = (struct usb_dfu_handle *)pdev->class_data;
 
 	hdfu->callback = pmedia;
 	usb_dfu_detach_req = false;
-	/* Continue to handle USB core IT to assure complete data transmission */
-	it_count = 100U;
 
 	/* DFU infinite loop until DETACH_REQ */
-	while (it_count != 0U) {
+	for (;;) {
 		ret = usb_core_handle_it(pdev);
 		if (ret != USBD_OK) {
 			return -EIO;
 		}
 
-		/* Detach request received */
-		if (usb_dfu_detach_req) {
-			it_count--;
+		/*
+		 * Detach request received, continue to handle USB core IT
+		 * to assure complete data transmission
+		 */
+		if (usb_dfu_detach_req && timeout_elapsed(detach_timeout)) {
+			break;
 		}
 	}
 
