@@ -164,6 +164,10 @@ BL31_SOURCES		+=	${GPT_LIB_SRCS}					\
 				${RMMD_SOURCES}
 endif
 
+ifeq (${USE_DSU_DRIVER},1)
+BL31_SOURCES		+=	drivers/arm/dsu/dsu.c
+endif
+
 ifeq ($(FEATURE_DETECTION),1)
 BL31_SOURCES		+=	common/feat_detect.c
 endif
@@ -205,11 +209,13 @@ $(eval $(call assert_booleans,\
 	CRASH_REPORTING \
 	EL3_EXCEPTION_HANDLING \
 	SDEI_SUPPORT \
+	USE_DSU_DRIVER \
 )))
 
 $(eval $(call add_defines,\
     $(sort \
-        CRASH_REPORTING \
-        EL3_EXCEPTION_HANDLING \
-        SDEI_SUPPORT \
+	CRASH_REPORTING \
+	EL3_EXCEPTION_HANDLING \
+	SDEI_SUPPORT \
+	USE_DSU_DRIVER \
 )))

@@ -32,12 +32,26 @@
  * DSU Cluster Auxiliary Control registers definitions
  ********************************************************************/
 #define CLUSTERACTLR_EL1	S3_0_C15_C3_3
-#define CLUSTERPWRCTLR_EL1	S3_0_C15_C3_5
+
+/* CLUSTERPWRCTLR_EL1 register definitions */
+#define CLUSTERPWRCTLR_EL1		S3_0_C15_C3_5
+#define CLUSTERPWRCTLR_FUNCRET_WIDTH	U(3)
+#define CLUSTERPWRCTLR_FUNCRET_SHIFT	U(0)
+#define CLUSTERPWRCTLR_FUNCRET_RESET	U(0)
+#define CLUSTERPWRCTLR_CACHEPWR_WIDTH	U(4)
+#define CLUSTERPWRCTLR_CACHEPWR_SHIFT	U(4)
+#define CLUSTERPWRCTLR_CACHEPWR_RESET	U(7)
 
 #define CLUSTERACTLR_EL1_ASSERT_CBUSY			(ULL(1) << 8)
 #define CLUSTERACTLR_EL1_DISABLE_CLOCK_GATING		(ULL(1) << 15)
 #define CLUSTERACTLR_EL1_DISABLE_SCLK_GATING		(ULL(3) << 15)
 #define CLUSTERACTLR_EL1_IGNORE_INTERCONNECT_CBUSY	(ULL(3) << 20)
+
+/* CLUSTERPWRDN_EL1 register definitions */
+#define CLUSTERPWRDN_PWRDN_WIDTH	U(1)
+#define CLUSTERPWRDN_PWRDN_SHIFT	U(0)
+#define CLUSTERPWRDN_MEMRET_WIDTH	U(1)
+#define CLUSTERPWRDN_MEMRET_SHIFT	U(1)
 
 /********************************************************************
  * Masks applied for DSU errata workarounds

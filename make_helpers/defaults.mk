@@ -438,3 +438,6 @@ RMMD_ENABLE_IDE_KEY_PROG	:= 0
 
 # Live firmware activation support
 LFA_SUPPORT			:= 0
+
+# Enable support for arm DSU driver.
+USE_DSU_DRIVER			:= 0
