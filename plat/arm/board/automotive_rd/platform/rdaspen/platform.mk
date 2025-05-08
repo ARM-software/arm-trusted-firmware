@@ -113,3 +113,16 @@ include plat/arm/board/common/board_common.mk
 PLAT_BL_COMMON_SOURCES	:= $(filter-out						\
 			     plat/arm/board/common/${ARCH}/board_arm_helpers.S, \
 			     $(PLAT_BL_COMMON_SOURCES))
+
+# Include Measured Boot makefile and source
+ifeq (${MEASURED_BOOT},1)
+	MEASURED_BOOT_MK	:= drivers/measured_boot/rse/rse_measured_boot.mk
+	include ${MEASURED_BOOT_MK}
+	PLAT_MHU		:= MHUv3
+	RSE_COMMS_BOOT_MK	:= drivers/arm/rse/rse_comms.mk
+	include ${RSE_COMMS_BOOT_MK}
+	MEASURED_BOOT_SOURCES	+= lib/psa/measured_boot.c
+	MEASURED_BOOT_SOURCES	+= ${RSE_COMMS_SOURCES}
+	BL2_SOURCES		+= ${MEASURED_BOOT_SOURCES}
+	PLAT_BL_COMMON_SOURCES	+= ${RDASPEN_BASE}/rdaspen_measured_boot.c
+endif
