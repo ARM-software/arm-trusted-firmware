@@ -54,7 +54,7 @@
 #if IMAGE_BL1
 #define MAX_XLAT_TABLES		2
 #else
-#define MAX_XLAT_TABLES		4
+#define MAX_XLAT_TABLES		5
 #endif
 
 /*
