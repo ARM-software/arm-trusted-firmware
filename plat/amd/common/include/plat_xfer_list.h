@@ -7,7 +7,7 @@
 #ifndef PLAT_XFER_LIST_H
 #define PLAT_XFER_LIST_H
 
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 
 int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 				       entry_point_info_t *bl33);

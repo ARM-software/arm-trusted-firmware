@@ -9,7 +9,9 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <lib/transfer_list.h>
+#if TRANSFER_LIST
+#include <transfer_list.h>
+#endif
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/common/platform.h>
 #include <services/arm_arch_svc.h>

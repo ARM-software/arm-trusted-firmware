@@ -320,8 +320,11 @@ BL31_SOURCES		+=	plat/arm/common/plat_acs_smc_handler.c		\
 endif
 
 ifeq (${TRANSFER_LIST}, 1)
-	include lib/transfer_list/transfer_list.mk
-	TRANSFER_LIST_SOURCES += plat/arm/common/arm_transfer_list.c
+include lib/transfer_list/transfer_list.mk
+
+BL1_SOURCES += plat/arm/common/arm_transfer_list.c
+BL2_SOURCES += plat/arm/common/arm_transfer_list.c
+BL31_SOURCES += plat/arm/common/arm_transfer_list.c
 endif
 
 ifneq ($(filter 1,${ENABLE_PMF} ${ETHOSN_NPU_DRIVER}),)

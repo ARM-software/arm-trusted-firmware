@@ -10,7 +10,7 @@
 #include <drivers/arm/pl061_gpio.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #include <plat/common/platform.h>
 #if ENABLE_RME

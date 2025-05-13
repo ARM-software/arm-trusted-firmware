@@ -28,7 +28,7 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/optee_utils.h>
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #if OPTEE_ALLOW_SMC_LOAD

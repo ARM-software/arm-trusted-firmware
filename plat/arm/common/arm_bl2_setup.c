@@ -20,7 +20,7 @@
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
@@ -321,6 +321,7 @@ void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node)
 {
 	entry_point_info_t *ep __unused;
 
+#if TRANSFER_LIST
 	/*
 	 * Information might have been added to the TL before this (i.e. event log)
 	 * make sure the checksum is up to date.
@@ -332,4 +333,5 @@ void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node)
 	assert(ep != NULL);
 
 	arm_transfer_list_populate_ep_info(next_param_node, secure_tl);
+#endif
 }

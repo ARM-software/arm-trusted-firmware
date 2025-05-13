@@ -18,7 +18,7 @@
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/mmio.h>
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
