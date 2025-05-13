@@ -202,12 +202,6 @@ endif
 
 BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S
 
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-        BL31_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
-        BL31_LDFLAGS	+=	--sort-section=alignment
-endif
-
 # Flag used to indicate if Crash reporting via console should be included
 # in BL31. This defaults to being present in DEBUG builds only
 ifndef CRASH_REPORTING

@@ -184,6 +184,7 @@ else
         ldflags-common		+=	-z common-page-size=4096 # Configure page size constants
         ldflags-common		+=	-z max-page-size=4096
         ldflags-common		+=	$(call ld_prefix,--build-id=none)
+        ldflags-common		+=	$(call ld_option,--sort-section=alignment)
 
         ifeq ($(ENABLE_LTO),1)
                 ldflags-common	+=	-fuse-linker-plugin
