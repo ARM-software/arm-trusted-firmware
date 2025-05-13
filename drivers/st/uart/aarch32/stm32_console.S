@@ -171,11 +171,6 @@ txe_loop:
 	tst	r2, #USART_ISR_TXE
 	beq	txe_loop
 	str	r0, [r1, #USART_TDR]
-	/* Check transmit complete flag */
-tc_loop:
-	ldr	r2, [r1, #USART_ISR]
-	tst	r2, #USART_ISR_TC
-	beq	tc_loop
 	bx	lr
 putc_error:
 	mov	r0, #-1
