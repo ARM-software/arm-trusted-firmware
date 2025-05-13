@@ -344,6 +344,54 @@ ifndef toolchain-mk
         toolchain-derive = $(if $3,$(call toolchain-derive-$1-$2,$3))
 
         #
+        # Prefixes a linker flag appropriately for the linker in use.
+        #
+        # Parameters:
+        #   - $1: A linker flag
+        #
+
+        toolchain-ld-prefix-gnu-gcc = $(addprefix -Xlinker ,$(1))
+        toolchain-ld-prefix-gnu-ld = $(1)
+        toolchain-ld-prefix-llvm-clang = $(addprefix -Xlinker ,$(1))
+        toolchain-ld-prefix-llvm-lld = $(1)
+        toolchain-ld-prefix-arm-clang = $(addprefix -Xlinker ,$(1))
+        toolchain-ld-prefix-arm-link = $(1)
+
+        #
+        # Discover whether a linker supports any given option (passed in $(2))
+        # Depending on which linker is in use and how exactly it is used (via a
+        # wrapper or not) the discovery process is different for each one
+        #
+        # Parameters:
+        #   - $1: The ARCH prefix of the toolchain (eg TF-A's or the native one)
+        #   - $2: The flag to test
+        # Returns the option with the wrapper's prefix (-Xlinker) if necessary
+        #
+        # Optionally works with lists of options, although granularity will be
+        # lost
+        #
+
+        # shorthand for the below helpers, assuming we're building TF-A
+        toolchain-ld-option = $(call toolchain-ld-option-$($(1)-ld-id),$(1),$(2))
+        toolchain-ld-option-gnu-gcc = $(if $\
+                $(shell $($(1)-ld) $(call toolchain-ld-prefix-gnu-gcc,$(2)) -Xlinker --help >/dev/null 2>&1 && echo 1),$\
+                $(call toolchain-ld-prefix-gnu-gcc,$(2)))
+        toolchain-ld-option-gnu-ld = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\
+                echo $(call escape-shell,$(2)))
+
+        toolchain-ld-option-llvm-clang = $(shell $($(1)-ld) $(target-$(1)-llvm-clang) $\
+                $(call toolchain-ld-prefix-llvm-clang,$(2)) -Xlinker --help >/dev/null 2>&1 && $\
+                echo $(call escape-shell,$(call toolchain-ld-prefix-llvm-clang,$(2))))
+        toolchain-ld-option-llvm-lld = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\
+                echo $(call escape-shell,$(2)))
+
+        toolchain-ld-option-arm-clang = $(shell $($(1)-ld) $(target-$(1)-arm-clang) $\
+                $(call toolchain-ld-prefix-arm-clang,$(2)) -Xlinker --help >/dev/null 2>&1 && $\
+                echo $(call escape-shell,$(call toolchain-ld-prefix-arm-clang,$(2))))
+        toolchain-ld-option-arm-link = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\
+                echo $(call escape-shell,$(2)))
+
+        #
         # Configure a toolchain.
         #
         # Parameters:

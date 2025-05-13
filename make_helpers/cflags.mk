@@ -170,7 +170,7 @@ ifeq ($($(ARCH)-ld-id),arm-link)
 # LD = gcc (used when GCC LTO is enabled)
 else ifeq ($($(ARCH)-ld-id),gnu-gcc)
 	# Pass ld options with Wl or Xlinker switches
-	TF_LDFLAGS		+=	$(call ld_option,-Xlinker --no-warn-rwx-segments)
+	TF_LDFLAGS		+=	$(call ld_option,--no-warn-rwx-segments)
 	TF_LDFLAGS		+=	-Wl,--fatal-warnings
 	TF_LDFLAGS		+=	-Wl,--gc-sections
 

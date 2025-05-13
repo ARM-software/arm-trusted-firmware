@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -31,7 +31,7 @@ CFLAGS			:= -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-common
 CFLAGS			+= $(call cc_option, --param=min-pagesize=0)
 ASFLAGS			:= -Wa,--gdwarf-2 -Wa,--fatal-warnings
 LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings -z noexecstack
-LDFLAGS			+= $(call ld_option,-Xlinker --no-warn-rwx-segments)
+LDFLAGS			+= $(call ld_option,--no-warn-rwx-segments)
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.

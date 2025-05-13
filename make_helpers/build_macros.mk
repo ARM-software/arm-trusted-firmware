@@ -90,9 +90,10 @@ define assert_numerics
     $(foreach num,$1,$(eval $(call assert_numeric,$(num))))
 endef
 
-# Convenience function to check for a given linker option. An call to
-# $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker
-ld_option = $(shell $($(ARCH)-ld) $(1) -Wl,--version >/dev/null 2>&1 || $($(ARCH)-ld) $(1) -v >/dev/null 2>&1 && echo $(1))
+# Convenience function to check for a given linker option. A call to
+# $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker,
+# prefixed appropriately for the linker in use
+ld_option = $(call toolchain-ld-option,$(ARCH),$(1))
 
 # Convenience function to check for a given compiler option. A call to
 # $(call cc_option, --no-XYZ) will return --no-XYZ if supported by the compiler
