@@ -11,6 +11,8 @@
 #define	CRYPTO_HASH_CALC_ONLY			2
 #define	CRYPTO_AUTH_VERIFY_AND_HASH_CALC	3
 
+#include <stddef.h>
+
 /* Return values */
 enum crypto_ret_value {
 	CRYPTO_SUCCESS = 0,

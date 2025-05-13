@@ -7,13 +7,22 @@
 
 #include <string.h>
 
-#include "./include/imx8m_measured_boot.h"
-#include <drivers/measured_boot/event_log/event_log.h>
-#include <drivers/measured_boot/metadata.h>
 #include <plat/arm/common/plat_arm.h>
+
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/measured_boot/metadata.h>
+#include <event_measure.h>
+#include <event_print.h>
+
+#include "./include/imx8m_measured_boot.h"
 
 /* Event Log data */
 static uint8_t event_log[PLAT_IMX_EVENT_LOG_MAX_SIZE];
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
+};
 
 /* FVP table with platform specific image IDs, names and PCRs */
 static const event_log_metadata_t imx8m_event_log_metadata[] = {
@@ -43,8 +52,18 @@ int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 
 void bl2_plat_mboot_init(void)
 {
-	event_log_init(event_log, event_log + sizeof(event_log));
-	event_log_write_header();
+	int rc = event_log_init_and_reg(
+		event_log, event_log + sizeof(event_log), &crypto_hash_info);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
+
+	rc = event_log_write_header();
+	if (rc < 0) {
+		ERROR("Failed to write event log header (%d).\n", rc);
+		panic();
+	}
 }
 
 void bl2_plat_mboot_finish(void)

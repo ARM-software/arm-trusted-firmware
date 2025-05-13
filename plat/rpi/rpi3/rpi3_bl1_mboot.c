@@ -8,23 +8,29 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-#include <common/desc_image_load.h>
-#include <common/ep_info.h>
-#include <drivers/auth/crypto_mod.h>
-#include <drivers/gpio_spi.h>
-#include <drivers/measured_boot/event_log/event_log.h>
-#include <drivers/measured_boot/metadata.h>
-#include <drivers/tpm/tpm2.h>
-#include <drivers/tpm/tpm2_chip.h>
-#include <drivers/tpm/tpm2_slb9670/slb9670_gpio.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
+#include <common/desc_image_load.h>
+#include <common/ep_info.h>
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/gpio_spi.h>
+#include <drivers/measured_boot/metadata.h>
+#include <drivers/tpm/tpm2.h>
+#include <drivers/tpm/tpm2_chip.h>
+#include <drivers/tpm/tpm2_slb9670/slb9670_gpio.h>
+#include <event_measure.h>
+#include <event_print.h>
 #include <rpi_shared.h>
 
 /* Event Log data */
 uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
+};
 
 /* RPI3 table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t rpi3_event_log_metadata[] = {
@@ -72,8 +78,18 @@ void bl1_plat_mboot_init(void)
 	}
 #endif
 
-	event_log_init(event_log, event_log + sizeof(event_log));
-	event_log_write_header();
+	rc = event_log_init_and_reg(event_log, event_log + sizeof(event_log),
+				    &crypto_hash_info);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
+
+	rc = event_log_write_header();
+	if (rc < 0) {
+		ERROR("Failed to write event log header (%d).\n", rc);
+		panic();
+	}
 }
 
 void bl1_plat_mboot_finish(void)

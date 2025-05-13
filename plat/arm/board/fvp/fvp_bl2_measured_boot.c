@@ -7,8 +7,13 @@
 #include <stdint.h>
 
 #include <common/tbbr/tbbr_img_def.h>
-#include <drivers/measured_boot/event_log/event_log.h>
+#if TRANSFER_LIST
+#include <tpm_event_log.h>
+#endif
+#include <drivers/auth/crypto_mod.h>
 #include <drivers/measured_boot/metadata.h>
+#include <event_measure.h>
+#include <event_print.h>
 #if defined(ARM_COT_cca)
 #include <tools_share/cca_oid.h>
 #else
@@ -26,6 +31,12 @@ CASSERT(ARM_EVENT_LOG_DRAM1_SIZE >= PLAT_ARM_EVENT_LOG_MAX_SIZE, \
 
 /* Event Log data */
 static uint64_t event_log_base;
+
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
+};
 
 /* FVP table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t fvp_event_log_metadata[] = {
@@ -67,8 +78,9 @@ void bl2_plat_mboot_init(void)
 
 #if TRANSFER_LIST
 	event_log_start = transfer_list_event_log_extend(
-		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE, &event_log_max_size);
-	event_log_finish = event_log_start + event_log_max_size;
+		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE);
+	event_log_finish = event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE;
+
 	event_log_base = (uintptr_t)event_log_start;
 #else
 	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size,
@@ -94,7 +106,12 @@ void bl2_plat_mboot_init(void)
 		(uint8_t *)((uintptr_t)event_log_base + event_log_max_size);
 #endif
 
-	event_log_init((uint8_t *)event_log_start, event_log_finish);
+	rc = event_log_init_and_reg(event_log_start, event_log_finish,
+				    &crypto_hash_info);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
 }
 
 int plat_mboot_measure_critical_data(unsigned int critical_data_id,
@@ -188,6 +205,10 @@ void bl2_plat_mboot_finish(void)
 	 */
 	event_log_base = (uintptr_t)transfer_list_event_log_finish(
 		secure_tl, (uintptr_t)event_log_base + event_log_cur_size);
+
+	/* Ensure changes are visible to the next stage. */
+	flush_dcache_range((uintptr_t)secure_tl, secure_tl->size);
+
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
 
 	/* If there is DT_SPMC_MANIFEST, update event log information. */

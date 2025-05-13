@@ -6,11 +6,16 @@
 
 #include <stdint.h>
 
-#include <drivers/measured_boot/event_log/event_log.h>
-#include <drivers/measured_boot/metadata.h>
-#include <tools_share/zero_oid.h>
-
+#if TRANSFER_LIST
+#include <tpm_event_log.h>
+#endif
 #include <plat/arm/common/plat_arm.h>
+
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/measured_boot/metadata.h>
+#include <event_measure.h>
+#include <event_print.h>
+#include <tools_share/zero_oid.h>
 
 /* Event Log data */
 #if TRANSFER_LIST
@@ -18,6 +23,12 @@ static uint8_t *event_log;
 #else
 static uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
 #endif
+
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
+};
 
 /* FVP table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t fvp_event_log_metadata[] = {
@@ -34,15 +45,17 @@ void bl1_plat_mboot_init(void)
 	int rc;
 
 #if TRANSFER_LIST
-	event_log = transfer_list_event_log_extend(
-		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE,
-		&event_log_max_size);
+	event_log_max_size = PLAT_ARM_EVENT_LOG_MAX_SIZE;
+
+	event_log =
+		transfer_list_event_log_extend(secure_tl, event_log_max_size);
 	assert(event_log != NULL);
 #else
 	event_log_max_size = sizeof(event_log);
 #endif
 
-	rc = event_log_init(event_log, event_log + event_log_max_size);
+	rc = event_log_init_and_reg(event_log, event_log + event_log_max_size,
+				    &crypto_hash_info);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
@@ -62,6 +75,9 @@ void bl1_plat_mboot_finish(void)
 #if TRANSFER_LIST
 	uint8_t *rc = transfer_list_event_log_finish(
 		secure_tl, (uintptr_t)event_log + event_log_cur_size);
+
+	/* Ensure changes are visible to the next stage. */
+	flush_dcache_range((uintptr_t)secure_tl, secure_tl->size);
 
 	if (rc != NULL) {
 		return;

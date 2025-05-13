@@ -4,10 +4,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-EVENT_LOG_SRC_DIR	:= drivers/measured_boot/event_log/
+LIBEVLOG_PATH		?= contrib/libeventlog
+LIBEVLOG_NAME		:= eventlog
 
-# Default log level to dump the event log (LOG_LEVEL_INFO)
-EVENT_LOG_LEVEL         ?= 40
+LIBEVLOG_BUILD_DIR	:= $(BUILD_PLAT)/lib$(LIBEVLOG_NAME)
+LIBEVLOG_TARGET		:= $(LIB_DIR)/$(LIBEVLOG_NAME).a
+
+ifeq ($(DEBUG),1)
+LIBEVLOG_BUILD_TYPE	:= Debug
+else
+LIBEVLOG_BUILD_TYPE	:= Release
+endif
+
+LDLIBS		:= -l$(LIBEVLOG_NAME) $(LDLIBS)
+INCLUDES	+= -I$(LIBEVLOG_PATH)/include
+
+LIBEVLOG_DIRS_TO_CHECK	+= $(LIBEVLOG_PATH)/include
 
 # When using a TPM, adopt the TPM's hash algorithm for
 # measurements through the Event Log mechanism, ensuring
@@ -26,12 +38,15 @@ endif
 ifeq (${MBOOT_EL_HASH_ALG}, sha512)
     TPM_ALG_ID			:=	TPM_ALG_SHA512
     TCG_DIGEST_SIZE		:=	64U
+    CRYPTO_MD_ID		:=	CRYPTO_MD_SHA512
 else ifeq (${MBOOT_EL_HASH_ALG}, sha384)
     TPM_ALG_ID			:=	TPM_ALG_SHA384
     TCG_DIGEST_SIZE		:=	48U
+    CRYPTO_MD_ID		:=	CRYPTO_MD_SHA384
 else
     TPM_ALG_ID			:=	TPM_ALG_SHA256
     TCG_DIGEST_SIZE		:=	32U
+    CRYPTO_MD_ID		:=	CRYPTO_MD_SHA256
 endif #MBOOT_EL_HASH_ALG
 
 # Set definitions for Measured Boot driver.
@@ -40,15 +55,23 @@ $(eval $(call add_defines,\
         TPM_ALG_ID \
         TCG_DIGEST_SIZE \
         EVENT_LOG_LEVEL \
+        CRYPTO_MD_ID \
 )))
 
-INCLUDES		+= -Iinclude/drivers/measured_boot/event_log \
-				-Iinclude/drivers/auth
+LIBEVLOG_CFLAGS ?= $(filter-out -I%,$(TF_CFLAGS))
+LIBEVLOG_CFLAGS += $(patsubst %,-I%,$(call include-dirs,$(TF_CFLAGS)))
 
-EVENT_LOG_SOURCES	:= ${EVENT_LOG_SRC_DIR}event_log.c		\
-			   ${EVENT_LOG_SRC_DIR}event_print.c
+$(LIBEVLOG_TARGET): $(LIB_DIR)/libc.a
+	$(s)echo "  CM      $@"
+	$(q)cmake -S $(LIBEVLOG_PATH) -B $(LIBEVLOG_BUILD_DIR) \
+		-DHASH_ALGORITHM=$(call uppercase,$(MBOOT_EL_HASH_ALG)) \
+		-DCMAKE_BUILD_TYPE=$(LIBEVLOG_BUILD_TYPE) \
+		-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(abspath $(BUILD_PLAT)/lib)" \
+		-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY \
+		-DCMAKE_C_COMPILER="$($(ARCH)-cc)" \
+		-DCMAKE_C_FLAGS=$(call escape-shell,$(LIBEVLOG_CFLAGS)) \
+		-DDEBUG_BACKEND_HEADER="log_backend_tf.h" \
+		$(if $(V),, --log-level=ERROR) > /dev/null
+	$(q)cmake --build $(LIBEVLOG_BUILD_DIR) -- $(if $(V),,-s) > /dev/null
 
-
-ifeq (${TRANSFER_LIST}, 1)
-EVENT_LOG_SOURCES	+= ${EVENT_LOG_SRC_DIR}/event_handoff.c
-endif
+libraries: $(LIBEVLOG_TARGET)
