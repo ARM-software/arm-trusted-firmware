@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 NXP
+ * Copyright 2018-2021, 2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -31,6 +31,9 @@
 #include <pmu.h>
 #if defined(NXP_SFP_ENABLED)
 #include <sfp.h>
+#endif
+#if TRUSTED_BOARD_BOOT
+#include <snvs.h>
 #endif
 
 #include <errata.h>
@@ -239,6 +242,10 @@ void soc_preload_setup(void)
  ******************************************************************************/
 void soc_early_init(void)
 {
+#if TRUSTED_BOARD_BOOT
+	snvs_init(NXP_SNVS_ADDR);
+#endif
+
 #ifdef CONFIG_OCRAM_ECC_EN
 	ocram_init(NXP_OCRAM_ADDR, NXP_OCRAM_SIZE);
 #endif
