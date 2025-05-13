@@ -117,6 +117,9 @@ void bl31_platform_setup(void)
 	case SUNXI_SOC_A64:
 		soc_name = "A64/H64/R18";
 		break;
+	case SUNXI_SOC_A133:
+		soc_name = "A133";
+		break;
 	case SUNXI_SOC_H5:
 		soc_name = "H5";
 		break;

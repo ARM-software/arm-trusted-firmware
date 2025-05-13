@@ -10,23 +10,19 @@ Building TF-A
 
 There is one build target per supported SoC:
 
-+------+-------------------+
-| SoC  | TF-A build target |
-+======+===================+
-| A64  | sun50i_a64        |
-+------+-------------------+
-| H5   | sun50i_a64        |
-+------+-------------------+
-| H6   | sun50i_h6         |
-+------+-------------------+
-| H616 | sun50i_h616       |
-+------+-------------------+
-| H313 | sun50i_h616       |
-+------+-------------------+
-| T507 | sun50i_h616       |
-+------+-------------------+
-| R329 | sun50i_r329       |
-+------+-------------------+
++-------------------+-------------------------------+
+| TF-A build target | Supported SoCs                |
++===================+===============================+
+| sun50i_a133       | A100, A133, A133P, R818, T800 |
++-------------------+-------------------------------+
+| sun50i_a64        | A64, H5, H64                  |
++-------------------+-------------------------------+
+| sun50i_h6         | H6                            |
++-------------------+-------------------------------+
+| sun50i_h616       | H313, H616, H700, T507        |
++-------------------+-------------------------------+
+| sun50i_r329       | R329                          |
++-------------------+-------------------------------+
 
 To build with the default settings for a particular SoC:
 
@@ -123,14 +119,17 @@ The mapping we use on those SoCs is as follows:
    0 64K         16M       160M    192M  256M             virtual address
 
 
-H616 SoC
-~~~~~~~~
+A133, H616 SoCs
+~~~~~~~~~~~~~~~
 
-The H616 lacks the secure SRAM region present on the other SoCs, also
-lacks the "ARISC" management processor (SCP) we use. BL31 thus needs to
-run from DRAM, which prevents our compressed virtual memory map described
-above. Since running in DRAM also lifts the restriction of the limited
-SRAM size, we use the normal 1:1 mapping with 32 bits worth of virtual
+The H616 lacks the secure SRAM region present on the other SoCs, also lacks the
+"ARISC" management processor (SCP) we use.
+
+In A133 the size of SRAM A2 section is limited to 64KB.
+
+BL31 thus needs to run from DRAM, which prevents our compressed virtual memory
+map described above. Since running in DRAM also lifts the restriction of the
+limited SRAM size, we use the normal 1:1 mapping with 32 bits worth of virtual
 address space. So the virtual addresses used in BL31 match the physical
 addresses as presented above.
 
