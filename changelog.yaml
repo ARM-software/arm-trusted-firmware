@@ -1287,31 +1287,37 @@ subsections:
           - fdt
 
         subsections:
-          - title: Morello
-            scope: morello-fdts
-
-            deprecated:
-              - fdts/morello
-
-          - title: STM32MP1
-            scope: stm32mp1-fdts
-
-            deprecated:
-              - fdts stm32mp1
+          - title: Arm
 
             subsections:
-              - title: STM32MP13
-                scope: stm32mp13-fdts
+              - title: Morello
+                scope: morello-fdts
 
-              - title: STM32MP15
-                scope: stm32mp15-fdts
+                deprecated:
+                  - fdts/morello
 
-          - title: STM32MP2
-            scope: stm32mp2-fdts
+          - title: ST
 
             subsections:
-              - title: STM32MP25
-                scope: stm32mp25-fdts
+              - title: STM32MP1
+                scope: stm32mp1-fdts
+
+                deprecated:
+                - fdts stm32mp1
+
+                subsections:
+                  - title: STM32MP13
+                    scope: stm32mp13-fdts
+
+                  - title: STM32MP15
+                    scope: stm32mp15-fdts
+
+              - title: STM32MP2
+                scope: stm32mp2-fdts
+
+                subsections:
+                  - title: STM32MP25
+                    scope: stm32mp25-fdts
 
       - title: PIE
         scope: pie
