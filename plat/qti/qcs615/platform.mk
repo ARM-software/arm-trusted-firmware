@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2024, The Linux Foundation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -136,7 +136,6 @@ $(warning QTISECLIB_PATH is not provided while building, using stub implementati
 BL31_SOURCES	+=	plat/qti/qtiseclib/src/qtiseclib_interface_stub.c
 else
 # use library provided by QTISECLIB_PATH
-LDFLAGS += -L $(dir $(QTISECLIB_PATH))
-LDLIBS += -l$(patsubst lib%.a,%,$(notdir $(QTISECLIB_PATH)))
+LDLIBS += $(QTISECLIB_PATH)
 endif
 
