@@ -233,11 +233,11 @@ func console_stm32_core_flush
 	ldr	r1, [r0, #USART_CR1]
 	tst	r1, #USART_CR1_UE
 	beq	1f
-	/* Check Transmit Data Register Empty */
-txe_loop_3:
+	/* Check Transmission Complete flag */
+tc_loop:
 	ldr	r1, [r0, #USART_ISR]
-	tst	r1, #USART_ISR_TXE
-	beq	txe_loop_3
+	tst	r1, #USART_ISR_TC
+	beq	tc_loop
 1:
 	bx	lr
 endfunc console_stm32_core_flush
