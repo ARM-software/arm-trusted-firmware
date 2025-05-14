@@ -14,6 +14,7 @@
 #include <common/debug.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
+#include <drivers/arm/dsu.h>
 #include <drivers/arm/sbsa.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
@@ -72,6 +73,13 @@ uint16_t plat_amu_aux_enables[PLATFORM_CORE_COUNT] = {
 	MPMM_GEARS, MPMM_GEARS, MPMM_GEARS, MPMM_GEARS,
 	MPMM_GEARS, MPMM_GEARS
 #endif
+};
+
+const dsu_driver_data_t plat_dsu_data = {
+	.clusterpwrdwn_pwrdn = false,
+	.clusterpwrdwn_memret = false,
+	.clusterpwrctlr_cachepwr = CLUSTERPWRCTLR_CACHEPWR_RESET,
+	.clusterpwrctlr_funcret = CLUSTERPWRCTLR_FUNCRET_RESET
 };
 
 #if (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4)
