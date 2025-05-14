@@ -56,3 +56,8 @@ $(eval $(call add_define,HAS_XSPI_SUPPORT))
 
 IMX_CRRM := 0
 $(eval $(call add_define,IMX_CRRM))
+
+BL32_BASE               ?=      0x8C000000
+BL32_SIZE               ?=      0x02000000
+$(eval $(call add_define,BL32_BASE))
+$(eval $(call add_define,BL32_SIZE))
