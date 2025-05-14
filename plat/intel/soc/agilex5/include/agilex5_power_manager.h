@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,6 +42,21 @@
 #define AGX5_PWRMGR_CPU_PWRSTAT1				0x24
 #define AGX5_PWRMGR_CPU_PWRSTAT2				0x2c
 #define AGX5_PWRMGR_CPU_PWRSTAT3				0x34
+#define AGX5_PWRMGR_CPU_RUN_PCH(x)				((x) & 0x1)
+#define AGX5_PWRMGR_CPU_POLL_COUNT				10
+#define AGX5_PWRMGR_CPU_DELAY_10_US				10
+
+/* CPU_SINGLE_FSM_STATE located at bit 9:2,
+ * masking with 0x3fc to get the field
+ */
+#define AGX5_PWRMGR_CPU_SINGLE_FSM_STATE(x)			(((x) & 0x3fc) >> 2)
+#define AGX5_PWRMGR_CPU_PROG_CPU_ON_STATE			0x10
+
+/* Boot Scratch Warm 9 Register, core status
+ * stored in bit 11:8 masking with 0xf00
+ * to get the field
+ */
+#define AGX5_PWRMGR_CPU_CORE_IN_STRRUN_STS(x)			(((x) & 0xf00) >> 8)
 
 /* APS */
 #define AGX5_PWRMGR_APS_FWENCTL					0x38
