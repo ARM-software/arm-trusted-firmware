@@ -98,13 +98,16 @@ subsections:
           - d128
           - debugv8p9
           - fgt2
+          - fpmr
           - gcs
           - hcx
+          - mops
           - mpam
           - mte
           - mte2
           - pauth
           - pmu
+          - pmuv3
           - rng-trap
           - sctlr2
           - feat_sctlr2
@@ -134,6 +137,13 @@ subsections:
 
         deprecated:
           - plat/allwinner
+
+      - title: AMLogic
+        scope: amlogic
+
+        subsections:
+          - title: GXL
+            scope: gxl
 
       - title: Arm
         scope: arm
@@ -198,6 +208,7 @@ subsections:
 
             deprecated:
               - neoverse
+              - neoverse_rd
 
           - title: TC
             scope: tc
@@ -301,6 +312,9 @@ subsections:
           - title: MT8188
             scope: mt8188
 
+          - title: MT8189
+            scope: mt8189
+
           - title: MT8192
             scope: mt8192
 
@@ -314,6 +328,9 @@ subsections:
               - plat/mediatek/me8195
               - plat/mediatek/mt8195
               - plat/mdeiatek/mt8195
+
+          - title: MT8196
+            scope: mt8196
 
       - title: NVIDIA
         scope: nvidia
@@ -548,6 +565,12 @@ subsections:
         scope: rockchip
 
         subsections:
+          - title: PX30
+            scope: px30
+
+          - title: RK3288
+            scope: rk3288
+
           - title: RK3399
             scope: rk3399
 
@@ -557,6 +580,9 @@ subsections:
 
           - title: RK3328
             scope: rk3328
+
+          - title: RK3576
+            scope: rk3576
 
           - title: RK3588
             scope: rk3588
@@ -716,6 +742,7 @@ subsections:
             scope: el3-spmc
 
             deprecated:
+              - el3_spmc
               - spmc
 
           - title: SPMD
@@ -723,6 +750,9 @@ subsections:
 
           - title: SPM MM
             scope: spm-mm
+
+            deprecated:
+              - spm_mm
 
       - title: DRTM
         scope: drtm
@@ -792,6 +822,9 @@ subsections:
       - title: FCONF
         scope: fconf
 
+      - title: HOB
+        scope: hob
+
       - title: MPMM
         scope: mpmm
 
@@ -812,6 +845,9 @@ subsections:
 
       - title: Translation Tables
         scope: xlat
+
+        deprecated:
+          - xlat_tables_v2
 
       - title: C Standard Library
         scope: libc
