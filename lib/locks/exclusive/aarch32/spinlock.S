@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,21 @@
 #define COND_SEV()	sev
 #endif
 
+/*
+ * Function: spin_lock
+ * -------------------
+ * Acquires a spinlock by continuously attempting to set it.
+ * Will block (spin) until the lock is successfully acquired.
+ *
+ * Arguments:
+ *   r0 - Pointer to the spinlock variable (uint32_t *lock)
+ *
+ * Return:
+ *   None
+ *
+ * Description:
+ *   Blocks until the lock is acquired using LDREX/STREX with WFE for wait.
+ */
 func spin_lock
 	mov	r2, #1
 1:
@@ -34,7 +49,47 @@ func spin_lock
 	bx	lr
 endfunc spin_lock
 
+/*
+ * Function: spin_trylock
+ * ----------------------
+ * Attempts to acquire the spinlock once without blocking.
+ *
+ * Arguments:
+ *   r0 - Pointer to the spinlock variable (uint32_t *lock)
+ *
+ * Return:
+ *   r0 - 1 if lock was successfully acquired
+ *        0 if lock was already held
+ *
+ * Description:
+ *   Tries once to acquire the lock using LDREX/STREX.
+ */
+func spin_trylock
+        mov     r2, #1
+        ldrex   r1, [r0]
+        cmp     r1, #0
+        strexeq r1, r2, [r0]
+        cmpeq   r1, #0
+        dmb
+        moveq   r0, #1
+        movne   r0, #0
+        bx      lr
+endfunc spin_trylock
 
+/*
+ * Function: spin_unlock
+ * ---------------------
+ * Releases the spinlock by clearing its value.
+ *
+ * Arguments:
+ *   r0 - Pointer to the spinlock variable (uint32_t *lock)
+ *
+ * Return:
+ *   None
+ *
+ * Description:
+ *   Releases the lock using store-release and sends SEV.
+ */
 func spin_unlock
 	mov	r1, #0
 	stl	r1, [r0]
