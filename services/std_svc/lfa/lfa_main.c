@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
+
 #include <plat/common/platform.h>
 #include <services/bl31_lfa.h>
 #include <services/lfa_svc.h>
@@ -19,6 +21,7 @@ void lfa_reset_activation(void)
 {
 	current_activation.component_id = LFA_INVALID_COMPONENT;
 	current_activation.prime_status = PRIME_NONE;
+	current_activation.cpu_rendezvous_required = false;
 }
 
 static int convert_to_lfa_error(int ret)
@@ -90,6 +93,58 @@ static int lfa_cancel(uint32_t component_id)
 
 	/* TODO: add proper termination prime and activate phases */
 	lfa_reset_activation();
+
+	return ret;
+}
+
+static int lfa_activate(uint32_t component_id, uint64_t flags,
+			uint64_t ep_address, uint64_t context_id)
+{
+	int ret = LFA_ACTIVATION_FAILED;
+	struct lfa_component_ops *activator;
+
+	if ((lfa_component_count == 0U) ||
+	    (!lfa_components[component_id].activation_pending) ||
+	    (current_activation.prime_status != PRIME_COMPLETE)) {
+		return LFA_COMPONENT_WRONG_STATE;
+	}
+
+	/* Check if fw_seq_id is in range. */
+	if ((component_id >= lfa_component_count) ||
+	    (current_activation.component_id != component_id)) {
+		return LFA_INVALID_PARAMETERS;
+	}
+
+	if (lfa_components[component_id].activator == NULL) {
+		return LFA_NOT_SUPPORTED;
+	}
+
+	activator = lfa_components[component_id].activator;
+	if (activator->activate != NULL) {
+		/*
+		 * Pass skip_cpu_rendezvous (flag[0]) only if flag[0]==1
+		 * & CPU_RENDEZVOUS is not required.
+		 */
+		if (flags & LFA_SKIP_CPU_RENDEZVOUS_BIT) {
+			if (!activator->cpu_rendezvous_required) {
+				INFO("Skipping rendezvous requested by caller.\n");
+				current_activation.cpu_rendezvous_required = false;
+			}
+			/*
+			 * Return error if caller tries to skip rendezvous when
+			 * it is required.
+			 */
+			else {
+				ERROR("CPU Rendezvous is required, can't skip.\n");
+				return LFA_INVALID_PARAMETERS;
+			}
+		}
+
+		ret = activator->activate(&current_activation, ep_address,
+					  context_id);
+	}
+
+	lfa_components[component_id].activation_pending = false;
 
 	return ret;
 }
@@ -258,6 +313,10 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 		break;
 
 	case LFA_ACTIVATE:
+		ret = lfa_activate(fw_seq_id, x2, x3, x4);
+		/* TODO: implement activate again */
+		SMC_RET2(handle, ret, 0ULL);
+
 		break;
 
 	case LFA_CANCEL:

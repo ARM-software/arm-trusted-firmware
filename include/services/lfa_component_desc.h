@@ -19,6 +19,7 @@ typedef enum {
 struct lfa_component_status {
 	uint32_t component_id;
 	lfa_prime_status_t prime_status;
+	bool cpu_rendezvous_required;
 };
 
 typedef int32_t (*component_prime_fn)(struct lfa_component_status *activation);
