@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,8 +9,6 @@
 #define PM_SVC_MAIN_H
 
 #include <pm_common.h>
-
-extern bool pwrdwn_req_received;
 
 #define PASS_THROUGH_FW_CMD_ID	U(0xfff)
 
@@ -34,6 +32,7 @@ extern bool pwrdwn_req_received;
 		status_tmp = function(__VA_ARGS__); \
 	}
 
+bool pm_pwrdwn_req_status(void);
 void request_cpu_pwrdwn(void);
 int32_t pm_setup(void);
 uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,

@@ -68,7 +68,12 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
 static uint32_t sgi = (uint32_t)INVALID_SGI;
-bool pwrdwn_req_received;
+static bool pwrdwn_req_received;
+
+bool pm_pwrdwn_req_status(void)
+{
+	return pwrdwn_req_received;
+}
 
 static void notify_os(void)
 {
@@ -269,6 +274,7 @@ int32_t pm_setup(void)
 
 	pm_ipi_init(primary_proc);
 	pm_up = true;
+	pwrdwn_req_received = false;
 
 	/* register SGI handler for CPU power down request */
 	ret = request_intr_type_el3(CPU_PWR_DOWN_REQ_INTR, cpu_pwrdwn_req_handler);

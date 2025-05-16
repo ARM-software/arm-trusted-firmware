@@ -133,7 +133,7 @@ static void __dead2 versal_net_system_reset_scope(uint32_t scope)
 	 * Send the system reset request to the firmware if power down request
 	 * is not received from firmware.
 	 */
-	if (!pwrdwn_req_received) {
+	if (!pm_pwrdwn_req_status()) {
 		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
 					 scope, SECURE_FLAG);
 
