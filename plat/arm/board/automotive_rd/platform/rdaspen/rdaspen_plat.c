@@ -22,6 +22,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #if IMAGE_BL2
 	RDASPEN_MAP_NS_DRAM1,
 	RDASPEN_MAP_NS_DRAM2,
+	RDASPEN_MAP_TRUSTED_NVCTR,
 #endif
 	{0}
 };
@@ -44,4 +45,12 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	/* Returning the Generic Timer Frequency */
 	return SYS_COUNTER_FREQ_IN_TICKS;
+}
+
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+
+	return arm_get_mbedtls_heap(heap_addr, heap_size);
 }

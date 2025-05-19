@@ -62,6 +62,12 @@ BL31_SOURCES	+=	${RDASPEN_CPU_SOURCES}	\
 			lib/utils/mem_region.c	\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL2_SOURCES	+=	${RDASPEN_BASE}/rdaspen_trusted_board_boot.c
+FIP_BL2_ARGS	:=	tb-fw
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES	+=	${RDASPEN_BASE}/fdts/${PLAT}_fw_config.dts	\
 			fdts/${PLAT}.dts
