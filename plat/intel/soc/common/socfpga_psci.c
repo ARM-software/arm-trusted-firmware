@@ -241,6 +241,9 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 #else
 	if (cold_reset_for_ecc_dbe()) {
 		mailbox_reset_cold();
+	} else {
+		/* Store magic number */
+		mmio_write_32(L2_RESET_DONE_REG, L2_RESET_DONE_STATUS);
 	}
 #endif
 
