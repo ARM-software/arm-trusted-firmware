@@ -207,6 +207,7 @@
 	SCR_FIQ_BIT		|						\
 	SCR_IRQ_BIT		|						\
 	SCR_NS_BIT		|						\
+	SCR_NSE_BIT		|						\
 	SCR_RES1_BITS		|						\
 	SCR_FEAT_MEC		|						\
 	SCR_PLAT_IGNORED)
