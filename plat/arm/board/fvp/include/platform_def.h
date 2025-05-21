@@ -509,16 +509,19 @@ FVP_TRUSTED_SRAM_SIZE == 512
 
 /*
  * Maximum size of Event Log buffer used in Measured Boot Event Log driver
+ * TODO: calculate maximum EventLog size using the calculation:
+ * Maximum size of Event Log * Number of images
  */
-#if ENABLE_RME && (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd))
-/* Account for additional measurements of secure partitions and SPM. */
-#define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x800)
-#else
-#if defined(IMAGE_BL1) && TRANSFER_LIST
+#if (defined(SPD_spmd)) || (ENABLE_RME && (defined(SPD_tspd) || defined(SPD_opteed)))
+/*
+ * Account for additional measurements of secure partitions and SPM.
+ * Also, account for OP-TEE running with maximum number of SPs.
+ */
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x800)
+#elif defined(IMAGE_BL1) && TRANSFER_LIST
 #define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x200)
 #else
-#define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
-#endif
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
 #endif
 
 /*
