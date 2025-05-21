@@ -25,6 +25,27 @@ uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
 #define RT_SVC_DECS_NUM		((RT_SVC_DESCS_END - RT_SVC_DESCS_START)\
 					/ sizeof(rt_svc_desc_t))
 
+static bool get_handler_for_smc_fid(uint32_t smc_fid, rt_svc_handle_t *handler)
+{
+	unsigned int index;
+	unsigned int idx;
+	const rt_svc_desc_t *rt_svc_descs;
+
+	idx = get_unique_oen_from_smc_fid(smc_fid);
+	assert(idx < MAX_RT_SVCS);
+	index = rt_svc_descs_indices[idx];
+
+	if (index >= RT_SVC_DECS_NUM)
+		return false;
+
+	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
+	assert(handler != NULL);
+	*handler = rt_svc_descs[index].handle;
+	assert(*handler != NULL);
+
+	return true;
+}
+
 /*******************************************************************************
  * Function to invoke the registered `handle` corresponding to the smc_fid in
  * AArch32 mode.
@@ -35,24 +56,17 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid,
 			     unsigned int flags)
 {
 	u_register_t x1, x2, x3, x4;
-	unsigned int index;
-	unsigned int idx;
-	const rt_svc_desc_t *rt_svc_descs;
+	rt_svc_handle_t handler;
 
 	assert(handle != NULL);
-	idx = get_unique_oen_from_smc_fid(smc_fid);
-	assert(idx < MAX_RT_SVCS);
 
-	index = rt_svc_descs_indices[idx];
-	if (index >= RT_SVC_DECS_NUM)
+	if (!get_handler_for_smc_fid(smc_fid, &handler)) {
 		SMC_RET1(handle, SMC_UNK);
-
-	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
+	}
 
 	get_smc_params_from_ctx(handle, x1, x2, x3, x4);
 
-	return rt_svc_descs[index].handle(smc_fid, x1, x2, x3, x4, cookie,
-						handle, flags);
+	return handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
 }
 
 /*******************************************************************************
