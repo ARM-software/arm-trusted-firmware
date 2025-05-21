@@ -17,8 +17,8 @@ include ${PLAT_SOC_PATH}/soc.def
 include ${PLAT_COMMON_PATH}/plat_make_helper/soc_common_def.mk
 include ${PLAT_COMMON_PATH}/plat_make_helper/plat_build_macros.mk
 
-ifeq (${TRUSTED_BOARD_BOOT},1)
 $(eval $(call SET_NXP_MAKE_FLAG,SMMU_NEEDED,BL2))
+ifeq (${TRUSTED_BOARD_BOOT},1)
 $(eval $(call SET_NXP_MAKE_FLAG,SFP_NEEDED,BL2))
 $(eval $(call SET_NXP_MAKE_FLAG,SNVS_NEEDED,BL2))
 SECURE_BOOT := yes
