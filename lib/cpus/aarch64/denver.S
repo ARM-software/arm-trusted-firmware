@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -12,6 +12,8 @@
 #include <denver.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+cpu_reset_prologue denver
 
 	/* -------------------------------------------------
 	 * CVE-2017-5715 mitigation
@@ -317,11 +319,8 @@ endfunc denver_cpu_reg_dump
 
 /* macro to declare cpu_ops for Denver SKUs */
 .macro	denver_cpu_ops_wa midr
-	declare_cpu_ops_wa denver, \midr, \
+	declare_cpu_ops denver, \midr, \
 		denver_reset_func, \
-		check_erratum_denver_5715, \
-		CPU_NO_EXTRA2_FUNC, \
-		CPU_NO_EXTRA3_FUNC, \
 		denver_core_pwr_dwn, \
 		denver_cluster_pwr_dwn
 .endm

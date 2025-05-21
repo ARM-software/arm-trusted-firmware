@@ -14,37 +14,6 @@
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
 
- /* Reset fn is needed in BL at reset vector */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
-	/*
-	 * The reset handler common to all platforms.  After a matching
-	 * cpu_ops structure entry is found, the correponding reset_handler
-	 * in the cpu_ops is invoked.
-	 * Clobbers: x0 - x19, x30
-	 */
-	.globl	reset_handler
-func reset_handler
-	mov	x19, x30
-
-	/* The plat_reset_handler can clobber x0 - x18, x30 */
-	bl	plat_reset_handler
-
-	/* Get the matching cpu_ops pointer */
-	bl	get_cpu_ops_ptr
-
-	/* Get the cpu_ops reset handler */
-	ldr	x2, [x0, #CPU_RESET_FUNC]
-	mov	x30, x19
-	cbz	x2, 1f
-
-	/* The cpu_ops reset handler can clobber x0 - x19, x30 */
-	br	x2
-1:
-	ret
-endfunc reset_handler
-
-#endif
-
 #ifdef IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*
 	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
@@ -203,165 +172,19 @@ search_def_ptr:
 	b	1b
 error_exit:
 #endif
+#if ENABLE_ASSERTIONS
+	/*
+	 * Assert if invalid cpu_ops obtained. If this is not valid, it may
+	 * suggest that the proper CPU file hasn't been included.
+	 */
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
 	ret
 endfunc get_cpu_ops_ptr
 
-/*
- * Extract CPU revision and variant, and combine them into a single numeric for
- * easier comparison.
- */
 	.globl	cpu_get_rev_var
 func cpu_get_rev_var
-	mrs	x1, midr_el1
-
-	/*
-	 * Extract the variant[23:20] and revision[3:0] from MIDR, and pack them
-	 * as variant[7:4] and revision[3:0] of x0.
-	 *
-	 * First extract x1[23:16] to x0[7:0] and zero fill the rest. Then
-	 * extract x1[3:0] into x0[3:0] retaining other bits.
-	 */
-	ubfx	x0, x1, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
-	bfxil	x0, x1, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+	get_rev_var x0, x1
 	ret
 endfunc cpu_get_rev_var
-
-/*
- * int check_wa_cve_2017_5715(void);
- *
- * This function returns:
- *  - ERRATA_APPLIES when firmware mitigation is required.
- *  - ERRATA_NOT_APPLIES when firmware mitigation is _not_ required.
- *  - ERRATA_MISSING when firmware mitigation would be required but
- *    is not compiled in.
- *
- * NOTE: Must be called only after cpu_ops have been initialized
- *       in per-CPU data.
- */
-	.globl	check_wa_cve_2017_5715
-func check_wa_cve_2017_5715
-	mrs	x0, tpidr_el3
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_EXTRA1_FUNC]
-	/*
-	 * If the reserved function pointer is NULL, this CPU
-	 * is unaffected by CVE-2017-5715 so bail out.
-	 */
-	cmp	x0, #CPU_NO_EXTRA1_FUNC
-	beq	1f
-	br	x0
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-endfunc check_wa_cve_2017_5715
-
-/*
- * int check_wa_cve_2024_7881(void);
- *
- * This function returns:
- *  - ERRATA_APPLIES when firmware mitigation is required.
- *  - ERRATA_NOT_APPLIES when firmware mitigation is _not_ required.
- *  - ERRATA_MISSING when firmware mitigation would be required but
- *    is not compiled in.
- *
- * NOTE: Must be called only after cpu_ops have been initialized
- *       in per-CPU data.
- */
-.globl	check_wa_cve_2024_7881
-func check_wa_cve_2024_7881
-	mrs	x0, tpidr_el3
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_EXTRA4_FUNC]
-	/*
-	 * If the reserved function pointer is NULL, this CPU
-	 * is unaffected by CVE-2024-7881 so bail out.
-	 */
-	cmp	x0, #CPU_NO_EXTRA4_FUNC
-	beq	1f
-	br	x0
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-endfunc check_wa_cve_2024_7881
-
-/*
- * void *wa_cve_2018_3639_get_disable_ptr(void);
- *
- * Returns a function pointer which is used to disable mitigation
- * for CVE-2018-3639.
- * The function pointer is only returned on cores that employ
- * dynamic mitigation.  If the core uses static mitigation or is
- * unaffected by CVE-2018-3639 this function returns NULL.
- *
- * NOTE: Must be called only after cpu_ops have been initialized
- *       in per-CPU data.
- */
-	.globl	wa_cve_2018_3639_get_disable_ptr
-func wa_cve_2018_3639_get_disable_ptr
-	mrs	x0, tpidr_el3
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_EXTRA2_FUNC]
-	ret
-endfunc wa_cve_2018_3639_get_disable_ptr
-
-/*
- * int check_smccc_arch_wa3_applies(void);
- *
- * This function checks whether SMCCC_ARCH_WORKAROUND_3 is enabled to mitigate
- * CVE-2022-23960 for this CPU. It returns:
- *  - ERRATA_APPLIES when SMCCC_ARCH_WORKAROUND_3 can be invoked to mitigate
- *    the CVE.
- *  - ERRATA_NOT_APPLIES when SMCCC_ARCH_WORKAROUND_3 should not be invoked to
- *    mitigate the CVE.
- *
- * NOTE: Must be called only after cpu_ops have been initialized
- *       in per-CPU data.
- */
-	.globl	check_smccc_arch_wa3_applies
-func check_smccc_arch_wa3_applies
-	mrs	x0, tpidr_el3
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	x0, [x0, #CPU_EXTRA3_FUNC]
-	/*
-	 * If the reserved function pointer is NULL, this CPU
-	 * is unaffected by CVE-2022-23960 so bail out.
-	 */
-	cmp	x0, #CPU_NO_EXTRA3_FUNC
-	beq	1f
-	br	x0
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-endfunc check_smccc_arch_wa3_applies

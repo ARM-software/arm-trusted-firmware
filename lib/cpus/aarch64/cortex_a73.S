@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,8 @@
 #include <cortex_a73.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+cpu_reset_prologue cortex_a73
 
 	/* ---------------------------------------------
 	 * Disable L1 data cache
@@ -31,10 +33,10 @@ func cortex_a73_disable_smp
 	ret
 endfunc cortex_a73_disable_smp
 
-func check_smccc_arch_workaround_3
-	mov	x0, #ERRATA_APPLIES
-	ret
-endfunc check_smccc_arch_workaround_3
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_3 */
+add_erratum_entry cortex_a73, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
+
+check_erratum_chosen cortex_a73, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a73, ERRATUM(852427), ERRATA_A73_852427
 	sysreg_bit_set CORTEX_A73_DIAGNOSTIC_REGISTER, BIT(12)
@@ -198,10 +200,7 @@ func cortex_a73_cpu_reg_dump
 	ret
 endfunc cortex_a73_cpu_reg_dump
 
-declare_cpu_ops_wa cortex_a73, CORTEX_A73_MIDR, \
+declare_cpu_ops cortex_a73, CORTEX_A73_MIDR, \
 	cortex_a73_reset_func, \
-	check_erratum_cortex_a73_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	check_smccc_arch_workaround_3, \
 	cortex_a73_core_pwr_dwn, \
 	cortex_a73_cluster_pwr_dwn

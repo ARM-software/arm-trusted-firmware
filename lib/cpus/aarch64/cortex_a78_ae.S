@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  * Copyright (c) 2021-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -22,12 +22,7 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_AE_BHB_LOOP_COUNT, cortex_a78_ae
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a78_ae, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a78_ae, CVE(2024, 5660)
-
-check_erratum_ls cortex_a78_ae, CVE(2024, 5660), CPU_REV(0, 3)
+cpu_reset_prologue cortex_a78_ae
 
 workaround_reset_start cortex_a78_ae, ERRATUM(1941500), ERRATA_A78_AE_1941500
 	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
@@ -102,6 +97,13 @@ workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_2396
 workaround_reset_end cortex_a78_ae, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a78_ae, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a78_ae, CVE(2024, 5660)
+
+check_erratum_ls cortex_a78_ae, CVE(2024, 5660), CPU_REV(0, 3)
 
 cpu_reset_func_start cortex_a78_ae
 #if ENABLE_FEAT_AMU

@@ -49,24 +49,7 @@
 	 * _midr:
 	 *	Numeric value expected to read from CPU's MIDR
 	 * _resetfunc:
-	 *	Reset function for the CPU. If there's no CPU reset function,
-	 *	specify CPU_NO_RESET_FUNC
-	 * _extra1:
-	 *	This is a placeholder for future per CPU operations.  Currently,
-	 *	some CPUs use this entry to set a test function to determine if
-	 *	the workaround for CVE-2017-5715 needs to be applied or not.
-	 * _extra2:
-	 *	This is a placeholder for future per CPU operations. Currently
-	 *	some CPUs use this entry to set a function to disable the
-	 *	workaround for CVE-2018-3639.
-	 * _extra3:
-	 *	This is a placeholder for future per CPU operations. Currently,
-	 *	some CPUs use this entry to set a test function to determine if
-	 *	the workaround for CVE-2022-23960 needs to be applied or not.
-	 * _extra4:
-	 *	This is a placeholder for future per CPU operations. Currently,
-	 *	some CPUs use this entry to set a test function to determine if
-	 *	the workaround for CVE-2024-7881 needs to be applied or not.
+	 *	Reset function for the CPU.
 	 * _e_handler:
 	 *	This is a placeholder for future per CPU exception handlers.
 	 * _power_down_ops:
@@ -79,7 +62,6 @@
 	 *	used to handle power down at subsequent levels
 	 */
 	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
-		_extra1:req, _extra2:req, _extra3:req, _extra4:req, \
 		_e_handler:req, _power_down_ops:vararg
 	.section .cpu_ops, "a"
 	.align 3
@@ -88,10 +70,6 @@
 #if defined(IMAGE_AT_EL3)
 	.quad \_resetfunc
 #endif
-	.quad \_extra1
-	.quad \_extra2
-	.quad \_extra3
-	.quad \_extra4
 	.quad \_e_handler
 #ifdef IMAGE_BL31
 	/* Insert list of functions */
@@ -154,28 +132,13 @@
 
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
 		_power_down_ops:vararg
-		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, 0, 0, 0, 0, \
-			\_power_down_ops
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, \_power_down_ops
 	.endm
 
 	.macro declare_cpu_ops_eh _name:req, _midr:req, _resetfunc:req, \
 		_e_handler:req, _power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			0, 0, 0, 0, \_e_handler, \_power_down_ops
-	.endm
-
-	.macro declare_cpu_ops_wa _name:req, _midr:req, \
-		_resetfunc:req, _extra1:req, _extra2:req, \
-		_extra3:req, _power_down_ops:vararg
-		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			\_extra1, \_extra2, \_extra3, 0, 0, \_power_down_ops
-	.endm
-
-	.macro declare_cpu_ops_wa_4 _name:req, _midr:req, \
-		_resetfunc:req, _extra1:req, _extra2:req, \
-		_extra3:req, _extra4:req, _power_down_ops:vararg
-		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			\_extra1, \_extra2, \_extra3, \_extra4, 0, \_power_down_ops
+			\_e_handler, \_power_down_ops
 	.endm
 
 	/*
@@ -236,53 +199,27 @@
  * _chosen:
  *	Compile time flag on whether the erratum is included
  *
- * _apply_at_reset:
- *	Whether the erratum should be automatically applied at reset
+ * _split_wa:
+ *	Flag that indicates whether an erratum has split workaround or not.
+ *	Default value is 0.
  */
-.macro add_erratum_entry _cpu:req, _cve:req, _id:req, _chosen:req, _apply_at_reset:req
+.macro add_erratum_entry _cpu:req, _cve:req, _id:req, _chosen:req, _split_wa=0
+#if INCLUDE_ERRATA_LIST
 	.pushsection .rodata.errata_entries
 		.align	3
 		.ifndef \_cpu\()_errata_list_start
 		\_cpu\()_errata_list_start:
 		.endif
 
-		/* check if unused and compile out if no references */
-		.if \_apply_at_reset && \_chosen
-			.quad	erratum_\_cpu\()_\_id\()_wa
-		.else
-			.quad	0
-		.endif
-		/* TODO(errata ABI): this prevents all checker functions from
-		 * being optimised away. Can be done away with unless the ABI
-		 * needs them */
 		.quad	check_erratum_\_cpu\()_\_id
 		/* Will fit CVEs with up to 10 character in the ID field */
 		.word	\_id
 		.hword	\_cve
-		.byte	\_chosen
-		/* TODO(errata ABI): mitigated field for known but unmitigated
-		 * errata */
-		.byte	0x1
+		/* bit magic that appends chosen field based on _split_wa */
+		.byte	((\_chosen * 0b11) & ((\_split_wa << 1) | \_chosen))
+		.byte	0x0 /* alignment */
 	.popsection
-.endm
-
-.macro _workaround_start _cpu:req, _cve:req, _id:req, _chosen:req, _apply_at_reset:req
-	add_erratum_entry \_cpu, \_cve, \_id, \_chosen, \_apply_at_reset
-
-	func erratum_\_cpu\()_\_id\()_wa
-		mov	x8, x30
-
-		/* save rev_var for workarounds that might need it but don't
-		 * restore to x0 because few will care */
-		mov	x7, x0
-		bl	check_erratum_\_cpu\()_\_id
-		cbz	x0, erratum_\_cpu\()_\_id\()_skip
-.endm
-
-.macro _workaround_end _cpu:req, _id:req
-	erratum_\_cpu\()_\_id\()_skip:
-		ret	x8
-	endfunc erratum_\_cpu\()_\_id\()_wa
+#endif
 .endm
 
 /*******************************************************************************
@@ -305,14 +242,35 @@
  * _chosen:
  *	Compile time flag on whether the erratum is included
  *
+ * _split_wa:
+ *	Flag that indicates whether an erratum has split workaround or not.
+ *	Default value is 0.
+ *
  * in body:
  *	clobber x0 to x7 (please only use those)
  *	argument x7 - cpu_rev_var
  *
  * _wa clobbers: x0-x8 (PCS compliant)
  */
-.macro workaround_reset_start _cpu:req, _cve:req, _id:req, _chosen:req
-	_workaround_start \_cpu, \_cve, \_id, \_chosen, 1
+.macro workaround_reset_start _cpu:req, _cve:req, _id:req, \
+	_chosen:req, _split_wa=0
+
+	add_erratum_entry \_cpu, \_cve, \_id, \_chosen, \_split_wa
+
+	.if \_chosen
+		/* put errata directly into the reset function */
+		.pushsection .text.asm.\_cpu\()_reset_func, "ax"
+	.else
+		/* or something else that will get garbage collected by the
+		 * linker */
+		.pushsection .text.asm.erratum_\_cpu\()_\_id\()_wa, "ax"
+	.endif
+		/* revision is stored in x14, get it */
+		mov	x0, x14
+		bl	check_erratum_\_cpu\()_\_id
+		/* save rev_var for workarounds that might need it */
+		mov	x7, x14
+		cbz	x0, erratum_\_cpu\()_\_id\()_skip_reset
 .endm
 
 /*
@@ -323,6 +281,10 @@
  *	for errata applied in generic code
  */
 .macro workaround_runtime_start _cpu:req, _cve:req, _id:req, _chosen:req, _midr
+	add_erratum_entry \_cpu, \_cve, \_id, \_chosen
+
+	func erratum_\_cpu\()_\_id\()_wa
+		mov	x8, x30
 	/*
 	 * Let errata specify if they need MIDR checking. Sadly, storing the
 	 * MIDR in an .equ to retrieve automatically blows up as it stores some
@@ -330,11 +292,15 @@
 	 */
 	.ifnb \_midr
 		jump_if_cpu_midr \_midr, 1f
-		b	erratum_\_cpu\()_\_id\()_skip
+		b	erratum_\_cpu\()_\_id\()_skip_runtime
 
 		1:
 	.endif
-	_workaround_start \_cpu, \_cve, \_id, \_chosen, 0
+		/* save rev_var for workarounds that might need it but don't
+		 * restore to x0 because few will care */
+		mov	x7, x0
+		bl	check_erratum_\_cpu\()_\_id
+		cbz	x0, erratum_\_cpu\()_\_id\()_skip_runtime
 .endm
 
 /*
@@ -342,7 +308,8 @@
  * is kept here so the same #define can be used as that macro
  */
 .macro workaround_reset_end _cpu:req, _cve:req, _id:req
-	_workaround_end \_cpu, \_id
+	erratum_\_cpu\()_\_id\()_skip_reset:
+	.popsection
 .endm
 
 /*
@@ -362,7 +329,9 @@
 	.ifb \_no_isb
 		isb
 	.endif
-	_workaround_end \_cpu, \_id
+	erratum_\_cpu\()_\_id\()_skip_runtime:
+		ret	x8
+	endfunc erratum_\_cpu\()_\_id\()_wa
 .endm
 
 /*******************************************************************************
@@ -418,6 +387,29 @@
 	mrs	x0, \_reg
 	bfi	x0, x1, #\_lsb, #\_width
 	msr	\_reg, x0
+.endm
+
+/*
+ * Extract CPU revision and variant, and combine them into a single numeric for
+ * easier comparison.
+ *
+ * _res:
+ *	register where the result will be placed
+ * _tmp:
+ *	register to clobber for temporaries
+ */
+.macro get_rev_var _res:req, _tmp:req
+	mrs	\_tmp, midr_el1
+
+	/*
+	 * Extract the variant[23:20] and revision[3:0] from MIDR, and pack them
+	 * as variant[7:4] and revision[3:0] of x0.
+	 *
+	 * First extract x1[23:16] to x0[7:0] and zero fill the rest. Then
+	 * extract x1[3:0] into x0[3:0] retaining other bits.
+	 */
+	ubfx	\_res, \_tmp, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfxil	\_res, \_tmp, #MIDR_REV_SHIFT, #MIDR_REV_BITS
 .endm
 
 /*
@@ -486,6 +478,40 @@
 	cset	x0, ls
 .endm
 
+
+#if __clang_major__ < 17
+/*
+ * A problem with clang version < 17 can cause resolving nested
+ * 'cfi_startproc' to fail compilation.
+ * So add a compatibility variant for start and endfunc expansions
+ * to ignore `cfi_startproc` and `cfi_endproc`, this to be used only with
+ * check_errata/reset macros if we build TF-A with clang version < 17
+ */
+
+.macro func_compat _name, _align=2
+	.section .text.asm.\_name, "ax"
+	.type \_name, %function
+	.align \_align
+	\_name:
+#if ENABLE_BTI
+	bti	jc
+#endif
+.endm
+
+/*
+ * This macro is used to mark the end of a function.
+ */
+.macro endfunc_compat _name
+	.size \_name, . - \_name
+.endm
+
+#else
+
+#define func_compat func
+#define endfunc_compat endfunc
+
+#endif /* __clang_version__ < 17 */
+
 /*
  * Helpers to select which revisions errata apply to.
  *
@@ -507,56 +533,69 @@
  *	argument: x0 - cpu_rev_var
  */
 .macro check_erratum_ls _cpu:req, _cve:req, _id:req, _rev_num:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_ls \_rev_num
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_hs _cpu:req, _cve:req, _id:req, _rev_num:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_hs \_rev_num
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_range _cpu:req, _cve:req, _id:req, _rev_num_lo:req, _rev_num_hi:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_range \_rev_num_lo, \_rev_num_hi
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_chosen _cpu:req, _cve:req, _id:req, _chosen:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		.if \_chosen
 			mov	x0, #ERRATA_APPLIES
 		.else
 			mov	x0, #ERRATA_MISSING
 		.endif
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 /*
  * provide a shorthand for the name format for annoying errata
- * body: clobber x0 to x3
+ * body: clobber x0 to x4
  */
 .macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_custom_end _cpu:req, _cve:req, _id:req
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
-
 
 /*******************************************************************************
  * CPU reset function wrapper
  ******************************************************************************/
 
 /*
- * Wrapper to automatically apply all reset-time errata. Will end with an isb.
+ * Helper to register a cpu with the errata framework. Begins the definition of
+ * the reset function.
+ *
+ * _cpu:
+ *	Name of cpu as given to declare_cpu_ops
+ */
+.macro cpu_reset_prologue _cpu:req
+	func_compat \_cpu\()_reset_func
+		mov	x15, x30
+		get_rev_var x14, x0
+.endm
+
+/*
+ * Wrapper of the reset function to automatically apply all reset-time errata.
+ * Will end with an isb.
  *
  * _cpu:
  *	Name of cpu as given to declare_cpu_ops
@@ -566,45 +605,15 @@
  *	argument x14 - cpu_rev_var
  */
 .macro cpu_reset_func_start _cpu:req
-	func \_cpu\()_reset_func
-		mov	x15, x30
-		bl	cpu_get_rev_var
-		mov	x14, x0
-
-		/* short circuit the location to avoid searching the list */
-		adrp	x12, \_cpu\()_errata_list_start
-		add	x12, x12, :lo12:\_cpu\()_errata_list_start
-		adrp	x13, \_cpu\()_errata_list_end
-		add	x13, x13, :lo12:\_cpu\()_errata_list_end
-
-	errata_begin:
-		/* if head catches up with end of list, exit */
-		cmp	x12, x13
-		b.eq	errata_end
-
-		ldr	x10, [x12, #ERRATUM_WA_FUNC]
-		/* TODO(errata ABI): check mitigated and checker function fields
-		 * for 0 */
-		ldrb	w11, [x12, #ERRATUM_CHOSEN]
-
-		/* skip if not chosen */
-		cbz	x11, 1f
-		/* skip if runtime erratum */
-		cbz	x10, 1f
-
-		/* put cpu revision in x0 and call workaround */
-		mov	x0, x14
-		blr	x10
-	1:
-		add	x12, x12, #ERRATUM_ENTRY_SIZE
-		b	errata_begin
-	errata_end:
+	/* the func/endfunc macros will change sections. So change the section
+	 * back to the reset function's */
+	.section .text.asm.\_cpu\()_reset_func, "ax"
 .endm
 
 .macro cpu_reset_func_end _cpu:req
 		isb
 		ret	x15
-	endfunc \_cpu\()_reset_func
+	endfunc_compat \_cpu\()_reset_func
 .endm
 
 #endif /* CPU_MACROS_S */

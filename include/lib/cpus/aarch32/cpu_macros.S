@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,8 +48,7 @@
 	 * _midr:
 	 *	Numeric value expected to read from CPU's MIDR
 	 * _resetfunc:
-	 *	Reset function for the CPU. If there's no CPU reset function,
-	 *	specify CPU_NO_RESET_FUNC
+	 *	Reset function for the CPU
 	 * _power_down_ops:
 	 *	Comma-separated list of functions to perform power-down
 	 *	operatios on the CPU. At least one, and up to
@@ -173,11 +172,6 @@
 		\_cpu\()_errata_list_start:
 		.endif
 
-		/* unused on AArch32, maintain for portability */
-		.word	0
-		/* TODO(errata ABI): this prevents all checker functions from
-		 * being optimised away. Can be done away with unless the ABI
-		 * needs them */
 		.ifnb \_special
 			.word	check_errata_\_special
 		.elseif \_cve
@@ -189,9 +183,7 @@
 		.word	\_id
 		.hword	\_cve
 		.byte	\_chosen
-		/* TODO(errata ABI): mitigated field for known but unmitigated
-		 * errata*/
-		.byte	0x1
+		.byte	0x0 /* alignment */
 	.popsection
 .endm
 

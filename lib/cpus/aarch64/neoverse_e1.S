@@ -22,6 +22,8 @@
 #error "Neoverse-E1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue neoverse_e1
+
 workaround_reset_start neoverse_e1, ERRATUM(936184), ERRATA_DSU_936184
 	errata_dsu_936184_wa_impl
 workaround_reset_end neoverse_e1, ERRATUM(936184)

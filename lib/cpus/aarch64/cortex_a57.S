@@ -13,6 +13,8 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+cpu_reset_prologue cortex_a57
+
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
 	 * ---------------------------------------------
@@ -63,15 +65,20 @@ func cortex_a57_disable_ext_debug
 	ret
 endfunc cortex_a57_disable_ext_debug
 
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_3 */
+add_erratum_entry cortex_a57, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
+
+check_erratum_chosen cortex_a57, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
+
 /*
  * Disable the over-read from the LDNP/STNP instruction. The SDEN doesn't
- * provide and erratum number, so assign it an obvious 1
+ * provide and erratum number, so assign it an obvious 99999
  */
-workaround_reset_start cortex_a57, ERRATUM(1), A57_DISABLE_NON_TEMPORAL_HINT
+workaround_reset_start cortex_a57, ERRATUM(99999), A57_DISABLE_NON_TEMPORAL_HINT
 	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
-workaround_reset_end cortex_a57, ERRATUM(1)
+workaround_reset_end cortex_a57, ERRATUM(99999)
 
-check_erratum_ls cortex_a57, ERRATUM(1), CPU_REV(1, 2)
+check_erratum_ls cortex_a57, ERRATUM(99999), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a57, ERRATUM(806969), ERRATA_A57_806969
 	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_NO_ALLOC_WBWA
@@ -81,7 +88,7 @@ check_erratum_ls cortex_a57, ERRATUM(806969), CPU_REV(0, 0)
 
 /* erratum always worked around, but report it correctly */
 check_erratum_ls cortex_a57, ERRATUM(813419), CPU_REV(0, 0)
-add_erratum_entry cortex_a57, ERRATUM(813419), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a57, ERRATUM(813419), ERRATUM_ALWAYS_CHOSEN
 
 workaround_reset_start cortex_a57, ERRATUM(813420), ERRATA_A57_813420
 	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DCC_AS_DCCI
@@ -150,7 +157,7 @@ check_erratum_ls cortex_a57, ERRATUM(859972), CPU_REV(1, 3)
 
 check_erratum_chosen cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
 /* erratum has no workaround in the cpu. Generic code must take care */
-add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
 
 workaround_reset_start cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31
@@ -184,11 +191,6 @@ cpu_reset_func_start cortex_a57
 	/* Enable the SMP bit. */
 	sysreg_bit_set CORTEX_A57_ECTLR_EL1, CORTEX_A57_ECTLR_SMP_BIT
 cpu_reset_func_end cortex_a57
-
-func check_smccc_arch_workaround_3
-	mov	x0, #ERRATA_APPLIES
-	ret
-endfunc check_smccc_arch_workaround_3
 
 	/* ----------------------------------------------------
 	 * The CPU Ops core power down function for Cortex-A57.
@@ -305,10 +307,7 @@ func cortex_a57_cpu_reg_dump
 	ret
 endfunc cortex_a57_cpu_reg_dump
 
-declare_cpu_ops_wa cortex_a57, CORTEX_A57_MIDR, \
+declare_cpu_ops cortex_a57, CORTEX_A57_MIDR, \
 	cortex_a57_reset_func, \
-	check_erratum_cortex_a57_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	check_smccc_arch_workaround_3, \
 	cortex_a57_core_pwr_dwn, \
 	cortex_a57_cluster_pwr_dwn

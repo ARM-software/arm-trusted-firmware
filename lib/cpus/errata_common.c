@@ -6,9 +6,12 @@
 
 /* Runtime C routines for errata workarounds and common routines */
 
+#include <assert.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <cortex_a75.h>
+#include <cortex_a510.h>
 #include <cortex_a520.h>
 #include <cortex_a710.h>
 #include <cortex_a715.h>
@@ -21,21 +24,51 @@
 #include <neoverse_n2.h>
 #include <neoverse_v3.h>
 
-#if ERRATA_A520_2938996 || ERRATA_X4_2726228
-unsigned int check_if_affected_core(void)
+struct erratum_entry *find_erratum_entry(uint32_t errata_id)
 {
-	uint32_t midr_val = read_midr();
-	long rev_var  = cpu_get_rev_var();
+	struct cpu_ops *cpu_ops;
+	struct erratum_entry *entry, *end;
 
-	if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(CORTEX_A520_MIDR)) {
-		return check_erratum_cortex_a520_2938996(rev_var);
-	} else if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(CORTEX_X4_MIDR)) {
-		return check_erratum_cortex_x4_2726228(rev_var);
+	cpu_ops = get_cpu_ops_ptr();
+	assert(cpu_ops != NULL);
+
+	entry = cpu_ops->errata_list_start;
+	assert(entry != NULL);
+
+	end = cpu_ops->errata_list_end;
+	assert(end != NULL);
+
+	end--; /* point to the last erratum entry of the queried cpu */
+
+	while ((entry <= end)) {
+		if (entry->id == errata_id) {
+			return entry;
+		}
+		entry += 1;
 	}
-
-	return ERRATA_NOT_APPLIES;
+	return NULL;
 }
+
+bool check_if_trbe_disable_affected_core(void)
+{
+	switch (EXTRACT_PARTNUM(read_midr())) {
+#if ERRATA_A520_2938996
+	case EXTRACT_PARTNUM(CORTEX_A520_MIDR):
+		return check_erratum_cortex_a520_2938996(cpu_get_rev_var()) == ERRATA_APPLIES;
 #endif
+#if ERRATA_X4_2726228
+	case EXTRACT_PARTNUM(CORTEX_X4_MIDR):
+		return check_erratum_cortex_x4_2726228(cpu_get_rev_var()) == ERRATA_APPLIES;
+#endif
+#if ERRATA_A510_2971420
+	case EXTRACT_PARTNUM(CORTEX_A510_MIDR):
+		return check_erratum_cortex_a510_2971420(cpu_get_rev_var()) == ERRATA_APPLIES;
+#endif
+	default:
+		break;
+	}
+	return false;
+}
 
 #if ERRATA_A75_764081
 bool errata_a75_764081_applies(void)
@@ -113,4 +146,22 @@ bool errata_ich_vmcr_el2_applies(void)
 	}
 
 	return false;
+}
+
+int check_erratum_applies(uint32_t cve, int errata_id)
+{
+	struct erratum_entry *entry;
+	long rev_var;
+
+	rev_var = cpu_get_rev_var();
+
+	entry = find_erratum_entry(errata_id);
+
+	if (entry == NULL) {
+		return ERRATA_NOT_APPLIES;
+	}
+
+	assert(entry->cve == cve);
+
+	return entry->check_func(rev_var);
 }
