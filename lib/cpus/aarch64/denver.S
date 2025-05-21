@@ -319,11 +319,8 @@ endfunc denver_cpu_reg_dump
 
 /* macro to declare cpu_ops for Denver SKUs */
 .macro	denver_cpu_ops_wa midr
-	declare_cpu_ops_wa denver, \midr, \
+	declare_cpu_ops denver, \midr, \
 		denver_reset_func, \
-		check_erratum_denver_5715, \
-		CPU_NO_EXTRA2_FUNC, \
-		CPU_NO_EXTRA3_FUNC, \
 		denver_core_pwr_dwn, \
 		denver_cluster_pwr_dwn
 .endm
