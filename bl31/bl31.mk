@@ -172,6 +172,12 @@ ifeq (${USE_DSU_DRIVER},1)
 BL31_SOURCES		+=	drivers/arm/dsu/dsu.c
 endif
 
+# RAS sources
+ifeq (${ENABLE_FEAT_RAS}-${HANDLE_EA_EL3_FIRST_NS},1-1)
+BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
+				lib/extensions/ras/ras_common.c
+endif
+
 ifeq ($(FEATURE_DETECTION),1)
 BL31_SOURCES		+=	common/feat_detect.c
 endif

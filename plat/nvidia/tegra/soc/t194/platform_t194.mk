@@ -72,9 +72,7 @@ endif
 
 # RAS sources
 ifeq (${ENABLE_FEAT_RAS}-${HANDLE_EA_EL3_FIRST_NS},1-1)
-BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
-				lib/extensions/ras/ras_common.c			\
-				${SOC_DIR}/plat_ras.c
+BL31_SOURCES		+=	${SOC_DIR}/plat_ras.c
 endif
 
 # SPM dispatcher
