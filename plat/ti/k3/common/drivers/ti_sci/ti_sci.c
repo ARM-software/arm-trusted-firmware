@@ -1869,3 +1869,120 @@ int ti_sci_keywriter_lite(unsigned long addr)
 
 	return 0;
 }
+
+/**
+ * ti_sci_read_otp() - Read OTP data from the OTP controller
+ *
+ * @param bank The bank number to read from
+ * @param word The word number to read
+ * @param val  Pointer to read value
+ *
+ * Return: 0 if all goes well, else appropriate error code
+ */
+int ti_sci_read_otp(uint8_t bank, uint32_t word, uint32_t *val)
+{
+	struct tisci_msg_read_otp_mmr_req req;
+	struct tisci_msg_read_otp_mmr_resp resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_READ_OTP_MMR, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.mmr_idx = word;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	*val = resp.mmr_val;
+
+	return ret;
+}
+
+/**
+ * ti_sci_write_otp() - Writes a value to the OTP controller
+ *
+ * @param bank The OTP bank to write to.
+ * @param word The word index to write.
+ * @param val The value to write.
+ * @param mask The mask for the value to be written.
+ * @param val_out A pointer to the value that was written as readback.
+ *
+ * @return Returns 0 on success, or a negative value on failure, with the error code indicating the specific error.
+ */
+int ti_sci_write_otp(uint8_t bank, uint32_t word, uint32_t val_in, uint32_t mask, uint32_t *val_out)
+{
+	struct tisci_msg_write_otp_mmr_req req;
+	struct tisci_msg_write_otp_mmr_resp resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_WRITE_OTP_MMR, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.row_idx = word;
+	req.row_val = val_in;
+	req.row_mask = mask;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	*val_out = resp.row_val;
+
+	return ret;
+}
+
+/**
+ * ti_sci_set_otp_bootmode() - Set OTP boot mode
+ *
+ * @param index The OTP index to set the boot mode for.
+ * @param mode The OTP boot mode to set.
+ *
+ * Returns 0 on success, or a negative value on failure, with the error code indicating the specific error.
+ */
+int ti_sci_set_otp_bootmode(uint8_t index, uint32_t mode)
+{
+	struct tisci_msg_set_otp_bootmode_req req = { 0 };
+	struct tisci_msg_set_otp_bootmode_resp resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_OTP_BOOT_MODE, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.boot_mode_efuse_idx = index;
+	req.write_val = mode;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret)
+		ERROR("Transfer send failed (%d)\n", ret);
+
+	return ret;
+}

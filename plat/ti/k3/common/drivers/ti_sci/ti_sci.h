@@ -291,4 +291,37 @@ int ti_sci_prepare_sleep(uint8_t mode, uint64_t context_save_addr,
  */
 int ti_sci_keywriter_lite(unsigned long addr);
 
+/**
+ * OTP Operations
+ *
+ * - ti_sci_read_otp - Command to read OTP data from the OTP controller.
+ *		@bank: The bank number to read from.
+ *		@word: The word number to read from.
+ *		@val: A pointer to the value to be read.
+
+ * Returns 0 for successful request, else returns corresponding error code on failure.
+ */
+int ti_sci_read_otp(uint8_t bank, uint32_t word, uint32_t *val);
+
+/**
+ * - ti_sci_write_otp - Command to write OTP data to the OTP controller.
+ *		@bank: The bank number to write to.
+ *		@word: The word number to write to.
+ *		@val_in: The value to be written.
+ *		@mask: The mask for the value to be written.
+ *		@val_out: A pointer to the value that was written as readback.
+ *
+ * Returns 0 for successful request, else returns corresponding error code on failure.
+ */
+int ti_sci_write_otp(uint8_t bank, uint32_t word, uint32_t val_in, uint32_t mask, uint32_t *val_out);
+
+/**
+ * - ti_sci_set_otp_bootmode - Command to set OTP boot mode eFuses.
+ *		@idx: The efuse index within the bootmode OTP bank.
+ *		@bootmode: The OTP boot mode value to set.
+ *
+ * Returns 0 for successful request, else returns corresponding error code on failure.
+ */
+int ti_sci_set_otp_bootmode(uint8_t idx, uint32_t bootmode);
+
 #endif /* TI_SCI_H */

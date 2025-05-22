@@ -54,6 +54,13 @@
 #define TISCI_MSG_GET_PROC_BOOT_STATUS	0xc400
 #define TISCI_MSG_WAIT_PROC_BOOT_STATUS	0xc401
 
+/* OTP MMR messages */
+#define TISCI_MSG_READ_OTP_MMR		0x9022
+#define TISCI_MSG_WRITE_OTP_MMR 	0x9023
+
+/* Set OTP Boot Mode TISCI message */
+#define TISCI_MSG_SET_OTP_BOOT_MODE	0x9044
+
 /* Keywriter lite TISCI message to write keys from a buffer */
 #define TISCI_MSG_KEY_WRITER_LITE	0x9045
 
@@ -878,6 +885,80 @@ struct ti_sci_msg_req_keywriter_lite {
 struct ti_sci_msg_resp_keywriter_lite {
 	struct ti_sci_msg_hdr hdr;
 	uint32_t debug_response;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_read_otp_mmr - Request for reading OTP MMRs.
+ *
+ * @hdr             Generic Header
+ * @mmr_idx         Index of MMR to read
+ *
+ * Request type is TISCI_MSG_READ_OTP_MMR, response is appropriate
+ * message, or NACK in case of inability to satisfy request.
+ */
+struct tisci_msg_read_otp_mmr_req {
+	struct ti_sci_msg_hdr hdr;
+	uint8_t mmr_idx;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_read_otp_mmr - Response for reading OTP MMRs.
+ * @hdr             Generic Header
+ * @mmr_val         Value of MMR read
+ */
+struct tisci_msg_read_otp_mmr_resp {
+	struct ti_sci_msg_hdr hdr;
+	uint32_t mmr_val;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_write_otp_mmr - Request for writing OTP MMRs.
+ *
+ * @hdr             Generic Header
+ * @row_idx         Index of row to write
+ * @row_val         Value to write to the row
+ * @row_mask        Mask to apply to the row value
+ *
+ * Request type is TISCI_MSG_WRITE_OTP_MMR, response is appropriate
+ * message, or NACK in case of inability to satisfy request.
+ */
+struct tisci_msg_write_otp_mmr_req {
+	struct ti_sci_msg_hdr hdr;
+	uint8_t row_idx;
+	uint32_t row_val;
+	uint32_t row_mask;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_write_otp_mmr - Response for writing OTP MMRs.
+ * @hdr             Generic Header
+ * @row_val         Value written to the row
+ */
+struct tisci_msg_write_otp_mmr_resp {
+	struct ti_sci_msg_hdr hdr;
+	uint32_t row_val;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_set_otp_bootmode - Request for setting OTP bootmode.
+ * @hdr                 Generic Header
+ * @boot_mode_efuse_idx Boot mode efuse index
+ * @reserved            Reserved space in message, must be 0 for backward compatibility
+ * @write_val           Value to write to the efuse
+ */
+struct tisci_msg_set_otp_bootmode_req {
+	struct ti_sci_msg_hdr hdr;
+	uint8_t boot_mode_efuse_idx;
+	uint8_t reserved[3];
+	uint32_t write_val;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_set_otp_bootmode - Response for setting OTP bootmode.
+ * @hdr Generic Header
+ */
+struct tisci_msg_set_otp_bootmode_resp {
+	struct ti_sci_msg_hdr hdr;
 } __packed;
 
 #endif /* TI_SCI_PROTOCOL_H */
