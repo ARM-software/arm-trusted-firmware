@@ -10,6 +10,11 @@
 #include <cortex_a520.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+
+#if (TARGET_PLATFORM == 5)
+#define PLAT_V2M_OFFSET		UL(0x60000000)
+#endif
+
 #include <plat/arm/board/common/board_css_def.h>
 #include <plat/arm/board/common/v2m_def.h>
 
