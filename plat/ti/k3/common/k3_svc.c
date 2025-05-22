@@ -35,31 +35,30 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 {
         VERBOSE("sim_smc handler smc_fid = %u\n", smc_fid);
         switch (smc_fid) {
-	    case SIP_SVC_CALL_COUNT:
-		    /* Return the number of TI K3 SiP Service Calls. */
-		    SMC_RET1(handle,
-				    K3_COMMON_SIP_NUM_CALLS );
+	case SIP_SVC_CALL_COUNT:
+		/* Return the number of TI K3 SiP Service Calls. */
+		SMC_RET1(handle, K3_COMMON_SIP_NUM_CALLS);
 
-	    case SIP_SVC_UID:
-		    /* Return UID to the caller */
-		    SMC_UUID_RET(handle, ti_sip_svc_uid);
+	case SIP_SVC_UID:
+		/* Return UID to the caller */
+		SMC_UUID_RET(handle, ti_sip_svc_uid);
 
-	    case SIP_SVC_VERSION:
-		    /* Return the version of current implementation */
-		    SMC_RET2(handle, K3_SIP_SVC_VERSION_MAJOR,
-				    K3_SIP_SVC_VERSION_MINOR);
+	case SIP_SVC_VERSION:
+		/* Return the version of current implementation */
+		SMC_RET2(handle, K3_SIP_SVC_VERSION_MAJOR,
+			 K3_SIP_SVC_VERSION_MINOR);
 
-	    case K3_SIP_SCMI_AGENT0:
-		    scmi_smt_fastcall_smc_entry(0);
-		    SMC_RET1(handle, 0);
+	case K3_SIP_SCMI_AGENT0:
+		scmi_smt_fastcall_smc_entry(0);
+		SMC_RET1(handle, 0);
 
-	    case K3_SIP_OTP_WRITEBUFF:
-		    SMC_RET1(handle, ti_fuse_writebuff_handler(x1));
+	case K3_SIP_OTP_WRITEBUFF:
+		SMC_RET1(handle, ti_fuse_writebuff_handler(x1));
 
-	    default:
-		    ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
-		    SMC_RET1(handle, SMC_UNK);
-    }
+	default:
+		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
+		SMC_RET1(handle, SMC_UNK);
+	}
 }
 
 /* Define a runtime service descriptor for fast SMC calls */
