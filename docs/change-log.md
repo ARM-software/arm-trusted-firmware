@@ -3,6 +3,64 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.2..refs/tags/lts-v2.12.3) (2025-05-23)
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - drop unused argument forward_flag ([5d8f821](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5d8f821c5e1f8775c09ef884c2891fae0d2f3b86))
+    - move errata check to common code ([1ca07cd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1ca07cd723fb804686467a4e21499303110117f7))
+    - optimize CVE checking ([481e161](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/481e161eb0c3ee2ac3f6fb7fcd11f7faef203e11))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - drop esb from the Neoverse N1 ([fdd7067](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fdd7067026f944196c387e453fbc646ac3a0e27a))
+
+- **Dependencies**
+
+  - remove deprecated husky commands ([70ed229](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70ed2295748d99b038e276887f0732e0d515922f))
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - remove in-order checks ([1967879](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1967879b3e76ff490049f2c3f715f2039895b96a))
+
+- **Documentation**
+
+  - add a SBOM template in CycloneDX format ([88da40b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/88da40bcb5219f298c9099f9dc351e5bca5d0e9f))
+
+### Documentation
+
+- **Documentation**
+
+  - **Changelog**
+
+    - display all sections ([75e3835](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/75e38356ed3658a7fa2b1cd64a15cb0b649f9af4))
+
+  - **Prerequisites**
+
+    - update mbedtls to v3.6.3 ([1cd56ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1cd56abd89ba10cc0026e38bb66c3c36187b7243))
+
+### New Features
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update mbedtls to version 3.6.3 ([cb3aea9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cb3aea9caa9dad4fe3470eae88ed2939d4d90571))
+
 ## [lts-2.12.2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.1..refs/tags/lts-v2.12.2) (2025-04-25)
 
 ### New Features
