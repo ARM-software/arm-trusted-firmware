@@ -3,6 +3,99 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.31..refs/tags/lts-v2.8.32) (2025-05-23)
+
+### Performance Improvements
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - inline the cpu_get_rev_var call ([160b428](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/160b4285b5cc188d341443264b9db89066dae4cf))
+    - inline the init_cpu_data_ptr function ([fe7d33c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fe7d33c95c086a35ad4d11c35f1abe5a011a7509))
+    - inline the reset function ([6a72c5a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6a72c5a69af3af5c21b61d883cb7bcaa897549b5))
+    - make reset errata do fewer branches ([976fec6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/976fec67abfe040b9118e8a1640dd815957293f6))
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix cve order in Cortex-A77 ([939983a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/939983a327be4fe630684983221fc8c2549d3dd8))
+    - fix cve order in Cortex-A78 ([bf3eede](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bf3eede2e0218dbc36690b1834fe4b608191d5d0))
+    - fix cve order in Cortex-A78_AE ([9fcf210](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9fcf21049200330d73b586c0e6c1fec69aa7b8cb))
+    - fix cve order in Cortex-A78C ([491b628](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/491b6289dd63479a576b13c2c22a68deb2bfe1d9))
+    - fix cve order in Cortex-X2 ([6085607](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6085607fc0831785a162fafb6d22f732ef0b1635))
+    - fix cve order in Neoverse-V1 ([7bee989](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7bee989878771312434bdf702a0c71dce527304f))
+    - fix cve order in Neoverse-V2 ([b71c354](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b71c354dd90f561bb8e645df2222324acc90bc43))
+    - rearrange cve and errata order in Cortex-X3 ([17cc04f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/17cc04f26b435a3dc559caba10d5e1decfd6453e))
+    - rearrange cve in order in Cortex-X1 ([a1f55ed](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a1f55eda5b304a199d8b38578dd960296a11bd1b))
+    - rearrange the errata and cve in order in Cortex-A710 ([2cf689d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2cf689d02d498a4dc44ab84aca43ab694d5b5b2b))
+    - rearrange the errata and cve in order in Cortex-X4 ([47c42dd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/47c42ddca699590dd1f4dfab52fac47fffba771f))
+    - rearrange the errata and cve in order in Neoverse-V3 ([674dd5c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/674dd5ca60498ed663aa97cc731998247c211244))
+    - rearrange the errata and cve order in Neoverse-N2 ([2aa5b13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2aa5b1343fbe50b587fab911d0e081246b9dd140))
+    - remove in-order checks ([4a5b724](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4a5b7242ed5da22b7bf15828ce2eac7c8b1da6ac))
+
+### Resolved Issues
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for handling split workarounds ([58647cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/58647cfb45d967a09e7928e7a4fc9c9c7d462ff8))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add missing add_erratum_entry ([9578b4d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9578b4d92f2dab605be4537cfcca76a96157779e))
+    - fix clang compilation issue ([eb7c613](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eb7c6136ab56fe318ce7aa404891177589cbe304))
+    - remove errata setting PF_MODE to conservative ([dbbd257](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dbbd2577abb8214fe58b6dcfe0667731c0d3f9bd))
+    - workaround for Cortex-A715 erratum 2804830 ([47cc9b7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/47cc9b7de6f7b181ac210059f8ba37cc2c2ca49e))
+    - workaround for Cortex-A510 erratum 2971420 ([bb5846c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bb5846c6b1f4165fbffd68b32ce8f801fdf7f479))
+
+  - **PSCI**
+
+    - tighten psci_power_down_wfi behaviour ([1770eeb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1770eeb885e95de92e612f3f423ce60fded425de))
+
+### Documentation
+
+- add playbook for new releases ([6b4b1b8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6b4b1b8cbc5864756b9c3437fffe56dc5419a541))
+
+- **Documentation**
+
+  - **Prerequisites**
+
+    - update mbedtls to v3.6.3 ([d69ad00](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d69ad00a1f8abdbc6b93f23c4600510521751fdc))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - don't panic if errata out of order ([0f06288](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0f06288fbf1be69a57f5f396fff7330eba8b07f2))
+    - drop unused argument forward_flag ([5464be6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5464be6fcda03d74c99f7d22ef76a77c86488d71))
+    - move errata check to common code ([2b9a049](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2b9a0490eb14e2b9a1152e3d2db622bd380aafe3))
+    - optimize CVE checking ([b5ee220](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b5ee22001f86e3e0030f95a76b8d5f932a42976f))
+
+### New Features
+
+- **Architecture**
+
+  - **Trace Buffer Extension (FEAT_TRBE)**
+
+    - introduce trbe_disable() function ([4ce5136](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4ce5136fc7b5d4e086b33b00cd1bce36181ed2b4))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update mbedtls to version 3.6.3 ([0f04477](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0f0447787e148bdc141a2e061b95b80d8adc2b30))
+
 ## [lts-2.8.31](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.30..refs/tags/lts-v2.8.31) (2025-05-02)
 
 ### Performance Improvements
