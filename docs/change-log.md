@@ -3,6 +3,30 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.17](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.16..refs/tags/lts-v2.10.17) (2025-05-23)
+
+### Build System
+
+- **Dependencies**
+
+  - **Node Package Manager (NPM)**
+
+    - adhere to Husky deprecation notice ([93982eb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/93982eb31d4dbc645223922e866baa5efae95858))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - drop esb from the Neoverse N1 ([2f73270](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2f7327030dbaaceec5c1b318c50f887b5fa2569d))
+
+### Miscellaneous
+
+- **Documentation**
+
+  - add a SBOM template in CycloneDX format ([b42c3c0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b42c3c05c429d80c2cd09cea026736e1e0e76ead))
+
 ## [lts-2.10.16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.15..refs/tags/lts-v2.10.16) (2025-05-02)
 
 ### Miscellaneous
