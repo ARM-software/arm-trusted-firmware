@@ -29,3 +29,4 @@ Components
    ven-el3-service
    ven-el3-debugfs
    context-management-library
+   numa-per-cpu
