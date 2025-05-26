@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,9 +29,9 @@
 #define RET_PAYLOAD_ARG_CNT	6U
 #define PAYLOAD_ARG_SIZE	4U	/* size in bytes */
 
-#define TZ_VERSION_MAJOR	1
-#define TZ_VERSION_MINOR	0
-#define TZ_VERSION		((TZ_VERSION_MAJOR << 16) | \
+#define TZ_VERSION_MAJOR	1U
+#define TZ_VERSION_MINOR	0U
+#define TZ_VERSION		(((uint32_t)TZ_VERSION_MAJOR << 16U) | \
 				 TZ_VERSION_MINOR)
 
 /**

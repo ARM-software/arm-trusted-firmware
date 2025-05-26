@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,8 +18,6 @@
 
 #include <plat_private.h>
 #include <pm_defs.h>
-
-#define PM_RET_ERROR_NOFEATURE U(19)
 
 static uintptr_t versal_net_sec_entry;
 
@@ -175,7 +173,7 @@ static int32_t no_pm_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		mmio_write_32(SLCR_OSPI_QSPI_IOU_AXI_MUX_SEL, arg1);
 		return 0;
 	}
-	return PM_RET_ERROR_NOFEATURE;
+	return PM_RET_ERROR_IOCTL_NOT_SUPPORTED;
 }
 
 static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,

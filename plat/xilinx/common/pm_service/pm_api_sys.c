@@ -409,6 +409,7 @@ enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload)
 		break;
 	default:
 		ret = PM_RET_ERROR_NO_FEATURE;
+		break;
 	}
 
 	return ret;
@@ -439,33 +440,31 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	case PM_GET_TRUSTZONE_VERSION:
 		ret_payload[0] = PM_API_VERSION_2;
 		ret = PM_RET_SUCCESS;
-		goto exit_label;
+		break;
 	case TF_A_PM_REGISTER_SGI:
 		ret_payload[0] = PM_API_BASE_VERSION;
 		ret = PM_RET_SUCCESS;
-		goto exit_label;
+		break;
 	default:
+		module_id = (api_id & MODULE_ID_MASK) >> 8U;
+
+		/*
+		 * feature check should be done only for LIBPM module
+		 * If module_id is 0, then we consider it LIBPM module as default id
+		 */
+		if ((module_id > 0U) && (module_id != LIBPM_MODULE_ID)) {
+			ret = PM_RET_SUCCESS;
+			break;
+		}
+
+		PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, flag,
+				 PM_FEATURE_CHECK, api_id);
+		ret = pm_ipi_send_sync(primary_proc, payload, ret_payload, RET_PAYLOAD_ARG_CNT);
+
 		break;
 	}
 
-	module_id = (api_id & MODULE_ID_MASK) >> 8U;
-
-	/*
-	 * feature check should be done only for LIBPM module
-	 * If module_id is 0, then we consider it LIBPM module as default id
-	 */
-	if ((module_id > 0U) && (module_id != LIBPM_MODULE_ID)) {
-		ret = PM_RET_SUCCESS;
-		goto exit_label;
-	}
-
-	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, flag,
-			PM_FEATURE_CHECK, api_id);
-	ret = pm_ipi_send_sync(primary_proc, payload, ret_payload, RET_PAYLOAD_ARG_CNT);
-
-exit_label:
 	return ret;
-
 }
 
 /**

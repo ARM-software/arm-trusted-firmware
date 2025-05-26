@@ -67,12 +67,12 @@ void ipi_config_table_init(const struct ipi_config *ipi_config_table,
  * Return: - 1 if within range, 0 if not.
  *
  */
-static inline int is_ipi_mb_within_range(uint32_t local, uint32_t remote)
+static inline uint32_t is_ipi_mb_within_range(uint32_t local, uint32_t remote)
 {
-	int ret = 1;
+	uint32_t ret = 1U;
 
 	if ((remote >= ipi_total) || (local >= ipi_total)) {
-		ret = 0;
+		ret = 0U;
 	}
 
 	return ret;
@@ -87,11 +87,11 @@ static inline int is_ipi_mb_within_range(uint32_t local, uint32_t remote)
  * Return: 0 success, negative value for errors.
  *
  */
-int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure)
+int32_t ipi_mb_validate(uint32_t local, uint32_t remote, uint32_t is_secure)
 {
-	int ret = 0;
+	int32_t ret = 0;
 
-	if (is_ipi_mb_within_range(local, remote) == 0) {
+	if (is_ipi_mb_within_range(local, remote) == 0U) {
 		ret = -EINVAL;
 	} else if (IPI_IS_SECURE(local) && (is_secure == 0U)) {
 		ret = -EPERM;

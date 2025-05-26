@@ -19,7 +19,6 @@
 #include <plat_private.h>
 #include <pm_defs.h>
 
-#define PM_RET_ERROR_NOFEATURE U(19)
 #define ALWAYSTRUE true
 #define LINEAR_MODE BIT(1)
 
@@ -192,7 +191,7 @@ static int32_t no_pm_ioctl(uint32_t device_id, uint32_t ioctl_id,
 	case IOCTL_USB_SET_STATE:
 		break;
 	default:
-		ret = PM_RET_ERROR_NOFEATURE;
+		ret = PM_RET_ERROR_IOCTL_NOT_SUPPORTED;
 		break;
 	}
 

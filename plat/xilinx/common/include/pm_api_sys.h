@@ -60,7 +60,8 @@ enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload);
  * Assigning of argument values into array elements.
  */
 #define PM_PACK_PAYLOAD1(pl, mid, flag, arg0) {	\
-	pl[0] = (uint32_t)(((uint32_t)(arg0) & 0xFFU) | ((mid) << 8U) | ((flag) << 24U)); \
+	pl[0] = (uint32_t)(((uint32_t)(arg0) & 0xFFU) | \
+		((uint32_t)(mid) << 8U) | ((uint32_t)(flag) << 24U)); \
 }
 
 #define PM_PACK_PAYLOAD2(pl, mid, flag, arg0, arg1) {		\
