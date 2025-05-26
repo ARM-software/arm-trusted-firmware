@@ -312,7 +312,7 @@ uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 }
 
 #if IPI_CRC_CHECK
-uint32_t calculate_crc(uint32_t payload[PAYLOAD_ARG_CNT], uint32_t bufsize)
+uint32_t calculate_crc(uint32_t payload[PAYLOAD_ARG_CNT], uint32_t buffersize)
 {
 	uint32_t crcinit = CRC_INIT_VALUE;
 	uint32_t order   = CRC_ORDER;
@@ -320,20 +320,22 @@ uint32_t calculate_crc(uint32_t payload[PAYLOAD_ARG_CNT], uint32_t bufsize)
 	uint32_t i, j, c, bit, datain, crcmask, crchighbit;
 	uint32_t crc = crcinit;
 
-	crcmask = ((uint32_t)((1U << (order - 1U)) - 1U) << 1U) | 1U;
-	crchighbit = (uint32_t)(1U << (order - 1U));
+	crcmask = ((((uint32_t)1U << (order - 1U)) - 1U) << 1U) | 1U;
+	crchighbit = ((uint32_t)1U << (order - 1U));
 
-	for (i = 0U; i < bufsize; i++) {
+	for (i = 0U; i < buffersize; i++) {
 		datain = mmio_read_8((unsigned long)payload + i);
 		c = datain;
 		j = 0x80U;
 		while (j != 0U) {
 			bit = crc & crchighbit;
 			crc <<= 1U;
-			if (0U != (c & j))
+			if (0U != (c & j)) {
 				bit ^= crchighbit;
-			if (bit != 0U)
+			}
+			if (bit != 0U) {
 				crc ^= polynom;
+			}
 			j >>= 1U;
 		}
 		crc &= crcmask;
