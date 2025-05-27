@@ -45,6 +45,12 @@
 #define UART_BAUDRATE	(115200)
 
 /*******************************************************************************
+ * Infra IOMMU related constants
+ ******************************************************************************/
+#define PERICFG_AO_BASE		(IO_PHYS + 0x01036000)
+#define PERICFG_AO_REG_SIZE	(0x1000)
+
+/*******************************************************************************
  * CIRQ related constants
  ******************************************************************************/
 #define SYS_CIRQ_BASE		(IO_PHYS + 204000)
@@ -52,6 +58,29 @@
 #define CIRQ_REG_NUM		(19)
 #define CIRQ_SPI_START		(128)
 #define CIRQ_IRQ_NUM		(598)
+
+/*******************************************************************************
+ * MM IOMMU & SMI related constants
+ ******************************************************************************/
+#define SMI_LARB_0_BASE		(IO_PHYS + 0x0401c000)
+#define SMI_LARB_1_BASE		(IO_PHYS + 0x0401d000)
+#define SMI_LARB_2_BASE		(IO_PHYS + 0x0f002000)
+#define SMI_LARB_4_BASE		(IO_PHYS + 0x0602e000)
+#define SMI_LARB_7_BASE		(IO_PHYS + 0x07010000)
+#define SMI_LARB_9_BASE		(IO_PHYS + 0x0502e000)
+#define SMI_LARB_11_BASE	(IO_PHYS + 0x0582e000)
+#define SMI_LARB_13_BASE	(IO_PHYS + 0x0a001000)
+#define SMI_LARB_14_BASE	(IO_PHYS + 0x0a002000)
+#define SMI_LARB_16_BASE	(IO_PHYS + 0x0a00f000)
+#define SMI_LARB_17_BASE	(IO_PHYS + 0x0a010000)
+#define SMI_LARB_19_BASE	(IO_PHYS + 0x0b10f000)
+#define SMI_LARB_20_BASE	(IO_PHYS + 0x0b00f000)
+#define SMI_LARB_REG_RNG_SIZE	(0x1000)
+
+#define MM_IOMMU_BASE		(IO_PHYS + 0x0e802000 + 0x4000)
+#define APU_IOMMU_BASE		(IO_PHYS + 0x09010000)
+
+#define IOMMU_REG_RNG_SIZE	(0x5000)
 
 /*******************************************************************************
  * System counter frequency related constants
