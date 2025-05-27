@@ -10,7 +10,9 @@
 #include <platform_def.h>
 
 #include <plat_fdt.h>
+#ifdef TRANSFER_LIST
 #include <plat_xfer_list.h>
+#endif
 
 #define FIT_CONFS_PATH	"/configurations"
 
