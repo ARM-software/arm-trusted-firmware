@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,9 @@
 #include <lib/coreboot.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/optee_utils.h>
+#if TRANSFER_LIST
 #include <lib/transfer_list.h>
+#endif
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #if OPTEE_ALLOW_SMC_LOAD
 #include <libfdt.h>
@@ -40,7 +42,7 @@
 #include "teesmc_opteed.h"
 
 #if OPTEE_ALLOW_SMC_LOAD
-static struct transfer_list_header *bl31_tl;
+static struct transfer_list_header __maybe_unused *bl31_tl;
 #endif
 
 /*******************************************************************************
@@ -163,9 +165,9 @@ static int32_t opteed_setup(void)
 	uint64_t arg1;
 	uint64_t arg2;
 	uint64_t arg3;
-	struct transfer_list_header *tl = NULL;
-	struct transfer_list_entry *te = NULL;
-	void *dt = NULL;
+	struct transfer_list_header __maybe_unused *tl = NULL;
+	struct transfer_list_entry __maybe_unused *te = NULL;
+	void __maybe_unused *dt = NULL;
 
 	linear_id = plat_my_core_pos();
 
@@ -190,8 +192,10 @@ static int32_t opteed_setup(void)
 	if (!optee_ep_info->pc)
 		return 1;
 
+#if TRANSFER_LIST
 	tl = (void *)optee_ep_info->args.arg3;
-	if (TRANSFER_LIST && transfer_list_check_header(tl)) {
+
+	if (transfer_list_check_header(tl)) {
 		te = transfer_list_find(tl, TL_TAG_FDT);
 		dt = transfer_list_entry_data(te);
 
@@ -199,7 +203,7 @@ static int32_t opteed_setup(void)
 		if (opteed_rw == OPTEE_AARCH64) {
 			if (optee_ep_info->args.arg1 !=
 			    TRANSFER_LIST_HANDOFF_X1_VALUE(
-				REGISTER_CONVENTION_VERSION))
+				    REGISTER_CONVENTION_VERSION))
 				return 1;
 
 			arg0 = (uint64_t)dt;
@@ -207,7 +211,7 @@ static int32_t opteed_setup(void)
 		} else {
 			if (optee_ep_info->args.arg1 !=
 			    TRANSFER_LIST_HANDOFF_R1_VALUE(
-				REGISTER_CONVENTION_VERSION))
+				    REGISTER_CONVENTION_VERSION))
 				return 1;
 
 			arg0 = 0;
@@ -216,7 +220,10 @@ static int32_t opteed_setup(void)
 
 		arg1 = optee_ep_info->args.arg1;
 		arg3 = optee_ep_info->args.arg3;
-	} else {
+
+	} else
+#endif /* TRANSFER_LIST */
+	{
 		/* Default handoff arguments */
 		opteed_rw = optee_ep_info->args.arg0;
 		arg0 = optee_ep_info->args.arg1; /* opteed_pageable_part */
@@ -225,9 +232,9 @@ static int32_t opteed_setup(void)
 		arg3 = 0;
 	}
 
-	opteed_init_optee_ep_state(optee_ep_info, opteed_rw, optee_ep_info->pc,
-				arg0, arg1, arg2, arg3,
-				&opteed_sp_context[linear_id]);
+	opteed_init_optee_ep_state(optee_ep_info, opteed_rw,
+				   optee_ep_info->pc, arg0, arg1, arg2,
+				   arg3, &opteed_sp_context[linear_id]);
 
 	/*
 	 * All OPTEED initialization done. Now register our init function with
@@ -430,9 +437,9 @@ static int create_opteed_dt(void)
 	return fdt_finish(fdt_buf);
 }
 
+#if TRANSFER_LIST
 static int32_t create_smc_tl(const void *fdt, uint32_t fdt_sz)
 {
-#if TRANSFER_LIST
 	bl31_tl = transfer_list_init((void *)(uintptr_t)FW_HANDOFF_BASE,
 				FW_HANDOFF_SIZE);
 	if (!bl31_tl) {
@@ -445,10 +452,8 @@ static int32_t create_smc_tl(const void *fdt, uint32_t fdt_sz)
 		return -1;
 	}
 	return 0;
-#else
-	return -1;
-#endif
 }
+#endif
 
 /*******************************************************************************
  * This function is responsible for handling the SMC that loads the OP-TEE
@@ -546,8 +551,8 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 	dt_addr = (uint64_t)fdt_buf;
 	flush_dcache_range(dt_addr, OPTEED_FDT_SIZE);
 
-	if (TRANSFER_LIST &&
-	    !create_smc_tl((void *)dt_addr, OPTEED_FDT_SIZE)) {
+#if TRANSFER_LIST
+	if (!create_smc_tl((void *)dt_addr, OPTEED_FDT_SIZE)) {
 		struct transfer_list_entry *te = NULL;
 		void *dt = NULL;
 
@@ -565,7 +570,9 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 		}
 
 		arg3 = (uint64_t)bl31_tl;
-	} else {
+	} else
+#endif /* TRANSFER_LIST */
+	{
 		/* Default handoff arguments */
 		arg2 = dt_addr;
 	}
