@@ -217,9 +217,11 @@ void bl31_plat_arch_setup(void)
 	NOTICE("SOCFPGA: CPU ID = %x\n", cpuid);
 	INFO("SOCFPGA: Invalidate Data cache\n");
 	invalidate_dcache_all();
-
 	/* Invalidate for NS EL2 and EL1 */
 	invalidate_cache_low_el();
+
+	NOTICE("SOCFPGA: Setting CLUSTERECTRL_EL1\n");
+	setup_clusterectlr_el1();
 }
 
 /* Get non-secure image entrypoint for BL33. Zephyr and Linux */
@@ -301,6 +303,22 @@ void bl31_plat_set_secondary_cpu_off(void)
 	pch_cpu = pch_cpu & ~(pch_cpu_off << 1);
 
 	mmio_write_32(AGX5_PWRMGR(MPU_PCHCTLR), pch_cpu);
+}
+
+void setup_clusterectlr_el1(void)
+{
+	uint64_t value = 0;
+
+	/* Read CLUSTERECTLR_EL1 */
+	asm volatile("mrs %0, S3_0_C15_C3_4" : "=r"(value));
+
+	/* Disable broadcasting atomics */
+	value |= 0x80; /* set bit 7 */
+	/* Disable sending data with clean evicts */
+	value &= 0xFFFFBFFF; /* Mask out bit 14 */
+
+	/* Write CLUSTERECTLR_EL1 */
+	asm volatile("msr S3_0_C15_C3_4, %0" :: "r"(value));
 }
 
 void bl31_plat_runtime_setup(void)
