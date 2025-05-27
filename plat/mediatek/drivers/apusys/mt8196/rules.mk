@@ -8,10 +8,6 @@ LOCAL_DIR := $(call GET_LOCAL_DIR)
 
 MODULE := apusys_${MTK_SOC}
 
-ifeq (${CONFIG_MTK_APUSYS_EMI_SUPPORT}, y)
-PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/common
-endif
-
 LOCAL_SRCS-y := ${LOCAL_DIR}/apusys_ammu.c
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_devapc.c
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_power.c

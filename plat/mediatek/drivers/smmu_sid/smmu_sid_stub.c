@@ -4,14 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <drivers/mminfra_public.h>
+#include <mtk_bl31_interface.h>
 
-int mminfra_get_if_in_use(void)
-{
-	return 0;
-}
-
-int mminfra_put(void)
+int smmu_sid_init(void)
 {
 	return 0;
 }

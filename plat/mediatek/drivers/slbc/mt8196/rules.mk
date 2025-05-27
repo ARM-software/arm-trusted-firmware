@@ -6,11 +6,8 @@
 
 LOCAL_DIR := $(call GET_LOCAL_DIR)
 
-MODULE := mminfra
+MODULE := slbc_$(MTK_SOC)
 
-PLAT_INCLUDES += -I$(MTK_PLAT)/include/drivers/
-PLAT_INCLUDES += -I$(MTK_PLAT)/drivers/mminfra/$(MTK_SOC)
-
-LOCAL_SRCS-y := $(LOCAL_DIR)/$(MTK_SOC)/mminfra.c
+LOCAL_SRCS-y := $(LOCAL_DIR)/slbc.c
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
