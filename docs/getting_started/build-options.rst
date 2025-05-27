@@ -1509,6 +1509,11 @@ Common build options
    information using HOB defined in `Platform Initialization specification`_.
    This defaults to ``0``.
 
+-  ``ENABLE_ACS_SMC``: When set to ``1``, this enables support for ACS SMC
+   handler code to handle SMC calls from the Architecture Compliance Suite. The
+   handler is intentionally empty to reserve the SMC section and allow
+   project-specific implementations in future ACS use cases.
+
 Firmware update options
 ~~~~~~~~~~~~~~~~~~~~~~~
 

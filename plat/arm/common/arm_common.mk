@@ -79,6 +79,15 @@ ARM_BL31_IN_DRAM		:=	0
 $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
+# Macro to enable ACS SMC handler
+PLAT_ARM_ACS_SMC_HANDLER	:=	0
+ifeq (${ENABLE_ACS_SMC}, 1)
+PLAT_ARM_ACS_SMC_HANDLER	:=	1
+endif
+
+# Build macro necessary for branching to ACS tests
+$(eval $(call add_define,PLAT_ARM_ACS_SMC_HANDLER))
+
 # As per CCA security model, all root firmware must execute from on-chip secure
 # memory. This means we must not run BL31 from TZC-protected DRAM.
 ifeq (${ARM_BL31_IN_DRAM},1)
@@ -304,6 +313,11 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_psci_common.c
+
+ifeq (${PLAT_ARM_ACS_SMC_HANDLER},1)
+BL31_SOURCES		+=	plat/arm/common/plat_acs_smc_handler.c		\
+				${VENDOR_EL3_SRCS}
+endif
 
 ifeq (${TRANSFER_LIST}, 1)
 	include lib/transfer_list/transfer_list.mk
