@@ -24,6 +24,11 @@ To build TF-A for JTAG DCC console:
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal_net VERSAL_NET_CONSOLE=dcc bl31
 ```
 
+To build TF-A with SDEI_SUPPORT:
+```bash
+make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal_net SDEI_SUPPORT=1 bl31
+```
+
 Xilinx Versal NET platform specific build options
 -------------------------------------------------
 
