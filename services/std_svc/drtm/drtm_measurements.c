@@ -138,7 +138,8 @@ enum drtm_retc drtm_take_measurements(const struct_drtm_dl_args *a)
 	/* PCR-17: End of DCE measurements. */
 	rc = drtm_event_log_measure_and_record((uintptr_t)drtm_event_arm_sep_data,
 					       strlen(drtm_event_arm_sep_data),
-					       DRTM_EVENT_ARM_SEPARATOR, NULL,
+					       DRTM_EVENT_ARM_SEPARATOR,
+					       drtm_event_arm_sep_data,
 					       PCR_17);
 	CHECK_RC(rc, drtm_event_log_measure_and_record(DRTM_EVENT_ARM_SEPARATOR));
 
@@ -197,7 +198,8 @@ enum drtm_retc drtm_take_measurements(const struct_drtm_dl_args *a)
 	/* PCR-18: End of DCE measurements. */
 	rc = drtm_event_log_measure_and_record((uintptr_t)drtm_event_arm_sep_data,
 					       strlen(drtm_event_arm_sep_data),
-					       DRTM_EVENT_ARM_SEPARATOR, NULL,
+					       DRTM_EVENT_ARM_SEPARATOR,
+					       drtm_event_arm_sep_data,
 					       PCR_18);
 	CHECK_RC(rc,
 		 drtm_event_log_measure_and_record(DRTM_EVENT_ARM_SEPARATOR));
