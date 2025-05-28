@@ -129,7 +129,9 @@ const mmap_region_t *plat_get_secure_partition_mmap(void *cookie)
 {
 	uintptr_t ns_buf_base;
 
-	dt_add_ns_buf_node(&ns_buf_base);
+	if (dt_add_ns_buf_node(&ns_buf_base) != 0) {
+		panic();
+	}
 
 	plat_qemu_secure_partition_mmap[0].base_pa = ns_buf_base;
 	plat_qemu_secure_partition_mmap[0].base_va = ns_buf_base;
