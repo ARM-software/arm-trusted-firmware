@@ -323,15 +323,6 @@ void bl31_plat_reset_secondary_cpu(unsigned int cpu_id)
 		break;
 	}
 
-	/* Poll for CPU WFI */
-	SOCFPGA_POLL(!((AGX5_PWRMGR_CPU_CORE_IN_STRRUN_STS(
-		     mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_WARM_9))) &
-		     mask) == 0), AGX5_PWRMGR_CPU_POLL_COUNT,
-		     AGX5_PWRMGR_CPU_DELAY_10_US, udelay, ret);
-
-	if (ret != 0)
-		ERROR("BL31: %s: Timeout when polling CPU for WFI\n", __func__);
-
 	/* PSTATE = 0, RUN_PCH = 1 */
 	mmio_write_32(pwrctlr_addr, AGX5_PWRMGR_CPU_RUN_PCH(1));
 

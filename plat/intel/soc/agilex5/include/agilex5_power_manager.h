@@ -52,12 +52,6 @@
 #define AGX5_PWRMGR_CPU_SINGLE_FSM_STATE(x)			(((x) & 0x3fc) >> 2)
 #define AGX5_PWRMGR_CPU_PROG_CPU_ON_STATE			0x10
 
-/* Boot Scratch Warm 9 Register, core status
- * stored in bit 11:8 masking with 0xf00
- * to get the field
- */
-#define AGX5_PWRMGR_CPU_CORE_IN_STRRUN_STS(x)			(((x) & 0xf00) >> 8)
-
 /* APS */
 #define AGX5_PWRMGR_APS_FWENCTL					0x38
 #define AGX5_PWRMGR_APS_PGENCTL					0x3C
