@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,15 +18,11 @@ int fconf_load_config(unsigned int image_id)
 {
 	int err;
 	const struct dyn_cfg_dtb_info_t *config_info;
+	image_info_t config_image_info;
 
 	assert((image_id == FW_CONFIG_ID) || (image_id == TB_FW_CONFIG_ID));
 
-	image_info_t config_image_info = {
-		.h.type = (uint8_t)PARAM_IMAGE_BINARY,
-		.h.version = (uint8_t)VERSION_2,
-		.h.size = (uint16_t)sizeof(image_info_t),
-		.h.attr = 0
-	};
+	SET_PARAM_HEAD(&config_image_info, PARAM_IMAGE_BINARY, VERSION_2, 0);
 
 	config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, image_id);
 	assert(config_info != NULL);
