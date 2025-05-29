@@ -1,0 +1,18 @@
+/dts-v1/;
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2026 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "am62lx-skevm-lp4-50-800.dtsi"
+#include "k3-am62l-ddr.dtsi"
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	memory@80000000 {
+		device_type = "memory";
+		/* 2G RAM */
+		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
+	};
+};
