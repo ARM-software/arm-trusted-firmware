@@ -33,9 +33,9 @@ const mmap_region_t plat_k3_mmap[] = {
  */
 static void ti_force_adc_parent(void)
 {
-	NOTICE("0_ADC0's parent is %d\n", plat_scmi_clock_get_parent(0, 0));
+	INFO("0_ADC0's parent is %d\n", plat_scmi_clock_get_parent(0, 0));
 	if (!plat_scmi_clock_set_parent(0, 0, 2)) {
-		NOTICE("0_ADC0's parent (after set_parent) is %d\n",
+		INFO("0_ADC0's parent (after set_parent) is %d\n",
 		       plat_scmi_clock_get_parent(0, 0));
 	} else {
 		WARN("ADC set_parent failed!\n");
