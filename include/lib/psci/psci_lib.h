@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,6 +98,7 @@ void psci_pwrdown_cpu_start(unsigned int power_level);
 void __dead2 psci_pwrdown_cpu_end_terminal(void);
 void psci_pwrdown_cpu_end_wakeup(unsigned int power_level);
 void psci_do_manage_extensions(void);
+unsigned int psci_num_cpus_running_on_safe(unsigned int this_core);
 
 #endif /* __ASSEMBLER__ */
 

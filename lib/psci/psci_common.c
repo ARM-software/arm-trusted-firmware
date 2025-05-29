@@ -215,7 +215,7 @@ static bool psci_is_last_cpu_to_idle_at_pwrlvl(unsigned int my_idx, unsigned int
  ******************************************************************************/
 bool psci_is_last_on_cpu(unsigned int my_idx)
 {
-	for (unsigned int cpu_idx = 0; cpu_idx < psci_plat_core_count; cpu_idx++) {
+	for (unsigned int cpu_idx = 0U; cpu_idx < psci_plat_core_count; cpu_idx++) {
 		if (cpu_idx == my_idx) {
 			assert(psci_get_aff_info_state() == AFF_STATE_ON);
 			continue;
@@ -239,13 +239,40 @@ static bool psci_are_all_cpus_on(void)
 {
 	unsigned int cpu_idx;
 
-	for (cpu_idx = 0; cpu_idx < psci_plat_core_count; cpu_idx++) {
+	for (cpu_idx = 0U; cpu_idx < psci_plat_core_count; cpu_idx++) {
 		if (psci_get_aff_info_state_by_idx(cpu_idx) == AFF_STATE_OFF) {
 			return false;
 		}
 	}
 
 	return true;
+}
+
+/*******************************************************************************
+ * Counts the number of CPUs in the system that are currently in the ON or
+ * ON_PENDING state.
+ *
+ * @note This function does not acquire any power domain locks. It must only be
+ *       called in contexts where it is guaranteed that PSCI state transitions
+ *       are not concurrently happening, or where locks are already held.
+ *
+ * @return The number of CPUs currently in AFF_STATE_ON or AFF_STATE_ON_PENDING.
+ ******************************************************************************/
+static unsigned int psci_num_cpus_running(void)
+{
+	unsigned int cpu_idx;
+	unsigned int no_of_cpus = 0U;
+	aff_info_state_t aff_state;
+
+	for (cpu_idx = 0U; cpu_idx < psci_plat_core_count; cpu_idx++) {
+		aff_state = psci_get_aff_info_state_by_idx(cpu_idx);
+		if (aff_state == AFF_STATE_ON ||
+		    aff_state == AFF_STATE_ON_PENDING) {
+			no_of_cpus++;
+		}
+	}
+
+	return no_of_cpus;
 }
 
 /*******************************************************************************
@@ -1370,4 +1397,31 @@ bool psci_are_all_cpus_on_safe(unsigned int this_core)
 	psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
 
 	return true;
+}
+
+/*******************************************************************************
+ * Safely counts the number of CPUs in the system that are currently in the ON
+ * or ON_PENDING state.
+ *
+ * This function acquires and releases the necessary power domain locks to
+ * ensure consistency of the CPU state information.
+ *
+ * @param this_core The index of the current core making the query.
+ *
+ * @return The number of CPUs currently in AFF_STATE_ON or AFF_STATE_ON_PENDING.
+ ******************************************************************************/
+unsigned int psci_num_cpus_running_on_safe(unsigned int this_core)
+{
+	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
+	unsigned int no_of_cpus;
+
+	psci_get_parent_pwr_domain_nodes(this_core, PLAT_MAX_PWR_LVL, parent_nodes);
+
+	psci_acquire_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+
+	no_of_cpus = psci_num_cpus_running();
+
+	psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+
+	return no_of_cpus;
 }
