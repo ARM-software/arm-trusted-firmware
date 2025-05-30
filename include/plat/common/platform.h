@@ -24,6 +24,9 @@
 #if DRTM_SUPPORT
 #include "plat_drtm.h"
 #endif /* DRTM_SUPPORT */
+#if LFA_SUPPORT
+#include "plat_lfa.h"
+#endif /* LFA_SUPPORT */
 
 /*******************************************************************************
  * Forward declarations
