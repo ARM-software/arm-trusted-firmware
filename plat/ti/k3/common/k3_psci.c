@@ -226,14 +226,6 @@ static void __dead2 k3_system_reset(void)
 		wfi();
 }
 
-static int k3_validate_power_state(unsigned int power_state,
-				   psci_power_state_t *req_state)
-{
-	/* TODO: perform the proper validation */
-
-	return PSCI_E_SUCCESS;
-}
-
 static void k3_pwr_domain_suspend_to_mode(const psci_power_state_t *target_state, uint8_t mode)
 {
 	unsigned int core, proc_id;
@@ -294,7 +286,6 @@ static plat_psci_ops_t k3_plat_psci_ops = {
 	.get_sys_suspend_power_state = k3_get_sys_suspend_power_state,
 	.system_off = k3_system_off,
 	.system_reset = k3_system_reset,
-	.validate_power_state = k3_validate_power_state,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
