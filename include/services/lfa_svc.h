@@ -7,7 +7,12 @@
 #ifndef LFA_SVC_H
 #define LFA_SVC_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #include <lib/smccc.h>
+#include <services/lfa_component_desc.h>
+#include <tools_share/uuid.h>
 
 /*
  * SMC function IDs for LFA Service
@@ -45,6 +50,8 @@
 	| (((LFA_VERSION_MINOR) & LFA_VERSION_MINOR_MASK) <<	\
 	LFA_VERSION_MINOR_SHIFT))
 
+#define LFA_INVALID_COMPONENT		U(0xFFFFFFFF)
+
 /* List of errors as per the specification */
 enum lfa_retc {
 	LFA_SUCCESS			=  0,
@@ -67,5 +74,6 @@ int lfa_setup(void);
 uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 			 u_register_t x3, u_register_t x4, void *cookie,
 			 void *handle, u_register_t flags);
+void lfa_reset_activation(void);
 
 #endif /* LFA_SVC_H */
