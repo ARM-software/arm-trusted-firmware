@@ -7,11 +7,14 @@
 #ifndef PLAT_LFA_H
 #define PLAT_LFA_H
 
+#include <services/lfa_component_desc.h>
 #include <tools_share/uuid.h>
 
 typedef struct plat_lfa_component_info {
 	const uint32_t lfa_component_id;
 	const uuid_t uuid;
+	struct lfa_component_ops *activator;
+	bool activation_pending;
 } plat_lfa_component_info_t;
 
 uint32_t plat_lfa_get_components(plat_lfa_component_info_t **components);
