@@ -42,3 +42,14 @@ uint32_t plat_lfa_get_components(plat_lfa_component_info_t **components)
 	*components = fvp_lfa_components;
 	return LFA_MAX_DEFINED_COMPONENTS;
 }
+
+bool is_plat_lfa_activation_pending(uint32_t lfa_component_id)
+{
+#if ENABLE_RME
+	if (lfa_component_id == LFA_RMM_COMPONENT) {
+		return true;
+	}
+#endif /* ENABLE_RME */
+
+	return false;
+}

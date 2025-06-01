@@ -18,5 +18,6 @@ typedef struct plat_lfa_component_info {
 } plat_lfa_component_info_t;
 
 uint32_t plat_lfa_get_components(plat_lfa_component_info_t **components);
+bool is_plat_lfa_activation_pending(uint32_t lfa_component_id);
 
 #endif /* PLAT_LFA_H */
