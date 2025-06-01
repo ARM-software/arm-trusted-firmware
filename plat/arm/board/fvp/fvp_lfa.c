@@ -53,3 +53,9 @@ bool is_plat_lfa_activation_pending(uint32_t lfa_component_id)
 
 	return false;
 }
+
+int plat_lfa_cancel(uint32_t lfa_component_id)
+{
+	/* placeholder function to do cancel LFA of given component */
+	return 0;
+}
