@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,6 @@
 
 struct fixed_data {
 	char name[FIXED_NAME_LEN];
-	uint16_t volt;
 	struct regul_description desc;
 };
 

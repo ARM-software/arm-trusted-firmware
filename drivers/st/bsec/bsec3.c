@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2024-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,18 +29,6 @@
 #define BSEC_OTP_MASK			GENMASK_32(4, 0)
 #define BSEC_OTP_BANK_SHIFT		U(5)
 #define BSEC_TIMEOUT_VALUE		U(0x800000) /* ~7sec @1.2GHz */
-
-/* Magic use to indicated valid SHADOW = 'B' 'S' 'E' 'C' */
-#define BSEC_MAGIC			U(0x42534543)
-
-#define OTP_MAX_SIZE			(STM32MP2_OTP_MAX_ID + U(1))
-
-struct bsec_shadow {
-	uint32_t magic;
-	uint32_t state;
-	uint32_t value[OTP_MAX_SIZE];
-	uint32_t status[OTP_MAX_SIZE];
-};
 
 static uint32_t otp_bank(uint32_t otp)
 {
@@ -167,7 +155,7 @@ static void check_reset_error(void)
 		ERROR("BSEC reset critical error 0x%x\n", status);
 		panic();
 	}
-	if ((status & BSEC_OTPSR_FUSEOK) != BSEC_OTPSR_FUSEOK) {
+	if ((status & BSEC_OTPSR_INIT_DONE) != BSEC_OTPSR_INIT_DONE) {
 		ERROR("BSEC reset critical error 0x%x\n", status);
 		panic();
 	}
@@ -467,8 +455,8 @@ uint32_t bsec_get_secure_state(void)
 	uint32_t status = bsec_get_status();
 	uint32_t bsec_sr = mmio_read_32(BSEC_BASE + BSEC_SR);
 
-	if ((status & BSEC_OTPSR_FUSEOK) == BSEC_OTPSR_FUSEOK) {
-		/* NVSTATE is only valid if FUSEOK */
+	if ((status & BSEC_OTPSR_INIT_DONE) == BSEC_OTPSR_INIT_DONE) {
+		/* NVSTATE is only valid if INIT_DONE */
 		uint32_t nvstates = (bsec_sr & BSEC_SR_NVSTATE_MASK) >> BSEC_SR_NVSTATE_SHIFT;
 
 		if (nvstates == BSEC_SR_NVSTATE_OPEN) {

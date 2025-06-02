@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,7 +33,6 @@ struct stm32_iwdg_instance {
 	uintptr_t base;
 	unsigned long clock;
 	uint8_t flags;
-	int num_irq;
 };
 
 static struct stm32_iwdg_instance stm32_iwdg[IWDG_MAX_INSTANCE];

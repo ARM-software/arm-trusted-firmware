@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2024-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,7 +84,7 @@
 
 /* BSEC_OTPSR register fields */
 #define BSEC_OTPSR_BUSY			BIT_32(0)
-#define BSEC_OTPSR_FUSEOK		BIT_32(1)
+#define BSEC_OTPSR_INIT_DONE		BIT_32(1)
 #define BSEC_OTPSR_HIDEUP		BIT_32(2)
 #define BSEC_OTPSR_OTPNVIR		BIT_32(4)
 #define BSEC_OTPSR_OTPERR		BIT_32(5)

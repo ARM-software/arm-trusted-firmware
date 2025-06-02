@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -142,9 +142,6 @@ static int stm32mp2_ddr_setup(void)
 			ERROR("DDR rw test: can't access memory @ 0x%lx\n", uret);
 			panic();
 		}
-
-		/* TODO Restore area overwritten by training */
-		//stm32_restore_ddr_training_area();
 	} else {
 		size_t retsize;
 
