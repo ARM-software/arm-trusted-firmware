@@ -34,6 +34,8 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			  void *handle,
 			  u_register_t flags)
 {
+	uint32_t mmr_val = 0;
+	uint32_t row_val = 0;
 	int ret = SMC_UNK;
 
         VERBOSE("sim_smc handler smc_fid = %u\n", smc_fid);
@@ -59,8 +61,6 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ti_fuse_writebuff_handler(x1));
 
 	case K3_SIP_OTP_READ:
-		uint32_t mmr_val = 0;
-
 		/*
 		 * 0x00 - 0xFE is reserved for user OTP, 0xFF is
 		 * reserved for bootmode OTP which doesnt support
@@ -77,8 +77,6 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		 * reserved for bootmode OTP programming
 		 */
 		if (x1 < 0xff) {
-			uint32_t row_val = 0;
-
 			ret = ti_sci_write_otp(x1, x2, x3, x4, &row_val);
 
 			SMC_RET2(handle, ret, row_val);
