@@ -3,6 +3,36 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.33](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.32..refs/tags/lts-v2.8.33) (2025-06-02)
+
+### Build System
+
+- **Dependencies**
+
+  - **Node Package Manager (NPM)**
+
+    - adhere to Husky deprecation notice ([a95dba1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a95dba188cb5b44aec6a89c7bf0baefb2723b356))
+
+### Miscellaneous
+
+- **Documentation**
+
+  - add a SBOM template in CycloneDX format ([3bd1d85](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3bd1d85f1e79c54fb49cf518c9b79ca7e670d320))
+
+### Resolved Issues
+
+- **readme:** dummy commit for sandbox release ([6ee5de6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6ee5de63bc05861f15de9344491d97eac7c28607))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - drop esb from the Neoverse N1 ([a96d034](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a96d034d0b21ee769142f7dbf43c42bcbd335c25))
+
+- **Dependencies**
+
+  - remove deprecated husky commands ([fc3a26e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fc3a26e5f0025e14bfa50b8ca185520f51dde546))
+
 ## [lts-2.8.32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.31..refs/tags/lts-v2.8.32) (2025-05-23)
 
 ### Performance Improvements
