@@ -59,3 +59,13 @@ int plat_lfa_cancel(uint32_t lfa_component_id)
 	/* placeholder function to do cancel LFA of given component */
 	return 0;
 }
+
+int plat_lfa_load_auth_image(uint32_t img_id)
+{
+	/*
+	 * In AEM FVP, we don't want to bloat the code by adding
+	 * loading and authentication mechanism, so here we assumed
+	 * that the components are pre-loaded and authenticated already.
+	 */
+	return 0;
+}
