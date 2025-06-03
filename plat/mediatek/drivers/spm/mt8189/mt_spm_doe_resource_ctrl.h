@@ -1,0 +1,24 @@
+/*
+ * Copyright (c) 2025, Mediatek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef MT_SPM_DOE_RESOURCE_CTRL_H
+#define MT_SPM_DOE_RESOURCE_CTRL_H
+
+#include "mt_spm_internal.h"
+
+enum resource_ctrl_enum {
+	MT_SPM_RESOURCE_CTRL_BUS26M,
+	MT_SPM_RESOURCE_CTRL_INFRA,
+	MT_SPM_RESOURCE_CTRL_SYSPLL,
+	MT_SPM_RESOURCE_CTRL_DRAM_S0,
+	MT_SPM_RESOURCE_CTRL_DRAM_S1,
+	MT_SPM_RESORUCE_CTRL_VCORE,
+	MT_SPM_RESOURCE_CTRL_EMI,
+	MT_SPM_RESOURCE_CTRL_PMIC,
+	MT_SPM_RESOURCE_CTRL_MAX_NUM,
+};
+
+#endif
