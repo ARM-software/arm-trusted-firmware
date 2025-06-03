@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include <common/debug.h>
+#include <drivers/gpio.h>
 #include <lib/mmio.h>
 
 #include <constraints/mt_spm_rc_internal.h>
@@ -404,8 +405,20 @@ int mt_spm_suspend_mode_set(enum mt_spm_suspend_mode mode, void *prv)
 	return 0;
 }
 
-int mt_spm_suspend_enter(int state_id, uint32_t ext_opand,
-			 uint32_t resource_req)
+static void mt_spm_suspend_ec_pin(void)
+{
+	/* GPIO140 LOW */
+	gpio_set_value(EC_SUSPEND_PIN, GPIO_LEVEL_LOW);
+}
+
+static void mt_spm_resume_ec_pin(void)
+{
+	/* GPIO140 HIGH */
+	gpio_set_value(EC_SUSPEND_PIN, GPIO_LEVEL_HIGH);
+}
+
+int mt_spm_suspend_enter(int state_id,
+			 uint32_t ext_opand, uint32_t resource_req)
 {
 	int ret = 0;
 
@@ -435,6 +448,9 @@ int mt_spm_suspend_enter(int state_id, uint32_t ext_opand,
 
 		MT_LP_SUSPEND_PUBLISH_EVENT(&event);
 	}
+
+	mt_spm_suspend_ec_pin();
+
 	return ret;
 }
 
@@ -445,6 +461,8 @@ void mt_spm_suspend_resume(int state_id, uint32_t ext_opand,
 	struct wake_status *st = NULL;
 
 	ext_opand |= MT_SPM_EX_OP_DEVICES_SAVE;
+
+	mt_spm_resume_ec_pin();
 
 	spm_conservation_finish(state_id, ext_opand, &__spm_suspend, &st);
 
