@@ -36,6 +36,9 @@ To briefly summarize, commit messages are expected to be of the form:
 
     [optional footer(s)]
 
+Note that the type, the scope and the first letter of the description (also
+called subject by the commitlint checker) must be lower case.
+
 The following example commit message demonstrates the use of the
 ``refactor`` type and the ``amu`` scope:
 
@@ -144,7 +147,7 @@ More details may be found in the `Gerrit Change-Ids documentation`_.
 
 --------------
 
-*Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. _Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html
