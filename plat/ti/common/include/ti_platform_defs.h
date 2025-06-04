@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 /* Size of cacheable stack */
-#if IMAGE_BL31
+#if IMAGE_BL31 || IMAGE_BL1
 #define PLATFORM_STACK_SIZE		0x800
 #else
 #define PLATFORM_STACK_SIZE		0x1000
@@ -70,7 +70,11 @@
  * used, choose the smallest value needed to map the required virtual addresses
  * for each BL stage.
  */
+#if IMAGE_BL1
+#define MAX_XLAT_TABLES		2
+#else
 #define MAX_XLAT_TABLES		4
+#endif
 
 /*
  * Defines the maximum number of regions that are allocated by the translation
