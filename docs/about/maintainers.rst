@@ -507,6 +507,14 @@ Runtime Services
 :|F|: include/services/arm_arch_svc.h
 :|F|: include/services/std_svc.h
 
+Live Firmware Activation Service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|F|: services/std_svc/lfa
+:|F|: include/plat/common/plat_lfa.h
+:|F|: include/services/lfa_svc.h
+
 Platform Ports
 ~~~~~~~~~~~~~~
 
