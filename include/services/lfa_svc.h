@@ -82,5 +82,6 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 			 u_register_t x3, u_register_t x4, void *cookie,
 			 void *handle, u_register_t flags);
 void lfa_reset_activation(void);
+bool lfa_is_prime_complete(uint32_t component_id);
 
 #endif /* LFA_SVC_H */

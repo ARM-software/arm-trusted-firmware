@@ -210,6 +210,17 @@ static int lfa_prime(uint32_t component_id, uint64_t *flags)
 	return ret;
 }
 
+bool lfa_is_prime_complete(uint32_t component_id)
+{
+	if (component_id >= lfa_component_count) {
+		return false;
+	}
+
+	return (current_activation.component_id == component_id &&
+		current_activation.prime_status == PRIME_COMPLETE &&
+		lfa_components[component_id].activation_pending == true);
+}
+
 int lfa_setup(void)
 {
 	is_lfa_initialized = lfa_initialize_components();
