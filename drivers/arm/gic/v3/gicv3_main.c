@@ -109,8 +109,8 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 
 	assert(IS_IN_EL3());
 
-	assert((plat_driver_data->interrupt_props_num != 0U) ?
-	       (plat_driver_data->interrupt_props != NULL) : 1);
+	assert((plat_driver_data->interrupt_props_num == 0U) ||
+			(plat_driver_data->interrupt_props != NULL));
 
 	/* Check for system register support */
 #ifndef __aarch64__

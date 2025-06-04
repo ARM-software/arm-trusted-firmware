@@ -30,8 +30,8 @@ void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
 	uintptr_t gicr_base = 0;
 	unsigned int typer_reg;
 
-	assert(gicv3_driver_data);
-	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(gicv3_driver_data != NULL);
+	assert(gicv3_driver_data->rdistif_base_addrs != NULL);
 	assert(gicv3_driver_data->gicd_base != 0U);
 
 	typer_reg = gicd_read_typer(gicv3_driver_data->gicd_base);
@@ -42,9 +42,9 @@ void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
 	 */
 	for (unsigned int i = 0; i < gicv3_driver_data->rdistif_num; i++) {
 		gicr_base = gicv3_driver_data->rdistif_base_addrs[i];
-		assert(gicr_base);
-		assert(gicr_read_waker(gicr_base) & WAKER_CA_BIT);
-		assert(gicr_read_waker(gicr_base) & WAKER_PS_BIT);
+		assert(gicr_base != 0U);
+		assert((gicr_read_waker(gicr_base) & WAKER_CA_BIT) != 0U);
+		assert((gicr_read_waker(gicr_base) & WAKER_PS_BIT) != 0U);
 	}
 
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[rdist_proc_num];
@@ -82,8 +82,8 @@ void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
 {
 	uintptr_t gicr_base;
 
-	assert(gicv3_driver_data);
-	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(gicv3_driver_data != NULL);
+	assert(gicv3_driver_data->rdistif_base_addrs != NULL);
 
 	/*
 	 * According to the TRM, there is only one instance of the
@@ -91,7 +91,7 @@ void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
 	 * through any of the Redistributor.
 	 */
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[rdist_proc_num];
-	assert(gicr_base);
+	assert(gicr_base != 0U);
 
 	/*
 	 * If the GIC had power removed, the GICR_WAKER state will be reset.
@@ -109,7 +109,7 @@ void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
 	 * coming out of sleep and Quiescent should be set, but we assert in
 	 * case.
 	 */
-	assert(gicr_read_waker(gicr_base) & WAKER_QSC_BIT);
+	assert((gicr_read_waker(gicr_base) & WAKER_QSC_BIT) != 0U);
 
 	/* Clear GICR_WAKER.Sleep */
 	gicr_write_waker(gicr_base, gicr_read_waker(gicr_base) & ~WAKER_SL_BIT);
