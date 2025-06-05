@@ -148,8 +148,8 @@
 
 /* Normal Memory, Outer Write-Through non-transient, Inner Non-cacheable */
 #define ATTR_NON_CACHEABLE		MAKE_MAIR_NORMAL_MEMORY(MAIR_NORM_NC, MAIR_NORM_NC)
-/* Device-nGnRE */
-#define ATTR_DEVICE			MAIR_DEV_nGnRE
+/* Device-nGnRnE */
+#define ATTR_DEVICE			MAIR_DEV_nGnRnE
 /* Normal Memory, Outer Write-Back non-transient, Inner Write-Back non-transient */
 #define ATTR_IWBWA_OWBWA_NTR		MAKE_MAIR_NORMAL_MEMORY(MAIR_NORM_WB_NTR_RWA, MAIR_NORM_WB_NTR_RWA)
 #define MAIR_ATTR_SET(attr, index)	((attr) << ((index) << 3))
