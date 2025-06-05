@@ -68,6 +68,21 @@ int ti_soc_init(void)
 	     version.firmware_revision,
 	     version.firmware_description);
 
+
+	ret = ti_sci_proc_request(PLAT_PROC_START_ID);
+	if (ret) {
+		ERROR("Unable to request host (%d)\n", ret);
+		return ret;
+	}
+
+	/* Enable ACP based coherency */
+	ret = ti_sci_proc_set_boot_ctrl(PLAT_PROC_START_ID, 0,
+									PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS);
+	if (ret) {
+		ERROR("Unable to set boot control (%d)\n", ret);
+		return ret;
+	}
+
 	ti_force_adc_parent();
 
 	return 0;
