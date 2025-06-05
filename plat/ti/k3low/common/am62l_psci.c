@@ -90,7 +90,7 @@ void am62l_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 static void am62l_system_reset(void)
 {
-	mmio_write_32(WKUP_CTRL_MMR0_DEVICE_MANAGEMENT_BASE + WKUP_CTRL_MMR0_DEVICE_RESET_OFFSET,
+	mmio_write_32(WKUP_CTRL_MMR0_BASE + WKUP_CTRL_MMR0_DEVICE_RESET_OFFSET,
 		      0x6);
 
 	/* Wait for reset to complete for 500ms before printing error */
