@@ -1175,6 +1175,9 @@ subsections:
           - title: Clock
             scope: nxp-clk
 
+          - title: uSDHC
+            scope: nxp-mmc
+
       - title: Renesas
         scope: renesas-drivers
 
