@@ -304,6 +304,17 @@ static bool is_8_bytes_aligned(uint32_t data)
 	}
 }
 
+/* As of now used on only Agilex5 platform. */
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+static bool is_16_bytes_aligned(uint32_t data)
+{
+	if ((data % (MBOX_WORD_BYTE * 4U)) != 0U)
+		return false;
+	else
+		return true;
+}
+#endif
+
 static bool is_32_bytes_aligned(uint32_t data)
 {
 	if ((data % (8U * MBOX_WORD_BYTE)) != 0U) {
@@ -2708,7 +2719,7 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 				uint32_t session_id, uint32_t context_id,
 				uint64_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t dst_size,
-				uint32_t aad_size, uint8_t is_finalised,
+				uint32_t padding_size, uint8_t is_finalised,
 				uint32_t *send_id, uint64_t smmu_src_addr,
 				uint64_t smmu_dst_addr)
 {
@@ -2719,30 +2730,55 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 	uint32_t fcs_aes_crypt_payload[FCS_AES_CMD_MAX_WORD_SIZE];
 	uint32_t src_addr_sdm = (uint32_t)src_addr;
 	uint32_t dst_addr_sdm = (uint32_t)dst_addr;
+	bool is_src_size_aligned;
+	bool is_dst_size_aligned;
+	bool is_src_size_valid;
+	bool is_dst_size_valid;
 
 	if (fcs_aes_init_payload.session_id != session_id ||
 		fcs_aes_init_payload.context_id != context_id) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
+	/* Default source and destination size align check, 32 bytes alignment. */
+	is_src_size_aligned = is_32_bytes_aligned(src_size);
+	is_dst_size_aligned = is_32_bytes_aligned(dst_size);
+	is_src_size_valid = FCS_AES_DATA_SIZE_CHECK(src_size);
+	is_dst_size_valid = FCS_AES_DATA_SIZE_CHECK(dst_size);
+
+	/*
+	 * Get the requested block mode.
+	 * On the Agilex5 platform with GCM and GCM-GHASH modes, the source and destination size
+	 * should be in multiples of 16 bytes. For other platforms and other modes, it should be
+	 * in multiples of 32 bytes.
+	 */
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	uint32_t block_mode = fcs_aes_init_payload.crypto_param[0] & FCS_CRYPTO_BLOCK_MODE_MASK;
+
+	if ((block_mode == FCS_CRYPTO_GCM_MODE) ||
+	    (block_mode == FCS_CRYPTO_GCM_GHASH_MODE)) {
+		is_src_size_aligned = is_16_bytes_aligned(src_size);
+		is_dst_size_aligned = is_16_bytes_aligned(dst_size);
+		/* The size validity here is, should be 0 or multiples of 16 bytes. */
+		is_src_size_valid = is_16_bytes_aligned(src_size);
+		is_dst_size_valid = is_16_bytes_aligned(dst_size);
+	}
+#endif
+
 	if ((!is_8_bytes_aligned(src_addr)) ||
-		(!is_32_bytes_aligned(src_size)) ||
+		(!is_src_size_aligned) ||
 		(!is_address_in_ddr_range(src_addr, src_size))) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
 	if ((!is_8_bytes_aligned(dst_addr)) ||
-		(!is_32_bytes_aligned(dst_size)) ||
+		(!is_dst_size_aligned) ||
 		(!is_address_in_ddr_range(dst_addr, dst_size))) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	if ((dst_size > FCS_AES_MAX_DATA_SIZE ||
-		dst_size < FCS_AES_MIN_DATA_SIZE) ||
-		(src_size > FCS_AES_MAX_DATA_SIZE ||
-		src_size < FCS_AES_MIN_DATA_SIZE)) {
+	if (!is_src_size_valid || !is_dst_size_valid)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
 
 	/* Prepare crypto header*/
 	flag = 0;
@@ -2802,11 +2838,14 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 	fcs_aes_crypt_payload[i] = dst_size;
 	i++;
 
-	/* Additional Authenticated Data size */
-	if (aad_size > 0) {
-		fcs_aes_crypt_payload[i] = aad_size;
+	/* Padding data size, only on Agilex5 with GCM and GCM-GHASH modes. */
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	if ((block_mode == FCS_CRYPTO_GCM_MODE) ||
+	    (block_mode == FCS_CRYPTO_GCM_GHASH_MODE)) {
+		fcs_aes_crypt_payload[i] = padding_size;
 		i++;
 	}
+#endif
 
 	status = ((smc_fid == ALTERA_SIP_SMC_ASYNC_FCS_AES_CRYPT_UPDATE) ||
 		  (smc_fid == ALTERA_SIP_SMC_ASYNC_FCS_AES_CRYPT_FINALIZE)) ?
@@ -2828,7 +2867,7 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 			sizeof(fcs_aes_init_payload));
 	}
 
-	if (status < 0U) {
+	if (status < 0) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
