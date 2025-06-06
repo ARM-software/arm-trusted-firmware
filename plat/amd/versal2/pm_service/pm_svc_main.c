@@ -163,7 +163,8 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 		break;
 	case PM_NOTIFY_CB:
 		if (sgi != INVALID_SGI) {
-			if (payload[2] == EVENT_CPU_PWRDWN) {
+			if ((payload[2] == EVENT_CPU_PWRDWN) &&
+			    (NODECLASS(payload[1]) == (uint32_t)XPM_NODECLASS_DEVICE)) {
 				if (pwrdwn_req_received) {
 					pwrdwn_req_received = false;
 					request_cpu_pwrdwn();
@@ -182,7 +183,8 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				 */
 			}
 			notify_os();
-		} else if (payload[2] == EVENT_CPU_PWRDWN) {
+		} else if ((payload[2] == EVENT_CPU_PWRDWN) &&
+			  (NODECLASS(payload[1]) == (uint32_t)XPM_NODECLASS_DEVICE)) {
 			request_cpu_pwrdwn();
 			(void)psci_cpu_off();
 		} else {
