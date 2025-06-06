@@ -162,3 +162,13 @@ sds_region_desc_t *plat_sds_get_regions(unsigned int *region_count)
 	return juno_sds_regions;
 }
 #endif /* CSS_USE_SCMI_SDS_DRIVER */
+
+#if CRYPTO_SUPPORT
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+
+	return arm_get_mbedtls_heap(heap_addr, heap_size);
+}
+#endif
