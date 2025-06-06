@@ -947,7 +947,7 @@ static uintptr_t sip_smc_handler_v3(uint32_t smc_fid,
 	case ALTERA_SIP_SMC_ASYNC_RESP_POLL:
 	{
 		uint32_t ret_args[8] = {0};
-		uint32_t ret_args_len;
+		uint32_t ret_args_len = 0;
 
 		status = mailbox_response_poll_v3(GET_CLIENT_ID(x1),
 						  GET_JOB_ID(x1),
