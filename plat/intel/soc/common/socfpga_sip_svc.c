@@ -883,6 +883,62 @@ uint8_t sip_smc_get_chipid_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_arg
 	return ret_args_len;
 }
 
+uint8_t sip_smc_cmd_cb_rsu_status(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
+{
+	uint8_t ret_args_len = 0U;
+	uint32_t retry_counter = ~0U;
+	uint32_t failure_source = 0U;
+	sdm_response_t *resp = (sdm_response_t *)resp_desc;
+	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
+
+	(void)cmd;
+	/* Get the failure source and current image retry counter value from the response. */
+	failure_source = resp->resp_data[5] & RSU_VERSION_ACMF_MASK;
+	retry_counter = resp->resp_data[8];
+
+	if ((retry_counter != ~0U) && (failure_source == 0U))
+		resp->resp_data[5] |= RSU_VERSION_ACMF;
+
+	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
+	ret_args[ret_args_len++] = resp->err_code;
+	/* Current CMF */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[1], resp->resp_data[0]);
+	/* Last Failing CMF Address */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[3], resp->resp_data[2]);
+	/* Config State */
+	ret_args[ret_args_len++] = resp->resp_data[4];
+	/* Version */
+	ret_args[ret_args_len++] = (GENMASK(16, 0) & resp->resp_data[5]);
+	/* Failure Source */
+	ret_args[ret_args_len++] = ((GENMASK(32, 17) & resp->resp_data[5]) >> 16);
+	/* Error location */
+	ret_args[ret_args_len++] = resp->resp_data[6];
+	/* Error details */
+	ret_args[ret_args_len++] = resp->resp_data[7];
+	/* Current image retry counter */
+	ret_args[ret_args_len++] = resp->resp_data[8];
+
+	return ret_args_len;
+}
+
+uint8_t sip_smc_cmd_cb_rsu_spt(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
+{
+	uint8_t ret_args_len = 0U;
+	sdm_response_t *resp = (sdm_response_t *)resp_desc;
+	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
+
+	(void)cmd;
+
+	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
+	ret_args[ret_args_len++] = resp->err_code;
+	/* Sub Partition Table (SPT) 0 address */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[0], resp->resp_data[1]);
+	/* Sub Partition Table (SPT) 1 address */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[2], resp->resp_data[3]);
+
+	return ret_args_len;
+}
+
 static uintptr_t smc_ret(void *handle, uint64_t *ret_args, uint32_t ret_args_len)
 {
 
@@ -968,6 +1024,58 @@ static uintptr_t smc_ret(void *handle, uint64_t *ret_args, uint32_t ret_args_len
 		SMC_RET1(handle, INTEL_SIP_SMC_STATUS_ERROR);
 		break;
 	}
+}
+
+static inline bool is_gen_mbox_cmd_allowed(uint32_t cmd)
+{
+	/* Check if the command is allowed to be executed in generic mbox format */
+	bool is_cmd_allowed = false;
+
+	switch (cmd) {
+	case ALTERA_SIP_SMC_ASYNC_FCS_OPEN_CS_SESSION:
+	case ALTERA_SIP_SMC_ASYNC_FCS_CLOSE_CS_SESSION:
+	case ALTERA_SIP_SMC_ASYNC_FCS_IMPORT_CS_KEY:
+	case ALTERA_SIP_SMC_ASYNC_FCS_EXPORT_CS_KEY:
+	case ALTERA_SIP_SMC_ASYNC_FCS_REMOVE_CS_KEY:
+	case ALTERA_SIP_SMC_ASYNC_FCS_GET_CS_KEY_INFO:
+	case ALTERA_SIP_SMC_ASYNC_FCS_CREATE_CS_KEY:
+	case ALTERA_SIP_SMC_ASYNC_FCS_RANDOM_NUMBER_EXT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_GET_DIGEST_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_GET_DIGEST_UPDATE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_GET_DIGEST_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_MAC_VERIFY_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_MAC_VERIFY_UPDATE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_MAC_VERIFY_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_HASH_SIGN_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_HASH_SIGN_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIGN_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIGN_UPDATE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIGN_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIGN_SMMU_UPDATE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIGN_SMMU_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_HASH_SIG_VERIFY_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_HASH_SIG_VERIFY_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_UPDATE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_SMMU_UPDATE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_SMMU_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_GET_PUBKEY_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDSA_GET_PUBKEY_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDH_REQUEST_INIT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_ECDH_REQUEST_FINALIZE:
+	case ALTERA_SIP_SMC_ASYNC_FCS_HKDF_REQUEST:
+	case ALTERA_SIP_SMC_ASYNC_FCS_CRYPTION_EXT:
+	case ALTERA_SIP_SMC_ASYNC_FCS_CRYPTION:
+		/* These commands are not supported in the generic mailbox format. */
+		break;
+
+	default:
+		is_cmd_allowed = true;
+		break;
+	} /* switch */
+
+	return is_cmd_allowed;
 }
 
 /*
@@ -1248,6 +1356,111 @@ static uintptr_t sip_smc_handler_v3(uint32_t smc_fid,
 						   sip_smc_cmd_cb_ret3,
 						   NULL,
 						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RSU_GET_SPT:
+	{
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   MBOX_GET_SUBPARTITION_TABLE,
+						   NULL,
+						   0,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_rsu_spt,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RSU_GET_STATUS:
+	{
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   MBOX_RSU_STATUS,
+						   NULL,
+						   0,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_rsu_status,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RSU_NOTIFY:
+	{
+		uint32_t notify_code = (uint32_t)x2;
+
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   MBOX_HPS_STAGE_NOTIFY,
+						   &notify_code,
+						   1U,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_ret2,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_GEN_MBOX_CMD:
+	{
+		/* Filter the required commands here. */
+		if (!is_gen_mbox_cmd_allowed(smc_fid)) {
+			status = INTEL_SIP_SMC_STATUS_REJECTED;
+			SMC_RET1(handle, status);
+		}
+
+		/* Collect all the args passed in, and send the mailbox command. */
+		uint32_t mbox_cmd = (uint32_t)x2;
+		uint32_t *cmd_payload_addr = NULL;
+		uint32_t cmd_payload_len = (uint32_t)x4 / MBOX_WORD_BYTE;
+		uint32_t *resp_payload_addr = NULL;
+		uint32_t resp_payload_len = (uint32_t)x6 / MBOX_WORD_BYTE;
+
+		if ((cmd_payload_len > MBOX_GEN_CMD_MAX_WORDS) ||
+		    (resp_payload_len > MBOX_GEN_CMD_MAX_WORDS)) {
+			ERROR("MBOX: 0x%x: Command/Response payload length exceeds max limit\n",
+				smc_fid);
+			status = INTEL_SIP_SMC_STATUS_REJECTED;
+			SMC_RET1(handle, status);
+		}
+
+		/* Make sure we have valid command payload length and buffer */
+		if (cmd_payload_len != 0U) {
+			cmd_payload_addr = (uint32_t *)x3;
+			if (cmd_payload_addr == NULL) {
+				ERROR("MBOX: 0x%x: Command payload address is NULL\n",
+					smc_fid);
+				status = INTEL_SIP_SMC_STATUS_REJECTED;
+				SMC_RET1(handle, status);
+			}
+		}
+
+		/* Make sure we have valid response payload length and buffer */
+		if (resp_payload_len != 0U) {
+			resp_payload_addr = (uint32_t *)x5;
+			if (resp_payload_addr == NULL) {
+				ERROR("MBOX: 0x%x: Response payload address is NULL\n",
+					smc_fid);
+				status = INTEL_SIP_SMC_STATUS_REJECTED;
+				SMC_RET1(handle, status);
+			}
+		}
+
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   mbox_cmd,
+						   (uint32_t *)cmd_payload_addr,
+						   cmd_payload_len,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_ret_nbytes_cb,
+						   (uint32_t *)resp_payload_addr,
+						   resp_payload_len);
 
 		SMC_RET1(handle, status);
 	}
