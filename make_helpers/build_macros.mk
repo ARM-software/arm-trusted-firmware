@@ -41,6 +41,15 @@ define default_ones
 	$(foreach var,$1,$(eval $(call default_one,$(var))))
 endef
 
+# Convenience function for creating a build definition
+# $(call make_define,FOO) will have:
+# -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
+make_define = -D$(1)$(if $($(1)),=$($(1)))
+
+# Convenience function for creating multiple build definitions
+# For BL1, BL1_CPPFLAGS += $(call make_defines,FOO BOO)
+make_defines = $(foreach def,$(1),$(call make_define,$(def)))
+
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
 # -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
