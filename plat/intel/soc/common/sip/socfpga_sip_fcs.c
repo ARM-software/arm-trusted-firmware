@@ -25,7 +25,7 @@ static fcs_crypto_service_data fcs_sha2_data_sig_verify_param;
 static fcs_crypto_service_data fcs_ecdsa_get_pubkey_param;
 static fcs_crypto_service_data fcs_ecdh_request_param;
 
-uint8_t fcs_send_cert_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_send_cert_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -42,7 +42,7 @@ uint8_t fcs_send_cert_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
 	return ret_args_len;
 }
 
-uint8_t fcs_cntr_set_preauth_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cntr_set_preauth_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -57,7 +57,7 @@ uint8_t fcs_cntr_set_preauth_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_a
 	return ret_args_len;
 }
 
-uint8_t fcs_get_attest_cert_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_get_attest_cert_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -74,7 +74,7 @@ uint8_t fcs_get_attest_cert_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_ar
 	return ret_args_len;
 }
 
-uint8_t fcs_hkdf_request_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_hkdf_request_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -92,7 +92,7 @@ uint8_t fcs_hkdf_request_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
 	return ret_args_len;
 }
 
-uint8_t fcs_create_cert_reload_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_create_cert_reload_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -107,7 +107,7 @@ uint8_t fcs_create_cert_reload_cb(void *resp_desc, void *cmd_desc, uint32_t *ret
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_get_digest_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_get_digest_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -124,7 +124,7 @@ uint8_t fcs_cs_get_digest_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_mac_verify_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_mac_verify_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -144,7 +144,7 @@ uint8_t fcs_cs_mac_verify_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_hash_sign_req_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_hash_sign_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -162,7 +162,7 @@ uint8_t fcs_cs_hash_sign_req_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_a
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_hash_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_hash_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -180,7 +180,7 @@ uint8_t fcs_cs_hash_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint32_t 
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_aes_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_aes_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -198,7 +198,7 @@ uint8_t fcs_cs_aes_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_data_sign_req_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_data_sign_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -215,7 +215,7 @@ uint8_t fcs_cs_data_sign_req_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_a
 	return ret_args_len;
 }
 
-uint8_t fcs_sdos_crypto_request_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_sdos_crypto_request_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -233,7 +233,7 @@ uint8_t fcs_sdos_crypto_request_cb(void *resp_desc, void *cmd_desc, uint32_t *re
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_get_public_key_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_get_public_key_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -251,7 +251,7 @@ uint8_t fcs_cs_get_public_key_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_data_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_data_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -268,7 +268,7 @@ uint8_t fcs_cs_data_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint32_t 
 	return ret_args_len;
 }
 
-uint8_t fcs_cs_ecdh_request_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t fcs_cs_ecdh_request_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;

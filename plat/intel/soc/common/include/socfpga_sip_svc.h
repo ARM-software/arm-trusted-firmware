@@ -260,6 +260,10 @@ uintptr_t sip_smc_handler_v2(uint32_t smc_fid,
 #define SMC_RET_ARGS_FOUR							(4)
 #define SMC_RET_ARGS_FIVE							(5)
 #define SMC_RET_ARGS_SIX							(6)
+#define SMC_RET_ARGS_SEVEN							(7)
+#define SMC_RET_ARGS_EIGHT							(8)
+#define SMC_RET_ARGS_NINE							(9)
+#define SMC_RET_ARGS_TEN							(10)
 
 /*
  * SiP SVC Version3 SMC Functions IDs

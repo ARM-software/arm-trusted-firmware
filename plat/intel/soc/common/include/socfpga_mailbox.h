@@ -362,7 +362,7 @@ typedef struct sdm_response {
 
 /* SDM client callback template */
 typedef uint8_t (*sdm_command_callback)(void *resp, void *cmd,
-					uint32_t *ret_args);
+					uint64_t *ret_args);
 
 /* SDM command data structure */
 typedef struct sdm_command {
@@ -394,7 +394,7 @@ int mailbox_send_cmd_async_v3(uint8_t client_id, uint8_t job_id, uint32_t cmd,
 			      sdm_command_callback cb, uint32_t *cb_args,
 			      uint32_t cb_args_len);
 
-int mailbox_response_poll_v3(uint8_t client_id, uint8_t job_id, uint32_t *ret_args,
+int mailbox_response_poll_v3(uint8_t client_id, uint8_t job_id, uint64_t *ret_args,
 			     uint32_t *ret_args_size);
 
 int mailbox_response_poll_on_intr_v3(uint8_t *client_id, uint8_t *job_id,

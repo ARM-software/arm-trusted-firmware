@@ -1442,7 +1442,7 @@ int mailbox_response_poll_on_intr_v3(uint8_t *client_id, uint8_t *job_id,
 }
 
 int mailbox_response_poll_v3(uint8_t client_id, uint8_t job_id,
-			     uint32_t *ret_args, uint32_t *ret_args_len)
+			     uint64_t *ret_args, uint32_t *ret_args_len)
 {
 	sdm_command_t *cmd_desc = NULL;
 	sdm_response_t *resp_desc = NULL;
