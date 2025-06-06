@@ -116,6 +116,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 				drivers/delay_timer/generic_delay_timer.c	\
 				${GICV3_SOURCES}				\
 				drivers/arm/pl011/aarch64/pl011_console.S	\
+				plat/xilinx/common/plat_clkfunc.c		\
 				plat/common/aarch64/crash_console_helpers.S	\
 				plat/arm/common/arm_common.c			\
 				plat/common/plat_gicv3.c			\

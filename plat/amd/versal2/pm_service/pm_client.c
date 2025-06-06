@@ -336,6 +336,23 @@ void pm_client_wakeup(const struct pm_proc *proc)
 	uintptr_t val;
 
 	if (cpuid != (uint32_t) UNDEFINED_CPUID) {
+		/*
+		 * Get the core index and use it to calculate offset for
+		 * disabling power down and wakeup interrupts.
+		 * i.e., Convert cpu-id to core_index with the following mapping:
+		 *  cpu-id -> core_index
+		 *       0 -> 0
+		 *       1 -> 1
+		 *       2 -> 4
+		 *       3 -> 5
+		 *       4 -> 8
+		 *       5 -> 9
+		 *       6 -> 12
+		 *       7 -> 13
+		 * to match with register database.
+		 */
+		uint32_t core_index = cpuid + ((cpuid / 2U) * 2U);
+
 		pm_client_lock_get();
 
 		/* Clear powerdown request */
@@ -346,10 +363,10 @@ void pm_client_wakeup(const struct pm_proc *proc)
 		isb();
 
 		/* Disabled power down interrupt */
-		mmio_write_32(APU_PCIL_CORE_X_IDS_POWER_REG(cpuid),
+		mmio_write_32(APU_PCIL_CORE_X_IDS_POWER_REG(core_index),
 			      APU_PCIL_CORE_X_IDS_POWER_MASK);
 		/* Disable wake interrupt */
-		mmio_write_32(APU_PCIL_CORE_X_IDS_WAKE_REG(cpuid),
+		mmio_write_32(APU_PCIL_CORE_X_IDS_WAKE_REG(core_index),
 			      APU_PCIL_CORE_X_IDS_WAKE_MASK);
 
 		pm_client_lock_release();

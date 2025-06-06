@@ -126,8 +126,14 @@
 
 #define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	(1U << 25U)
 
-/* IOU SCNTRS */
-#define IOU_SCNTRS					U(0xEC920000)
+#define FPD_SYSTMR_CTRL_BASE				U(0xEC920000)
+
+/*
+ * Note: There is no IOU_SCNTRS in Versal Gen 2, the equivalent
+ * functionality is provided through FPD_SYSTMR_CTRL. For compatibility
+ * with existing code, maintain the same macro names.
+ */
+#define IOU_SCNTRS_BASE					FPD_SYSTMR_CTRL_BASE
 #define IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET	U(0)
 #define IOU_SCNTRS_BASE_FREQ_OFFSET			U(0x20)
 

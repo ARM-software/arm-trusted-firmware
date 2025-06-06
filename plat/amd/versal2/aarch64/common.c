@@ -8,12 +8,12 @@
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <def.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
-
-#include <def.h>
+#include <plat_clkfunc.h>
 #include <plat_common.h>
 #include <plat_ipi.h>
 #include <plat_private.h>
@@ -123,7 +123,7 @@ void config_setup(void)
 	uintptr_t crl_base, iou_scntrs_base, psx_base;
 
 	crl_base = CRL;
-	iou_scntrs_base = IOU_SCNTRS;
+	iou_scntrs_base = IOU_SCNTRS_BASE;
 	psx_base = PSX_CRF;
 
 	/* Reset for system timestamp generator in FPX */
@@ -143,13 +143,11 @@ void config_setup(void)
 	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
 		      IOU_SCNTRS_CONTROL_EN);
 
+	/* set cntfrq_el0 value so that software can discover the frequency of the system counter */
+	set_cnt_freq();
+
 	generic_delay_timer_init();
 
 	/* Configure IPI data */
 	soc_ipi_config_table_init();
-}
-
-uint32_t plat_get_syscnt_freq2(void)
-{
-	return cpu_clock;
 }
