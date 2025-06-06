@@ -21,7 +21,7 @@ MAPFILE     = $(BUILD_PLAT)/romlib/romlib.map
 PROCESSED_JMPTBL = ../../$(PLAT_DIR)/jmptbl.i
 
 # Determine if mbedtls is needed
-ifneq ($(filter $(CRYPTO_SUPPORT),1 2 3),)
+ifneq ($(CRYPTO_LIB),)
     PROCESSED_JMPTBL = $(BUILD_DIR)/jmptbl_processed.i
     CRYPTO_JMPTBL = ../../$(PLAT_DIR)/jmptbl.i ../../$(PLAT_DIR)/jmptbl_mbedtls.i
 

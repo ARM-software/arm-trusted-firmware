@@ -41,3 +41,24 @@ endif
 ifeq (${ENABLE_PMF},1)
 BL2_SOURCES		+=	lib/pmf/pmf_main.c
 endif
+
+# CRYPTO_SUPPORT
+NEED_AUTH := $(if $(filter 1,$(TRUSTED_BOARD_BOOT)),1,)
+NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT) $(DRTM_SUPPORT)),1,)
+$(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
+
+ifneq ($(filter 1 2 3,$(CRYPTO_SUPPORT)),)
+CRYPTO_LIB := $(BUILD_PLAT)/lib/libmbedtls.a
+endif
+
+# BL2_CPPFLAGS
+$(eval BL2_CPPFLAGS += $(call make_defines, \
+    $(sort \
+        CRYPTO_SUPPORT \
+)))
+
+# Numeric_Flags
+$(eval $(call assert_numerics,\
+    $(sort \
+	CRYPTO_SUPPORT \
+)))

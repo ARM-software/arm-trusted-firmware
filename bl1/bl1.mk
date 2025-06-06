@@ -31,3 +31,24 @@ BL1_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
 BL1_DEFAULT_LINKER_SCRIPT_SOURCE := bl1/bl1.ld.S
+
+# CRYPTO_SUPPORT
+NEED_AUTH := $(if $(filter 1,$(TRUSTED_BOARD_BOOT)),1,)
+NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT) $(DRTM_SUPPORT)),1,)
+$(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
+
+ifneq ($(filter 1 2 3,$(CRYPTO_SUPPORT)),)
+CRYPTO_LIB := $(BUILD_PLAT)/lib/libmbedtls.a
+endif
+
+# BL1_CPPFLAGS
+$(eval BL1_CPPFLAGS += $(call make_defines, \
+    $(sort \
+        CRYPTO_SUPPORT \
+)))
+
+# Numeric_Flags
+$(eval $(call assert_numerics,\
+    $(sort \
+	CRYPTO_SUPPORT \
+)))

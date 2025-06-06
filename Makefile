@@ -432,26 +432,6 @@ ifneq (${DECRYPTION_SUPPORT},none)
 	BL2_FIP_DEPS += enctool
 endif #(DECRYPTION_SUPPORT)
 
-ifeq ($(MEASURED_BOOT)-$(TRUSTED_BOARD_BOOT),1-1)
-# Support authentication verification and hash calculation
-	CRYPTO_SUPPORT := 3
-else ifeq ($(DRTM_SUPPORT)-$(TRUSTED_BOARD_BOOT),1-1)
-# Support authentication verification and hash calculation
-	CRYPTO_SUPPORT := 3
-else ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
-# Support hash calculation only
-	CRYPTO_SUPPORT := 2
-else ifeq (${TRUSTED_BOARD_BOOT},1)
-# Support authentication verification only
-	CRYPTO_SUPPORT := 1
-else
-	CRYPTO_SUPPORT := 0
-endif #($(MEASURED_BOOT)-$(TRUSTED_BOARD_BOOT))
-
-ifneq ($(filter 1 2 3,$(CRYPTO_SUPPORT)),)
-CRYPTO_LIB := $(BUILD_PLAT)/lib/libmbedtls.a
-endif
-
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -668,7 +648,6 @@ $(eval $(call assert_numerics,\
 	BRANCH_PROTECTION \
 	CTX_INCLUDE_PAUTH_REGS \
 	CTX_INCLUDE_NEVE_REGS \
-	CRYPTO_SUPPORT \
 	DISABLE_MTPMU \
 	ENABLE_BRBE_FOR_NS \
 	ENABLE_TRBE_FOR_NS \
@@ -824,7 +803,6 @@ $(eval $(call add_defines,\
 	SPMD_SPM_AT_SEL2 \
 	TRANSFER_LIST \
 	TRUSTED_BOARD_BOOT \
-	CRYPTO_SUPPORT \
 	TRNG_SUPPORT \
 	ERRATA_ABI_SUPPORT \
 	ERRATA_NON_ARM_INTERCONNECT \
@@ -1220,7 +1198,7 @@ ${FIPTOOL}: FORCE | $$(@D)/
 	$(q)ln -sf ${FIPTOOL} ${FIPTOOLPATH}/fiptool
 
 $(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB) | $$(@D)/
-	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_SUPPORT=${CRYPTO_SUPPORT} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
+	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_LIB=$(CRYPTO_LIB) ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
 	$(if $(host-poetry),$(q)poetry -q install --no-root)

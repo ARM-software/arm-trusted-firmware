@@ -41,6 +41,24 @@ define default_ones
 	$(foreach var,$1,$(eval $(call default_one,$(var))))
 endef
 
+# Convenience function for setting CRYPTO_SUPPORT per component based on build flags
+# $(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
+#   $(1) = NEED_AUTH, determines need for authentication verification support
+#   $(2) = NEED_HASH, determines need for hash calculation support
+# CRYPTO_SUPPORT is set to 0 (default), 1 (authentication only), 2 (hash only), or
+# 3 (both) based on what support is required.
+define set_crypto_support
+	ifeq ($($1)-$($2),1-1)
+		CRYPTO_SUPPORT := 3
+	else ifeq ($($2),1)
+		CRYPTO_SUPPORT := 2
+	else ifeq ($($1),1)
+		CRYPTO_SUPPORT := 1
+	else
+		CRYPTO_SUPPORT := 0
+	endif
+endef
+
 # Convenience function for creating a build definition
 # $(call make_define,FOO) will have:
 # -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
