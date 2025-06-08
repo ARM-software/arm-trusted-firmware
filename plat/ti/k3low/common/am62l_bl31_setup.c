@@ -7,8 +7,10 @@
 
 #include <common/debug.h>
 #include <ti_sci.h>
+#include <ti_sci_protocol.h>
 #include <ti_sci_transport.h>
 
+#include <board_def.h>
 #include <plat_private.h>
 
 /* Table of regions to map using the MMU */
@@ -45,6 +47,20 @@ int ti_soc_init(void)
 	       version.abi_major, version.abi_minor,
 	       version.firmware_revision,
 	       version.firmware_description);
+
+	ret = ti_sci_proc_request(PLAT_PROC_START_ID);
+	if (ret != 0) {
+		ERROR("Unable to request host (%d)\n", ret);
+		return ret;
+	}
+
+	/* Enable ACP interface */
+	ret = ti_sci_proc_set_boot_ctrl(PLAT_PROC_START_ID, 0,
+					PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS);
+	if (ret != 0) {
+		ERROR("Unable to set boot control (%d)\n", ret);
+		return ret;
+	}
 
 	return 0;
 }
