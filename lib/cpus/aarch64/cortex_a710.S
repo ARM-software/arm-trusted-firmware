@@ -49,6 +49,37 @@ workaround_reset_end cortex_a710, ERRATUM(1917258)
 
 check_erratum_ls cortex_a710, ERRATUM(1917258), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a710, ERRATUM(1927200), ERRATA_A710_1927200
+	mov	x0, #0
+	msr	S3_6_C15_C8_0, x0
+	ldr	x0, =0x10E3900002
+	msr	S3_6_C15_C8_2, x0
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0
+
+	mov	x0, #1
+	msr	S3_6_C15_C8_0, x0
+	ldr	x0, =0x10E3800082
+	msr	S3_6_C15_C8_2, x0
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0
+
+	mov	x0, #2
+	msr	S3_6_C15_C8_0, x0
+	ldr	x0, =0x10E3800200
+	msr	S3_6_C15_C8_2, x0
+	ldr	x0, =0x10FFF003E0
+	msr	S3_6_C15_C8_3, x0
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0
+workaround_reset_end cortex_a710, ERRATUM(1927200)
+
+check_erratum_ls cortex_a710, ERRATUM(1927200), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a710, ERRATUM(1987031), ERRATA_A710_1987031
 	ldr x0,=0x6
 	msr S3_6_c15_c8_0,x0
