@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,17 +33,17 @@ SECTIONS
     } >HEADER
 
     . = STM32MP_BINARY_BASE;
-    .data . : {
+    .data : {
         . = ALIGN(PAGE_SIZE);
         __DATA_START__ = .;
-        *(.data*)
+        FILL(0);
 
         /*
          * dtb.
          * The strongest and only alignment contraint is MMU 4K page.
          * Indeed as images below will be removed, 4K pages will be re-used.
          */
-        . = ( STM32MP_BL2_DTB_BASE - STM32MP_BINARY_BASE );
+        . = ABSOLUTE( STM32MP_BL2_DTB_BASE );
         __DTB_IMAGE_START__ = .;
         *(.dtb_image*)
         __DTB_IMAGE_END__ = .;
@@ -54,9 +54,9 @@ SECTIONS
          * Indeed as images below will be removed, 4K pages will be re-used.
          */
 #if SEPARATE_CODE_AND_RODATA
-        . = ( STM32MP_BL2_RO_BASE - STM32MP_BINARY_BASE );
+        . = ABSOLUTE( STM32MP_BL2_RO_BASE );
 #else
-        . = ( STM32MP_BL2_BASE - STM32MP_BINARY_BASE );
+        . = ABSOLUTE( STM32MP_BL2_BASE );
 #endif
         __BL2_IMAGE_START__ = .;
         *(.bl2_image*)
