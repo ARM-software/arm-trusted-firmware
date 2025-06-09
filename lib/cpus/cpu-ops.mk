@@ -569,6 +569,10 @@ CPU_FLAG_LIST += ERRATA_V3_3701767
 # to revision r1p0 and is fixed in r2p0.
 CPU_FLAG_LIST += ERRATA_A710_1901946
 
+# Flag to apply erratum 1916945 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the Cortex-A710 CPU and is fixed in r2p0.
+CPU_FLAG_LIST += ERRATA_A710_1916945
+
 # Flag to apply erratum 1987031 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A710_1987031
