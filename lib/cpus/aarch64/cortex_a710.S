@@ -43,6 +43,12 @@ workaround_reset_end cortex_a710, ERRATUM(1916945)
 
 check_erratum_ls cortex_a710, ERRATUM(1916945), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a710, ERRATUM(1917258), ERRATA_A710_1917258
+	sysreg_bit_set	CORTEX_A710_CPUACTLR4_EL1, BIT(43)
+workaround_reset_end cortex_a710, ERRATUM(1917258)
+
+check_erratum_ls cortex_a710, ERRATUM(1917258), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a710, ERRATUM(1987031), ERRATA_A710_1987031
 	ldr x0,=0x6
 	msr S3_6_c15_c8_0,x0
