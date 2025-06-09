@@ -31,6 +31,12 @@
 
 cpu_reset_prologue cortex_a710
 
+workaround_reset_start cortex_a710, ERRATUM(1901946), ERRATA_A710_1901946
+	sysreg_bit_set	CORTEX_A710_CPUACTLR4_EL1, BIT(15)
+workaround_reset_end cortex_a710, ERRATUM(1901946)
+
+check_erratum_range cortex_a710, ERRATUM(1901946), CPU_REV(1, 0), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a710, ERRATUM(1987031), ERRATA_A710_1987031
 	ldr x0,=0x6
 	msr S3_6_c15_c8_0,x0
