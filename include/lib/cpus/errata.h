@@ -93,8 +93,9 @@ int check_erratum_applies(uint32_t cve, int errata_id);
  * NOTE an erratum and CVE id could clash. However, both numbers are very large
  * and the probablity is minuscule. Working around this makes code very
  * complicated and extremely difficult to read so it is not considered. In the
- * unlikely event that this does happen, prepending the CVE id with a 0 should
- * resolve the conflict
+ * unlikely event that this does happen, the build will fail, and unless the
+ * framework is updated to account for this one of the IDs will need to be
+ * altered to prevent the conflict.
  */
 #define NO_ISB			1
 #define NO_ASSERT		0
