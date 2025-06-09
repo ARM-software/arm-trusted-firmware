@@ -346,11 +346,6 @@ ENABLE_LTO			:= 0
 # CTX_INCLUDE_EL2_REGS.
 CTX_INCLUDE_EL2_REGS		:= 0
 
-# Enable Memory tag extension which is supported for architecture greater
-# than Armv8.5-A
-# By default it is set to "no"
-SUPPORT_STACK_MEMTAG		:= no
-
 # Select workaround for AT speculative behaviour.
 ERRATA_SPECULATIVE_AT		:= 0
 

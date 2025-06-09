@@ -58,11 +58,6 @@ armv8-5-a-feats         := ENABLE_FEAT_RNG ENABLE_FEAT_SB
 armv8-5-a-feats         += ${armv8-4-a-feats}
 
 FEAT_LIST               := ${armv8-5-a-feats}
-# Enable Memory tagging, Branch Target Identification for aarch64 only.
-ifeq ($(ARCH), aarch64)
-	mem_tag_arch_support		?= 	yes
-endif #(ARCH=aarch64)
-
 endif
 
 # Enable the features which are mandatory from ARCH version 8.6 and upwards.

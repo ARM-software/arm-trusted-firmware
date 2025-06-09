@@ -546,31 +546,6 @@ ifneq (${ENABLE_PAUTH},0)
 	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth.c
 endif
 
-####################################################
-# Enable required options for Memory Stack Tagging.
-####################################################
-
-# Currently, these options are enabled only for clang and armclang compiler.
-ifeq (${SUPPORT_STACK_MEMTAG},yes)
-    ifdef mem_tag_arch_support
-        # Check for armclang and clang compilers
-        ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
-        # Add "memtag" architecture feature modifier if not specified
-            ifeq ( ,$(findstring memtag,$(arch-features)))
-                arch-features	:=	$(arch-features)+memtag
-            endif	# memtag
-            ifeq ($($(ARCH)-cc-id),arm-clang)
-                TF_CFLAGS	+=	-mmemtag-stack
-            else ifeq ($($(ARCH)-cc-id),llvm-clang)
-                TF_CFLAGS	+=	-fsanitize=memtag
-            endif	# armclang
-        endif
-    else
-        $(error "Error: stack memory tagging is not supported for  \
-        architecture ${ARCH},armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a")
-	endif #(mem_tag_arch_support)
-endif #(SUPPORT_STACK_MEMTAG)
-
 ################################################################################
 # RME dependent flags configuration, Enable optional features for RME.
 ################################################################################
