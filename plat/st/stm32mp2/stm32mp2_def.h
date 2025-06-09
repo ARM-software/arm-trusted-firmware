@@ -10,16 +10,31 @@
 #include <common/tbbr/tbbr_img_def.h>
 #ifndef __ASSEMBLER__
 #include <drivers/st/bsec.h>
-#endif
-#include <drivers/st/stm32mp25_rcc.h>
-#ifndef __ASSEMBLER__
 #include <drivers/st/stm32mp2_clk.h>
 #endif
+#if STM32MP21
+#include <drivers/st/stm32mp21_pwr.h>
+#include <drivers/st/stm32mp21_rcc.h>
+#else /* STM32MP21 */
 #include <drivers/st/stm32mp2_pwr.h>
+#include <drivers/st/stm32mp25_rcc.h>
+#endif /* STM32MP21 */
+#if STM32MP21
+#include <dt-bindings/clock/st,stm32mp21-rcc.h>
+#include <dt-bindings/clock/stm32mp21-clksrc.h>
+#include <dt-bindings/reset/st,stm32mp21-rcc.h>
+#endif /* STM32MP21 */
+#if STM32MP23
 #include <dt-bindings/clock/stm32mp25-clks.h>
 #include <dt-bindings/clock/stm32mp25-clksrc.h>
-#include <dt-bindings/gpio/stm32-gpio.h>
 #include <dt-bindings/reset/stm32mp25-resets.h>
+#endif /* STM32MP23 */
+#if STM32MP25
+#include <dt-bindings/clock/stm32mp25-clks.h>
+#include <dt-bindings/clock/stm32mp25-clksrc.h>
+#include <dt-bindings/reset/stm32mp25-resets.h>
+#endif /* STM32MP25 */
+#include <dt-bindings/gpio/stm32-gpio.h>
 
 #ifndef __ASSEMBLER__
 #include <boot_api.h>
@@ -422,7 +437,11 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define DT_BSEC_COMPAT				"st,stm32mp25-bsec"
 #define DT_DDR_COMPAT				"st,stm32mp2-ddr"
 #define DT_PWR_COMPAT				"st,stm32mp25-pwr"
+#if STM32MP21
+#define DT_RCC_CLK_COMPAT			"st,stm32mp21-rcc"
+#else
 #define DT_RCC_CLK_COMPAT			"st,stm32mp25-rcc"
+#endif
 #define DT_SDMMC2_COMPAT			"st,stm32mp25-sdmmc2"
 #define DT_UART_COMPAT				"st,stm32h7-uart"
 
