@@ -144,6 +144,12 @@ USE_GIC_DRIVER		:=	5
 ENABLE_FEAT_GCIE	:=	1
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_gicv5.c
 FVP_DT_PREFIX		:=	"FVP does not provide a GICv5 dts yet"
+ifneq ($(SPD),none)
+        $(error Error: GICv5 is not compatible with SPDs)
+endif
+ifeq ($(ENABLE_RME),1)
+       $(error Error: GICv5 is not compatible with RME)
+endif
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
 USE_GIC_DRIVER		:=	2
 
