@@ -11,6 +11,7 @@
 
 #include <stddef.h>
 
+void *memcpy(void *dst, const void *src, size_t len);
 int memcmp(const void *s1, const void *s2, size_t len);
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
