@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited. All rights reserved.
  * Copyright (c) 2018, Icenowy Zheng <icenowy@aosc.io>
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -49,7 +49,7 @@ static uint8_t get_rsb_rt_address(uint16_t hw_addr)
 
 int axp_read(uint8_t reg)
 {
-	uint8_t val;
+	uint8_t val = 0;
 	int ret;
 
 	if (is_using_rsb()) {
