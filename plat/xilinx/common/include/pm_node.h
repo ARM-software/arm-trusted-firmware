@@ -22,12 +22,15 @@
 #define NODE_SUBCLASS_MASK_BITS GENMASK_32(5, 0)
 #define NODE_TYPE_MASK_BITS     GENMASK_32(5, 0)
 #define NODE_INDEX_MASK_BITS    GENMASK_32(13, 0)
+#define NODE_CLASS_MASK         (NODE_CLASS_MASK_BITS << NODE_CLASS_SHIFT)
 
 #define NODEID(CLASS, SUBCLASS, TYPE, INDEX)	\
 	     ((((CLASS) & NODE_CLASS_MASK_BITS) << NODE_CLASS_SHIFT) | \
 	     (((SUBCLASS) & NODE_SUBCLASS_MASK_BITS) << NODE_SUBCLASS_SHIFT) | \
 	     (((TYPE) & NODE_TYPE_MASK_BITS) << NODE_TYPE_SHIFT) | \
 	     (((INDEX) & NODE_INDEX_MASK_BITS) << NODE_INDEX_SHIFT))
+
+#define NODECLASS(ID)           (((ID) & NODE_CLASS_MASK) >> NODE_CLASS_SHIFT)
 
 /*********************************************************************
  * Enum definitions
