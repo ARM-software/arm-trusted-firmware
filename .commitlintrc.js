@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,6 +67,6 @@ export default {
         "type-enum": [2, "always", types], /* Error */
 
         "scope-case": [2, "always", "lower-case"], /* Error */
-        "scope-enum": [1, "always", scopes] /* Warning */
+        "scope-enum": [2, "always", scopes] /* Error */
     },
 };
