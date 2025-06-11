@@ -106,6 +106,11 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 	generic_delay_timer_init();
 
+	/* Configure the generic timer frequency to ensure proper operation
+	 * of the architectural timer in BL2.
+	 */
+	write_cntfrq_el0(plat_get_syscnt_freq2());
+
 	linflex_config_pinctrl();
 	console_s32g2_register();
 
