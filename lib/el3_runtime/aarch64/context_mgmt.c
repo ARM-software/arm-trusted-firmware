@@ -191,6 +191,15 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 		scr_el3 |= SCR_SCTLR2En_BIT;
 	}
 
+	if (is_feat_d128_supported()) {
+		/*
+		 * Set the D128En bit in SCR_EL3 to enable access to 128-bit
+		 * versions of TTBR0_EL1, TTBR1_EL1, RCWMASK_EL1, RCWSMASK_EL1,
+		 * PAR_EL1 and TTBR1_EL2, TTBR0_EL2 and VTTBR_EL2 registers.
+		 */
+		scr_el3 |= SCR_D128En_BIT;
+	}
+
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
 	if (is_feat_fgt2_supported()) {
