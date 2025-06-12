@@ -12,10 +12,14 @@
 #include "platform_def.h"
 
 /* external API */
+int32_t pmic_wrap_test(void);
 int32_t pwrap_read(uint32_t adr, uint32_t *rdata);
+int32_t pwrap_read_field(uint32_t reg, uint32_t *val, uint32_t mask, uint32_t shift);
 int32_t pwrap_write(uint32_t adr, uint32_t wdata);
+int32_t pwrap_write_field(uint32_t reg, uint32_t val, uint32_t mask, uint32_t shift);
 
-#define GET_WACS_FSM(x)	((x >> 1) & 0x7)
+#define GET_SWINF_INIT_DONE(x)	((x>>15) & 0x00000001)
+#define GET_WACS_FSM(x)		((x >> 1) & 0x7)
 
 /* macro for SWINF_FSM */
 #define SWINF_FSM_IDLE		(0x00)
@@ -43,6 +47,11 @@ enum pwrap_errno {
 	E_PWR_INIT_SIDLY_FAIL		= 11,
 	E_PWR_RESET_TIMEOUT		= 12,
 	E_PWR_TIMEOUT			= 13,
+	E_PWR_INVALID_SWINF		= 14,
+	E_PWR_INVALID_CMD		= 15,
+	E_PWR_INVALID_PMIFID		= 16,
+	E_PWR_INVALID_SLVID		= 17,
+	E_PWR_INVALID_BYTECNT		= 18,
 	E_PWR_INIT_RESET_SPI		= 20,
 	E_PWR_INIT_SIDLY		= 21,
 	E_PWR_INIT_REG_CLOCK		= 22,

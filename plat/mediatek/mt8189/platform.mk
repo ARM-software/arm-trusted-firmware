@@ -31,7 +31,10 @@ MODULES-y += $(MTK_PLAT)/drivers/cirq
 MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/iommu
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
+MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/timer
+MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
+MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
 
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \

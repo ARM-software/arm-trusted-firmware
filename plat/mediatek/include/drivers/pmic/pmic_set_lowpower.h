@@ -12,6 +12,7 @@
 #include <drivers/spmi_api.h>
 
 #include "mt6316_lowpower_reg.h"
+#include "mt6319_lowpower_reg.h"
 #include "mt6363_lowpower_reg.h"
 #include "mt6373_lowpower_reg.h"
 
