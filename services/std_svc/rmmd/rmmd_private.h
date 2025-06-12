@@ -39,6 +39,7 @@
  */
 typedef struct rmmd_rmm_context {
 	uint64_t c_rt_ctx;
+	uint64_t activation_token;
 	cpu_context_t cpu_ctx;
 } rmmd_rmm_context_t;
 
