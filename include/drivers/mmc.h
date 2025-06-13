@@ -52,6 +52,7 @@
 #define MMC_RESPONSE_R5			(MMC_RSP_48 | MMC_RSP_CRC | MMC_RSP_CMD_IDX)
 #define MMC_RESPONSE_R6			(MMC_RSP_48 | MMC_RSP_CRC | MMC_RSP_CMD_IDX)
 #define MMC_RESPONSE_R7			(MMC_RSP_48 | MMC_RSP_CRC | MMC_RSP_CMD_IDX)
+#define MMC_RESPONSE_NONE		0U
 
 /* Value randomly chosen for eMMC RCA, it should be > 1 */
 #define MMC_FIX_RCA			6
