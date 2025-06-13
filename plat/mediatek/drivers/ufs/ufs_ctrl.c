@@ -77,7 +77,7 @@ int ufs_rsc_ctrl_mem(bool hold)
 	return ufs_rsc_ctrl(RSC_MEM, hold);
 }
 
-int ufs_rcs_ctrl_pmic(bool hold)
+int ufs_rsc_ctrl_pmic(bool hold)
 {
 	return ufs_rsc_ctrl(RSC_PMIC, hold);
 }
