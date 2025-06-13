@@ -241,6 +241,34 @@ or ``FVP_HW_CONFIG_DTS`` build options (refer to
    (Default) For use with Foundation FVP with Base memory map configuration
    and Linux GICv3 support.
 
+GICv5 Support
+^^^^^^^^^^^^^
+
+GICv5 support in TF-A is currently **experimental** and provided only for early
+development and testing purposes. A simplified build configuration is available
+to allow booting the Linux kernel as a BL33 payload on the FVP platform.
+
+Key notes:
+
+- The support is **not production-ready** and is intended to assist with
+  upstream kernel development and validation.
+- The device tree bindings are **not finalized**; support has been validated
+  only with a **custom device tree**.
+- Use this configuration at your own discretion, understanding that the design
+  and register usage may change in future revisions.
+
+This configuration is **temporary** and may be removed once full GICv5 support
+is integrated upstream.
+
+.. code:: shell
+
+    make PLAT=fvp DEBUG=1                       \
+    CTX_INCLUDE_AARCH32_REGS=0                  \
+    FVP_USE_GIC_DRIVER=FVP_GICV5                \
+    ARM_LINUX_KERNEL_AS_BL33=1                  \
+    PRELOADED_BL33_BASE=0x84000000              \
+    FVP_HW_CONFIG_DTS=<PROVIDE_YOUR_OWN_DT>     \
+
 --------------
 
 *Copyright (c) 2019-2024, Arm Limited. All rights reserved.*

@@ -91,6 +91,17 @@
 #define SERROR_EXCEPTION	0x180
 
 /*******************************************************************************
+ * Encodings for GICv5 EL3 system registers
+ ******************************************************************************/
+#define ICC_PPI_DOMAINR0_EL3	S3_6_C12_C8_4
+#define ICC_PPI_DOMAINR1_EL3	S3_6_C12_C8_5
+#define ICC_PPI_DOMAINR2_EL3	S3_6_C12_C8_6
+#define ICC_PPI_DOMAINR3_EL3	S3_6_C12_C8_7
+
+#define ICC_PPI_DOMAINR_FIELD_MASK		ULL(0x3)
+#define ICC_PPI_DOMAINR_COUNT			(32)
+
+/*******************************************************************************
  * Definitions for CPU system register interface to GICv3
  ******************************************************************************/
 #define ICC_IGRPEN1_EL1		S3_0_C12_C12_7
@@ -504,6 +515,11 @@
 #define SME2_IMPLEMENTED			ULL(0x2)
 #define SME_NOT_IMPLEMENTED			ULL(0x0)
 
+/* ID_AA64PFR2_EL1 definitions */
+#define ID_AA64PFR2_EL1				S3_0_C0_C4_2
+#define ID_AA64PFR2_EL1_GCIE_SHIFT		12
+#define ID_AA64PFR2_EL1_GCIE_MASK		ULL(0xf)
+
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
 #define ID_PFR1_VIRTEXT_MASK	U(0xf)
@@ -620,7 +636,11 @@
 #define CPACR_EL1_SMEN_MASK	ULL(0x3)
 
 /* SCR definitions */
+#if ENABLE_FEAT_GCIE
+#define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5) | SCR_FIQ_BIT)
+#else
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#endif
 #define SCR_NSE_SHIFT		U(62)
 #define SCR_FGTEN2_BIT		(UL(1) << 59)
 #define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)

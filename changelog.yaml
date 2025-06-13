@@ -996,6 +996,9 @@ subsections:
             scope: gic
 
             subsections:
+              - title: GICv5
+                scope: gicv5
+
               - title: GICv3
                 scope: gicv3
 

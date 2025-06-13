@@ -14,7 +14,6 @@
 #include <libfdt.h>
 #include <plat/common/platform.h>
 
-struct gicv3_config_t gicv3_config;
 struct hw_topology_t soc_topology;
 struct uart_serial_config_t uart_serial_config;
 struct cpu_timer_t cpu_timer;
@@ -32,45 +31,6 @@ CASSERT(ARM_PCI_NUM_REGIONS == 2UL, ARM_PCI_NUM_REGIONS_mismatch);
 
 #define ILLEGAL_ADDR	ULL(~0)
 
-int fconf_populate_gicv3_config(uintptr_t config)
-{
-	int err;
-	int node;
-	uintptr_t addr;
-
-	/* Necessary to work with libfdt APIs */
-	const void *hw_config_dtb = (const void *)config;
-
-	/*
-	 * Find the offset of the node containing "arm,gic-v3" compatible property.
-	 * Populating fconf strucutures dynamically is not supported for legacy
-	 * systems which use GICv2 IP. Simply skip extracting GIC properties.
-	 */
-	node = fdt_node_offset_by_compatible(hw_config_dtb, -1, "arm,gic-v3");
-	if (node < 0) {
-		WARN("FCONF: Unable to locate node with arm,gic-v3 compatible property\n");
-		return 0;
-	}
-	/* The GICv3 DT binding holds at least two address/size pairs,
-	 * the first describing the distributor, the second the redistributors.
-	 * See: bindings/interrupt-controller/arm,gic-v3.yaml
-	 */
-	err = fdt_get_reg_props_by_index(hw_config_dtb, node, 0, &addr, NULL);
-	if (err < 0) {
-		ERROR("FCONF: Failed to read GICD reg property of GIC node\n");
-		return err;
-	}
-	gicv3_config.gicd_base = addr;
-
-	err = fdt_get_reg_props_by_index(hw_config_dtb, node, 1, &addr, NULL);
-	if (err < 0) {
-		ERROR("FCONF: Failed to read GICR reg property of GIC node\n");
-	} else {
-		gicv3_config.gicr_base = addr;
-	}
-
-	return err;
-}
 
 int fconf_populate_topology(uintptr_t config)
 {
@@ -447,7 +407,6 @@ int fconf_populate_pci_props(uintptr_t config)
 	return 0;
 }
 
-FCONF_REGISTER_POPULATOR(HW_CONFIG, gicv3_config, fconf_populate_gicv3_config);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, topology, fconf_populate_topology);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, uart_config, fconf_populate_uart_config);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, cpu_timer, fconf_populate_cpu_timer);

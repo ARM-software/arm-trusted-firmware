@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,8 @@
 #define INTR_TYPE_S_EL1			U(0)
 #define INTR_TYPE_EL3			U(1)
 #define INTR_TYPE_NS			U(2)
-#define MAX_INTR_TYPES			U(3)
+#define INTR_TYPE_RL			U(3)
+#define MAX_INTR_TYPES			U(4)
 #define INTR_TYPE_INVAL			MAX_INTR_TYPES
 
 /* Interrupt routing modes */

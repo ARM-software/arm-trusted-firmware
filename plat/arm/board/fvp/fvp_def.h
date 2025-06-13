@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,12 +53,12 @@
  *  In case of FVP models with CCN, the CCN register space overlaps into
  *  the NSRAM area.
  */
-#if FVP_INTERCONNECT_DRIVER == FVP_CCN
-#define DEVICE1_BASE			UL(0x2e000000)
-#define DEVICE1_SIZE			UL(0x1A00000)
-#else
-#define DEVICE1_BASE			BASE_GICD_BASE
+#define CCN_BASE			UL(0x2e000000)
+#define CCN_SIZE			UL(0x1000000)
 
+/* TODO: this covers gicv5, but macros should be adjusted */
+#if USE_GIC_DRIVER != 5
+#define DEVICE1_BASE			BASE_GICD_BASE
 #if GIC_ENABLE_V4_EXTN
 /* GICv4 mapping: GICD + CORE_COUNT * 256KB */
 #define DEVICE1_SIZE			((BASE_GICR_BASE - BASE_GICD_BASE) + \
@@ -68,10 +68,11 @@
 #define DEVICE1_SIZE			((BASE_GICR_BASE - BASE_GICD_BASE) + \
 					 (PLATFORM_CORE_COUNT * 0x20000))
 #endif /* GIC_ENABLE_V4_EXTN */
-
-#define NSRAM_BASE			UL(0x2e000000)
-#define NSRAM_SIZE			UL(0x10000)
+#else
+#define DEVICE1_BASE			BASE_IWB_BASE
+#define DEVICE1_SIZE			((BASE_IRS_BASE - BASE_IWB_BASE) + SZ_64K)
 #endif
+
 /* Devices in the second GB */
 #define DEVICE2_BASE			UL(0x7fe00000)
 #define DEVICE2_SIZE			UL(0x00200000)
@@ -124,6 +125,15 @@
 #define FVP_SP810_CTRL_TIM2_OV		BIT_32(20)
 #define FVP_SP810_CTRL_TIM3_OV		BIT_32(22)
 
+
+#define NSRAM_BASE			UL(0x2e000000)
+#define NSRAM_SIZE			UL(0x10000)
+/*
+ *  In case of FVP models with CCN, the CCN register space overlaps into
+ *  the NSRAM area.
+ */
+#define CCN_BASE			UL(0x2e000000)
+#define CCN_SIZE			UL(0x1000000)
 /*******************************************************************************
  * GIC & interrupt handling related constants
  ******************************************************************************/
@@ -137,6 +147,9 @@
 #define BASE_GICD_BASE			UL(0x2f000000)
 #define BASE_GICD_SIZE			UL(0x10000)
 #define BASE_GICR_BASE			UL(0x2f100000)
+
+#define BASE_IWB_BASE			UL(0x2f000000)
+#define BASE_IRS_BASE			UL(0x2f1c0000)
 
 #if GIC_ENABLE_V4_EXTN
 /* GICv4 redistributor size: 256KB */
