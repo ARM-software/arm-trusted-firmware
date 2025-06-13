@@ -773,8 +773,8 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Set number of consoles */
 	num_consoles = FVP_RMM_CONSOLE_COUNT;
 
-	/* Set number of device non-coherent address ranges based on DT */
-	num_ncoh_regions = FCONF_GET_PROPERTY(hw_config, pci_props, num_ncoh_regions);
+	/* Set number of device non-coherent address ranges for FVP RevC */
+	num_ncoh_regions = 2;
 
 	/* Set number of SMMUs */
 	num_smmus = FVP_RMM_SMMU_COUNT;
@@ -907,11 +907,27 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	(void)memset((void *)ncoh_region_ptr, 0,
 			sizeof(struct memory_bank) * num_ncoh_regions);
 
+	/* Set number of device non-coherent address ranges based on DT */
+	num_ncoh_regions = FCONF_GET_PROPERTY(hw_config, pci_props, num_ncoh_regions);
+	/* At least 1 PCIe region need to be described in DT */
+	assert((num_ncoh_regions > 0) && (num_ncoh_regions <= 2));
+
 	for (unsigned long i = 0UL; i < num_ncoh_regions; i++) {
 		ncoh_region_ptr[i].base =
 			FCONF_GET_PROPERTY(hw_config, pci_props, ncoh_regions[i].base);
 		ncoh_region_ptr[i].size =
 			FCONF_GET_PROPERTY(hw_config, pci_props, ncoh_regions[i].size);
+	}
+
+	/*
+	 * Workaround if the DT does not specify the 2nd PCIe region. This code can be
+	 * removed when upstream DT is updated to have 2nd PCIe region.
+	 */
+	if (num_ncoh_regions == 1) {
+		num_ncoh_regions++;
+		/* Add 3GB of 2nd PCIe region */
+		ncoh_region_ptr[1].base = 0x4000000000;
+		ncoh_region_ptr[1].size = 0xc0000000;
 	}
 
 	/* Update checksum */
