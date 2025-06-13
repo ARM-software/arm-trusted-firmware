@@ -61,9 +61,12 @@ static sdei_cpu_state_t cpu_state[PLATFORM_CORE_COUNT];
 
 bool sdei_is_target_pe_masked(uint64_t target_pe)
 {
-	const sdei_cpu_state_t *state = sdei_get_target_pe_state(target_pe);
-
-	return state->pe_masked;
+	int errstat = plat_core_pos_by_mpidr(target_pe);
+	if (errstat >= 0) {
+		const sdei_cpu_state_t *state = &cpu_state[errstat];
+		return state->pe_masked;
+	}
+	return true;
 }
 
 int64_t sdei_pe_mask(void)
