@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -20,7 +20,7 @@ struct __packed drtm_dl_dma_prot_args_v1 {
 enum dma_prot_type {
 	PROTECT_NONE    = -1,
 	PROTECT_MEM_ALL = 0,
-	PROTECT_MEM_REGION = 2,
+	PROTECT_MEM_REGION = 1,
 };
 
 struct dma_prot {
