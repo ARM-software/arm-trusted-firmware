@@ -1043,6 +1043,12 @@ For DSU errata, the following build flags are defined:
    please note that this workaround results in increased DSU power consumption
    on idle.
 
+-  ``ERRATA_DSU_2900952``: This applies errata 2900952 workaround for the
+   affected DSU-120 configurations. This erratum applies to some r2p0
+   implementations and is fixed in r2p1. The affected r2p0 implementations
+   are determined by reading the IMP_CLUSTERREVIDR_EL1[1] register bit
+   and making sure it's clear.
+
 CPU Specific optimizations
 --------------------------
 
