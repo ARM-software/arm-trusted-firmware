@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_x4.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 #include "wa_cve_2022_23960_bhb_vector.S"
 
@@ -63,6 +64,15 @@ workaround_reset_start cortex_x4, ERRATUM(2897503), ERRATA_X4_2897503
 workaround_reset_end cortex_x4, ERRATUM(2897503)
 
 check_erratum_ls cortex_x4, ERRATUM(2897503), CPU_REV(0, 1)
+
+workaround_reset_start cortex_x4, ERRATUM(2900952), ERRATA_DSU_2900952
+	errata_dsu_2900952_wa_apply
+workaround_reset_end cortex_x4, ERRATUM(2900952)
+
+check_erratum_custom_start cortex_x4, ERRATUM(2900952)
+	check_errata_dsu_2900952_applies
+	ret
+check_erratum_custom_end cortex_x4, ERRATUM(2900952)
 
 workaround_reset_start cortex_x4, ERRATUM(2923985), ERRATA_X4_2923985
 	sysreg_bit_set CORTEX_X4_CPUACTLR4_EL1, (BIT(11) | BIT(10))
