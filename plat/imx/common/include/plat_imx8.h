@@ -23,8 +23,8 @@ void plat_gic_cpuif_enable(void);
 void plat_gic_cpuif_disable(void);
 void plat_gic_pcpu_init(void);
 
-void __dead2 imx_system_off(void);
-void __dead2 imx_system_reset(void);
+void imx_system_off(void);
+void imx_system_reset(void);
 int imx_validate_power_state(unsigned int power_state,
 			psci_power_state_t *req_state);
 void imx_get_sys_suspend_power_state(psci_power_state_t *req_state);
