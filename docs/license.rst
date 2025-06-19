@@ -119,6 +119,15 @@ license text is included in those source files.
    -  ``include/lib/hob/mmram.h``
    -  ``include/lib/hob/mpinfo.h``
 
+- Some source files originating from the `mbed OS`_ project.
+  These files are licensed under the Apache License, Version 2.0, which is a
+  permissive license compatible with BSD-3-Clause. Any contributions to this
+  code must also be made under the terms of `Apache License 2.0`_.
+  These files are:
+
+   -  ``tools/memory/memory/mapsummary.py``
+   -  ``tools/memory/memory/mapsummary_flamegraph.hmtl``
+
 .. _FreeBSD: http://www.freebsd.org
 .. _Linux MIT license: https://raw.githubusercontent.com/torvalds/linux/master/LICENSES/preferred/MIT
 .. _SCC: http://www.simple-cc.org/
@@ -126,3 +135,4 @@ license text is included in those source files.
 .. _Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.txt
 .. _pydevicetree: https://pypi.org/project/pydevicetree/
 .. _edk2: https://github.com/tianocore/edk2
+.. _mbed OS: https://github.com/ARMmbed/mbed-os/

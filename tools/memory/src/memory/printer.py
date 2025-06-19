@@ -4,9 +4,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+from typing import Any, Dict, List, Optional, Tuple
+
 from anytree import RenderTree
 from anytree.importer import DictImporter
 from prettytable import PrettyTable
+
+from memory.image import Region
 
 
 class TfaPrettyPrinter:
@@ -17,19 +21,29 @@ class TfaPrettyPrinter:
     structured and consumed.
     """
 
-    def __init__(self, columns: int = None, as_decimal: bool = False):
-        self.term_size = columns if columns and columns > 120 else 120
-        self._tree = None
-        self._footprint = None
-        self._symbol_map = None
-        self.as_decimal = as_decimal
+    def __init__(self, columns: int, as_decimal: bool = False) -> None:
+        self.term_size: int = columns
+        self._tree: Optional[List[str]] = None
+        self._symbol_map: Optional[List[str]] = None
+        self.as_decimal: bool = as_decimal
 
-    def format_args(self, *args, width=10, fmt=None):
-        if not fmt and type(args[0]) is int:
+    def format_args(
+        self,
+        *args: Any,
+        width: int = 10,
+        fmt: Optional[str] = None,
+    ) -> List[str]:
+        if not fmt and isinstance(args[0], int):
             fmt = f">{width}x" if not self.as_decimal else f">{width}"
-        return [f"{arg:{fmt}}" if fmt else arg for arg in args]
+        return [f"{arg:{fmt}}" if fmt else str(arg) for arg in args]
 
-    def format_row(self, leading, *args, width=10, fmt=None):
+    def format_row(
+        self,
+        leading: str,
+        *args: Any,
+        width: int = 10,
+        fmt: Optional[str] = None,
+    ) -> str:
         formatted_args = self.format_args(*args, width=width, fmt=fmt)
         return leading + " ".join(formatted_args)
 
@@ -39,9 +53,9 @@ class TfaPrettyPrinter:
         section_name: str,
         rel_pos: int,
         columns: int,
-        width: int = None,
+        width: int,
         is_edge: bool = False,
-    ):
+    ) -> str:
         empty_col = "{:{}{}}"
 
         # Some symbols are longer than the column width, truncate them until
@@ -50,28 +64,26 @@ class TfaPrettyPrinter:
         if len_over > 0:
             section_name = section_name[len_over:-len_over]
 
-        sec_row = f"+{section_name:-^{width-1}}+"
+        sec_row = f"+{section_name:-^{width - 1}}+"
         sep, fill = ("+", "-") if is_edge else ("|", "")
 
         sec_row_l = empty_col.format(sep, fill + "<", width) * rel_pos
-        sec_row_r = empty_col.format(sep, fill + ">", width) * (
-            columns - rel_pos - 1
-        )
+        sec_row_r = empty_col.format(sep, fill + ">", width) * (columns - rel_pos - 1)
 
         return leading + sec_row_l + sec_row + sec_row_r
 
     def print_footprint(
-        self, app_mem_usage: dict, sort_key: str = None, fields: list = None
+        self,
+        app_mem_usage: Dict[str, Dict[str, Region]],
     ):
-        assert len(app_mem_usage), "Empty memory layout dictionary!"
-        if not fields:
-            fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
+        assert app_mem_usage, "Empty memory layout dictionary!"
 
-        sort_key = fields[0] if not sort_key else sort_key
+        fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
+        sort_key = fields[0]
 
         # Iterate through all the memory types, create a table for each
         # type, rows represent a single module.
-        for mem in sorted(set(k for _, v in app_mem_usage.items() for k in v)):
+        for mem in sorted({k for v in app_mem_usage.values() for k in v}):
             table = PrettyTable(
                 sortby=sort_key,
                 title=f"Memory Usage (bytes) [{mem.upper()}]",
@@ -79,13 +91,19 @@ class TfaPrettyPrinter:
             )
 
             for mod, vals in app_mem_usage.items():
-                if mem in vals.keys():
+                if mem in vals:
                     val = vals[mem]
                     table.add_row(
                         [
-                            mod.upper(),
+                            mod,
                             *self.format_args(
-                                *[val[k.lower()] for k in fields[1:]]
+                                *[
+                                    val.start if val.start is not None else "?",
+                                    val.limit if val.limit is not None else "?",
+                                    val.size if val.size is not None else "?",
+                                    val.free if val.free is not None else "?",
+                                    val.length if val.length is not None else "?",
+                                ]
                             ),
                         ]
                     )
@@ -93,31 +111,34 @@ class TfaPrettyPrinter:
 
     def print_symbol_table(
         self,
-        symbols: list,
-        modules: list,
+        symbol_table: Dict[str, Dict[str, int]],
+        modules: List[str],
         start: int = 12,
-    ):
-        assert len(symbols), "Empty symbol list!"
+    ) -> None:
+        assert len(symbol_table), "Empty symbol list!"
         modules = sorted(modules)
-        col_width = int((self.term_size - start) / len(modules))
+        col_width = (self.term_size - start) // len(modules)
         address_fixed_width = 11
 
-        num_fmt = (
-            f"0=#0{address_fixed_width}x" if not self.as_decimal else ">10"
-        )
+        num_fmt = f"0=#0{address_fixed_width}x" if not self.as_decimal else ">10"
 
         _symbol_map = [
-            " " * start
-            + "".join(self.format_args(*modules, fmt=f"^{col_width}"))
+            " " * start + "".join(self.format_args(*modules, fmt=f"^{col_width}"))
         ]
         last_addr = None
 
-        for i, (name, addr, mod) in enumerate(symbols):
+        symbols_list: List[Tuple[str, int, str]] = [
+            (name, addr, mod)
+            for mod, syms in symbol_table.items()
+            for name, addr in syms.items()
+        ]
+
+        symbols_list.sort(key=lambda x: (-x[1], x[0]), reverse=True)
+
+        for i, (name, addr, mod) in enumerate(symbols_list):
             # Do not print out an address twice if two symbols overlap,
             # for example, at the end of one region and start of another.
-            leading = (
-                f"{addr:{num_fmt}}" + " " if addr != last_addr else " " * start
-            )
+            leading = f"{addr:{num_fmt}}" + " " if addr != last_addr else " " * start
 
             _symbol_map.append(
                 self.map_elf_symbol(
@@ -125,28 +146,30 @@ class TfaPrettyPrinter:
                     name,
                     modules.index(mod),
                     len(modules),
-                    width=col_width,
-                    is_edge=(not i or i == len(symbols) - 1),
+                    col_width,
+                    is_edge=(i == 0 or i == len(symbols_list) - 1),
                 )
             )
 
             last_addr = addr
 
-        self._symbol_map = ["Memory Layout:"]
-        self._symbol_map += list(reversed(_symbol_map))
+        self._symbol_map = ["Memory Layout:"] + list(reversed(_symbol_map))
         print("\n".join(self._symbol_map))
 
     def print_mem_tree(
-        self, mem_map_dict, modules, depth=1, min_pad=12, node_right_pad=12
-    ):
+        self,
+        mem_map_dict: Dict[str, Any],
+        modules: List[str],
+        depth: int = 1,
+        min_pad: int = 12,
+        node_right_pad: int = 12,
+    ) -> None:
         # Start column should have some padding between itself and its data
         # values.
         anchor = min_pad + node_right_pad * (depth - 1)
         headers = ["start", "end", "size"]
 
-        self._tree = [
-            (f"{'name':<{anchor}}" + " ".join(f"{arg:>10}" for arg in headers))
-        ]
+        self._tree = [f"{'name':<{anchor}}" + " ".join(f"{arg:>10}" for arg in headers)]
 
         for mod in sorted(modules):
             root = DictImporter().import_(mem_map_dict[mod])
