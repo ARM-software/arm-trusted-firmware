@@ -65,7 +65,11 @@ feat_sctlr2_not_supported\@:
 	 * ---------------------------------------------------------------------
 	 */
 	bl	plat_my_core_pos
-	bl	_cpu_data_by_index
+	/* index into the cpu_data */
+	mov_imm	x1, CPU_DATA_SIZE
+	mul	x0, x0, x1
+	adr_l	x1, percpu_data
+	add	x0, x0, x1
 	msr	tpidr_el3, x0
 #endif /* IMAGE_BL31 */
 
