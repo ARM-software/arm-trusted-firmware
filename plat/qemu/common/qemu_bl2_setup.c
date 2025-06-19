@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,7 +19,9 @@
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
 #include <lib/optee_utils.h>
+#if TRANSFER_LIST
 #include <lib/transfer_list.h>
+#endif
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
@@ -50,7 +52,7 @@
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
-static struct transfer_list_header *bl2_tl;
+static struct transfer_list_header __maybe_unused *bl2_tl;
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			       u_register_t arg2, u_register_t arg3)
@@ -344,11 +346,11 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 
 		INFO("Handoff to BL32\n");
 		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl32_entry();
-		if (TRANSFER_LIST &&
-			transfer_list_set_handoff_args(bl2_tl,
-				&bl_mem_params->ep_info))
+#if TRANSFER_LIST
+		if (transfer_list_set_handoff_args(bl2_tl,
+						   &bl_mem_params->ep_info))
 			break;
-
+#endif
 		INFO("Using default arguments\n");
 #if defined(SPMC_OPTEE)
 		/*

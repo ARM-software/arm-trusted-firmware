@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,9 @@
 #include <common/bl_common.h>
 #include <drivers/arm/pl061_gpio.h>
 #include <lib/gpt_rme/gpt_rme.h>
+#if TRANSFER_LIST
 #include <lib/transfer_list.h>
+#endif
 #include <plat/common/platform.h>
 #if ENABLE_RME
 #ifdef PLAT_qemu
@@ -79,7 +81,7 @@ static entry_point_info_t bl33_image_ep_info;
 #if ENABLE_RME
 static entry_point_info_t rmm_image_ep_info;
 #endif
-static struct transfer_list_header *bl31_tl;
+static struct transfer_list_header __maybe_unused *bl31_tl;
 
 /*******************************************************************************
  * Perform any BL3-1 early platform setup.  Here is an opportunity to copy
@@ -92,8 +94,8 @@ static struct transfer_list_header *bl31_tl;
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	bool is64 = false;
-	uint64_t hval;
+	bool __maybe_unused is64 = false;
+	uint64_t __maybe_unused hval;
 
 	/* Initialize the console to provide early debug support */
 	qemu_console_init();
@@ -119,11 +121,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	while (bl_params) {
-#ifdef __aarch64__
+#if defined(__aarch64__) && TRANSFER_LIST
 		if (bl_params->image_id == BL31_IMAGE_ID &&
 		    GET_RW(bl_params->ep_info->spsr) == MODE_RW_64)
 			is64 = true;
-#endif
+#endif /* defined(__aarch64__) && TRANSFER_LIST */
 		if (bl_params->image_id == BL32_IMAGE_ID)
 			bl32_image_ep_info = *bl_params->ep_info;
 
@@ -145,8 +147,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 #endif
 
-	if (!TRANSFER_LIST ||
-	    !transfer_list_check_header((void *)arg3))
+#if TRANSFER_LIST
+	if (!transfer_list_check_header((void *)arg3))
 		return;
 
 	if (is64)
@@ -156,6 +158,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	if (arg1 != hval)
 		return;
+#endif
 
 	bl31_tl = (void *)arg3; /* saved TL address from BL2 */
 }

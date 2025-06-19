@@ -182,6 +182,44 @@ manually by running:
 You can read more about Git hooks in the *githooks* page of the Git
 documentation, available `here <https://git-scm.com/docs/githooks>`_.
 
+.. _git_submodules:
+
+Cloning Additional Git Submodules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some dependencies in TF-A, such as Transfer List Library ``libtl``, are managed
+using Git submodules. Submodules allow external repositories to be included
+within the main project while maintaining their own commit history.
+
+Initial Clone with Submodules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you're cloning the repository for the first time, run the following commands
+to initialize and fetch all submodules:
+
+.. code-block:: bash
+
+   git clone --recurse-submodules "https://git.trustedfirmware.org/TF-A/trusted-firmware-a"
+
+This ensures all submodules (including ``libtl``) are correctly checked out.
+
+Updating Submodules
+^^^^^^^^^^^^^^^^^^^
+
+If the project updates the reference to a submodule (e.g., points to a new
+commit of ``libtl``), you can update your local copy by running:
+
+.. code-block:: bash
+
+   git pull
+   git submodule update --init --recursive
+
+To fetch the latest commits from all submodules, you can use:
+
+.. code-block:: bash
+
+   git submodule update --remote
+
 --------------
 
 *Copyright (c) 2021-2025, Arm Limited. All rights reserved.*

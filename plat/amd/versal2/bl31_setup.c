@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
  * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
@@ -27,7 +27,9 @@
 #include <plat_fdt.h>
 #include <plat_private.h>
 #include <plat_startup.h>
+#if TRANSFER_LIST
 #include <plat_xfer_list.h>
+#endif
 #include <pm_api_sys.h>
 #include <pm_client.h>
 
