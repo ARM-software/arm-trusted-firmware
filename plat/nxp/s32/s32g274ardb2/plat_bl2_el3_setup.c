@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,10 @@
 
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/generic_delay_timer.h>
+#include <imx_usdhc.h>
 #include <lib/mmio.h>
+#include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <plat_console.h>
@@ -70,6 +73,29 @@ static void linflex_config_pinctrl(void)
 	mmio_write_32(SIUL2_PC10_LIN0_IMCR, LIN0_RX_IMCR_CFG);
 }
 
+static void init_s32g_usdhc(void)
+{
+	static struct mmc_device_info sd_device_info = {
+		.mmc_dev_type = MMC_IS_SD_HC,
+		.ocr_voltage = OCR_3_2_3_3 | OCR_3_3_3_4,
+	};
+	imx_usdhc_params_t params;
+
+	zeromem(&params, sizeof(imx_usdhc_params_t));
+
+	params.reg_base = S32G_USDHC_BASE;
+	params.clk_rate = 25000000;
+	params.bus_width = MMC_BUS_WIDTH_4;
+	params.flags = MMC_FLAG_SD_CMD6;
+
+	imx_usdhc_init(&params, &sd_device_info);
+}
+
+static void plat_s32_mmc_setup(void)
+{
+	init_s32g_usdhc();
+}
+
 void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				  u_register_t arg2, u_register_t arg3)
 {
@@ -103,8 +129,17 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
+	generic_delay_timer_init();
+
+	/* Configure the generic timer frequency to ensure proper operation
+	 * of the architectural timer in BL2.
+	 */
+	write_cntfrq_el0(plat_get_syscnt_freq2());
+
 	linflex_config_pinctrl();
 	console_s32g2_register();
+
+	plat_s32_mmc_setup();
 
 	plat_s32g2_io_setup();
 }

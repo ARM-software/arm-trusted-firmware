@@ -437,7 +437,7 @@ static int mmc_reset_to_idle(void)
 	int ret;
 
 	/* CMD0: reset to IDLE */
-	ret = mmc_send_cmd(MMC_CMD(0), 0, 0, NULL);
+	ret = mmc_send_cmd(MMC_CMD(0), 0, MMC_RESPONSE_NONE, NULL);
 	if (ret != 0) {
 		return ret;
 	}

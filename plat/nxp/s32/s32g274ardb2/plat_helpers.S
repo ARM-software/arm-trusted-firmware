@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,6 +120,9 @@ func platform_mem_init
 	mov_imm	x0, BL33_BASE
 	mov_imm	x1, BL33_LIMIT
 	sub	x1, x1, x0
+	bl	zeromem
+	mov_imm	x0, IO_BUFFER_BASE
+	mov_imm	x1, IO_BUFFER_SIZE
 	bl	zeromem
 	mov	x30, x10
 	ret

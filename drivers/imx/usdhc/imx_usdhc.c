@@ -227,6 +227,8 @@ static int get_xfr_type(const struct mmc_cmd *cmd, bool data, uint32_t *xfertype
 		*xfertype |= XFERTYPE_CICEN;
 		*xfertype |= XFERTYPE_CCCEN;
 		break;
+	case MMC_RESPONSE_NONE:
+		break;
 	default:
 		ERROR("Invalid CMD response: %u\n", cmd->resp_type);
 		return -EINVAL;

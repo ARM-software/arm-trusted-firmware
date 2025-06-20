@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
 
 #include <s32cc-bl-common.h>
 
@@ -37,4 +38,9 @@ int s32cc_bl_mmu_setup(void)
 	enable_mmu_el3(0);
 
 	return 0;
+}
+
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return COUNTER_FREQUENCY;
 }
