@@ -289,7 +289,9 @@ void imx_set_pwr_mode_cfg(abs_pwr_mode_t mode)
 		/* LDO1 should be power off in PD mode */
 		} else if (mode == PD_PWR_MODE) {
 			/* overwrite the buck3 voltage setting in active mode */
-			upower_pmic_i2c_read(0x22, &volt);
+			if (upower_pmic_i2c_read(0x22, &volt) != 0) {
+				panic();
+			}
 			pd_pmic_reg_cfgs[3].i2c_data = volt;
 			memcpy(&pwr_sys_cfg->ps_apd_pmic_reg_data_cfg, &pd_pmic_reg_cfgs,
 				 sizeof(ps_apd_pmic_reg_data_cfgs_t));
