@@ -3,6 +3,25 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.3..refs/tags/lts-v2.12.4) (2025-06-20)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - remove accidental alto cpu addition ([648b4f3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/648b4f34f9c74b7bb23f10ee15cb59322f7f5354))
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - update cpu_check_csv2 check ([6845376](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/68453765e7ed0369b425fdda49d78fbfc61571cd))
+    - implement workaround for DSU-120 erratum 2900952 ([e21418b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e21418b78e45d4ace6938ffd5f37ce68dba6f986))
+
 ## [lts-2.12.3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.2..refs/tags/lts-v2.12.3) (2025-05-23)
 
 ### Code Refactoring
