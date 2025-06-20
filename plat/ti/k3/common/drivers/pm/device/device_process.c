@@ -12,7 +12,7 @@
 #include <device_prepare.h>
 #include <host_idx_mapping.h>
 #include <pm.h>
-#include <common/debug.h>
+#include <psc.h>
 
 int32_t set_device_handler(struct tisci_msg_set_device_req *msg_recv)
 {
@@ -27,6 +27,7 @@ int32_t set_device_handler(struct tisci_msg_set_device_req *msg_recv)
 	uint8_t host_id = req->hdr.host;
 	bool enable, retention;
 	int32_t ret = SUCCESS;
+	uint32_t current_device_state;
 	uint8_t host_idx;
 
 	pm_trace(TRACE_PM_ACTION_MSG_RECEIVED, TISCI_MSG_SET_DEVICE);
@@ -145,6 +146,26 @@ int32_t set_device_handler(struct tisci_msg_set_device_req *msg_recv)
 		device_set_state(dev, host_idx, enable);
 		if (!retention) {
 			device_set_retention(dev, retention);
+		}
+
+		/* Check the device state after processing device_set_state function */
+		current_device_state = device_get_state(dev);
+		if (state == TISCI_MSG_VALUE_DEVICE_SW_STATE_ON) {
+			if (current_device_state != TISCI_MSG_VALUE_DEVICE_HW_STATE_ON) {
+				ret = -EFAIL;
+			}
+		} else if ((state == TISCI_MSG_VALUE_DEVICE_SW_STATE_RETENTION) || (state == TISCI_MSG_VALUE_DEVICE_SW_STATE_AUTO_OFF)) {
+			if (current_device_state == TISCI_MSG_VALUE_DEVICE_HW_STATE_TRANS) {
+				/* Device with multiple psc's might be in transition state during the requested state is off/retention because of
+				 * some psc's sibling devices might be on which keep that psc's on, this results in mixed state of psc's
+				 * which is an exception to overcome with this exception below condition is written.
+				 */
+				if (((struct dev_data *) (get_dev_data(dev)))->soc.psc_idx != PSC_DEV_MULTIPLE) {
+					ret = -EFAIL;
+				}
+			}
+		} else {
+			ret = -EFAIL;
 		}
 	}
 

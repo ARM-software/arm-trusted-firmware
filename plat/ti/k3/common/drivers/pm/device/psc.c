@@ -647,7 +647,7 @@ uint32_t lpsc_module_get_state(struct device		*dev,
 	uint8_t state;
 	uint32_t ret;
 
-	state = (uint8_t) (psc_read(dev, PSC_MDCTL(idx)) & MDSTAT_STATE_MASK);
+	state = (uint8_t) (psc_read(dev, PSC_MDSTAT(idx)) & MDSTAT_STATE_MASK);
 
 	if (state == MDSTAT_STATE_SWRSTDISABLE) {
 		ret = 0U; /* Disabled */
