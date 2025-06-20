@@ -3,6 +3,17 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.33..refs/tags/lts-v2.8.34) (2025-06-20)
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - update cpu_check_csv2 check ([ae330d5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ae330d547ebb4d83d2d50ce319640ec2850e112d))
+    - implement workaround for DSU-120 erratum 2900952 ([3a299d0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3a299d0bf2485a9982de1cedf63505a979b71e4b))
+
 ## [lts-2.8.33](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.32..refs/tags/lts-v2.8.33) (2025-06-02)
 
 ### Build System
