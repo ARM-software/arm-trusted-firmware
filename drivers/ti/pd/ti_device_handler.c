@@ -19,6 +19,7 @@
 #include <ti_device_pm.h>
 #include <ti_device_prepare.h>
 #include <ti_host_idx_mapping.h>
+#include <ti_psc.h>
 
 #define DEVICE_RESET_ISO	      BIT(9)
 #define DEVICE_HW_STATE_OFF	    0
@@ -31,6 +32,7 @@ int32_t set_device_handler(uint32_t dev_id, bool enable)
 	uint8_t host_id = HOST_ID_TIFS;
 	bool retention;
 	uint8_t host_idx;
+	uint32_t current_device_state;
 	uint8_t state;
 	int32_t ret;
 
@@ -131,6 +133,26 @@ int32_t set_device_handler(uint32_t dev_id, bool enable)
 	ti_device_set_state(dev, host_idx, enable);
 	if (!retention) {
 		ti_device_set_retention(dev, retention);
+	}
+	/* Check the device state after processing device_set_state function */
+	current_device_state = device_get_state(dev);
+	if (state == DEVICE_SW_STATE_ON) {
+		if (current_device_state != DEVICE_HW_STATE_ON) {
+			ret = -EIO;
+		}
+	} else if ((state == DEVICE_SW_STATE_RETENTION) || (state == DEVICE_SW_STATE_AUTO_OFF)) {
+		if (current_device_state == DEVICE_HW_STATE_TRANS) {
+			/* Device with multiple psc's might be in transition state during the requested
+			 * state is off/retention because of some psc's sibling devices might be on
+			 * which keep that psc's on, this results in mixed state of psc's which is
+			 * an exception to overcome with this exception below condition is written.
+			 */
+			if (((struct ti_dev_data *)(get_dev_data(dev)))->soc.psc_idx != PSC_DEV_MULTIPLE) {
+				ret = -EIO;
+			}
+		}
+	} else {
+		ret = -EIO;
 	}
 
 	return 0;
