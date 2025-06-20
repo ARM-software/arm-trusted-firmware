@@ -1497,6 +1497,9 @@ Common build options
    per the `PSA Crypto API specification`_. This feature is only supported if
    using MbedTLS 3.x version. It is disabled (``0``) by default.
 
+-  ``LFA_SUPPORT``: Boolean flag to enable support for Live Firmware
+   activation as per the specification. This option defaults to 0.
+
 -  ``TRANSFER_LIST``: Setting this to ``1`` enables support for Firmware
    Handoff using Transfer List defined in `Firmware Handoff specification`_.
    This defaults to ``0``. Current implementation follows the Firmware Handoff

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <lib/runtime_instr.h>
 #include <services/drtm_svc.h>
 #include <services/errata_abi_svc.h>
+#include <services/lfa_svc.h>
 #include <services/pci_svc.h>
 #include <services/rmmd_svc.h>
 #include <services/sdei.h>
@@ -85,6 +86,15 @@ static int32_t std_svc_setup(void)
 		ret = 1;
 	}
 #endif /* DRTM_SUPPORT */
+
+#if LFA_SUPPORT
+	/*
+	 * Setup/Initialize resources useful during LFA
+	 */
+	if (lfa_setup() != 0) {
+		ret = 1;
+	}
+#endif /* LFA_SUPPORT */
 
 	return ret;
 }
@@ -216,6 +226,13 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 					flags);
 	}
 #endif /* DRTM_SUPPORT */
+
+#if LFA_SUPPORT
+	if (is_lfa_fid(smc_fid)) {
+		return lfa_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
+	}
+#endif /* LFA_SUPPORT */
+
 
 	switch (smc_fid) {
 	case ARM_STD_SVC_CALL_COUNT:
