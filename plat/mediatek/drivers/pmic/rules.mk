@@ -9,8 +9,8 @@ LOCAL_DIR := $(call GET_LOCAL_DIR)
 MODULE := pmic
 
 ifeq (${CONFIG_MTK_PMIC_SHUTDOWN_V2}, y)
-LOCAL_SRCS-y += ${LOCAL_DIR}/pmic_common_swap_api.c
-LOCAL_SRCS-y := ${LOCAL_DIR}/pmic_psc.c
+LOCAL_SRCS-y := ${LOCAL_DIR}/pmic_common_swap_api.c
+LOCAL_SRCS-y += ${LOCAL_DIR}/pmic_psc.c
 LOCAL_SRCS-${CONFIG_MTK_PMIC_LOWPOWER} += ${LOCAL_DIR}/${MTK_SOC}/pmic_lowpower_init.c
 LOCAL_SRCS-${CONFIG_MTK_PMIC_LOWPOWER} += ${LOCAL_DIR}/${MTK_SOC}/pmic_swap_api.c
 LOCAL_SRCS-${CONFIG_MTK_PMIC_SHUTDOWN_CFG} += ${LOCAL_DIR}/${MTK_SOC}/pmic_shutdown_cfg.c
