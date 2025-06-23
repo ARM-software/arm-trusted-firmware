@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,9 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <drivers/arm/css/dsu.h>
+#include <drivers/arm/dsu.h>
+#include <dsu_def.h>
+#include <lib/utils_def.h>
 
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -131,5 +133,32 @@ void cluster_on_dsu_pmu_context_restore(void)
 	cluster_pos = (unsigned int) plat_cluster_id_by_mpidr(read_mpidr_el1());
 
 	restore_dsu_pmu_state(&cluster_pmu_context[cluster_pos]);
+}
+
+void dsu_driver_init(const dsu_driver_data_t *plat_driver_data)
+{
+	uint64_t actlr_el3 = read_actlr_el3();
+	uint64_t pwrctlr = read_clusterpwrctlr_el1();
+	uint64_t pwrdn = read_clusterpwrdn_el1();
+
+	/* enable access to power control registers. */
+	actlr_el3 |= ACTLR_EL3_PWREN_BIT;
+	write_actlr_el3(actlr_el3);
+
+	UPDATE_REG_FIELD(CLUSTERPWRCTLR_FUNCRET, pwrctlr,
+			plat_driver_data->clusterpwrctlr_funcret);
+
+	UPDATE_REG_FIELD(CLUSTERPWRCTLR_CACHEPWR, pwrctlr,
+			plat_driver_data->clusterpwrctlr_cachepwr);
+
+	write_clusterpwrctlr_el1(pwrctlr);
+
+	UPDATE_REG_FIELD(CLUSTERPWRDN_PWRDN, pwrdn,
+			plat_driver_data->clusterpwrdwn_pwrdn);
+
+	UPDATE_REG_FIELD(CLUSTERPWRDN_MEMRET, pwrdn,
+			plat_driver_data->clusterpwrdwn_memret);
+
+	write_clusterpwrdn_el1(pwrdn);
 }
 

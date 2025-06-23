@@ -12,7 +12,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_scp.h>
-#include <drivers/arm/css/dsu.h>
+#include <drivers/arm/dsu.h>
 #include <lib/cassert.h>
 #include <plat/arm/common/plat_arm.h>
 

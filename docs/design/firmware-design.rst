@@ -1056,6 +1056,18 @@ AArch64 or AArch32 EL3 Runtime Software for Armv8-A systems. A guide to
 integrating PSCI library with AArch32 EL3 Runtime Software can be found
 at :ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
 
+DSU driver
+----------
+
+Platforms that include a DSU (DynamIQ Shared Unit) can define
+the ``USE_DSU_DRIVER`` build flag to enable the DSU driver.
+This driver is responsible for configuring DSU-related powerdown
+and power feature settings using ``dsu_driver_init()`` and for
+preserving the context of DSU PMU system registers.
+
+To support the DSU driver, platforms must define the ``plat_dsu_data``
+structure.
+
 .. _firmware_design_sel1_spd:
 
 Secure-EL1 Payloads and Dispatchers

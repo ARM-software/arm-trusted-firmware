@@ -17,6 +17,7 @@
 #include <common/debug.h>
 #include <common/feat_detect.h>
 #include <common/runtime_svc.h>
+#include <drivers/arm/dsu.h>
 #include <drivers/arm/gic.h>
 #include <drivers/console.h>
 #include <lib/bootmarker_capture.h>
@@ -145,6 +146,10 @@ void bl31_main(void)
 
 	/* Perform platform setup in BL31 */
 	bl31_platform_setup();
+
+#if USE_DSU_DRIVER
+	dsu_driver_init(&plat_dsu_data);
+#endif
 
 #if USE_GIC_DRIVER
 	/*

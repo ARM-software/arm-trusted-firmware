@@ -86,6 +86,12 @@
 #define EXTRACT(regfield, reg) \
 	(((reg) & MASK(regfield)) >> (regfield##_SHIFT))
 
+#define UPDATE_REG_FIELD(regfield, reg, val) \
+	do { \
+		(reg) &= ~(MASK(regfield)); \
+		(reg) |= ((uint64_t)(val) << (regfield##_SHIFT)); \
+	} while (0)
+
 /*
  * This variant of div_round_up can be used in macro definition but should not
  * be used in C code as the `div` parameter is evaluated twice.
