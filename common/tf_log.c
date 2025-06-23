@@ -12,7 +12,7 @@
 #include <plat/common/platform.h>
 
 /* Set the default maximum log level to the `LOG_LEVEL` build flag */
-static unsigned int max_log_level = LOG_LEVEL;
+static uint32_t max_log_level = LOG_LEVEL;
 
 /*
  * The common log function which is invoked by TF-A code.
@@ -23,12 +23,12 @@ static unsigned int max_log_level = LOG_LEVEL;
  */
 void tf_log(const char *fmt, ...)
 {
-	unsigned int log_level;
+	uint32_t log_level;
 	va_list args;
 	const char *prefix_str;
 
 	/* We expect the LOG_MARKER_* macro as the first character */
-	log_level = fmt[0];
+	log_level = (uint32_t)fmt[0];
 
 	/* Verify that log_level is one of LOG_MARKER_* macro defined in debug.h */
 	assert((log_level > 0U) && (log_level <= LOG_LEVEL_VERBOSE));
@@ -40,7 +40,7 @@ void tf_log(const char *fmt, ...)
 	prefix_str = plat_log_get_prefix(log_level);
 
 	while (*prefix_str != '\0') {
-		(void)putchar(*prefix_str);
+		(void)putchar((int)*prefix_str);
 		prefix_str++;
 	}
 
@@ -51,7 +51,7 @@ void tf_log(const char *fmt, ...)
 
 void tf_log_newline(const char log_fmt[2])
 {
-	unsigned int log_level = log_fmt[0];
+	uint32_t log_level = (uint32_t)log_fmt[0];
 
 	/* Verify that log_level is one of LOG_MARKER_* macro defined in debug.h */
 	assert((log_level > 0U) && (log_level <= LOG_LEVEL_VERBOSE));
@@ -69,12 +69,12 @@ void tf_log_newline(const char log_fmt[2])
  * maximum log level is determined by `LOG_LEVEL` build flag at compile time
  * and this helper can set a lower (or equal) log level than the one at compile.
  */
-void tf_log_set_max_level(unsigned int log_level)
+void tf_log_set_max_level(uint32_t log_level)
 {
 	assert(log_level <= LOG_LEVEL_VERBOSE);
 	assert((log_level % 10U) == 0U);
 
 	/* Cap log_level to the compile time maximum. */
-	if (log_level <= (unsigned int)LOG_LEVEL)
+	if (log_level <= (uint32_t)LOG_LEVEL)
 		max_log_level = log_level;
 }

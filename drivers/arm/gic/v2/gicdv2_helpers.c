@@ -320,7 +320,7 @@ void gicd_set_icactiver(uintptr_t base, unsigned int id)
 
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 {
-	uint8_t val = pri & GIC_PRI_MASK;
+	uint8_t val = (uint8_t)(pri & GIC_PRI_MASK);
 
 	mmio_write_8(base + GICD_IPRIORITYR + id, val);
 }

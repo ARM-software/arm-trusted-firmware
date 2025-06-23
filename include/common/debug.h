@@ -32,6 +32,7 @@
 #include <cdefs.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #include <drivers/console.h>
@@ -135,7 +136,7 @@ void __dead2 __stack_chk_fail(void);
 
 void tf_log(const char *fmt, ...) __printflike(1, 2);
 void tf_log_newline(const char log_fmt[2]);
-void tf_log_set_max_level(unsigned int log_level);
+void tf_log_set_max_level(uint32_t log_level);
 
 #endif /* __ASSEMBLER__ */
 #endif /* DEBUG_H */
