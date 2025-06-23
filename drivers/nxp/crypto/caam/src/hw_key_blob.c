@@ -43,6 +43,10 @@ int get_hw_unq_key_blob_hw(uint8_t *hw_key, int size)
 	struct job_descriptor *jobdesc = &desc;
 	uint32_t in_sz = 16U;
 
+	if (size <= 0 ||  size > 16) {
+		ERROR("Error: Requested invalid length of HUK.\n");
+		return -1;
+	}
 	/* Output blob will have 32 bytes key blob in beginning and
 	 * 16 byte HMAC identifier at end of data blob
 	 */

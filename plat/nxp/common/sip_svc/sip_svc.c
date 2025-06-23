@@ -100,7 +100,7 @@ static uintptr_t nxp_sip_handler(unsigned int smc_fid,
 		}
 		/* break is not required as SMC_RETx return */
 	case SIP_SVC_HUK:
-		if (is_sec_enabled() == false) {
+		if (ns != 0 || is_sec_enabled() == false) {
 			NOTICE("SEC is disabled.\n");
 			SMC_RET1(handle, SMC_UNK);
 		}
