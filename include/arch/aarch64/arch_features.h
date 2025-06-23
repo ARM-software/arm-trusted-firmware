@@ -148,6 +148,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_PAUTH_LR		|
  * +----------------------------+
+ * |    FEAT_FGWTE3             |
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -270,6 +272,11 @@ CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
 /* FEAT_FGT2: Fine-grained traps extended */
 CREATE_FEATURE_FUNCS(feat_fgt2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
 		     ID_AA64MMFR0_EL1_FGT_MASK, FGT2_IMPLEMENTED, ENABLE_FEAT_FGT2)
+
+/* FEAT_FGWTE3: Fine-grained write traps EL3 */
+CREATE_FEATURE_FUNCS(feat_fgwte3, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_FGWTE3_SHIFT,
+		     ID_AA64MMFR4_EL1_FGWTE3_MASK, FGWTE3_IMPLEMENTED,
+		     ENABLE_FEAT_FGWTE3)
 
 /* FEAT_ECV: Enhanced Counter Virtualization */
 CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
