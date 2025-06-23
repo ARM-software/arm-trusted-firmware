@@ -9,8 +9,8 @@
 
 #define bool	_Bool
 
-#define true	(0 < 1)
-#define false	(0 > 1)
+#define true	(0 == 0)
+#define false	(0 == 1)
 
 #define __bool_true_false_are_defined	1
 
