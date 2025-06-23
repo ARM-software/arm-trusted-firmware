@@ -12,8 +12,8 @@ POVDD_ENABLE	:=	no
 NXP_COINED_BB	:=	no
 
  # DDR Compilation Configs
-NUM_OF_DDRC	:=	1
-DDRC_NUM_DIMM	:=	1
+NUM_OF_DDRC	:=	2
+DDRC_NUM_DIMM	:=	2
 DDRC_NUM_CS	:=	2
 DDR_ECC_EN	:=	yes
  #enable address decoding feature
