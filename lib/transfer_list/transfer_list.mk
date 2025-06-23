@@ -1,21 +1,25 @@
 #
-# Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 ifeq (${TRANSFER_LIST},1)
 
-ifeq (${ARCH},aarch32)
-$(eval $(call add_define,TRANSFER_LIST_AARCH32))
-endif
+# Default path if not set externally
+LIBTL_PATH	?=	contrib/libtl
 
-TRANSFER_LIST_SOURCES	+=	$(addprefix lib/transfer_list/,	\
-				transfer_list.c)
+# Common include paths (always needed)
+INCLUDES	+=	-I$(LIBTL_PATH)/include \
+			-I$(LIBTL_PATH)/include/arm
 
-BL31_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
-BL2_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
-BL1_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
+LIBTL_SRC_PATH	:=	$(LIBTL_PATH)/src
+
+LIBTL_SRCS	:=	$(addprefix $(LIBTL_SRC_PATH)/, \
+				arm/ep_info.c \
+				generic/logging.c \
+				generic/transfer_list.c)
+
+$(eval $(call MAKE_LIB,tl))
 
 endif	# TRANSFER_LIST
-

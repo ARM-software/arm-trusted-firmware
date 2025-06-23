@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <stddef.h>
-#include <arch_helpers.h>
-#include <common/debug.h>
-#include <lib/transfer_list.h>
+
 #include <platform_def.h>
 
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <transfer_list.h>
 
 static struct transfer_list_header *tl_hdr;
 static int32_t tl_ops_holder;

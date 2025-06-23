@@ -20,7 +20,7 @@
 #include <lib/hob/mpinfo.h>
 #endif
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <platform_def.h>

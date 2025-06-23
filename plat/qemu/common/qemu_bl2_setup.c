@@ -20,7 +20,7 @@
 #include <common/fdt_wrappers.h>
 #include <lib/optee_utils.h>
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #include <lib/utils.h>
 #include <plat/common/platform.h>

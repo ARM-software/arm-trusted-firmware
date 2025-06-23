@@ -17,9 +17,11 @@
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/spinlock.h>
-#include <lib/transfer_list.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
+#if TRANSFER_LIST
+#include <transfer_list.h>
+#endif
 
 /*******************************************************************************
  * Forward declarations
@@ -290,6 +292,7 @@ void arm_bl31_plat_runtime_setup(void);
 void arm_bl31_plat_arch_setup(void);
 
 /* Firmware Handoff utility functions */
+#if TRANSFER_LIST
 void arm_transfer_list_dyn_cfg_init(struct transfer_list_header *secure_tl);
 void arm_transfer_list_populate_ep_info(bl_mem_params_node_t *next_param_node,
 					struct transfer_list_header *secure_tl);
@@ -298,6 +301,7 @@ void arm_transfer_list_copy_hw_config(struct transfer_list_header *secure_tl,
 struct transfer_list_entry *
 arm_transfer_list_set_heap_info(struct transfer_list_header *tl);
 void arm_transfer_list_get_heap_info(void **heap_addr, size_t *heap_size);
+#endif
 
 /* TSP utility functions */
 void arm_tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,

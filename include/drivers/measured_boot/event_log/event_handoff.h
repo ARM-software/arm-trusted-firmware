@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 
 /**
  * Initializes or extends the TPM event log in the transfer list.

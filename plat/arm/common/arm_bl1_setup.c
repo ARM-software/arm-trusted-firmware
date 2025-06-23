@@ -15,7 +15,7 @@
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #if TRANSFER_LIST
-#include <lib/transfer_list.h>
+#include <transfer_list.h>
 #endif
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>

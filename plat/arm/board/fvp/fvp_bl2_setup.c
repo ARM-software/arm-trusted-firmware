@@ -12,7 +12,9 @@
 #include <fvp_pas_def.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
-#include <lib/transfer_list.h>
+#if TRANSFER_LIST
+#include <transfer_list.h>
+#endif
 
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
