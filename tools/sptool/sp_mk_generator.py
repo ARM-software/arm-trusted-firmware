@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -156,7 +156,7 @@ def get_uuid(sp_layout, sp, args :dict):
 def get_load_address(sp_layout, sp, args :dict):
     ''' Helper to fetch load-address from pm file listed in sp_layout.json'''
     with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
-        load_address_lines = [l for l in pm_f if 'load-address' in l]
+        load_address_lines = [l for l in pm_f if re.search(r'load-address[^-]', l)]
 
     if len(load_address_lines) != 1:
         return None
