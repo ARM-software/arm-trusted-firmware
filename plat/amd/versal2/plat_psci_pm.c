@@ -14,6 +14,7 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <plat_arm.h>
+#include <plat_fdt.h>
 
 #include "def.h"
 #include <ipi.h>
@@ -186,6 +187,34 @@ err:
 	return;
 }
 
+static int32_t versal2_validate_ns_entrypoint(uint64_t ns_entrypoint)
+{
+	int32_t ret = PSCI_E_SUCCESS;
+	struct reserve_mem_range *rmr;
+	uint32_t index = 0, counter = 0;
+
+	rmr = get_reserved_entries_fdt(&counter);
+
+	VERBOSE("Validate ns_entry point %lx\n", ns_entrypoint);
+
+	if (counter != 0) {
+		while (index < counter) {
+			if ((ns_entrypoint >= rmr[index].base) &&
+				       (ns_entrypoint <= rmr[index].size)) {
+				ret = PSCI_E_INVALID_ADDRESS;
+				break;
+			}
+			index++;
+		}
+	} else {
+		if ((ns_entrypoint >= BL31_BASE) && (ns_entrypoint <= BL31_LIMIT)) {
+			ret = PSCI_E_INVALID_ADDRESS;
+		}
+	}
+
+	return ret;
+}
+
 static void versal2_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	(void)target_state;
@@ -312,6 +341,7 @@ static const struct plat_psci_ops versal2_nopmc_psci_ops = {
 	.pwr_domain_suspend_finish      = versal2_pwr_domain_suspend_finish,
 	.system_off                     = versal2_system_off,
 	.system_reset                   = versal2_system_reset,
+	.validate_ns_entrypoint		= versal2_validate_ns_entrypoint,
 	.validate_power_state           = versal2_validate_power_state,
 	.get_sys_suspend_power_state    = versal2_get_sys_suspend_power_state,
 };
