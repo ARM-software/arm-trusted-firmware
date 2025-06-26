@@ -130,16 +130,6 @@
 			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
 	};
 
-	gpu: gpu@2d000000 {
-		interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH 0>;
-		interrupt-names = "IRQAW";
-		iommus = <&smmu_700 0x0>;
-		system-coherency = <0x0>;
-#if defined(TARGET_FLAVOUR_FPGA)
-		/delete-node/ pbha;
-#endif	/* TARGET_FLAVOUR_FPGA */
-	};
-
 	dsu-pmu {
 		interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH 0>;
 	};
@@ -205,4 +195,34 @@
 		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(7) 0x0 0x4000>;
 	};
 #endif	/* TARGET_FLAVOUR_FPGA */
+
+	/delete-node/ gpu;
+
+	gpu_tc5: gpu@550000000 {
+		compatible = "arm,mali-midgard";
+		reg = <0x5 0x50000000  0x0 0x580000>;
+		protected-memory-allocator = <&gpu_protected_memory_allocator0>;
+		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "IRQAW";
+#if !defined(TC_TARGET_DISTRO_BUILDROOT)
+		iommus = <&smmu_700 0x0>;
+		system-coherency = <0x0>;
+#else
+		system-coherency = <0x1F>;
+#endif
+#if TC_SCMI_PD_CTRL_EN
+		power-domains = <&scmi_devpd GPU_SCMI_PD_IDX>;
+		scmi-perf-domain = <3>;
+#endif /* TC_SCMI_PD_CTRL_EN */
+		clocks = <&gpu_core_clk 0>;
+		clock-names = "shadercores";
+		pbha {
+			int-id-override = <0 0x22>, <2 0x23>, <4 0x23>, <7 0x22>,
+					  <8 0x22>, <9 0x22>, <10 0x22>, <11 0x22>,
+					  <12 0x22>, <13 0x22>, <16 0x22>, <17 0x32>,
+					  <18 0x32>, <19 0x22>, <20 0x22>, <21 0x32>,
+					  <22 0x32>, <24 0x22>, <28 0x32>;
+			propagate-bits = <0x0f>;
+		};
+	};
 };

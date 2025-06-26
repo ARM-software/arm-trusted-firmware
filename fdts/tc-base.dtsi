@@ -58,6 +58,29 @@
 		serial0 = &os_uart;
 	};
 
+	reserved_memory: reserved-memory {
+		#address-cells = <2>;
+		#size-cells    = <2>;
+		ranges;
+
+		/* your two protected regions now go here: */
+		gpu_protected: gpu-protected@ff0000000 {
+			compatible = "arm,dma-buf-reserved";
+			reg = <0x0f 0xf0000000 0x0 0x08000000>;
+		};
+		mali_protected0: mali-protected@ff8000000 {
+			compatible = "mali-reserved";
+			no-map;
+			reg = <0x0f 0xf8000000 0x0 0x00800000>;
+		};
+	};
+
+	dma_buf: dma-buf {
+		protected {
+			memory-region = <&gpu_protected>;
+		};
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -451,6 +474,11 @@
 		clock-names = "mclk", "apb_pclk";
 	};
 
+	gpu_protected_memory_allocator0: protected-memory-allocator@0 {
+		compatible = "arm,protected-memory-allocator";
+		memory-region = <&mali_protected0>;
+	};
+
 	gpu_clk: gpu_clk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -468,11 +496,11 @@
 		reg = <0x0 0x2d000000 0x0 0x200000>;
 		clocks = <&gpu_core_clk>;
 		clock-names = "shadercores";
+		protected-memory-allocator = <&gpu_protected_memory_allocator0>;
 #if TC_SCMI_PD_CTRL_EN
 		power-domains = <&scmi_devpd GPU_SCMI_PD_IDX>;
 		scmi-perf-domain = <3>;
 #endif /* TC_SCMI_PD_CTRL_EN */
-
 		pbha {
 			int-id-override = <0 0x22>, <2 0x23>, <4 0x23>, <7 0x22>,
 					  <8 0x22>, <9 0x22>, <10 0x22>, <11 0x22>,
