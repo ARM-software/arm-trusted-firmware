@@ -28,6 +28,7 @@ MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
 MODULES-y += $(MTK_PLAT)/topology
 MODULES-y += $(MTK_PLAT)/drivers/cirq
+MODULES-y += $(MTK_PLAT)/drivers/dfd
 MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/iommu
 MODULES-y += $(MTK_PLAT)/drivers/mcusys

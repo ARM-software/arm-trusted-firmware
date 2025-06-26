@@ -1,0 +1,165 @@
+/*
+ * Copyright (c) 2025, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <dfd.h>
+#include <plat_dfd.h>
+
+struct dfd_mcu_ext_pair {
+	uint32_t reg;
+	uint32_t val;
+};
+
+static const struct dfd_mcu_ext_pair ext_init_array[] = {
+	{ DFD_INTERNAL_CTL, 0x0018200D },
+	{ DFD_INTERNAL_PWR_ON, 0x0000000B },
+	{ DFD_INTERNAL_SHIFT_CLK_RATIO, 0x00000000 },
+	{ DFD_INTERNAL_TEST_SO_OVER_64, 0x00000001 },
+	{ DFD_TEST_SI_0, 0x00000000 },
+	{ DFD_TEST_SI_1, 0x00000000 },
+	{ DFD_TEST_SI_2, 0x00000000 },
+	{ DFD_TEST_SI_3, 0x00000000 },
+	{ DFD_INTERNAL_CHAIN_GROUP, 0x00000013 },
+	{ DFD_INTERNAL_CHAIN_INV_INFO_LL, 0x00000002 },
+	{ DFD_INTERNAL_CHAIN_INV_INFO_LH, 0x40444444 },
+	{ DFD_INTERNAL_CHAIN_INV_INFO_HL, 0x00000040 },
+	{ DFD_INTERNAL_CHAIN_INV_INFO_HH, 0x00000000 },
+	{ DFD_POWER_CTL, 0x000000F9 },
+	{ DFD_READ_ADDR, 0x000000F9 },
+	{ DFD_V50_GROUP_0_1_DIFF, 1 },
+	{ DFD_V50_GROUP_0_2_DIFF, 236 },
+	{ DFD_V50_GROUP_0_3_DIFF, 1466 },
+	{ DFD_V50_GROUP_0_4_DIFF, 4885 },
+	{ DFD_V50_GROUP_0_5_DIFF, 17935 },
+	{ DFD_V50_GROUP_0_6_DIFF, 22364 },
+	{ DFD_V50_GROUP_0_7_DIFF, 23268 },
+	{ DFD_V50_GROUP_0_8_DIFF, 31878 },
+	{ DFD_V50_GROUP_0_9_DIFF, 31879 },
+	{ DFD_V50_GROUP_0_10_DIFF, 35472 },
+	{ DFD_V50_GROUP_0_11_DIFF, 35473 },
+	{ DFD_V50_GROUP_0_12_DIFF, 35540 },
+	{ DFD_V50_GROUP_0_13_DIFF, 36145 },
+	{ DFD_V50_GROUP_0_14_DIFF, 37666 },
+	{ DFD_V50_GROUP_0_15_DIFF, 37667 },
+	{ DFD_V50_GROUP_0_16_DIFF, 46039 },
+	{ DFD_V50_GROUP_0_17_DIFF, 48314 },
+	{ DFD_V50_GROUP_0_18_DIFF, 48705 },
+	{ DFD_V50_GROUP_0_19_DIFF, 0 },
+	{ DFD_V50_GROUP_0_20_DIFF, 0 },
+	{ DFD_V50_GROUP_0_21_DIFF, 0 },
+	{ DFD_V50_GROUP_0_22_DIFF, 0 },
+	{ DFD_V50_GROUP_0_23_DIFF, 0 },
+	{ DFD_V50_GROUP_0_24_DIFF, 0 },
+	{ DFD_V50_GROUP_0_25_DIFF, 0 },
+	{ DFD_V50_GROUP_0_26_DIFF, 0 },
+	{ DFD_V50_GROUP_0_27_DIFF, 0 },
+	{ DFD_V50_GROUP_0_28_DIFF, 0 },
+	{ DFD_V50_GROUP_0_29_DIFF, 0 },
+	{ DFD_V50_GROUP_0_30_DIFF, 0 },
+	{ DFD_V50_GROUP_0_31_DIFF, 0 },
+	{ DFD_V50_GROUP_0_32_DIFF, 0 },
+	{ DFD_V50_GROUP_0_33_DIFF, 0 },
+	{ DFD_V50_GROUP_0_34_DIFF, 0 },
+	{ DFD_V50_GROUP_0_35_DIFF, 0 },
+	{ DFD_V50_GROUP_0_36_DIFF, 0 },
+	{ DFD_V50_GROUP_0_37_DIFF, 0 },
+	{ DFD_V50_GROUP_0_38_DIFF, 0 },
+	{ DFD_V50_GROUP_0_39_DIFF, 0 },
+	{ DFD_V50_GROUP_0_40_DIFF, 0 },
+	{ DFD_V50_GROUP_0_41_DIFF, 0 },
+	{ DFD_V50_GROUP_0_42_DIFF, 0 },
+	{ DFD_V50_GROUP_0_43_DIFF, 0 },
+	{ DFD_V50_GROUP_0_44_DIFF, 0 },
+	{ DFD_V50_GROUP_0_45_DIFF, 0 },
+	{ DFD_V50_GROUP_0_46_DIFF, 0 },
+	{ DFD_V50_GROUP_0_47_DIFF, 0 },
+	{ DFD_V50_GROUP_0_48_DIFF, 0 },
+	{ DFD_V50_GROUP_0_49_DIFF, 0 },
+	{ DFD_V50_GROUP_0_50_DIFF, 0 },
+	{ DFD_V50_GROUP_0_51_DIFF, 0 },
+	{ DFD_V50_GROUP_0_52_DIFF, 0 },
+	{ DFD_V50_GROUP_0_53_DIFF, 0 },
+	{ DFD_V50_GROUP_0_54_DIFF, 0 },
+	{ DFD_V50_GROUP_0_55_DIFF, 0 },
+	{ DFD_V50_GROUP_0_56_DIFF, 0 },
+	{ DFD_V50_GROUP_0_57_DIFF, 0 },
+	{ DFD_V50_GROUP_0_58_DIFF, 0 },
+	{ DFD_V50_GROUP_0_59_DIFF, 0 },
+	{ DFD_V50_GROUP_0_60_DIFF, 0 },
+	{ DFD_V50_GROUP_0_61_DIFF, 0 },
+	{ DFD_V50_GROUP_0_62_DIFF, 0 },
+	{ DFD_V50_GROUP_0_63_DIFF, 0x00000001 },
+	{ DFD_V50_CHAIN_GROUP_3_0_INFO, 0x00100400 },
+	{ DFD_V50_CHAIN_GROUP_7_4_INFO, 0x0b0a0a0a },
+	{ DFD_V50_CHAIN_GROUP_11_8_INFO, 0x12120b0b },
+	{ DFD_V50_CHAIN_GROUP_15_12_INFO, 0x08080812 },
+	{ DFD_V50_CHAIN_GROUP_19_16_INFO, 0x09090909 },
+	{ DFD_V50_CHAIN_GROUP_23_20_INFO, 0x0e0e0d05 },
+	{ DFD_V50_CHAIN_GROUP_27_24_INFO, 0x0e0e0e0e },
+	{ DFD_V50_CHAIN_GROUP_31_28_INFO, 0x0e0e0e0e },
+	{ DFD_V50_CHAIN_GROUP_35_32_INFO, 0x06070f0f },
+	{ DFD_V50_CHAIN_GROUP_39_36_INFO, 0x06070c06 },
+	{ DFD_V50_CHAIN_GROUP_43_40_INFO, 0x06070c06 },
+	{ DFD_V50_CHAIN_GROUP_47_44_INFO, 0x06070c06 },
+	{ DFD_V50_CHAIN_GROUP_51_48_INFO, 0x06070c06 },
+	{ DFD_V50_CHAIN_GROUP_55_52_INFO, 0x06070c06 },
+	{ DFD_V50_CHAIN_GROUP_59_56_INFO, 0x00000c06 },
+	{ DFD_V50_CHAIN_GROUP_63_60_INFO, 0x11030000 },
+	{ DFD_V50_CHAIN_GROUP_67_64_INFO, 0x00000002 },
+	{ DFD_V50_CHAIN_GROUP_71_68_INFO, 0x11030101 },
+	{ DFD_V50_CHAIN_GROUP_75_72_INFO, 0x00000002 },
+	{ DFD_V50_CHAIN_GROUP_79_76_INFO, 0x00000101 },
+	{ DFD_V50_CHAIN_GROUP_83_80_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_87_84_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_91_88_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_95_92_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_99_96_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_103_100_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_107_104_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_111_108_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_115_112_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_119_116_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_123_120_INFO, 0x00000000 },
+	{ DFD_V50_CHAIN_GROUP_127_124_INFO, 0x00000000 },
+};
+
+static uint64_t dfd_cache_dump;
+static bool dfd_enabled;
+static uint64_t dfd_base_addr;
+static uint64_t dfd_chain_length;
+
+void dfd_setup(uint64_t base_addr, uint64_t chain_length, uint64_t cache_dump)
+{
+	unsigned int i;
+
+	mmio_write_32(DFD_INTERNAL_CHAIN_LENGTH_0, chain_length);
+	mmio_write_32(DFD_O_SET_BASEADDR_REG, base_addr >> 24);
+
+	/* setup global variables for suspend and resume */
+	dfd_enabled = true;
+	dfd_base_addr = base_addr;
+	dfd_chain_length = chain_length;
+	dfd_cache_dump = cache_dump;
+
+	for (i = 0; i < ARRAY_SIZE(ext_init_array); i++)
+		mmio_write_32(ext_init_array[i].reg, ext_init_array[i].val);
+
+	if ((cache_dump & DFD_CACHE_DUMP_ENABLE) != 0UL) {
+		sync_writel(DFD_V35_ENABLE, 0x1);
+		sync_writel(DFD_V35_TAP_NUMBER, 0xB);
+		sync_writel(DFD_V35_TAP_EN, DFD_V35_TAP_EN_VAL);
+		sync_writel(DFD_V35_SEQ0_0, DFD_V35_SEQ0_0_VAL);
+	}
+	dsbsy();
+}
+
+void dfd_resume(void)
+{
+	if (dfd_enabled == true) {
+		dfd_setup(dfd_base_addr, dfd_chain_length, dfd_cache_dump);
+	}
+}
