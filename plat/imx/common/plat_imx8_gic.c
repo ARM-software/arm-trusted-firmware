@@ -17,7 +17,7 @@
 #include <plat_imx8.h>
 
 /* the GICv3 driver only needs to be initialized in EL3 */
-uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
+static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
 static const interrupt_prop_t g01s_interrupt_props[] = {
 	INTR_PROP_DESC(8, GIC_HIGHEST_SEC_PRIORITY,
