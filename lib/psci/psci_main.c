@@ -64,9 +64,6 @@ int psci_cpu_suspend(unsigned int power_state,
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 	plat_local_state_t cpu_pd_state;
 	unsigned int cpu_idx = plat_my_core_pos();
-#if PSCI_OS_INIT_MODE
-	plat_local_state_t prev[PLAT_MAX_PWR_LVL];
-#endif
 
 #if ERRATA_SME_POWER_DOWN
 	/*
@@ -103,7 +100,7 @@ int psci_cpu_suspend(unsigned int power_state,
 		panic();
 	}
 
-	/* Fast path for CPU standby.*/
+	/* Fast path for local CPU standby, won't interact with higher power levels. */
 	if (is_cpu_standby_req(is_power_down_state, target_pwrlvl)) {
 		if  (psci_plat_pm_ops->cpu_standby == NULL) {
 			return PSCI_E_INVALID_PARAMS;
@@ -115,18 +112,6 @@ int psci_cpu_suspend(unsigned int power_state,
 		 */
 		cpu_pd_state = state_info.pwr_domain_state[PSCI_CPU_PWR_LVL];
 		psci_set_cpu_local_state(cpu_pd_state);
-
-#if PSCI_OS_INIT_MODE
-		/*
-		 * If in OS-initiated mode, save a copy of the previous
-		 * requested local power states and update the new requested
-		 * local power states for this CPU.
-		 */
-		if (psci_suspend_mode == OS_INIT) {
-			psci_update_req_local_pwr_states(target_pwrlvl, cpu_idx,
-							 &state_info, prev);
-		}
-#endif
 
 #if ENABLE_PSCI_STAT
 		plat_psci_stat_accounting_start(&state_info);
@@ -142,16 +127,6 @@ int psci_cpu_suspend(unsigned int power_state,
 
 		/* Upon exit from standby, set the state back to RUN. */
 		psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
-
-#if PSCI_OS_INIT_MODE
-		/*
-		 * If in OS-initiated mode, restore the previous requested
-		 * local power states for this CPU.
-		 */
-		if (psci_suspend_mode == OS_INIT) {
-			psci_restore_req_local_pwr_states(cpu_idx, prev);
-		}
-#endif
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
