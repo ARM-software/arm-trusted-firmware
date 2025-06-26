@@ -19,6 +19,9 @@
 #error "This file should only be used with USE_GIC_DRIVER=3"
 #endif
 
+#pragma weak gic_cpuif_enable
+#pragma weak gic_cpuif_disable
+
 /* The GICv3 driver only needs to be initialized in EL3 */
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
