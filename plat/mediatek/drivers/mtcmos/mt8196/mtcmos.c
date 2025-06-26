@@ -50,7 +50,7 @@ enum {
 
 #define MTCMOS_TIMEOUT_US	500
 
-#define ETIMEDOUT	25
+#define MTCMOS_ETIMEDOUT	25
 
 static spinlock_t mtcmos_ctrl_lock;
 
@@ -69,7 +69,7 @@ static int mtcmos_wait_for_state(uint32_t reg, uint32_t mask, bool is_set)
 	ERROR("%s(0x%x, 0x%x, %d) timeout, reg_val=0x%x\n",
 	      __func__, reg, mask, is_set, mmio_read_32(reg));
 
-	return -ETIMEDOUT;
+	return -MTCMOS_ETIMEDOUT;
 }
 
 
@@ -81,7 +81,7 @@ static int spm_mtcmos_ctrl_bus_prot(int state, uint32_t mask)
 		mmio_write_32(SPM_BUS_PROTECT_EN_SET, mask);
 		if (mtcmos_wait_for_state(SPM_BUS_PROTECT_RDY_STA, mask,
 					  true))
-			return -ETIMEDOUT;
+			return -MTCMOS_ETIMEDOUT;
 	} else if (state == RELEASE_BUS_PROTECT) {
 		mmio_write_32(SPM_BUS_PROTECT_EN_CLR, mask);
 	}
