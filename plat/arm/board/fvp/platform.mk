@@ -412,14 +412,10 @@ FVP_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tsp_fw_config.dtb
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_TOS_FW_CONFIG},--tos-fw-config,${FVP_TOS_FW_CONFIG}))
 endif
 
-# Add the FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${FVP_FW_CONFIG},--fw-config,${FVP_FW_CONFIG}))
 # Add the SOC_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_SOC_FW_CONFIG},--soc-fw-config,${FVP_SOC_FW_CONFIG}))
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_NT_FW_CONFIG},--nt-fw-config,${FVP_NT_FW_CONFIG}))
-# Add the TB_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config,${FVP_TB_FW_CONFIG}))
 endif
 
 ifeq (${SPD},spmd)
@@ -598,4 +594,20 @@ $(eval $(call add_define,PLAT_TEST_SPM))
 
 ifeq (${LFA_SUPPORT},1)
 BL31_SOURCES            +=      plat/arm/board/fvp/fvp_lfa.c
+endif
+
+# This is set to 1 by default when the firmware update
+# support is enabled. Since the BL2 image is not updatable
+ifeq ($(PSA_FWU_SUPPORT),1)
+    SEPARATE_BL2_FIP  :=	1
+endif
+
+ifeq (${TRANSFER_LIST}, 0)
+ifeq (${SEPARATE_BL2_FIP},1)
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_FW_CONFIG},--fw-config,${FVP_FW_CONFIG},BL2_))
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config,${FVP_TB_FW_CONFIG},BL2_))
+else
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_FW_CONFIG},--fw-config,${FVP_FW_CONFIG}))
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config,${FVP_TB_FW_CONFIG}))
+endif
 endif

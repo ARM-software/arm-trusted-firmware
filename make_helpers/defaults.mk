@@ -140,6 +140,9 @@ FIP_NAME			:= fip.bin
 # Default FWU_FIP file name
 FWU_FIP_NAME			:= fwu_fip.bin
 
+# Default BL2 FIP file name
+BL2_FIP_NAME			:= bl2_fip.bin
+
 # By default firmware encryption with SSK
 FW_ENC_STATUS			:= 0
 

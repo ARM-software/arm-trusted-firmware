@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -47,6 +47,7 @@ CCAFW_NVCTR_VAL		?=	0
 
 # Pass the non-volatile counters to the cert_create tool
 $(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr))
+$(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr, BL2_))
 $(eval $(call CERT_ADD_CMD_OPT,${NTFW_NVCTR_VAL},--ntfw-nvctr))
 ifeq (${COT},cca)
 $(eval $(call CERT_ADD_CMD_OPT,${CCAFW_NVCTR_VAL},--ccafw-nvctr))
@@ -71,12 +72,16 @@ endif
 # build option in the command line when building the Trusted Firmware
 $(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg)))
 $(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg,FWU_)))
+$(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg,BL2_)))
 $(if ${KEY_SIZE},$(eval $(call CERT_ADD_CMD_OPT,${KEY_SIZE},--key-size)))
 $(if ${KEY_SIZE},$(eval $(call CERT_ADD_CMD_OPT,${KEY_SIZE},--key-size,FWU_)))
+$(if ${KEY_SIZE},$(eval $(call CERT_ADD_CMD_OPT,${KEY_SIZE},--key-size,BL2_)))
 $(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg)))
 $(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg,FWU_)))
+$(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg,BL2_)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,FWU_)))
+$(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,BL2_)))
 $(if ${PROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${PROT_KEY},--prot-key)))
 $(if ${PLAT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${PLAT_KEY},--plat-key)))
 $(if ${SWD_ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${SWD_ROT_KEY},--swd-rot-key)))
@@ -89,6 +94,9 @@ $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD
 ifeq (${NEED_BL2},yes)
 ifeq (${RESET_TO_BL2}, 0)
 ifneq (${COT},cca)
+ifeq (${SEPARATE_BL2_FIP},1)
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert,,BL2_))
+endif
 $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
 endif
 endif
