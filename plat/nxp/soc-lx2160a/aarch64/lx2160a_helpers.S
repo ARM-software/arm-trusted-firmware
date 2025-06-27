@@ -7,6 +7,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <cpu_macros.S>
 
 #include <platform_def.h>
 
@@ -35,6 +36,8 @@ endfunc apply_platform_errata
 func plat_reset_handler
 	mov x29, x30
 	bl  apply_platform_errata
+
+	sysreg_bit_set CORTEX_A72_CPUACTLR_EL1, CORTEX_A72_CPUACTLR_EL1_DELAY_EXCLUSIVE_SNOOP
 
 #if defined(IMAGE_BL31)
 	ldr x0, =POLICY_SMMU_PAGESZ_64K
