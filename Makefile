@@ -1425,7 +1425,7 @@ ${CRTTOOL}: FORCE
 	$(s)echo
 
 ifneq (${GENERATE_COT},0)
-certificates: ${CRT_DEPS} ${CRTTOOL}
+certificates: ${CRT_DEPS} ${CRTTOOL} ${DTBS}
 	$(q)${CRTTOOL} ${CRT_ARGS}
 	$(s)echo
 	$(s)echo "Built $@ successfully"
