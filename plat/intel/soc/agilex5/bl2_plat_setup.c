@@ -198,7 +198,7 @@ void bl2_el3_plat_arch_setup(void)
 		break;
 
 	case BOOT_SOURCE_NAND:
-		NOTICE("SOCFPGA: SOCFPGA: NAND boot\n");
+		NOTICE("SOCFPGA: NAND boot\n");
 		nand_init(&reverse_handoff_ptr);
 		socfpga_io_setup(boot_source, PLAT_NAND_DATA_BASE);
 		break;
