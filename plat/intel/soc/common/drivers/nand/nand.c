@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,32 +21,7 @@
 #include "agilex5_pinmux.h"
 #include "combophy/combophy.h"
 
-/* Pinmux configuration */
-static void nand_pinmux_config(void)
+int nand_init(void)
 {
-	mmio_write_32(SOCFPGA_PINMUX(PIN0SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN1SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN2SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN3SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN4SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN5SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN6SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN7SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN8SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN9SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN10SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN11SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN12SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN13SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN14SEL), SOCFPGA_PINMUX_SEL_NAND);
-}
-
-int nand_init(handoff *hoff_ptr)
-{
-	(void)(hoff_ptr);
-
-	/* NAND pin mux configuration */
-	nand_pinmux_config();
-
 	return cdns_nand_host_init();
 }

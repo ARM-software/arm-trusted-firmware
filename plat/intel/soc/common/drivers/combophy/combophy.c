@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
+ * Copyright (c) 2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,7 +28,7 @@ int dfi_select(handoff *hoff_ptr)
 
 	INFO("Power gate enable hand-off: 0x%08x\n", hoff_ptr->peripheral_pwr_gate_array);
 
-	if ((hoff_ptr->peripheral_pwr_gate_array & POWER_GATE_EN_SDEMMC) != 0) {
+	if (hoff_ptr->peripheral_pwr_gate_array & POWER_GATE_EN_SDEMMC) {
 		INFO("SDEMMC power gate enabled, DFI selected to NAND\n");
 		/*
 		 * SDEMMC power gate enabled.
@@ -36,7 +36,7 @@ int dfi_select(handoff *hoff_ptr)
 		 * interface is selected to NAND via System manager.
 		 */
 		active_dfi_intf = DFI_CTRL_SEL_HPNFC;
-	} else if ((hoff_ptr->peripheral_pwr_gate_array & POWER_GATE_EN_NAND) != 0) {
+	} else if (hoff_ptr->peripheral_pwr_gate_array & POWER_GATE_EN_NAND) {
 		INFO("NAND power gate enabled, DFI selected to SDEMMC\n");
 		/*
 		 * NAND power gate enabled.
