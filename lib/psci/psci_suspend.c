@@ -318,9 +318,11 @@ void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max
 	gic_cpuif_enable(cpu_idx);
 #endif /* USE_GIC_DRIVER */
 
-	/* Re-init the cntfrq_el0 register */
-	counter_freq = plat_get_syscnt_freq2();
-	write_cntfrq_el0(counter_freq);
+	if (!abandon) {
+		/* Re-init the cntfrq_el0 register */
+		counter_freq = plat_get_syscnt_freq2();
+		write_cntfrq_el0(counter_freq);
+	}
 
 	/*
 	 * Call the cpu suspend finish handler registered by the Secure Payload
