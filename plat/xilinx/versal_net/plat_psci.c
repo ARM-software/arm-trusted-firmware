@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
  * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
@@ -106,8 +106,6 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	plat_arm_gic_pcpu_init();
-	plat_arm_gic_cpuif_enable();
 }
 
 static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_state)

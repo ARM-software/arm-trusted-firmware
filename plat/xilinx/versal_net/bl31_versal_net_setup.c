@@ -242,10 +242,6 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 void bl31_platform_setup(void)
 {
 	prepare_dtb();
-
-	/* Initialize the gic cpu and distributor interfaces */
-	plat_arm_gic_driver_init();
-	plat_arm_gic_init();
 }
 
 void bl31_plat_runtime_setup(void)
