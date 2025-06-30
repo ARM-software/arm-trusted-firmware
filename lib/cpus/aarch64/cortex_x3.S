@@ -96,6 +96,12 @@ workaround_reset_end cortex_x3, ERRATUM(2779509)
 
 check_erratum_ls cortex_x3, ERRATUM(2779509), CPU_REV(1, 1)
 
+workaround_reset_start cortex_x3, ERRATUM(3692984), ERRATA_X3_3692984
+	sysreg_bit_set	CORTEX_X3_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x3, ERRATUM(3692984)
+
+check_erratum_ls cortex_x3, ERRATUM(3692984), CPU_REV(1, 2)
+
 add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769
 
 check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
