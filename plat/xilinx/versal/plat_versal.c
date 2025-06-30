@@ -8,13 +8,13 @@
 
 #include <plat_private.h>
 
-int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
+int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	int32_t ret = -1;
+	int ret = -1;
 
 	if (((mpidr & MPIDR_CLUSTER_MASK) == 0U) &&
 	       ((mpidr & MPIDR_CPU_MASK) < PLATFORM_CORE_COUNT)) {
-		ret = (int32_t)versal_calc_core_pos(mpidr);
+		ret = (int)versal_calc_core_pos(mpidr);
 	}
 
 	return ret;
