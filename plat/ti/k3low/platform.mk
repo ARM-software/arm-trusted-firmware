@@ -23,6 +23,7 @@ K3_TI_SCI_TRANSPORT	:=	\
 
 BL31_SOURCES		+=	\
 				drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
 				${K3_PSCI_SOURCES}				\
 				${K3_TI_SCI_TRANSPORT}				\
 				${PLAT_PATH}/common/am62l_bl31_setup.c		\

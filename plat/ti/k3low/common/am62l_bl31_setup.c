@@ -18,6 +18,6 @@ const mmap_region_t plat_k3_mmap[] = {
 
 int ti_soc_init(void)
 {
-	/* nothing to do right now */
+	generic_delay_timer_init();
 	return 0;
 }
