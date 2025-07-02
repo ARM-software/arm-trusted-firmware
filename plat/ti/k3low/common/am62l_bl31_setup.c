@@ -24,6 +24,27 @@ const mmap_region_t plat_k3_mmap[] = {
 
 int ti_soc_init(void)
 {
+	struct ti_sci_msg_version version;
+	int ret;
+
 	generic_delay_timer_init();
+
+	ret = ti_sci_boot_notification();
+	if (ret != 0) {
+		ERROR("%s: Failed to receive boot notification (%d)\n", __func__, ret);
+		return ret;
+	}
+
+	ret = ti_sci_get_revision(&version);
+	if (ret != 0) {
+		ERROR("%s: Failed to get revision (%d)\n", __func__, ret);
+		return ret;
+	}
+
+	NOTICE("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
+	       version.abi_major, version.abi_minor,
+	       version.firmware_revision,
+	       version.firmware_description);
+
 	return 0;
 }
