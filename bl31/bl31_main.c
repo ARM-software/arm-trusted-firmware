@@ -120,8 +120,10 @@ void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
  ******************************************************************************/
 void bl31_main(void)
 {
+	unsigned int core_pos = plat_my_core_pos();
+
 	/* Init registers that never change for the lifetime of TF-A */
-	cm_manage_extensions_el3(plat_my_core_pos());
+	cm_manage_extensions_el3(core_pos);
 
 	/* Init per-world context registers */
 	cm_manage_extensions_per_world();
@@ -131,7 +133,7 @@ void bl31_main(void)
 
 #if FEATURE_DETECTION
 	/* Detect if features enabled during compilation are supported by PE. */
-	detect_arch_features();
+	detect_arch_features(core_pos);
 #endif /* FEATURE_DETECTION */
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
@@ -156,8 +158,6 @@ void bl31_main(void)
 	 * Initialize the GIC driver as well as per-cpu and global interfaces.
 	 * Platform has had an opportunity to initialise specifics.
 	 */
-	unsigned int core_pos = plat_my_core_pos();
-
 	gic_init(core_pos);
 	gic_pcpu_init(core_pos);
 	gic_cpuif_enable(core_pos);
