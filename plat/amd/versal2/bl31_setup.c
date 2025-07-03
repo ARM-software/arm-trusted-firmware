@@ -261,12 +261,20 @@ void bl31_plat_runtime_setup(void)
 {
 	uint32_t flags = 0;
 	int32_t rc;
+	uint32_t rre_ret = 0;
 
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
 					     rdo_el3_interrupt_handler, flags);
 	if (rc != 0) {
 		panic();
+	}
+
+	/* Instead of calling for each time fill in structure early. */
+	rre_ret = retrieve_reserved_entries();
+
+	if (rre_ret != 0) {
+		INFO("Runtime FDT reserve node retreival failed");
 	}
 
 	console_switch_state(CONSOLE_FLAG_RUNTIME);
