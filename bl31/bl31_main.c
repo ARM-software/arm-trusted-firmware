@@ -126,6 +126,8 @@ void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
  ******************************************************************************/
 void bl31_main(void)
 {
+	unsigned int core_pos = plat_my_core_pos();
+
 	/* Init registers that never change for the lifetime of TF-A */
 	cm_manage_extensions_el3();
 
@@ -137,7 +139,7 @@ void bl31_main(void)
 
 #if FEATURE_DETECTION
 	/* Detect if features enabled during compilation are supported by PE. */
-	detect_arch_features();
+	detect_arch_features(core_pos);
 #endif /* FEATURE_DETECTION */
 
 #if ENABLE_RUNTIME_INSTRUMENTATION

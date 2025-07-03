@@ -7,8 +7,9 @@
 #include <arch_features.h>
 #include <common/debug.h>
 #include <common/feat_detect.h>
+#include <plat/common/platform.h>
 
-static bool tainted;
+static bool detection_done[PLATFORM_CORE_COUNT] = { false };
 
 /*******************************************************************************
  * This section lists the wrapper modules for each feature to evaluate the
@@ -45,19 +46,21 @@ static inline void feature_panic(char *feat_name)
  * We force inlining here to let the compiler optimise away the whole check
  * if the feature is disabled at build time (FEAT_STATE_DISABLED).
  ******************************************************************************/
-static inline void __attribute((__always_inline__))
+static inline bool __attribute((__always_inline__))
 check_feature(int state, unsigned long field, const char *feat_name,
 	      unsigned int min, unsigned int max)
 {
 	if (state == FEAT_STATE_ALWAYS && field < min) {
 		ERROR("FEAT_%s not supported by the PE\n", feat_name);
-		tainted = true;
+		return true;
 	}
 	if (state >= FEAT_STATE_ALWAYS && field > max) {
 		ERROR("FEAT_%s is version %ld, but is only known up to version %d\n",
 		      feat_name, field, max);
-		tainted = true;
+		return true;
 	}
+
+	return false;
 }
 
 /************************************************
@@ -303,118 +306,137 @@ static unsigned int read_feat_d128_id_field(void)
  * { FEAT_STATE_DISABLED, FEAT_STATE_ALWAYS, FEAT_STATE_CHECK }, taking values
  * { 0, 1, 2 }, respectively, as their naming.
  **********************************************************************************/
-void detect_arch_features(void)
+void detect_arch_features(unsigned int core_pos)
 {
-	tainted = false;
+	/* No need to keep checking after the first time for each core. */
+	if (detection_done[core_pos]) {
+		return;
+	}
+
+	bool tainted = false;
 
 	/* v8.0 features */
-	check_feature(ENABLE_FEAT_SB, read_feat_sb_id_field(), "SB", 1, 1);
-	check_feature(ENABLE_FEAT_CSV2_2, read_feat_csv2_id_field(),
-		      "CSV2_2", 2, 3);
+	tainted |= check_feature(ENABLE_FEAT_SB, read_feat_sb_id_field(),
+				 "SB", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_CSV2_2, read_feat_csv2_id_field(),
+				 "CSV2_2", 2, 3);
 	/*
 	 * Even though the PMUv3 is an OPTIONAL feature, it is always
 	 * implemented and Arm prescribes so. So assume it will be there and do
 	 * away with a flag for it. This is used to check minor PMUv3px
 	 * revisions so that we catch them as they come along
 	 */
-	check_feature(FEAT_STATE_ALWAYS, read_feat_pmuv3_id_field(),
-		      "PMUv3", 1, ID_AA64DFR0_PMUVER_PMUV3P8);
+	tainted |= check_feature(FEAT_STATE_ALWAYS, read_feat_pmuv3_id_field(),
+				 "PMUv3", 1, ID_AA64DFR0_PMUVER_PMUV3P8);
 
 	/* v8.1 features */
-	check_feature(ENABLE_FEAT_PAN, read_feat_pan_id_field(), "PAN", 1, 3);
-	check_feature(ENABLE_FEAT_VHE, read_feat_vhe_id_field(), "VHE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_PAN, read_feat_pan_id_field(),
+				 "PAN", 1, 3);
+	tainted |= check_feature(ENABLE_FEAT_VHE, read_feat_vhe_id_field(),
+				 "VHE", 1, 1);
 
 	/* v8.2 features */
-	check_feature(ENABLE_SVE_FOR_NS, read_feat_sve_id_field(),
-		      "SVE", 1, 1);
-	check_feature(ENABLE_FEAT_RAS, read_feat_ras_id_field(), "RAS", 1, 2);
+	tainted |= check_feature(ENABLE_SVE_FOR_NS, read_feat_sve_id_field(),
+				 "SVE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_RAS, read_feat_ras_id_field(),
+				 "RAS", 1, 2);
 
 	/* v8.3 features */
 	/* TODO: Pauth yet to convert to tri-state feat detect logic */
 	read_feat_pauth();
 
 	/* v8.4 features */
-	check_feature(ENABLE_FEAT_DIT, read_feat_dit_id_field(), "DIT", 1, 1);
-	check_feature(ENABLE_FEAT_AMU, read_feat_amu_id_field(),
+	tainted |= check_feature(ENABLE_FEAT_DIT, read_feat_dit_id_field(), "DIT", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_AMU, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
-	check_feature(ENABLE_FEAT_MPAM, read_feat_mpam_version(),
+	tainted |= check_feature(ENABLE_FEAT_MPAM, read_feat_mpam_version(),
 		      "MPAM", 1, 17);
-	check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
+	tainted |= check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
 		      "NV2", 2, 2);
-	check_feature(ENABLE_FEAT_SEL2, read_feat_sel2_id_field(),
+	tainted |= check_feature(ENABLE_FEAT_SEL2, read_feat_sel2_id_field(),
 		      "SEL2", 1, 1);
-	check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),
+	tainted |= check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),
 		      "TRF", 1, 1);
 
 	/* v8.5 features */
-	check_feature(ENABLE_FEAT_MTE2, get_armv8_5_mte_support(), "MTE2",
-		      MTE_IMPLEMENTED_ELX, MTE_IMPLEMENTED_ASY);
-	check_feature(ENABLE_FEAT_RNG, read_feat_rng_id_field(), "RNG", 1, 1);
-	check_feature(ENABLE_BTI, read_feat_bti_id_field(), "BTI", 1, 1);
-	check_feature(ENABLE_FEAT_RNG_TRAP, read_feat_rng_trap_id_field(),
-		      "RNG_TRAP", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_MTE2, get_armv8_5_mte_support(),
+				 "MTE2", MTE_IMPLEMENTED_ELX, MTE_IMPLEMENTED_ASY);
+	tainted |= check_feature(ENABLE_FEAT_RNG, read_feat_rng_id_field(),
+				 "RNG", 1, 1);
+	tainted |= check_feature(ENABLE_BTI, read_feat_bti_id_field(),
+				 "BTI", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_RNG_TRAP, read_feat_rng_trap_id_field(),
+				 "RNG_TRAP", 1, 1);
 
 	/* v8.6 features */
-	check_feature(ENABLE_FEAT_AMUv1p1, read_feat_amu_id_field(),
-		      "AMUv1p1", 2, 2);
-	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT", 1, 2);
-	check_feature(ENABLE_FEAT_FGT2, read_feat_fgt_id_field(), "FGT2", 2, 2);
-	check_feature(ENABLE_FEAT_ECV, read_feat_ecv_id_field(), "ECV", 1, 2);
-	check_feature(ENABLE_FEAT_TWED, read_feat_twed_id_field(),
-		      "TWED", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_AMUv1p1, read_feat_amu_id_field(),
+				 "AMUv1p1", 2, 2);
+	tainted |= check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(),
+				 "FGT", 1, 2);
+	tainted |= check_feature(ENABLE_FEAT_FGT2, read_feat_fgt_id_field(),
+				 "FGT2", 2, 2);
+	tainted |= check_feature(ENABLE_FEAT_ECV, read_feat_ecv_id_field(),
+				 "ECV", 1, 2);
+	tainted |= check_feature(ENABLE_FEAT_TWED, read_feat_twed_id_field(),
+				 "TWED", 1, 1);
 
 	/*
 	 * even though this is a "DISABLE" it does confusingly perform feature
 	 * enablement duties like all other flags here. Check it against the HW
 	 * feature when we intend to diverge from the default behaviour
 	 */
-	check_feature(DISABLE_MTPMU, read_feat_mtpmu_id_field(), "MTPMU", 1, 1);
+	tainted |= check_feature(DISABLE_MTPMU, read_feat_mtpmu_id_field(),
+				 "MTPMU", 1, 1);
 
 	/* v8.7 features */
-	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
-	check_feature(ENABLE_FEAT_LS64_ACCDATA, read_feat_ls64_id_field(), "LS64", 1, 3);
+	tainted |= check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(),
+				 "HCX", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_LS64_ACCDATA, read_feat_ls64_id_field(),
+				 "LS64", 1, 3);
 
 	/* v8.9 features */
-	check_feature(ENABLE_FEAT_TCR2, read_feat_tcr2_id_field(),
-		      "TCR2", 1, 1);
-	check_feature(ENABLE_FEAT_S2PIE, read_feat_s2pie_id_field(),
-		      "S2PIE", 1, 1);
-	check_feature(ENABLE_FEAT_S1PIE, read_feat_s1pie_id_field(),
-		      "S1PIE", 1, 1);
-	check_feature(ENABLE_FEAT_S2POE, read_feat_s2poe_id_field(),
-		      "S2POE", 1, 1);
-	check_feature(ENABLE_FEAT_S1POE, read_feat_s1poe_id_field(),
-		      "S1POE", 1, 1);
-	check_feature(ENABLE_FEAT_CSV2_3, read_feat_csv2_id_field(),
-		      "CSV2_3", 3, 3);
-	check_feature(ENABLE_FEAT_DEBUGV8P9, read_feat_debugv8p9_id_field(),
-			"DEBUGV8P9", 11, 11);
-	check_feature(ENABLE_FEAT_THE, read_feat_the_id_field(),
-			"THE", 1, 1);
-	check_feature(ENABLE_FEAT_SCTLR2, read_feat_sctlr2_id_field(),
-			"SCTLR2", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_TCR2, read_feat_tcr2_id_field(),
+				 "TCR2", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_S2PIE, read_feat_s2pie_id_field(),
+				 "S2PIE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_S1PIE, read_feat_s1pie_id_field(),
+				 "S1PIE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_S2POE, read_feat_s2poe_id_field(),
+				 "S2POE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_S1POE, read_feat_s1poe_id_field(),
+				 "S1POE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_CSV2_3, read_feat_csv2_id_field(),
+				 "CSV2_3", 3, 3);
+	tainted |= check_feature(ENABLE_FEAT_DEBUGV8P9, read_feat_debugv8p9_id_field(),
+				 "DEBUGV8P9", 11, 11);
+	tainted |= check_feature(ENABLE_FEAT_THE, read_feat_the_id_field(),
+				 "THE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_SCTLR2, read_feat_sctlr2_id_field(),
+				 "SCTLR2", 1, 1);
 
 	/* v9.0 features */
-	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),
-		      "BRBE", 1, 2);
-	check_feature(ENABLE_TRBE_FOR_NS, read_feat_trbe_id_field(),
-		      "TRBE", 1, 1);
+	tainted |= check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),
+				 "BRBE", 1, 2);
+	tainted |= check_feature(ENABLE_TRBE_FOR_NS, read_feat_trbe_id_field(),
+				 "TRBE", 1, 1);
 
 	/* v9.2 features */
-	check_feature(ENABLE_SME_FOR_NS, read_feat_sme_id_field(),
+	tainted |= check_feature(ENABLE_SME_FOR_NS, read_feat_sme_id_field(),
 		      "SME", 1, 2);
-	check_feature(ENABLE_SME2_FOR_NS, read_feat_sme_id_field(),
+	tainted |= check_feature(ENABLE_SME2_FOR_NS, read_feat_sme_id_field(),
 		      "SME2", 2, 2);
 
 	/* v9.3 features */
-	check_feature(ENABLE_FEAT_D128, read_feat_d128_id_field(),
+	tainted |= check_feature(ENABLE_FEAT_D128, read_feat_d128_id_field(),
 		      "D128", 1, 1);
 
 	/* v9.4 features */
-	check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(), "GCS", 1, 1);
-	check_feature(ENABLE_RME, read_feat_rme_id_field(), "RME", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(), "GCS", 1, 1);
+	tainted |= check_feature(ENABLE_RME, read_feat_rme_id_field(), "RME", 1, 1);
 
 	if (tainted) {
 		panic();
 	}
+
+	detection_done[core_pos] = true;
 }
