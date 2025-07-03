@@ -96,6 +96,12 @@ add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769
 
 check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
 
+workaround_reset_start cortex_x3, ERRATUM(3827463), ERRATA_X3_3827463
+	sysreg_bit_set	CORTEX_X3_CPUACTLR_EL1, BIT(1)
+workaround_reset_end cortex_x3, ERRATUM(3827463)
+
+check_erratum_ls cortex_x3, ERRATUM(3827463), CPU_REV(1, 1)
+
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	override_vector_table wa_cve_vbar_cortex_x3
