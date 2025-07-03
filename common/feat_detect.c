@@ -63,16 +63,6 @@ check_feature(int state, unsigned long field, const char *feat_name,
 	return false;
 }
 
-/************************************************
- * Feature : FEAT_PAUTH (Pointer Authentication)
- ***********************************************/
-static void read_feat_pauth(void)
-{
-#if (ENABLE_PAUTH == FEAT_STATE_ALWAYS) || (CTX_INCLUDE_PAUTH_REGS == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_feat_pauth_present(), "PAUTH");
-#endif
-}
-
 static unsigned int read_feat_rng_trap_id_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64pfr1_el1(), ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT,
@@ -365,8 +355,9 @@ void detect_arch_features(unsigned int core_pos)
 				 "RAS", 1, 2);
 
 	/* v8.3 features */
-	/* TODO: Pauth yet to convert to tri-state feat detect logic */
-	read_feat_pauth();
+	/* the PAuth fields are very complicated, no min/max is checked */
+	tainted |= check_feature(ENABLE_PAUTH, is_feat_pauth_present(),
+				 "PAUTH", 1, 1);
 
 	/* v8.4 features */
 	tainted |= check_feature(ENABLE_FEAT_DIT, read_feat_dit_id_field(),
