@@ -128,14 +128,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a78_ae.S		\
 				lib/cpus/aarch64/cortex_a78.S			\
-				plat/common/plat_psci_common.c			\
-				drivers/scmi-msg/base.c				\
-				drivers/scmi-msg/entry.c			\
-				drivers/scmi-msg/smt.c				\
-				drivers/scmi-msg/clock.c			\
-				drivers/scmi-msg/power_domain.c			\
-				drivers/scmi-msg/reset_domain.c			\
-				${PLAT_PATH}/scmi.c
+				plat/common/plat_psci_common.c
 
 ifeq ($(TFA_NO_PM), 0)
 BL31_SOURCES		+=	plat/xilinx/common/pm_service/pm_api_sys.c	\
@@ -144,7 +137,14 @@ BL31_SOURCES		+=	plat/xilinx/common/pm_service/pm_api_sys.c	\
 				${PLAT_PATH}/pm_service/pm_svc_main.c	\
 				${PLAT_PATH}/pm_service/pm_client.c
 else
-BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
+BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c			\
+				drivers/scmi-msg/base.c				\
+				drivers/scmi-msg/entry.c			\
+				drivers/scmi-msg/smt.c				\
+				drivers/scmi-msg/clock.c			\
+				drivers/scmi-msg/power_domain.c			\
+				drivers/scmi-msg/reset_domain.c			\
+				${PLAT_PATH}/scmi.c
 endif
 
 BL31_SOURCES		+=	common/fdt_wrappers.c                           \

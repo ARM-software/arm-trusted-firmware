@@ -94,6 +94,7 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	case SIP_SVC_VERSION:
 		SMC_RET2(handle, SIP_SVC_VERSION_MAJOR, SIP_SVC_VERSION_MINOR);
 
+#if (TFA_NO_PM == 1)
 	case SIP_SCMI:
 		if (platform_id != EMU) {
 			scmi_smt_fastcall_smc_entry(0);
@@ -101,6 +102,7 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 		}
 		WARN("SCMI is not working on EMU\n");
 		SMC_RET1(handle, SMC_UNK);
+#endif
 	default:
 		WARN("Unimplemented SiP Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);

@@ -7,6 +7,8 @@
 #ifndef SCMI_H
 #define SCMI_H
 
+#if (TFA_NO_PM == 1)
+
 #include "versal2-scmi.h"
 
 #define SIP_SCMI	(0xC200ffffU)
@@ -24,5 +26,7 @@ int32_t plat_scmi_pd_set_state(unsigned int agent_id, unsigned int flags, unsign
 
 #define SCMI_VENDOR	"AMD"
 #define SCMI_PRODUCT	"Versal Gen 2"
+
+#endif
 
 #endif /* DEF_H */

@@ -252,9 +252,11 @@ void bl31_platform_setup(void)
 	plat_gic_driver_init();
 	plat_gic_init();
 
+#if (TFA_NO_PM == 1)
 	if (platform_id != EMU) {
 		init_scmi_server();
 	}
+#endif
 }
 
 void bl31_plat_runtime_setup(void)
@@ -292,8 +294,10 @@ void bl31_plat_arch_setup(void)
 				MT_CODE | MT_SECURE),
 		MAP_REGION_FLAT(BL_RO_DATA_BASE, BL_RO_DATA_END - BL_RO_DATA_BASE,
 				MT_RO_DATA | MT_SECURE),
+#if (TFA_NO_PM == 1)
 		MAP_REGION_FLAT(SMT_BUFFER_BASE, 0x1000,
 			MT_DEVICE | MT_RW | MT_NON_CACHEABLE | MT_EXECUTE_NEVER | MT_NS),
+#endif
 		{0}
 	};
 
