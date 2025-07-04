@@ -190,3 +190,9 @@ XLNX_DT_CFG	:= 0
 endif
 endif
 $(eval $(call add_define,XLNX_DT_CFG))
+
+ifdef CUSTOM_PKG_PATH
+include $(CUSTOM_PKG_PATH)/custom_pkg.mk
+else
+BL31_SOURCES		+=	plat/xilinx/common/custom_sip_svc.c
+endif

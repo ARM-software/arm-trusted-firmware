@@ -18,7 +18,9 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
+#ifndef PLATFORM_STACK_SIZE
 #define PLATFORM_STACK_SIZE		U(0x440)
+#endif
 
 #define PLATFORM_CLUSTER_COUNT		U(4)
 #define PLATFORM_CORE_COUNT_PER_CLUSTER	U(2) /* 2 CPUs per cluster */

@@ -23,6 +23,7 @@
 #include <plat_console.h>
 #include <scmi.h>
 
+#include <custom_svc.h>
 #include <def.h>
 #include <plat_fdt.h>
 #include <plat_private.h>
@@ -188,6 +189,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #endif /* SPD_tspd || SPD_opteed */
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 
+	custom_early_setup();
+
 }
 
 static versal_intr_info_type_el3_t type_el3_interrupt_table[MAX_INTR_EL3];
@@ -279,6 +282,8 @@ void bl31_plat_runtime_setup(void)
 		INFO("Runtime FDT reserve node retreival failed");
 	}
 
+	custom_runtime_setup();
+
 	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
@@ -300,6 +305,8 @@ void bl31_plat_arch_setup(void)
 #endif
 		{0}
 	};
+
+	custom_mmap_add();
 
 	setup_page_tables(bl_regions, plat_get_mmap());
 	enable_mmu(0);
