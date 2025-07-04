@@ -172,7 +172,7 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	 */
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
 
-	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
+	bl33_image_ep_info.spsr = arm_get_spsr(BL33_IMAGE_ID);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 	bl33_image_ep_info.args.arg0 = PLAT_ARM_TRANSFER_LIST_DTB_OFFSET;
@@ -227,7 +227,7 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				0);
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+	bl32_image_ep_info.spsr = arm_get_spsr(BL32_IMAGE_ID);
 
 #if defined(SPD_spmd)
 	bl32_image_ep_info.args.arg0 = ARM_SPMC_MANIFEST_BASE;
@@ -253,7 +253,7 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.args.arg3 = 0U;
 #endif /* ARM_LINUX_KERNEL_AS_BL33 */
 
-	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
+	bl33_image_ep_info.spsr = arm_get_spsr(BL33_IMAGE_ID);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 #if ENABLE_RME

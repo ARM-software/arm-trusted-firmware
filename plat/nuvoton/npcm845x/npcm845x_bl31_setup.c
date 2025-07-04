@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * Copyright (C) 2017-2023 Nuvoton Ltd.
  *
@@ -167,7 +167,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 					0);
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+	bl32_image_ep_info.spsr = arm_get_spsr(BL32_IMAGE_ID);
 
 #if defined(SPD_spmd)
 /*
@@ -194,7 +194,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  */
 		bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
 		/* Generic ARM code will switch to EL2, revert to EL1 */
-		bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
+		bl33_image_ep_info.spsr = arm_get_spsr(BL33_IMAGE_ID);
 		bl33_image_ep_info.spsr &= ~0x8;
 		bl33_image_ep_info.spsr |= 0x4;
 
