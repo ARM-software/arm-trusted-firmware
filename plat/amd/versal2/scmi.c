@@ -319,7 +319,7 @@ unsigned long plat_scmi_clock_get_rate(unsigned int agent_id, unsigned int scmi_
 	const struct scmi_clk *clock = clk_find(agent_id, scmi_id);
 	unsigned long ret;
 
-	if ((clock == NULL)) {
+	if (clock == NULL) {
 		ret = SCMI_NOT_FOUND;
 	} else {
 		VERBOSE("SCMI: CLK: id: %d, get_rate: %lu\n", scmi_id, clock->rate);
@@ -334,7 +334,7 @@ int32_t plat_scmi_clock_set_rate(unsigned int agent_id, unsigned int scmi_id,
 	struct scmi_clk *clock = clk_find(agent_id, scmi_id);
 	int32_t ret = SCMI_SUCCESS;
 
-	if ((clock == NULL)) {
+	if (clock == NULL) {
 		ret = SCMI_NOT_FOUND;
 	} else {
 		VERBOSE("SCMI: CLK: id: %d, set_rate: %lu\n", scmi_id, rate);
@@ -348,7 +348,7 @@ int32_t plat_scmi_clock_get_state(unsigned int agent_id, unsigned int scmi_id)
 	const struct scmi_clk *clock = clk_find(agent_id, scmi_id);
 	int32_t ret;
 
-	if ((clock == NULL)) {
+	if (clock == NULL) {
 		ret = SCMI_NOT_FOUND;
 	} else {
 		VERBOSE("SCMI: CLK: id: %d, get_state: %d\n", scmi_id, clock->enabled);
