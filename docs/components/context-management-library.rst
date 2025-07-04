@@ -279,7 +279,7 @@ handles memory allocation for ``Non-Secure`` world context for all CPUs.
 
 .. code:: c
 
-	static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
+	static PER_CPU_DEFINE(cpu_context_t, psci_ns_context);
 
 Secure-Context Memory
 ~~~~~~~~~~~~~~~~~~~~~
