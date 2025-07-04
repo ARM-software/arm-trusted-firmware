@@ -296,6 +296,10 @@ USE_COHERENT_MEM		:= 1
 # Build option to add debugfs support
 USE_DEBUGFS			:= 0
 
+# Build option to enable passing the FDT in x0 to BL33, following the kernel
+# convention.
+USE_KERNEL_DT_CONVENTION	:= 0
+
 # Build option to fconf based io
 ARM_IO_IN_DTB			:= 0
 

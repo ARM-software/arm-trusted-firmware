@@ -1130,6 +1130,14 @@ Common build options
    (Coherent memory region is included) or 0 (Coherent memory region is
    excluded). Default is 1.
 
+-  ``USE_KERNEL_DT_CONVENTION``: When this option is enabled, the hardware
+   device tree is passed to BL33 using register x0, aligning with the expectations
+   of the Linux kernel on Arm platforms. If this option is disabled, a different
+   register, typically x1, may be used instead. This build option is
+   not necessary when firmware handoff is active (that is, when TRANSFER_LIST=1
+   is set), and it will be removed once all platforms have transitioned to that
+   convention.
+
 -  ``USE_DSU_DRIVER``: This flag enables DSU (DynamIQ Shared Unit) driver.
    The DSU driver allows save/restore of DSU PMU registers through
    ``PRESERVE_DSU_PMU_REGS`` build option and allows platforms to
