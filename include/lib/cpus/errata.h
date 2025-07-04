@@ -98,8 +98,6 @@ int check_erratum_applies(uint32_t cve, int errata_id);
  */
 #define NO_ISB			1
 #define NO_ASSERT		0
-#define NO_APPLY_AT_RESET	0
-#define APPLY_AT_RESET		1
 #define GET_CPU_REV		1
 #define NO_GET_CPU_REV		0
 
