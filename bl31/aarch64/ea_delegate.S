@@ -300,10 +300,5 @@ func ea_proceed
 	/* Clear Double Fault storage */
 	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_DOUBLE_FAULT_ESR]
 
-	/* Restore EL3 state */
-	ldp	x1, x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	msr	spsr_el3, x1
-	msr	elr_el3, x2
-
 	ret	x29
 endfunc ea_proceed
