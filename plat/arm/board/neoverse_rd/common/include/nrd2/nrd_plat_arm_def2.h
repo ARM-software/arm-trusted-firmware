@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -156,16 +156,16 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  * Secure partition stack follows right after the memory space reserved for
  * CPER buffer memory.
  */
-#define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +   \
-					 PLAT_SP_IMAGE_NS_BUF_SIZE +   \
+#define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SPM_BUF_BASE +   \
+					 PLAT_SPM_BUF_SIZE +   \
 					 NRD_CSS_SP_CPER_BUF_SIZE)
 #elif (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP))
 /*
  * Secure partition stack follows right after the memory region that is shared
  * between EL3 and S-EL0.
  */
-#define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
-					 PLAT_SP_IMAGE_NS_BUF_SIZE)
+#define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SPM_BUF_BASE +	\
+					 PLAT_SPM_BUF_SIZE)
 #endif /* SPM_MM && ENABLE_FEAT_RAS && FFH_SUPPORT */
 
 /*******************************************************************************
