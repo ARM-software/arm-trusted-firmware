@@ -99,15 +99,15 @@ endif
 
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH		?=	tools/cert_create
-CRTTOOL			?=	${CRTTOOLPATH}/cert_create$(.exe)
+CRTTOOL			?=	${BUILD_PLAT}/${CRTTOOLPATH}/cert_create$(.exe)
 
 # Variables for use with Firmware Encryption Tool
 ENCTOOLPATH		?=	tools/encrypt_fw
-ENCTOOL			?=	${ENCTOOLPATH}/encrypt_fw$(.exe)
+ENCTOOL			?=	${BUILD_PLAT}/${ENCTOOLPATH}/encrypt_fw$(.exe)
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fiptool
-FIPTOOL			?=	${FIPTOOLPATH}/fiptool$(.exe)
+FIPTOOL			?=	${BUILD_PLAT}/${FIPTOOLPATH}/fiptool$(.exe)
 
 # Variables for use with sptool
 SPTOOLPATH		?=	tools/sptool
@@ -1364,18 +1364,22 @@ endif #(CHECKPATCH)
 clean:
 	$(s)echo "  CLEAN"
 	$(q)rm -rf $(BUILD_PLAT)
-	$(q)${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
-	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${FIPTOOLPATH} clean
+	$(q)rm -rf ${FIPTOOLPATH}/fiptool
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	$(q)rm -rf ${CRTTOOLPATH}/cert_create
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 realclean distclean:
 	$(s)echo "  REALCLEAN"
 	$(q)rm -rf $(BUILD_BASE)
 	$(q)rm -rf $(CURDIR)/cscope.*
-	$(q)${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} realclean
-	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} realclean
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${FIPTOOLPATH} clean
+	$(q)rm -rf ${FIPTOOLPATH}/fiptool
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	$(q)rm -rf ${CRTTOOLPATH}/cert_create
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 checkcodebase:		locate-checkpatch
@@ -1414,7 +1418,8 @@ checkpatch:		locate-checkpatch
 certtool: ${CRTTOOL}
 
 ${CRTTOOL}: FORCE
-	$(q)${MAKE} PLAT=${PLAT} USE_TBBR_DEFS=${USE_TBBR_DEFS} COT=${COT} OPENSSL_DIR=${OPENSSL_DIR} CRTTOOL=${CRTTOOL} DEBUG=${DEBUG} --no-print-directory -C ${CRTTOOLPATH} all
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) USE_TBBR_DEFS=${USE_TBBR_DEFS} COT=${COT} OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${CRTTOOLPATH} all
+	$(q)ln -sf ${CRTTOOL} ${CRTTOOLPATH}/cert_create
 	$(s)echo
 	$(s)echo "Built $@ successfully"
 	$(s)echo
@@ -1457,8 +1462,10 @@ fiptool: ${FIPTOOL}
 fip: ${BUILD_PLAT}/${FIP_NAME}
 fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
+# symlink for compatibility before tools were in the build directory
 ${FIPTOOL}: FORCE
-	$(q)${MAKE} PLAT=${PLAT} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" FIPTOOL=${FIPTOOL} OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${FIPTOOLPATH} all
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${FIPTOOLPATH} all
+	$(q)ln -sf ${FIPTOOL} ${FIPTOOLPATH}/fiptool
 
 $(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB)
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_SUPPORT=${CRYPTO_SUPPORT} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
@@ -1480,7 +1487,7 @@ doc:
 enctool: ${ENCTOOL}
 
 ${ENCTOOL}: FORCE
-	$(q)${MAKE} PLAT=${PLAT} BUILD_INFO=0 OPENSSL_DIR=${OPENSSL_DIR} ENCTOOL=${ENCTOOL} DEBUG=${DEBUG} --no-print-directory -C ${ENCTOOLPATH} all
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) BUILD_INFO=0 OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${ENCTOOLPATH} all
 	$(s)echo
 	$(s)echo "Built $@ successfully"
 	$(s)echo

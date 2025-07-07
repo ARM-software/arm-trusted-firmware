@@ -24,11 +24,6 @@
 #   NON_TRUSTED_WORLD_KEY
 #
 
-# Copy the tbbr.mk from PLAT_TOOL_PATH/cert_create_helper
-# to the ${PLAT_DIR}. So that cert_create is enabled
-# to create certificates for DDR
-$(shell cp ${PLAT_TOOL_PATH}/cert_create_helper/cert_create_tbbr.mk ${PLAT_DIR})
-
 # Certificate generation tool default parameters
 DDR_FW_CERT		:=	${BUILD_PLAT}/ddr_fw_key_cert.crt
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -284,6 +284,49 @@ GZIP_SUFFIX := .gz
 
 MAKE_DEP = -Wp,-MD,$1 -MT $2 -MP
 
+# MAKE_TOOL_C builds a C source file and generates the dependency file
+#   $(1) = output directory
+#   $(2) = source file (%.c)
+#   $(3) = lowercase name of the tool
+#   $(4) = uppercase name of the tool
+define MAKE_TOOL_C
+
+$(eval SRC := $(2))
+$(eval OBJ := $(patsubst %.c,$(1)/$(3)/%.o,$(SRC)))
+$(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
+
+$(eval TOOL_DEFINES := $($(4)_DEFINES))
+$(eval TOOL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
+$(eval TOOL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(TOOL_DEFINES)) $(addprefix -I,$(TOOL_INCLUDE_DIRS)))
+$(eval TOOL_CFLAGS := $($(4)_CFLAGS))
+
+$(OBJ): $(SRC) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
+	$$(s)echo "  HOSTCC      $$<"
+	$$(q)$(host-cc) $$(HOSTCCFLAGS) $(TOOL_CPPFLAGS) $(TOOL_CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+
+-include $(DEP)
+
+endef
+
+# MAKE_TOOL
+#   $(1) = output directory
+#   $(2) = lowercase name of the tool
+#   $(3) = uppercase name of the tool
+define MAKE_TOOL
+$(eval SRCS := $($(3)_SOURCES))
+$(eval OBJS := $(patsubst %.c,$(1)/$(2)/%.o,$(SRCS)))
+$(eval DST := $(1)/$(2)/$(2)$(.exe))
+$(eval $(foreach src,$(SRCS),$(call MAKE_TOOL_C,$(1),$(src),$(2),$(3))))
+
+$(DST): $(OBJS) $(filter-out %.d,$(MAKEFILE_LIST))
+	$$(s)echo "  HOSTLD  $$@"
+	$$(q)$(host-cc) $${OBJS} -o $$@ $($(3)_LDFLAGS)
+	$$(s)echo
+	$$(s)echo "Built $$@ successfully"
+	$$(s)echo
+
+all: $(DST)
+endef
 
 # MAKE_C_LIB builds a C source file and generates the dependency file
 #   $(1) = output directory
