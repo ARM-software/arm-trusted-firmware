@@ -67,8 +67,7 @@ MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
 MODULES-$(CONFIG_MTK_MTCMOS) += $(MTK_PLAT)/drivers/mtcmos
 
 ifneq ($(MTKLIB_PATH),)
-LDFLAGS += -L $(dir $(MTKLIB_PATH))
-LDLIBS += -Wl,--whole-archive -l$(patsubst lib%.a,%,$(notdir $(MTKLIB_PATH))) -Wl,--no-whole-archive
+LDLIBS += -Wl,--whole-archive $(MTKLIB_PATH) -Wl,--no-whole-archive
 endif
 
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \

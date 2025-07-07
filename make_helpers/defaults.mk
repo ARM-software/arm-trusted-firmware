@@ -10,6 +10,9 @@
 # poised to handle dependencies, as all build variables would have a default
 # value by then.
 
+# Warning level to give to the compiler
+W				:= 0
+
 # Use T32 by default
 AARCH32_INSTRUCTION_SET		:= T32
 

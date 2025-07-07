@@ -331,10 +331,10 @@ define MAKE_C
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
-$(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES) $(PLAT_BL_COMMON_DEFINES))
-$(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS))
-$(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
-$(eval BL_CFLAGS := $($(4)_CFLAGS) $(PLAT_BL_COMMON_CFLAGS))
+$(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES))
+$(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
+$(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)))
+$(eval BL_CFLAGS := $($(4)_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CC      $$<"
@@ -355,10 +355,10 @@ define MAKE_S
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
-$(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES) $(PLAT_BL_COMMON_DEFINES))
-$(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS))
-$(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
-$(eval BL_ASFLAGS := $($(4)_ASFLAGS) $(PLAT_BL_COMMON_ASFLAGS))
+$(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES))
+$(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
+$(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)))
+$(eval BL_ASFLAGS := $($(4)_ASFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
@@ -378,9 +378,9 @@ define MAKE_LD
 
 $(eval DEP := $(1).d)
 
-$(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES) $(PLAT_BL_COMMON_DEFINES))
-$(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS))
-$(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
+$(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES))
+$(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
+$(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)))
 
 $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  PP      $$<"
