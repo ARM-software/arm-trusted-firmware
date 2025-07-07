@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,11 +57,19 @@
 						PAGE_SIZE)
 
 /*
+ * Memory shared between Normal world and Secure world.
+ * In this area, PLAT_SP_IMAGE_NS_BUF and etc memories are located.
+ */
+#define ARM_SPM_NS_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE -		\
+					 ARM_SPM_NS_MEM_SIZE)
+#define ARM_SPM_NS_MEM_SIZE		ULL(0x100000)
+
+/*
  * Memory shared between Normal world and S-EL0 for passing data during service
  * requests. Mapped as RW and NS. Placed after the shared memory between EL3 and
  * S-EL0.
  */
-#define PLAT_SP_IMAGE_NS_BUF_BASE	(PLAT_SPM_BUF_BASE + PLAT_SPM_BUF_SIZE)
+#define PLAT_SP_IMAGE_NS_BUF_BASE	(ARM_SPM_NS_MEM_BASE)
 #define PLAT_SP_IMAGE_NS_BUF_SIZE	ULL(0x10000)
 #define ARM_SP_IMAGE_NS_BUF_MMAP	MAP_REGION2(				\
 						PLAT_SP_IMAGE_NS_BUF_BASE,	\
