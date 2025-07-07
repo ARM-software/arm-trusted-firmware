@@ -560,10 +560,14 @@ ifeq (${PLATFORM_TEST_EA_FFH}, 1)
 
 endif
 
+PLATFORM_TEST_RAS_FFH	?=	0
 $(eval $(call add_define,PLATFORM_TEST_RAS_FFH))
 ifeq (${PLATFORM_TEST_RAS_FFH}, 1)
     ifeq (${ENABLE_FEAT_RAS}, 0)
          $(error "PLATFORM_TEST_RAS_FFH expects ENABLE_FEAT_RAS to be 1")
+    endif
+    ifeq (${SDEI_SUPPORT}, 0)
+         $(error "PLATFORM_TEST_RAS_FFH expects SDEI_SUPPORT to be 1")
     endif
     ifeq (${HANDLE_EA_EL3_FIRST_NS}, 0)
          $(error "PLATFORM_TEST_RAS_FFH expects HANDLE_EA_EL3_FIRST_NS to be 1")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 #include <lib/extensions/ras.h>
 #include <services/sdei.h>
 
-#ifdef PLATFORM_TEST_RAS_FFH
+#if PLATFORM_TEST_RAS_FFH
 static int injected_fault_handler(const struct err_record_info *info,
 		int probe_data, const struct err_handler_data *const data)
 {
@@ -56,7 +56,7 @@ struct ras_interrupt fvp_ras_interrupts[] = {
 };
 
 struct err_record_info fvp_err_records[] = {
-#ifdef PLATFORM_TEST_RAS_FFH
+#if PLATFORM_TEST_RAS_FFH
 	/* Record for injected fault */
 	ERR_RECORD_SYSREG_V1(0, 2, ras_err_ser_probe_sysreg,
 			injected_fault_handler, NULL),
