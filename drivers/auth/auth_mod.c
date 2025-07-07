@@ -395,6 +395,15 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 		} else {
 			*need_nv_ctr_upgrade = false;
 		}
+#elif PSA_FWU_SUPPORT && IMAGE_BL1
+		/* The check is for bl1 only */
+		if (bl1_plat_is_shared_nv_ctr() == false) {
+			/* If NV ctr is not shared, it can be upgraded */
+			*need_nv_ctr_upgrade = true;
+		} else {
+			/* If NV ctr is shared, the upgrade should happens in BL2 */
+			*need_nv_ctr_upgrade = false;
+		}
 #else
 		*need_nv_ctr_upgrade = true;
 #endif /* PSA_FWU_SUPPORT && IMAGE_BL2 */
