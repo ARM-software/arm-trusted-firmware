@@ -909,7 +909,7 @@ uint8_t sip_smc_cmd_cb_rsu_status(void *resp_desc, void *cmd_desc, uint64_t *ret
 	/* Config State */
 	ret_args[ret_args_len++] = resp->resp_data[4];
 	/* Version */
-	ret_args[ret_args_len++] = (GENMASK(16, 0) & resp->resp_data[5]);
+	ret_args[ret_args_len++] = resp->resp_data[5];
 	/* Failure Source */
 	ret_args[ret_args_len++] = ((GENMASK(32, 17) & resp->resp_data[5]) >> 16);
 	/* Error location */
