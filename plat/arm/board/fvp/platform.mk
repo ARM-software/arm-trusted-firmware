@@ -463,15 +463,11 @@ endif
 endif
 
 ifeq (${HANDLE_EA_EL3_FIRST_NS},1)
-    ifeq (${ENABLE_FEAT_RAS},1)
-    	ifeq (${PLATFORM_TEST_FFH_LSP_RAS_SP},1)
-            BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_lsp_ras_sp.c
-	else
-            BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
-	endif
-    else
-        BL31_SOURCES		+= 	plat/arm/board/fvp/aarch64/fvp_ea.c
+    ifeq (${PLATFORM_TEST_FFH_LSP_RAS_SP},1)
+        BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_lsp_ras_sp.c
     endif
+    BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c	\
+					plat/arm/board/fvp/aarch64/fvp_ea.c
 endif
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
