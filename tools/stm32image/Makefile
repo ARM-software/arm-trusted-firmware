@@ -6,36 +6,29 @@
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
+include ${MAKE_HELPERS_DIRECTORY}build-rules.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-PROJECT := stm32image$(.exe)
-OBJECTS := stm32image.o
+STM32IMAGE_SOURCES := stm32image.c
 
-HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99 -D_GNU_SOURCE
+STM32IMAGE_CFLAGS := -Wall -Werror -pedantic -std=c99
+STM32IMAGE_DEFINES := _GNU_SOURCE
 
 ifeq (${DEBUG},1)
-  HOSTCCFLAGS += -g -O0 -DDEBUG
+  STM32IMAGE_CFLAGS += -g -O0
+  STM32IMAGE_DEFINES += DEBUG
 else
-  HOSTCCFLAGS += -O2
+  STM32IMAGE_CFLAGS += -O2
 endif
 
 .PHONY: all clean distclean
 
-all: ${PROJECT}
+all:
 
-${PROJECT}: ${OBJECTS} Makefile
-	$(s)echo "  HOSTLD  $@"
-	$(q)$(host-cc) ${OBJECTS} -o $@
-	$(s)echo
-	$(s)echo "Built $@ successfully"
-	$(s)echo
-
-%.o: %.c Makefile
-	$(s)echo "  HOSTCC  $<"
-	$(q)$(host-cc) -c ${HOSTCCFLAGS} $< -o $@
+$(eval $(call MAKE_TOOL,$(BUILD_PLAT)/tools,stm32image,STM32IMAGE))
 
 clean:
-	$(q)rm -rf $(PROJECT) $(OBJECTS)
+	$(q)rm -rf $(BUILD_PLAT)/tools/stm32image
 
 distclean: clean
