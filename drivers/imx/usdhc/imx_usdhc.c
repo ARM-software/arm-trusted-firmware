@@ -14,7 +14,7 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
-#include <lib/mmio.h>
+#include <lib/mmio_poll.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <imx_usdhc.h>
@@ -23,6 +23,9 @@
 #define ADTC_MASK_SD			(BIT_32(6U) | BIT_32(17U) | BIT_32(18U) |\
 					 BIT_32(24U) | BIT_32(25U))
 #define ADTC_MASK_ACMD			(BIT_64(51U))
+
+#define USDHC_TIMEOUT_US	(1U * 1000U) /* 1 msec */
+#define USDHC_TRANSFER_TIMEOUT	(1U * 1000U * 1000U) /* 1 sec */
 
 struct imx_usdhc_device_data {
 	uint32_t addr;
@@ -105,11 +108,13 @@ static void imx_usdhc_write_buf_data(void)
 }
 
 #define IMX7_MMC_SRC_CLK_RATE (200 * 1000 * 1000)
-static void imx_usdhc_set_clk(unsigned int clk)
+static int imx_usdhc_set_clk(unsigned int clk)
 {
 	unsigned int sdhc_clk = IMX7_MMC_SRC_CLK_RATE;
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
 	unsigned int pre_div = 1U, div = 1U;
+	uint32_t pstate;
+	int ret;
 
 	assert(clk > 0);
 
@@ -124,7 +129,12 @@ static void imx_usdhc_set_clk(unsigned int clk)
 	div -= 1;
 	clk = (pre_div << 8) | (div << 4);
 
-	while ((mmio_read_32(reg_base + PSTATE) & PSTATE_SDSTB) == 0U) {
+	ret = mmio_read_32_poll_timeout(reg_base + PSTATE, pstate,
+					(pstate & PSTATE_SDSTB) != 0U,
+					USDHC_TIMEOUT_US);
+	if (ret == -ETIMEDOUT) {
+		ERROR("Unstable SD clock\n");
+		return ret;
 	}
 
 	mmio_clrbits32(reg_base + VENDSPEC, VENDSPEC_CARD_CLKEN);
@@ -132,12 +142,15 @@ static void imx_usdhc_set_clk(unsigned int clk)
 	udelay(10000);
 
 	mmio_setbits32(reg_base + VENDSPEC, VENDSPEC_PER_CLKEN | VENDSPEC_CARD_CLKEN);
+
+	return 0;
 }
 
 static void imx_usdhc_initialize(void)
 {
-	unsigned int timeout = 10000;
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
+	uint32_t sysctrl;
+	int ret;
 
 	assert((imx_usdhc_params.reg_base & MMC_BLOCK_MASK) == 0);
 
@@ -145,10 +158,12 @@ static void imx_usdhc_initialize(void)
 	mmio_setbits32(reg_base + SYSCTRL, SYSCTRL_RSTA);
 
 	/* wait for reset done */
-	while ((mmio_read_32(reg_base + SYSCTRL) & SYSCTRL_RSTA)) {
-		if (!timeout)
-			ERROR("IMX MMC reset timeout.\n");
-		timeout--;
+	ret = mmio_read_32_poll_timeout(reg_base + SYSCTRL, sysctrl,
+					(sysctrl & SYSCTRL_RSTA) == 0U,
+					USDHC_TIMEOUT_US);
+	if (ret == -ETIMEDOUT) {
+		ERROR("Failed to reset the USDHC controller\n");
+		panic();
 	}
 
 	mmio_write_32(reg_base + MMCBOOT, 0);
@@ -160,7 +175,11 @@ static void imx_usdhc_initialize(void)
 	mmio_setbits32(reg_base + VENDSPEC, VENDSPEC_IPG_CLKEN | VENDSPEC_PER_CLKEN);
 
 	/* Set the initial boot clock rate */
-	imx_usdhc_set_clk(MMC_BOOT_CLK_RATE);
+	ret = imx_usdhc_set_clk(MMC_BOOT_CLK_RATE);
+	if (ret != 0) {
+		panic();
+	}
+
 	udelay(100);
 
 	/* Clear read/write ready status */
@@ -176,8 +195,6 @@ static void imx_usdhc_initialize(void)
 	/* set wartermark level as 16 for safe for MMC */
 	mmio_clrsetbits32(reg_base + WATERMARKLEV, WMKLV_MASK, 16 | (16 << 16));
 }
-
-#define FSL_CMD_RETRIES	1000
 
 static bool is_data_transfer_to_card(const struct mmc_cmd *cmd)
 {
@@ -244,12 +261,11 @@ static int get_xfr_type(const struct mmc_cmd *cmd, bool data, uint32_t *xfertype
 static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 {
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
-	unsigned int state, flags = INTSTATEN_CC | INTSTATEN_CTOE;
+	unsigned int flags = INTSTATEN_CC | INTSTATEN_CTOE;
+	uint32_t xfertype, pstate, intstat, sysctrl;
 	unsigned int mixctl = 0;
-	unsigned int cmd_retries = 0;
-	uint32_t xfertype;
+	int err = 0, ret;
 	bool data;
-	int err = 0;
 
 	assert(cmd);
 
@@ -264,12 +280,21 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	mmio_write_32(reg_base + INTSTAT, 0xffffffff);
 
 	/* Wait for the bus to be idle */
-	do {
-		state = mmio_read_32(reg_base + PSTATE);
-	} while (state & (PSTATE_CDIHB | PSTATE_CIHB));
+	err = mmio_read_32_poll_timeout(reg_base + PSTATE, pstate,
+					(pstate & (PSTATE_CDIHB | PSTATE_CIHB)) == 0U,
+					USDHC_TIMEOUT_US);
+	if (err == -ETIMEDOUT) {
+		ERROR("Failed to wait an idle bus\n");
+		return err;
+	}
 
-	while (mmio_read_32(reg_base + PSTATE) & PSTATE_DLA)
-		;
+	err = mmio_read_32_poll_timeout(reg_base + PSTATE, pstate,
+					(pstate & PSTATE_DLA) == 0U,
+					USDHC_TIMEOUT_US);
+	if (err == -ETIMEDOUT) {
+		ERROR("Active data line during the uSDHC init\n");
+		return err;
+	}
 
 	mmio_write_32(reg_base + INTSIGEN, 0);
 
@@ -296,19 +321,15 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	mmio_write_32(reg_base + XFERTYPE, xfertype);
 
 	/* Wait for the command done */
-	do {
-		state = mmio_read_32(reg_base + INTSTAT);
-		if (cmd_retries)
-			udelay(1);
-	} while ((!(state & flags)) && ++cmd_retries < FSL_CMD_RETRIES);
-
-	if ((state & (INTSTATEN_CTOE | CMD_ERR)) || cmd_retries == FSL_CMD_RETRIES) {
-		if (cmd_retries == FSL_CMD_RETRIES)
-			err = -ETIMEDOUT;
-		else
+	err = mmio_read_32_poll_timeout(reg_base + INTSTAT, intstat,
+					(intstat & flags) != 0U,
+					USDHC_TIMEOUT_US);
+	if ((err == -ETIMEDOUT) || ((intstat & (INTSTATEN_CTOE | CMD_ERR)) != 0U)) {
+		if ((intstat & (INTSTATEN_CTOE | CMD_ERR)) != 0U) {
 			err = -EIO;
+		}
 		ERROR("imx_usdhc mmc cmd %d state 0x%x errno=%d\n",
-		      cmd->cmd_idx, state, err);
+		      cmd->cmd_idx, intstat, err);
 		goto out;
 	}
 
@@ -331,28 +352,41 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	/* Wait until all of the blocks are transferred */
 	if (data) {
 		flags = DATA_COMPLETE;
-		do {
-			state = mmio_read_32(reg_base + INTSTAT);
+		err = mmio_read_32_poll_timeout(reg_base + INTSTAT, intstat,
+						(((intstat & (INTSTATEN_DTOE | DATA_ERR)) != 0U) ||
+						 ((intstat & flags) == flags)),
+						USDHC_TRANSFER_TIMEOUT);
+		if ((intstat & (INTSTATEN_DTOE | DATA_ERR)) != 0U) {
+			err = -EIO;
+			ERROR("imx_usdhc mmc data state 0x%x\n", intstat);
+			goto out;
+		}
 
-			if (state & (INTSTATEN_DTOE | DATA_ERR)) {
-				err = -EIO;
-				ERROR("imx_usdhc mmc data state 0x%x\n", state);
-				goto out;
-			}
-		} while ((state & flags) != flags);
+		if (err == -ETIMEDOUT) {
+			ERROR("Timeout in block transfer\n");
+			goto out;
+		}
 	}
 
 out:
 	/* Reset CMD and DATA on error */
 	if (err) {
 		mmio_setbits32(reg_base + SYSCTRL, SYSCTRL_RSTC);
-		while (mmio_read_32(reg_base + SYSCTRL) & SYSCTRL_RSTC)
-			;
+		ret = mmio_read_32_poll_timeout(reg_base + SYSCTRL, sysctrl,
+						(sysctrl & SYSCTRL_RSTC) == 0U,
+						USDHC_TIMEOUT_US);
+		if (ret == -ETIMEDOUT) {
+			ERROR("Failed to reset the CMD line\n");
+		}
 
 		if (data) {
 			mmio_setbits32(reg_base + SYSCTRL, SYSCTRL_RSTD);
-			while (mmio_read_32(reg_base + SYSCTRL) & SYSCTRL_RSTD)
-				;
+			ret = mmio_read_32_poll_timeout(reg_base + SYSCTRL, sysctrl,
+							(sysctrl & SYSCTRL_RSTD) == 0U,
+							USDHC_TIMEOUT_US);
+			if (ret == -ETIMEDOUT) {
+				ERROR("Failed to reset the data line\n");
+			}
 		}
 	}
 
@@ -365,8 +399,12 @@ out:
 static int imx_usdhc_set_ios(unsigned int clk, unsigned int width)
 {
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
+	int ret;
 
-	imx_usdhc_set_clk(clk);
+	ret = imx_usdhc_set_clk(clk);
+	if (ret != 0) {
+		return ret;
+	}
 
 	if (width == MMC_BUS_WIDTH_4)
 		mmio_clrsetbits32(reg_base + PROTCTRL, PROTCTRL_WIDTH_MASK,
