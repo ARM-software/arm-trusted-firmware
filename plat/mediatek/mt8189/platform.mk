@@ -14,6 +14,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -I${MTK_PLAT}/common/include \
+		 -I${MTK_PLAT}/drivers/cpu_pm/topology/inc \
 		 -I${MTK_PLAT}/drivers/gpio/ \
 		 -I${MTK_PLAT}/include \
 		 -I${MTK_PLAT}/include/${ARCH_VERSION} \
@@ -36,6 +37,7 @@ MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
 MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
+MODULES-$(CONFIG_MTK_CPU_PM_SUPPORT) += $(MTK_PLAT)/drivers/cpu_pm
 
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \

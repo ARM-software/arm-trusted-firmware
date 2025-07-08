@@ -14,6 +14,7 @@ LOCAL_SRCS-$(CPU_PM_TINYSYS_SUPPORT) += ${LOCAL_DIR}/mt_cpu_pm_mbox.c
 LOCAL_SRCS-$(CONFIG_MTK_SMP_EN) += ${LOCAL_DIR}/mt_smp.c
 
 $(eval $(call add_defined_option,CPU_PM_TINYSYS_SUPPORT))
+$(eval $(call add_defined_option,CPU_PM_SPM_CORE_POWERON))
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
 

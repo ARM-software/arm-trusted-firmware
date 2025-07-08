@@ -179,4 +179,18 @@
 #define MTK_CPU_SEG_ID_MT8189G		0x20
 #define MTK_CPU_SEG_ID_MT8189H		0x21
 
+/*******************************************************************************
+ * CPU PM definitions
+ ******************************************************************************/
+#define PLAT_CPU_PM_B_BUCK_ISO_ID	(6)
+#define PLAT_CPU_PM_ILDO_ID		(6)
+#define CPU_IDLE_SRAM_BASE		(0x11B000)
+#define CPU_IDLE_SRAM_SIZE		(0x1000)
+
+/*******************************************************************************
+ * SPM related constants
+ ******************************************************************************/
+#define SPM_BASE		(IO_PHYS + 0x0C001000)
+#define SPM_REG_SIZE		(0x1000)
+
 #endif /* PLATFORM_DEF_H */
