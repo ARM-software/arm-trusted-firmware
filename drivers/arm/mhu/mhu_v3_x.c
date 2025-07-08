@@ -72,7 +72,7 @@ enum mhu_v3_x_error_t mhu_v3_x_driver_init(struct mhu_v3_x_dev_t *dev)
 
 	/* Read the MHU Architecture Minor Revision */
 	dev->subversion =
-		((aidr & MHU_ARCH_MINOR_REV_MASK) >> MHU_ARCH_MINOR_REV_MASK);
+		((aidr & MHU_ARCH_MINOR_REV_MASK) >> MHU_ARCH_MINOR_REV_OFF);
 
 	/* Return error if the MHU minor revision is not 0 */
 	if (dev->subversion != MHU_MINOR_REV_3_0) {
