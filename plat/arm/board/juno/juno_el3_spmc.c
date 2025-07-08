@@ -5,6 +5,7 @@
  */
 
 #include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/arm/common/plat_arm.h>
 #include <services/el3_spmc_ffa_memory.h>
 
 #include <platform_def.h>

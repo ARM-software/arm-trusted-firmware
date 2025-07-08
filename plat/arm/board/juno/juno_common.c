@@ -87,6 +87,12 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef JUNO_ETHOSN_TZMP1
 	JUNO_ETHOSN_PROT_FW_RO,
 #endif
+#ifdef JUNO_MAP_FW_NS_HANDOFF
+	JUNO_MAP_FW_NS_HANDOFF,
+#endif
+#if defined(JUNO_MAP_EL3_FW_HANDOFF) && !RESET_TO_BL31
+	JUNO_MAP_EL3_FW_HANDOFF,
+#endif
 	{0}
 };
 #endif

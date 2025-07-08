@@ -16,6 +16,10 @@
 void __init bl31_early_platform_setup2(u_register_t arg0,
 		u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
+	/* Initialize the console to provide early debug support */
+	arm_console_boot_init();
+
+#if !(TRANSFER_LIST || RESET_TO_BL31 || RESET_TO_BL2)
 	const struct dyn_cfg_dtb_info_t *soc_fw_config_info;
 
 	INFO("BL31 FCONF: FW_CONFIG address = %lx\n", (uintptr_t)arg1);
@@ -27,6 +31,7 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	if (soc_fw_config_info != NULL) {
 		arg1 = soc_fw_config_info->config_addr;
 	}
+#endif
 
 	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
 
@@ -47,6 +52,7 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	plat_arm_interconnect_enter_coherency();
 }
 
+#if !TRANSFER_LIST
 void __init bl31_plat_arch_setup(void)
 {
 	arm_bl31_plat_arch_setup();
@@ -59,3 +65,4 @@ void __init bl31_plat_arch_setup(void)
 
 	fconf_populate("HW_CONFIG", hw_config_info->config_addr);
 }
+#endif
