@@ -271,8 +271,10 @@ int arm_bl2_handle_post_image_load(unsigned int image_id)
 #endif
 
 	case BL33_IMAGE_ID:
+#if !USE_KERNEL_DT_CONVENTION
 		/* BL33 expects to receive the primary CPU MPID (through r0) */
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+#endif /* !USE_KERNEL_DT_CONVENTION */
 		bl_mem_params->ep_info.spsr = arm_get_spsr_for_bl33_entry();
 		break;
 
