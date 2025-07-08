@@ -41,6 +41,7 @@ func cortex_alto_core_pwr_dwn
 	sysreg_bit_set CORTEX_ALTO_IMP_CPUPWRCTLR_EL1, \
 		CORTEX_ALTO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
+	signal_pabandon_handled
 	ret
 endfunc cortex_alto_core_pwr_dwn
 
