@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #ifndef __ASSEMBLER__
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct spinlock {
@@ -24,6 +25,8 @@ void spin_unlock(spinlock_t *lock);
 
 void bit_lock(bitlock_t *lock, uint8_t mask);
 void bit_unlock(bitlock_t *lock, uint8_t mask);
+
+bool spin_trylock(spinlock_t *lock);
 
 #else
 

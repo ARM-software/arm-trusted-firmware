@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,13 +22,23 @@
  */
 
 /*
- * Acquire lock using Compare and Swap instruction.
+ * Function: spin_lock
+ * -------------------
+ * Acquires a spinlock using the Compare-And-Swap (CASA) instruction.
+ * Spins until the lock is successfully acquired.
  *
- * Compare for 0 with acquire semantics, and swap 1. If failed to acquire, use
- * load exclusive semantics to monitor the address and enter WFE.
+ * Arguments:
+ *   x0 - Pointer to the spinlock variable (spinlock_t *lock)
  *
- * void spin_lock(spinlock_t *lock);
+ * Return:
+ *   None
+ *
+ * Description:
+ *   - Attempts to acquire the lock by performing a compare-and-swap of 0 -> 1.
+ *   - If the lock is already held, uses LDAXR/WFE to efficiently wait.
+ *   - Loops until the lock is acquired.
  */
+
 func spin_lock
 	mov	w2, #1
 1:	mov	w1, wzr
@@ -42,12 +52,48 @@ func spin_lock
 	ret
 endfunc spin_lock
 
+/*
+ * Function: spin_trylock
+ * ----------------------
+ * Attempts to acquire the spinlock using the CASA instruction without spinning.
+ *
+ * Arguments:
+ *   x0 - Pointer to the spinlock variable (spinlock_t *lock)
+ *
+ * Return:
+ *   w0 - 1 if lock was successfully acquired
+ *        0 if lock was already held
+ *
+ * Description:
+ *   - Performs a single compare-and-swap operation.
+ *   - If the lock is already held, returns failure immediately.
+ */
+func spin_trylock
+        mov     w1, wzr
+        mov     w2, #1
+        casa    w1, w2, [x0]
+        eor     w0, w1, #1
+        ret
+endfunc spin_trylock
+
 #else /* !USE_SPINLOCK_CAS */
 
 /*
- * Acquire lock using load-/store-exclusive instruction pair.
+ * Function: spin_lock
+ * -------------------
+ * Acquires a spinlock using the load-acquire (LDAXR) and store-exclusive
+ * (STXR) instruction pair.Spins until the lock is acquired.
  *
- * void spin_lock(spinlock_t *lock);
+ * Arguments:
+ *   x0 - Pointer to the spinlock variable (spinlock_t *lock)
+ *
+ * Return:
+ *   None
+ *
+ * Description:
+ *   - Waits for the lock to be released using WFE.
+ *   - Attempts to acquire it by setting the value to 1 using LDAXR/STXR.
+ *   - Uses SEVL/WFE to reduce power while waiting.
  */
 func spin_lock
 	mov	w2, #1
@@ -60,16 +106,53 @@ l2:	ldaxr	w1, [x0]
 	ret
 endfunc spin_lock
 
+/*
+ * Function: spin_trylock
+ * ----------------------
+ * Attempts to acquire the spinlock once using LDAXR/STXR without spinning.
+ *
+ * Arguments:
+ *   x0 - Pointer to the spinlock variable (spinlock_t *lock)
+ *
+ * Return:
+ *   w0 - 1 if lock was successfully acquired
+ *        0 if lock was already held
+ *
+ * Description:
+ *   - Loads the lock value.
+ *   - If unlocked (0), attempts to store 1 to acquire it.
+ *   - Returns success or failure based on the outcome.
+ */
+func spin_trylock
+        mov     w2, #1
+        ldaxr   w1, [x0]
+        cbnz    w1, fail
+        stxr    w1, w2, [x0]
+        cbnz    w1, fail
+        mov     w0, #1
+        ret
+fail:
+        mov     w0, #0
+        ret
+endfunc spin_trylock
+
 #endif /* USE_SPINLOCK_CAS */
 
 /*
- * Release lock previously acquired by spin_lock.
+ * Function: spin_unlock
+ * ---------------------
+ * Releases the spinlock previously acquired by spin_lock or spin_trylock.
  *
- * Use store-release to unconditionally clear the spinlock variable.
- * Store operation generates an event to all cores waiting in WFE
- * when address is monitored by the global monitor.
+ * Arguments:
+ *   x0 - Pointer to the spinlock variable (spinlock_t *lock)
  *
- * void spin_unlock(spinlock_t *lock);
+ * Return:
+ *   None
+ *
+ * Description:
+ *     Use store-release to unconditionally clear the spinlock variable.
+ *     Store operation generates an event to all cores waiting in WFE
+ *     when address is monitored by the global monitor
  */
 func spin_unlock
 	stlr	wzr, [x0]
