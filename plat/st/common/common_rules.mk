@@ -28,10 +28,10 @@ check_boot_device:
 stm32image: ${STM32IMAGE}
 
 ${STM32IMAGE}: ${STM32IMAGE_SRC}
-	$(q)${MAKE} CPPFLAGS="" --no-print-directory -C ${STM32IMAGEPATH}
+	$(q)${MAKE} CPPFLAGS="" BUILD_PLAT=$(abspath ${BUILD_PLAT}) --no-print-directory -C ${STM32IMAGEPATH}
 
 clean_stm32image:
-	$(q)${MAKE} --no-print-directory -C ${STM32IMAGEPATH} clean
+	$(q)${MAKE} BUILD_PLAT=$(abspath ${BUILD_PLAT}) --no-print-directory -C ${STM32IMAGEPATH} clean
 
 check_dtc_version:
 	$(q)if [ ${DTC_VERSION} -lt 10407 ]; then \
