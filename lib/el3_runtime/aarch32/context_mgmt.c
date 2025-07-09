@@ -175,7 +175,7 @@ void cm_init_my_context(const entry_point_info_t *ep)
  * HYP mode then HYP mode is disabled by configuring all necessary HYP mode
  * registers.
  ******************************************************************************/
-void cm_prepare_el3_exit(uint32_t security_state)
+void cm_prepare_el3_exit(size_t security_state)
 {
 	uint32_t hsctlr, scr;
 	cpu_context_t *ctx = cm_get_context(security_state);

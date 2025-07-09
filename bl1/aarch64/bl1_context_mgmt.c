@@ -19,7 +19,7 @@ static void *bl1_cpu_context_ptr[2];
 entry_point_info_t *bl2_ep_info;
 
 
-void *cm_get_context(uint32_t security_state)
+void *cm_get_context(size_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
 	return bl1_cpu_context_ptr[security_state];

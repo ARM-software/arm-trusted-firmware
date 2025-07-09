@@ -17,7 +17,7 @@
  * for the calling CPU that was set as the context for the specified security
  * state. NULL is returned if no such structure has been specified.
  ******************************************************************************/
-void *cm_get_context(uint32_t security_state)
+void *cm_get_context(size_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
 
@@ -43,7 +43,7 @@ void cm_set_context(void *context, uint32_t security_state)
  * specified.
  ******************************************************************************/
 void *cm_get_context_by_index(unsigned int cpu_idx,
-				unsigned int security_state)
+				size_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
 

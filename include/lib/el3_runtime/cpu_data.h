@@ -217,7 +217,7 @@ cpu_data_t *_cpu_data(void);
  * an access is not out-of-bounds. The function assumes security_state is
  * valid.
  */
-static inline context_pas_t get_cpu_context_index(uint32_t security_state)
+static inline context_pas_t get_cpu_context_index(size_t security_state)
 {
 	if (security_state == SECURE) {
 		return CPU_CONTEXT_SECURE;

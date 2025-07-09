@@ -47,7 +47,7 @@ void *smc_get_next_ctx(void)
 }
 
 /* Following functions are used for CPU context handling */
-void *cm_get_context(uint32_t security_state)
+void *cm_get_context(size_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
 	return &bl1_cpu_context[security_state];

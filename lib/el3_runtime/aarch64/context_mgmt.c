@@ -619,7 +619,7 @@ void __init cm_init(void)
  ******************************************************************************/
 void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
-	unsigned int security_state;
+	size_t security_state;
 
 	assert(ctx != NULL);
 
@@ -1097,7 +1097,7 @@ static void init_nonsecure_el2_unused(cpu_context_t *ctx)
  * EL2 then EL2 is disabled by configuring all necessary EL2 registers.
  * For all entries, the EL1 registers are initialized from the cpu_context
  ******************************************************************************/
-void cm_prepare_el3_exit(uint32_t security_state)
+void cm_prepare_el3_exit(size_t security_state)
 {
 	u_register_t sctlr_el2, scr_el3;
 	cpu_context_t *ctx = cm_get_context(security_state);
