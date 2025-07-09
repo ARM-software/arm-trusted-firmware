@@ -671,6 +671,9 @@ void cm_manage_extensions_el3(unsigned int my_idx)
 		sme_init_el3();
 	}
 
+	if (is_feat_fgwte3_supported()) {
+		write_fgwte3_el3(FGWTE3_EL3_EARLY_INIT_VAL);
+	}
 	pmuv3_init_el3();
 }
 
@@ -1160,6 +1163,14 @@ void cm_prepare_el3_exit(size_t security_state)
 				 */
 				init_nonsecure_el2_unused(ctx);
 			}
+		}
+
+		if (is_feat_fgwte3_supported()) {
+			/*
+			 * TCR_EL3 and ACTLR_EL3 could be overwritten
+			 * by platforms and hence is locked a bit late.
+			 */
+			write_fgwte3_el3(FGWTE3_EL3_LATE_INIT_VAL);
 		}
 	}
 #if (!CTX_INCLUDE_EL2_REGS)

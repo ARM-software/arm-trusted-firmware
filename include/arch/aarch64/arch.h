@@ -443,6 +443,13 @@
 #define ID_AA64MMFR3_EL1_TCRX_SHIFT		U(0)
 #define ID_AA64MMFR3_EL1_TCRX_MASK		ULL(0xf)
 
+/* ID_AA64MMFR4_EL1 definitions */
+#define ID_AA64MMFR4_EL1			S3_0_C0_C7_4
+
+#define ID_AA64MMFR4_EL1_FGWTE3_SHIFT		U(16)
+#define ID_AA64MMFR4_EL1_FGWTE3_MASK		ULL(0xf)
+#define FGWTE3_IMPLEMENTED			ULL(0x1)
+
 /* ID_AA64PFR1_EL1 definitions */
 
 #define ID_AA64PFR1_EL1_BT_SHIFT	U(0)
@@ -1621,5 +1628,69 @@
 #define MECIDR_EL2			S3_4_C10_C8_7
 #define MECIDR_EL2_MECIDWidthm1_MASK	U(0xf)
 #define MECIDR_EL2_MECIDWidthm1_SHIFT	U(0)
+
+/******************************************************************************
+ * FEAT_FGWTE3 - Fine Grained Write Trap
+ ******************************************************************************/
+#define FGWTE3_EL3					S3_6_C1_C1_5
+
+/* FGWTE3_EL3 Defintions */
+#define FGWTE3_EL3_VBAR_EL3_BIT				(U(1) << 21)
+#define FGWTE3_EL3_TTBR0_EL3_BIT			(U(1) << 20)
+#define FGWTE3_EL3_TPIDR_EL3_BIT			(U(1) << 19)
+#define FGWTE3_EL3_TCR_EL3_BIT				(U(1) << 18)
+#define FGWTE3_EL3_SPMROOTCR_EL3_BIT			(U(1) << 17)
+#define FGWTE3_EL3_SCTLR2_EL3_BIT			(U(1) << 16)
+#define FGWTE3_EL3_SCTLR_EL3_BIT			(U(1) << 15)
+#define FGWTE3_EL3_PIR_EL3_BIT				(U(1) << 14)
+#define FGWTE3_EL3_MECID_RL_A_EL3_BIT			(U(1) << 12)
+#define FGWTE3_EL3_MAIR2_EL3_BIT			(U(1) << 10)
+#define FGWTE3_EL3_MAIR_EL3_BIT				(U(1) << 9)
+#define FGWTE3_EL3_GPTBR_EL3_BIT			(U(1) << 8)
+#define FGWTE3_EL3_GPCCR_EL3_BIT			(U(1) << 7)
+#define FGWTE3_EL3_GCSPR_EL3_BIT			(U(1) << 6)
+#define FGWTE3_EL3_GCSCR_EL3_BIT			(U(1) << 5)
+#define FGWTE3_EL3_AMAIR2_EL3_BIT			(U(1) << 4)
+#define FGWTE3_EL3_AMAIR_EL3_BIT			(U(1) << 3)
+#define FGWTE3_EL3_AFSR1_EL3_BIT			(U(1) << 2)
+#define FGWTE3_EL3_AFSR0_EL3_BIT			(U(1) << 1)
+#define FGWTE3_EL3_ACTLR_EL3_BIT			(U(1) << 0)
+
+#define FGWTE3_EL3_EARLY_INIT_VAL			(	\
+		FGWTE3_EL3_VBAR_EL3_BIT 		| 	\
+		FGWTE3_EL3_TTBR0_EL3_BIT 		|	\
+		FGWTE3_EL3_SPMROOTCR_EL3_BIT		|	\
+		FGWTE3_EL3_SCTLR2_EL3_BIT		|	\
+		FGWTE3_EL3_PIR_EL3_BIT			|	\
+		FGWTE3_EL3_MECID_RL_A_EL3_BIT		|	\
+		FGWTE3_EL3_MAIR2_EL3_BIT		|	\
+		FGWTE3_EL3_MAIR_EL3_BIT			|	\
+		FGWTE3_EL3_GPTBR_EL3_BIT		|	\
+		FGWTE3_EL3_GPCCR_EL3_BIT		|	\
+		FGWTE3_EL3_GCSPR_EL3_BIT		|	\
+		FGWTE3_EL3_GCSCR_EL3_BIT		|	\
+		FGWTE3_EL3_AMAIR2_EL3_BIT		|	\
+		FGWTE3_EL3_AMAIR_EL3_BIT		|	\
+		FGWTE3_EL3_AFSR1_EL3_BIT		|	\
+		FGWTE3_EL3_AFSR0_EL3_BIT)
+
+#if HW_ASSISTED_COHERENCY
+#define FGWTE3_EL3_LATE_INIT_SCTLR_EL3_BIT   FGWTE3_EL3_SCTLR_EL3_BIT |
+#else
+#define FGWTE3_EL3_LATE_INIT_SCTLR_EL3_BIT
+#endif
+
+#if !(CRASH_REPORTING)
+#define FGWTE3_EL3_LATE_INIT_TPIDR_EL3_BIT	FGWTE3_EL3_TPIDR_EL3_BIT |
+#else
+#define FGWTE3_EL3_LATE_INIT_TPIDR_EL3_BIT
+#endif
+
+#define FGWTE3_EL3_LATE_INIT_VAL			(	\
+		FGWTE3_EL3_EARLY_INIT_VAL		|	\
+		FGWTE3_EL3_LATE_INIT_SCTLR_EL3_BIT		\
+		FGWTE3_EL3_LATE_INIT_TPIDR_EL3_BIT		\
+		FGWTE3_EL3_TCR_EL3_BIT			|	\
+		FGWTE3_EL3_ACTLR_EL3_BIT)
 
 #endif /* ARCH_H */

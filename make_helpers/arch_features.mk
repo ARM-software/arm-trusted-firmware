@@ -437,3 +437,6 @@ ENABLE_FEAT_GCIE			?=	0
 
 # Flag to enable access to Guarded Control Stack (FEAT_GCS).
 ENABLE_FEAT_GCS				?=	0
+
+# Flag to enable Fine Grained Write Traps (FEAT_FGWTE3) for EL3.
+ENABLE_FEAT_FGWTE3			?=	0

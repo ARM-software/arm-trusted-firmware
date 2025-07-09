@@ -375,6 +375,23 @@ Common build options
    This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_FGWTE3``: Numeric value to enable support for
+   Fine Grained Write Trap EL3 (FEAT_FGWTE3), a feature that allows EL3 to
+   restrict overwriting certain EL3 registers after boot.
+   This lockdown is established by setting individual trap bits for
+   system registers that are not expected to be overwritten after boot.
+   This feature is an optional architectural feature and is available from
+   Armv9.4 onwards. This flag can take values from 0 to 2, aligning with
+   the ``ENABLE_FEAT`` mechanism. The default value is 0.
+
+   .. note::
+      This feature currently traps access to all EL3 registers in
+      ``FGWTE3_EL3``, except for ``MDCR_EL3``, ``MPAM3_EL3``,
+      ``TPIDR_EL3``(when ``CRASH_REPORTING=1``), and
+      ``SCTLR_EL3``(when ``HW_ASSISTED_COHERENCY=0``).
+      If additional traps need to be disabled for specific platforms,
+      please contact the Arm team on `TF-A public mailing list`_.
+
 -  ``ENABLE_FEAT_HCX``: Numeric value to set the bit SCR_EL3.HXEn in EL3 to
    allow access to HCRX_EL2 (extended hypervisor control register) from EL2 as
    well as adding HCRX_EL2 to the EL2 context save/restore operations. Its a
@@ -1567,3 +1584,4 @@ Firmware update options
 .. _Firmware Handoff specification: https://github.com/FirmwareHandoff/firmware_handoff/releases/tag/v0.9
 .. _PSA Crypto API specification: https://armmbed.github.io/mbed-crypto/html/
 .. _Platform Initialization specification: https://uefi.org/specs/PI/1.8/index.html
+.. _TF-A public mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
