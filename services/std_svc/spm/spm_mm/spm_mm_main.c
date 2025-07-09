@@ -21,6 +21,7 @@
 #include <plat/common/platform.h>
 #include <services/spm_mm_partition.h>
 #include <services/spm_mm_svc.h>
+#include <services/ven_el3_svc.h>
 #include <smccc_helpers.h>
 
 #include "spm_common.h"
@@ -30,6 +31,14 @@
  * Secure Partition context information.
  ******************************************************************************/
 static sp_context_t sp_ctx;
+
+/********************************************************************************
+ * TPM service UUID: 17b862a4-1806-4faf-86b3-089a58353861 as mentioned in
+ * https://developer.arm.com/documentation/den0138/latest/
+ *******************************************************************************/
+DEFINE_SVC_UUID2(tpm_service_uuid,
+		 0x17b862a4, 0x1806, 0x4faf, 0x86, 0xb3,
+		 0x08, 0x9a, 0x58, 0x35, 0x38, 0x61);
 
 /*******************************************************************************
  * Set state of a Secure Partition context.
@@ -248,6 +257,46 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	ehf_deactivate_priority(PLAT_SP_PRI);
 
 	SMC_RET1(handle, rc);
+}
+
+/*******************************************************************************
+ * SPM_MM TPM start handler as mentioned in section 3.3.1 of TCG ACPI
+ * specification version 1.4
+ ******************************************************************************/
+uint64_t spm_mm_tpm_start_handler(uint32_t smc_fid,
+				  uint64_t x1,
+				  uint64_t x2,
+				  uint64_t x3,
+				  uint64_t x4,
+				  void *cookie,
+				  void *handle,
+				  uint64_t flags)
+{
+	mm_communicate_header_t *mm_comm_header = (void *)PLAT_SPM_BUF_BASE;
+	uint32_t spm_mm_smc_fid;
+
+	if (!is_caller_non_secure(flags)) {
+		ERROR("spm_mm TPM START must be requested from normal world only.\n");
+		SMC_RET1(handle, SMC_UNK);
+	}
+
+	switch (smc_fid) {
+	case TPM_START_SMC_32:
+		spm_mm_smc_fid = MM_COMMUNICATE_AARCH32;
+		break;
+	case TPM_START_SMC_64:
+		spm_mm_smc_fid = MM_COMMUNICATE_AARCH64;
+		break;
+	default:
+		ERROR("Unexpected SMC FID\n");
+		SMC_RET1(handle, SMC_UNK);
+		break;
+	}
+
+	memset(mm_comm_header, 0U, sizeof(mm_communicate_header_t));
+	memcpy(&mm_comm_header->header_guid, &tpm_service_uuid, sizeof(struct efi_guid));
+
+	return mm_communicate(spm_mm_smc_fid, x1,  (uint64_t)mm_comm_header, x3, handle);
 }
 
 /*******************************************************************************
