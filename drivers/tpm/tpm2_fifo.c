@@ -246,7 +246,7 @@ static int tpm2_fifo_read_data(struct tpm_chip_data *chip_data, tpm_cmd *buf,
 
 	err = tpm2_wait_reg_bits(tpm_base_addr + TPM_FIFO_REG_STATUS,
 				TPM_STAT_AVAIL,
-				chip_data->timeout_msec_c,
+				chip_data->timeout_msec_a,
 				status);
 	if (err < 0) {
 		return err;
