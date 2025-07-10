@@ -225,6 +225,9 @@
 #define WMMUSECSID_REG_VAL						BIT(4)
 #define RMMUSECSID_REG_VAL						BIT(5)
 
+#define SYSMGR_USB3_MISC0_RST_PUL_OVRD					BIT(12)
+#define SYSMGR_USB3_MISC0_PORT_OVR_CURR_PIPE_PWR			BIT(14)
+
 /* Macros */
 #define SOCFPGA_ECC_QSPI(_reg)						(SOCFPGA_ECC_QSPI_REG_BASE \
 									+ (SOCFPGA_ECC_QSPI_##_reg))
