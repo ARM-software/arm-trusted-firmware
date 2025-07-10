@@ -11,74 +11,6 @@
 #include <mt_spm_hwreq.h>
 #include <mt_spm_reg.h>
 
-/* Ddren, apsrc and emi resource have become hw resource_req.
- * So we don't need to use HW CG for request resource.
- */
-#define SPM_HWCG_DDREN_PWR_MB		0
-#define SPM_HWCG_DDREN_PWR_MSB_MB	0
-#define SPM_HWCG_DDREN_MODULE_BUSY_MB	0
-
-/* VRF18 */
-#define SPM_HWCG_VRF18_PWR_MB		0
-#define SPM_HWCG_VRF18_PWR_MSB_MB	0
-#define SPM_HWCG_VRF18_MODULE_BUSY_MB	0
-
-/* INFRA */
-#define SPM_HWCG_INFRA_PWR_MB		SPM_HWCG_VRF18_PWR_MB
-#define SPM_HWCG_INFRA_PWR_MSB_MB	SPM_HWCG_VRF18_PWR_MSB_MB
-#define SPM_HWCG_INFRA_MODULE_BUSY_MB	0
-
-/* PMIC */
-#define SPM_HWCG_PMIC_PWR_MB		SPM_HWCG_VRF18_PWR_MB
-#define SPM_HWCG_PMIC_PWR_MSB_MB	SPM_HWCG_VRF18_PWR_MSB_MB
-#define SPM_HWCG_PMIC_MODULE_BUSY_MB	0
-
-/* F26M */
-#define SPM_HWCG_F26M_PWR_MB		SPM_HWCG_PMIC_PWR_MB
-#define SPM_HWCG_F26M_PWR_MSB_MB	SPM_HWCG_PMIC_PWR_MSB_MB
-#define SPM_HWCG_F26M_MODULE_BUSY_MB	0
-
-/* VCORE */
-#define SPM_HWCG_VCORE_PWR_MB		SPM_HWCG_F26M_PWR_MB
-#define SPM_HWCG_VCORE_PWR_MSB_MB	SPM_HWCG_F26M_PWR_MSB_MB
-#define SPM_HWCG_VCORE_MODULE_BUSY_MB	SPM_HWCG_F26M_MODULE_BUSY_MB
-
-#define INFRA_SW_CG_MB			0
-
-struct spm_hwcg_info {
-	uint32_t pwr;
-	uint32_t pwr_msb;
-	uint32_t module_busy;
-};
-
-#define HWCG_INFO_INIT(_info) ({ \
-	_info.pwr = _info.pwr_msb = _info.module_busy = 0; })
-
-#define DECLARE_HWCG_REG(_name_, _info) ({ \
-	_info.pwr = REG_PWR_STATUS_##_name_##_REQ_MASK; \
-	_info.pwr_msb = REG_PWR_STATUS_MSB_##_name_##_REQ_MASK; \
-	_info.module_busy = REG_MODULE_BUSY_##_name_##_REQ_MASK; })
-
-#define DECLARE_HWCG_DEFAULT(_name_, _info) ({ \
-	_info.pwr = SPM_HWCG_##_name_##_PWR_MB; \
-	_info.pwr_msb = SPM_HWCG_##_name_##_PWR_MSB_MB; \
-	_info.module_busy = SPM_HWCG_##_name_##_MODULE_BUSY_MB; })
-
-#define PERI_REQ_EN_INFO_INIT(_info) ({_info.req_en = 0; })
-
-#define PERI_REQ_STA_INFO_INIT(_info) ({_info.req_sta = 0; })
-
-#define DECLARE_PERI_REQ_EN_REG(_offset, _info) ({ \
-	_info.req_en = REG_PERI_REQ_EN(_offset); })
-
-#define DECLARE_PERI_REQ_STA_REG(_offset, _info) ({ \
-	_info.req_sta = REG_PERI_REQ_STA(_offset); })
-
-#define DECLARE_PERI_REQ_DEFAULT(_name_, _info) ({ \
-	_info.req_en = PERI_REQ_##_name_##_MB; })
-
-#define PERI_REQ_EN_MASK		0x3FFFFF
-
 static uint32_t spm_hwcg_index2res(uint32_t idx)
 {
 	uint32_t res;
@@ -290,45 +222,6 @@ int spm_hwcg_get_setting_by_index(uint32_t idx,
 	uint32_t res = spm_hwcg_index2res(idx);
 
 	return spm_hwcg_get_setting(res, sta_type, type, sta);
-}
-
-int spm_hwcg_name(uint32_t idex, char *name, size_t sz)
-{
-	int ret = 0;
-
-	if (!name)
-		return -1;
-
-	switch (idex) {
-	case HWCG_DDREN:
-		ret = snprintf(name, sz - 1, "dram");
-		break;
-	case HWCG_VRF18:
-		ret = snprintf(name, sz - 1, "vrf18");
-		break;
-	case HWCG_INFRA:
-		ret = snprintf(name, sz - 1, "infra");
-		break;
-	case HWCG_PMIC:
-		ret = snprintf(name, sz - 1, "pmic");
-		break;
-	case HWCG_F26M:
-		ret = snprintf(name, sz - 1, "26m");
-		break;
-	case HWCG_VCORE:
-		ret = snprintf(name, sz - 1, "vcore");
-		break;
-	default:
-		ret = -1;
-		break;
-	}
-
-	if (ret < 0)
-		ret = -1;
-
-	name[sz-1] = '\0';
-
-	return ret;
 }
 
 static void spm_infra_swcg_init(void)

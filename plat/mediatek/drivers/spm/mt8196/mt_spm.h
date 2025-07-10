@@ -12,14 +12,7 @@
 
 #include <lib/pm/mtk_pm.h>
 #include <lpm_v2/mt_lp_rq.h>
-
-#ifdef __GNUC__
-#define spm_likely(x)		__builtin_expect(!!(x), 1)
-#define spm_unlikely(x)		__builtin_expect(!!(x), 0)
-#else
-#define spm_likely(x)		(x)
-#define spm_unlikely(x)		(x)
-#endif
+#include <mt_spm_common_v1.h>
 
 #define CLK_SCP_CFG_0		(CKSYS_BASE + 0x1A0)
 #define INFRA_BUS_DCM_CTRL	(INFRACFG_AO_BASE + 0x070)
@@ -82,61 +75,13 @@
 #define SPM_SRAM_TIMESTAMP_SIZE \
 	(((SPM_SRAM_TIMESTAMP_END - SPM_SRAM_TIMESTAMP_START) >> 2) + 1)
 
-/* AP_MDSRC_REQ MD 26M ON settle time (3ms) */
-#define AP_MDSRC_REQ_MD_26M_SETTLE	3
-
-/* Setting the SPM settle time*/
-#define SPM_SYSCLK_SETTLE	0x60FE	/* 1685us */
-
-/* Setting the SPM req/ack time*/
-#define SPM_ACK_TIMEOUT_US	1000
-
-/* Settine the firmware status check for SPM PC */
-#define SPM_PC_CHECKABLE
-
-enum {
-	SPM_ARGS_SPMFW_IDX_KICK = 0,
-	SPM_ARGS_SPMFW_INIT,
-	SPM_ARGS_SUSPEND,
-	SPM_ARGS_SUSPEND_FINISH,
-	SPM_ARGS_SODI,
-	SPM_ARGS_SODI_FINISH,
-	SPM_ARGS_DPIDLE,
-	SPM_ARGS_DPIDLE_FINISH,
-	SPM_ARGS_PCM_WDT,
-	SPM_ARGS_SUSPEND_CALLBACK,
-	SPM_ARGS_HARDWARE_CG_CHECK,
-	SPM_ARGS_NUM,
-};
-
-typedef enum {
-	WR_NONE = 0,
-	WR_UART_BUSY,
-	WR_ABORT,
-	WR_PCM_TIMER,
-	WR_WAKE_SRC,
-	WR_DVFSRC,
-	WR_TWAM,
-	WR_PMSR,
-	WR_SPM_ACK_CHK,
-	WR_UNKNOWN,
-} wake_reason_t;
-
-struct pwr_ctrl;
 struct spm_lp_scen;
 
-void spm_set_irq_num(uint32_t num);
-void spm_irq0_handler(uint64_t x1, uint64_t x2);
-struct mt_lp_resource_user *get_spm_res_user(void);
 int mt_spm_common_sodi_get_spm_pcm_flag(uint32_t  *lp, uint32_t idx);
 void mt_spm_common_sodi_en(bool en);
 int mt_spm_common_sodi_get_spm_lp(struct spm_lp_scen **lp);
 void mt_spm_set_common_sodi_pwrctr(void);
 void mt_spm_set_common_sodi_pcm_flags(void);
-int spm_boot_init(void);
-void spm_dvfsfw_init(uint64_t boot_up_opp, uint64_t dram_issue);
 extern struct pwr_ctrl spm_init_ctrl;
-/* Support by bl31_plat_setup.c */
-uint32_t is_abnormal_boot(void);
 
 #endif /* MT_SPM_H */

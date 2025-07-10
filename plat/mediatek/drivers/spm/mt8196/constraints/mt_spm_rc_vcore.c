@@ -26,14 +26,6 @@
 
 #define ERROW_TEST
 
-#define CONSTRAINT_VCORE_ALLOW (MT_RM_CONSTRAINT_ALLOW_CPU_BUCK_OFF | \
-				MT_RM_CONSTRAINT_ALLOW_DRAM_S0 | \
-				MT_RM_CONSTRAINT_ALLOW_DRAM_S1 | \
-				MT_RM_CONSTRAINT_ALLOW_VCORE_LP | \
-				MT_RM_CONSTRAINT_ALLOW_LVTS_STATE | \
-				MT_RM_CONSTRAINT_ALLOW_BUS26M_OFF | \
-				MT_RM_CONSTRAINT_ALLOW_VCORE_OFF)
-
 #define CONSTRAINT_VCORE_PCM_FLAG (SPM_FLAG_DISABLE_VCORE_DVS | \
 				   SPM_FLAG_DISABLE_DDR_DFS | \
 				   SPM_FLAG_DISABLE_EMI_DFS | \
@@ -134,11 +126,6 @@ int spm_update_rc_vcore(int state_id, int type, const void *val)
 	}
 
 	return res;
-}
-
-uint32_t spm_allow_rc_vcore(int state_id)
-{
-	return CONSTRAINT_VCORE_ALLOW;
 }
 
 int spm_run_rc_vcore(uint32_t cpu, int state_id)

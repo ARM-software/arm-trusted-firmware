@@ -25,76 +25,6 @@
 /**************************************
  * Define and Declare
  **************************************/
-/* PCM_PWR_IO_EN */
-#define PCM_PWRIO_EN_R0		BIT(0)
-#define PCM_PWRIO_EN_R7		BIT(7)
-#define PCM_RF_SYNC_R0		BIT(16)
-#define PCM_RF_SYNC_R6		BIT(22)
-#define PCM_RF_SYNC_R7		BIT(23)
-
-/* SPM_SWINT */
-#define PCM_SW_INT0		BIT(0)
-#define PCM_SW_INT1		BIT(1)
-#define PCM_SW_INT2		BIT(2)
-#define PCM_SW_INT3		BIT(3)
-#define PCM_SW_INT4		BIT(4)
-#define PCM_SW_INT5		BIT(5)
-#define PCM_SW_INT6		BIT(6)
-#define PCM_SW_INT7		BIT(7)
-#define PCM_SW_INT8		BIT(8)
-#define PCM_SW_INT9		BIT(9)
-#define PCM_SW_INT_ALL		(PCM_SW_INT9 | PCM_SW_INT8 | PCM_SW_INT7 | \
-				 PCM_SW_INT6 | PCM_SW_INT5 | PCM_SW_INT4 | \
-				 PCM_SW_INT3 | PCM_SW_INT2 | PCM_SW_INT1 | \
-				 PCM_SW_INT0)
-
-/* SPM_AP_STANDBY_CON */
-#define WFI_OP_AND		1
-#define WFI_OP_OR		0
-
-/* SPM_IRQ_MASK */
-#define ISRM_TWAM		BIT(2)
-#define ISRM_PCM_RETURN		BIT(3)
-#define ISRM_RET_IRQ0		BIT(8)
-#define ISRM_RET_IRQ1		BIT(9)
-#define ISRM_RET_IRQ2		BIT(10)
-#define ISRM_RET_IRQ3		BIT(11)
-#define ISRM_RET_IRQ4		BIT(12)
-#define ISRM_RET_IRQ5		BIT(13)
-#define ISRM_RET_IRQ6		BIT(14)
-#define ISRM_RET_IRQ7		BIT(15)
-#define ISRM_RET_IRQ8		BIT(16)
-#define ISRM_RET_IRQ9		BIT(17)
-#define ISRM_RET_IRQ_AUX	((ISRM_RET_IRQ9) | (ISRM_RET_IRQ8) | \
-				 (ISRM_RET_IRQ7) | (ISRM_RET_IRQ6) | \
-				 (ISRM_RET_IRQ5) | (ISRM_RET_IRQ4) | \
-				 (ISRM_RET_IRQ3) | (ISRM_RET_IRQ2) | \
-				 (ISRM_RET_IRQ1))
-#define ISRM_ALL_EXC_TWAM	(ISRM_RET_IRQ_AUX)
-#define ISRM_ALL		(ISRM_ALL_EXC_TWAM | ISRM_TWAM)
-
-/* SPM_IRQ_STA */
-#define ISRS_TWAM		BIT(2)
-#define ISRS_PCM_RETURN		BIT(3)
-#define ISRC_TWAM		ISRS_TWAM
-#define ISRC_ALL_EXC_TWAM	ISRS_PCM_RETURN
-#define ISRC_ALL		(ISRC_ALL_EXC_TWAM | ISRC_TWAM)
-
-/* SPM_WAKEUP_MISC */
-#define WAKE_MISC_GIC_WAKEUP			0x3FF  /* bit0 ~ bit9 */
-#define WAKE_MISC_DVFSRC_IRQ			DVFSRC_IRQ_LSB
-#define WAKE_MISC_REG_CPU_WAKEUP		SPM_WAKEUP_MISC_REG_CPU_WAKEUP_LSB
-#define WAKE_MISC_PCM_TIMER_EVENT		PCM_TIMER_EVENT_LSB
-#define WAKE_MISC_PMIC_OUT_B			(BIT(19) | BIT(20))
-#define WAKE_MISC_TWAM_IRQ_B			TWAM_IRQ_B_LSB
-#define WAKE_MISC_SPM_ACK_CHK_WAKEUP_0		SPM_ACK_CHK_WAKEUP_0_LSB
-#define WAKE_MISC_SPM_ACK_CHK_WAKEUP_1		SPM_ACK_CHK_WAKEUP_1_LSB
-#define WAKE_MISC_SPM_ACK_CHK_WAKEUP_2		SPM_ACK_CHK_WAKEUP_2_LSB
-#define WAKE_MISC_SPM_ACK_CHK_WAKEUP_3		SPM_ACK_CHK_WAKEUP_3_LSB
-#define WAKE_MISC_SPM_ACK_CHK_WAKEUP_ALL	SPM_ACK_CHK_WAKEUP_ALL_LSB
-#define WAKE_MISC_PMIC_IRQ_ACK			PMIC_IRQ_ACK_LSB
-#define WAKE_MISC_PMIC_SCP_IRQ			PMIC_SCP_IRQ_LSB
-
 /* MD32PCM ADDR for SPM code fetch */
 #define MD32PCM_BASE				(SPM_BASE + 0x0A00)
 #define MD32PCM_CFGREG_SW_RSTN			(MD32PCM_BASE + 0x0000)
@@ -1067,9 +997,6 @@ enum pwr_ctrl_enum {
 
 	PW_MAX_COUNT,
 };
-
-/* spm_internal.c internal status */
-#define SPM_INTERNAL_STATUS_HW_S1	BIT(0)
 
 /*
  * HW_TARG_GROUP_SEL_3		: 3b'1 (pcm_reg_13)

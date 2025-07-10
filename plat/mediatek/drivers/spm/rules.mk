@@ -22,6 +22,9 @@ include ${LOCAL_DIR}/$(CONFIG_MTK_SPM_VERSION)/plat_conf.mk
 PLAT_INCLUDES += -I${LOCAL_DIR}
 PLAT_INCLUDES += -I${LOCAL_DIR}/version
 PLAT_INCLUDES += -I${LOCAL_DIR}/common
+
+LOCAL_SRCS-y += ${LOCAL_DIR}/mt_spm_rc_api_common.c
+LOCAL_SRCS-y += ${LOCAL_DIR}/mt_spm_dispatcher.c
 endif
 endif
 

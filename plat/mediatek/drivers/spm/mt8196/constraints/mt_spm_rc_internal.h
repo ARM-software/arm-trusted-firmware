@@ -57,7 +57,6 @@ int spm_get_status_rc_bus26m(uint32_t type, void *priv);
 /* SPM resource vcore constraint function */
 bool spm_is_valid_rc_vcore(uint32_t cpu, int state_id);
 int spm_update_rc_vcore(int state_id, int type, const void *val);
-uint32_t spm_allow_rc_vcore(int state_id);
 int spm_run_rc_vcore(uint32_t cpu, int state_id);
 int spm_reset_rc_vcore(uint32_t cpu, int state_id);
 int spm_get_status_rc_vcore(uint32_t type, void *priv);
