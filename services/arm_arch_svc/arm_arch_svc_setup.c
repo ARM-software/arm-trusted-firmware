@@ -121,17 +121,53 @@ static int32_t smccc_arch_features(u_register_t arg1)
 	}
 }
 
-/* return soc revision or soc version on success otherwise
- * return invalid parameter */
-static int32_t smccc_arch_id(u_register_t arg1)
+/*
+ * Handles SMCCC_ARCH_SOC_ID smc calls.
+ *
+ * - GET_SOC_REVISION: returns SoC revision (AArch32/AArch64)
+ * - GET_SOC_VERSION:  returns SoC version  (AArch32/AArch64)
+ * - GET_SOC_NAME:     returns SoC name string (AArch64 only)
+ *
+ * Returns invalid parameter for unsupported calls.
+ */
+static uintptr_t smccc_arch_id(u_register_t arg1, void *handle, uint32_t is_smc64)
 {
 	if (arg1 == SMCCC_GET_SOC_REVISION) {
-		return plat_get_soc_revision();
+		SMC_RET1(handle, plat_get_soc_revision());
 	}
 	if (arg1 == SMCCC_GET_SOC_VERSION) {
-		return plat_get_soc_version();
+		SMC_RET1(handle, plat_get_soc_version());
 	}
-	return SMC_ARCH_CALL_INVAL_PARAM;
+#if __aarch64__
+	/* SoC Name is only present for SMC64 invocations */
+	if ((arg1 == SMCCC_GET_SOC_NAME) && is_smc64) {
+		uint64_t arg[SMCCC_SOC_NAME_LEN / 8];
+		int32_t ret;
+		char soc_name[SMCCC_SOC_NAME_LEN];
+
+		(void)memset(soc_name, 0U, SMCCC_SOC_NAME_LEN);
+		ret = plat_get_soc_name(soc_name);
+
+		if (ret == SMC_ARCH_CALL_SUCCESS) {
+			(void)memcpy(arg, soc_name, SMCCC_SOC_NAME_LEN);
+			/*
+			 * The SoC name is returned as a null-terminated
+			 * ASCII string, split across registers X1 to X17
+			 * in little endian order.
+			 * Each 64-bit register holds 8 consecutive bytes
+			 * of the string.
+			 */
+			SMC_RET18(handle, ret, arg[0], arg[1], arg[2],
+					arg[3], arg[4], arg[5], arg[6],
+					arg[7], arg[8], arg[9], arg[10],
+					arg[11], arg[12], arg[13], arg[14],
+					arg[15], arg[16]);
+		} else {
+			SMC_RET1(handle, ret);
+		}
+	}
+#endif /* __aarch64__ */
+	SMC_RET1(handle, SMC_ARCH_CALL_INVAL_PARAM);
 }
 
 /*
@@ -237,8 +273,10 @@ static uintptr_t arm_arch_svc_smc_handler(uint32_t smc_fid,
 	case SMCCC_ARCH_FEATURES:
 		SMC_RET1(handle, smccc_arch_features(x1));
 	case SMCCC_ARCH_SOC_ID:
-		SMC_RET1(handle, smccc_arch_id(x1));
-#ifdef __aarch64__
+	case SMCCC_ARCH_SOC_ID | (SMC_64 << FUNCID_CC_SHIFT):
+		return smccc_arch_id(x1, handle, (smc_fid
+				& (SMC_64 << FUNCID_CC_SHIFT)));
+#if __aarch64__
 #if WORKAROUND_CVE_2017_5715
 	case SMCCC_ARCH_WORKAROUND_1:
 		/*

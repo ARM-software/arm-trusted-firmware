@@ -496,6 +496,11 @@ int32_t plat_get_soc_version(void);
 int32_t plat_get_soc_revision(void);
 
 /*
+ * Optional function to get SoC name
+ */
+int32_t plat_get_soc_name(char *soc_name);
+
+/*
  * Optional function to check for SMCCC function availability for platform
  */
 int32_t plat_is_smccc_feature_available(u_register_t fid);

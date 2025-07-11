@@ -31,6 +31,7 @@
 #pragma weak plat_is_smccc_feature_available
 #pragma weak plat_get_soc_version
 #pragma weak plat_get_soc_revision
+#pragma weak plat_get_soc_name
 
 int32_t plat_get_soc_version(void)
 {
@@ -38,6 +39,11 @@ int32_t plat_get_soc_version(void)
 }
 
 int32_t plat_get_soc_revision(void)
+{
+	return SMC_ARCH_CALL_NOT_SUPPORTED;
+}
+
+int32_t plat_get_soc_name(char *soc_name __unused)
 {
 	return SMC_ARCH_CALL_NOT_SUPPORTED;
 }
