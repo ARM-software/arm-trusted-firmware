@@ -134,6 +134,12 @@ workaround_reset_end cortex_x2, ERRATUM(2083908)
 
 check_erratum_range cortex_x2, ERRATUM(2083908), CPU_REV(2, 0), CPU_REV(2, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(2136059), ERRATA_X2_2136059
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(44)
+workaround_reset_end cortex_x2, ERRATUM(2136059)
+
+check_erratum_ls cortex_x2, ERRATUM(2136059), CPU_REV(2, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2147715), ERRATA_X2_2147715
 	/* Apply the workaround by setting bit 22 in CPUACTLR_EL1. */
 	sysreg_bit_set CORTEX_X2_CPUACTLR_EL1, CORTEX_X2_CPUACTLR_EL1_BIT_22
