@@ -17,6 +17,7 @@
  ******************************************************************************/
 #define CORTEX_X2_CPUECTLR_EL1					S3_0_C15_C1_4
 #define CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT			(ULL(1) << 8)
+#define CORTEX_X2_CPUECTLR_EL1_WS_THR_DISABLE_ALL_BITS		(ULL(0xFF) << 18)
 
 /*******************************************************************************
  * CPU Auxiliary Control register 3 specific definitions.
