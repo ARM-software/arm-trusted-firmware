@@ -804,6 +804,11 @@ CPU_FLAG_LIST += ERRATA_X2_2267065
 # open.
 CPU_FLAG_LIST += ERRATA_X2_2282622
 
+# Flag to apply erratum 2291219 workaround during reset. This erratum applies
+# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
+# r2p1.
+CPU_FLAG_LIST += ERRATA_X2_2291219
+
 # Flag to apply erratum 2371105 workaround during reset. This erratum applies
 # to revision r0p0, r1p0 and r2p0 of the Cortex-X2 cpu and is fixed in r2p1.
 CPU_FLAG_LIST += ERRATA_X2_2371105

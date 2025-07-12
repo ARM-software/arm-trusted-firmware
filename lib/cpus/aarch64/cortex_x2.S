@@ -176,6 +176,16 @@ workaround_reset_end cortex_x2, ERRATUM(2282622)
 
 check_erratum_ls cortex_x2, ERRATUM(2282622), CPU_REV(2, 1)
 
+workaround_runtime_start cortex_x2, ERRATUM(2291219), ERRATA_X2_2291219
+	/*
+	 * Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
+	 * the workaround. Second call clears it to undo it.
+	 */
+	sysreg_bit_toggle CORTEX_X2_CPUACTLR2_EL1, BIT(36)
+workaround_runtime_end cortex_x2, ERRATUM(2291219), NO_ISB
+
+check_erratum_ls cortex_x2, ERRATUM(2291219), CPU_REV(2, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2313941), ERRATA_DSU_2313941
 	errata_dsu_2313941_wa_impl
 workaround_reset_end cortex_x2, ERRATUM(2313941)
@@ -241,6 +251,8 @@ check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
 	 * ----------------------------------------------------
 	 */
 func cortex_x2_core_pwr_dwn
+	apply_erratum cortex_x2, ERRATUM(2291219), ERRATA_X2_2291219, NO_GET_CPU_REV
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
