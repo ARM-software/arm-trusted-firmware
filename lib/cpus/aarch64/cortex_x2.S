@@ -49,6 +49,37 @@ workaround_reset_end cortex_x2, ERRATUM(1917258)
 
 check_erratum_ls cortex_x2, ERRATUM(1917258), CPU_REV(1, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(1927200), ERRATA_X2_1927200
+	mov	x0, #0
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10E3900002
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+
+	mov	x0, #1
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10E3800082
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+
+	mov	x0, #2
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10E3800200
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FFF003E0
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+workaround_reset_end cortex_x2, ERRATUM(1927200)
+
+check_erratum_ls cortex_x2, ERRATUM(1927200), CPU_REV(1, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2002765), ERRATA_X2_2002765
 	ldr	x0, =0x6
 	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
