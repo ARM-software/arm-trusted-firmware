@@ -43,6 +43,12 @@ workaround_reset_end cortex_x2, ERRATUM(1916945)
 
 check_erratum_ls cortex_x2, ERRATUM(1916945), CPU_REV(1, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(1917258), ERRATA_X2_1917258
+	sysreg_bit_set CORTEX_X2_CPUACTLR4_EL1, BIT(43)
+workaround_reset_end cortex_x2, ERRATUM(1917258)
+
+check_erratum_ls cortex_x2, ERRATUM(1917258), CPU_REV(1, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2002765), ERRATA_X2_2002765
 	ldr	x0, =0x6
 	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
