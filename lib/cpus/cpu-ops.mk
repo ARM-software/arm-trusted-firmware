@@ -741,6 +741,10 @@ CPU_FLAG_LIST += ERRATA_N2_2779511
 # of the Neoverse N2 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_N2_3701773
 
+# Flag to apply erratum 1901946 workaround during reset. This erratum applies
+# only to revision r1p0 of the Cortex-X2 cpu, it is fixed in r2p0.
+CPU_FLAG_LIST += ERRATA_X2_1901946
+
 # Flag to apply erratum 2002765 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_X2_2002765
