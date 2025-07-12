@@ -752,6 +752,10 @@ For Cortex-X2, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0 and r1p0, it is fixed in
    r2p0.
 
+-  ``ERRATA_X2_1927200``: This applies errata 1927200 workaround to Cortex-X2
+   CPU. This needs to be enabled for revisions r0p0 and r1p0, it is fixed in
+   r2p0.
+
 -  ``ERRATA_X2_2002765``: This applies errata 2002765 workaround to Cortex-X2
    CPU. This needs to be enabled for revisions r0p0, r1p0, and r2p0 of the CPU,
    it is still open.
