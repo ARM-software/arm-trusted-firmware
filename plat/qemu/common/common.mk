@@ -122,6 +122,10 @@ ENABLE_FEAT_FGT		:=	2
 # 8.7
 ENABLE_FEAT_HCX		:=	2
 
+# 8.8
+ENABLE_FEAT_TCR2	:=	2
+ENABLE_FEAT_SCTLR2	:=	2
+
 # SPM_MM is not compatible with ENABLE_SVE_FOR_NS (build breaks)
 ifeq (${SPM_MM},1)
 	ENABLE_SVE_FOR_NS	:= 0
