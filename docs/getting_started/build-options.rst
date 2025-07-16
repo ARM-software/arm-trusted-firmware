@@ -999,6 +999,10 @@ Common build options
    flag is disabled by default and NOLOAD sections are placed in RAM immediately
    following the loaded firmware image.
 
+-  ``SEPARATE_BL2_FIP``: This option enables the separation of the BL2 FIP image
+   from the main FIP image. When this option is enabled, the BL2 FIP image is built
+   as a separate FIP image. The default value is 0.
+
 -  ``SEPARATE_SIMD_SECTION``: Setting this option to ``1`` allows the SIMD context
     data structures to be put in a dedicated memory region as decided by platform
     integrator. Default value is ``0`` which means the SIMD context is put in BSS
