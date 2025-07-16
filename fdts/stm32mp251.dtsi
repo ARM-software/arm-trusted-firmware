@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 /*
- * Copyright (C) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2023-2025, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
  */
 
@@ -215,6 +215,14 @@
 				reg = <0x40380000 0x400>;
 				clocks = <&rcc CK_KER_UART8>;
 				resets = <&rcc UART8_R>;
+				status = "disabled";
+			};
+
+			rng: rng@42020000 {
+				compatible = "st,stm32mp13-rng";
+				reg = <0x42020000 0x400>;
+				clocks = <&rcc CK_BUS_RNG>;
+				resets = <&rcc RNG_R>;
 				status = "disabled";
 			};
 
