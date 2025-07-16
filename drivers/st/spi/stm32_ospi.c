@@ -47,6 +47,8 @@
 /* OCTOSPI control register */
 #define _OSPI_CR_EN		BIT_32(0)
 #define _OSPI_CR_ABORT		BIT_32(1)
+#define _OSPI_CR_FTHRES		GENMASK_32(13, 8)
+#define _OSPI_CR_FTHRES_SHIFT	8U
 #define _OSPI_CR_CSSEL		BIT_32(24)
 #define _OSPI_CR_FMODE		GENMASK_32(29, 28)
 #define _OSPI_CR_FMODE_SHIFT	28U
@@ -205,20 +207,52 @@ static int stm32_ospi_wait_cmd(void)
 	return ret;
 }
 
-static void stm32_ospi_read_fifo(uint8_t *val, uintptr_t addr)
+static int stm32_ospi_read_fifo(void *val, uintptr_t addr, uint64_t len)
 {
-	*val = mmio_read_8(addr);
+	int ret = 0;
+
+	switch (len) {
+	case sizeof(uint32_t):
+		*((uint32_t *)val) = mmio_read_32(addr);
+		break;
+	case sizeof(uint8_t):
+		*((uint8_t *)val) = mmio_read_8(addr);
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	};
+
+	return ret;
 }
 
-static void stm32_ospi_write_fifo(uint8_t *val, uintptr_t addr)
+static int stm32_ospi_write_fifo(void *val, uintptr_t addr, uint64_t len)
 {
-	mmio_write_8(addr, *val);
+	int ret = 0;
+
+	switch (len) {
+	case sizeof(uint32_t):
+		mmio_write_32(addr, *((uint32_t *)val));
+		break;
+	case sizeof(uint8_t):
+		mmio_write_8(addr, *((uint8_t *)val));
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	};
+
+	return ret;
 }
 
 static int stm32_ospi_poll(uint8_t *buf, uint32_t nbytes, bool read)
 {
-	void (*fifo)(uint8_t *val, uintptr_t addr);
-	uint32_t len;
+	int (*fifo)(void *val, uintptr_t addr, uint64_t len);
+	uint8_t *buff = buf;
+	uint64_t length = nbytes;
+	uint32_t tmp;
+	uint64_t i = 0U;
+	int ret;
 
 	if (read) {
 		fifo = stm32_ospi_read_fifo;
@@ -226,7 +260,7 @@ static int stm32_ospi_poll(uint8_t *buf, uint32_t nbytes, bool read)
 		fifo = stm32_ospi_write_fifo;
 	}
 
-	for (len = nbytes; len != 0U; len--) {
+	while (length != 0U) {
 		uint64_t timeout = timeout_init_us(_OSPI_FIFO_TIMEOUT_US);
 
 		while ((mmio_read_32(ospi_base() + _OSPI_SR) &
@@ -240,7 +274,27 @@ static int stm32_ospi_poll(uint8_t *buf, uint32_t nbytes, bool read)
 			}
 		}
 
-		fifo(buf++, ospi_base() + _OSPI_DR);
+		if (length >= sizeof(uint32_t)) {
+			ret = fifo(&tmp, ospi_base() + _OSPI_DR,
+				   sizeof(uint32_t));
+			if (ret != 0) {
+				return ret;
+			}
+
+			(void)memcpy((void *)&buff[i], (const void *)&tmp,
+				     sizeof(uint32_t));
+			length -= sizeof(uint32_t);
+			i += sizeof(uint32_t);
+		} else {
+			ret = fifo(&buff[i], ospi_base() + _OSPI_DR,
+				   sizeof(uint8_t));
+			if (ret != 0) {
+				return ret;
+			}
+
+			length--;
+			i++;
+		}
 	}
 
 	return 0;
@@ -1334,6 +1388,8 @@ int stm32_ospi_init(void)
 	}
 
 	mmio_write_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_DEVSIZE);
+	mmio_clrsetbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_FTHRES,
+			   3U << _OSPI_CR_FTHRES_SHIFT);
 
 #if STM32MP_HYPERFLASH
 	/* Init Hyperflash framework */
