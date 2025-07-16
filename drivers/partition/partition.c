@@ -388,6 +388,20 @@ static int load_primary_gpt(uintptr_t image_handle, unsigned int first_lba)
 	return load_partition_gpt(image_handle, header);
 }
 
+static void handle_gpt_corruption(void)
+{
+	uint8_t flags;
+
+	if ((plat_log_gpt_ptr == NULL) ||
+	    (plat_log_gpt_ptr->plat_set_gpt_corruption == NULL)) {
+		return;
+	}
+
+	flags = plat_log_gpt_ptr->gpt_corrupted_info | PRIMARY_GPT_CORRUPTED;
+	plat_log_gpt_ptr->plat_set_gpt_corruption((uintptr_t)&plat_log_gpt_ptr->gpt_corrupted_info,
+						  flags);
+}
+
 /*
  * Load the partition table info based on the image id provided.
  */
@@ -424,6 +438,7 @@ int load_partition_table(unsigned int image_id)
 		result = load_primary_gpt(image_handle, mbr_entry.first_lba);
 		if (result != 0) {
 			io_close(image_handle);
+			handle_gpt_corruption();
 			return load_backup_gpt(BKUP_GPT_IMAGE_ID,
 					       mbr_entry.sector_nums);
 		}

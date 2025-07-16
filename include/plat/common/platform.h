@@ -55,6 +55,18 @@ struct plat_try_images_ops {
 extern const struct plat_try_images_ops *plat_try_img_ops;
 
 /*******************************************************************************
+ * Structure populated by platform specific code to log if the primary GPT
+ * is corrupted
+ ******************************************************************************/
+struct plat_log_gpt_corrupted {
+	uint8_t gpt_corrupted_info;
+	void (*plat_set_gpt_corruption)(uintptr_t gpt_corrupted_info_ptr, uint8_t flags);
+	void (*plat_log_gpt_corruption)(uintptr_t log_address, uint8_t gpt_corrupted_info);
+};
+
+extern const struct plat_log_gpt_corrupted *plat_log_gpt_ptr;
+
+/*******************************************************************************
  * plat_get_rotpk_info() flags
  ******************************************************************************/
 #define ROTPK_IS_HASH			(1 << 0)
@@ -168,6 +180,7 @@ void plat_panic_handler(void) __dead2;
 const char *plat_log_get_prefix(unsigned int log_level);
 void bl2_plat_preload_setup(void);
 void plat_setup_try_img_ops(const struct plat_try_images_ops *plat_try_ops);
+void plat_setup_log_gpt_corrupted(const struct plat_log_gpt_corrupted *log_gpt);
 
 #if MEASURED_BOOT
 int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data);
