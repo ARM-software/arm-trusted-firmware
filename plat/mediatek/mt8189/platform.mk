@@ -27,6 +27,7 @@ MODULES-y += $(MTK_PLAT)/common
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
+MODULES-y += $(MTK_PLAT)/lib/system_reset
 MODULES-y += $(MTK_PLAT)/topology
 MODULES-y += $(MTK_PLAT)/drivers/cirq
 MODULES-y += $(MTK_PLAT)/drivers/dfd
@@ -38,6 +39,10 @@ MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
 MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
 MODULES-$(CONFIG_MTK_CPU_PM_SUPPORT) += $(MTK_PLAT)/drivers/cpu_pm
+
+ifneq ($(MTKLIB_PATH),)
+LDLIBS += -Wl,--whole-archive $(MTKLIB_PATH) -Wl,--no-whole-archive
+endif
 
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \
