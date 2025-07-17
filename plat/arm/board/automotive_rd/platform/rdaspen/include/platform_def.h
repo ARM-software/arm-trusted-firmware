@@ -145,6 +145,12 @@
 #define CSS_SYSTEM_PWR_DMN_LVL			ARM_PWR_LVL2
 #define PLAT_MAX_PWR_LVL			CSS_SYSTEM_PWR_DMN_LVL
 
+#if PFDI_SUPPORT
+#define PLAT_PFDI_ENTRIES			U(4)
+#else
+#define PLAT_PFDI_ENTRIES			U(0)
+#endif /* PFDI_SUPPORT */
+
 #define MAX_IO_DEVICES				U(3)
 #define MAX_IO_HANDLES				U(4)
 
@@ -158,7 +164,7 @@
 #if defined(IMAGE_BL2)
 #define PLAT_ARM_MMAP_ENTRIES			U(9)
 #elif defined(IMAGE_BL31)
-#define PLAT_ARM_MMAP_ENTRIES			(U(9))
+#define PLAT_ARM_MMAP_ENTRIES			((U(9)) + PLAT_PFDI_ENTRIES)
 #endif
 #define MAX_XLAT_TABLES				(U(10))
 

@@ -16,6 +16,9 @@
 #include <services/arm_arch_svc.h>
 
 #include <platform_def.h>
+#if PFDI_SUPPORT
+#include "rdaspen_sbist.h"
+#endif /* PFDI_SUPPORT */
 
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
@@ -32,6 +35,12 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 #ifdef IMAGE_BL31
 	RDASPEN_MAP_CPER_BUF,
+#if PFDI_SUPPORT
+	MAP_SBIST_MEM(0),
+	MAP_SBIST_MEM(1),
+	MAP_SBIST_MEM(2),
+	MAP_SBIST_MEM(3),
+#endif /* PFDI_SUPPORT */
 #endif
 	RDASPEN_MAP_S_DRAM,
 	{0}
