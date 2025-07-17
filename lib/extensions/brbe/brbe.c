@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,7 @@ void brbe_enable(cpu_context_t *ctx)
 	/*
 	 * MDCR_EL3.SBRBE = 0b01
 	 * Allows BRBE usage in non-secure world and prohibited in
-	 * secure world.
+	 * secure world. This is relied on by SMCCC_ARCH_FEATURE_AVAILABILITY.
 	 *
 	 * MDCR_EL3.{E3BREW, E3BREC} = 0b00
 	 * Branch recording at EL3 is disabled

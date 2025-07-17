@@ -9,40 +9,81 @@
 #include <arch_helpers.h>
 #include <lib/extensions/trbe.h>
 
-void trbe_enable(cpu_context_t *ctx)
+
+/*
+ * TRBE is an unusual feature. Its enable is split into two:
+ *  - (NSTBE, NSTB[0]) - the security state bits - determines which security
+ *    state owns the trace buffer.
+ *  - NSTB[1] - the enable bit - determines if the security state that owns the
+ *    buffer may access TRBE registers.
+ *
+ * There is a secondary id register TRBIDR_EL1 that is more granular than
+ * ID_AA64DFR0_EL1. When a security state owns the buffer, TRBIDR_EL1.P will
+ * report that TRBE programming is allowed. This means that the usual assumption
+ * that leaving all bits to a default of zero will disable the feature may not
+ * work correctly. To correctly disable TRBE, the current security state must NOT
+ * own the buffer, irrespective of the enable bit. Then, to play nicely with
+ * SMCCC_ARCH_FEATURE_AVAILABILITY, the enable bit should correspond to the
+ * enable status. The feature is architected this way to allow for lazy context
+ * switching of the buffer - a world can be made owner of the buffer (with
+ * TRBIDR_EL1.P reporting full access) without giving it access to the registers
+ * (by trapping to EL3). Then context switching can be deferred until a world
+ * tries to use TRBE at which point access can be given and the trapping
+ * instruction repeated.
+ *
+ * This can be simplified to the following rules:
+ * 1. To enable TRBE for world X:
+ *    * world X owns the buffer ((NSTBE, NSTB[0]) == SCR_EL3.{NSE, NS})
+ *    * trapping disabled (NSTB[0] == 1)
+ * 2. To disable TRBE for world X:
+ *    * world X does not own the buffer ((NSTBE, NSTB[0]) != SCR_EL3.{NSE, NS})
+ *    * trapping enabled (NSTB[0] == 0)
+ */
+void trbe_enable_ns(cpu_context_t *ctx)
 {
 	el3_state_t *state = get_el3state_ctx(ctx);
 	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
-	/*
-	 * MDCR_EL3.NSTBE = 0b0
-	 *  Trace Buffer owning Security state is Non-secure state. If FEAT_RME
-	 *  is not implemented, this field is RES0.
-	 *
-	 * MDCR_EL3.NSTB = 0b11
-	 *  Allow access of trace buffer control registers from NS-EL1 and
-	 *  NS-EL2, tracing is prohibited in Secure and Realm state (if
-	 *  implemented).
-	 */
-	mdcr_el3_val |= MDCR_NSTB(MDCR_NSTB_EL1);
+	mdcr_el3_val |= MDCR_NSTB_EN_BIT | MDCR_NSTB_SS_BIT;
 	mdcr_el3_val &= ~(MDCR_NSTBE_BIT);
+
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
-void trbe_disable(cpu_context_t *ctx)
+static void trbe_disable_all(cpu_context_t *ctx, bool ns)
 {
 	el3_state_t *state = get_el3state_ctx(ctx);
 	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
-	/*
-	 * MDCR_EL3.{NSTBE,NSTB} = 0b0, 0b00
-	 *  Disable access of trace buffer control registers from lower ELs in
-	 *  any security state. Secure state owns the buffer.
-	 */
-	mdcr_el3_val &= ~(MDCR_NSTB(MDCR_NSTB_EL1));
-	mdcr_el3_val &= ~(MDCR_NSTBE_BIT);
+	mdcr_el3_val &= ~MDCR_NSTB_EN_BIT;
+	mdcr_el3_val &= ~MDCR_NSTBE_BIT;
+
+	/* make NS owner, except when NS is running */
+	if (ns) {
+		mdcr_el3_val &= ~MDCR_NSTB_SS_BIT;
+	} else {
+		mdcr_el3_val |= MDCR_NSTB_SS_BIT;
+	}
+
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
+
+
+void trbe_disable_ns(cpu_context_t *ctx)
+{
+	trbe_disable_all(ctx, true);
+}
+
+void trbe_disable_secure(cpu_context_t *ctx)
+{
+	trbe_disable_all(ctx, false);
+}
+
+void trbe_disable_realm(cpu_context_t *ctx)
+{
+	trbe_disable_all(ctx, false);
+}
+
 
 void trbe_init_el2_unused(void)
 {
