@@ -240,6 +240,18 @@
 #define MTK_CPU_SEG_ID_MT8189H		0x21
 
 /*******************************************************************************
+ * Thermal related constants
+ ******************************************************************************/
+#define INFRACFG_BASE			(IO_PHYS + 0x0020E000)
+#define THERM_CTRL_AP_BASE		(IO_PHYS + 0x00315000)
+#define THERM_AP_REG_SIZE		(0x1000)
+#define THERM_CTRL_MCU_BASE		(IO_PHYS + 0x00316000)
+#define THERM_MCU_REG_SIZE		(0x1000)
+
+#define THERMAL_CSRAM_BASE		(0x00102500)
+#define THERMAL_CSRAM_SIZE		(0x400)
+
+/*******************************************************************************
  * CPU PM definitions
  ******************************************************************************/
 #define PLAT_CPU_PM_B_BUCK_ISO_ID	(6)
