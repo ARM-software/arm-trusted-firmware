@@ -463,14 +463,16 @@ static int32_t clk_pll_16fft_bypass(struct clk *clock_ptr, bool bypass)
 			   data_pll);
 
 	ctrl = readl(pll->base + (uint32_t) PLL_16FFT_CTRL(pll->idx));
-	if (bypass) {
-		/* Enable bypass */
+	/* Enable bypass only if its not bypassed already */
+	if (bypass && ((ctrl & PLL_16FFT_CTRL_BYPASS_EN) == 0U)) {
 		ctrl |= PLL_16FFT_CTRL_BYPASS_EN;
-	} else {
-		/* Disable bypass */
+		ti_clk_writel(ctrl, pll->base + (uint32_t)PLL_16FFT_CTRL(pll->idx));
+	} else if ((ctrl & PLL_16FFT_CTRL_BYPASS_EN) == PLL_16FFT_CTRL_BYPASS_EN) {
+		/* Disable bypass only if its bypassed */
 		ctrl &= ~PLL_16FFT_CTRL_BYPASS_EN;
+		ti_clk_writel(ctrl, pll->base + (uint32_t)PLL_16FFT_CTRL(pll->idx));
 	}
-	ti_clk_writel(ctrl, pll->base + (uint32_t) PLL_16FFT_CTRL(pll->idx));
+
 	return SUCCESS;
 }
 
