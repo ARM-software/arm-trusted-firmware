@@ -741,7 +741,7 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		assert(optee_vector_table == NULL);
 		optee_vector_table = (optee_vectors_t *) x1;
 
-		if (optee_vector_table) {
+		if (optee_vector_table != NULL) {
 			set_optee_pstate(optee_ctx->state, OPTEE_PSTATE_ON);
 
 			/*
