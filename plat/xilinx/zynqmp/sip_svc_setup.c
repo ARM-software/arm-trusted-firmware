@@ -121,6 +121,6 @@ DECLARE_RT_SVC(
 		sip_svc,
 		OEN_SIP_START,
 		OEN_SIP_END,
-		(uint8_t)SMC_TYPE_FAST,
+		SMC_TYPE_FAST,
 		sip_svc_setup,
 		sip_svc_smc_handler);

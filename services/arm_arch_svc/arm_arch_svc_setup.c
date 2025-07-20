@@ -337,7 +337,7 @@ DECLARE_RT_SVC(
 		arm_arch_svc,
 		OEN_ARM_START,
 		OEN_ARM_END,
-		(uint8_t)SMC_TYPE_FAST,
+		SMC_TYPE_FAST,
 		NULL,
 		arm_arch_svc_smc_handler
 );
