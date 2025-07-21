@@ -1258,15 +1258,6 @@ static int32_t clk_pll_16fft_init_internal(struct clk *clock_ptr)
 			   data_pll);
 
 	/*
-	 * Unlock write access. Note this register does not readback the
-	 * written value.
-	 */
-	ti_clk_writel((uint32_t) PLL_16FFT_LOCKKEY0_VALUE,
-		      (uint32_t) pll->base + (uint32_t) PLL_16FFT_LOCKKEY0(pll->idx));
-	ti_clk_writel((uint32_t) PLL_16FFT_LOCKKEY1_VALUE,
-		      (uint32_t) pll->base + (uint32_t) PLL_16FFT_LOCKKEY1(pll->idx));
-
-	/*
 	 * In order to honor the CLK_DATA_FLAG_NO_HW_REINIT flag when set,
 	 * we must check if the clk is enabled, and if so, skip re-setting
 	 * default frequency if it is available.
