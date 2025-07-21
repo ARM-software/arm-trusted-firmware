@@ -64,18 +64,17 @@ DEFINE_SVC_UUID2(optee_image_load_uuid,
 	0xb1eafba3, 0x5d31, 0x4612, 0xb9, 0x06,
 	0xc4, 0xc7, 0xa4, 0xbe, 0x3c, 0xc0);
 
+static uint64_t dual32to64(uint32_t high, uint32_t low)
+{
+	return ((uint64_t)high << 32) | low;
+}
+
 #define OPTEED_FDT_SIZE 1024
 static uint8_t fdt_buf[OPTEED_FDT_SIZE] __aligned(CACHE_WRITEBACK_GRANULE);
 
 #else
 static int32_t opteed_init(void);
 #endif
-
-uint64_t dual32to64(uint32_t high, uint32_t low)
-{
-	return ((uint64_t)high << 32) | low;
-}
-
 /*******************************************************************************
  * This function is the handler registered for S-EL1 interrupts by the
  * OPTEED. It validates the interrupt and upon success arranges entry into
