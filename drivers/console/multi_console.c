@@ -39,11 +39,12 @@ console_t *console_unregister(console_t *to_be_deleted)
 
 	assert(to_be_deleted != NULL);
 
-	for (ptr = &console_list; *ptr != NULL; ptr = &(*ptr)->next)
+	for (ptr = &console_list; *ptr != NULL; ptr = &(*ptr)->next) {
 		if (*ptr == to_be_deleted) {
 			*ptr = (*ptr)->next;
 			return to_be_deleted;
 		}
+	}
 
 	return NULL;
 }
