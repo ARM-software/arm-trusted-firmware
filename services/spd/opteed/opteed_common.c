@@ -40,7 +40,7 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 
 	/* initialise an entrypoint to set up the CPU context */
 	ep_attr = SECURE | EP_ST_ENABLE;
-	if (read_sctlr_el3() & SCTLR_EE_BIT)
+	if ((read_sctlr_el3() & SCTLR_EE_BIT) != 0U)
 		ep_attr |= EP_EE_BIG;
 	SET_PARAM_HEAD(optee_entry_point, PARAM_EP, VERSION_1, ep_attr);
 	optee_entry_point->pc = pc;

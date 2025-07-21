@@ -32,7 +32,7 @@
 					clr_optee_pstate(st);		       \
 					st |= (pst & OPTEE_PSTATE_MASK) <<     \
 						OPTEE_PSTATE_SHIFT;	       \
-				} while (0)
+				} while (false)
 
 
 /*******************************************************************************
