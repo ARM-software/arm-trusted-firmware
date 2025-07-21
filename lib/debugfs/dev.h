@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,7 +73,7 @@ struct dev {
  * A channel is a handle on an element of the filesystem.
  ******************************************************************************/
 struct chan {
-	long		offset;
+	unsigned long	offset;
 	qid_t		qid;
 	unsigned char	index;	/* device index in devtab */
 	unsigned char	dev;
@@ -93,7 +93,7 @@ chan_t *path_to_channel(const char *path, int mode);
 chan_t *clone(chan_t *c, chan_t *nc);
 chan_t *attach(int id, int dev);
 void channel_close(chan_t *c);
-int buf_to_channel(chan_t *c, void *dst, void *src, int nbytes, long len);
+int buf_to_channel(chan_t *c, void *dst, void *src, size_t nbytes, long len);
 int dirread(chan_t *c, dir_t *dir, const dirtab_t *tab,
 	    int ntab, devgen_t *gen);
 void make_dir_entry(chan_t *c, dir_t *dir, const char *name, long length,

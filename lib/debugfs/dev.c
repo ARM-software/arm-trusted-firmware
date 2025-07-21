@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -164,7 +164,7 @@ void channel_close(chan_t *channel)
  * dst + len.
  * It returns the actual number of bytes that were copied.
  ******************************************************************************/
-int buf_to_channel(chan_t *channel, void *dst, void *src, int nbytes, long len)
+int buf_to_channel(chan_t *channel, void *dst, void *src, size_t nbytes, long len)
 {
 	const char *addr = src;
 
