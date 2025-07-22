@@ -98,7 +98,7 @@ All standard chains of trust provided in TF-A source tree (that is, under
 ``drivers/auth/``) require that the certificate's signature has already been
 validated prior to calling ``get_ext()``, or any function that calls ``get_ext()``.
 Platforms taking their chain of trust from a dynamic configuration file (such as
-``fdts/tbbr_cot_descriptors.dtsi``) are also safe, as signature verification will
+``fdts/tbbr_cot_descriptors.dts``) are also safe, as signature verification will
 always be done prior to any calls to ``get_ext()`` or ``auth_nvctr()`` in this
 case, no matter the order of the properties in the file.  Therefore, it is not
 possible to exploit this vulnerability pre-authentication in upstream TF-A.

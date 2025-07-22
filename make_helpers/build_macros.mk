@@ -340,7 +340,7 @@ $(eval LIB := $(notdir $(1)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CC      $$<"
-	$$(q)$($(ARCH)-cc) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-cc) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -357,7 +357,7 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
-	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -381,7 +381,7 @@ $(eval BL_CFLAGS := $($(4)_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CC      $$<"
-	$$(q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -405,12 +405,26 @@ $(eval BL_ASFLAGS := $($(4)_ASFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
-	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
 endef
 
+# MAKE_PRE run the C preprocessor on a file
+#   $(1) = output file
+#   $(2) = list of input files
+#   $(3) = dep file
+#   $(4) = list of rule-specific flags to pass
+define MAKE_PRE
+$(eval OUT := $(1))
+$(eval SRC := $(2))
+$(eval DEP := $(3))
+$(eval CUSTOM_FLAGS := $(4))
+$(OUT): $(SRC) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
+	$$(s)echo "  CPP     $$<"
+	$$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp $$(TF_CFLAGS) $(CUSTOM_FLAGS) $(call MAKE_DEP,$(DEP),$(OUT)) -o $$@ $$<
+endef
 
 # MAKE_LD generate the linker script using the C preprocessor
 #   $(1) = output linker script
@@ -424,11 +438,9 @@ $(eval DEP := $(1).d)
 $(eval BL_DEFINES := IMAGE_$(4) $($(4)_DEFINES))
 $(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
 $(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)))
+$(eval FLAGS := -D__LINKER__ $(BL_CPPFLAGS))
 
-$(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
-	$$(s)echo "  PP      $$<"
-	$$(q)$($(ARCH)-cpp) -E $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(call MAKE_DEP,$(DEP),$1) -o $$@ $$<
-
+$(eval $(call MAKE_PRE,$(1),$(2),$(DEP),$(FLAGS)))
 -include $(DEP)
 
 endef
@@ -639,10 +651,7 @@ $(eval DTSDEP := $(patsubst %.dtb,%.o.d,$(DOBJ)))
 # Dependencies of the DT compilation on its pre-compiled DTS
 $(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
-$(DPRE): $(2) | $$$$(@D)/
-	$$(s)echo "  CPP     $$<"
-	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
-	$$(q)$($(ARCH)-cpp) -E $$(TF_CFLAGS_$(ARCH)) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
+$(eval $(call MAKE_PRE,$(DPRE),$(2),$(DTSDEP),$(DTC_CPPFLAGS)))
 
 $(DOBJ): $(DPRE) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  DTC     $$<"

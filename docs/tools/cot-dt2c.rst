@@ -58,7 +58,7 @@ the validity of the CoT DT file.
 .. code::
 
     cot-dt2c convert-to-c [INPUT DTS PATH] [OUTPUT C PATH]
-    cot-dt2c convert-to-c fdts/tbbr_cot_descriptors.dtsi test.c
+    cot-dt2c convert-to-c fdts/tbbr_cot_descriptors.dts test.c
 
 
 Validate CoT descriptors
@@ -81,7 +81,7 @@ Currently the validation is specifically for checking the CoT DT file
 .. code::
 
     cot-dt2c validate-cot [INPUT DTS PATH]
-    cot-dt2c validate-cot fdts/tbbr_cot_descriptors.dtsi
+    cot-dt2c validate-cot fdts/tbbr_cot_descriptors.dts
 
 
 Visualize CoT descriptors
@@ -93,7 +93,7 @@ the certificates and the image of a CoT DT file.
 .. code::
 
     cot-dt2c visualize-cot [INPUT DTS PATH]
-    cot-dt2c visualize-cot fdts/tbbr_cot_descriptors.dtsi
+    cot-dt2c visualize-cot fdts/tbbr_cot_descriptors.dts
 
 
 Validate Other DT files
@@ -113,7 +113,7 @@ is not installed along with the tool.
 
 --------------
 
-*Copyright (c) 2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2024-2025, Arm Limited. All rights reserved.*
 
 .. _tools/cot_dt2c/pyproject.toml: https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/heads/integration/tools/cot_dt2c/pyproject.toml
 .. _Poetry: https://python-poetry.org/docs/
