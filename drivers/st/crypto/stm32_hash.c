@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,13 +46,13 @@
 #endif
 #if STM32_HASH_VER == 4
 #define HASH_CR_ALGO_SHIFT		U(17)
-#define HASH_CR_ALGO_SHA1		(0x0U << HASH_CR_ALGO_SHIFT)
-#define HASH_CR_ALGO_SHA224		(0x2U << HASH_CR_ALGO_SHIFT)
-#define HASH_CR_ALGO_SHA256		(0x3U << HASH_CR_ALGO_SHIFT)
-#define HASH_CR_ALGO_SHA384		(0xCU << HASH_CR_ALGO_SHIFT)
-#define HASH_CR_ALGO_SHA512_224		(0xDU << HASH_CR_ALGO_SHIFT)
-#define HASH_CR_ALGO_SHA512_256		(0xEU << HASH_CR_ALGO_SHIFT)
-#define HASH_CR_ALGO_SHA512		(0xFU << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA1		((uint32_t)(0x0U) << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA224		((uint32_t)(0x2U) << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA256		((uint32_t)(0x3U) << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA384		((uint32_t)(0xCU) << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA512_224		((uint32_t)(0xDU) << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA512_256		((uint32_t)(0xEU) << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA512		((uint32_t)(0xFU) << HASH_CR_ALGO_SHIFT)
 #endif
 
 /* Status Flags */
@@ -139,7 +139,7 @@ static void hash_hw_init(enum stm32_hash_algo_mode mode)
 {
 	uint32_t reg;
 
-	reg = HASH_CR_INIT | (HASH_DATA_8_BITS << HASH_CR_DATATYPE_SHIFT);
+	reg = HASH_CR_INIT | ((uint32_t)HASH_DATA_8_BITS << HASH_CR_DATATYPE_SHIFT);
 
 	switch (mode) {
 #if STM32_HASH_VER == 2
@@ -191,7 +191,7 @@ static int hash_get_digest(uint8_t *digest)
 	for (i = 0U; i < (stm32_hash.digest_size / sizeof(uint32_t)); i++) {
 		dsg = __builtin_bswap32(mmio_read_32(hash_base() +
 						     HASH_HREG(i)));
-		memcpy(digest + (i * sizeof(uint32_t)), &dsg, sizeof(uint32_t));
+		(void)(memcpy(&digest[i * sizeof(uint32_t)], (uint8_t *)&dsg, sizeof(uint32_t)));
 	}
 
 	/*
@@ -206,23 +206,27 @@ static int hash_get_digest(uint8_t *digest)
 int stm32_hash_update(const uint8_t *buffer, size_t length)
 {
 	size_t remain_length = length;
+	uint8_t *remain_buf = (uint8_t *)&stm32_remain.buffer;
+	const uint8_t *buf = buffer;
 	int ret = 0;
 
 	if ((length == 0U) || (buffer == NULL)) {
 		return 0;
 	}
 
-	clk_enable(stm32_hash.clock);
+	ret = clk_enable(stm32_hash.clock);
+	if (ret != 0) {
+		return ret;
+	}
 
 	if (stm32_remain.length != 0U) {
 		uint32_t copysize;
 
 		copysize = MIN((sizeof(uint32_t) - stm32_remain.length),
 			       length);
-		memcpy(((uint8_t *)&stm32_remain.buffer) + stm32_remain.length,
-		       buffer, copysize);
+		(void)(memcpy(&remain_buf[stm32_remain.length], buf, copysize));
 		remain_length -= copysize;
-		buffer += copysize;
+		buf = &buf[copysize];
 		if (stm32_remain.length == sizeof(uint32_t)) {
 			ret = hash_write_data(stm32_remain.buffer);
 			if (ret != 0) {
@@ -236,20 +240,20 @@ int stm32_hash_update(const uint8_t *buffer, size_t length)
 	while (remain_length / sizeof(uint32_t) != 0U) {
 		uint32_t tmp_buf;
 
-		memcpy(&tmp_buf, buffer, sizeof(uint32_t));
+		(void)(memcpy((void *)&tmp_buf, buf, sizeof(uint32_t)));
 		ret = hash_write_data(tmp_buf);
 		if (ret != 0) {
 			goto exit;
 		}
 
-		buffer += sizeof(uint32_t);
+		buf = &buf[sizeof(uint32_t)];
 		remain_length -= sizeof(uint32_t);
 	}
 
 	if (remain_length != 0U) {
 		assert(stm32_remain.length == 0U);
 
-		memcpy((uint8_t *)&stm32_remain.buffer, buffer, remain_length);
+		(void)(memcpy((uint8_t *)&stm32_remain.buffer, buf, remain_length));
 		stm32_remain.length = remain_length;
 	}
 
@@ -263,7 +267,10 @@ int stm32_hash_final(uint8_t *digest)
 {
 	int ret;
 
-	clk_enable(stm32_hash.clock);
+	ret = clk_enable(stm32_hash.clock);
+	if (ret != 0) {
+		return ret;
+	}
 
 	if (stm32_remain.length != 0U) {
 		ret = hash_write_data(stm32_remain.buffer);
@@ -303,7 +310,10 @@ int stm32_hash_final_update(const uint8_t *buffer, uint32_t length,
 
 void stm32_hash_init(enum stm32_hash_algo_mode mode)
 {
-	clk_enable(stm32_hash.clock);
+	if (clk_enable(stm32_hash.clock) != 0) {
+		ERROR("%s: fail to enable clock\n", __func__);
+		panic();
+	}
 
 	hash_hw_init(mode);
 
@@ -316,6 +326,7 @@ int stm32_hash_register(void)
 {
 	struct dt_node_info hash_info;
 	int node;
+	int ret;
 
 	for (node = dt_get_node(&hash_info, -1, DT_HASH_COMPAT);
 	     node != -FDT_ERR_NOTFOUND;
@@ -336,7 +347,10 @@ int stm32_hash_register(void)
 	stm32_hash.base = hash_info.base;
 	stm32_hash.clock = hash_info.clock;
 
-	clk_enable(stm32_hash.clock);
+	ret = clk_enable(stm32_hash.clock);
+	if (ret != 0) {
+		return ret;
+	}
 
 	if (hash_info.reset >= 0) {
 		uint32_t id = (uint32_t)hash_info.reset;
