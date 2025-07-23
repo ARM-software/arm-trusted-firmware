@@ -169,7 +169,7 @@ func cortex_a77_core_pwr_dwn
 	sysreg_bit_set CORTEX_A77_CPUPWRCTLR_EL1, \
 		CORTEX_A77_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 
-	apply_erratum cortex_a77, ERRATUM(2743100), ERRATA_A77_2743100, NO_GET_CPU_REV
+	apply_erratum cortex_a77, ERRATUM(2743100), ERRATA_A77_2743100
 
 	isb
 	ret

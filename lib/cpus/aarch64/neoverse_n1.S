@@ -240,7 +240,7 @@ func neoverse_n1_core_pwr_dwn
 	 */
 	sysreg_bit_set NEOVERSE_N1_CPUPWRCTLR_EL1, NEOVERSE_N1_CORE_PWRDN_EN_MASK
 
-	apply_erratum neoverse_n1, ERRATUM(2743102), ERRATA_N1_2743102, NO_GET_CPU_REV
+	apply_erratum neoverse_n1, ERRATUM(2743102), ERRATA_N1_2743102
 
 	isb
 	ret
