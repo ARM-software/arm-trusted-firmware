@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2025, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8196_MTCMOS_H_
+#define PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8196_MTCMOS_H_
+
+#include <mtcmos_common.h>
+#include <platform_def.h>
+
+#define RTFF_SAVE	BIT(24)
+#define RTFF_NRESTORE	BIT(25)
+#define RTFF_CLK_DIS	BIT(26)
+#define RTFF_SAVE_FLAG	BIT(27)
+
+#define POWERON_CONFIG_EN	(SPM_BASE + 0x0)
+#define UFS0_PWR_CON		(SPM_BASE + 0xE2C)
+#define UFS0_PHY_PWR_CON	(SPM_BASE + 0xE30)
+
+#define SPM_BUS_PROTECT_EN_SET		(SPM_BASE + 0x90DC)
+#define SPM_BUS_PROTECT_EN_CLR		(SPM_BASE + 0x90E0)
+#define SPM_BUS_PROTECT_CG_EN_SET	(SPM_BASE + 0x90F4)
+#define SPM_BUS_PROTECT_CG_EN_CLR	(SPM_BASE + 0x90F8)
+#define SPM_BUS_PROTECT_RDY_STA		(SPM_BASE + 0x9208)
+
+#define UFS0_PROT_STEP1_MASK		BIT(11)
+#define UFS0_PHY_PROT_STEP1_MASK	BIT(12)
+
+static const struct bus_protect ufs0_bus_prot_set_table[] = {
+	{SPM_BUS_PROTECT_CG_EN_SET, 0x0, UFS0_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_EN_SET, SPM_BUS_PROTECT_RDY_STA, UFS0_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_CG_EN_CLR, 0x0, UFS0_PROT_STEP1_MASK},
+};
+
+static const struct bus_protect ufs0_bus_prot_clr_table[] = {
+	{SPM_BUS_PROTECT_CG_EN_SET, 0x0, UFS0_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_EN_CLR, 0x0, UFS0_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_CG_EN_CLR, 0x0, UFS0_PROT_STEP1_MASK},
+};
+
+static const struct bus_protect ufs0_phy_bus_prot_set_table[] = {
+	{SPM_BUS_PROTECT_CG_EN_SET, 0x0, UFS0_PHY_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_EN_SET, SPM_BUS_PROTECT_RDY_STA, UFS0_PHY_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_CG_EN_CLR, 0x0, UFS0_PHY_PROT_STEP1_MASK},
+};
+
+static const struct bus_protect ufs0_phy_bus_prot_clr_table[] = {
+	{SPM_BUS_PROTECT_CG_EN_SET, 0x0, UFS0_PHY_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_EN_CLR, 0x0, UFS0_PHY_PROT_STEP1_MASK},
+	{SPM_BUS_PROTECT_CG_EN_CLR, 0x0, UFS0_PHY_PROT_STEP1_MASK},
+};
+
+#endif /* PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8196_MTCMOS_H_ */
