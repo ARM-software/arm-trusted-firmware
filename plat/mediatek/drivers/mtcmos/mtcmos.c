@@ -91,7 +91,7 @@ static int spm_mtcmos_ctrl_bus_prot(int state, uint32_t mask)
 	return 0;
 }
 
-int spm_mtcmos_ctrl(enum mtcmos_state state, uintptr_t reg, uint32_t mask)
+static int spm_mtcmos_ctrl(enum mtcmos_state state, uintptr_t reg, uint32_t mask)
 {
 	int ret = 0;
 
