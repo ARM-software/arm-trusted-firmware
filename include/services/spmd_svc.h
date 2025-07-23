@@ -27,7 +27,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			  uint64_t x4,
 			  void *cookie,
 			  void *handle,
-			  uint64_t flags);
+			  uint64_t flags,
+			  uint32_t secure_ffa_version);
 uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 			       bool secure_origin,
 			       uint64_t x1,
@@ -35,7 +36,8 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 			       uint64_t x3,
 			       uint64_t x4,
 			       void *handle,
-			       uint64_t flags);
+			       uint64_t flags,
+			       uint32_t secure_ffa_version);
 #endif /* __ASSEMBLER__ */
 
 #endif /* SPMD_SVC_H */

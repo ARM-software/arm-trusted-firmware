@@ -217,12 +217,13 @@ static uint64_t spmc_smc_return(uint32_t smc_fid,
 				void *handle,
 				void *cookie,
 				uint64_t flags,
-				uint16_t dst_id)
+				uint16_t dst_id,
+				uint32_t sp_ffa_version)
 {
 	/* If the destination is in the normal world always go via the SPMD. */
 	if (ffa_is_normal_world_id(dst_id)) {
 		return spmd_smc_handler(smc_fid, x1, x2, x3, x4,
-					cookie, handle, flags);
+					cookie, handle, flags, sp_ffa_version);
 	}
 	/*
 	 * If the caller is secure and we want to return to the secure world,
@@ -234,7 +235,7 @@ static uint64_t spmc_smc_return(uint32_t smc_fid,
 	/* If we originated in the normal world then switch contexts. */
 	else if (!secure_origin && ffa_is_secure_world_id(dst_id)) {
 		return spmd_smc_switch_state(smc_fid, secure_origin, x1, x2,
-					     x3, x4, handle, flags);
+					     x3, x4, handle, flags, sp_ffa_version);
 	} else {
 		/* Unknown State. */
 		panic();
@@ -348,6 +349,18 @@ static bool direct_msg_receivable(uint32_t properties, uint16_t dir_req_fnum)
 }
 
 /*******************************************************************************
+ * Helper function to obtain the FF-A version of the calling partition.
+ ******************************************************************************/
+uint32_t get_partition_ffa_version(bool secure_origin)
+{
+	if (secure_origin) {
+		return spmc_get_current_sp_ctx()->ffa_version;
+	} else {
+		return spmc_get_hyp_ctx()->ffa_version;
+	}
+}
+
+/*******************************************************************************
  * Handle direct request messages and route to the appropriate destination.
  ******************************************************************************/
 static uint64_t direct_req_smc_handler(uint32_t smc_fid,
@@ -366,9 +379,15 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 	struct el3_lp_desc *el3_lp_descs;
 	struct secure_partition_desc *sp;
 	unsigned int idx;
+	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
 
 	dir_req_funcid = (smc_fid != FFA_MSG_SEND_DIRECT_REQ2_SMC64) ?
 		FFA_FNUM_MSG_SEND_DIRECT_REQ : FFA_FNUM_MSG_SEND_DIRECT_REQ2;
+
+	if ((dir_req_funcid == FFA_FNUM_MSG_SEND_DIRECT_REQ2) &&
+			ffa_version < MAKE_FFA_VERSION(U(1), U(2))) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
 
 	/*
 	 * Sanity check for DIRECT_REQ:
@@ -469,7 +488,7 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 	}
 
 	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
-			       handle, cookie, flags, dst_id);
+			       handle, cookie, flags, dst_id, sp->ffa_version);
 }
 
 /*******************************************************************************
@@ -586,7 +605,7 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 	}
 
 	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
-			       handle, cookie, flags, dst_id);
+			       handle, cookie, flags, dst_id, sp->ffa_version);
 }
 
 /*******************************************************************************
@@ -666,7 +685,7 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 		return spmd_smc_switch_state(FFA_NORMAL_WORLD_RESUME, secure_origin,
 					     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 					     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-					     handle, flags);
+					     handle, flags, sp->ffa_version);
 	}
 
 	/* Protect the runtime state of a S-EL0 SP with a lock. */
@@ -676,7 +695,7 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 
 	/* Forward the response to the Normal world. */
 	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
-			       handle, cookie, flags, FFA_NWD_ID);
+			       handle, cookie, flags, FFA_NWD_ID, sp->ffa_version);
 }
 
 static uint64_t ffa_error_handler(uint32_t smc_fid,
@@ -743,7 +762,7 @@ static uint64_t ffa_error_handler(uint32_t smc_fid,
 			panic();
 		} else
 			return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
-					       handle, cookie, flags, dst_id);
+					       handle, cookie, flags, dst_id, sp->ffa_version);
 	}
 
 	return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
@@ -788,18 +807,6 @@ static uint64_t ffa_version_handler(uint32_t smc_fid,
 
 	SMC_RET1(handle, MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
 					  FFA_VERSION_MINOR));
-}
-
-/*******************************************************************************
- * Helper function to obtain the FF-A version of the calling partition.
- ******************************************************************************/
-uint32_t get_partition_ffa_version(bool secure_origin)
-{
-	if (secure_origin) {
-		return spmc_get_current_sp_ctx()->ffa_version;
-	} else {
-		return spmc_get_hyp_ctx()->ffa_version;
-	}
 }
 
 static uint64_t rxtx_map_handler(uint32_t smc_fid,
@@ -1534,7 +1541,7 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 	}
 
 	return spmc_smc_return(smc_fid, secure_origin, x1, 0, 0, 0,
-			       handle, cookie, flags, target_id);
+			       handle, cookie, flags, target_id, sp->ffa_version);
 }
 
 static uint64_t rx_release_handler(uint32_t smc_fid,
@@ -2577,5 +2584,5 @@ static uint64_t spmc_sp_interrupt_handler(uint32_t id,
 	return spmd_smc_switch_state(FFA_INTERRUPT, false,
 				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-				     handle, 0ULL);
+				     handle, 0ULL, sp->ffa_version);
 }
