@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2025, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8189_MTCMOS_H_
+#define PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8189_MTCMOS_H_
+
+#include <mtcmos_common.h>
+#include <platform_def.h>
+
+#define RTFF_SAVE	BIT(24)
+#define RTFF_NRESTORE	BIT(25)
+#define RTFF_CLK_DIS	BIT(28)
+
+#define VLPCFG_REG_BASE				(0x1C00C000)
+#define POWERON_CONFIG_EN			(SPM_BASE + 0x0)
+#define UFS0_PWR_CON				(SPM_BASE + 0x0E10)
+#define UFS0_PHY_PWR_CON			(SPM_BASE + 0x0E14)
+
+#define PERISYS_PROTECT_EN_STA_0		(INFRACFG_AO_BASE + 0x0C80)
+#define PERISYS_PROTECT_EN_STA_0_SET		(INFRACFG_AO_BASE + 0x0C84)
+#define PERISYS_PROTECT_EN_STA_0_CLR		(INFRACFG_AO_BASE + 0x0C88)
+#define PERISYS_PROTECT_RDY_STA_0		(INFRACFG_AO_BASE + 0x0C8C)
+#define VLP_TOPAXI_PROTECTEN			(VLPCFG_REG_BASE + 0x0210)
+#define VLP_TOPAXI_PROTECTEN_SET		(VLPCFG_REG_BASE + 0x0214)
+#define VLP_TOPAXI_PROTECTEN_CLR		(VLPCFG_REG_BASE + 0x0218)
+#define VLP_TOPAXI_PROTECTEN_STA1		(VLPCFG_REG_BASE + 0x0220)
+
+#define UFS0_PROT_STEP1_0_MASK		BIT(5)
+#define UFS0_PROT_STEP2_0_MASK		BIT(4)
+#define UFS0_PROT_STEP3_0_MASK		BIT(6)
+
+static const struct bus_protect ufs0_bus_prot_set_table[] = {
+	{VLP_TOPAXI_PROTECTEN_SET, VLP_TOPAXI_PROTECTEN_STA1, UFS0_PROT_STEP1_0_MASK},
+	{PERISYS_PROTECT_EN_STA_0_SET, PERISYS_PROTECT_RDY_STA_0, UFS0_PROT_STEP2_0_MASK},
+	{VLP_TOPAXI_PROTECTEN_SET, VLP_TOPAXI_PROTECTEN_STA1, UFS0_PROT_STEP3_0_MASK},
+};
+
+static const struct bus_protect ufs0_bus_prot_clr_table[] = {
+	{VLP_TOPAXI_PROTECTEN_CLR, 0x0, UFS0_PROT_STEP3_0_MASK},
+	{PERISYS_PROTECT_EN_STA_0_CLR, 0x0, UFS0_PROT_STEP2_0_MASK},
+	{VLP_TOPAXI_PROTECTEN_CLR, 0x0, UFS0_PROT_STEP1_0_MASK},
+};
+
+static const struct bus_protect ufs0_phy_bus_prot_set_table[] = {};
+static const struct bus_protect ufs0_phy_bus_prot_clr_table[] = {};
+
+#endif /* PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8189_MTCMOS_H_ */
