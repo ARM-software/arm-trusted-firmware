@@ -180,7 +180,7 @@ func cortex_x2_core_pwr_dwn
 	 */
 	sysreg_bit_set CORTEX_X2_CPUPWRCTLR_EL1, CORTEX_X2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 
-	apply_erratum cortex_x2, ERRATUM(2768515), ERRATA_X2_2768515, NO_GET_CPU_REV
+	apply_erratum cortex_x2, ERRATUM(2768515), ERRATA_X2_2768515
 	isb
 	ret
 endfunc cortex_x2_core_pwr_dwn

@@ -153,7 +153,7 @@ func cortex_x4_core_pwr_dwn
 	 */
 	sysreg_bit_set CORTEX_X4_CPUPWRCTLR_EL1, CORTEX_X4_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 
-	apply_erratum cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089, NO_GET_CPU_REV
+	apply_erratum cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 
 	isb
 	ret
