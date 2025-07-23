@@ -24,14 +24,14 @@
 #define OPTEE_PSTATE_UNKNOWN		0U
 #define OPTEE_PSTATE_SHIFT		0U
 #define OPTEE_PSTATE_MASK		0x3U
-#define get_optee_pstate(state)	((state >> OPTEE_PSTATE_SHIFT) & \
+#define get_optee_pstate(state)	(((state) >> OPTEE_PSTATE_SHIFT) & \
 				 OPTEE_PSTATE_MASK)
 #define clr_optee_pstate(state)	(state &= ~(OPTEE_PSTATE_MASK \
 					    << OPTEE_PSTATE_SHIFT))
 #define set_optee_pstate(st, pst) do {					       \
-					clr_optee_pstate(st);		       \
-					st |= (pst & OPTEE_PSTATE_MASK) <<     \
-						OPTEE_PSTATE_SHIFT;	       \
+					clr_optee_pstate((st));		       \
+					(st) |= (((pst) & OPTEE_PSTATE_MASK) <<     \
+						OPTEE_PSTATE_SHIFT);	       \
 				} while (false)
 
 
