@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8196_MTCMOS_H_
-#define PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8196_MTCMOS_H_
+#ifndef MTCMOS_H
+#define MTCMOS_H
 
 enum mtcmos_state {
 	STA_POWER_DOWN,
@@ -15,4 +15,4 @@ enum mtcmos_state {
 int spm_mtcmos_ctrl_ufs0(enum mtcmos_state state);
 int spm_mtcmos_ctrl_ufs0_phy(enum mtcmos_state state);
 
-#endif /* PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8196_MTCMOS_H_ */
+#endif /* MTCMOS_H */
