@@ -582,6 +582,13 @@ int32_t plat_get_soc_revision(void)
 			  V2M_SYS_ID_REV_MASK) & SOC_ID_REV_MASK);
 }
 
+/* Get SoC name */
+int32_t plat_get_soc_name(char *soc_name)
+{
+	snprintf(soc_name, SMCCC_SOC_NAME_LEN, "Arm Platform Revision %d",
+			plat_get_soc_revision());
+	return SMC_ARCH_CALL_SUCCESS;
+}
 #if ENABLE_RME
 
 /* BDF mappings for RP0 RC0 */
