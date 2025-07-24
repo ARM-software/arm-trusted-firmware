@@ -129,7 +129,7 @@ func cortex_a78c_core_pwr_dwn
 	 */
 	sysreg_bit_set CORTEX_A78C_CPUPWRCTLR_EL1, CORTEX_A78C_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 
-	apply_erratum cortex_a78c, ERRATUM(2772121), ERRATA_A78C_2772121, NO_GET_CPU_REV
+	apply_erratum cortex_a78c, ERRATUM(2772121), ERRATA_A78C_2772121
 
 	isb
 	ret
