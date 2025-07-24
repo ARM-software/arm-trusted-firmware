@@ -445,3 +445,6 @@ LFA_SUPPORT			:= 0
 
 # Enable support for arm DSU driver.
 USE_DSU_DRIVER			:= 0
+
+# Define the separation of BL2 flag, by default it is disabled.
+SEPARATE_BL2_FIP		:=	0
