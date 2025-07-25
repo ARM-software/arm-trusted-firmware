@@ -36,7 +36,6 @@
 #include <lib/extensions/sve.h>
 #include <lib/extensions/spe.h>
 #include <lib/extensions/trbe.h>
-#include "rmmd_initial_context.h"
 #include "rmmd_private.h"
 
 /*******************************************************************************
@@ -110,40 +109,6 @@ __dead2 void rmmd_rmm_sync_exit(uint64_t rc)
 	panic();
 }
 
-static void rmm_el2_context_init(el2_sysregs_t *regs)
-{
-	write_el2_ctx_common(regs, spsr_el2, REALM_SPSR_EL2);
-	write_el2_ctx_common(regs, sctlr_el2, SCTLR_EL2_RES1);
-}
-
-/*******************************************************************************
- * Enable architecture extensions on first entry to Realm world.
- ******************************************************************************/
-
-static void manage_extensions_realm(cpu_context_t *ctx)
-{
-	/*
-	 * Enable access to TPIDR2_EL0 if SME/SME2 is enabled for Non Secure world.
-	 */
-	if (is_feat_sme_supported()) {
-		sme_enable(ctx);
-	}
-
-	/*
-	 * SPE and TRBE cannot be fully disabled from EL3 registers alone, only
-	 * sysreg access can. In case the EL1 controls leave them active on
-	 * context switch, we want the owning security state to be NS so Realm
-	 * can't be DOSed.
-	 */
-	if (is_feat_spe_supported()) {
-		spe_disable(ctx);
-	}
-
-	if (is_feat_trbe_supported()) {
-		trbe_disable(ctx);
-	}
-}
-
 /*******************************************************************************
  * Jump to the RMM for the first time.
  ******************************************************************************/
@@ -153,12 +118,6 @@ static int32_t rmm_init(void)
 	rmmd_rmm_context_t *ctx = &rmm_context[plat_my_core_pos()];
 
 	INFO("RMM init start.\n");
-
-	/* Enable architecture extensions */
-	manage_extensions_realm(&ctx->cpu_ctx);
-
-	/* Initialize RMM EL2 context. */
-	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
 
 	rc = rmmd_rmm_sync_entry(ctx);
 	if (rc != E_RMM_BOOT_SUCCESS) {
@@ -383,12 +342,6 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 
 	/* Initialise RMM context with this entry point information */
 	cm_setup_context(&ctx->cpu_ctx, rmm_ep_info);
-
-	/* Enable architecture extensions */
-	manage_extensions_realm(&ctx->cpu_ctx);
-
-	/* Initialize RMM EL2 context. */
-	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
 
 	rc = rmmd_rmm_sync_entry(ctx);
 

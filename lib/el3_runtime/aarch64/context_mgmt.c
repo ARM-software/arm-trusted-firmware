@@ -150,20 +150,26 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 	manage_extensions_secure(ctx);
 }
 
-#if ENABLE_RME
+#if ENABLE_RME && IMAGE_BL31
 /******************************************************************************
  * This function performs initializations that are specific to REALM state
  * and updates the cpu context specified by 'ctx'.
+ *
+ * NOTE: any changes to this function must be verified by an RMMD maintainer.
  *****************************************************************************/
 static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_info *ep)
 {
 	u_register_t scr_el3;
 	el3_state_t *state;
+	el2_sysregs_t *el2_ctx;
 
 	state = get_el3state_ctx(ctx);
 	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	el2_ctx = get_el2_sysregs_ctx(ctx);
 
 	scr_el3 |= SCR_NS_BIT | SCR_NSE_BIT;
+
+	write_el2_ctx_common(el2_ctx, spsr_el2, SPSR_EL2_REALM);
 
 	/* CSV2 version 2 and above */
 	if (is_feat_csv2_2_supported()) {
@@ -201,8 +207,28 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 		brbe_enable(ctx);
 	}
 
+	/*
+	 * Enable access to TPIDR2_EL0 if SME/SME2 is enabled for Non Secure world.
+	 */
+	if (is_feat_sme_supported()) {
+		sme_enable(ctx);
+	}
+
+	/*
+	 * SPE and TRBE cannot be fully disabled from EL3 registers alone, only
+	 * sysreg access can. In case the EL1 controls leave them active on
+	 * context switch, we want the owning security state to be NS so Realm
+	 * can't be DOSed.
+	 */
+	if (is_feat_spe_supported()) {
+		spe_disable(ctx);
+	}
+
+	if (is_feat_trbe_supported()) {
+		trbe_disable(ctx);
+	}
 }
-#endif /* ENABLE_RME */
+#endif /* ENABLE_RME && IMAGE_BL31 */
 
 /******************************************************************************
  * This function performs initializations that are specific to NON-SECURE state
@@ -309,12 +335,6 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 
 	/* Initialize EL2 context registers */
 #if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
-
-	/*
-	 * Initialize SCTLR_EL2 context register with reset value.
-	 */
-	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), sctlr_el2, SCTLR_EL2_RES1);
-
 	if (is_feat_hcx_supported()) {
 		/*
 		 * Initialize register HCRX_EL2 with its init value.
@@ -581,6 +601,13 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	pmuv3_enable(ctx);
+
+#if CTX_INCLUDE_EL2_REGS
+	/*
+	 * Initialize SCTLR_EL2 context register with reset value.
+	 */
+	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), sctlr_el2, SCTLR_EL2_RES1);
+#endif /* CTX_INCLUDE_EL2_REGS */
 #endif /* IMAGE_BL31 */
 
 	/*
@@ -636,7 +663,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	case SECURE:
 		setup_secure_context(ctx, ep);
 		break;
-#if ENABLE_RME
+#if ENABLE_RME && IMAGE_BL31
 	case REALM:
 		setup_realm_context(ctx, ep);
 		break;
