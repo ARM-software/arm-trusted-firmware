@@ -60,6 +60,26 @@ static inline void bl31_set_default_config(void)
 					  DISABLE_ALL_EXCEPTIONS);
 }
 
+static inline uint64_t read_cntvct_el0(void)
+{
+	uint64_t val;
+
+	asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+	return val;
+}
+
+static inline void reset_cntvct_el0_to_zero(void)
+{
+	asm volatile(
+		"mrs x0, cntpct_el0\n"   /* Read physical counter into x0 */
+		"neg x0, x0\n"           /* Negate it: x0 = -x0 */
+		"msr cntvoff_el2, x0\n"  /* Write offset to virtual counter */
+		:
+		:
+		: "x0", "memory"
+	);
+}
+
 /*
  * Perform any BL31 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & EL3 in BL1) before they
@@ -95,6 +115,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* There are no parameters from BL2 if BL31 is a reset vector */
 	assert(arg0 == 0U);
 	assert(arg1 == 0U);
+
+	INFO("Counter TICK 0x%lx\n", read_cntvct_el0());
+	reset_cntvct_el0_to_zero();
+	INFO("Counter TICK after reset 0x%lx\n", read_cntvct_el0());
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
