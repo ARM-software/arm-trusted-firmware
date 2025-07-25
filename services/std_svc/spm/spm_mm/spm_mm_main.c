@@ -312,6 +312,9 @@ uint64_t spm_mm_smc_handler(uint32_t smc_fid,
 			 uint64_t flags)
 {
 	unsigned int ns;
+	int32_t ret;
+	uint32_t attr;
+	uint32_t page_count;
 
 	/* Determine which security state this SMC originated from */
 	ns = is_caller_non_secure(flags);
@@ -340,9 +343,17 @@ uint64_t spm_mm_smc_handler(uint32_t smc_fid,
 				WARN("MM_SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_MM_NOT_SUPPORTED);
 			}
-			SMC_RET1(handle,
-				 spm_memory_attributes_get_smc_handler(
-					 &sp_ctx, x1));
+
+			/* x2 = page_count - 1 */
+			page_count = x2 + 1;
+
+			ret = spm_memory_attributes_get_smc_handler(
+					&sp_ctx, x1, &page_count, &attr);
+			if (ret != SPM_MM_SUCCESS) {
+				SMC_RET1(handle, ret);
+			} else {
+				SMC_RET2(handle, attr, --page_count);
+			}
 
 		case MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			INFO("Received MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");

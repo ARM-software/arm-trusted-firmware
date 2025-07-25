@@ -652,6 +652,13 @@ Secure Partition.
     There are no alignment restrictions on the Base Address. The permission
     attributes of the translation granule it lies in are returned.
 
+  - **uint32** Input Page Count
+
+    This parameter is the number of translation granule size pages from
+    *Base Address* whose permission should be returned.
+    This is calculated as *Input Page count + 1*.
+    (i.e. If Input Page Count is 0, then it is calculated as 1).
+
 - Return parameters
 
   - **int32** - Memory Attributes/Return Code
@@ -686,6 +693,16 @@ Secure Partition.
 
     See `Error Codes`_ for integer values that are associated with each return
     code.
+
+  - **uint32** - Output Page Count
+
+    On success, the number of translation granule size pages from
+    the *Base address* whose permissions match those returned in the
+    *Memory Attributes* output parameter.
+    This is calculated as *Output Page count + 1*.
+    (i.e. If Output Page Count is 0, It is calculated as 1).
+
+    On failure, It must be zero:
 
 - Usage
 

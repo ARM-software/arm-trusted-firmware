@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -487,10 +487,10 @@ static int xlat_get_mem_attributes_internal(const xlat_ctx_t *ctx,
 
 
 int xlat_get_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
-				uint32_t *attr)
+				uint32_t *attr, unsigned int *table_level)
 {
 	return xlat_get_mem_attributes_internal(ctx, base_va, attr,
-				NULL, NULL, NULL);
+				NULL, NULL, table_level);
 }
 
 

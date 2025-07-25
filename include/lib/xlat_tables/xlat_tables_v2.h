@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -407,9 +407,11 @@ int xlat_make_tables_readonly(void);
  *   memory page it lies within are returned.
  * attr
  *   Output parameter where to store the attributes of the targeted memory page.
+ * table_level
+ *   Output parameter where to store base_va's table level
  */
 int xlat_get_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
-				uint32_t *attr);
+				uint32_t *attr, unsigned int *table_level);
 int xlat_get_mem_attributes(uintptr_t base_va, uint32_t *attr);
 
 #endif /*__ASSEMBLER__*/

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -88,22 +88,61 @@ static unsigned int smc_mmap_to_smc_attr(unsigned int attr)
 }
 
 int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
-					      uintptr_t base_va)
+					      uintptr_t base_va,
+					      uint32_t *page_count,
+					      uint32_t *attr)
 {
-	uint32_t attributes;
+	uint32_t cur_attr;
+	uint32_t table_level;
+	uint32_t count;
+	int rc;
+
+	assert((page_count != NULL) && (*page_count > 0));
+	assert(attr != NULL);
+
+	base_va &= ~(PAGE_SIZE_MASK);
 
 	spin_lock(&mem_attr_smc_lock);
 
-	int rc = xlat_get_mem_attributes_ctx(sp_ctx->xlat_ctx_handle,
-				     base_va, &attributes);
+	rc = xlat_get_mem_attributes_ctx(sp_ctx->xlat_ctx_handle,
+				     base_va, attr, &table_level);
+	if (rc != 0) {
+		goto err_out;
+	}
 
+	/*
+	 * Caculate how many pages in this block entry from base_va including
+	 * its page.
+	 */
+	count = ((XLAT_BLOCK_SIZE(table_level) -
+				(base_va & XLAT_BLOCK_MASK(table_level))) >> PAGE_SIZE_SHIFT);
+	base_va += XLAT_BLOCK_SIZE(table_level);
+
+	while ((count < *page_count) && (base_va != 0x00)) {
+		rc = xlat_get_mem_attributes_ctx(sp_ctx->xlat_ctx_handle,
+					     base_va, &cur_attr, &table_level);
+		if (rc != 0) {
+			goto err_out;
+		}
+
+		if (*attr != cur_attr) {
+			*page_count = count;
+			break;
+		}
+
+		base_va += XLAT_BLOCK_SIZE(table_level);
+		count += (XLAT_BLOCK_SIZE(table_level) >> PAGE_SIZE_SHIFT);
+	}
+
+	*attr = smc_mmap_to_smc_attr(*attr);
+
+err_out:
 	spin_unlock(&mem_attr_smc_lock);
-
 	/* Convert error codes of xlat_get_mem_attributes_ctx() into SPM. */
 	assert((rc == 0) || (rc == -EINVAL));
 
 	if (rc == 0) {
-		return (int32_t) smc_mmap_to_smc_attr(attributes);
+		return SPM_MM_SUCCESS;
 	} else {
 		return SPM_MM_INVALID_PARAMETER;
 	}
