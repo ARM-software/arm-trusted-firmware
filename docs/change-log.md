@@ -3,6 +3,37 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.35](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.34..refs/tags/lts-v2.8.35) (2025-07-25)
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **NXP**
+
+    - **i.MX**
+
+      - **i.MX 8M**
+
+        - **i.MX 8M Plus**
+
+          - remove ERR050463 VPUMIX workaround ([8a48b31](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8a48b31f3ce60616b13ab2d0ede488732959ad72))
+
+  - **Xilinx**
+
+    - **ZynqMP**
+
+      - workaround issue around cntpct_el0 ([777b706](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/777b7063f941c35dc0371f389abe18ca098224bf))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A710 erratum 1901946 ([0aaca5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0aaca5da376565a396c5b56e504983e141880850))
+    - workaround for Cortex-A710 erratum 1916945 ([b83bf0a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b83bf0ad161f99a5264f5742bd0ffb9684fcf73a))
+    - workaround for Cortex-A710 erratum 1917258 ([e26d08b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e26d08b8cc9a06ba1e63692fea00faf1e700b1d9))
+    - workaround for Cortex-A710 erratum 1927200 ([ac23c6e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ac23c6eba7437c94899b271124151592b928c8af))
+
 ## [lts-2.8.34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.33..refs/tags/lts-v2.8.34) (2025-06-20)
 
 ### New Features
