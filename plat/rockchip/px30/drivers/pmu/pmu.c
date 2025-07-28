@@ -999,9 +999,9 @@ void __dead2 rockchip_soc_soft_reset(void)
 	 * Maybe the HW needs some times to reset the system,
 	 * so we do not hope the core to execute valid codes.
 	 */
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
+	while (1) {
+		wfi();
+	}
 }
 
 void __dead2 rockchip_soc_system_off(void)
@@ -1026,9 +1026,9 @@ void __dead2 rockchip_soc_system_off(void)
 	 * Maybe the HW needs some times to reset the system,
 	 * so we do not hope the core to execute valid codes.
 	 */
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
+	while (1) {
+		wfi();
+	}
 }
 
 void rockchip_plat_mmu_el3(void)

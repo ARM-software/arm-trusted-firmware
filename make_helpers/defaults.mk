@@ -88,9 +88,6 @@ DYN_DISABLE_AUTH		:= 0
 # Enable the Maximum Power Mitigation Mechanism on supporting cores.
 ENABLE_MPMM			:= 0
 
-# Enable support for powerdown abandons
-FEAT_PABANDON			:= 0
-
 # Flag to Enable Position Independant support (PIE)
 ENABLE_PIE			:= 0
 

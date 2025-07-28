@@ -14,6 +14,7 @@
 #include <common/debug.h>
 #include <context.h>
 #include <drivers/delay_timer.h>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/spe.h>
 #include <lib/pmf/pmf.h>
@@ -1055,7 +1056,7 @@ void psci_warmboot_entrypoint(void)
 		unsigned int max_off_lvl = psci_find_max_off_lvl(&state_info);
 
 		assert(max_off_lvl != PSCI_INVALID_PWR_LVL);
-		psci_cpu_suspend_to_powerdown_finish(cpu_idx, max_off_lvl, &state_info);
+		psci_cpu_suspend_to_powerdown_finish(cpu_idx, max_off_lvl, &state_info, false);
 	}
 
 	/*
@@ -1195,6 +1196,44 @@ int psci_secondaries_brought_up(void)
 	return (n_valid > 1U) ? 1 : 0;
 }
 
+static u_register_t call_cpu_pwr_dwn(unsigned int power_level)
+{
+	struct cpu_ops *ops = get_cpu_data(cpu_ops_ptr);
+
+	/* Call the last available power down handler */
+	if (power_level > CPU_MAX_PWR_DWN_OPS - 1) {
+		power_level = CPU_MAX_PWR_DWN_OPS - 1;
+	}
+
+	assert(ops != NULL);
+	assert(ops->pwr_dwn_ops[power_level] != NULL);
+
+	return ops->pwr_dwn_ops[power_level]();
+}
+
+static void prepare_cpu_pwr_dwn(unsigned int power_level)
+{
+	/* ignore the return, all cpus should behave the same */
+	(void)call_cpu_pwr_dwn(power_level);
+}
+
+static void prepare_cpu_pwr_up(unsigned int power_level)
+{
+	/*
+	 * Call the pwr_dwn cpu hook again, indicating that an abandon happened.
+	 * The cpu driver is expected to clean up. We ask it to return
+	 * PABANDON_ACK to indicate that it has handled this. This is a
+	 * heuristic: the value has been chosen such that an unported CPU is
+	 * extremely unlikely to return this value.
+	 */
+	u_register_t ret = call_cpu_pwr_dwn(power_level);
+
+	/* unreachable on AArch32 so cast down to calm the compiler */
+	if (ret != (u_register_t) PABANDON_ACK) {
+		panic();
+	}
+}
+
 /*******************************************************************************
  * Initiate power down sequence, by calling power down operations registered for
  * this CPU.
@@ -1212,25 +1251,23 @@ void psci_pwrdown_cpu_start(unsigned int power_level)
 		PMF_CACHE_MAINT);
 #endif
 
-#if HW_ASSISTED_COHERENCY
+#if !HW_ASSISTED_COHERENCY
 	/*
-	 * With hardware-assisted coherency, the CPU drivers only initiate the
-	 * power down sequence, without performing cache-maintenance operations
-	 * in software. Data caches enabled both before and after this call.
-	 */
-	prepare_cpu_pwr_dwn(power_level);
-#else
-	/*
-	 * Without hardware-assisted coherency, the CPU drivers disable data
-	 * caches, then perform cache-maintenance operations in software.
+	 * Disable data caching and handle the stack's cache maintenance.
 	 *
-	 * This also calls prepare_cpu_pwr_dwn() to initiate power down
-	 * sequence, but that function will return with data caches disabled.
-	 * We must ensure that the stack memory is flushed out to memory before
-	 * we start popping from it again.
+	 * If the core can't automatically exit coherency, the cpu driver needs
+	 * to flush caches and exit coherency. We can't do this with data caches
+	 * enabled. The cpu driver will decide which caches to flush based on
+	 * the power level.
+	 *
+	 * If automatic coherency management is possible, we can keep data
+	 * caches on until the very end and let hardware do cache maintenance.
 	 */
-	psci_do_pwrdown_cache_maintenance(power_level);
+	psci_do_pwrdown_cache_maintenance();
 #endif
+
+	/* Initiate the power down sequence by calling into the cpu driver. */
+	prepare_cpu_pwr_dwn(power_level);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
@@ -1257,6 +1294,9 @@ void __dead2 psci_pwrdown_cpu_end_terminal(void)
 	}
 #endif /* ERRATA_SME_POWER_DOWN */
 
+	/* ensure write buffer empty */
+	dsbsy();
+
 	/*
 	 * Execute a wfi which, in most cases, will allow the power controller
 	 * to physically power down this cpu. Under some circumstances that may
@@ -1264,7 +1304,7 @@ void __dead2 psci_pwrdown_cpu_end_terminal(void)
 	 * power down.
 	 */
 	for (int i = 0; i < 32; i++)
-		psci_power_down_wfi();
+		wfi();
 
 	/* Wake up wasn't transient. System is probably in a bad state. */
 	ERROR("Could not power off CPU.\n");
@@ -1278,31 +1318,30 @@ void __dead2 psci_pwrdown_cpu_end_terminal(void)
 
 void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
 {
+	/* ensure write buffer empty */
+	dsbsy();
+
 	/*
-	 * Usually, will be terminal. In some circumstances the powerdown will
-	 * be denied and we'll need to unwind
+	 * Turn the core off. Usually, will be terminal. In some circumstances
+	 * the powerdown will be denied and we'll need to unwind.
 	 */
-	psci_power_down_wfi();
+	wfi();
 
 	/*
 	 * Waking up does not require hardware-assisted coherency, but that is
-	 * the case for every core that can wake up. Untangling the cache
-	 * coherency code from powerdown is a non-trivial effort which isn't
-	 * needed for our purposes.
+	 * the case for every core that can wake up. Can either happen because
+	 * of errata or pabandon.
 	 */
-#if !FEAT_PABANDON
-	ERROR("Systems without FEAT_PABANDON shouldn't wake up.\n");
+#if !defined(__aarch64__) || !HW_ASSISTED_COHERENCY
+	ERROR("AArch32 systems shouldn't wake up.\n");
 	panic();
-#else /* FEAT_PABANDON */
-
+#endif
 	/*
 	 * Begin unwinding. Everything can be shared with CPU_ON and co later,
 	 * except the CPU specific bit. Cores that have hardware-assisted
-	 * coherency don't have much to do so just calling the hook again is
-	 * the simplest way to achieve this
+	 * coherency should be able to handle this.
 	 */
-	prepare_cpu_pwr_dwn(power_level);
-#endif /* FEAT_PABANDON */
+	prepare_cpu_pwr_up(power_level);
 }
 
 /*******************************************************************************

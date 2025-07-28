@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,46 +47,7 @@ endfunc reset_handler
 
 #endif
 
-#ifdef IMAGE_BL32 /* The power down core and cluster is needed only in  BL32 */
-	/*
-	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
-	 *
-	 * Prepare CPU power down function for all platforms. The function takes
-	 * a domain level to be powered down as its parameter. After the cpu_ops
-	 * pointer is retrieved from cpu_data, the handler for requested power
-	 * level is called.
-	 */
-	.globl	prepare_cpu_pwr_dwn
-func prepare_cpu_pwr_dwn
-	/*
-	 * If the given power level exceeds CPU_MAX_PWR_DWN_OPS, we call the
-	 * power down handler for the last power level
-	 */
-	mov	r2, #(CPU_MAX_PWR_DWN_OPS - 1)
-	cmp	r0, r2
-	movhi	r0, r2
-
-	push	{r0, lr}
-	bl	_cpu_data
-	pop	{r2, lr}
-
-	ldr	r0, [r0, #CPU_DATA_CPU_OPS_PTR]
-#if ENABLE_ASSERTIONS
-	cmp	r0, #0
-	ASM_ASSERT(ne)
-#endif
-
-	/* Get the appropriate power down handler */
-	mov	r1, #CPU_PWR_DWN_OPS
-	add	r1, r1, r2, lsl #2
-	ldr	r1, [r0, r1]
-#if ENABLE_ASSERTIONS
-	cmp	r1, #0
-	ASM_ASSERT(ne)
-#endif
-	bx	r1
-endfunc prepare_cpu_pwr_dwn
-
+#ifdef IMAGE_BL32
 	/*
 	 * Initializes the cpu_ops_ptr if not already initialized
 	 * in cpu_data. This must only be called after the data cache

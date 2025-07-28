@@ -272,7 +272,7 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 #endif
 
 #if ENABLE_TRBE_FOR_NS
-#define MDCR_FEAT_TRBE MDCR_NSTB(1UL)
+#define MDCR_FEAT_TRBE MDCR_NSTB_EN_BIT
 #else
 #define MDCR_FEAT_TRBE (0)
 #endif
@@ -284,7 +284,7 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 #endif
 
 #if ENABLE_SPE_FOR_NS
-#define MDCR_FEAT_SPE MDCR_NSPB(1UL)
+#define MDCR_FEAT_SPE MDCR_NSPB_EN_BIT
 #else
 #define MDCR_FEAT_SPE (0)
 #endif
@@ -314,12 +314,12 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 	MDCR_SBRBE(2UL)		|						\
 	MDCR_MTPME_BIT		|						\
 	MDCR_NSTBE_BIT		|						\
-	MDCR_NSTB(2UL)		|						\
+	MDCR_NSTB_SS_BIT	|						\
 	MDCR_MCCD_BIT		|						\
 	MDCR_SCCD_BIT		|						\
 	MDCR_SDD_BIT		|						\
 	MDCR_SPD32(3UL)		|						\
-	MDCR_NSPB(2UL)		|						\
+	MDCR_NSPB_SS_BIT	|						\
 	MDCR_NSPBE_BIT		|						\
 	MDCR_PLAT_IGNORED)
 CASSERT((MDCR_EL3_FEATS & MDCR_EL3_IGNORED) == 0, mdcr_feat_is_ignored);

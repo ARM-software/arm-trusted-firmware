@@ -21,10 +21,6 @@
 #error "Gelas supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if FEAT_PABANDON == 0
-#error "Gelas must be compiled with FEAT_PABANDON enabled"
-#endif
-
 #if ERRATA_SME_POWER_DOWN == 0
 #error "Gelas needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
 #endif
@@ -56,6 +52,7 @@ func cortex_gelas_core_pwr_dwn
 	sysreg_bit_toggle CORTEX_GELAS_CPUPWRCTLR_EL1, \
 		CORTEX_GELAS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
+	signal_pabandon_handled
 	ret
 endfunc cortex_gelas_core_pwr_dwn
 

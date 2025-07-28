@@ -12,15 +12,6 @@ cpu_reset_prologue aem_generic
 
 func aem_generic_core_pwr_dwn
 	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
-	/* ---------------------------------------------
 	 * AEM model supports L3 caches in which case L2
 	 * will be private per core caches and flush
 	 * from L1 to L2 is not sufficient.
@@ -59,15 +50,6 @@ func aem_generic_core_pwr_dwn
 endfunc aem_generic_core_pwr_dwn
 
 func aem_generic_cluster_pwr_dwn
-	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
 	/* ---------------------------------------------
 	 * Flush all caches to PoC.
 	 * ---------------------------------------------

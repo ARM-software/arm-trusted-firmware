@@ -13,16 +13,6 @@
 
 cpu_reset_prologue cortex_a35
 	/* ---------------------------------------------
-	 * Disable L1 data cache and unified L2 cache
-	 * ---------------------------------------------
-	 */
-func cortex_a35_disable_dcache
-	sysreg_bit_clear sctlr_el3, SCTLR_C_BIT
-	isb
-	ret
-endfunc cortex_a35_disable_dcache
-
-	/* ---------------------------------------------
 	 * Disable intra-cluster coherency
 	 * ---------------------------------------------
 	 */
@@ -55,12 +45,6 @@ func cortex_a35_core_pwr_dwn
 	mov	x18, x30
 
 	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	cortex_a35_disable_dcache
-
-	/* ---------------------------------------------
 	 * Flush L1 caches.
 	 * ---------------------------------------------
 	 */
@@ -77,12 +61,6 @@ endfunc cortex_a35_core_pwr_dwn
 
 func cortex_a35_cluster_pwr_dwn
 	mov	x18, x30
-
-	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	cortex_a35_disable_dcache
 
 	/* ---------------------------------------------
 	 * Flush L1 caches.

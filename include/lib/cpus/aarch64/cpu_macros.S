@@ -653,4 +653,15 @@
 #endif
 .endm
 
+/*
+ * Call this just before a return to indicate support for pabandon. Only
+ * necessary on an abandon call, but harmless on a powerdown call.
+ *
+ * PSCI wants us to tell it we handled a pabandon by returning 0. This is the
+ * only way support for it is indicated.
+ */
+.macro signal_pabandon_handled
+	mov_imm	x0, PABANDON_ACK
+.endm
+
 #endif /* CPU_MACROS_S */

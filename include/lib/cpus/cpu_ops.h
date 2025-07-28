@@ -21,6 +21,12 @@
 
 /* The number of CPU operations allowed */
 #define CPU_MAX_PWR_DWN_OPS		2
+/*
+ * value needs to be distinct from CPUPWRCTLR_EL1 likely values: its top bits
+ * are RES0 and its bottom bits will be written to power down. Pick the opposite
+ * with something that looks like "abandon" in the middle.
+ */
+#define PABANDON_ACK			0xffaba4d4aba4d400
 
 /*
  * Define the sizes of the fields in the cpu_ops structure. Word size is set per
@@ -104,7 +110,7 @@ struct cpu_ops {
 	void (*e_handler_func)(long es);
 #endif /* __aarch64__ */
 #if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS
-	void (*pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS])(void);
+	u_register_t (*pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS])();
 #endif /* (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS */
 	void *errata_list_start;
 	void *errata_list_end;

@@ -214,18 +214,12 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 		sme_enable(ctx);
 	}
 
-	/*
-	 * SPE and TRBE cannot be fully disabled from EL3 registers alone, only
-	 * sysreg access can. In case the EL1 controls leave them active on
-	 * context switch, we want the owning security state to be NS so Realm
-	 * can't be DOSed.
-	 */
 	if (is_feat_spe_supported()) {
-		spe_disable(ctx);
+		spe_disable_realm(ctx);
 	}
 
 	if (is_feat_trbe_supported()) {
-		trbe_disable(ctx);
+		trbe_disable_realm(ctx);
 	}
 }
 #endif /* ENABLE_RME && IMAGE_BL31 */
@@ -886,20 +880,15 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 		debugv8p9_extended_bp_wp_enable(ctx);
 	}
 
-	/*
-	 * SPE, TRBE, and BRBE have multi-field enables that affect which world
-	 * they apply to. Despite this, it is useful to ignore these for
-	 * simplicity in determining the feature's per world enablement status.
-	 * This is only possible when context is written per-world. Relied on
-	 * by SMCCC_ARCH_FEATURE_AVAILABILITY
-	 */
 	if (is_feat_spe_supported()) {
-		spe_enable(ctx);
+		spe_enable_ns(ctx);
 	}
 
-	if (!check_if_trbe_disable_affected_core()) {
-		if (is_feat_trbe_supported()) {
-			trbe_enable(ctx);
+	if (is_feat_trbe_supported()) {
+		if (check_if_trbe_disable_affected_core()) {
+			trbe_disable_ns(ctx);
+		} else {
+			trbe_enable_ns(ctx);
 		}
 	}
 
@@ -985,18 +974,12 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 		}
 	}
 
-	/*
-	 * SPE and TRBE cannot be fully disabled from EL3 registers alone, only
-	 * sysreg access can. In case the EL1 controls leave them active on
-	 * context switch, we want the owning security state to be NS so Secure
-	 * can't be DOSed.
-	 */
 	if (is_feat_spe_supported()) {
-		spe_disable(ctx);
+		spe_disable_secure(ctx);
 	}
 
 	if (is_feat_trbe_supported()) {
-		trbe_disable(ctx);
+		trbe_disable_secure(ctx);
 	}
 #endif /* IMAGE_BL31 */
 }

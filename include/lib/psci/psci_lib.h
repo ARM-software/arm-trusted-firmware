@@ -25,7 +25,7 @@ typedef struct spd_pm_ops {
 	int32_t (*svc_off)(u_register_t __unused unused);
 	void (*svc_suspend)(u_register_t max_off_pwrlvl);
 	void (*svc_on_finish)(u_register_t __unused unused);
-	void (*svc_suspend_finish)(u_register_t max_off_pwrlvl);
+	void (*svc_suspend_finish)(u_register_t max_off_pwrlvl, bool abandon);
 	int32_t (*svc_migrate)(u_register_t from_cpu, u_register_t to_cpu);
 	int32_t (*svc_migrate_info)(u_register_t *resident_cpu);
 	void (*svc_system_off)(void);

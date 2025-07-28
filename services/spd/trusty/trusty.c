@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -397,12 +397,21 @@ static void trusty_cpu_on_finish_handler(u_register_t max_off_lvl)
 
 static void trusty_cpu_suspend_handler(u_register_t max_off_lvl)
 {
+	/* Save NS context in case we need to return to it */
+	cm_el1_sysregs_context_save(NON_SECURE);
+
 	trusty_cpu_suspend(max_off_lvl);
 }
 
-static void trusty_cpu_suspend_finish_handler(u_register_t max_off_lvl)
+static void trusty_cpu_suspend_finish_handler(u_register_t max_off_lvl, bool abandon)
 {
 	trusty_cpu_resume(max_off_lvl);
+
+	/* We're returning back to NS so we need to put back its context */
+	if (abandon) {
+		cm_el1_sysregs_context_restore(NON_SECURE);
+	}
+
 }
 
 static const spd_pm_ops_t trusty_pm = {

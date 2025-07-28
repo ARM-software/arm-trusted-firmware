@@ -129,9 +129,9 @@ int rockchip_soc_hlvl_pwr_dm_resume(uint32_t lvl,
 int rockchip_soc_cores_pwr_dm_resume(void);
 void __dead2 rockchip_soc_soft_reset(void);
 void __dead2 rockchip_soc_system_off(void);
-void __dead2 rockchip_soc_cores_pd_pwr_dn_wfi(
+void rockchip_soc_cores_pd_pwr_dn_wfi(
 				const psci_power_state_t *target_state);
-void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void);
+void rockchip_soc_sys_pd_pwr_dn_wfi(void);
 
 extern const unsigned char rockchip_power_domain_tree_desc[];
 

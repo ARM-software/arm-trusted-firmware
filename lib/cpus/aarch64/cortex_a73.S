@@ -13,16 +13,6 @@
 cpu_reset_prologue cortex_a73
 
 	/* ---------------------------------------------
-	 * Disable L1 data cache
-	 * ---------------------------------------------
-	 */
-func cortex_a73_disable_dcache
-	sysreg_bit_clear sctlr_el3, SCTLR_C_BIT
-	isb
-	ret
-endfunc cortex_a73_disable_dcache
-
-	/* ---------------------------------------------
 	 * Disable intra-cluster coherency
 	 * ---------------------------------------------
 	 */
@@ -123,12 +113,6 @@ func cortex_a73_core_pwr_dwn
 	mov	x18, x30
 
 	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	cortex_a73_disable_dcache
-
-	/* ---------------------------------------------
 	 * Flush L1 caches.
 	 * ---------------------------------------------
 	 */
@@ -145,12 +129,6 @@ endfunc cortex_a73_core_pwr_dwn
 
 func cortex_a73_cluster_pwr_dwn
 	mov	x18, x30
-
-	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	cortex_a73_disable_dcache
 
 	/* ---------------------------------------------
 	 * Flush L1 caches.
