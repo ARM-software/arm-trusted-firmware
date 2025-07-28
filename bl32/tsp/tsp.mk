@@ -30,10 +30,6 @@ NEED_AUTH := 0
 NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT)),1,)
 $(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
 
-ifneq ($(filter 1 2 3,$(CRYPTO_SUPPORT)),)
-CRYPTO_LIB := $(BUILD_PLAT)/lib/libmbedtls.a
-endif
-
 # BL32_CPPFLAGS
 $(eval BL32_CPPFLAGS += $(call make_defines, \
     $(sort \

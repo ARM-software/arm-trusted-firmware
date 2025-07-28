@@ -207,10 +207,6 @@ NEED_AUTH := 0
 NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT) $(DRTM_SUPPORT)),1,)
 $(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
 
-ifneq ($(filter 1 2 3,$(CRYPTO_SUPPORT)),)
-CRYPTO_LIB := $(BUILD_PLAT)/lib/libmbedtls.a
-endif
-
 # Flag used to indicate if Crash reporting via console should be included
 # in BL31. This defaults to being present in DEBUG builds only
 ifndef CRASH_REPORTING

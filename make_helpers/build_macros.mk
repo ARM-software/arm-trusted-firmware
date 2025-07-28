@@ -42,6 +42,7 @@ define default_ones
 endef
 
 # Convenience function for setting CRYPTO_SUPPORT per component based on build flags
+# and set MBEDTLS_LIB based on CRYPTO_SUPPORT
 # $(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
 #   $(1) = NEED_AUTH, determines need for authentication verification support
 #   $(2) = NEED_HASH, determines need for hash calculation support
@@ -57,6 +58,8 @@ define set_crypto_support
 	else
 		CRYPTO_SUPPORT := 0
 	endif
+	MBEDTLS_LIB ?= $(BUILD_PLAT)/lib/libmbedtls.a
+	CRYPTO_LIB := $(if $(filter-out 0,$(CRYPTO_SUPPORT)),$(MBEDTLS_LIB),)
 endef
 
 # Convenience function for creating a build definition
