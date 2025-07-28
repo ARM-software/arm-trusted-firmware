@@ -184,7 +184,7 @@ static void pm_client_set_wakeup_sources(void)
 	if (suspend_mode == PM_SUSPEND_MODE_POWER_OFF) {
 		enum pm_ret_status ret;
 
-		ret = pm_set_wakeup_source(NODE_APU, NODE_EXTERN, 1U);
+		ret = pm_set_wakeup_source(NODE_APU, NODE_EXTERN, 1U, SECURE);
 		/**
 		 * If NODE_EXTERN could not be set as wake source, proceed with
 		 * standard suspend (no one will wake the system otherwise)
@@ -221,7 +221,7 @@ static void pm_client_set_wakeup_sources(void)
 
 			if ((node > NODE_UNKNOWN) && (node < NODE_MAX)) {
 				if (pm_wakeup_nodes_set[node] == 0U) {
-					ret = pm_set_wakeup_source(NODE_APU, node, 1U);
+					ret = pm_set_wakeup_source(NODE_APU, node, 1U, SECURE);
 					pm_wakeup_nodes_set[node] = (ret == PM_RET_SUCCESS) ? 1U : 0U;
 				}
 			}

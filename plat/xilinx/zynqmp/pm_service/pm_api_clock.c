@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -2861,6 +2861,8 @@ struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
 /**
  * pm_clock_pll_enable() - "Enable" the PLL clock (lock the PLL).
  * @pll: PLL to be locked.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * This function is used to map IOCTL/linux-based PLL handling to system-level
  * EEMI APIs.
@@ -2868,16 +2870,16 @@ struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
  * Return: Error if the argument is not valid or status as returned by PMU.
  *
  */
-enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
+enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll, uint32_t flag)
 {
 	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (pll != NULL) {
 		/* Set the PLL mode according to the buffered mode value */
 		if (pll->mode == PLL_FRAC_MODE) {
-			status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_FRACTIONAL);
+			status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_FRACTIONAL, flag);
 		} else {
-			status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_INTEGER);
+			status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_INTEGER, flag);
 		}
 	}
 
@@ -2887,6 +2889,8 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 /**
  * pm_clock_pll_disable - "Disable" the PLL clock (bypass/reset the PLL).
  * @pll: PLL to be bypassed/reset.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * This function is used to map IOCTL/linux-based PLL handling to system-level
  * EEMI APIs.
@@ -2894,12 +2898,12 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
  * Return: Error if the argument is not valid or status as returned by PMU.
  *
  */
-enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
+enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll, uint32_t flag)
 {
 	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (pll != NULL) {
-		status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_RESET);
+		status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_RESET, flag);
 	}
 
 	return status;
@@ -2909,6 +2913,8 @@ enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
  * pm_clock_pll_get_state - Get state of the PLL.
  * @pll: Pointer to the target PLL structure.
  * @state: Location to store the state: 1/0 ("Enabled"/"Disabled").
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * "Enable" actually means that the PLL is locked and its bypass is deasserted,
  * "Disable" means that it is bypassed.
@@ -2917,7 +2923,8 @@ enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
  *         returned state value is valid or an error if returned by PMU.
  */
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
-					  uint32_t *state)
+					  uint32_t *state,
+					  uint32_t flag)
 {
 	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 	enum pm_pll_mode mode;
@@ -2926,7 +2933,7 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 		goto exit_label;
 	}
 
-	status = pm_pll_get_mode(pll->nid, &mode);
+	status = pm_pll_get_mode(pll->nid, &mode, flag);
 	if (status != PM_RET_SUCCESS) {
 		goto exit_label;
 	}
@@ -2948,6 +2955,8 @@ exit_label:
  * @pll: Target PLL structure.
  * @clock_id: Id of the clock.
  * @parent_index: parent index (=mux select value).
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * The whole clock-tree implementation relies on the fact that parent indexes
  * match to the multiplexer select values. This function has to rely on that
@@ -2958,7 +2967,8 @@ exit_label:
  */
 enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   uint32_t parent_index)
+					   uint32_t parent_index,
+					   uint32_t flag)
 {
 	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
@@ -2966,15 +2976,18 @@ enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 		goto exit_label;
 	}
 	if (pll->pre_src == clock_id) {
-		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC, parent_index);
+		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
+					      parent_index, flag);
 		goto exit_label;
 	}
 	if (pll->post_src == clock_id) {
-		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_POST_SRC, parent_index);
+		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
+					      parent_index, flag);
 		goto exit_label;
 	}
 	if (pll->div2 == clock_id) {
-		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_DIV2, parent_index);
+		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_DIV2,
+					      parent_index, flag);
 	}
 
 exit_label:
@@ -2986,6 +2999,8 @@ exit_label:
  * @pll: Target PLL structure.
  * @clock_id: Id of the clock.
  * @parent_index: parent index (=mux select value).
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * This function is used by master to get parent index for PLL-related clock.
  *
@@ -2994,7 +3009,8 @@ exit_label:
  */
 enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   uint32_t *parent_index)
+					   uint32_t *parent_index,
+					   uint32_t flag)
 {
 	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
@@ -3003,17 +3019,17 @@ enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 	}
 	if (pll->pre_src == clock_id) {
 		status = pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
-				parent_index);
+					      parent_index, flag);
 		goto exit_label;
 	}
 	if (pll->post_src == clock_id) {
 		status = pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
-				parent_index);
+					      parent_index, flag);
 		goto exit_label;
 	}
 	if (pll->div2 == clock_id) {
 		status = pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_DIV2,
-				parent_index);
+					      parent_index, flag);
 		goto exit_label;
 	}
 	if (pll->bypass == clock_id) {

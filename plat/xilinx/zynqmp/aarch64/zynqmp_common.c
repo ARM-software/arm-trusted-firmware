@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,10 +17,12 @@
 #include <services/arm_arch_svc.h>
 
 #include <plat_ipi.h>
+#include <plat_pm_common.h>
 #include <plat_private.h>
 #include <plat_startup.h>
 
 #include "zynqmp_pm_api_sys.h"
+#include "zynqmp_def.h"
 
 /*
  * Table of regions to map using the MMU.
@@ -237,7 +239,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	size_t i, j, len;
 	const char *name = "EG/EV";
 
-	if (pm_get_chipid(chipid) != PM_RET_SUCCESS) {
+	if (pm_get_chipid(chipid, SECURE) != PM_RET_SUCCESS) {
 		return "XCZUUNKN";
 	}
 
@@ -383,7 +385,7 @@ uint32_t zynqmp_get_bootmode(void)
 	uint32_t r;
 	enum pm_ret_status ret;
 
-	ret = pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
+	ret = pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r, SECURE);
 
 	if (ret != PM_RET_SUCCESS) {
 		r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
