@@ -1511,6 +1511,23 @@ This function returns soc revision in below format
 
     soc_revision[0:30] = SOC revision of specific SOC
 
+Function : plat_get_soc_name()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : char **
+    Return   : int32_t
+
+The plat_get_soc_name() function allows a platform to expose the SoC name to
+the firmware. It takes a pointer to a character pointer as an argument, which
+must be set to point to a static, null-terminated SoC name string. The string
+must be encoded in UTF-8 and should use only printable ASCII characters for
+compatibility. It must not exceed 136 bytes, including the null terminator. On
+success, the function returns SMC_ARCH_CALL_SUCCESS. If the platform does not
+support SoC name retrieval, it returns SMC_ARCH_CALL_NOT_SUPPORTED. This API
+allows platforms to support SoC name queries via SMCCC_ARCH_SOC_ID.
+
 Function : plat_is_smccc_feature_available()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
