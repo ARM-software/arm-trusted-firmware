@@ -139,7 +139,10 @@ void bl2_el3_early_platform_setup(u_register_t x0 __unused,
 	socfpga_emac_init();
 
 	/* DDR and IOSSM driver init */
-	agilex5_ddr_init(&reverse_handoff_ptr);
+	if ((agilex5_ddr_init(&reverse_handoff_ptr)) != 0) {
+		ERROR("SOCFPGA: Failed to initialize the ddr.\n");
+		panic();
+	}
 
 	/* TODO: DTB not available */
 	// if (socfpga_dt_open_and_check(SOCFPGA_DTB_BASE, DT_COMPATIBLE_STR) < 0) {

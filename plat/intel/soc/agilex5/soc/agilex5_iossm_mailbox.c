@@ -908,7 +908,8 @@ static int out_of_band_ecc_bist_mem_init(struct io96b_info *io96b_ctrl)
 				}
 
 				/* Polling for the initiated memory initialization BIST status */
-				read_count = read_interval_ms / TIMEOUT;
+				read_count = TIMEOUT / read_interval_ms;
+
 				while (!bist_success) {
 					io96b_mb_req(io96b_ctrl->io96b_1.io96b_csr_addr,
 						     io96b_ctrl->io96b_1.mb_ctrl.ip_type[j],
