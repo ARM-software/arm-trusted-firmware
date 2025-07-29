@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2021-2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2025, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef PTP3_PLAT_H
-#define PTP3_PLAT_H
+#ifndef PTP3_PLAT_COMMON_H
+#define PTP3_PLAT_COMMON_H
 
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 #include <ptp3_common.h>
 
-/* CPU info */
+/* CPU Info */
 #define NR_PTP3_CFG_CPU			U(8)
 #define PTP3_CFG_CPU_START_ID_L		U(0)
-#define PTP3_CFG_CPU_START_ID_B		U(4)
 #define PTP3_CFG_CPU_END_ID		U(7)
 
 #define NR_PTP3_CFG1_DATA		U(2)
@@ -40,7 +39,6 @@ static unsigned int ptp3_cfg2[NR_PTP3_CFG2_DATA][NR_PTP3_CFG] = {
 	{0x0C530440, 0x0222c4cc}
 };
 
-static unsigned int ptp3_cfg3[NR_PTP3_CFG] = {0x0C530400, 0x2D80};
 static unsigned int ptp3_cfg3_ext[NR_PTP3_CFG] = {0x0C530400, 0xC00};
 
-#endif /* PTP3_PLAT_H */
+#endif /* PTP3_PLAT_COMMON_H */

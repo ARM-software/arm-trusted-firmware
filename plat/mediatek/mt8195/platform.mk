@@ -6,6 +6,7 @@
 
 MTK_PLAT     := plat/mediatek
 MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
+MTK_SOC      := ${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/include                     \
@@ -16,6 +17,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/drivers/pmic/                      \
                  -I${MTK_PLAT}/drivers/pmic_wrap/                 \
                  -I${MTK_PLAT}/drivers/ptp3/                      \
+                 -I${MTK_PLAT}/drivers/ptp3/$(MTK_SOC)            \
                  -I${MTK_PLAT}/drivers/rtc/                       \
                  -I${MTK_PLAT}/drivers/timer/                     \
                  -I${MTK_PLAT}/drivers/uart/                      \
@@ -29,7 +31,6 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
                  -I${MTK_PLAT_SOC}/drivers/spmc/                  \
-                 -I${MTK_PLAT_SOC}/drivers/ptp3/                  \
                  -I${MTK_PLAT_SOC}/include/
 
 GICV3_SUPPORT_GIC600        :=      1
