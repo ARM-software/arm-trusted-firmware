@@ -14,6 +14,7 @@
 #include <plat/arm/board/common/board_css_def.h>
 #include <plat/arm/board/common/v2m_def.h>
 #include <plat/arm/common/arm_def.h>
+#include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
 #include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
@@ -131,14 +132,45 @@
 #endif
 
 #ifdef IMAGE_BL31
-# define PLAT_ARM_MMAP_ENTRIES		8
-# define MAX_XLAT_TABLES		6
+# if SPMC_AT_EL3
+#   define PLAT_ARM_MMAP_ENTRIES		10
+#   define MAX_XLAT_TABLES		8
+#   define PLAT_SP_IMAGE_MMAP_REGIONS 30
+#   define PLAT_SP_IMAGE_MAX_XLAT_TABLES 12
+# else
+#   define PLAT_ARM_MMAP_ENTRIES		8
+#   define MAX_XLAT_TABLES		6
+# endif
 #endif
 
 #ifdef IMAGE_BL32
 # define PLAT_ARM_MMAP_ENTRIES		6
 # define MAX_XLAT_TABLES		4
 #endif
+
+#if SPMC_AT_EL3
+/*
+ * Number of Secure Partitions supported.
+ * SPMC at EL3, uses this count to configure the maximum number of supported
+ * secure partitions.
+ */
+#define SECURE_PARTITION_COUNT		1
+
+/*
+ * Number of Normal World Partitions supported.
+ * SPMC at EL3, uses this count to configure the maximum number of supported
+ * NWd partitions.
+ */
+#define NS_PARTITION_COUNT		1
+
+/*
+ * Number of Logical Partitions supported.
+ * SPMC at EL3, uses this count to configure the maximum number of supported
+ * logical partitions.
+ */
+#define MAX_EL3_LP_DESCS_COUNT		1
+
+#endif /* SPMC_AT_EL3 */
 
 /*
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
@@ -210,6 +242,9 @@
 #elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE		UL(0x440)
 #endif
+
+#define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
+					 PLAT_SP_IMAGE_NS_BUF_SIZE)
 
 /* CCI related constants */
 #define PLAT_ARM_CCI_BASE		UL(0x2c090000)

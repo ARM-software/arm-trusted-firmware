@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -88,6 +88,20 @@ static const arm_tzc_regions_info_t juno_ethosn_tzmp1_tzc_regions[] = {
 
 #endif /* JUNO_ETHOSN_TZMP1 */
 
+#if SPMC_AT_EL3
+
+// Use last 2MB as secure storage only.
+#define V2M_FLASH0_SECURE_START	(V2M_FLASH0_BASE + V2M_FLASH0_SIZE - 0x200000)
+#define V2M_FLASH0_SECURE_END	(V2M_FLASH0_BASE + V2M_FLASH0_SIZE - 1)
+
+static const arm_tzc_regions_info_t juno_stmm_tzc_regions[] = {
+	ARM_TZC_REGIONS_DEF,
+	{ V2M_FLASH0_SECURE_START, V2M_FLASH0_SECURE_END, TZC_REGION_S_RDWR, 0 },
+	{},
+};
+
+#endif /* SPMC_AT_EL3 */
+
 /*******************************************************************************
  * Set up the MMU-401 SSD tables. The power-on configuration has all stream IDs
  * assigned to Non-Secure except some for the DMA-330. Assign those back to the
@@ -161,6 +175,11 @@ void plat_arm_security_setup(void)
 	INFO("TZC protected FW memory range for NPU TZMP usecase: %p - %p\n",
 	     (void *)JUNO_ETHOSN_FW_TZC_PROT_DRAM2_BASE,
 	     (void *)JUNO_ETHOSN_FW_TZC_PROT_DRAM2_END);
+#elif SPMC_AT_EL3
+	INFO("TZC protected some of Nor flash memory range for StandaloneMm: %p - %p\n",
+	     (void *)V2M_FLASH0_SECURE_START,
+	     (void *)V2M_FLASH0_SECURE_END);
+	arm_tzc400_setup(PLAT_ARM_TZC_BASE, juno_stmm_tzc_regions);
 #else
 	arm_tzc400_setup(PLAT_ARM_TZC_BASE, NULL);
 #endif
