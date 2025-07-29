@@ -21,6 +21,13 @@ struct transfer_list_header *ns_tl __unused;
 
 static entry_point_info_t bl33_image_ep_info;
 
+#if USE_GIC_DRIVER == 3
+static const uintptr_t gicr_base_addrs[2] = {
+	PLAT_ARM_GICR_BASE,	/* GICR Base address of the primary CPU */
+	0U			/* Zero Termination */
+};
+#endif
+
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak sp_min_platform_setup
 #pragma weak sp_min_plat_arch_setup
@@ -206,6 +213,9 @@ void sp_min_platform_setup(void)
 	/* Initialize the GIC driver, cpu and distributor interfaces */
 	unsigned int core_pos = plat_my_core_pos();
 
+#if USE_GIC_DRIVER == 3
+	gic_set_gicr_frames(gicr_base_addrs);
+#endif
 	gic_init(core_pos);
 	gic_pcpu_init(core_pos);
 	gic_cpuif_enable(core_pos);

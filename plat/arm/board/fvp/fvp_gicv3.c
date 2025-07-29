@@ -96,6 +96,6 @@ void fvp_gic_driver_pre_init(void)
 	gic_data.interrupt_props = fvp_interrupt_props;
 	gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
 #endif
-	plat_arm_override_gicr_frames(fvp_gicr_base_addrs);
+	gic_set_gicr_frames(fvp_gicr_base_addrs);
 #endif /* !(BL2_AT_EL3 || RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2) */
 }

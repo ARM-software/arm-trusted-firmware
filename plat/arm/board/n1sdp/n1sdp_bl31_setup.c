@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -124,7 +124,7 @@ void remote_dmc_ecc_setup(uint8_t remote_ddr_size)
 
 void n1sdp_bl31_multichip_setup(void)
 {
-	plat_arm_override_gicr_frames(n1sdp_multichip_gicr_frames);
+	gic_set_gicr_frames(n1sdp_multichip_gicr_frames);
 	gic600_multichip_init(&n1sdp_multichip_data);
 }
 

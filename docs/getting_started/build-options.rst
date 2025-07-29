@@ -1336,7 +1336,9 @@ a numeric option that can take the following values:
  - ``2``: use the GICv2 driver
 
  - ``3``: use the GICv3 driver. See the next section on how to further configure
-   it. Use this option for GICv4 implementations.
+   it. Use this option for GICv4 implementations. Requires calling
+   ``gic_set_gicr_frames()``.
+
  - ``5``: use the EXPERIMENTAL GICv5 driver. Requires ``ENABLE_FEAT_GCIE=1``.
 
  For GIC driver versions other than ``1``, deciding when to save and restore GIC

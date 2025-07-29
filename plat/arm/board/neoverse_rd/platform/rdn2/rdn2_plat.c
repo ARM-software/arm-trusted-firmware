@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -174,7 +174,7 @@ void bl31_platform_setup(void)
 			}
 		}
 
-		plat_arm_override_gicr_frames(
+		gic_set_gicr_frames(
 			rdn2mc_multichip_gicr_frames);
 		gic600_multichip_init(&rdn2mc_multichip_data);
 	}

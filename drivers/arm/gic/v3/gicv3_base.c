@@ -22,14 +22,8 @@
 /* The GICv3 driver only needs to be initialized in EL3 */
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
-/* Default GICR base address to be used for GICR probe. */
-static const uintptr_t gicr_base_addrs[2] = {
-	PLAT_ARM_GICR_BASE,	/* GICR Base address of the primary CPU */
-	0U			/* Zero Termination */
-};
-
 /* List of zero terminated GICR frame addresses which CPUs will probe */
-static const uintptr_t *gicr_frames = gicr_base_addrs;
+static const uintptr_t *gicr_frames = NULL;
 
 static const interrupt_prop_t arm_interrupt_props[] = {
 #ifdef PLAT_ARM_G1S_IRQ_PROPS
@@ -78,6 +72,8 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 
 gicv3_driver_data_t gic_data __unused = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
+	/* unused for USE_GIC_DRIVER=3. Use gic_set_gicr_frames(), passing a ptr
+	 * to an array with 2 values - the frame's base and a NULL pointer */
 	.gicr_base = 0U,
 	.interrupt_props = arm_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(arm_interrupt_props),
@@ -87,12 +83,12 @@ gicv3_driver_data_t gic_data __unused = {
 };
 
 /*
- * By default, gicr_frames will be pointing to gicr_base_addrs. If
- * the platform supports a non-contiguous GICR frames (GICR frames located
- * at uneven offset), plat_arm_override_gicr_frames function can be used by
- * such platform to override the gicr_frames.
+ * Initialises the gicr_frames array. It contains a NULL terminated list of
+ * non-contiguous blocks of GICR frames (located at uneven offsets). Most
+ * platforms will have one such block, except multichip configurations, which
+ * will usually have multiple.
  */
-void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames)
+void gic_set_gicr_frames(const uintptr_t *plat_gicr_frames)
 {
 	assert(plat_gicr_frames != NULL);
 	gicr_frames = plat_gicr_frames;
@@ -130,18 +126,21 @@ void gic_cpuif_disable(unsigned int cpu_idx)
  *****************************************************************************/
 void gic_pcpu_init(unsigned int cpu_idx)
 {
-	int result;
-	const uintptr_t *plat_gicr_frames = gicr_frames;
+	/* to guard against an empty array */
+	int result = -1;
+
+	/* did the paltform initialise the array with gic_set_gicr_frames() */
+	assert(gicr_frames != NULL);
 
 	do {
-		result = gicv3_rdistif_probe(*plat_gicr_frames);
+		result = gicv3_rdistif_probe(*gicr_frames);
 
 		/* If the probe is successful, no need to proceed further */
 		if (result == 0)
 			break;
 
-		plat_gicr_frames++;
-	} while (*plat_gicr_frames != 0U);
+		gicr_frames++;
+	} while (*gicr_frames != 0U);
 
 	if (result == -1) {
 		ERROR("No GICR base frame found for CPU 0x%lx\n", read_mpidr());
