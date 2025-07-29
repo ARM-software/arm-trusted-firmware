@@ -103,6 +103,19 @@ workaround_reset_end cortex_x4, ERRATUM(3076789)
 
 check_erratum_ls cortex_x4, ERRATUM(3076789), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(3133195), ERRATA_X4_3133195
+	ldr x0,=0x2
+	msr s3_6_c15_c8_0,x0 /* msr cpupselr_el3, x0 */
+	ldr x0,=0xd503225f
+	msr s3_6_c15_c8_2,x0 /* msr cpupor_el3, x0 */
+	ldr x0,=0xffffffff
+	msr s3_6_c15_c8_3,x0 /* msr cpupmr_el3, x0 */
+	ldr x0,=0x00000000404003fd
+	msr s3_6_c15_c8_1,x0 /* msr cpupcr_el3, x0 */
+workaround_reset_end cortex_x4, ERRATUM(3133195)
+
+check_erratum_range cortex_x4, ERRATUM(3133195), CPU_REV(0, 2), CPU_REV(0, 2)
+
 add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
 
 check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
