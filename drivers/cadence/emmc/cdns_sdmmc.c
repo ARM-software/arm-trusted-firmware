@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,11 +39,7 @@ void sd_host_adma_prepare(struct cdns_idmac_desc *desc_ptr, uintptr_t buf,
 struct cdns_sdmmc_params cdns_params;
 struct cdns_sdmmc_combo_phy sdmmc_combo_phy_reg;
 struct cdns_sdmmc_sdhc sdmmc_sdhc_reg;
-#ifdef CONFIG_DMA_ADDR_T_64BIT
-struct cdns_idmac_desc cdns_desc[CONFIG_CDNS_DESC_COUNT];
-#else
-struct cdns_idmac_desc cdns_desc[CONFIG_CDNS_DESC_COUNT] __aligned(32);
-#endif
+struct cdns_idmac_desc cdns_desc[CONFIG_CDNS_DESC_COUNT] __aligned(8);
 
 bool data_cmd;
 
