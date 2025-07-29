@@ -120,6 +120,12 @@ add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
 
 check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 
+workaround_reset_start cortex_x4, ERRATUM(3887999), ERRATA_X4_3887999
+	sysreg_bit_set CORTEX_X4_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_x4, ERRATUM(3887999)
+
+check_erratum_ls cortex_x4, ERRATUM(3887999), CPU_REV(0, 3)
+
 workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
