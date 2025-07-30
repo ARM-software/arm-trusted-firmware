@@ -7,28 +7,6 @@ here. If a binding does not generalize, they should be documented
 alongside platform documentation. There is no guarantee of backward
 compatibility with the nodes and properties outlined in this context.
 
-Trusted Boot Firmware Configuration
------------------------------------
-
-- compatible [mandatory]
-   - value type: <string>
-   - Should be the string ``"<plat>,tb_fw"``, where ``<plat>`` is the name of the
-     platform (i.e. ``"arm,tb_fw"``).
-
-- disable_auth [mandatory]
-   - value type: <u32>
-   - Flag used to dynamically disable authentication for development purposes.
-     Has two possible values: 0 or 1. Setting the flag to 1 disables
-     authentication.
-
-- mbedtls_heap_addr [mandatory]
-   - value type: <u64>
-   - Base address of the dynamically allocated Mbed TLS heap. This is given as a placeholder.
-
-- mbedtls_heap_size [mandatory]
-   - value type: <u32>
-   - Size of the Mbed TLS heap.
-
 IO FIP Handles
 --------------
 
@@ -154,6 +132,21 @@ Secure Partitions
    - A string property representing the name of the owner of the secure
      partition, which may be the silicon or platform provider.
 
+Chain of Trust Descriptors
+--------------------------
+
+If a structure includes a Chain of Trust (CoT) for secure authentication and
+verification, it must conform to the bindings described in the `Chain of Trust
+Bindings`_ document. Specifically, the CoT should be represented using a ``cot``
+node containing ``manifests`` and ``images`` sub-nodes, with certificates,
+images, and non-volatile counters defined as per the specifications therein.
+This ensures compatibility with the authentication framework and supports
+features such as certificate hierarchies, rollback protection, and root-of-trust
+key integration. For full details on required properties and node structure,
+refer to the `Chain of Trust Bindings`_ document.
+
 --------------
 
-*Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
+
+.. _Chain of Trust Bindings: ../cot-binding.html
