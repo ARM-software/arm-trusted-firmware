@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright (c) 2020-2025, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -136,6 +136,15 @@ def get_pm_offset(node):
 
 def get_uuid(sp_layout, sp, args :dict):
     ''' Helper to fetch uuid from pm file listed in sp_layout.json'''
+
+    def to_bytes_even(h: str) -> bytes:
+        '''
+        Zero-fill any odd-length hex string representing an UUID since
+        bytes.fromhex() always expects even number of bytes.
+        '''
+        h = h.zfill(len(h) + len(h) % 2)
+        return bytes.fromhex(h)
+
     if "uuid" in sp_layout[sp]:
         # Extract the UUID from the JSON file if the SP entry has a 'uuid' field
         uuid_std = uuid.UUID(sp_layout[sp]['uuid'])
@@ -148,7 +157,11 @@ def get_uuid(sp_layout, sp, args :dict):
         # Convert each unsigned integer value to a big endian representation
         # required by fiptool.
         uuid_parsed = re.findall("0x([0-9a-f]+)", uuid_lines[0])
-        y = list(map(bytearray.fromhex, uuid_parsed))
+
+        # UUID must have 4 little endian words
+        assert len(uuid_parsed) == 4, "SP manifest UUID must have exactly 4 words"
+
+        y = [to_bytes_even(uuid) for uuid in uuid_parsed]
         z = [int.from_bytes(i, byteorder='little', signed=False) for i in y]
         uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
     return uuid_std
