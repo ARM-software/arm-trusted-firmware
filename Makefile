@@ -1197,7 +1197,7 @@ ${BUILD_PLAT}/tl.bin: ${HW_CONFIG}
 doc:
 	$(s)echo "  BUILD DOCUMENTATION"
 	$(if $(host-poetry),$(q)poetry -q install --with docs --no-root)
-	$(q)$(if $(host-poetry),poetry run )${MAKE} --no-print-directory -C ${DOCS_PATH} html
+	$(q)$(if $(host-poetry),poetry run )${MAKE} --no-print-directory -C ${DOCS_PATH} BUILDDIR=$(abspath ${BUILD_BASE}/docs) html
 
 enctool: ${ENCTOOL}
 
