@@ -100,7 +100,7 @@ static int32_t smccc_arch_features(u_register_t arg1)
 #endif
 
 #if ARCH_FEATURE_AVAILABILITY
-	case SMCCC_ARCH_FEATURE_AVAILABILITY:
+	case SMCCC_ARCH_FEATURE_AVAILABILITY | (SMC_64 << FUNCID_CC_SHIFT):
 		return SMC_ARCH_CALL_SUCCESS;
 #endif /* ARCH_FEATURE_AVAILABILITY */
 
