@@ -70,9 +70,9 @@ extern console_t *console_list;
 int console_register(console_t *console);
 /* Remove a single console_t instance from the console list. Return a pointer to
  * the console that was removed if it was found, or NULL if not. */
-console_t *console_unregister(console_t *console);
+console_t *console_unregister(console_t *to_be_deleted);
 /* Returns 1 if this console is already registered, 0 if not */
-int console_is_registered(console_t *console);
+int console_is_registered(console_t *to_find);
 /*
  * Set scope mask of a console that determines in what states it is active.
  * By default they are registered with (CONSOLE_FLAG_BOOT|CONSOLE_FLAG_CRASH).
