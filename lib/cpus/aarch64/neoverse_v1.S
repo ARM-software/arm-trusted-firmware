@@ -253,7 +253,7 @@ func neoverse_v1_core_pwr_dwn
 	 * ---------------------------------------------
 	 */
 	sysreg_bit_set NEOVERSE_V1_CPUPWRCTLR_EL1, NEOVERSE_V1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	apply_erratum neoverse_v1, ERRATUM(2743093), ERRATA_V1_2743093, NO_GET_CPU_REV
+	apply_erratum neoverse_v1, ERRATUM(2743093), ERRATA_V1_2743093
 
 	isb
 	ret

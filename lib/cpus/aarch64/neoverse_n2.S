@@ -274,7 +274,7 @@ cpu_reset_func_start neoverse_n2
 cpu_reset_func_end neoverse_n2
 
 func neoverse_n2_core_pwr_dwn
-	apply_erratum neoverse_n2, ERRATUM(2009478), ERRATA_N2_2009478, NO_GET_CPU_REV
+	apply_erratum neoverse_n2, ERRATUM(2009478), ERRATA_N2_2009478
 	apply_erratum neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639, NO_GET_CPU_REV
 
 	/* ---------------------------------------------------
