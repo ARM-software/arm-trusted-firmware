@@ -308,8 +308,11 @@ int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 #endif
 
 #if TRANSFER_LIST
-	if (image_id == HW_CONFIG_ID) {
-		/* Refresh the now stale checksum following loading of HW_CONFIG into the TL. */
+	if (image_id == HW_CONFIG_ID || image_id == TOS_FW_CONFIG_ID) {
+		/*
+		 * Refresh the now stale checksum following loading of
+		 * HW_CONFIG or TOS_FW_CONFIG into the TL.
+		 */
 		transfer_list_update_checksum(secure_tl);
 	}
 #endif /* TRANSFER_LIST */

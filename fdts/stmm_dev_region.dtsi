@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <stmm_common.dtsi>
+
+&io_fpga {
+	base-address = <ADDR_INIT(STMM_IOFPGA_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_IOFPGA_SIZE)>;
+	attributes = <SECURE_RW>;
+};
+
+&system_reg_el0 {
+	base-address = <ADDR_INIT(STMM_SYSREG_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_SYSREG_SIZE)>;
+	attributes = <SECURE_RW>;
+};
+
+&soc_components {
+	base-address = <ADDR_INIT(STMM_SOCCMP_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_SOCCMP_SIZE)>;
+	attributes = <SECURE_RW>;
+};
+
+#ifdef STMM_FLASH0_BASE
+&flash0 {
+	base-address = <ADDR_INIT(STMM_FLASH0_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_FLASH0_SIZE)>;
+	attributes = <STMM_FLASH0_ATTR>;
+};
+#endif
+
+#ifdef STMM_FLASH1_BASE
+&flash1 {
+	base-address = <ADDR_INIT(STMM_FLASH1_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_FLASH1_SIZE)>;
+	attributes = <STMM_FLASH1_ATTR>; };
+#endif
+
+#ifdef STMM_TPM_S_CRB_BASE
+&tpm_s_crb {
+	base-address = <ADDR_INIT(STMM_TPM_S_CRB_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_TPM_S_CRB_SIZE)>;
+	attributes = <SECURE_RW>;
+};
+#endif
+
+#ifdef STMM_TPM_NS_CRB_BASE
+&tpm_ns_crb {
+	base-address = <ADDR_INIT(STMM_TPM_NS_CRB_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_TPM_NS_CRB_SIZE)>;
+	attributes = <NON_SECURE_RW>;
+};
+#endif

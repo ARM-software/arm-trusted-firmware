@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+#include <stmm_common.dtsi>
+
+&image_fvb {
+	base-address = <ADDR_INIT(STMM_IMAGE_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_IMAGE_SIZE)>;
+	attributes = <SECURE_EXECUTE_RO>;
+};
+
+&shared_buf {
+	base-address = <ADDR_INIT(STMM_SSBUF_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_SSBUF_SIZE)>;
+	attributes = <SECURE_RW>;
+};
+
+&ns_shared_buf {
+	base-address = <ADDR_INIT(STMM_NSBUF_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_NSBUF_SIZE)>;
+	attributes = <NON_SECURE_RW>;
+};
+
+&stmm_heap {
+	base-address = <ADDR_INIT(STMM_HEAP_BASE)>;
+	pages-count = <PAGE_COUNT(STMM_HEAP_SIZE)>;
+	attributes = <SECURE_RW>;
+};

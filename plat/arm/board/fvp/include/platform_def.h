@@ -108,6 +108,10 @@
 #define PLAT_ARM_HW_CONFIG_SIZE			U(0x4000)
 
 #if SPMC_AT_EL3
+
+/* Define maximum size of sp manifest file. */
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	U(0x1000)
+
 /*
  * Number of Secure Partitions supported.
  * SPMC at EL3, uses this count to configure the maximum number of supported
@@ -129,6 +133,11 @@
  */
 #define MAX_EL3_LP_DESCS_COUNT		1
 
+#else /* !SPMC_AT_EL3 */
+
+/* Define maximum size of sp manifest file. */
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	U(0x0)
+
 #endif /* SPMC_AT_EL3 */
 
 /*
@@ -137,7 +146,11 @@
 #define PLAT_ARM_NS_IMAGE_BASE		(ARM_DRAM1_BASE + UL(0x8000000))
 
 #if TRANSFER_LIST
+#if SPMC_AT_EL3
+#define PLAT_ARM_FW_HANDOFF_SIZE	U(0x6000)
+#else
 #define PLAT_ARM_FW_HANDOFF_SIZE	U(0x5000)
+#endif
 
 #define FW_NS_HANDOFF_BASE		(PLAT_ARM_NS_IMAGE_BASE - PLAT_ARM_FW_HANDOFF_SIZE)
 #define PLAT_ARM_EL3_FW_HANDOFF_BASE	ARM_BL_RAM_BASE
@@ -164,8 +177,8 @@
 # elif SPMC_AT_EL3
 #  define PLAT_ARM_MMAP_ENTRIES		13
 #  define MAX_XLAT_TABLES		11
-#  define PLAT_SP_IMAGE_MMAP_REGIONS	30
-#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
+#  define PLAT_SP_IMAGE_MMAP_REGIONS	31
+#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	13
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		9
 #  if USE_DEBUGFS
@@ -193,7 +206,7 @@
 #  define MAX_XLAT_TABLES		6
 # endif
 #elif !USE_ROMLIB
-# if ENABLE_RME && defined(IMAGE_BL2)
+# if defined(IMAGE_BL2) && (ENABLE_RME || SPMC_AT_EL3)
 #  define PLAT_ARM_MMAP_ENTRIES		12
 #  define MAX_XLAT_TABLES		6
 # else

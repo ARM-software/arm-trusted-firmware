@@ -249,6 +249,8 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	ARM_SP_IMAGE_NS_BUF_MMAP,
 	ARM_SP_IMAGE_RW_MMAP,
 	ARM_SPM_BUF_EL0_MMAP,
+	ARM_SP_PSEUDO_NS_CRB_MMAP,
+	ARM_SP_PSEUDO_S_CRB_MMAP,
 	{0}
 };
 #endif

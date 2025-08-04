@@ -28,6 +28,9 @@
 #include <services/spmd_svc.h>
 #include "spmc.h"
 #include "spmc_shared_mem.h"
+#if TRANSFER_LIST
+#include <transfer_list.h>
+#endif
 
 #include <platform_def.h>
 
@@ -2131,10 +2134,12 @@ static int find_and_prepare_sp_context(void)
 {
 	void *sp_manifest;
 	uintptr_t manifest_base;
-	uintptr_t manifest_base_align;
+	uintptr_t manifest_base_align __maybe_unused;
 	entry_point_info_t *next_image_ep_info;
 	int32_t ret, boot_info_reg = -1;
 	struct secure_partition_desc *sp;
+	struct transfer_list_header *tl __maybe_unused;
+	struct transfer_list_entry *te __maybe_unused;
 
 	next_image_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	if (next_image_ep_info == NULL) {
@@ -2142,6 +2147,18 @@ static int find_and_prepare_sp_context(void)
 		return -ENOENT;
 	}
 
+
+#if TRANSFER_LIST && !RESET_TO_BL31
+	tl = (struct transfer_list_header *)next_image_ep_info->args.arg3;
+	te = transfer_list_find(tl, TL_TAG_DT_FFA_MANIFEST);
+	if (te == NULL) {
+		WARN("Secure Partition manifest absent.\n");
+		return -ENOENT;
+	}
+
+	sp_manifest = (void *)transfer_list_entry_data(te);
+	manifest_base = (uintptr_t)sp_manifest;
+#else
 	sp_manifest = (void *)next_image_ep_info->args.arg0;
 	if (sp_manifest == NULL) {
 		WARN("Secure Partition manifest absent.\n");
@@ -2166,6 +2183,7 @@ static int find_and_prepare_sp_context(void)
 		ERROR("Error while mapping SP manifest (%d).\n", ret);
 		return ret;
 	}
+#endif
 
 	ret = fdt_node_offset_by_compatible(sp_manifest, -1,
 					    "arm,ffa-manifest-1.0");

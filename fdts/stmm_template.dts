@@ -1,0 +1,122 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <stmm_common.dtsi>
+
+/ {
+	/*
+	 * FF-A compatible Secure Partition Manager parses the
+	 * config file and fetches the following booting arguments to
+	 * pass on to the StandAloneMM(StMM) Secure Partition.
+	 */
+	compatible = "arm,ffa-manifest-1.0";
+	execution-ctx-count = <STMM_CORE_COUNT>;
+	exception-level = <MODE_SEL0>; /* SEL0*/
+	execution-state = <ES_AARCH64>; /* AArch64*/
+	image-size = <SIZE_INIT(STMM_IMAGE_SIZE)>;
+	xlat-granule = <TG_4KB>; /* 4KiB */
+	boot-order = <0>;
+	gp-register-num = <0>;
+
+	device-regions {
+		compatible = "arm,ffa-manifest-device-regions";
+
+		/**
+		 * System registers, rtc, uart and etc regions for access from S-EL0.
+		 */
+		io_fpga: io_fpga {
+			description ="io_fpga";
+		};
+
+		system_reg_el0: system_reg_el0 {
+			description ="system_reg_el0";
+		};
+
+		/**
+		 * ARM CSS SoC Peripherals area.
+		 * Similar to SOC_CSS_MAP_DEVICE.
+		 */
+		soc_components: soc_components {
+			description ="soc_components";
+		};
+
+#ifdef STMM_FLASH0_BASE
+		/**
+		 * NOR0 Flash region, used for Firmware Image Update.
+		 */
+		flash0: flash0 {
+			description ="flash0";
+		};
+#endif
+
+#ifdef STMM_FLASH1_BASE
+		/**
+		 * NOR1 Flash region, used for Secure booting.
+		 */
+		flash1: flash1 {
+			description ="flash1";
+		};
+#endif
+
+#ifdef STMM_TPM_S_CRB_BASE
+		tpm_s_crb: tpm_s_crb {
+			description ="tpm pesudo s-crb";
+		};
+#endif
+
+#ifdef STMM_TPM_NS_CRB_BASE
+		tpm_ns_crb: tpm_ns_crb {
+			description ="tpm pesudo ns-crb";
+		};
+#endif
+	};
+
+	memory-regions {
+		compatible = "arm,ffa-manifest-memory-regions";
+
+		/*
+		 * SPM Payload memory. Mapped as code region for S-EL0
+		 * Similar to ARM_SP_IMAGE_MMAP.
+		 */
+		image_fvb: stmm_region {
+			description = "image";
+		};
+
+		/*
+		 * Memory shared between EL3 and S-EL0.
+		 * Similar to ARM_SPM_BUF_EL0_MMAP.
+		 */
+		shared_buf: rx-tx-buffers {
+			description = "shared-buff";
+		};
+
+		/*
+		 * Memory shared between Normal world and S-EL0.
+		 * Similar to ARM_SP_IMAGE_NS_BUF_MMAP.
+		 */
+		ns_shared_buf: ns_comm_buffer {
+			/*
+			 * Description is needed for StMM to identify
+			 * ns-communication buffer.
+			 */
+			description = "ns-comm";
+		};
+
+		/*
+		 * Heap used by SP to allocate memory for DMA.
+		 */
+		stmm_heap: heap {
+			/*
+			 * Description is needed for StMM to identify
+			 * heap buffer.
+			 */
+			description = "heap";
+		};
+	};
+};
+
+#include "stmm_dev_region.dtsi"
+#include "stmm_mem_region.dtsi"
