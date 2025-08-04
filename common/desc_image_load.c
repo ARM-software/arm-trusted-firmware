@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+
+#include <plat/common/platform.h>
 
 #include <arch_helpers.h>
 #include <common/bl_common.h>
@@ -212,6 +214,12 @@ bl_params_t *get_next_bl_params_from_mem_params_desc(void)
  ******************************************************************************/
 void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 {
+	/*
+	 * With Firmware Handoff configuration data is shared dynamically, most of
+	 * the *_CONFIG files will be deprecated. Avoid populating the entry point
+	 * arguments with their information as they're discarded anyway.
+	 */
+#if !TRANSFER_LIST
 	bl_params_node_t *params_node;
 	unsigned int fw_config_id;
 	uintptr_t fw_config_base;
@@ -276,8 +284,9 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 		 */
 		if (params_node->image_id == BL32_IMAGE_ID) {
 			params_node->ep_info->args.arg3 = fw_config_base;
-		} else {
+		} else
 #endif
+		{
 			/*
 			 * Pass hw and tb_fw config addresses to next images.
 			 * NOTE - for EL3 runtime images (BL31 for AArch64
@@ -292,18 +301,30 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 				if (params_node->ep_info->args.arg2 == 0U)
 					params_node->ep_info->args.arg2 =
 								hw_config_base;
-			} else {
-				if (params_node->ep_info->args.arg0 == 0U)
-					params_node->ep_info->args.arg0 =
-								fw_config_base;
-				if (params_node->ep_info->args.arg1 == 0U)
-					params_node->ep_info->args.arg1 =
-								hw_config_base;
 			}
-#ifdef SPD_opteed
+#if USE_KERNEL_DT_CONVENTION
+			else if (params_node->image_id == BL33_IMAGE_ID) {
+				hw_config_base = plat_get_hw_dt_base();
+
+				if (params_node->ep_info->args.arg0 == 0U) {
+					params_node->ep_info->args.arg0 =
+						hw_config_base;
+				}
+			}
+#endif /* USE_KERNEL_DT_CONVENTION */
+			else {
+				if (params_node->ep_info->args.arg0 == 0U) {
+					params_node->ep_info->args.arg0 =
+						fw_config_base;
+				}
+				if (params_node->ep_info->args.arg1 == 0U) {
+					params_node->ep_info->args.arg1 =
+						hw_config_base;
+				}
+			}
 		}
-#endif
 	}
+#endif /* !TRANSFER_LIST */
 }
 
 /*******************************************************************************

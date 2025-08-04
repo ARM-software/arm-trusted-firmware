@@ -505,6 +505,12 @@ int32_t plat_get_soc_name(char *soc_name);
  */
 int32_t plat_is_smccc_feature_available(u_register_t fid);
 
+/*
+ * Optional function to retrieve the base address of hardware DT from the
+ * platform.
+ */
+uintptr_t plat_get_hw_dt_base(void);
+
 /*******************************************************************************
  * FWU platform specific functions
  ******************************************************************************/
