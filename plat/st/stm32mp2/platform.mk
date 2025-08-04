@@ -61,6 +61,14 @@ else
 STM32_HEADER_VERSION_MINOR	:=	2
 endif
 
+STM32_HASH_VER			:=	4
+STM32_RNG_VER			:=	4
+ifeq ($(STM32MP21),1)
+STM32_RNG_VER_MINOR		:=	4
+else
+STM32_RNG_VER_MINOR		:=	3
+endif
+
 # Set load address for serial boot devices
 DWL_BUFFER_BASE 		?=	0x87000000
 
@@ -144,7 +152,10 @@ $(eval $(call assert_booleans,\
 $(eval $(call assert_numerics,\
 	$(sort \
 		PLAT_PARTITION_MAX_ENTRIES \
+		STM32_HASH_VER \
 		STM32_HEADER_VERSION_MAJOR \
+		STM32_RNG_VER \
+		STM32_RNG_VER_MINOR \
 		STM32_TF_A_COPIES \
 )))
 
@@ -154,6 +165,9 @@ $(eval $(call add_defines,\
 		PLAT_DEF_FIP_UUID \
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_TBBR_IMG_DEF \
+		STM32_HASH_VER \
+		STM32_RNG_VER \
+		STM32_RNG_VER_MINOR \
 		STM32_TF_A_COPIES \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
@@ -191,12 +205,17 @@ PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c					\
 					plat/st/stm32mp2/stm32mp2_syscfg.c
 
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/clk/clk-stm32-core.c				\
-					drivers/st/clk/clk-stm32mp2.c
+					drivers/st/clk/clk-stm32mp2.c				\
+					drivers/st/crypto/stm32_rng.c
 
 BL2_SOURCES			+=	plat/st/stm32mp2/plat_bl2_mem_params_desc.c
 
 BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c			\
 					plat/st/stm32mp2/plat_ddr.c
+
+BL2_SOURCES			+=	drivers/st/crypto/stm32_hash.c
+
+BL2_SOURCES			+=	drivers/st/rif/stm32mp2_risaf.c
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c

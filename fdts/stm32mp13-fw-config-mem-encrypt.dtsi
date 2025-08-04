@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/*
+ * Copyright (c) 2025, STMicroelectronics - All Rights Reserved
+ */
+
+#include <dt-bindings/soc/stm32mp13-mce.h>
+
+/ {
+	st-mem-encrypt {
+		compatible = "st,mem-encrypt";
+		memory-ranges = <DDR_SEC_BASE DDR_SEC_SIZE MCE_ENCRYPT>;
+	};
+};

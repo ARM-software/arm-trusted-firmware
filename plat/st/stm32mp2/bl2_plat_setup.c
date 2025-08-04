@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,8 +14,10 @@
 #include <drivers/clk.h>
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
+#include <drivers/st/stm32_rng.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
 #include <drivers/st/stm32mp2_ram.h>
+#include <drivers/st/stm32mp2_risaf.h>
 #include <drivers/st/stm32mp_pmic2.h>
 #include <drivers/st/stm32mp_risab_regs.h>
 #include <lib/fconf/fconf.h>
@@ -91,6 +93,10 @@ void bl2_platform_setup(void)
 	ret = stm32mp2_ddr_probe();
 	if (ret != 0) {
 		ERROR("DDR probe: error %d\n", ret);
+		panic();
+	}
+
+	if (stm32mp2_risaf_init() < 0) {
 		panic();
 	}
 
@@ -201,6 +207,10 @@ void bl2_el3_plat_arch_setup(void)
 	print_reset_reason();
 
 skip_console_init:
+	if (stm32_rng_init() != 0) {
+		panic();
+	}
+
 	if (fixed_regulator_register() != 0) {
 		panic();
 	}
@@ -222,6 +232,20 @@ skip_console_init:
 	mmio_write_32(RISAB5_BASE + RISAB_CR, RISAB_CR_SRWIAD);
 
 	stm32mp_io_setup();
+}
+
+static void prepare_encryption(void)
+{
+	uint8_t mkey[RISAF_KEY_SIZE_IN_BYTES];
+
+	/* Generate RISAF encryption key from RNG */
+	if (stm32_rng_read(mkey, RISAF_KEY_SIZE_IN_BYTES) != 0) {
+		panic();
+	}
+
+	if (stm32mp2_risaf_write_encryption_key(RISAF4_INST, mkey) != 0) {
+		panic();
+	}
 }
 
 /*******************************************************************************
@@ -260,6 +284,11 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	switch (image_id) {
 	case FW_CONFIG_ID:
+		if ((stm32mp_check_closed_device() == STM32MP_CHIP_SEC_CLOSED) ||
+		    stm32mp_is_auth_supported()) {
+			prepare_encryption();
+		}
+
 		/* Set global DTB info for fixed fw_config information */
 		set_config_info(STM32MP_FW_CONFIG_BASE, ~0UL, STM32MP_FW_CONFIG_MAX_SIZE,
 				FW_CONFIG_ID);

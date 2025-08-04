@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <errno.h>
 
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
@@ -318,10 +319,118 @@ void stm32mp_print_boardinfo(void)
 	}
 }
 
+/* Return true when SoC provides a single Cortex-A35 core, and false otherwise */
+bool stm32mp_is_single_core(void)
+{
+	bool single_core = false;
+
+	switch (get_part_number()) {
+	case STM32MP251A_PART_NB:
+	case STM32MP251C_PART_NB:
+	case STM32MP251D_PART_NB:
+	case STM32MP251F_PART_NB:
+		single_core = true;
+		break;
+	default:
+		break;
+	}
+
+	return single_core;
+}
+
+/* Return true when device is in closed state */
+uint32_t stm32mp_check_closed_device(void)
+{
+	return STM32MP_CHIP_SEC_OPEN;
+}
+
+/* Return true when device supports secure boot */
+bool stm32mp_is_auth_supported(void)
+{
+	bool supported = false;
+
+	switch (get_part_number()) {
+	case STM32MP251C_PART_NB:
+	case STM32MP251F_PART_NB:
+	case STM32MP253C_PART_NB:
+	case STM32MP253F_PART_NB:
+	case STM32MP255C_PART_NB:
+	case STM32MP255F_PART_NB:
+	case STM32MP257C_PART_NB:
+	case STM32MP257F_PART_NB:
+		supported = true;
+		break;
+	default:
+		break;
+	}
+
+	return supported;
+}
+
 bool stm32mp_is_wakeup_from_standby(void)
 {
 	/* TODO add source code to determine if platform is waking up from standby mode */
 	return false;
+}
+
+int stm32_risaf_get_instance(uintptr_t base)
+{
+	switch (base) {
+	case RISAF2_BASE:
+		return (int)RISAF2_INST;
+	case RISAF4_BASE:
+		return (int)RISAF4_INST;
+	default:
+		return -ENODEV;
+	}
+}
+
+uintptr_t stm32_risaf_get_base(int instance)
+{
+	switch (instance) {
+	case RISAF2_INST:
+		return (uintptr_t)RISAF2_BASE;
+	case RISAF4_INST:
+		return (uintptr_t)RISAF4_BASE;
+	default:
+		return 0U;
+	}
+}
+
+int stm32_risaf_get_max_region(int instance)
+{
+	switch (instance) {
+	case RISAF2_INST:
+		return (int)RISAF2_MAX_REGION;
+	case RISAF4_INST:
+		return (int)RISAF4_MAX_REGION;
+	default:
+		return 0;
+	}
+}
+
+uintptr_t stm32_risaf_get_memory_base(int instance)
+{
+	switch (instance) {
+	case RISAF2_INST:
+		return (uintptr_t)STM32MP_OSPI_MM_BASE;
+	case RISAF4_INST:
+		return (uintptr_t)STM32MP_DDR_BASE;
+	default:
+		return 0U;
+	}
+}
+
+size_t stm32_risaf_get_memory_size(int instance)
+{
+	switch (instance) {
+	case RISAF2_INST:
+		return STM32MP_OSPI_MM_SIZE;
+	case RISAF4_INST:
+		return dt_get_ddr_size();
+	default:
+		return 0U;
+	}
 }
 
 uintptr_t stm32_get_bkpr_boot_mode_addr(void)

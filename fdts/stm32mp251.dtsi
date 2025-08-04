@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 /*
- * Copyright (C) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2023-2025, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
  */
 
@@ -218,6 +218,14 @@
 				status = "disabled";
 			};
 
+			rng: rng@42020000 {
+				compatible = "st,stm32mp13-rng";
+				reg = <0x42020000 0x400>;
+				clocks = <&rcc CK_BUS_RNG>;
+				resets = <&rcc RNG_R>;
+				status = "disabled";
+			};
+
 			i2c8: i2c@46040000 {
 				compatible = "st,stm32mp25-i2c";
 				reg = <0x46040000 0x400>;
@@ -251,6 +259,20 @@
 				max-frequency = <120000000>;
 				status = "disabled";
 			};
+		};
+
+		risaf2: risaf@420b0000 {
+			compatible = "st,stm32-risaf";
+			reg = <0x420b0000 0x1000>;
+			clocks = <&rcc CK_KER_OSPI1>;
+			status = "disabled";
+		};
+
+		risaf4: risaf@420d0000 {
+			compatible = "st,stm32-risaf";
+			reg = <0x420d0000 0x1000>;
+			clocks = <&rcc CK_BUS_RISAF4>;
+			status = "disabled";
 		};
 
 		bsec: efuse@44000000 {
