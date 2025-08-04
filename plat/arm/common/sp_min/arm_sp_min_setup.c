@@ -97,16 +97,13 @@ void arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 #if RESET_TO_SP_MIN
 	/* Populate entry point information for BL33 */
-	SET_PARAM_HEAD(&bl33_image_ep_info,
-				PARAM_EP,
-				VERSION_1,
-				0);
+	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	/*
 	 * Tell SP_MIN where the non-trusted software image
 	 * is located and the entry state information
 	 */
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
+	bl33_image_ep_info.spsr = arm_get_spsr(BL33_IMAGE_ID);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 #if ARM_LINUX_KERNEL_AS_BL33

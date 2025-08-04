@@ -250,8 +250,7 @@ void arm_bl2_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				   u_register_t arg2, u_register_t arg3);
 void arm_bl2_platform_setup(void);
 void arm_bl2_plat_arch_setup(void);
-uint32_t arm_get_spsr_for_bl32_entry(void);
-uint32_t arm_get_spsr_for_bl33_entry(void);
+uint32_t arm_get_spsr(unsigned int image_id);
 int arm_bl2_plat_handle_post_image_load(unsigned int image_id);
 int arm_bl2_handle_post_image_load(unsigned int image_id);
 struct bl_params *arm_get_next_bl_params(void);

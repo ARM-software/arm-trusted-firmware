@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,26 +71,20 @@ uintptr_t plat_get_ns_image_entrypoint(void)
 }
 
 /*******************************************************************************
- * Gets SPSR for BL32 entry
+ * Gets SPSR for next stage images.
  ******************************************************************************/
-uint32_t arm_get_spsr_for_bl32_entry(void)
+uint32_t arm_get_spsr(unsigned int image_id)
 {
-	/*
-	 * The Secure Payload Dispatcher service is responsible for
-	 * setting the SPSR prior to entry into the BL32 image.
-	 */
-	return 0;
-}
+	unsigned int __unused hyp_status, mode, spsr;
 
-/*******************************************************************************
- * Gets SPSR for BL33 entry
- ******************************************************************************/
+	if (image_id == BL32_IMAGE_ID) {
+		/* The Secure Payload Dispatcher service is responsible for
+		 * setting the SPSR prior to entry into the BL32 image.
+		 */
+		return 0;
+	}
+
 #ifdef __aarch64__
-uint32_t arm_get_spsr_for_bl33_entry(void)
-{
-	unsigned int mode;
-	uint32_t spsr;
-
 	/* Figure out what mode we enter the non-secure world in */
 	mode = (el_implemented(2) != EL_IMPL_NONE) ? MODE_EL2 : MODE_EL1;
 
@@ -100,16 +94,7 @@ uint32_t arm_get_spsr_for_bl33_entry(void)
 	 * well.
 	 */
 	spsr = SPSR_64((uint64_t)mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
-	return spsr;
-}
 #else
-/*******************************************************************************
- * Gets SPSR for BL33 entry
- ******************************************************************************/
-uint32_t arm_get_spsr_for_bl33_entry(void)
-{
-	unsigned int hyp_status, mode, spsr;
-
 	hyp_status = GET_VIRT_EXT(read_id_pfr1());
 
 	mode = (hyp_status) ? MODE32_hyp : MODE32_svc;
@@ -120,10 +105,11 @@ uint32_t arm_get_spsr_for_bl33_entry(void)
 	 * well.
 	 */
 	spsr = SPSR_MODE32(mode, plat_get_ns_image_entrypoint() & 0x1,
-			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
+			   SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
+#endif /* __aarch64__ */
+
 	return spsr;
 }
-#endif /* __aarch64__ */
 
 /*******************************************************************************
  * Configures access to the system counter timer module.

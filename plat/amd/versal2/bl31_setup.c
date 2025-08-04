@@ -61,7 +61,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 static inline void bl31_set_default_config(void)
 {
 	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+	bl32_image_ep_info.spsr = arm_get_spsr(BL32_IMAGE_ID);
 #if defined(SPD_opteed)
 #if (TRANSFER_LIST == 0)
 	/* NS dtb addr passed to optee_os */

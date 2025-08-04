@@ -266,14 +266,16 @@ int arm_bl2_handle_post_image_load(unsigned int image_id)
 			WARN("OPTEE header parse error.\n");
 		}
 #endif
-		bl_mem_params->ep_info.spsr = arm_get_spsr_for_bl32_entry();
+		bl_mem_params->ep_info.spsr = arm_get_spsr(BL32_IMAGE_ID);
 		break;
 #endif
 
 	case BL33_IMAGE_ID:
+#if !USE_KERNEL_DT_CONVENTION
 		/* BL33 expects to receive the primary CPU MPID (through r0) */
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
-		bl_mem_params->ep_info.spsr = arm_get_spsr_for_bl33_entry();
+#endif /* !USE_KERNEL_DT_CONVENTION */
+		bl_mem_params->ep_info.spsr = arm_get_spsr(BL33_IMAGE_ID);
 		break;
 
 #ifdef SCP_BL2_BASE
