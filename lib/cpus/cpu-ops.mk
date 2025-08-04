@@ -933,10 +933,18 @@ CPU_FLAG_LIST += ERRATA_X4_2957258
 # to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_X4_3076789
 
+# Flag to apply erratum 3133195 workaround on reset. This erratum applies
+# to revision r0p2 of the Cortex-X4 cpu. It is fixed in r0p3.
+CPU_FLAG_LIST += ERRATA_X4_3133195
+
 # Flag to apply erratum 3701758 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1, r0p2 and r0p3
 # of the Cortex-X4 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_X4_3701758
+
+# Flag to apply erratum 3887999 workaround on reset. This erratum applies to
+# revisions r0p0, r0p1, r0p2 and r0p3 of the Cortex-X4 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X4_3887999
 
 # Flag to apply erratum 2963999 workaround during reset. This erratum applies
 # to revisions r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
