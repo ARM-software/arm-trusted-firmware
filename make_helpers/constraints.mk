@@ -51,35 +51,35 @@ endif
 # Handle all invalid build configurations with SPMD usage.
 ifeq (${ENABLE_SPMD_LP}, 1)
 ifneq (${SPD},spmd)
-	$(error Error: ENABLE_SPMD_LP requires SPD=spmd.)
+        $(error Error: ENABLE_SPMD_LP requires SPD=spmd.)
 endif
 ifeq ($(SPMC_AT_EL3),1)
-	$(error SPMC at EL3 not supported when enabling SPMD Logical partitions.)
+        $(error SPMC at EL3 not supported when enabling SPMD Logical partitions.)
 endif
 endif
 
 ifneq (${SPD},none)
 ifeq (${ARCH},aarch32)
-	$(error "Error: SPD is incompatible with AArch32.")
+        $(error "Error: SPD is incompatible with AArch32.")
 endif
 ifdef EL3_PAYLOAD_BASE
-	$(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
-	$(warning "The SPD and its BL32 companion will be present but ignored.")
+        $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
+        $(warning "The SPD and its BL32 companion will be present but ignored.")
 endif
 ifeq (${SPD},spmd)
 ifeq ($(SPMD_SPM_AT_SEL2),1)
-	ifeq ($(SPMC_AT_EL3),1)
-		$(error SPM cannot be enabled in both S-EL2 and EL3.)
-	endif
-	ifeq ($(CTX_INCLUDE_SVE_REGS),1)
-		$(error SVE context management not needed with Hafnium SPMC.)
-	endif
+        ifeq ($(SPMC_AT_EL3),1)
+                $(error SPM cannot be enabled in both S-EL2 and EL3.)
+        endif
+        ifeq ($(CTX_INCLUDE_SVE_REGS),1)
+                $(error SVE context management not needed with Hafnium SPMC.)
+        endif
 endif
 
 ifeq ($(SPMC_AT_EL3_SEL0_SP),1)
-	ifneq ($(SPMC_AT_EL3),1)
-		$(error SEL0 SP cannot be enabled without SPMC at EL3)
-	endif
+        ifneq ($(SPMC_AT_EL3),1)
+                $(error SEL0 SP cannot be enabled without SPMC at EL3)
+        endif
 endif
 endif #(SPD=spmd)
 endif #(SPD!=none)
@@ -103,7 +103,7 @@ endif #(USE_SPINLOCK_CAS)
 ifdef EL3_PAYLOAD_BASE
 	ifdef PRELOADED_BL33_BASE
                 $(warning "PRELOADED_BL33_BASE and EL3_PAYLOAD_BASE are \
-		incompatible build options. EL3_PAYLOAD_BASE has priority.")
+                incompatible build options. EL3_PAYLOAD_BASE has priority.")
 	endif
 	ifneq (${GENERATE_COT},0)
                 $(error "GENERATE_COT and EL3_PAYLOAD_BASE are incompatible \
@@ -184,25 +184,25 @@ ifneq (${ENABLE_FEAT_PAUTH_LR},0)
 
 # Make sure PAUTH is enabled
 ifeq (${ENABLE_PAUTH},0)
-	$(error Error: PAUTH_LR cannot be used without PAUTH (see BRANCH_PROTECTION))
+        $(error Error: PAUTH_LR cannot be used without PAUTH (see BRANCH_PROTECTION))
 endif
 
 # Make sure SCTLR2 is enabled
 ifeq (${ENABLE_FEAT_SCTLR2},0)
-	$(error Error: PAUTH_LR cannot be used without ENABLE_FEAT_SCTLR2)
+        $(error Error: PAUTH_LR cannot be used without ENABLE_FEAT_SCTLR2)
 endif
 
 # FEAT_PAUTH_LR is only supported in aarch64 state
 ifneq (${ARCH},aarch64)
-	$(error ENABLE_FEAT_PAUTH_LR requires AArch64)
+        $(error ENABLE_FEAT_PAUTH_LR requires AArch64)
 endif
 
 # Currently, FEAT_PAUTH_LR is only supported by arm/clang compilers
 # TODO implement for GCC when support is added
 ifeq ($($(ARCH)-cc-id),arm-clang)
-	arch-features	:= $(arch-features)+pauth-lr
+        arch-features	:= $(arch-features)+pauth-lr
 else
-	$(error Error: ENABLE_FEAT_PAUTH_LR not supported for GCC compiler)
+        $(error Error: ENABLE_FEAT_PAUTH_LR not supported for GCC compiler)
 endif
 
 endif # ${ENABLE_FEAT_PAUTH_LR}
@@ -216,7 +216,7 @@ ifneq ($(ENABLE_SME2_FOR_NS), 0)
                 $(warning "ENABLE_SME2_FOR_NS requires ENABLE_SME_FOR_NS also \
                 to be set")
                 $(warning "Forced ENABLE_SME_FOR_NS=1")
-		override ENABLE_SME_FOR_NS	:= 1
+                override ENABLE_SME_FOR_NS	:= 1
 	endif
 endif #(ENABLE_SME2_FOR_NS)
 
@@ -269,7 +269,7 @@ ifeq (${ARCH},aarch32)
 	endif
 	# FEAT_MOPS is only supported on AArch64
 	ifneq (${ENABLE_FEAT_MOPS},0)
-		$(error "ENABLE_FEAT_MOPS cannot be used with ARCH=aarch32")
+                $(error "ENABLE_FEAT_MOPS cannot be used with ARCH=aarch32")
 	endif
 	ifneq (${ENABLE_FEAT_GCIE},0)
                 $(error "ENABLE_FEAT_GCIE cannot be used with ARCH=aarch32")
@@ -312,9 +312,9 @@ endif
 # Enabling FEAT_MOPS requires access to hcrx_el2 registers which is
 # available only when FEAT_HCX is enabled.
 ifneq (${ENABLE_FEAT_MOPS},0)
-	ifeq (${ENABLE_FEAT_HCX},0)
-		$(error "ENABLE_FEAT_MOPS requires ENABLE_FEAT_HCX")
-	endif
+    ifeq (${ENABLE_FEAT_HCX},0)
+        $(error "ENABLE_FEAT_MOPS requires ENABLE_FEAT_HCX")
+    endif
 endif
 
 # Enabling SVE for both the worlds typically requires the context
@@ -333,10 +333,10 @@ endif
 ifeq (${CTX_INCLUDE_FPREGS}, 1)
     ifneq (${ENABLE_SVE_FOR_NS},0)
         ifeq (${CTX_INCLUDE_SVE_REGS},0)
-	    # Warning instead of error due to CI dependency on this
+            # Warning instead of error due to CI dependency on this
             $(warning "CTX_INCLUDE_FPREGS and ENABLE_SVE_FOR_NS together require CTX_INCLUDE_SVE_REGS")
             $(warning "Forced ENABLE_SVE_FOR_NS=0")
-	    override ENABLE_SVE_FOR_NS	:= 0
+            override ENABLE_SVE_FOR_NS	:= 0
         endif
     endif
 endif #(CTX_INCLUDE_FPREGS)
