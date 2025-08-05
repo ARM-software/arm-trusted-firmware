@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #ifndef SOCFPGA_PRIVATE_H
 #define SOCFPGA_PRIVATE_H
 
+#include <errno.h>
 
 #define EMMC_DESC_SIZE		(1<<20)
 
@@ -66,5 +67,22 @@ unsigned long socfpga_get_ns_image_entrypoint(void);
 void plat_secondary_cpus_bl31_entry(void);
 
 void setup_clusterectlr_el1(void);
+
+/******************************************************************************
+ * Macro for generic poling function
+ *****************************************************************************/
+
+#define SOCFPGA_POLL(cond, max_count, delay, delay_fn, status)	\
+	do {							\
+		int __count = (max_count);			\
+		(status) = -ETIMEDOUT;				\
+		while ((!(cond)) && (__count-- > 0)) {		\
+			delay_fn(delay);			\
+		}						\
+								\
+		if ((cond)) {					\
+			(status) = 0;				\
+		}						\
+	} while (0)
 
 #endif /* SOCFPGA_PRIVATE_H */
