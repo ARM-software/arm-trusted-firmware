@@ -121,9 +121,8 @@
  *     0x1       : L2/warm reset is completed
  *     0x2 - 0xF : Reserved for future use
  */
-#define BS_REG_MAGIC_KEYS_MASK			0x0F
-#define BS_REG_MAGIC_KEYS_POS			0x00
-#define L2_RESET_DONE_STATUS			(0x01 << BS_REG_MAGIC_KEYS_POS)
+#define BS_REG_MAGIC_KEYS_MASK			0xFFFFFFFF
+#define L2_RESET_DONE_STATUS			0x1228E5E7
 
 #define L2_RESET_DONE_REG			SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_6)
 
