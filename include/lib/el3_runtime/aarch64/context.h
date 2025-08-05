@@ -17,10 +17,18 @@
 #include <lib/el3_runtime/context_el1.h>
 #endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
 
-#include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/simd_ctx.h>
 #include <lib/utils_def.h>
 #include <platform_def.h> /* For CACHE_WRITEBACK_GRANULE */
+
+#define	CPU_CONTEXT_SECURE	UL(0)
+#define	CPU_CONTEXT_NS		UL(1)
+#if ENABLE_RME
+#define	CPU_CONTEXT_REALM	UL(2)
+#define	CPU_CONTEXT_NUM		UL(3)
+#else
+#define	CPU_CONTEXT_NUM		UL(2)
+#endif
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'gp_regs'
@@ -175,6 +183,8 @@
 
 #include <stdint.h>
 
+#include <assert.h>
+#include <common/ep_info.h>
 #include <lib/cassert.h>
 
 /*
@@ -284,7 +294,21 @@ typedef struct per_world_context {
 	uint64_t ctx_mpam3_el3;
 } per_world_context_t;
 
-extern per_world_context_t per_world_context[CPU_DATA_CONTEXT_NUM];
+static inline uint8_t get_cpu_context_index(size_t security_state)
+{
+	if (security_state == SECURE) {
+		return CPU_CONTEXT_SECURE;
+#if ENABLE_RME
+	} else  if (security_state == REALM) {
+		return CPU_CONTEXT_REALM;
+#endif
+	} else {
+		assert(security_state == NON_SECURE);
+		return CPU_CONTEXT_NS;
+	}
+}
+
+extern per_world_context_t per_world_context[CPU_CONTEXT_NUM];
 
 /* Macros to access members of the 'cpu_context_t' structure */
 #define get_el3state_ctx(h)	(&((cpu_context_t *) h)->el3state_ctx)
