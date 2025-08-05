@@ -192,6 +192,9 @@ enum pm_device_node_idx {
 	XPM_NODEIDX_DEV_GT_9 = 0x52,
 	XPM_NODEIDX_DEV_GT_10 = 0x53,
 
+	/* MMI devices */
+	XPM_NODEIDX_DEV_MMI_GEM = 0x13A,
+
 #if defined(PLAT_versal_net)
 	XPM_NODEIDX_DEV_ACPU_0_0 = 0xAF,
 	XPM_NODEIDX_DEV_ACPU_0_1 = 0xB0,
