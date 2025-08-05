@@ -44,9 +44,6 @@
 
 #else	/* !__aarch64__ */
 
-#if CRASH_REPORTING
-#error "Crash reporting is not supported in AArch32"
-#endif
 #define WARMBOOT_EP_INFO		0x0
 #define CPU_DATA_CPU_OPS_PTR		0x4
 #define CPU_DATA_CRASH_BUF_OFFSET	(CPU_DATA_CPU_OPS_PTR + PSCI_CPU_DATA_SIZE)
@@ -64,7 +61,7 @@
 #define CPU_DATA_EHF_DATA_SIZE		8
 #define CPU_DATA_EHF_DATA_BUF_OFFSET	CPU_DATA_CRASH_BUF_END
 
-#if defined(IMAGE_BL31) && EL3_EXCEPTION_HANDLING
+#if EL3_EXCEPTION_HANDLING
 #define CPU_DATA_EHF_DATA_BUF_END	(CPU_DATA_EHF_DATA_BUF_OFFSET + \
 						CPU_DATA_EHF_DATA_SIZE)
 #else
@@ -152,7 +149,7 @@ typedef struct cpu_data {
 #if PLAT_PCPU_DATA_SIZE
 	uint8_t platform_cpu_data[PLAT_PCPU_DATA_SIZE];
 #endif
-#if defined(IMAGE_BL31) && EL3_EXCEPTION_HANDLING
+#if EL3_EXCEPTION_HANDLING
 	pe_exc_data_t ehf_data;
 #endif
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
@@ -177,7 +174,7 @@ CASSERT(CPU_DATA_CRASH_BUF_OFFSET == __builtin_offsetof
 	assert_cpu_data_crash_stack_offset_mismatch);
 #endif
 
-#if defined(IMAGE_BL31) && EL3_EXCEPTION_HANDLING
+#if EL3_EXCEPTION_HANDLING
 CASSERT(CPU_DATA_EHF_DATA_BUF_OFFSET == __builtin_offsetof
 	(cpu_data_t, ehf_data),
 	assert_cpu_data_ehf_stack_offset_mismatch);
