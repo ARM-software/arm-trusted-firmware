@@ -46,6 +46,7 @@
 #define QSPI_CR_SSHIFT		BIT(4)
 #define QSPI_CR_DFM		BIT(6)
 #define QSPI_CR_FSEL		BIT(7)
+#define QSPI_CR_FTHRES		GENMASK_32(12, 8)
 #define QSPI_CR_FTHRES_SHIFT	8U
 #define QSPI_CR_TEIE		BIT(16)
 #define QSPI_CR_TCIE		BIT(17)
@@ -166,21 +167,52 @@ static int stm32_qspi_wait_cmd(const struct spi_mem_op *op)
 	return ret;
 }
 
-static void stm32_qspi_read_fifo(uint8_t *val, uintptr_t addr)
+static int stm32_qspi_read_fifo(void *val, uintptr_t addr, uint64_t len)
 {
-	*val = mmio_read_8(addr);
+	int ret = 0;
+
+	switch (len) {
+	case sizeof(uint32_t):
+		*((uint32_t *)val) = mmio_read_32(addr);
+		break;
+	case sizeof(uint8_t):
+		*((uint8_t *)val) = mmio_read_8(addr);
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	};
+
+	return ret;
 }
 
-static void stm32_qspi_write_fifo(uint8_t *val, uintptr_t addr)
+static int stm32_qspi_write_fifo(void *val, uintptr_t addr, uint64_t len)
 {
-	mmio_write_8(addr, *val);
+	int ret = 0;
+
+	switch (len) {
+	case sizeof(uint32_t):
+		mmio_write_32(addr, *((uint32_t *)val));
+		break;
+	case sizeof(uint8_t):
+		mmio_write_8(addr, *((uint8_t *)val));
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	};
+
+	return ret;
 }
 
 static int stm32_qspi_poll(const struct spi_mem_op *op)
 {
-	void (*fifo)(uint8_t *val, uintptr_t addr);
-	uint32_t len;
-	uint8_t *buf;
+	int (*fifo)(void *val, uintptr_t addr, uint64_t len);
+	uint8_t *buff = (uint8_t *)op->data.buf;
+	uint64_t length = op->data.nbytes;
+	uint32_t tmp;
+	uint64_t i = 0U;
+	int ret;
 
 	if (op->data.dir == SPI_MEM_DATA_IN) {
 		fifo = stm32_qspi_read_fifo;
@@ -188,9 +220,7 @@ static int stm32_qspi_poll(const struct spi_mem_op *op)
 		fifo = stm32_qspi_write_fifo;
 	}
 
-	buf = (uint8_t *)op->data.buf;
-
-	for (len = op->data.nbytes; len != 0U; len--) {
+	while (length != 0U) {
 		uint64_t timeout = timeout_init_us(QSPI_FIFO_TIMEOUT_US);
 
 		while ((mmio_read_32(qspi_base() + QSPI_SR) &
@@ -201,7 +231,27 @@ static int stm32_qspi_poll(const struct spi_mem_op *op)
 			}
 		}
 
-		fifo(buf++, qspi_base() + QSPI_DR);
+		if (length >= sizeof(uint32_t)) {
+			ret = fifo(&tmp, qspi_base() + QSPI_DR,
+				   sizeof(uint32_t));
+			if (ret != 0) {
+				return ret;
+			}
+
+			(void)memcpy((void *)&buff[i], (const void *)&tmp,
+				     sizeof(uint32_t));
+			length -= sizeof(uint32_t);
+			i += sizeof(uint32_t);
+		} else {
+			ret = fifo(&buff[i], qspi_base() + QSPI_DR,
+				   sizeof(uint8_t));
+			if (ret != 0) {
+				return ret;
+			}
+
+			length--;
+			i++;
+		}
 	}
 
 	return 0;
@@ -527,6 +577,8 @@ int stm32_qspi_init(void)
 
 	mmio_write_32(qspi_base() + QSPI_CR, QSPI_CR_SSHIFT);
 	mmio_write_32(qspi_base() + QSPI_DCR, QSPI_DCR_FSIZE_MASK);
+	mmio_clrsetbits_32(qspi_base() + QSPI_CR, QSPI_CR_FTHRES,
+			   3U << QSPI_CR_FTHRES_SHIFT);
 
 	return spi_mem_init_slave(fdt, qspi_node, &stm32_qspi_bus_ops);
 };
