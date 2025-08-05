@@ -37,8 +37,19 @@
  * Other platform porting definitions are provided by included headers
  */
 
+#if SPMC_AT_EL3
+/* Define memory configuration for device tree files. */
+#define PLAT_ARM_HW_CONFIG_SIZE			SZ_2K
+
+/* Define maximum size of sp manifest file. */
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE		SZ_2K
+#else
 /* Define memory configuration for device tree files. */
 #define PLAT_ARM_HW_CONFIG_SIZE			U(0x8000)
+
+/* Define maximum size of sp manifest file. */
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE		U(0x0)
+#endif
 
 /*
  * Required ARM standard platform porting definitions
@@ -172,6 +183,26 @@
 
 #endif /* SPMC_AT_EL3 */
 
+#if TRANSFER_LIST
+#define PLAT_ARM_FW_HANDOFF_SIZE	SZ_8K
+
+#define FW_NS_HANDOFF_BASE		(PLAT_ARM_NS_IMAGE_BASE - PLAT_ARM_FW_HANDOFF_SIZE)
+#define PLAT_ARM_EL3_FW_HANDOFF_BASE	ARM_BL_RAM_BASE
+#define PLAT_ARM_EL3_FW_HANDOFF_LIMIT	PLAT_ARM_EL3_FW_HANDOFF_BASE + PLAT_ARM_FW_HANDOFF_SIZE
+
+#define JUNO_MAP_FW_NS_HANDOFF			\
+	MAP_REGION_FLAT(FW_NS_HANDOFF_BASE,			\
+			PLAT_ARM_FW_HANDOFF_SIZE,			\
+			MT_MEMORY | MT_RW | MT_NS)
+
+#define JUNO_MAP_EL3_FW_HANDOFF			\
+	MAP_REGION_FLAT(PLAT_ARM_EL3_FW_HANDOFF_BASE,			\
+			PLAT_ARM_FW_HANDOFF_SIZE,			\
+			MT_MEMORY | MT_RW | EL3_PAS)
+#else
+#define PLAT_ARM_FW_HANDOFF_SIZE	U(0)
+#endif
+
 /*
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
@@ -204,7 +235,11 @@
  * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL31 -> BL2_BASE.
  * Hence the BL31 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
+#if TRANSFER_LIST
+#define PLAT_ARM_MAX_BL31_SIZE		(ARM_BL_RAM_SIZE - PLAT_ARM_FW_HANDOFF_SIZE)
+#else
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x3D000)
+#endif
 
 #if JUNO_AARCH32_EL3_RUNTIME
 /*
@@ -308,6 +343,11 @@
  * anything else in this memory region and is handed over to the SCP before
  * BL31 is loaded over the top.
  */
+#if TRANSFER_LIST
+#define ARM_FW_CONFIG_LIMIT		((ARM_BL_RAM_BASE + PAGE_SIZE) \
+					+ (PAGE_SIZE / 2U))
+#endif
+
 #define PLAT_CSS_MAX_SCP_BL2_SIZE \
 	((SCP_BL2_LIMIT - ARM_FW_CONFIG_LIMIT) & ~PAGE_SIZE_MASK)
 
@@ -357,6 +397,12 @@
 #else
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+#endif
+
+#if defined(IMAGE_BL1) && TRANSFER_LIST
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x200)
+#else
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
 #endif
 
 /* Number of SCMI channels on the platform */

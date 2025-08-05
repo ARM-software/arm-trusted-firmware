@@ -60,12 +60,12 @@
 #endif /* ENABLE_RME */
 
 /*
- * Max size of SPMC is 2MB for fvp. With SPMD enabled this value corresponds to
+ * Max size of SPMC is 16MB for fvp. With SPMD enabled this value corresponds to
  * max size of BL32 image.
  */
 #if defined(SPD_spmd)
 #define PLAT_ARM_SPMC_BASE		PLAT_ARM_TRUSTED_DRAM_BASE
-#define PLAT_ARM_SPMC_SIZE		UL(0x200000)  /* 2 MB */
+#define PLAT_ARM_SPMC_SIZE		SZ_16M
 #endif
 
 /* Virtual address used by dynamic mem_protect for chunk_base */

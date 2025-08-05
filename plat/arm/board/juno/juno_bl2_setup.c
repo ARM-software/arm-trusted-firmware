@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017,2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,15 +44,22 @@ struct bl_params *plat_get_next_bl_params(void)
 	struct bl_params *arm_bl_params = arm_get_next_bl_params();
 
 #if __aarch64__
-	const struct dyn_cfg_dtb_info_t *fw_config_info;
-	bl_mem_params_node_t *param_node;
-	uintptr_t fw_config_base = 0U;
-	entry_point_info_t *ep_info;
+	const struct dyn_cfg_dtb_info_t *fw_config_info __maybe_unused;
+	bl_mem_params_node_t *param_node __maybe_unused;
+	uintptr_t fw_config_base __maybe_unused = 0U;
+	entry_point_info_t *ep_info __maybe_unused;
 
 	/* Get BL31 image node */
 	param_node = get_bl_mem_params_node(BL31_IMAGE_ID);
 	assert(param_node != NULL);
 
+#if TRANSFER_LIST
+	arm_bl_params->head = &param_node->params_node_mem;
+	arm_bl_params->head->ep_info = &param_node->ep_info;
+	arm_bl_params->head->image_id = param_node->image_id;
+
+	arm_bl2_setup_next_ep_info(param_node);
+#else
 	/* Get fw_config load address */
 	fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, FW_CONFIG_ID);
 	assert(fw_config_info != NULL);
@@ -66,6 +73,7 @@ struct bl_params *plat_get_next_bl_params(void)
 	 */
 	ep_info = &param_node->ep_info;
 	ep_info->args.arg1 = (uint32_t)fw_config_base;
+#endif /* TRANSFER_LIST */
 #endif /* __aarch64__ */
 
 	return arm_bl_params;
