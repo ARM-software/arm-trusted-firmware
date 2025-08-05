@@ -209,9 +209,33 @@ static int stm32_qspi_poll(const struct spi_mem_op *op)
 
 static int stm32_qspi_mm(const struct spi_mem_op *op)
 {
-	memcpy(op->data.buf,
-	       (void *)(stm32_qspi.mm_base + (size_t)op->addr.val),
-	       op->data.nbytes);
+	uintptr_t from = (uintptr_t)(stm32_qspi.mm_base + op->addr.val);
+	uint8_t *buf = (uint8_t *)op->data.buf;
+	uint64_t length = op->data.nbytes;
+	uint64_t tmp;
+	uint64_t i = 0U;
+
+	while ((length != 0U) && ((from & (sizeof(uint64_t) - UL(1))) != 0U)) {
+		buf[i] = mmio_read_8(from);
+		i++;
+		from++;
+		length--;
+	}
+
+	while (length >= sizeof(uint64_t)) {
+		tmp = mmio_read_64(from);
+		(void)memcpy((void *)&buf[i], (const void *)&tmp, sizeof(uint64_t));
+		i += sizeof(uint64_t);
+		from += sizeof(uint64_t);
+		length -= sizeof(uint64_t);
+	}
+
+	while (length != 0U) {
+		buf[i] = mmio_read_8(from);
+		i++;
+		from++;
+		length--;
+	}
 
 	return 0;
 }
