@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -107,7 +107,7 @@
 /*******************************************************************************
  * WDT related constants
  ******************************************************************************/
-#define WDT_BASE			(0xFFD00200)
+#define WDT_BASE				(0xFFD00200)
 
 /*******************************************************************************
  * GIC related constants
@@ -118,7 +118,17 @@
 #define PLAT_GICR_BASE				0
 
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS		(400000000)
-#define PLAT_HZ_CONVERT_TO_MHZ		(1000000)
+#define PLAT_HZ_CONVERT_TO_MHZ			(1000000)
+
+/*******************************************************************************
+ * SMMU related constants
+ ******************************************************************************/
+#define SMMU_SACR_CACHE_LOCK			BIT(26)
+#define SMMU_IDR7				0x03C
+#define SMMU_SACR				0x010
+#define SMMU_IDR7_MINOR(val)			(((val) >> 0) & 0xF)
+#define SMMU_IDR7_MAJOR(val)			(((val) >> 4) & 0xF)
+#define SMMU_REG_BASE				0xFA000000
 
 /*******************************************************************************
  * SDMMC related pointer function
