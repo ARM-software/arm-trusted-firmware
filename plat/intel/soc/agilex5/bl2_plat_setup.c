@@ -77,6 +77,7 @@ void bl2_el3_early_platform_setup(u_register_t x0 __unused,
 {
 	static console_t console;
 	handoff reverse_handoff_ptr;
+	uint32_t reg_val;
 
 	/* Enable nonsecure access for peripherals and other misc components */
 	enable_nonsecure_access();
@@ -155,6 +156,13 @@ void bl2_el3_early_platform_setup(u_register_t x0 __unused,
 		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
 				       FPGA2SOC_MASK | F2SDRAM0_MASK);
 	}
+
+	/* Configure USB 3.1 in system manager */
+	reg_val = mmio_read_32(SOCFPGA_SYSMGR(USB3_MISC_CTRL_REG0));
+	reg_val |= SYSMGR_USB3_MISC0_RST_PUL_OVRD; /* set reset pulse override bit */
+	reg_val |= SYSMGR_USB3_MISC0_PORT_OVR_CURR_PIPE_PWR; /* set pipe power present bit */
+	mmio_write_32(SOCFPGA_SYSMGR(USB3_MISC_CTRL_REG0), reg_val);
+	VERBOSE("USB3_MISC_CTRL_REG0 = 0x%X\n", mmio_read_32(SOCFPGA_SYSMGR(USB3_MISC_CTRL_REG0)));
 }
 
 void bl2_el3_plat_arch_setup(void)
