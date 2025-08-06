@@ -8,7 +8,7 @@
 #include <mtk_disp_priv.h>
 #include <mtk_sip_svc.h>
 
-/* defination */
+/* definition */
 static int mtk_disp_disable_sec(uint32_t larb_id, uint32_t mmu_en_msk)
 {
 	const struct mtk_disp_config *disp_cfg_t;
