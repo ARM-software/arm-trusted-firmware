@@ -98,6 +98,9 @@
  */
 #define DIV_ROUND_UP_2EVAL(n, d)	(((n) + (d) - 1) / (d))
 
+/* round `n` up to a multiple of `r` */
+#define ROUND_UP_2EVAL(n, r)		((((n) + (r) - 1) / (r)) * (r))
+
 #define div_round_up(val, div) __extension__ ({	\
 	__typeof__(div) _div = (div);		\
 	((val) + _div - (__typeof__(div)) 1) / _div;		\
