@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,7 +68,7 @@ int io96b_mb_req(phys_addr_t io96b_csr_addr, uint32_t ip_type, uint32_t instance
 
 	/* Ensure CMD_REQ is cleared before write any command request */
 	ret = wait_for_bit((const void *)(io96b_csr_addr + IOSSM_CMD_REQ_OFFSET),
-			   GENMASK(31, 0), 0, 10000);
+			   GENMASK(31, 0), 0, IOSSM_TIMEOUT_MS);
 
 	if (ret != 0) {
 		ERROR("%s: CMD_REQ not ready\n", __func__);
@@ -134,7 +134,7 @@ int io96b_mb_req(phys_addr_t io96b_csr_addr, uint32_t ip_type, uint32_t instance
 
 	/* Read CMD_RESPONSE_READY in CMD_RESPONSE_STATUS*/
 	ret = wait_for_bit((const void *)(io96b_csr_addr + IOSSM_CMD_RESPONSE_STATUS_OFFSET),
-			   IOSSM_STATUS_COMMAND_RESPONSE_READY, 1, 10000);
+			   IOSSM_STATUS_COMMAND_RESPONSE_READY, 1, IOSSM_TIMEOUT_MS);
 
 	if (ret != 0) {
 		ERROR("%s: CMD_RESPONSE ERROR:\n", __func__);
@@ -276,11 +276,11 @@ int io96b_cal_status(phys_addr_t addr)
 	int cal_busy_status, cal_success_status;
 	phys_addr_t status_addr = addr + IOSSM_STATUS_OFFSET;
 
-	/* Ensure calibration busy status */
-	cal_busy_status = wait_for_bit((const void *)status_addr, IOSSM_STATUS_CAL_BUSY,
+	/* Ensure calibration fail status */
+	cal_busy_status = wait_for_bit((const void *)status_addr, IOSSM_STATUS_CAL_FAIL,
 					false, 15000);
 	if (cal_busy_status != 0) {
-		ERROR("IOSSM: One or more EMIF instances are busy with calibration\n");
+		ERROR("IOSSM: One or more EMIF instances are failed with calibration\n");
 		return -EBUSY;
 	}
 
@@ -523,6 +523,8 @@ int get_mem_technology(struct io96b_info *io96b_ctrl)
 					ERROR("IOSSM: Mismatch DDR type on IO96B_0\n");
 					return -ENOEXEC;
 				}
+				INFO("IOSSM: DDR type on IO96B_0 interface %d is %s\n",
+					j, io96b_ctrl->ddr_type);
 			}
 			break;
 		case 1:
@@ -544,6 +546,8 @@ int get_mem_technology(struct io96b_info *io96b_ctrl)
 					ERROR("IOSSM: Mismatch DDR type on IO96B_1\n");
 					return -ENOEXEC;
 				}
+				INFO("IOSSM: DDR type on IO96B_1 interface %d is %s\n",
+					j, io96b_ctrl->ddr_type);
 			}
 			break;
 		}
@@ -556,8 +560,8 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 {
 	struct io96b_mb_resp usr_resp;
 	int i, j;
-	uint16_t memory_size = 0U;
-	uint16_t total_memory_size = 0U;
+	phys_size_t memory_size = 0U;
+	phys_size_t total_memory_size = 0U;
 
 	/* Get all memory interface(s) total memory size on all instance(s) */
 	for (i = 0; i < io96b_ctrl->num_instance; i++) {
@@ -571,18 +575,19 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 					     CMD_GET_MEM_INFO, GET_MEM_WIDTH_INFO, 0, 0, 0,
 					     0, 0, 0, 0, 2, &usr_resp);
 
-				memory_size = memory_size +
-						(usr_resp.cmd_resp_data_1 & GENMASK(7, 0));
+				io96b_ctrl->io96b_0.mb_ctrl.memory_size[j] =
+					(usr_resp.cmd_resp_data_1 & GENMASK(7, 0)) * SZ_1G / SZ_8;
+
+				if (io96b_ctrl->io96b_0.mb_ctrl.memory_size[j])
+					memory_size += io96b_ctrl->io96b_0.mb_ctrl.memory_size[j];
 			}
 
 			if (memory_size == 0U) {
 				ERROR("IOSSM: %s: Failed to get valid memory size\n", __func__);
 				return -ENOEXEC;
 			}
-
-			io96b_ctrl->io96b_0.size = memory_size;
-
 			break;
+
 		case 1:
 			memory_size = 0;
 			for (j = 0; j < io96b_ctrl->io96b_1.mb_ctrl.num_mem_interface; j++) {
@@ -592,19 +597,19 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 					     CMD_GET_MEM_INFO, GET_MEM_WIDTH_INFO, 0, 0, 0,
 					     0, 0, 0, 0, 2, &usr_resp);
 
-				memory_size = memory_size +
-						(usr_resp.cmd_resp_data_1 & GENMASK(7, 0));
+				io96b_ctrl->io96b_1.mb_ctrl.memory_size[j] =
+					(usr_resp.cmd_resp_data_1 & GENMASK(7, 0)) * SZ_1G / SZ_8;
+
+				if (io96b_ctrl->io96b_1.mb_ctrl.memory_size[j])
+					memory_size += io96b_ctrl->io96b_1.mb_ctrl.memory_size[j];
 			}
 
 			if (memory_size == 0U) {
 				ERROR("IOSSM: %s: Failed to get valid memory size\n", __func__);
 				return -ENOEXEC;
 			}
-
-			io96b_ctrl->io96b_1.size = memory_size;
-
 			break;
-		}
+		} /* end of switch */
 
 		total_memory_size = total_memory_size + memory_size;
 	}
@@ -619,15 +624,32 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 	return 0;
 }
 
+static inline void print_ecc_enable_status(uint32_t ecc_status)
+{
+	uint8_t ecc_en_type = ecc_status & GENMASK(1, 0);
+	bool ecc_type = ecc_status & BIT(8) ? true : false;
+
+	INFO("DDR: ECC enable type: %s\n",
+		(ecc_en_type == 0) ? "Disabled" :
+		((ecc_en_type == 1) ? "Enabled without error correction or detection" :
+		((ecc_en_type == 2) ? "Enabled with error correction, without detection" :
+		((ecc_en_type == 3) ? "Enabled with error correction and detection" : "Unknown"))));
+
+	if (ecc_en_type)
+		INFO("DDR: ECC type: %s\n", ecc_type ? "In-line" : "Out-of-Band");
+}
+
 int ecc_enable_status(struct io96b_info *io96b_ctrl)
 {
 	struct io96b_mb_resp usr_resp;
 	int i, j;
 	bool ecc_stat_set = false;
+	bool is_inline_ecc = false;
 	bool ecc_stat;
 
 	/* Initialize ECC status */
 	io96b_ctrl->ecc_status = false;
+	io96b_ctrl->is_inline_ecc = false;
 
 	/* Get and ensure all memory interface(s) same ECC status */
 	for (i = 0; i < io96b_ctrl->num_instance; i++) {
@@ -640,11 +662,17 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 					     CMD_TRIG_CONTROLLER_OP, ECC_ENABLE_STATUS, 0, 0,
 					     0, 0, 0, 0, 0, 0, &usr_resp);
 
-				ecc_stat = ((IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status)
-						& GENMASK(1, 0)) == 0 ? false : true);
+				uint32_t resp_data =
+					IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status);
+				print_ecc_enable_status(resp_data);
+				ecc_stat = ((resp_data & GENMASK(1, 0)) == 0) ? false : true;
+				is_inline_ecc = (resp_data & BIT(8)) ? true : false;
 
 				if (!ecc_stat_set) {
 					io96b_ctrl->ecc_status = ecc_stat;
+					/* Make sure the ECC status is enabled */
+					if (io96b_ctrl->ecc_status)
+						io96b_ctrl->is_inline_ecc = is_inline_ecc;
 					ecc_stat_set = true;
 				}
 
@@ -655,6 +683,7 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 				}
 			}
 			break;
+
 		case 1:
 			for (j = 0; j < io96b_ctrl->io96b_1.mb_ctrl.num_mem_interface; j++) {
 				io96b_mb_req(io96b_ctrl->io96b_1.io96b_csr_addr,
@@ -663,11 +692,17 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 					     CMD_TRIG_CONTROLLER_OP, ECC_ENABLE_STATUS, 0, 0,
 					     0, 0, 0, 0, 0, 0, &usr_resp);
 
-				ecc_stat = ((IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status)
-						& GENMASK(1, 0)) == 0 ? false : true);
+				uint32_t resp_data =
+					IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status);
+				print_ecc_enable_status(resp_data);
+				ecc_stat = ((resp_data & GENMASK(1, 0)) == 0) ? false : true;
+				is_inline_ecc = (resp_data & BIT(8)) ? true : false;
 
 				if (!ecc_stat_set) {
 					io96b_ctrl->ecc_status = ecc_stat;
+					/* Make sure the ECC status is enabled */
+					if (io96b_ctrl->ecc_status)
+						io96b_ctrl->is_inline_ecc = is_inline_ecc;
 					ecc_stat_set = true;
 				}
 
@@ -680,10 +715,105 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 			break;
 		}
 	}
+
+	NOTICE("DDR: ECC is %s\n", io96b_ctrl->ecc_status ? "enabled" : "disabled");
 	return 0;
 }
 
-int bist_mem_init_start(struct io96b_info *io96b_ctrl)
+static bool is_double_bit_error(enum ecc_error_type err_type)
+{
+	switch (err_type) {
+	case DOUBLE_BIT_ERROR:
+	case MULTIPLE_DOUBLE_BIT_ERRORS:
+	case WRITE_LINK_DOUBLE_BIT_ERROR:
+	case READ_LINK_DOUBLE_BIT_ERROR:
+	case READ_MODIFY_WRITE_DOUBLE_BIT_ERROR:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool get_ecc_dbe_status(struct io96b_info *io96b_ctrl)
+{
+	struct io96b_mb_resp usr_resp;
+	uint32_t ecc_err_status;
+	uint16_t ecc_err_counter;
+	uint32_t ecc_err_data_start_addr;
+	bool ecc_dbe_err_flag = false;
+	struct io96b_instance io96b_curr_inst = io96b_ctrl->io96b_0;
+
+	/* Get ECC double-bit error status */
+	for (uint32_t i = 0; i < io96b_ctrl->num_instance; i++) {
+		ecc_err_status = mmio_read_32(io96b_curr_inst.io96b_csr_addr +
+					      IOSSM_ECC_ERR_STATUS_OFFSET);
+		ecc_err_counter = FIELD_GET(ECC_ERR_COUNTER_MASK, ecc_err_status);
+		INFO("DDR: ECC error status register on IO96B_%d: 0x%x\n", i, ecc_err_status);
+
+		ecc_err_data_start_addr = io96b_curr_inst.io96b_csr_addr +
+					  IOSSM_ECC_ERR_DATA_START_OFFSET;
+
+		if (ecc_err_counter != 0) {
+			uint32_t address = ecc_err_data_start_addr;
+			uint32_t ecc_err_data;
+
+			/* Print all the details of the ECC error. */
+			for (uint32_t j = 0; j < ecc_err_counter && j < MAX_ECC_ERR_COUNT; j++) {
+				ecc_err_data = mmio_read_32(address);
+
+				INFO("DDR: ECC error details, buffer entry[%d]:\n", j);
+				INFO("-err info addr :0x%x\n", address);
+				INFO("-err ip type: %ld\n",
+					FIELD_GET(ECC_ERR_IP_TYPE_MASK, ecc_err_data));
+				INFO("-err instance id: %ld\n",
+					FIELD_GET(ECC_ERR_INSTANCE_ID_MASK, ecc_err_data));
+				INFO("-err source id: %ld\n",
+					FIELD_GET(ECC_ERR_SOURCE_ID_MASK, ecc_err_data));
+				INFO("-err type: %ld\n",
+					FIELD_GET(ECC_ERR_TYPE_MASK, ecc_err_data));
+				INFO("-err addr upper: 0x%lx\n",
+					FIELD_GET(ECC_ERR_ADDR_UPPER_MASK, ecc_err_data));
+				INFO("-err addr lower: 0x%x\n",
+					mmio_read_32(address + sizeof(uint32_t)));
+
+				if (is_double_bit_error(
+					FIELD_GET(ECC_ERR_TYPE_MASK, ecc_err_data))) {
+					if (!ecc_dbe_err_flag)
+						ecc_dbe_err_flag = true;
+				}
+
+				address += sizeof(uint32_t) * 2;
+			} /* end of for loop */
+
+			NOTICE("DDR: ECC error count value %d\n", ecc_err_counter);
+			NOTICE("DDR: ECC error overflow field 0x%lx\n",
+					FIELD_GET(ECC_ERR_OVERFLOW_MASK, ecc_err_status));
+
+			/* Clear the ECC error buffer */
+			io96b_mb_req(io96b_curr_inst.io96b_csr_addr,
+				     io96b_curr_inst.mb_ctrl.ip_type[0],
+				     io96b_curr_inst.mb_ctrl.ip_instance_id[0],
+				     CMD_TRIG_CONTROLLER_OP, IOSSM_ECC_CLEAR_ERR_BUFFER, 0, 0,
+				     0, 0, 0, 0, 0, 0, &usr_resp);
+
+			/* Read back to make sure proper reset is done. */
+			INFO("DDR: %s: Read back to make sure proper reset is done\n", __func__);
+			uint32_t curr_ecc_err_status = mmio_read_32(io96b_curr_inst.io96b_csr_addr +
+								IOSSM_ECC_ERR_STATUS_OFFSET);
+
+			INFO("DDR: %s: Post reset, ECC error count on IO96B_%d: %ld\n",
+				__func__, i, FIELD_GET(ECC_ERR_COUNTER_MASK, curr_ecc_err_status));
+		} /* end of if (ecc_err_counter != 0) */
+
+		/* Update for next IO96B instance here. */
+		io96b_curr_inst = io96b_ctrl->io96b_1;
+	}
+
+	return ecc_dbe_err_flag;
+}
+
+static int out_of_band_ecc_bist_mem_init(struct io96b_info *io96b_ctrl)
 {
 	struct io96b_mb_resp usr_resp;
 	int i, j;
@@ -808,4 +938,182 @@ int bist_mem_init_start(struct io96b_info *io96b_ctrl)
 		}
 	}
 	return 0;
+}
+
+static int inline_ecc_bist_mem_init(struct io96b_info *io96b_ctrl)
+{
+	int i, j;
+	struct io96b_mb_resp usr_resp;
+	bool bist_start, bist_success;
+	phys_size_t mem_size = 0U;
+	phys_size_t chunk_size = 0U;
+	uint32_t mem_exp = 0U;
+	uint32_t cmd_param_0, cmd_param_1, cmd_param_2;
+	uint32_t read_count = 0;
+	uint32_t read_interval_ms = 0;
+
+	/* Memory initialization BIST (Built-In Self-Test) performed on all memory interfaces */
+	for (i = 0; i < io96b_ctrl->num_instance; i++) {
+		mem_exp = 0;
+		switch (i) {
+		case 0:
+			for (j = 0; j < io96b_ctrl->io96b_0.mb_ctrl.num_mem_interface; j++) {
+				mem_size = io96b_ctrl->io96b_0.mb_ctrl.memory_size[j];
+				chunk_size = mem_size;
+				read_interval_ms = 500U;
+				bist_start = false;
+				bist_success = false;
+
+				/* Check if size is a power of 2 */
+				if (mem_size == 0 || (mem_size & (mem_size - 1)) != 0) {
+					ERROR("IOSSM: %s: Wrong memory size-not power of 2!!\n"
+						, __func__);
+					return -ENOEXEC;
+				}
+
+				while (chunk_size >>= 1)
+					mem_exp++;
+
+				cmd_param_0 = FIELD_PREP(BIST_START_ADDR_SPACE_MASK, mem_exp);
+				cmd_param_1 = FIELD_GET(BIST_START_ADDR_LOW_MASK, 0);
+				cmd_param_2 = FIELD_GET(BIST_START_ADDR_HIGH_MASK, 0);
+
+				/* Start memory initialization BIST on required memory address */
+				io96b_mb_req(io96b_ctrl->io96b_0.io96b_csr_addr,
+					     io96b_ctrl->io96b_0.mb_ctrl.ip_type[j],
+					     io96b_ctrl->io96b_0.mb_ctrl.ip_instance_id[j],
+					     CMD_TRIG_CONTROLLER_OP, BIST_MEM_INIT_START,
+					     cmd_param_0, cmd_param_1, cmd_param_2,
+					     0, 0, 0, 0, 0, &usr_resp);
+
+				bist_start =
+				(IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status) & 1);
+
+				if (!bist_start) {
+					ERROR("IOSSM: %s: Failed to initialized memory on IO96B_0\n"
+					, __func__);
+					ERROR("IOSSM: %s: BIST_MEM_INIT_START Error code 0x%x\n",
+					__func__,
+					(IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status)
+					& GENMASK(2, 1)) > 0x1);
+					return -ENOEXEC;
+				}
+
+				/* Polling for the initiated memory initialization BIST status */
+				read_count = read_interval_ms / TIMEOUT;
+				while (!bist_success) {
+					io96b_mb_req(io96b_ctrl->io96b_0.io96b_csr_addr,
+						     io96b_ctrl->io96b_0.mb_ctrl.ip_type[j],
+						     io96b_ctrl->io96b_0.mb_ctrl.ip_instance_id[j],
+						     CMD_TRIG_CONTROLLER_OP, BIST_MEM_INIT_STATUS,
+						     0, 0, 0, 0, 0, 0, 0, 0, &usr_resp);
+
+					bist_success = (IOSSM_CMD_RESPONSE_DATA_SHORT
+							(usr_resp.cmd_resp_status) & 1);
+
+					if ((!bist_success) && (read_count == 0U)) {
+						ERROR("IOSSM: %s: Timeout init memory on IO96B_0\n"
+							, __func__);
+						ERROR("IOSSM: %s: BIST_MEM_INIT_STATUS Err code%x\n"
+							, __func__, (IOSSM_CMD_RESPONSE_DATA_SHORT
+							(usr_resp.cmd_resp_status)
+							& GENMASK(2, 1)) > 0x1);
+						return -ETIMEDOUT;
+					}
+					read_count--;
+					mdelay(read_interval_ms);
+				}
+			} /* end of for loop */
+
+			NOTICE("IOSSM: %s: Memory initialized successfully on IO96B_0\n", __func__);
+			break;
+
+		case 1:
+			for (j = 0; j < io96b_ctrl->io96b_1.mb_ctrl.num_mem_interface; j++) {
+				mem_size = io96b_ctrl->io96b_1.mb_ctrl.memory_size[j];
+				chunk_size = mem_size;
+				read_interval_ms = 500U;
+				bist_start = false;
+				bist_success = false;
+
+				/* Check if size is a power of 2 */
+				if (mem_size == 0 || (mem_size & (mem_size - 1)) != 0) {
+					ERROR("IOSSM: %s: Wrong memory size-not power of 2!!\n"
+						, __func__);
+					return -ENOEXEC;
+				}
+
+				while (chunk_size >>= 1)
+					mem_exp++;
+
+				cmd_param_0 = FIELD_PREP(BIST_START_ADDR_SPACE_MASK, mem_exp);
+				cmd_param_1 = FIELD_GET(BIST_START_ADDR_LOW_MASK, 0);
+				cmd_param_2 = FIELD_GET(BIST_START_ADDR_HIGH_MASK, 0);
+
+				/* Start memory initialization BIST on required memory address */
+				io96b_mb_req(io96b_ctrl->io96b_1.io96b_csr_addr,
+					io96b_ctrl->io96b_1.mb_ctrl.ip_type[j],
+					io96b_ctrl->io96b_1.mb_ctrl.ip_instance_id[j],
+					CMD_TRIG_CONTROLLER_OP, BIST_MEM_INIT_START,
+					cmd_param_0, cmd_param_1, cmd_param_2,
+					0, 0, 0, 0, 0, &usr_resp);
+
+				bist_start =
+				(IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status) & 1);
+
+				if (!bist_start) {
+					ERROR("IOSSM: %s: Failed to initialized memory on IO96B_1\n"
+					, __func__);
+					ERROR("IOSSM: %s: BIST_MEM_INIT_START Error code 0x%x\n",
+					__func__,
+					(IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status)
+					& GENMASK(2, 1)) > 0x1);
+					return -ENOEXEC;
+				}
+
+				/* Polling for the initiated memory initialization BIST status */
+				read_count = read_interval_ms / TIMEOUT;
+				while (!bist_success) {
+					io96b_mb_req(io96b_ctrl->io96b_1.io96b_csr_addr,
+						io96b_ctrl->io96b_1.mb_ctrl.ip_type[j],
+						io96b_ctrl->io96b_1.mb_ctrl.ip_instance_id[j],
+						CMD_TRIG_CONTROLLER_OP, BIST_MEM_INIT_STATUS,
+						0, 0, 0, 0, 0, 0, 0, 0, &usr_resp);
+
+					bist_success = (IOSSM_CMD_RESPONSE_DATA_SHORT
+							(usr_resp.cmd_resp_status) & 1);
+
+					if ((!bist_success) && (read_count == 0U)) {
+						ERROR("IOSSM: %s: Timeout init memory on IO96B_1\n"
+							, __func__);
+						ERROR("IOSSM: %s: BIST_MEM_INIT_STATUS Err code%x\n"
+							, __func__, (IOSSM_CMD_RESPONSE_DATA_SHORT
+							(usr_resp.cmd_resp_status)
+							& GENMASK(2, 1)) > 0x1);
+						return -ETIMEDOUT;
+					}
+					read_count--;
+					mdelay(read_interval_ms);
+				}
+			} /* end of for loop */
+
+			NOTICE("IOSSM: %s: Memory initialized successfully on IO96B_1\n", __func__);
+			break;
+		} /* end of switch */
+	} /* end of for loop */
+
+	return 0;
+}
+
+/*
+ * Memory initialization BIST (Built-In Self-Test) start function.
+ * This function will call either inline ECC or out-of-band BIST memory init
+ * based on the ECC type status.
+ */
+int bist_mem_init_start(struct io96b_info *io96b_ctrl)
+{
+	if (io96b_ctrl->is_inline_ecc)
+		return inline_ecc_bist_mem_init(io96b_ctrl);
+	else
+		return out_of_band_ecc_bist_mem_init(io96b_ctrl);
 }
