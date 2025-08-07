@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +10,7 @@
 #include <common/runtime_svc.h>
 #include <lib/mmio.h>
 
+#include "lib/utils/alignment_utils.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 

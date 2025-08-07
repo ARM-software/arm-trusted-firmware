@@ -30,6 +30,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			plat/intel/soc/common/drivers/ccu/ncore_ccu.c	\
 			plat/intel/soc/common/drivers/sdmmc/sdmmc.c			\
 			plat/intel/soc/common/lib/sha/sha.c				\
+			plat/intel/soc/common/lib/utils/alignment_utils.c \
 			plat/intel/soc/common/socfpga_delay_timer.c
 
 BL2_SOURCES     +=	\
