@@ -15,13 +15,16 @@ SUB_RULES-y += ${LOCAL_DIR}/$(CONFIG_MTK_SPM_VERSION)
 $(eval $(call add_define,SPM_PLAT_IMPL))
 endif
 
-ifeq ($(CONFIG_MTK_SPM_VERSION), mt8196)
+ifneq ($(filter mt8196 mt8189, $(CONFIG_MTK_SPM_VERSION)),)
 ifeq ($(CONFIG_MTK_SPM_SUPPORT), y)
 ifeq ($(CONFIG_MTK_SPM_COMMON_SUPPORT), y)
 include ${LOCAL_DIR}/$(CONFIG_MTK_SPM_VERSION)/plat_conf.mk
 PLAT_INCLUDES += -I${LOCAL_DIR}
 PLAT_INCLUDES += -I${LOCAL_DIR}/version
 PLAT_INCLUDES += -I${LOCAL_DIR}/common
+
+LOCAL_SRCS-y += ${LOCAL_DIR}/mt_spm_rc_api_common.c
+LOCAL_SRCS-y += ${LOCAL_DIR}/mt_spm_dispatcher.c
 endif
 endif
 

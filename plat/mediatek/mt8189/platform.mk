@@ -24,6 +24,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -Idrivers/arm/gic \
 
 MODULES-y += $(MTK_PLAT)/common
+MODULES-y += $(MTK_PLAT)/common/lpm_v2
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
@@ -36,6 +37,7 @@ MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/iommu
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
+MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
 MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi

@@ -88,27 +88,3 @@ void plat_spm_pmic_wrap_init(void)
 	mt_spm_pmic_wrap_set_table(&pmic_wrap_table);
 	mt_spm_pmic_wrap_set_phase(PMIC_WRAP_PHASE_ALLINONE);
 }
-#define PMIC_WRAP_REG_1		0x3E8
-#define PMIC_WRAP_REG_STEP	0x4
-#define PMIC_WRAP_REG_2		0xC28
-#define PMIC_WRAP_REG_3		0xF54
-
-#ifndef MTK_PLAT_SPM_PMIC_WRAP_DUMP_UNSUPPORT
-void mt_spm_dump_pmic_warp_reg(void)
-{
-	uint32_t temp;
-	uint32_t i;
-
-	for (i = 0; i <= PMIC_WRAP_REG_1; i += PMIC_WRAP_REG_STEP) {
-		temp = mmio_read_32(PMIC_WRAP_BASE + i);
-	}
-
-	for (i = 0xC00; i <= PMIC_WRAP_REG_2; i += PMIC_WRAP_REG_STEP) {
-		temp = mmio_read_32(PMIC_WRAP_BASE + i);
-	}
-
-	for (i = 0xF00; i <= PMIC_WRAP_REG_3; i += PMIC_WRAP_REG_STEP) {
-		temp = mmio_read_32(PMIC_WRAP_BASE + i);
-	}
-}
-#endif

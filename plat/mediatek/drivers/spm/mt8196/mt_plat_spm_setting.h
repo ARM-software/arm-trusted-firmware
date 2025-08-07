@@ -55,7 +55,6 @@ enum {
 };
 
 /* APIs */
-void mt_spm_dump_pmic_warp_reg(void);
 void plat_spm_pmic_wrap_init(void);
 
 #endif /* MT_PLAT_SPM_SETTING_H */
