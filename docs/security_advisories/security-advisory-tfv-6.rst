@@ -5,10 +5,11 @@ Advisory TFV-6 (CVE-2017-5753, CVE-2017-5715, CVE-2017-5754)
 | Title          | Trusted Firmware-A exposure to speculative processor        |
 |                | vulnerabilities using cache timing side-channels            |
 +================+=============================================================+
-| CVE ID         | `CVE-2017-5753`_ / `CVE-2017-5715`_ / `CVE-2017-5754`_      |
+| CVE ID         | `CVE-2017-5753`_ / `CVE-2017-5715`_ / `CVE-2017-5754`_  /   |
+|                | `CVE-2018-3640`_ /  `CVE-2018-3639`_ / `CVE-2022-23960`_    |
 +----------------+-------------------------------------------------------------+
-| Date           | 03 Jan 2018 (Updated 11 Jan, 18 Jan, 26 Jan, 30 Jan and 07  |
-|                | June 2018)                                                  |
+| Date           | 03 Jan 2018 (Updated 11 Jan, 18 Jan, 26 Jan, 30 Jan,        |
+|                | 07 June 2018 and 07 Aug 2025)                               |
 +----------------+-------------------------------------------------------------+
 | Versions       | All, up to and including v1.4                               |
 | Affected       |                                                             |
@@ -119,8 +120,7 @@ workaround should be provided by vendors of that software and is outside the
 scope of TF. However, an example implementation in the minimal AArch32 Secure
 Payload, ``SP_MIN`` is provided in `Pull Request #1228`_.
 
-Other Arm CPUs are not vulnerable to this or other variants. This includes
-Cortex-A76, Cortex-A53, Cortex-A55, Cortex-A32, Cortex-A7 and Cortex-A5.
+Refer to `Arm CPU Security Bulletin-Spectre/Meltdown`_ for list of impacted CPUs.
 
 For more information about non-Arm CPUs, please contact the CPU vendor.
 
@@ -134,15 +134,31 @@ applicable for TF. However, Secure Payloads (for example, Trusted OS) should
 provide mitigations on vulnerable CPUs to protect themselves from exploited
 Secure-EL0 applications.
 
-The only Arm CPU vulnerable to this variant is Cortex-A75.
+Refer to `Arm CPU Security Bulletin-Spectre/Meltdown`_ for list of impacted CPUs.
+
+Variant 3a (`CVE-2018-3640`_)
+-----------------------------
+In general, it is not believed that software mitigations for this issue are necessary.
+
+Variant 4 (`CVE-2018-3639`_)
+----------------------------
+Refer to :ref:`security-advisory-tfv-7` for further details on this variant.
+
+Spectre-BHB (`CVE-2022-23960`_)
+-------------------------------
+Refer to :ref:`security-advisory-tfv-9` for further details on this variant.
 
 .. _Google Project Zero: https://googleprojectzero.blogspot.co.uk/2018/01/reading-privileged-memory-with-side.html
 .. _Arm Processor Security Update: http://www.arm.com/security-update
 .. _CVE-2017-5753: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5753
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2017-5754: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5754
+.. _CVE-2018-3640: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3640
+.. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
+.. _CVE-2022-23960: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23960
 .. _Pull Request #1214: https://github.com/ARM-software/arm-trusted-firmware/pull/1214
 .. _Pull Request #1228: https://github.com/ARM-software/arm-trusted-firmware/pull/1228
 .. _Pull Request #1240: https://github.com/ARM-software/arm-trusted-firmware/pull/1240
 .. _Pull Request #1405: https://github.com/ARM-software/arm-trusted-firmware/pull/1405
 .. _CVE-2017-5715 mitigation specification: https://developer.arm.com/cache-speculation-vulnerability-firmware-specification
+.. _Arm CPU Security Bulletin-Spectre/Meltdown: https://developer.arm.com/documentation/110280/latest/
