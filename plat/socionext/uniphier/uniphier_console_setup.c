@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Socionext Inc. All rights reserved.
+ * Copyright (c) 2019-2025, Socionext Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,9 +18,9 @@
 #define UNIPHIER_UART_NR_PORTS	4
 
 /* These callbacks are implemented in assembly to use crash_console_helpers.S */
-int uniphier_console_putc(int character, struct console *console);
-int uniphier_console_getc(struct console *console);
-void uniphier_console_flush(struct console *console);
+int uniphier_console_putc(int character, console_t *console);
+int uniphier_console_getc(console_t *console);
+void uniphier_console_flush(console_t *console);
 
 static console_t uniphier_console = {
 	.flags = CONSOLE_FLAG_BOOT |

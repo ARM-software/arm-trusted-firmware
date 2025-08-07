@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2022, Xilinx Inc.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  * Written by Michal Simek.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -92,7 +92,7 @@ static int32_t dcc_status_timeout(uint32_t mask)
 	return 0;
 }
 
-static int32_t dcc_console_putc(int32_t ch, struct console *console)
+static int32_t dcc_console_putc(int32_t ch, console_t *console)
 {
 	unsigned int status;
 
@@ -106,7 +106,7 @@ static int32_t dcc_console_putc(int32_t ch, struct console *console)
 }
 
 #if ENABLE_CONSOLE_GETC
-static int32_t dcc_console_getc(struct console *console)
+static int32_t dcc_console_getc(console_t *console)
 {
 	unsigned int status;
 
@@ -125,7 +125,7 @@ static int32_t dcc_console_getc(struct console *console)
  * @console		Console struct
  *
  */
-static void dcc_console_flush(struct console *console)
+static void dcc_console_flush(console_t *console)
 {
 	unsigned int status;
 

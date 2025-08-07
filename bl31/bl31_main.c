@@ -254,7 +254,7 @@ void bl31_set_next_image_type(uint32_t security_state)
 	next_image_type = security_state;
 }
 
-uint32_t bl31_get_next_image_type(void)
+static uint32_t bl31_get_next_image_type(void)
 {
 	return next_image_type;
 }

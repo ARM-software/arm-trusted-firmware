@@ -162,6 +162,7 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 					     const plat_local_state_t *states,
 					     unsigned int ncpu)
 {
+	(void)lvl;
 	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
 	const plat_local_state_t *st = states;
 	unsigned int n = ncpu;

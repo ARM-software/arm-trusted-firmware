@@ -28,7 +28,7 @@ int psci_cpu_on(u_register_t target_cpu,
 
 {
 	int rc;
-	entry_point_info_t *ep;
+	entry_point_info_t *ep = NULL;
 	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
 
 	/* Validate the target CPU */
@@ -445,6 +445,9 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 			  void *handle,
 			  u_register_t flags)
 {
+	(void)x4;
+	(void)cookie;
+	(void)handle;
 	u_register_t ret;
 
 	if (is_caller_secure(flags)) {
