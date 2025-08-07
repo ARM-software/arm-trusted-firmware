@@ -290,7 +290,7 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 						  void *handle,
 						  void *cookie)
 {
-	uint32_t intid;
+	uint32_t intid, intr_raw;
 
 	/* Sanity check the security state when the exception was generated. */
 	assert(get_interrupt_src_ss(flags) == NON_SECURE);
@@ -302,7 +302,12 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 
 	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
 
-	intid = plat_ic_acknowledge_interrupt();
+	intr_raw = plat_ic_acknowledge_interrupt();
+	intid = plat_ic_get_interrupt_id(intr_raw);
+
+	if (intid == INTR_ID_UNAVAILABLE) {
+		return 0U;
+	}
 
 	if (plat_spmd_handle_group0_interrupt(intid) < 0) {
 		ERROR("Group0 interrupt %u not handled\n", intid);
@@ -325,14 +330,19 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
  ******************************************************************************/
 static uint64_t spmd_handle_group0_intr_swd(void *handle)
 {
-	uint32_t intid;
+	uint32_t intid, intr_raw;
 
 	/* Sanity check the pointer to this cpu's context */
 	assert(handle == cm_get_context(SECURE));
 
 	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
 
-	intid = plat_ic_acknowledge_interrupt();
+	intr_raw = plat_ic_acknowledge_interrupt();
+	intid = plat_ic_get_interrupt_id(intr_raw);
+
+	if (intid == INTR_ID_UNAVAILABLE) {
+		return 0U;
+	}
 
 	/*
 	 * TODO: Currently due to a limitation in SPMD implementation, the
