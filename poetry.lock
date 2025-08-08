@@ -440,14 +440,14 @@ files = [
 
 [[package]]
 name = "pip-tools"
-version = "6.13.0"
+version = "6.14.0"
 description = "pip-tools keeps your pinned dependencies fresh."
 optional = false
 python-versions = ">=3.7"
 groups = ["doc"]
 files = [
-    {file = "pip-tools-6.13.0.tar.gz", hash = "sha256:61d46bd2eb8016ed4a924e196e6e5b0a268cd3babd79e593048720db23522bb1"},
-    {file = "pip_tools-6.13.0-py3-none-any.whl", hash = "sha256:50943f151d87e752abddec8158622c34ad7f292e193836e90e30d87da60b19d9"},
+    {file = "pip-tools-6.14.0.tar.gz", hash = "sha256:06366be0e08d86b416407333e998b4d305d5bd925151b08942ed149380ba3e47"},
+    {file = "pip_tools-6.14.0-py3-none-any.whl", hash = "sha256:c5ad042cd27c0b343b10db1db7f77a7d087beafbec59ae6df1bba4d3368dfe8c"},
 ]
 
 [package.dependencies]
@@ -455,11 +455,12 @@ build = "*"
 click = ">=8"
 pip = ">=22.2"
 setuptools = "*"
+tomli = {version = "*", markers = "python_version < \"3.11\""}
 wheel = "*"
 
 [package.extras]
-coverage = ["pytest-cov"]
-testing = ["flit-core (>=2,<4)", "poetry-core (>=1.0.0)", "pytest (>=7.2.0)", "pytest-rerunfailures", "pytest-xdist"]
+coverage = ["covdefaults", "pytest-cov"]
+testing = ["flit-core (>=2,<4)", "poetry-core (>=1.0.0)", "pytest (>=7.2.0)", "pytest-rerunfailures", "pytest-xdist", "tomli-w"]
 
 [[package]]
 name = "prettytable"
