@@ -194,17 +194,21 @@ uint8_t fcs_cs_hash_sig_verify_req_cb(void *resp_desc, void *cmd_desc, uint64_t 
 uint8_t fcs_cs_aes_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
+	uint32_t nbytes_ret = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
 	(void)cmd;
 
+	/* Data size written to the destination is always at last index of the response data. */
+	nbytes_ret = resp->resp_data[resp->rcvd_resp_len - 1];
+
 	INFO("MBOX: %s: mbox_err 0x%x, nbytes_ret %d\n", __func__,
-		resp->err_code, resp->resp_data[3]);
+		resp->err_code, nbytes_ret);
 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
-	ret_args[ret_args_len++] = resp->resp_data[3];
+	ret_args[ret_args_len++] = nbytes_ret;
 
 	return ret_args_len;
 }
