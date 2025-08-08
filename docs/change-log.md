@@ -3,6 +3,36 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.20](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.19..refs/tags/lts-v2.10.20) (2025-08-08)
+
+### Documentation
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - security advisory for CVE-2024-5660 ([0f23418](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0f23418f7863d5287ac2b3fa3f76e2ea47e96ffc))
+    - security advisory for CVE-2024-7881 ([2749de0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2749de00862c02c7cf2363a54dac723c5f06cc2a))
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - bump commitizen ([a843ce3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a843ce313949c25fe7235963e8cdf0085176e4a9))
+  - bump sphinxcontrib-svg2pdfconverter from 1.2.2 to 1.3.0 ([588d93f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/588d93fe48429cb5daa4fbf48dd1eda1f1610403))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - check minor revision before applying runtime errata ([dd846c6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dd846c6b477e0aacf3ce9d75bbc78e3315a00483))
+    - put back the global declaration for erratum [#3701747](https://review.trustedfirmware.org/TF-A/trusted-firmware-a/issues/3701747) ([d7d6986](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7d698694e12961d8ee1eebfe2086b9c80f376ed))
+    - workaround for Cortex-X3 erratum 3213672 ([bf658f6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bf658f6e6b0136c3478097e663e67d132d6492df))
+    - workaround for Cortex-X3 erratum 3692984 ([dc0b5b9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dc0b5b9228878281d7f252d3404e1939cf46e8af))
+    - workaround for Cortex-X3 erratum 3827463 ([fe66ffc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fe66ffc8016e1378ea8616b2623ae6fa05edf8f4))
+
 ## [lts-2.10.19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.18..refs/tags/lts-v2.10.19) (2025-07-25)
 
 ### Resolved Issues
