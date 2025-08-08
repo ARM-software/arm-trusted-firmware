@@ -11,6 +11,17 @@ updates:
         patterns: ["*"]
         update-types: ["minor", "patch"]
 
+  - target-branch: "lts-v2.12"
+    package-ecosystem: "npm"
+    versioning-strategy: "lockfile-only"
+    directories: ["/", "/tools/conventional-changelog-tf-a"]
+    schedule:
+      interval: "daily"
+    groups:
+      dev-deps:
+        patterns: ["*"]
+        update-types: ["patch"]
+
   - target-branch: "lts-v2.10"
     package-ecosystem: "npm"
     versioning-strategy: "lockfile-only"
@@ -43,6 +54,17 @@ updates:
       dev-deps:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+
+  - target-branch: "lts-v2.12"
+    package-ecosystem: "pip"
+    versioning-strategy: "lockfile-only"
+    directories: ["/", "/tools/cot_dt2c", "/tools/memory", "/tools/tlc"]
+    schedule:
+      interval: "daily"
+    groups:
+      dev-deps:
+        patterns: ["*"]
+        update-types: ["patch"]
 
   - target-branch: "lts-v2.10"
     package-ecosystem: "pip"
