@@ -37,6 +37,7 @@ MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/iommu
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
+MODULES-y += $(MTK_PLAT)/drivers/ptp3
 MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic

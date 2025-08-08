@@ -7,6 +7,6 @@
 #ifndef PTP3_PLAT_H
 #define PTP3_PLAT_H
 
-#include <ptp3_plat_v2.h>
+#include <ptp3_plat_v1.h>
 
 #endif /* PTP3_PLAT_H */
