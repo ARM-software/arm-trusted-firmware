@@ -515,7 +515,7 @@ func cortex_a76_core_pwr_dwn
 	 */
 	sysreg_bit_set CORTEX_A76_CPUPWRCTLR_EL1, CORTEX_A76_CORE_PWRDN_EN_MASK
 
-	apply_erratum cortex_a76, ERRATUM(2743102), ERRATA_A76_2743102, NO_GET_CPU_REV
+	apply_erratum cortex_a76, ERRATUM(2743102), ERRATA_A76_2743102
 
 	isb
 	ret

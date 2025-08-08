@@ -275,7 +275,7 @@ check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
 	 * ----------------------------------------------------
 	 */
 func cortex_a710_core_pwr_dwn
-	apply_erratum cortex_a710, ERRATUM(2008768), ERRATA_A710_2008768, NO_GET_CPU_REV
+	apply_erratum cortex_a710, ERRATUM(2008768), ERRATA_A710_2008768
 	apply_erratum cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219, NO_GET_CPU_REV
 
 	/* ---------------------------------------------------

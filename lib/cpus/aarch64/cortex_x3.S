@@ -94,9 +94,27 @@ workaround_reset_end cortex_x3, ERRATUM(2779509)
 
 check_erratum_ls cortex_x3, ERRATUM(2779509), CPU_REV(1, 1)
 
+workaround_reset_start cortex_x3, ERRATUM(3213672), ERRATA_X3_3213672
+	sysreg_bit_set	CORTEX_X3_CPUACTLR_EL1, BIT(36)
+workaround_reset_end cortex_x3, ERRATUM(3213672)
+
+check_erratum_ls cortex_x3, ERRATUM(3213672), CPU_REV(1, 2)
+
+workaround_reset_start cortex_x3, ERRATUM(3692984), ERRATA_X3_3692984
+	sysreg_bit_set	CORTEX_X3_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x3, ERRATUM(3692984)
+
+check_erratum_ls cortex_x3, ERRATUM(3692984), CPU_REV(1, 2)
+
 add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769
 
 check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
+
+workaround_reset_start cortex_x3, ERRATUM(3827463), ERRATA_X3_3827463
+	sysreg_bit_set	CORTEX_X3_CPUACTLR_EL1, BIT(1)
+workaround_reset_end cortex_x3, ERRATUM(3827463)
+
+check_erratum_ls cortex_x3, ERRATUM(3827463), CPU_REV(1, 1)
 
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
@@ -134,7 +152,7 @@ cpu_reset_func_end cortex_x3
 	 * ----------------------------------------------------
 	 */
 func cortex_x3_core_pwr_dwn
-	apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909, NO_GET_CPU_REV
+	apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
