@@ -376,7 +376,7 @@ __dead2 void plat_arm_system_reset(void);
 /*
  * Optional functions in ARM standard platforms
  */
-void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames);
+void gic_set_gicr_frames(const uintptr_t *plat_gicr_frames);
 int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 	unsigned int *flags);
 int arm_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,

@@ -12,8 +12,7 @@
 
 #include <assert.h>
 
-#include <drivers/arm/gic_common.h>
-#include <drivers/arm/gicv3.h>
+#include <drivers/arm/gic.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
@@ -384,7 +383,7 @@ void pm_client_abort_suspend(void)
 	uintptr_t val;
 
 	/* Enable interrupts at processor level (for current cpu) */
-	gicv3_cpuif_enable(plat_my_core_pos());
+	gic_cpuif_enable(plat_my_core_pos());
 
 	pm_client_lock_get();
 

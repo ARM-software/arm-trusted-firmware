@@ -30,6 +30,11 @@
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
+static const uintptr_t gicr_base_addrs[2] = {
+	PLAT_ARM_GICR_BASE,	/* GICR Base address of the primary CPU */
+	0U			/* Zero Termination */
+};
+
 /*
  * Return a pointer to the 'entry_point_info' structure of the next image for
  * the security state specified. BL33 corresponds to the non-secure image type
@@ -243,9 +248,7 @@ void bl31_platform_setup(void)
 {
 	prepare_dtb();
 
-	/* Initialize the gic cpu and distributor interfaces */
-	plat_arm_gic_driver_init();
-	plat_arm_gic_init();
+	gic_set_gicr_frames(gicr_base_addrs);
 }
 
 void bl31_plat_runtime_setup(void)

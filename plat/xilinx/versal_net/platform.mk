@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
 # Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
 #
@@ -18,6 +18,7 @@ SEPARATE_CODE_AND_RODATA := 1
 override RESET_TO_BL31 := 1
 PL011_GENERIC_UART := 1
 IPI_CRC_CHECK := 0
+USE_GIC_DRIVER :=	3
 GIC_ENABLE_V4_EXTN :=  0
 GICV3_SUPPORT_GIC600 := 1
 TFA_NO_PM := 0
@@ -98,8 +99,6 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-I${PLAT_PATH}/include/				\
 				-Iplat/xilinx/versal/pm_service/
 
-# Include GICv3 driver files
-include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 include lib/libfdt/libfdt.mk
 
@@ -107,11 +106,9 @@ PLAT_BL_COMMON_SOURCES	:=	\
 				drivers/arm/dcc/dcc_console.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
-				${GICV3_SOURCES}				\
 				drivers/arm/pl011/aarch64/pl011_console.S	\
 				plat/common/aarch64/crash_console_helpers.S	\
 				plat/arm/common/arm_common.c			\
-				plat/common/plat_gicv3.c			\
 				${PLAT_PATH}/aarch64/versal_net_helpers.S	\
 				${PLAT_PATH}/aarch64/versal_net_common.c	\
 				${PLAT_PATH}/plat_topology.c                    \
@@ -141,7 +138,6 @@ BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				${PLAT_PATH}/bl31_versal_net_setup.c		\
 				common/fdt_fixup.c				\
 				common/fdt_wrappers.c				\
-				plat/common/plat_gicv3_base.c			\
 				${LIBFDT_SRCS}					\
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${XLAT_TABLES_LIB_SRCS}
