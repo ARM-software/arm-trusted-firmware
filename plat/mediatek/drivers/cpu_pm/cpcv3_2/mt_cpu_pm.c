@@ -411,9 +411,15 @@ static int cpupm_pwr_state_valid(unsigned int afflv, unsigned int state)
 		plat_cpu_pm_unlock();
 	}
 
+#ifdef CPU_PM_SPM_CORE_POWERON
+	if ((cpu_pm_status & CPU_PM_PLAT_READY) == 0) {
+		return MTK_CPUPM_E_FAIL;
+	}
+#else
 	if (!IS_PLAT_SYSTEM_SUSPEND(afflv) && (cpu_pm_status & CPU_PM_PLAT_READY) == 0) {
 		return MTK_CPUPM_E_FAIL;
 	}
+#endif
 
 	return MTK_CPUPM_E_OK;
 }
