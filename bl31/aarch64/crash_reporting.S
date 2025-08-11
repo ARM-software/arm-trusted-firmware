@@ -41,25 +41,8 @@ el3_sys_regs:
 		"daif", "mair_el3", "spsr_el3", "elr_el3", "ttbr0_el3",\
 		"esr_el3", "far_el3", ""
 
-non_el3_sys_regs_1:
-	.asciz	"spsr_el1", "elr_el1", "spsr_abt", "spsr_und",\
-		"spsr_irq", "spsr_fiq", "sctlr_el1", "actlr_el1", "cpacr_el1",\
-		"csselr_el1", "sp_el1", "esr_el1", ""
-
-ttbr_regs:
-	.asciz	"ttbr0_el1", "ttbr0_el2", "ttbr1_el1", "vttbr_el2", ""
-
-non_el3_sys_regs_2:
-	.asciz	"mair_el1", "amair_el1", "tcr_el1", "tpidr_el1",\
-		"tpidr_el0", "tpidrro_el0", ""
-
-par_reg:
-	.asciz	"par_el1", ""
-
-non_el3_sys_regs_3:
-	.asciz	"mpidr_el1", "afsr0_el1", "afsr1_el1", "contextidr_el1",\
-		"vbar_el1", "cntp_ctl_el0", "cntp_cval_el0", "cntv_ctl_el0",\
-		"cntv_cval_el0", "cntkctl_el1", "sp_el0", "isr_el1", ""
+non_el3_sys_regs:
+	.asciz	"mpidr_el1", "sp_el0", "isr_el1", ""
 
 #if CTX_INCLUDE_AARCH32_REGS
 aarch32_regs:
@@ -465,88 +448,10 @@ print_el3_sys_regs:
 	bl	str_in_crash_buf_print
 
 	/* Print the non el3 sys registers */
-	adr	x6, non_el3_sys_regs_1
-	mrs	x8, spsr_el1
-	mrs	x9, elr_el1
-	mrs	x10, spsr_abt
-	mrs	x11, spsr_und
-	mrs	x12, spsr_irq
-	mrs	x13, spsr_fiq
-	mrs	x14, sctlr_el1
-	mrs	x15, actlr_el1
-	bl	str_in_crash_buf_print
-	mrs	x8, cpacr_el1
-	mrs	x9, csselr_el1
-	mrs	x10, sp_el1
-	mrs	x11, esr_el1
-	bl	str_in_crash_buf_print
-
-	adr	x6, ttbr_regs
-#if ENABLE_FEAT_D128
-	is_feat_sysreg128_present_asm	x19
-	/* Fallback to 64-bit if FEAT_SYSREG128 is disabled */
-	cbz	x19, ttbr_regs_64_bit
-	bl	read_ttbr0_el1
-	mov	x8, x1
-	mov	x9, x0
-	bl	read_ttbr0_el2
-	mov	x10, x1
-	mov	x11, x0
-	bl	read_ttbr1_el1
-	mov	x12, x1
-	mov	x13, x0
-	bl	read_vttbr_el2
-	mov	x14, x1
-	mov	x15, x0
-	bl	str_in_crash_buf_print_128
-	b	1f
-
-ttbr_regs_64_bit:
-#endif
-	mrs	x8, ttbr0_el1
-	mrs	x9, ttbr0_el2
-	mrs	x10, ttbr1_el1
-	mrs	x11, vttbr_el2
-	bl	str_in_crash_buf_print
-1:
-	adr	x6, non_el3_sys_regs_2
-	mrs	x8, mair_el1
-	mrs	x9, amair_el1
-	mrs	x10, tcr_el1
-	mrs	x11, tpidr_el1
-	mrs	x12, tpidr_el0
-	mrs	x13, tpidrro_el0
-	bl	str_in_crash_buf_print
-
-	adr	x6, par_reg
-#if ENABLE_FEAT_D128
-	/* Fallback to 64-bit if FEAT_SYSREG128 is disabled */
-	cbz	x19, par_reg_64_bit
-	bl	read_par_el1
-	mov	x8, x1
-	mov	x9, x0
-	bl	str_in_crash_buf_print_128
-	b	2f
-
-par_reg_64_bit:
-#endif
-	mrs	x8, par_el1
-	bl	str_in_crash_buf_print
-2:
-	adr	x6, non_el3_sys_regs_3
+	adr	x6, non_el3_sys_regs
 	mrs	x8, mpidr_el1
-	mrs	x9, afsr0_el1
-	mrs	x10, afsr1_el1
-	mrs	x11, contextidr_el1
-	mrs	x12, vbar_el1
-	mrs	x13, cntp_ctl_el0
-	mrs	x14, cntp_cval_el0
-	mrs	x15, cntv_ctl_el0
-	bl	str_in_crash_buf_print
-	mrs	x8, cntv_cval_el0
-	mrs	x9, cntkctl_el1
-	mrs	x10, sp_el0
-	mrs	x11, isr_el1
+	mrs	x9, sp_el0
+	mrs	x10, isr_el1
 	bl	str_in_crash_buf_print
 
 #if CTX_INCLUDE_AARCH32_REGS
