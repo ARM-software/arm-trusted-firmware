@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -957,6 +957,10 @@ static unsigned long clk_stm32_osc_recalc_rate(struct stm32_clk_priv *priv,
 bool clk_stm32_osc_gate_is_enabled(struct stm32_clk_priv *priv, int id)
 {
 	struct clk_oscillator_data *osc_data = clk_oscillator_get_data(priv, id);
+
+	if (osc_data->frequency == 0UL) {
+		return true;
+	}
 
 	return _clk_stm32_gate_is_enabled(priv, osc_data->gate_id);
 
