@@ -30,7 +30,7 @@ struct spmi_device *lp_sdev[LP_PMIC_SLAVE_NUM];
 #define VCORE_TO_PMIC_VAL(volt)		(((volt) - VCORE_BASE_UV + 625 - 1) / 625)
 #define PMIC_VAL_TO_VCORE(pmic)		(((pmic) * 625) + VCORE_BASE_UV)
 
-#define VCORE_0_35V			VCORE_TO_PMIC_VAL(35000)
+#define VCORE_0_45V			VCORE_TO_PMIC_VAL(45000)
 #define VCORE_0_55V			VCORE_TO_PMIC_VAL(55000)
 #define VCORE_0_75V			VCORE_TO_PMIC_VAL(75000)
 
@@ -149,8 +149,8 @@ bool get_vcore_lp_enable(void)
 
 void set_vcore_lp_volt(uint32_t volt)
 {
-	/* allow 0.35V ~ 0.75V */
-	if (volt < VCORE_0_35V)
+	/* allow 0.45V ~ 0.75V */
+	if (volt < VCORE_0_45V)
 		return;
 	if (volt > VCORE_0_75V)
 		return;
