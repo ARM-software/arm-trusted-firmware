@@ -547,6 +547,11 @@ Common build options
    The flag is automatically disabled when the target
    architecture is AArch32.
 
+-  ``ENABLE_FEAT_MPAM_PE_BW_CTRL``: This option enables Armv9.3 MPAM
+   PE-side bandwidth controls and disables traps to EL3/EL2 (when
+   ``INIT_UNUSED_NS_EL2`` = 1). The flag accepts values from 0 to 2, in
+   line with the ``ENABLE_FEAT`` mechanism, and defaults to ``0``.
+
 -  ``ENABLE_FEAT_LS64_ACCDATA``: Numeric value to enable access and save and
    restore the ACCDATA_EL1 system register, at EL2 and below. This flag can
    take the values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.

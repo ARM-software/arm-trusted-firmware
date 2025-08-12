@@ -391,3 +391,9 @@ endif
 ifeq (${LFA_SUPPORT},1)
         $(warning LFA_SUPPORT is an experimental feature)
 endif #(LFA_SUPPORT)
+
+ifneq (${ENABLE_FEAT_MPAM_PE_BW_CTRL},0)
+        ifeq (${ENABLE_FEAT_MPAM},0)
+                $(error "ENABLE_FEAT_MPAM_PW_BW_CTRL requires ENABLE_FEAT_MPAM")
+        endif
+endif #(ENABLE_FEAT_MPAM_PE_BW_CTRL)

@@ -1383,7 +1383,24 @@
 #define MPAM2_EL2_TRAPMPAM0EL1		(ULL(1) << 49)
 #define MPAM2_EL2_TRAPMPAM1EL1		(ULL(1) << 48)
 
+#define MPAMIDR_HAS_BW_CTRL_BIT		(ULL(1) << 56)
 #define MPAMIDR_HAS_HCR_BIT		(ULL(1) << 17)
+
+/* MPAM_PE_BW_CTRL register definitions */
+#define MPAMBW2_EL2				S3_4_C10_C5_4
+#define MPAMBW2_EL2_HW_SCALE_ENABLE_BIT		(ULL(1) << 63)
+#define MPAMBW2_EL2_ENABLED_BIT			(ULL(1) << 62)
+#define MPAMBW2_EL2_HARDLIM_BIT			(ULL(1) << 61)
+#define MPAMBW2_EL2_NTRAP_MPAMBWIDR_EL1_BIT	(ULL(1) << 52)
+#define MPAMBW2_EL2_NTRAP_MPAMBW0_EL1_BIT	(ULL(1) << 51)
+#define MPAMBW2_EL2_NTRAP_MPAMBW1_EL1_BIT	(ULL(1) << 50)
+#define MPAMBW2_EL2_NTRAP_MPAMBWSM_EL1_BIT	(ULL(1) << 49)
+
+#define MPAMBW3_EL3				S3_6_C10_C5_4
+#define MPAMBW3_EL3_HW_SCALE_ENABLE_BIT		(ULL(1) << 63)
+#define MPAMBW3_EL3_ENABLED_BIT			(ULL(1) << 62)
+#define MPAMBW3_EL3_HARDLIM_BIT			(ULL(1) << 61)
+#define MPAMBW3_EL3_NTRAPLOWER_BIT		(ULL(1) << 49)
 
 /*******************************************************************************
  * Definitions for system register interface to AMU for FEAT_AMUv1p1

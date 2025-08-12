@@ -450,6 +450,9 @@ void detect_arch_features(unsigned int core_pos)
 				 "D128", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_GCIE, read_feat_gcie_id_field(),
 				 "GCIE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_MPAM_PE_BW_CTRL,
+				is_feat_mpam_pe_bw_ctrl_present(),
+				"MPAM_PE_BW_CTRL", 1, 1);
 
 	/* v9.4 features */
 	tainted |= check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(),
