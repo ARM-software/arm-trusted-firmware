@@ -75,7 +75,7 @@ the makefile as follows:
 CUSTOM SIP Service Support
 --------------------------
 
-- Dedicated SMC FID ``VERSAL_SIP_SVC_CUSTOM(0x82002000)`` (32-bit) /
+- Dedicated SMC FID ``SOC_SIP_SVC_CUSTOM(0x82002000)`` (32-bit) /
   ``(0xC2002000)`` (64-bit) is used by a custom package for providing
   CUSTOM SIP service.
 
