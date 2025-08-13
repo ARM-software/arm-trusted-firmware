@@ -463,7 +463,7 @@ bool ti_clk_div_reg_set_div(struct ti_clk *clkp, uint32_t div)
 	n = data_div->max_div;
 	if ((d_val_p <= n)
 	    && (!drv_div->valid_div || drv_div->valid_div(clkp, d_val_p))) {
-		uint32_t reg_val;
+		uint32_t reg_val, val;
 
 		if (data_reg->start_at_1 == 0U) {
 			d_val_p -= 1U;
@@ -471,9 +471,11 @@ bool ti_clk_div_reg_set_div(struct ti_clk *clkp, uint32_t div)
 		}
 
 		reg_val = readl(data_reg->reg);
-		reg_val &= ~(MASK_COVER_FOR_NUMBER(n) << data_reg->bit);
-		reg_val |= d_val_p << data_reg->bit;
-		writel(reg_val, (uint32_t) data_reg->reg);
+		val = reg_val & (~(MASK_COVER_FOR_NUMBER(n) << data_reg->bit));
+		val |= d_val_p << data_reg->bit;
+		/* Update the register only if value doesn't match */
+		if (val != reg_val)
+			writel(val, (uint32_t)data_reg->reg);
 		ret = true; /* HARD CODED */
 
 	}
