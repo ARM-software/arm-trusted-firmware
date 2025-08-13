@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -123,8 +123,11 @@ SECTIONS {
     } >ROM
 #endif /* SEPARATE_CODE_AND_RODATA */
 
+/* BL1 will have done this if it's built */
+#if RESET_TO_BL2
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
         "cpu_ops not defined for this platform.")
+#endif
 
 #if BL2_IN_XIP_MEM
     ROM_REGION_END = .;

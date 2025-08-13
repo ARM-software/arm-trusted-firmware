@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,7 @@
 
 	.globl	bl2_entrypoint
 
-#if BL2_IN_XIP_MEM
+#if BL2_IN_XIP_MEM || ENABLE_RME
 #define FIXUP_SIZE	0
 #else
 #define FIXUP_SIZE	((BL2_LIMIT) - (BL2_BASE))
@@ -26,13 +26,13 @@ func bl2_entrypoint
 	mov	x22, x2
 	mov	x23, x3
 
-	el3_entrypoint_common                                   \
-		_init_sctlr=1                                   \
-		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
-		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
-		_init_memory=1                                  \
-		_init_c_runtime=1                               \
-		_exception_vectors=bl2_el3_exceptions		\
+	el3_entrypoint_common							\
+		_init_sctlr=RESET_TO_BL2					\
+		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS && RESET_TO_BL2	\
+		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU && RESET_TO_BL2	\
+		_init_memory=RESET_TO_BL2					\
+		_init_c_runtime=1						\
+		_exception_vectors=bl2_el3_exceptions				\
 		_pie_fixup_size=FIXUP_SIZE
 
 	/* ---------------------------------------------
@@ -48,7 +48,11 @@ func bl2_entrypoint
 	 * Perform BL2 setup
 	 * ---------------------------------------------
 	 */
+#if RESET_TO_BL2
 	bl	bl2_el3_setup
+#else
+	bl	bl2_setup
+#endif
 
 #if ENABLE_PAUTH
 	/* ---------------------------------------------
