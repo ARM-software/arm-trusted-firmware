@@ -98,6 +98,27 @@ static inline enum reset_type get_reset_type(uint32_t sys_reg)
 		 SYSMGR_BS_COLD3_DDR_RESET_TYPE_SHIFT);
 }
 
+/* Get reset type string */
+const char *get_reset_type_str(enum reset_type reset_t)
+{
+	switch (reset_t) {
+	case POR_RESET:
+		return "Power-On";
+	case WARM_RESET:
+		return "Warm";
+	case COLD_RESET:
+		return "Cold";
+	case NCONFIG:
+		return "NCONFIG";
+	case JTAG_CONFIG:
+		return "JTAG Config";
+	case RSU_RECONFIG:
+		return "RSU Reconfig";
+	default:
+		return "Unknown";
+	}
+}
+
 /* DDR hang check before the reset */
 static inline bool is_ddr_init_hang(void)
 {
@@ -302,8 +323,7 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 	bool is_dualport = hoff_ptr->ddr_config & BIT(0);
 	bool is_dualemif = hoff_ptr->ddr_config & BIT(1);
 
-	NOTICE("DDR: Reset type is '%s'\n",
-	       (reset_t == POR_RESET ? "Power-On" : (reset_t == COLD_RESET ? "Cold" : "Warm")));
+	NOTICE("DDR: Reset type is '%s'\n", get_reset_type_str(reset_t));
 
 	/* DDR initialization progress status tracking */
 	bool is_ddr_hang_bfr_rst = is_ddr_init_hang();
