@@ -252,8 +252,7 @@ Key notes:
 
 - The support is **not production-ready** and is intended to assist with
   upstream kernel development and validation.
-- The device tree bindings are **not finalized**; support has been validated
-  only with a **custom device tree**.
+- The device tree bindings are **not finalized**
 - Use this configuration at your own discretion, understanding that the design
   and register usage may change in future revisions.
 
@@ -271,4 +270,4 @@ is integrated upstream.
 
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*

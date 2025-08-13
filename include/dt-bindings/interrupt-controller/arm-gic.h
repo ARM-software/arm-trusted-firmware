@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -17,6 +17,7 @@
 #define GIC_PPI 1
 
 /*
+ * Only relevant for GIC <= v2
  * Interrupt specifier cell 2.
  * The flags in irq.h are valid, plus those below.
  */

@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /* GICv3 with ITS configuration  */
+
+#include "fvp-base-gicv23-interrupts.dtsi"
 
 / {
 	gic: interrupt-controller@2f000000 {

@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifdef	FVP_MAX_PE_PER_CPU
+#define	PE_PER_CPU		FVP_MAX_PE_PER_CPU
+#else
+#define	PE_PER_CPU		1
+#endif
+
+#define	AFF			00
+#include "fvp-defs.dtsi"
+
+/dts-v1/;
+
+/memreserve/ 0x80000000 0x00010000;
+
+#include "fvp-base-gicv5.dtsi"
+#include "fvp-base-psci-common.dtsi"
