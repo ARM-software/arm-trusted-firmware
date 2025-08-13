@@ -6,6 +6,7 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <clk.h>
 #include <common/debug.h>
 #include <device_wrapper.h>
 #include <devices.h>
@@ -141,6 +142,7 @@ static void am62l_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Prevent interrupts from spuriously waking up this cpu */
 	k3_gic_cpuif_disable();
 	k3_gic_save_context();
+	clks_suspend();
 
 	if (mode == 6) {
 
@@ -174,6 +176,7 @@ static void am62l_pwr_domain_suspend_finish(const psci_power_state_t *target_sta
 	ti_init_scmi_server();
 	k3_lpm_stub_copy_to_sram();
 	rtc_resume();
+	clks_resume();
 }
 
 static void am62l_get_sys_suspend_power_state(psci_power_state_t *req_state)
