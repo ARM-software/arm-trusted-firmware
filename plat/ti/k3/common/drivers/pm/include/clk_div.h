@@ -58,4 +58,9 @@ uint32_t clk_get_div(struct clk *clkp);
 bool clk_set_div(struct clk *clkp, uint32_t d);
 int32_t clk_div_init(struct clk *clkp);
 
+#ifdef CONFIG_LPM_CLK
+int32_t clk_div_suspend_save(struct clk *clkp);
+int32_t clk_div_resume_restore(struct clk *clkp);
+#endif
+
 #endif

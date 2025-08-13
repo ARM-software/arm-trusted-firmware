@@ -12,6 +12,8 @@ DDR_16BIT	:=	1
 $(eval $(call add_define,DDR_16BIT))
 K3_AM62L_LPM	:=	1
 $(eval $(call add_define,K3_AM62L_LPM))
+CONFIG_LPM_CLK	:=	1
+$(eval $(call add_define,CONFIG_LPM_CLK))
 ifdef K3_AM62L_LPM
 TI_AM62L_LPM_TRACE	:=	1
 $(eval $(call add_define,TI_AM62L_LPM_TRACE))

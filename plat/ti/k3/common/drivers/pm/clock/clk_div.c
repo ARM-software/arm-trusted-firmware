@@ -483,6 +483,22 @@ bool clk_div_reg_set_div(struct clk *clkp, uint32_t d)
 	return ret;
 }
 
+#ifdef CONFIG_LPM_CLK
+int32_t clk_div_suspend_save(struct clk *clkp)
+{
+	clkp->saved_val = clk_div_reg_get_div(clkp);
+
+	return SUCCESS;
+}
+
+int32_t clk_div_resume_restore(struct clk *clkp)
+{
+	clk_div_reg_set_div(clkp, clkp->saved_val);
+
+	return SUCCESS;
+}
+#endif
+
 const struct clk_drv_div clk_drv_div_reg_ro = {
 	.drv			= {
 		.get_freq	= clk_div_get_freq,
@@ -496,6 +512,10 @@ const struct clk_drv_div clk_drv_div_reg = {
 		.set_freq	= clk_div_set_freq,
 		.get_freq	= clk_div_get_freq,
 		.init		= clk_div_init,
+#ifdef CONFIG_LPM_CLK
+		.suspend_save	= clk_div_suspend_save,
+		.resume_restore = clk_div_resume_restore,
+#endif
 	},
 	.set_div		= clk_div_reg_set_div,
 	.get_div		= clk_div_reg_get_div,

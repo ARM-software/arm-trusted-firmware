@@ -607,6 +607,143 @@ int32_t clk_deinit_pm_devgrp(uint8_t pm_devgrp)
 	return ret;
 }
 
+#ifdef CONFIG_LPM_CLK
+static int32_t clk_suspend_save(struct clk *clkp)
+{
+	const struct clk_data *clk_data_p = clk_get_data(clkp);
+	int32_t ret = SUCCESS;
+
+	if (clk_data_p != NULL) {
+		if ((clkp->flags & CLK_FLAG_SUSPENDED) == 0U) {
+			if (clk_data_p->drv->suspend_save != NULL) {
+				ret = clk_data_p->drv->suspend_save(clkp);
+				/* Mark clock as suspended to avoid duplicate operations */
+				clkp->flags |= CLK_FLAG_SUSPENDED;
+			} else {
+				/* Mark clock as resumed if no handler is provided */
+				clkp->flags |= CLK_FLAG_SUSPENDED;
+				ret = SUCCESS;
+			}
+		}
+	} else {
+		ret = SUCCESS;
+	}
+
+	return ret;
+}
+
+static int32_t clk_resume_restore(struct clk *clkp)
+{
+	const struct clk_data *clk_data_p = clk_get_data(clkp);
+	const struct clk_parent *p = NULL;
+	struct clk *parent_clk = NULL;
+	int32_t ret = SUCCESS;
+
+	p = clk_get_parent(clkp);
+	if (p != NULL) {
+		parent_clk = clk_lookup((clk_idx_t) p->clk);
+	}
+
+	if (parent_clk != NULL) {
+		/* If parent is still suspended, defer until it has resumed. */
+		if ((parent_clk->flags & CLK_FLAG_SUSPENDED) == CLK_FLAG_SUSPENDED) {
+			ret = -EDEFER;
+		}
+	}
+
+	if ((ret != -EDEFER) && ((clkp->flags & CLK_FLAG_SUSPENDED) == CLK_FLAG_SUSPENDED)) {
+		if (clk_data_p->drv->resume_restore != NULL) {
+			ret = clk_data_p->drv->resume_restore(clkp);
+			/* Clear suspended flag to avoid duplicate operations */
+			clkp->flags &= ~CLK_FLAG_SUSPENDED;
+		} else {
+			/* Mark clock as resumed if no handler is provided */
+			clkp->flags &= ~CLK_FLAG_SUSPENDED;
+			ret = SUCCESS;
+		}
+	}
+
+	return ret;
+}
+
+int32_t clks_suspend(void)
+{
+	uint32_t i;
+	int32_t ret = SUCCESS;
+	uint32_t clock_count = soc_clock_count;
+	uint8_t max_tries = LPM_CLK_MAX_TRIES;
+	bool done, error;
+
+	do {
+		done = true;
+		error = false;
+
+		for (i = 1u; i < clock_count; i++) {
+			struct clk *clkp = soc_clocks + i;
+			ret = clk_suspend_save(clkp);
+
+			if (ret == -EDEFER) {
+				done = false;
+			} else if (ret != SUCCESS) {
+				error = true;
+			} else {
+				/* Do nothing */
+			}
+		}
+
+		/* Avoid getting stuck forever, bound the number of loops */
+		max_tries--;
+	} while (!done && !error && (max_tries != 0U));
+
+	if (max_tries == 0U) {
+		ret = -ETIMEDOUT;
+	} else {
+		ret = SUCCESS;
+	}
+
+	return ret;
+}
+
+int32_t clks_resume(void)
+{
+	uint32_t i;
+	int32_t ret = SUCCESS;
+	uint32_t clock_count = soc_clock_count;
+	uint8_t max_tries = 10;
+	bool done, error;
+
+	do {
+		done = true;
+		error = false;
+
+		for (i = 1u; i < clock_count; i++) {
+			struct clk *clkp = soc_clocks + i;
+
+			ret = clk_resume_restore(clkp);
+
+			if (ret == -EDEFER) {
+				done = false;
+			} else if (ret != SUCCESS) {
+				error = true;
+			} else {
+				/* Do nothing */
+			}
+		}
+
+		/* Avoid getting stuck forever, bound the number of loops */
+		max_tries--;
+	} while (!done && !error && (max_tries != 0U));
+
+	if (max_tries == 0U) {
+		ret = -ETIMEDOUT;
+	} else {
+		ret = SUCCESS;
+	}
+
+	return ret;
+}
+#endif
+
 int32_t clk_init(void)
 {
 	bool progress;

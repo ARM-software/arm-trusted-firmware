@@ -84,6 +84,28 @@ static bool clk_mux_set_parent(struct clk *clkp, uint8_t new_parent)
 	return ret;
 }
 
+#ifdef CONFIG_LPM_CLK
+static int32_t clk_mux_suspend_save(struct clk *clkp)
+{
+	clkp->saved_val = clk_mux_get_parent_value(clkp);
+
+	return SUCCESS;
+}
+
+static int32_t clk_mux_resume_restore(struct clk *clkp)
+{
+	bool error;
+	int32_t ret = SUCCESS;
+
+	error = clk_mux_set_parent(clkp, (uint8_t)(clkp->saved_val));
+	if (error == false) {
+		ret = -EFAIL;
+	}
+
+	return ret;
+}
+#endif
+
 const struct clk_drv_mux clk_drv_mux_reg_ro = {
 	.get_parent	= clk_mux_get_parent,
 };
@@ -91,6 +113,12 @@ const struct clk_drv_mux clk_drv_mux_reg_ro = {
 const struct clk_drv_mux clk_drv_mux_reg = {
 	.set_parent		= clk_mux_set_parent,
 	.get_parent		= clk_mux_get_parent,
+#ifdef CONFIG_LPM_CLK
+	.drv			= {
+		.suspend_save	= clk_mux_suspend_save,
+		.resume_restore = clk_mux_resume_restore,
+	},
+#endif
 };
 
 const struct clk_parent *clk_get_parent(struct clk *clkp)
