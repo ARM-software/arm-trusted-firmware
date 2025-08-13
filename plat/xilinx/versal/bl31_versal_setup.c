@@ -75,7 +75,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	(void)arg2;
 	(void)arg3;
 	uint64_t tfa_handoff_addr;
-	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
+	uint32_t payload[PAYLOAD_ARG_CNT], max_size = (uint32_t)HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 	const uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
 
@@ -154,7 +154,7 @@ int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
 	static uint32_t index;
 	uint32_t i;
-	int32_t ret = 0;
+	int ret = 0;
 
 	/* Validate 'handler' and 'id' parameters */
 	if ((handler == NULL) || (index >= MAX_INTR_EL3)) {
@@ -214,7 +214,7 @@ void bl31_platform_setup(void)
 
 void bl31_plat_runtime_setup(void)
 {
-	uint64_t flags = 0;
+	uint32_t flags = 0;
 	int32_t rc;
 
 	set_interrupt_rm_flag(flags, NON_SECURE);
