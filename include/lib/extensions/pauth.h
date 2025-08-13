@@ -11,6 +11,8 @@
 /* Platform hook to generate the APIAKey */
 uint128_t plat_init_apkey(void);
 
+void pauth_init_enable_el3(void);
+void pauth_init_enable_el1(void);
 void pauth_init(void);
 void pauth_enable_el1(void);
 void pauth_enable_el3(void);
@@ -18,6 +20,12 @@ void pauth_enable_el2(void);
 void pauth_disable_el1(void);
 void pauth_disable_el3(void);
 #else
+static inline void pauth_init_enable_el3(void)
+{
+}
+static inline void pauth_init_enable_el1(void)
+{
+}
 static inline void pauth_init(void)
 {
 }

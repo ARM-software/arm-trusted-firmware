@@ -11,7 +11,6 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <context.h>
-#include <lib/xlat_tables/xlat_tables_defs.h>
 
 	/*
 	 * Helper macro to initialise EL3 registers we care about.

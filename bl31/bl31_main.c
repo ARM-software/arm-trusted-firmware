@@ -23,8 +23,11 @@
 #include <lib/bootmarker_capture.h>
 #include <lib/el3_runtime/context_debug.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/extensions/pauth.h>
+#include <lib/gpt_rme/gpt_rme.h>
 #include <lib/pmf/pmf.h>
 #include <lib/runtime_instr.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <plat/common/platform.h>
 #include <services/std_svc.h>
 
@@ -92,15 +95,17 @@ static void __init bl31_lib_init(void)
 }
 
 /*******************************************************************************
- * Setup function for BL31.
+ * BL31 is responsible for setting up the runtime services for the primary cpu
+ * before passing control to the bootloader or an Operating System. This
+ * function calls runtime_svc_init() which initializes all registered runtime
+ * services. The run time services would setup enough context for the core to
+ * switch to the next exception level. When this function returns, the core will
+ * switch to the programmed exception level via an ERET.
  ******************************************************************************/
-void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+void __no_pauth bl31_main(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 		u_register_t arg3)
 {
-#if FEATURE_DETECTION
-	/* Detect if features enabled during compilation are supported by PE. */
-	detect_arch_features(plat_my_core_pos());
-#endif /* FEATURE_DETECTION */
+	unsigned int core_pos = plat_my_core_pos();
 
 	/* Enable early console if EARLY_CONSOLE flag is enabled */
 	plat_setup_early_console();
@@ -111,21 +116,17 @@ void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	/* Perform late platform-specific setup */
 	bl31_plat_arch_setup();
 
+#if FEATURE_DETECTION
+	/* Detect if features enabled during compilation are supported by PE. */
+	detect_arch_features(core_pos);
+#endif /* FEATURE_DETECTION */
+
 	/* Prints context_memory allocated for all the security states */
 	report_ctx_memory_usage();
-}
 
-/*******************************************************************************
- * BL31 is responsible for setting up the runtime services for the primary cpu
- * before passing control to the bootloader or an Operating System. This
- * function calls runtime_svc_init() which initializes all registered runtime
- * services. The run time services would setup enough context for the core to
- * switch to the next exception level. When this function returns, the core will
- * switch to the programmed exception level via an ERET.
- ******************************************************************************/
-void bl31_main(void)
-{
-	unsigned int core_pos = plat_my_core_pos();
+	if (is_feat_pauth_supported()) {
+		pauth_init_enable_el3();
+	}
 
 	/* Init registers that never change for the lifetime of TF-A */
 	cm_manage_extensions_el3(core_pos);
@@ -238,6 +239,49 @@ void bl31_main(void)
 
 	console_flush();
 	console_switch_state(CONSOLE_FLAG_RUNTIME);
+}
+
+void __no_pauth bl31_warmboot(void)
+{
+	/*
+	 * We're about to enable MMU and participate in PSCI state coordination.
+	 *
+	 * The PSCI implementation invokes platform routines that enable CPUs to
+	 * participate in coherency. On a system where CPUs are not
+	 * cache-coherent without appropriate platform specific programming,
+	 * having caches enabled until such time might lead to coherency issues
+	 * (resulting from stale data getting speculatively fetched, among
+	 * others). Therefore we keep data caches disabled even after enabling
+	 * the MMU for such platforms.
+	 *
+	 * On systems with hardware-assisted coherency, or on single cluster
+	 * platforms, such platform specific programming is not required to
+	 * enter coherency (as CPUs already are); and there's no reason to have
+	 * caches disabled either.
+	 */
+#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
+	bl31_plat_enable_mmu(0);
+#else
+	bl31_plat_enable_mmu(DISABLE_DCACHE);
+#endif
+
+#if ENABLE_RME
+	/*
+	 * At warm boot GPT data structures have already been initialized in RAM
+	 * but the sysregs for this CPU need to be initialized. Note that the GPT
+	 * accesses are controlled attributes in GPCCR and do not depend on the
+	 * SCR_EL3.C bit.
+	 */
+	if (gpt_enable() != 0) {
+		panic();
+	}
+#endif
+
+	if (is_feat_pauth_supported()) {
+		pauth_init_enable_el3();
+	}
+
+	psci_warmboot_entrypoint();
 }
 
 /*******************************************************************************

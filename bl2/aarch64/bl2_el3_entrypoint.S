@@ -45,24 +45,6 @@ func bl2_entrypoint
 	mov	x3, x23
 
 	/* ---------------------------------------------
-	 * Perform BL2 setup
-	 * ---------------------------------------------
-	 */
-#if RESET_TO_BL2
-	bl	bl2_el3_setup
-#else
-	bl	bl2_setup
-#endif
-
-#if ENABLE_PAUTH
-	/* ---------------------------------------------
-	 * Program APIAKey_EL1 and enable pointer authentication.
-	 * ---------------------------------------------
-	 */
-	bl	pauth_init_enable_el3
-#endif /* ENABLE_PAUTH */
-
-	/* ---------------------------------------------
 	 * Jump to main function.
 	 * ---------------------------------------------
 	 */
