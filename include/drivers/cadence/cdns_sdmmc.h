@@ -449,7 +449,7 @@
  * To accommodate SDMCLK set to 200MHz
  * TODO: To support various clock range
  */
-#define SDEMMC_SDCLK				25000000U
+#define SDEMMC_SDCLK				50000000U
 
 enum sd_opcode {
 	SD_GO_IDLE_STATE = 0,
