@@ -244,6 +244,9 @@ enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
 	case 102:
 		dev_idx = XPM_NODEIDX_DEV_I2C_7;
 		break;
+	case 164:
+		dev_idx = XPM_NODEIDX_DEV_MMI_GEM;
+		break;
 	case 200:
 		dev_idx = XPM_NODEIDX_DEV_RTC;
 		break;
