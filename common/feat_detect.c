@@ -195,6 +195,11 @@ static unsigned int read_feat_aie_id_field(void)
 	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_AIE_SHIFT,
 			     ID_AA64MMFR3_EL1_AIE_MASK);
 }
+static unsigned int read_feat_pfar_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64pfr1_el1(), ID_AA64PFR1_EL1_PFAR_SHIFT,
+			     ID_AA64PFR1_EL1_PFAR_MASK);
+}
 static unsigned int read_feat_tcr2_id_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_TCRX_SHIFT,
@@ -444,6 +449,8 @@ void detect_arch_features(unsigned int core_pos)
 				 "SCTLR2", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_AIE, read_feat_aie_id_field(),
 				 "AIE", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_PFAR, read_feat_pfar_id_field(),
+				 "PFAR", 1, 1);
 
 	/* v9.0 features */
 	tainted |= check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),

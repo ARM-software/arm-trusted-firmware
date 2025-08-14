@@ -376,6 +376,9 @@ ENABLE_FEAT_DEBUGV8P9			?=	0
 # AIE extension using the (A)MAIR2 system registers
 ENABLE_FEAT_AIE				?=	0
 
+# PFAR extension using the PFAR system registers
+ENABLE_FEAT_PFAR			?=	0
+
 #----
 # 9.0
 #----

@@ -146,6 +146,12 @@
 #define SCR_FEAT_AIE (0)
 #endif
 
+#if ENABLE_FEAT_PFAR
+#define SCR_FEAT_PFAR SCR_PFAREn_BIT
+#else
+#define SCR_FEAT_PFAR (0)
+#endif
+
 #ifndef SCR_PLAT_FEATS
 #define SCR_PLAT_FEATS (0)
 #endif
@@ -206,6 +212,7 @@
 	SCR_APK_BIT		| /* FEAT_Pauth */				\
 	SCR_FEAT_RAS		|						\
 	SCR_FEAT_AIE		|						\
+	SCR_FEAT_PFAR		|						\
 	SCR_PLAT_FEATS)
 #define SCR_EL3_FLIPPED (							\
 	SCR_FEAT_RAS		|						\
