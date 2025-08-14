@@ -78,7 +78,7 @@ $(eval $(call add_define,XLNX_DT_CFG))
 
 # Runtime console in default console in DEBUG build
 ifeq ($(DEBUG), 1)
-CONSOLE_RUNTIME ?= pl011
+CONSOLE_RUNTIME ?= $(VERSAL_NET_CONSOLE)
 endif
 
 # Runtime console
