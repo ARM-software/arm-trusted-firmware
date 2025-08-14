@@ -1501,7 +1501,7 @@ CPU specific power down sequence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 During the BL31 initialization sequence, the pointer to the matching ``cpu_ops``
-entry is stored in per-CPU data by ``init_cpu_ops()`` so that it can be quickly
+entry is stored in per-CPU data by ``cpu_data_init_cpu_ops()`` so that it can be quickly
 retrieved during power down sequences.
 
 Various CPU drivers register handlers to perform power down at certain power

@@ -240,7 +240,7 @@ static inline context_pas_t get_cpu_context_index(size_t security_state)
  * APIs for initialising and accessing per-cpu data
  *************************************************************************/
 
-void init_cpu_ops(void);
+void cpu_data_init_cpu_ops(void);
 
 #define get_cpu_data(_m)		   _cpu_data()->_m
 #define set_cpu_data(_m, _v)		   _cpu_data()->_m = (_v)

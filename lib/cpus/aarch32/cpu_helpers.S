@@ -101,32 +101,6 @@ func get_cpu_ops_ptr
 	pop	{r4 - r5, pc}
 endfunc get_cpu_ops_ptr
 
-#ifdef IMAGE_BL32
-	/*
-	 * Initializes the cpu_ops_ptr if not already initialized
-	 * in cpu_data. This must only be called after the data cache
-	 * is enabled. AAPCS is followed.
-	 */
-	.globl	init_cpu_ops
-func init_cpu_ops
-	push	{r4 - r6, lr}
-	bl	_cpu_data
-	mov	r6, r0
-	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
-	cmp	r1, #0
-	bne	1f
-	bl	get_cpu_ops_ptr
-#if ENABLE_ASSERTIONS
-	cmp	r0, #0
-	ASM_ASSERT(ne)
-#endif
-	str	r0, [r6, #CPU_DATA_CPU_OPS_PTR]!
-1:
-	pop	{r4 - r6, pc}
-endfunc init_cpu_ops
-
-#endif /* IMAGE_BL32 */
-
 /*
  * Extract CPU revision and variant, and combine them into a single numeric for
  * easier comparison.

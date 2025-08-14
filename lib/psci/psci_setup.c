@@ -313,7 +313,7 @@ void psci_arch_setup(void)
 #endif
 
 	/* Initialize the cpu_ops pointer. */
-	init_cpu_ops();
+	cpu_data_init_cpu_ops();
 
 	/* Having initialized cpu_ops, we can now print errata status */
 	print_errata_status();
