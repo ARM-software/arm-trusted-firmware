@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -55,5 +55,5 @@ void drtm_enter_remediation(uint64_t err_code, const char *err_str)
 	       err_code, err_str);
 
 	ERROR("%s(): system reset is not yet supported\n", __func__);
-	plat_system_reset();
+	panic();
 }
