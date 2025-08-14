@@ -140,6 +140,12 @@
 #define SCR_FEAT_MEC (0)
 #endif
 
+#if ENABLE_FEAT_AIE
+#define SCR_FEAT_AIE SCR_AIEn_BIT
+#else
+#define SCR_FEAT_AIE (0)
+#endif
+
 #ifndef SCR_PLAT_FEATS
 #define SCR_PLAT_FEATS (0)
 #endif
@@ -199,6 +205,7 @@
 	SCR_FEAT_CSV2_2		|						\
 	SCR_APK_BIT		| /* FEAT_Pauth */				\
 	SCR_FEAT_RAS		|						\
+	SCR_FEAT_AIE		|						\
 	SCR_PLAT_FEATS)
 #define SCR_EL3_FLIPPED (							\
 	SCR_FEAT_RAS		|						\

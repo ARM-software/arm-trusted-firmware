@@ -431,6 +431,9 @@
 #define ID_AA64MMFR3_EL1_MEC_SHIFT		U(28)
 #define ID_AA64MMFR3_EL1_MEC_MASK		ULL(0xf)
 
+#define ID_AA64MMFR3_EL1_AIE_SHIFT		U(24)
+#define ID_AA64MMFR3_EL1_AIE_MASK		ULL(0xf)
+
 #define ID_AA64MMFR3_EL1_S2POE_SHIFT		U(20)
 #define ID_AA64MMFR3_EL1_S2POE_MASK		ULL(0xf)
 
@@ -664,6 +667,7 @@
 #define SCR_MECEn_BIT		(UL(1) << 49)
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_D128En_BIT		(UL(1) << 47)
+#define SCR_AIEn_BIT		(UL(1) << 46)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
 #define SCR_PIEN_BIT		(UL(1) << 45)

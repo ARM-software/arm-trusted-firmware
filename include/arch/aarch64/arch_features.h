@@ -154,6 +154,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |    FEAT_CPA2               |
  * +----------------------------+
+ * |	FEAT_AIE		|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -508,6 +510,10 @@ CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
 CREATE_FEATURE_FUNCS(feat_ls64_accdata, id_aa64isar1_el1, ID_AA64ISAR1_LS64_SHIFT,
 		     ID_AA64ISAR1_LS64_MASK, LS64_ACCDATA_IMPLEMENTED,
 		     ENABLE_FEAT_LS64_ACCDATA)
+
+/* FEAT_AIE: */
+CREATE_FEATURE_FUNCS(feat_aie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_AIE_SHIFT,
+		     ID_AA64MMFR3_EL1_AIE_MASK, 1U, ENABLE_FEAT_AIE)
 
 /*******************************************************************************
  * Function to get hardware granularity support

@@ -373,6 +373,9 @@ ENABLE_FEAT_S1POE			?=	0
 # Flag to enable access to Arm v8.9 Debug extension
 ENABLE_FEAT_DEBUGV8P9			?=	0
 
+# AIE extension using the (A)MAIR2 system registers
+ENABLE_FEAT_AIE				?=	0
+
 #----
 # 9.0
 #----
