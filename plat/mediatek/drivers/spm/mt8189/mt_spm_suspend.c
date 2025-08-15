@@ -40,7 +40,9 @@
 	 SPM_FLAG_DISABLE_EMI_DFS | SPM_FLAG_DISABLE_BUS_DFS |   \
 	 SPM_FLAG_SRAM_SLEEP_CTRL)
 
-#define SPM_SUSPEND_PCM_FLAG1 (SPM_FLAG1_ENABLE_VS2_VS3_VOTER)
+#define SPM_SUSPEND_PCM_FLAG1                                           \
+	(SPM_FLAG1_ENABLE_VS2_VS3_VOTER	| SPM_FLAG1_DISABLE_PERI_OFF |  \
+	 SPM_FLAG1_ENABLE_MCU_INFRA_PARITY)
 
 /* Suspend spm power control */
 #define __WAKE_SRC_FOR_SUSPEND_COMMON__                                        \
@@ -76,7 +78,7 @@ static struct pwr_ctrl suspend_ctrl = {
 	.reg_spm_scp_mailbox_req = 0,
 	.reg_spm_sspm_mailbox_req = 0,
 	.reg_spm_sw_mailbox_req = 0,
-	.reg_spm_vcore_req = 0,
+	.reg_spm_vcore_req = 1,
 	.reg_spm_vrf18_req = 0,
 	.adsp_mailbox_state = 0,
 	.apsrc_state = 0,
@@ -140,11 +142,11 @@ static struct pwr_ctrl suspend_ctrl = {
 	/* SPM_SRC_MASK_4 */
 	.reg_cg_check_ddren_req_mask_b = 0x1,
 	.reg_cg_check_emi_req_mask_b = 0x1,
-	.reg_cg_check_infra_req_mask_b = 0x1,
-	.reg_cg_check_pmic_req_mask_b = 0x1,
-	.reg_cg_check_srcclkena_mask_b = 0x1,
+	.reg_cg_check_infra_req_mask_b = 0x0,
+	.reg_cg_check_pmic_req_mask_b = 0x0,
+	.reg_cg_check_srcclkena_mask_b = 0x0,
 	.reg_cg_check_vcore_req_mask_b = 0x1,
-	.reg_cg_check_vrf18_req_mask_b = 0x1,
+	.reg_cg_check_vrf18_req_mask_b = 0x0,
 	.reg_conn_apsrc_req_mask_b = 0x1,
 	.reg_conn_ddren_req_mask_b = 0x1,
 	.reg_conn_emi_req_mask_b = 0x1,

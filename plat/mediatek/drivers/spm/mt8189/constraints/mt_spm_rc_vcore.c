@@ -32,7 +32,8 @@
 	 SPM_FLAG_DISABLE_EMI_DFS | SPM_FLAG_DISABLE_BUS_DFS |   \
 	 SPM_FLAG_SRAM_SLEEP_CTRL)
 
-#define CONSTRAINT_VCORE_PCM_FLAG1 (0)
+#define CONSTRAINT_VCORE_PCM_FLAG1                                      \
+	(SPM_FLAG1_DISABLE_PERI_OFF | SPM_FLAG1_ENABLE_MCU_INFRA_PARITY)
 
 /*
  * If sspm sram won't enter  sleep voltage
