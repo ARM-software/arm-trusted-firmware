@@ -19,6 +19,10 @@ ifeq (${IMAGE_BL1}, 1)
 override ENABLE_PIE := 0
 endif
 
+# We need to enable this for robust clocking
+CONFIG_CLK_PLL_16FFT_FRACF_CALIBRATION	:=	1
+$(eval $(call add_define,CONFIG_CLK_PLL_16FFT_FRACF_CALIBRATION))
+
 K3_SPL_IMG_OFFSET       :=      0x80000
 $(eval $(call add_define,K3_SPL_IMG_OFFSET))
 
