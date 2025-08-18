@@ -12,6 +12,52 @@
 #include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/cpu_data.h>
 
+	/*
+	 * The below function returns the cpu_ops structure matching the
+	 * midr of the core. It reads the MIDR and finds the matching
+	 * entry in cpu_ops entries. Only the implementation and part number
+	 * are used to match the entries.
+	 * Return :
+	 *     r0 - The matching cpu_ops pointer on Success
+	 *     r0 - 0 on failure.
+	 * Clobbers: r0 - r5
+	 */
+.macro get_cpu_ops_ptr_impl
+	/* Get the cpu_ops start and end locations */
+	ldr	r4, =(__CPU_OPS_START__ + CPU_MIDR)
+	ldr	r5, =(__CPU_OPS_END__ + CPU_MIDR)
+
+	/* Initialize the return parameter */
+	mov	r0, #0
+
+	/* Read the MIDR_EL1 */
+	ldcopr	r2, MIDR
+	ldr	r3, =CPU_IMPL_PN_MASK
+
+	/* Retain only the implementation and part number using mask */
+	and	r2, r2, r3
+1:
+	/* Check if we have reached end of list */
+	cmp	r4, r5
+	bhs	error_exit\@
+
+	/* load the midr from the cpu_ops */
+	ldr	r1, [r4], #CPU_OPS_SIZE
+	and	r1, r1, r3
+
+	/* Check if midr matches to midr of this core */
+	cmp	r1, r2
+	bne	1b
+
+	/* Subtract the increment and offset to get the cpu-ops pointer */
+	sub	r0, r4, #(CPU_OPS_SIZE + CPU_MIDR)
+#if ENABLE_ASSERTIONS
+	cmp	r0, #0
+	ASM_ASSERT(ne)
+#endif
+error_exit\@:
+.endm
+
 #if defined(IMAGE_BL1) || defined(IMAGE_BL32) || \
 	(defined(IMAGE_BL2) && RESET_TO_BL2)
 	/*
@@ -30,7 +76,7 @@ func reset_handler
 	bl	plat_reset_handler
 
 	/* Get the matching cpu_ops pointer (clobbers: r0 - r5) */
-	bl	get_cpu_ops_ptr
+	get_cpu_ops_ptr_impl
 
 #if ENABLE_ASSERTIONS
 	cmp	r0, #0
@@ -46,6 +92,14 @@ func reset_handler
 endfunc reset_handler
 
 #endif
+
+	.globl	get_cpu_ops_ptr
+/* performs an AAPCS compliant call to get_cpu_ops_ptr_impl */
+func get_cpu_ops_ptr
+	push	{r4 - r5, lr}
+	get_cpu_ops_ptr_impl
+	pop	{r4 - r5, pc}
+endfunc get_cpu_ops_ptr
 
 #ifdef IMAGE_BL32
 	/*
@@ -72,54 +126,6 @@ func init_cpu_ops
 endfunc init_cpu_ops
 
 #endif /* IMAGE_BL32 */
-
-	/*
-	 * The below function returns the cpu_ops structure matching the
-	 * midr of the core. It reads the MIDR and finds the matching
-	 * entry in cpu_ops entries. Only the implementation and part number
-	 * are used to match the entries.
-	 * Return :
-	 *     r0 - The matching cpu_ops pointer on Success
-	 *     r0 - 0 on failure.
-	 * Clobbers: r0 - r5
-	 */
-	.globl	get_cpu_ops_ptr
-func get_cpu_ops_ptr
-	/* Get the cpu_ops start and end locations */
-	ldr	r4, =(__CPU_OPS_START__ + CPU_MIDR)
-	ldr	r5, =(__CPU_OPS_END__ + CPU_MIDR)
-
-	/* Initialize the return parameter */
-	mov	r0, #0
-
-	/* Read the MIDR_EL1 */
-	ldcopr	r2, MIDR
-	ldr	r3, =CPU_IMPL_PN_MASK
-
-	/* Retain only the implementation and part number using mask */
-	and	r2, r2, r3
-1:
-	/* Check if we have reached end of list */
-	cmp	r4, r5
-	bhs	error_exit
-
-	/* load the midr from the cpu_ops */
-	ldr	r1, [r4], #CPU_OPS_SIZE
-	and	r1, r1, r3
-
-	/* Check if midr matches to midr of this core */
-	cmp	r1, r2
-	bne	1b
-
-	/* Subtract the increment and offset to get the cpu-ops pointer */
-	sub	r0, r4, #(CPU_OPS_SIZE + CPU_MIDR)
-#if ENABLE_ASSERTIONS
-	cmp	r0, #0
-	ASM_ASSERT(ne)
-#endif
-error_exit:
-	bx	lr
-endfunc get_cpu_ops_ptr
 
 /*
  * Extract CPU revision and variant, and combine them into a single numeric for
