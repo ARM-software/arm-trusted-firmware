@@ -1,3 +1,5 @@
+.. _security-advisory-tfv-7:
+
 Advisory TFV-7 (CVE-2018-3639)
 ==============================
 
