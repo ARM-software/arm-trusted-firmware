@@ -129,6 +129,26 @@ bool-01 = $(if $(call bool,$(1)),1,0)
 defined = $(call bool,$(filter-out undefined,$(origin $(1))))
 
 #
+# Extract include directories from compiler flags and convert them to absolute
+# paths.
+#
+# Parameters:
+#
+#   - $(1): A list of C compiler flags.
+#
+# Example:
+#
+#     includes := $(call include-dirs, -nostdlib -Iinclude-dir) # /absolute/path/to/include-dir
+#
+
+include-dirs-pattern := $(call escape-shell,-I\s*("[^"]*"|'[^']*'|\S+))
+include-dirs = $(shell \
+	printf '%s' $(call escape-shell,$1) | \
+	perl -nle 'print $$1 while /'$(include-dirs-pattern)'/g' | \
+	xargs realpath \
+)
+
+#
 # Determine the path to a program.
 #
 # Parameters:
