@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2025-2026 Texas Instruments Incorporated - https://www.ti.com
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1566,6 +1566,8 @@ const struct ti_clk_drv_div ti_clk_drv_div_pll_16fft_hsdiv = {
 		.notify_freq = ti_clk_div_notify_freq,
 		.get_freq = ti_clk_div_get_freq,
 		.set_freq = clk_pll_16fft_hsdiv_set_freq,
+		.suspend_save	= ti_clk_div_suspend_save,
+		.resume_restore = ti_clk_div_resume_restore,
 	},
 	.set_div = ti_clk_div_reg_set_div,
 	.get_div = ti_clk_div_reg_get_div,
@@ -1577,6 +1579,8 @@ const struct ti_clk_drv_div ti_clk_drv_div_pll_16fft_postdiv_hsdiv = {
 		.set_freq = ti_clk_div_set_freq,
 		.get_freq = ti_clk_div_get_freq,
 		.init = clk_pll_16fft_hsdiv_init,
+		.suspend_save	= ti_clk_div_suspend_save,
+		.resume_restore = ti_clk_div_resume_restore,
 	},
 	.set_div = ti_clk_div_reg_set_div,
 	.get_div = ti_clk_div_reg_get_div,

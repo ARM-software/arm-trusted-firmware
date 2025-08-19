@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2025-2026 Texas Instruments Incorporated - https://www.ti.com
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -482,6 +482,24 @@ bool ti_clk_div_reg_set_div(struct ti_clk *clkp, uint32_t div)
 	return ret;
 }
 
+int32_t ti_clk_div_suspend_save(struct ti_clk *clkp)
+{
+	clkp->saved_val = ti_clk_div_reg_get_div(clkp);
+
+	return 0;
+}
+
+int32_t ti_clk_div_resume_restore(struct ti_clk *clkp)
+{
+	bool ret;
+
+	ret = ti_clk_div_reg_set_div(clkp, clkp->saved_val);
+	if(ret)
+		return 0;
+	else 
+		return -EFAULT;
+}
+
 const struct ti_clk_drv_div ti_clk_drv_div_reg_ro = {
 	.drv = {
 		.get_freq = ti_clk_div_get_freq,
@@ -495,6 +513,8 @@ const struct ti_clk_drv_div ti_clk_drv_div_reg = {
 		.set_freq	= ti_clk_div_set_freq,
 		.get_freq	= ti_clk_div_get_freq,
 		.init		= ti_clk_div_init,
+		.suspend_save	= ti_clk_div_suspend_save,
+		.resume_restore = ti_clk_div_resume_restore,
 	},
 	.set_div = ti_clk_div_reg_set_div,
 	.get_div = ti_clk_div_reg_get_div,
@@ -575,12 +595,48 @@ bool ti_clk_div_reg_go_set_div(struct ti_clk *clkp, uint32_t div)
 	return ret;
 }
 
+/**
+ * @brief Save divider clock value during suspend
+ *
+ * Saves the current divider value of a divider clock before entering
+ * low power mode so it can be restored during resume.
+ *
+ * @param clkp Divider clock to save value for
+ *
+ * @return 0 on success
+ */
+int32_t ti_clk_div_go_suspend_save(struct ti_clk *clkp)
+{
+	clkp->saved_val = ti_clk_div_reg_go_get_div(clkp);
+
+	return 0;
+}
+
+/**
+ * @brief Restore divider clock value during resume
+ *
+ * Restores the saved divider value of a divider clock after exiting
+ * low power mode, returning the clock to its pre-suspend state.
+ *
+ * @param clkp Divider clock to restore value for
+ *
+ * @return 0 on success
+ */
+int32_t ti_clk_div_go_resume_restore(struct ti_clk *clkp)
+{
+	ti_clk_div_reg_go_set_div(clkp, clkp->saved_val);
+
+	return 0;
+}
+
 const struct ti_clk_drv_div ti_clk_drv_div_reg_go = {
 	.drv = {
 		.notify_freq = ti_clk_div_notify_freq,
 		.set_freq = ti_clk_div_set_freq,
 		.get_freq = ti_clk_div_get_freq,
 		.init = ti_clk_div_init,
+		.suspend_save	= ti_clk_div_go_suspend_save,
+		.resume_restore = ti_clk_div_go_resume_restore,
 	},
 	.set_div = ti_clk_div_reg_go_set_div,
 	.get_div = ti_clk_div_reg_go_get_div,

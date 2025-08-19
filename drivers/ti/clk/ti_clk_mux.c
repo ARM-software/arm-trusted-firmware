@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2025-2026 Texas Instruments Incorporated - https://www.ti.com
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
  */
 
 #include <common/debug.h>
-
+#include <errno.h>
 #include <ti_clk_mux.h>
 #include <ti_container_of.h>
 #include <ti_io.h>
@@ -104,6 +104,46 @@ static bool ti_clk_mux_set_parent_internal(struct ti_clk *clkp, uint8_t new_pare
 	return ret;
 }
 
+/**
+ * @brief Save mux clock parent selection during suspend
+ *
+ * Saves the current parent selection of a mux clock before entering
+ * low power mode so it can be restored during resume.
+ *
+ * @param clkp Mux clock to save parent selection for
+ *
+ * @return 0 on success
+ */
+static int32_t ti_clk_mux_suspend_save(struct ti_clk *clkp)
+{
+	clkp->saved_val = ti_clk_mux_get_parent_value(clkp);
+
+	return 0;
+}
+
+/**
+ * @brief Restore mux clock parent selection during resume
+ *
+ * Restores the saved parent selection of a mux clock after exiting
+ * low power mode, returning the clock to its pre-suspend state.
+ *
+ * @param clkp Mux clock to restore parent selection for
+ *
+ * @return 0 on success, -EINVAL on failure
+ */
+static int32_t ti_clk_mux_resume_restore(struct ti_clk *clkp)
+{
+	bool error;
+	int32_t ret = 0;
+
+	error = ti_clk_mux_set_parent_internal(clkp, (uint8_t)(clkp->saved_val));
+	if (error == false) {
+		ret = -EINVAL;
+	}
+
+	return ret;
+}
+
 const struct ti_clk_drv_mux ti_clk_drv_mux_reg_ro = {
 	.get_parent = ti_clk_mux_get_parent_internal,
 };
@@ -111,6 +151,10 @@ const struct ti_clk_drv_mux ti_clk_drv_mux_reg_ro = {
 const struct ti_clk_drv_mux ti_clk_drv_mux_reg = {
 	.set_parent = ti_clk_mux_set_parent_internal,
 	.get_parent = ti_clk_mux_get_parent_internal,
+	.drv			= {
+		.suspend_save	= ti_clk_mux_suspend_save,
+		.resume_restore = ti_clk_mux_resume_restore,
+	},
 };
 
 const struct ti_clk_parent *ti_clk_mux_get_parent(struct ti_clk *clkp)

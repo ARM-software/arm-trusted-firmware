@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2025-2026 Texas Instruments Incorporated - https://www.ti.com
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -232,5 +232,27 @@ uint32_t ti_clk_get_div(struct ti_clk *clkp);
  * \return 0 on success, error code otherwise
  */
 int32_t ti_clk_div_init(struct ti_clk *clkp);
+
+/**
+ * \brief Save a divider clock value
+ *
+ * Save the current divider value during suspend
+ *
+ * \param clkp The divider clock to save
+ *
+ * \return 0 on success, error code otherwise
+ */
+int32_t ti_clk_div_suspend_save(struct ti_clk *clkp);
+
+/**
+ * \brief Restore a divider clock value
+ *
+ * Restores a clock's divider value during resume
+ *
+ * \param clkp The divider clock to restore
+ *
+ * \return 0 on success, error code otherwise
+ */
+int32_t ti_clk_div_resume_restore(struct ti_clk *clkp);
 
 #endif

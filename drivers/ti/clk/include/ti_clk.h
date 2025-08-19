@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2025-2026 Texas Instruments Incorporated - https://www.ti.com
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,6 +76,9 @@
 /** set if a cached frequency is stored in freq_idx (used for PLLs) */
 #define TI_CLK_FLAG_CACHED				((uint8_t) BIT(3))
 
+/** set if a clock has suspend handler called but not resume handler */
+#define TI_CLK_FLAG_SUSPENDED			((uint8_t)BIT(4))
+
 /** \brief Clock hardware is disabled */
 #define TI_CLK_HW_STATE_DISABLED	0U
 
@@ -109,6 +112,7 @@ struct ti_clk {
 	uint8_t ref_count;		/** Reference count for clock usage */
 	uint8_t freq_change_block_count;	/** Count of frequency change blocks */
 	uint8_t flags;			/** Runtime flags (TI_CLK_FLAG_*) */
+	uint32_t saved_val;		/** variable to save the clock value during lpm */
 };
 
 /**
@@ -201,6 +205,23 @@ struct ti_clk_drv {
 	bool (*notify_freq)(struct ti_clk *clkp, uint32_t parent_freq_hz,
 			    bool query);
 
+	/**
+	 * \brief Suspend and save clock context during suspend path.
+	 *
+	 * \param clkp The clock to suspend and save
+	 *
+	 * \return SUCCESS for success, error code otherwise
+	 */
+	int32_t (*suspend_save)(struct ti_clk *clkp);
+
+	/**
+	 * \brief Resume and restore clock context during resume path.
+	 *
+	 * \param clkp The clock to resume and restore
+	 *
+	 * \return SUCCESS for success, error code otherwise
+	 */
+	int32_t (*resume_restore)(struct ti_clk *clkp);
 };
 
 /** The table of dynamic clock data */
@@ -387,6 +408,30 @@ void ti_clk_freq_change_block(struct ti_clk *clkp);
  * \return 0 on success, error code otherwise
  */
 int32_t ti_clk_init(void);
+
+/**
+ * \brief Suspend all clocks on the device
+ *
+ * Iterates through all clocks and calls their suspend_save handlers to save
+ * clock state before entering low power mode. Uses multiple passes to handle
+ * clock tree dependencies, ensuring parent clocks are saved before children.
+ * Bounded by LPM_CLK_MAX_TRIES to prevent infinite loops.
+ *
+ * \return 0 on success, -ETIMEDOUT if max tries exceeded, error code otherwise
+ */
+int32_t ti_clks_suspend(void);
+
+/**
+ * \brief Resume all clocks on the device
+ *
+ * Iterates through all clocks and calls their resume_restore handlers to
+ * restore clock state after exiting low power mode. Uses multiple passes to
+ * handle clock tree dependencies, ensuring parent clocks are restored before
+ * children. Bounded by LPM_CLK_MAX_TRIES to prevent infinite loops.
+ *
+ * \return 0 on success, -ETIMEDOUT if max tries exceeded, error code otherwise
+ */
+int32_t ti_clks_resume(void);
 
 /**
  * \brief Clears power-up enable flag on all clocks
