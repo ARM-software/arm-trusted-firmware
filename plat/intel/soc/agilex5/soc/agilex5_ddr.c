@@ -341,8 +341,11 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 
 	/* Dual EMIF setting */
 	if (is_dualemif) {
-		/* Set mpfe_lite_active in the system manager */
+		/* Set mpfe_lite_active in the system manager. */
 		mmio_setbits_32(SOCFPGA_SYSMGR(MPFE_CONFIG), BIT(8));
+
+		/* Set mpfe_lite_intfcsel select in the system manager. */
+		mmio_setbits_32(SOCFPGA_SYSMGR(MPFE_CONFIG), BIT(2));
 
 		mmio_setbits_32(SIDEBANDMGR_FLAGOUTSET0_REG, BIT(5));
 	}
