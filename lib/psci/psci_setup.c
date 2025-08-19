@@ -97,7 +97,7 @@ static void __init psci_update_pwrlvl_limits(void)
 	unsigned int cpu_idx;
 	int j;
 	unsigned int nodes_idx[PLAT_MAX_PWR_LVL] = {0};
-	unsigned int temp_index[PLAT_MAX_PWR_LVL];
+	unsigned int temp_index[PLAT_MAX_PWR_LVL] = {0};
 
 	for (cpu_idx = 0; cpu_idx < psci_plat_core_count; cpu_idx++) {
 		psci_get_parent_pwr_domain_nodes(cpu_idx,
