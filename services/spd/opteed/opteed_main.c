@@ -460,7 +460,7 @@ static int32_t create_smc_tl(const void *fdt, uint32_t fdt_sz)
  * binary image via a non-secure SMC call. It takes the size and physical
  * address of the payload as parameters.
  ******************************************************************************/
-static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
+static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 {
 	uintptr_t data_va = data_pa;
 	uint64_t mapped_data_pa;
