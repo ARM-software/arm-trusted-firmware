@@ -22,7 +22,7 @@
 #endif
 
 #if ERRATA_SME_POWER_DOWN == 0
-#error "Travis needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
+#error "Alto needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
 #endif
 
 cpu_reset_prologue cortex_alto
@@ -35,10 +35,11 @@ cpu_reset_func_end cortex_alto
 
 func cortex_alto_core_pwr_dwn
 	/* ---------------------------------------------------
-	 * Enable CPU power down bit in power control register
+	 * Flip CPU power down bit in power control register.
+	 * It will be set on powerdown and cleared on wakeup.
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set CORTEX_ALTO_IMP_CPUPWRCTLR_EL1, \
+	sysreg_bit_toggle CORTEX_ALTO_IMP_CPUPWRCTLR_EL1, \
 		CORTEX_ALTO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	signal_pabandon_handled
