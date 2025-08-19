@@ -222,9 +222,11 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 #endif /* RESET_TO_BL31 */
 #else /* (!TRANSFER_LIST) */
 #if RESET_TO_BL31
-	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert((uintptr_t)arg0 == 0U);
-	assert((uintptr_t)arg3 == 0U);
+	/* If BL31 is a reset vector, the parameters must be ignored */
+	(void)arg0;
+	(void)arg1;
+	(void)arg2;
+	(void)arg3;
 
 # ifdef BL32_BASE
 	/* Populate entry point information for BL32 */
