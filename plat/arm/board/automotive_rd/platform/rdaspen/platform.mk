@@ -28,10 +28,11 @@ override ENABLE_SVE_FOR_SWD		:=	1
 ARM_ARCH_MAJOR				:=	9
 ARM_ARCH_MINOR				:=	2
 CSS_USE_SCMI_SDS_DRIVER			:=	1
-ENABLE_FEAT_AMU				:=	1
-ENABLE_FEAT_ECV				:=	1
-ENABLE_FEAT_FGT				:=	1
-ENABLE_FEAT_MTE2			:=	1
+# Enable runtime feature detection for emulation environments
+ENABLE_FEAT_AMU				:=	2
+ENABLE_FEAT_ECV				:=	2
+ENABLE_FEAT_FGT				:=	2
+ENABLE_FEAT_MTE2			:=	2
 ENABLE_MPAM_FOR_LOWER_ELS		:=	1
 GIC_ENABLE_V4_EXTN			:=	1
 GICV3_SUPPORT_GIC600			:=	1
