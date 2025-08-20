@@ -211,9 +211,13 @@ bool trng_pack_entropy(uint32_t nbits, uint64_t *out)
 
 		}
 	}
-	const uint64_t mask = ~0ULL >> (BITS_PER_WORD - (nbits % BITS_PER_WORD));
 
-	out[to_fill - 1] &= mask;
+	/* Mask off higher bits if only part of the last word was requested */
+	if ((nbits % BITS_PER_WORD) != 0) {
+		const uint64_t mask = UINT64_MAX >>
+				      (BITS_PER_WORD - (nbits % BITS_PER_WORD));
+		out[to_fill - 1] &= mask;
+	}
 
 	entropy_bit_index = (entropy_bit_index + nbits) % BITS_IN_POOL;
 	entropy_bit_size -= nbits;
