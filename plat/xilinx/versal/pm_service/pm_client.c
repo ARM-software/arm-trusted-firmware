@@ -181,18 +181,20 @@ enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
  * pm_client_suspend() - Client-specific suspend actions.
  * @proc: processor which need to suspend.
  * @state: desired suspend state.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * This function should contain any PU-specific actions
  * required prior to sending suspend request to PMU
  * Actions taken depend on the state system is suspending to.
  *
  */
-void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag)
 {
 	bakery_lock_get(&pm_client_secure_lock);
 
 	if (state == PM_STATE_SUSPEND_TO_RAM) {
-		pm_client_set_wakeup_sources((uint32_t)proc->node_id);
+		pm_client_set_wakeup_sources((uint32_t)proc->node_id, flag);
 	}
 
 	/* Set powerdown request */

@@ -285,7 +285,7 @@ enum pm_ret_status pm_self_suspend(enum pm_node_id nid,
 	 * Do client specific suspend operations
 	 * (e.g. set powerdown request bit)
 	 */
-	pm_client_suspend(proc, state);
+	pm_client_suspend(proc, state, flag);
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD6(payload, flag, PM_SELF_SUSPEND, proc->node_id,
 			 latency, state, address, (address >> 32));

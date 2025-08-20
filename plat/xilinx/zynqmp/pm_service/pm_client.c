@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -172,9 +172,11 @@ static enum pm_node_id irq_to_pm_node(uint32_t irq)
 /**
  * pm_client_set_wakeup_sources - Set all slaves with enabled interrupts as wake
  *                                sources in the PMU firmware.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  */
-static void pm_client_set_wakeup_sources(void)
+static void pm_client_set_wakeup_sources(uint32_t flag)
 {
 	uint32_t reg_num;
 	uint8_t pm_wakeup_nodes_set[NODE_MAX] = { 0 };
@@ -184,7 +186,7 @@ static void pm_client_set_wakeup_sources(void)
 	if (suspend_mode == PM_SUSPEND_MODE_POWER_OFF) {
 		enum pm_ret_status ret;
 
-		ret = pm_set_wakeup_source(NODE_APU, NODE_EXTERN, 1U, SECURE);
+		ret = pm_set_wakeup_source(NODE_APU, NODE_EXTERN, 1U, flag);
 		/**
 		 * If NODE_EXTERN could not be set as wake source, proceed with
 		 * standard suspend (no one will wake the system otherwise)
@@ -221,7 +223,7 @@ static void pm_client_set_wakeup_sources(void)
 
 			if ((node > NODE_UNKNOWN) && (node < NODE_MAX)) {
 				if (pm_wakeup_nodes_set[node] == 0U) {
-					ret = pm_set_wakeup_source(NODE_APU, node, 1U, SECURE);
+					ret = pm_set_wakeup_source(NODE_APU, node, 1U, flag);
 					pm_wakeup_nodes_set[node] = (ret == PM_RET_SUCCESS) ? 1U : 0U;
 				}
 			}
@@ -274,18 +276,20 @@ const struct pm_proc *primary_proc = &pm_procs_all[0];
  * pm_client_suspend() - Client-specific suspend actions.
  * @proc: processor which need to suspend.
  * @state: desired suspend state.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  * This function should contain any PU-specific actions
  * required prior to sending suspend request to PMU
  * Actions taken depend on the state system is suspending to.
  *
  */
-void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag)
 {
 	bakery_lock_get(&pm_client_secure_lock);
 
 	if (state == PM_STATE_SUSPEND_TO_RAM) {
-		pm_client_set_wakeup_sources();
+		pm_client_set_wakeup_sources(flag);
 	}
 
 	/* Set powerdown request */
