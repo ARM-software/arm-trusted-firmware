@@ -296,6 +296,13 @@ static unsigned int read_feat_fgwte3_id_field(void)
 			     ID_AA64MMFR4_EL1_FGWTE3_MASK);
 }
 
+static unsigned int read_feat_cpa_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64isar3_el1(),
+			     ID_AA64ISAR3_EL1_CPA_SHIFT,
+			     ID_AA64ISAR3_EL1_CPA_MASK);
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -463,6 +470,8 @@ void detect_arch_features(unsigned int core_pos)
 				 "PAUTH_LR", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_FGWTE3, read_feat_fgwte3_id_field(),
 				 "FGWTE3", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_CPA2, read_feat_cpa_id_field(),
+				 "CPA2", 2, 2);
 
 	if (tainted) {
 		panic();

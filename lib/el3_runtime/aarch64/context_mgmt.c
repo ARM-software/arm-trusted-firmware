@@ -26,6 +26,7 @@
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
 #include <lib/extensions/brbe.h>
+#include <lib/extensions/cpa2.h>
 #include <lib/extensions/debug_v8p9.h>
 #include <lib/extensions/fgt2.h>
 #include <lib/extensions/fpmr.h>
@@ -702,6 +703,10 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 
 	if (is_feat_mpam_supported()) {
 		mpam_init_el3();
+	}
+
+	if (is_feat_cpa2_supported()) {
+		cpa2_enable_el3();
 	}
 
 	pmuv3_init_el3();

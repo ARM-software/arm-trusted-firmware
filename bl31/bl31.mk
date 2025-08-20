@@ -148,6 +148,10 @@ ifneq (${ENABLE_FEAT_FPMR},0)
 BL31_SOURCES		+=	lib/extensions/fpmr/fpmr.c
 endif
 
+ifneq (${ENABLE_FEAT_CPA2}, 0)
+BL31_SOURCES		+=	lib/extensions/cpa2/cpa2.c
+endif
+
 ifeq (${WORKAROUND_CVE_2017_5715},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/wa_cve_2017_5715_bpiall.S	\
 				lib/cpus/aarch64/wa_cve_2017_5715_mmu.S

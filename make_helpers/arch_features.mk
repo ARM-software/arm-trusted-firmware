@@ -443,3 +443,7 @@ ENABLE_FEAT_GCS				?=	0
 
 # Flag to enable Fine Grained Write Traps (FEAT_FGWTE3) for EL3.
 ENABLE_FEAT_FGWTE3			?=	0
+
+# Flag to enable checked pointer arithmetic (FEAT_CPA2) for EL3.
+# We don't have a flag for FEAT_CPA since that has no effect on software
+ENABLE_FEAT_CPA2			?=	0

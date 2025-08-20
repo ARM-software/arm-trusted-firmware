@@ -342,6 +342,13 @@
 #define ID_AA64ISAR2_SYSREG128_SHIFT	U(32)
 #define ID_AA64ISAR2_SYSREG128_MASK	ULL(0xf)
 
+/* ID_AA64ISAR3_EL1 definitions */
+#define ID_AA64ISAR3_EL1		S3_0_C0_C6_3
+#define ID_AA64ISAR3_EL1_CPA_SHIFT	U(0)
+#define ID_AA64ISAR3_EL1_CPA_MASK	ULL(0xf)
+
+#define CPA2_IMPLEMENTED		ULL(0x2)
+
 /* ID_AA64MMFR0_EL1 definitions */
 #define ID_AA64MMFR0_EL1_PARANGE_SHIFT	U(0)
 #define ID_AA64MMFR0_EL1_PARANGE_MASK	ULL(0xf)
@@ -630,6 +637,8 @@
 #define SCTLR_RESET_VAL		SCTLR_EL3_RES1
 
 #define SCTLR2_EnPACM_BIT	(ULL(1) << 7)
+#define SCTLR2_CPTA_BIT		(ULL(1) << 9)
+#define SCTLR2_CPTM_BIT		(ULL(1) << 11)
 
 /* SCTLR2 currently has no RES1 fields so reset to 0 */
 #define SCTLR2_RESET_VAL	ULL(0)
