@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2025, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef SOC_TEMP_LVTS_INTERFACE_H
+#define SOC_TEMP_LVTS_INTERFACE_H
+
+enum mt8189_lvts_sensor_enum {
+	MT8189_TS1_0,
+	MT8189_TS1_1,
+	MT8189_TS1_2,
+	MT8189_TS1_3,
+	MT8189_TS2_0,
+	MT8189_TS2_1,
+	MT8189_TS2_2,
+	MT8189_TS2_3,
+	MT8189_TS3_0,
+	MT8189_TS3_1,
+	MT8189_TS3_2,
+	MT8189_TS3_3,
+	MT8189_TS4_0,
+	MT8189_TS4_1,
+	MT8189_TS4_2,
+	MT8189_TS4_3,
+	MT8189_TS5_0,
+	MT8189_TS5_1,
+	MT8189_NUM_TS
+};
+
+#define THERMAL_REBOOT_BIT	(18)
+#define MFG_THERMAL_REBOOT_BIT	(22)
+
+#endif /* SOC_TEMP_LVTS_INTERFACE_H */

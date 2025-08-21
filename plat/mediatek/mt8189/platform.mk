@@ -41,6 +41,7 @@ MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/ptp3
 MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
+MODULES-y += $(MTK_PLAT)/drivers/thermal
 MODULES-$(CONFIG_MTK_MTCMOS) += $(MTK_PLAT)/drivers/mtcmos
 MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
 MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
