@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,6 +10,9 @@
 
 /******** RSE_SP_CRYPTO ********/
 #define RSE_CRYPTO_HANDLE				(0x40000100U)
+
+/******** RSE_SP_INITIAL_ATTESTATION ********/
+#define RSE_INITIAL_ATTESTATION_SERVICE_HANDLE		(0x40000103U)
 
 /******** RSE_SP_PLATFORM ********/
 #define RSE_PLATFORM_SERVICE_HANDLE			(0x40000105U)
