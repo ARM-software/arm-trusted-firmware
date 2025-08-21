@@ -1752,14 +1752,15 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 		write_el1_ctx_aarch32(ctx, ifsr32_el2, read_ifsr32_el2());
 	}
 
-	if (NS_TIMER_SWITCH) {
-		/* Save NS Timer registers */
-		write_el1_ctx_arch_timer(ctx, cntp_ctl_el0, read_cntp_ctl_el0());
-		write_el1_ctx_arch_timer(ctx, cntp_cval_el0, read_cntp_cval_el0());
-		write_el1_ctx_arch_timer(ctx, cntv_ctl_el0, read_cntv_ctl_el0());
-		write_el1_ctx_arch_timer(ctx, cntv_cval_el0, read_cntv_cval_el0());
-		write_el1_ctx_arch_timer(ctx, cntkctl_el1, read_cntkctl_el1());
-	}
+	/* Save counter-timer kernel control register */
+	write_el1_ctx_arch_timer(ctx, cntkctl_el1, read_cntkctl_el1());
+#if NS_TIMER_SWITCH
+	/* Save NS Timer registers */
+	write_el1_ctx_arch_timer(ctx, cntp_ctl_el0, read_cntp_ctl_el0());
+	write_el1_ctx_arch_timer(ctx, cntp_cval_el0, read_cntp_cval_el0());
+	write_el1_ctx_arch_timer(ctx, cntv_ctl_el0, read_cntv_ctl_el0());
+	write_el1_ctx_arch_timer(ctx, cntv_cval_el0, read_cntv_cval_el0());
+#endif
 
 	if (is_feat_mte2_supported()) {
 		write_el1_ctx_mte2(ctx, tfsre0_el1, read_tfsre0_el1());
@@ -1860,14 +1861,15 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 		write_ifsr32_el2(read_el1_ctx_aarch32(ctx, ifsr32_el2));
 	}
 
-	if (NS_TIMER_SWITCH) {
-		/* Restore NS Timer registers */
-		write_cntp_ctl_el0(read_el1_ctx_arch_timer(ctx, cntp_ctl_el0));
-		write_cntp_cval_el0(read_el1_ctx_arch_timer(ctx, cntp_cval_el0));
-		write_cntv_ctl_el0(read_el1_ctx_arch_timer(ctx, cntv_ctl_el0));
-		write_cntv_cval_el0(read_el1_ctx_arch_timer(ctx, cntv_cval_el0));
-		write_cntkctl_el1(read_el1_ctx_arch_timer(ctx, cntkctl_el1));
-	}
+	/* Restore counter-timer kernel control register */
+	write_cntkctl_el1(read_el1_ctx_arch_timer(ctx, cntkctl_el1));
+#if NS_TIMER_SWITCH
+	/* Restore NS Timer registers */
+	write_cntp_ctl_el0(read_el1_ctx_arch_timer(ctx, cntp_ctl_el0));
+	write_cntp_cval_el0(read_el1_ctx_arch_timer(ctx, cntp_cval_el0));
+	write_cntv_ctl_el0(read_el1_ctx_arch_timer(ctx, cntv_ctl_el0));
+	write_cntv_cval_el0(read_el1_ctx_arch_timer(ctx, cntv_cval_el0));
+#endif
 
 	if (is_feat_mte2_supported()) {
 		write_tfsre0_el1(read_el1_ctx_mte2(ctx, tfsre0_el1));

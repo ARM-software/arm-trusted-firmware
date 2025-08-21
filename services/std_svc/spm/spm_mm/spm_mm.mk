@@ -28,6 +28,3 @@ SPM_MM_SOURCES	:=	$(addprefix services/std_svc/spm/spm_mm/,	\
 
 # Let the top-level Makefile know that we intend to include a BL32 image
 NEED_BL32		:=	yes
-
-# required so that SPM code executing at S-EL0 can access the timer registers
-NS_TIMER_SWITCH		:=	1

@@ -14,9 +14,6 @@ SPD_SOURCES		:=	services/spd/opteed/opteed_common.c	\
 
 NEED_BL32		:=	yes
 
-# required so that optee code can control access to the timer registers
-NS_TIMER_SWITCH		:=	1
-
 # WARNING: This enables loading of OP-TEE via an SMC, which can be potentially
 # insecure. This removes the boundary between the startup of the secure and
 # non-secure worlds until the point where this SMC is invoked. Only use this
