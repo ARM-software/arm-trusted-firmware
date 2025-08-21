@@ -12,8 +12,6 @@ NOTIFIER_VER := v4
 
 #COND_CHECK_VER := v1
 
-#PMIC_GS_DUMP_VER := v1
-
 PMIC_WRAP_VER := v1
 
 MTK_SPM_COMMON_DRV := y
@@ -44,13 +42,6 @@ MTK_SPM_PMIC_LP_SUPPORT := y
 
 CONSTRAINT_ID_ALL := 0xff
 $(eval $(call add_defined_option,CONSTRAINT_ID_ALL))
-
-ifneq (${PMIC_GS_DUMP_VER},)
-$(eval $(call add_define,MTK_SPM_PMIC_GS_DUMP))
-$(eval $(call add_define,MTK_SPM_PMIC_GS_DUMP_SUSPEND))
-$(eval $(call add_define,MTK_SPM_PMIC_GS_DUMP_SODI3))
-$(eval $(call add_define,MTK_SPM_PMIC_GS_DUMP_DPIDLE))
-endif
 
 ifeq (${MT_SPM_FEATURE_SUPPORT},n)
 $(eval $(call add_define,MTK_PLAT_SPM_UNSUPPORT))
