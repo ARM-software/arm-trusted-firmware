@@ -135,16 +135,18 @@ uint8_t fcs_cs_mac_verify_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
 	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
 
-	(void)cmd;
 	INFO("MBOX: %s: mbox_err 0x%x, nbytes_ret %d, verify_result 0x%x\n",
 		__func__, resp->err_code,
 		resp->rcvd_resp_len * MBOX_WORD_BYTE,
-		resp->resp_data[3]);
+		cmd->cb_args[3]);
 
 	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
 	ret_args[ret_args_len++] = resp->err_code;
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
-	ret_args[ret_args_len++] = resp->resp_data[3];
+	ret_args[ret_args_len++] = cmd->cb_args[3];
+
+	/* Flush the response data buffer. */
+	flush_dcache_range((uintptr_t)cmd->cb_args, resp->rcvd_resp_len * MBOX_WORD_BYTE);
 
 	return ret_args_len;
 }
