@@ -343,6 +343,9 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
 {
+	/* Initialize the console to provide early debug support */
+	arm_console_boot_init();
+
 	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/*
