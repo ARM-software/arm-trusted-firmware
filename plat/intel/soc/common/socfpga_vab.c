@@ -23,6 +23,7 @@
 #include <tools_share/firmware_image_package.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_private.h"
 #include "socfpga_vab.h"
 
 size_t get_img_size(uint8_t *img_buf, size_t img_buf_sz)

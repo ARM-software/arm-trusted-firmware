@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,3 +52,30 @@ uint32_t socfpga_get_spsr_for_bl33_entry(void)
 	return spsr;
 }
 
+// common/lib/libc/socfpga_memcpy_s.c
+int socfpga_memcpy_s(void *dst, size_t dsize, void *src, size_t ssize)
+{
+	unsigned int *s = (unsigned int *)src;
+	unsigned int *d = (unsigned int *)dst;
+
+	if (!dst || !src)
+		return -ENOMEM;
+
+	if (!dsize || !ssize)
+		return -ERANGE;
+
+	if (ssize > dsize)
+		return -EINVAL;
+
+	if (d > s && d < s + ssize)
+		return -EOPNOTSUPP;
+
+	if (s > d && s < d + dsize)
+		return -EOPNOTSUPP;
+
+	// Backward word-wise copy
+	while (ssize--)
+		d[ssize] = s[ssize];
+
+	return 0;
+}

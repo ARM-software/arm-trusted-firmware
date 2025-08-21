@@ -13,6 +13,7 @@
 
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
+#include "socfpga_private.h"
 #include "socfpga_sip_svc.h"
 #include "socfpga_system_manager.h"
 

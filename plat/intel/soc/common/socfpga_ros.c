@@ -18,7 +18,7 @@
 
 /* Mailbox driver*/
 #include <socfpga_mailbox.h>
-
+#include <socfpga_private.h>
 #include <socfpga_ros.h>
 
 #define WORD_SIZE	(sizeof(uint32_t))

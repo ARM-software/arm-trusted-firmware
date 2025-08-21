@@ -21,6 +21,9 @@
 		.reg_base = SOCFPGA_MMC_REG_BASE	\
 	}
 
+#undef memcpy_s
+#define memcpy_s socfpga_memcpy_s
+
 typedef enum {
 	BOOT_SOURCE_FPGA = 0,
 	BOOT_SOURCE_SDMMC,
@@ -67,6 +70,8 @@ unsigned long socfpga_get_ns_image_entrypoint(void);
 void plat_secondary_cpus_bl31_entry(void);
 
 void setup_clusterectlr_el1(void);
+
+int socfpga_memcpy_s(void *dst, size_t dsize, void *src, size_t ssize);
 
 /******************************************************************************
  * Macro for generic poling function
