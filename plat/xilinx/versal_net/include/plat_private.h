@@ -35,4 +35,6 @@ int32_t sip_svc_setup_init(void);
  */
 int request_intr_type_el3(uint32_t irq, interrupt_type_handler_t fiq_handler);
 
+void get_boot_mode(uint32_t *mode);
+
 #endif /* PLAT_PRIVATE_H */

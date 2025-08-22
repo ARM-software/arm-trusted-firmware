@@ -14,6 +14,9 @@
 #include <plat/common/platform.h>
 #include <plat_common.h>
 #include <plat_ipi.h>
+#include <plat_pm_common.h>
+#include <pm_api_sys.h>
+#include <pm_defs.h>
 
 #include <plat_private.h>
 #include <versal_net_def.h>
@@ -157,3 +160,26 @@ void syscnt_freq_config_setup(void)
 		      IOU_SCNTRS_CONTROL_EN);
 }
 
+/*
+ * Get bootmode register value via IPI call.
+ */
+#if DEBUG
+void get_boot_mode(uint32_t *mode)
+{
+	enum pm_ret_status ret_status;
+
+	if (mode != NULL) {
+		ret_status = pm_handle_eemi_call(SECURE_FLAG, PM_IOCTL, CRP_BOOT_MODE_REG_NODE,
+				IOCTL_READ_REG, CRP_BOOT_MODE_REG_OFFSET, 0, 0, mode);
+
+		if (ret_status == PM_RET_SUCCESS) {
+			INFO("bootmode: %u\n", *mode);
+		} else {
+			*mode = BOOT_MODE_INVALID;
+			INFO("Failed to retrieve boot mode reg value via IPI.\n");
+		}
+	}
+
+	return;
+}
+#endif

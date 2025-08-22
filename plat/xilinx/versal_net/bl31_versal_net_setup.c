@@ -96,6 +96,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint64_t tfa_handoff_addr, buff[HANDOFF_PARAMS_MAX_SIZE] = {0};
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
+#if DEBUG
+	uint32_t boot_mode;
+#endif
 #endif /* !(TFA_NO_PM) */
 
 	board_detection();
@@ -157,18 +160,27 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 		xbl_ret = xbl_handover(&bl32_image_ep_info, &bl33_image_ep_info,
 				       tfa_handoff_addr);
-		if (xbl_ret != XBL_HANDOFF_SUCCESS) {
-			ERROR("BL31: PLM to TF-A handover failed %u\n", xbl_ret);
-			panic();
+		if (xbl_ret == XBL_HANDOFF_SUCCESS) {
+			goto success;
 		}
-
-		INFO("BL31: PLM to TF-A handover success\n");
-
+#if DEBUG
+		get_boot_mode(&boot_mode);
+		if ((xbl_ret != XBL_HANDOFF_SUCCESS) && (boot_mode == JTAG_MODE)) {
+			bl31_set_default_config();
+			goto success;
+		}
+#endif
 	} else {
-		INFO("BL31: setting up default configs\n");
-
 		bl31_set_default_config();
+		goto success;
 	}
+
+	ERROR("PLM to TF-A handover failed or not in default boot mode\n");
+	panic();
+
+success:
+	INFO("BL31: PLM to TF-A handover success or default config is set\n");
+
 #else
 	bl31_set_default_config();
 #endif /* !(TFA_NO_PM) */
