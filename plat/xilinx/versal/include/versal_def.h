@@ -37,11 +37,11 @@
 #define RT_CONSOLE_IS(con)	(RT_CONSOLE_ID_ ## con == CONSOLE_RUNTIME)
 
 /* List of platforms */
-#define VERSAL_SILICON              U(0)
-#define VERSAL_SPP                  U(1)
-#define VERSAL_EMU                  U(2)
-#define VERSAL_QEMU                 U(3)
-#define VERSAL_COSIM                U(7)
+#define VERSAL_SILICON             0U
+#define VERSAL_SPP                 1U
+#define VERSAL_EMU                 2U
+#define VERSAL_QEMU                3U
+#define VERSAL_COSIM               7U
 
 /* Firmware Image Package */
 #define VERSAL_PRIMARY_CPU	0
@@ -57,7 +57,7 @@
 /*******************************************************************************
  * IRQ constants
  ******************************************************************************/
-#define VERSAL_IRQ_SEC_PHY_TIMER		U(29)
+#define VERSAL_IRQ_SEC_PHY_TIMER		29U
 #define ARM_IRQ_SEC_PHY_TIMER	29
 
 /*******************************************************************************
@@ -111,8 +111,8 @@
 #define UART_BAUDRATE  115200
 
 /* Access control register defines */
-#define ACTLR_EL3_L2ACTLR_BIT	(1 << 6)
-#define ACTLR_EL3_CPUACTLR_BIT	(1 << 0)
+#define ACTLR_EL3_L2ACTLR_BIT	(1U << 6)
+#define ACTLR_EL3_CPUACTLR_BIT	(1U << 0)
 
 /* For cpu reset APU space here too 0xFE5F1000 CRF_APB*/
 #define CRF_BASE		U(0xFD1A0000)
@@ -121,12 +121,12 @@
 /* CRF registers and bitfields */
 #define CRF_RST_APU	(CRF_BASE + 0X00000300)
 
-#define CRF_RST_APU_ACPU_RESET		(1 << 0)
-#define CRF_RST_APU_ACPU_PWRON_RESET	(1 << 10)
+#define CRF_RST_APU_ACPU_RESET		(1U << 0)
+#define CRF_RST_APU_ACPU_PWRON_RESET	(1U << 10)
 
 /* IOU SCNTRS */
 #define IOU_SCNTRS_BASE	U(0xFF140000)
-#define IOU_SCNTRS_BASE_FREQ_OFFSET	U(0x20)
+#define IOU_SCNTRS_BASE_FREQ_OFFSET	0x20U
 
 /* APU registers and bitfields */
 #define FPD_APU_BASE		0xFD5C0000U

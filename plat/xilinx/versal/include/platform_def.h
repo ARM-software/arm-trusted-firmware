@@ -86,10 +86,10 @@
 
 #if (BL31_BASE >= (1ULL << 32U))
 /* Address range in High DDR and HBM memory range */
-#define PLAT_ADDR_SPACE_SHIFT		U(42)
+#define PLAT_ADDR_SPACE_SHIFT		42U
 #else
 /* Address range in OCM and Low DDR memory range */
-#define PLAT_ADDR_SPACE_SHIFT		U(32)
+#define PLAT_ADDR_SPACE_SHIFT		32U
 #endif
 
 #define PLAT_PHY_ADDR_SPACE_SIZE        (1ULL << PLAT_ADDR_SPACE_SHIFT)
@@ -131,7 +131,7 @@
  */
 #define PLAT_VERSAL_G1S_IRQS	VERSAL_IRQ_SEC_PHY_TIMER
 #define PLAT_VERSAL_G0_IRQS	VERSAL_IRQ_SEC_PHY_TIMER
-#define PLAT_VERSAL_IPI_IRQ	U(62)
+#define PLAT_VERSAL_IPI_IRQ	62U
 
 #define PLAT_VERSAL_G1S_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(VERSAL_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
