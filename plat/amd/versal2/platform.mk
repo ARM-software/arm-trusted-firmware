@@ -81,7 +81,7 @@ $(eval $(call add_define_val,CONSOLE,CONSOLE_ID_${CONSOLE}))
 
 # Runtime console in default console in DEBUG build
 ifeq ($(DEBUG), 1)
-CONSOLE_RUNTIME ?= pl011
+CONSOLE_RUNTIME ?= $(CONSOLE)
 endif
 
 # Runtime console

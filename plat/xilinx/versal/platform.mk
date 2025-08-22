@@ -98,7 +98,7 @@ $(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE})
 
 # Runtime console in default console in DEBUG build
 ifeq ($(DEBUG), 1)
-CONSOLE_RUNTIME ?= pl011
+CONSOLE_RUNTIME ?= $(VERSAL_CONSOLE)
 endif
 
 # Runtime console
