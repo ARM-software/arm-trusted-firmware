@@ -49,7 +49,7 @@ struct dcc_console {
 	console_t console;
 };
 
-static inline uint32_t __dcc_getstatus(void)
+static inline u_register_t __dcc_getstatus(void)
 {
 	return read_mdccsr_el0();
 }
@@ -78,7 +78,7 @@ static int32_t dcc_status_timeout(uint32_t mask)
 {
 	const unsigned int timeout_count = TIMEOUT_COUNT_US;
 	uint64_t timeout;
-	unsigned int status;
+	u_register_t status;
 
 	timeout = timeout_init_us(timeout_count);
 
@@ -94,7 +94,7 @@ static int32_t dcc_status_timeout(uint32_t mask)
 
 static int32_t dcc_console_putc(int32_t ch, console_t *console)
 {
-	unsigned int status;
+	int32_t status;
 
 	status = dcc_status_timeout(DCC_STATUS_TX);
 	if (status != 0U) {
@@ -108,7 +108,7 @@ static int32_t dcc_console_putc(int32_t ch, console_t *console)
 #if ENABLE_CONSOLE_GETC
 static int32_t dcc_console_getc(console_t *console)
 {
-	unsigned int status;
+	int32_t status;
 
 	status = dcc_status_timeout(DCC_STATUS_RX);
 	if (status != 0U) {
@@ -127,7 +127,7 @@ static int32_t dcc_console_getc(console_t *console)
  */
 static void dcc_console_flush(console_t *console)
 {
-	unsigned int status;
+	int32_t status;
 
 	status = dcc_status_timeout(DCC_STATUS_TX);
 	if (status != 0U) {
