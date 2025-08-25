@@ -1,0 +1,121 @@
+/*
+ * Copyright 2022-2025 NXP
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
+
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+
+#include <imx95_scmi_def.h>
+
+#define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
+#define PLATFORM_LINKER_ARCH		aarch64
+
+#define PLATFORM_STACK_SIZE		0xB00
+#define CACHE_WRITEBACK_GRANULE		64
+
+#define PLAT_PRIMARY_CPU		U(0x0)
+#define PLATFORM_MAX_CPU_PER_CLUSTER	U(6)
+#define PLATFORM_CLUSTER_COUNT		U(1)
+#define PLATFORM_CLUSTER0_CORE_COUNT	U(6)
+#define PLATFORM_CORE_COUNT		U(6)
+
+#define IMX_PWR_LVL0			MPIDR_AFFLVL0
+
+#define PWR_DOMAIN_AT_MAX_LVL		U(1)
+#define PLAT_MAX_PWR_LVL		U(2)
+#define PLAT_MAX_OFF_STATE		U(4)
+#define PLAT_MAX_RET_STATE		U(2)
+
+/* DDR region 256KB */
+#define BL31_BASE			U(0x8A200000)
+#define BL31_LIMIT			U(0x8A240000)
+
+/* non-secure uboot base */
+/* TODO */
+#define PLAT_NS_IMAGE_OFFSET		U(0x90200000)
+#define BL32_FDT_OVERLAY_ADDR           (PLAT_NS_IMAGE_OFFSET + 0x3000000)
+
+/* GICv4 base address */
+#define PLAT_GICD_BASE			U(0x48000000)
+#define PLAT_GICR_BASE			U(0x48060000)
+#define PLAT_ARM_GICR_BASE		PLAT_GICR_BASE
+#define PLAT_ARM_GICD_BASE		PLAT_GICD_BASE
+
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 36)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 36)
+
+#ifdef SPD_trusty
+#define MAX_XLAT_TABLES			17
+#define MAX_MMAP_REGIONS		35
+#else
+#define MAX_XLAT_TABLES			14
+#define MAX_MMAP_REGIONS		32
+#endif
+
+#define IMX_LPUART_BASE			0x44380000
+#define IMX_BOOT_UART_CLK_IN_HZ		24000000 /* Select 24MHz oscillator */
+#define IMX_CONSOLE_BAUDRATE		115200
+
+#define AIPSx_SIZE			U(0x800000)
+#define AIPS1_BASE			U(0x44000000)
+#define AIPS2_BASE			U(0x42000000)
+#define AIPS3_BASE			U(0x42800000)
+#define AIPS4_BASE			U(0x49000000)
+#define MU_SECURE_BASE			U(0x44220000)
+#define GPIO1_BASE			U(0x47400000)
+#define GPIO2_BASE			U(0x43810000)
+#define GPIO3_BASE			U(0x43820000)
+#define GPIO4_BASE			U(0x43840000)
+#define GPIO5_BASE			U(0x43850000)
+#define WDOG3_BASE			U(0x42490000)
+#define WDOG4_BASE			U(0x424A0000)
+
+#define ELE_MU_BASE			U(0x47540000)
+
+#define SMT_BUFFER_BASE			U(0x8A246000)
+#define SMT_BUFFER_SIZE			0x1000
+
+#define IMX9_SCMI_PAYLOAD_BASE		0x44221000
+#define IMX9_MU1_BASE			0x44220000
+#define MU_GCR_OFF			0x114
+
+/* Used for GIC_WAKER sync between AP and SM. */
+#define SM_AP_SEMA_ADDR			0x442213F8
+
+#define GPIO_NUM			U(4)
+#define PER_NUM				U(15)
+#define WDOG_NUM			U(2)
+
+#define NETC_IREC_PCI_INT_X0		U(304)
+
+#define COUNTER_FREQUENCY		24000000
+
+#define TRUSTY_PARAMS_LEN_BYTES		(4096 * 2)
+#define IMX_TRUSTY_STACK_SIZE		0x200
+#define TRUSTY_SHARED_MEMORY_OBJ_SIZE	(12 * 1024)
+
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupt properties
+ * as per GICv3 terminology.
+ */
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(29U, GIC_HIGHEST_SEC_PRIORITY, grp,   \
+		       GIC_INTR_CFG_LEVEL)
+
+#define PLAT_ARM_G0_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(8U, GIC_HIGHEST_SEC_PRIORITY, \
+		       (grp), GIC_INTR_CFG_LEVEL)
+
+/* memory mapping  */
+#define AIPS2_MAP	MAP_REGION_FLAT(AIPS2_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW)
+#define GIC_MAP		MAP_REGION_FLAT(PLAT_GICD_BASE, 0x200000, MT_DEVICE | MT_RW)
+#define AIPS1_MAP	MAP_REGION_FLAT(AIPS1_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW)
+#define GPIO2_MAP	MAP_REGION_FLAT(GPIO2_BASE, 0x20000, MT_DEVICE | MT_RW)
+#define GPIO4_MAP	MAP_REGION_FLAT(GPIO4_BASE, 0x20000, MT_DEVICE | MT_RW)
+#define ELE_MAP		MAP_REGION_FLAT(ELE_MU_BASE, 0x10000, MT_DEVICE | MT_RW)
+
+#endif /* PLATFORM_DEF_H */

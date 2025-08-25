@@ -413,6 +413,12 @@ subsections:
                   - title: i.MX93
                     scope: imx93
 
+                  - title: i.MX94
+                    scope: imx94
+
+                  - title: i.MX95
+                    scope: imx95
+
           - title: Layerscape
             scope: layerscape
 

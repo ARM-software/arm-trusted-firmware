@@ -14,6 +14,8 @@
 
 #include <imx_sip_svc.h>
 
+#include <ele_api.h>
+
 static int32_t imx_sip_setup(void)
 {
 	return 0;
@@ -88,6 +90,10 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 #endif
 	case  IMX_SIP_BUILDINFO:
 		SMC_RET1(handle, imx_buildinfo_handler(smc_fid, x1, x2, x3, x4));
+#if defined(PLAT_imx95) || defined(PLAT_imx94)
+	case IMX_SIP_GET_SOC_INFO:
+		return imx9_soc_info_handler(smc_fid, handle);
+#endif
 	default:
 		WARN("Unimplemented i.MX SiP Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);

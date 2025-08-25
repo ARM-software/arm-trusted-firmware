@@ -107,6 +107,11 @@
 		mmio_write_32((uintptr_t)&payld_arr[2], arg3);		\
 	} while (0)
 
+#define SCMI_PAYLOAD_ARG4(payld_arr, arg1, arg2, arg3, arg4) do {	\
+		SCMI_PAYLOAD_ARG3(payld_arr, arg1, arg2, arg3);		\
+		mmio_write_32((uintptr_t)&payld_arr[3], arg4);		\
+	} while (0)
+
 /* Helper macros to read return values from the mailbox payload */
 #define SCMI_PAYLOAD_RET_VAL1(payld_arr, val1)				\
 		(val1) = mmio_read_32((uintptr_t)&payld_arr[0])
@@ -124,6 +129,11 @@
 #define SCMI_PAYLOAD_RET_VAL4(payld_arr, val1, val2, val3, val4)	do {	\
 		SCMI_PAYLOAD_RET_VAL3(payld_arr, val1, val2, val3);		\
 		(val4) = mmio_read_32((uintptr_t)&payld_arr[3]);		\
+	} while (0)
+
+#define SCMI_PAYLOAD_RET_VAL5(payld_arr, val1, val2, val3, val4, val5)	do {	\
+		SCMI_PAYLOAD_RET_VAL4(payld_arr, val1, val2, val3, val4);	\
+		(val5) = mmio_read_32((uintptr_t)&payld_arr[4]);		\
 	} while (0)
 
 /*
