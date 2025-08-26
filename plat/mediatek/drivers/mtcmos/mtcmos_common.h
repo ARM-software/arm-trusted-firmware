@@ -7,6 +7,8 @@
 #ifndef MTCMOS_H
 #define MTCMOS_H
 
+#include <stdint.h>
+
 enum mtcmos_state {
 	STA_POWER_DOWN,
 	STA_POWER_ON,

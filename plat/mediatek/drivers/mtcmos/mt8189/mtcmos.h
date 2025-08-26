@@ -7,6 +7,7 @@
 #ifndef PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8189_MTCMOS_H_
 #define PLAT_MEDIATEK_DRIVERS_MTCMOS_MT8189_MTCMOS_H_
 
+#include <lib/utils_def.h>
 #include <mtcmos_common.h>
 #include <platform_def.h>
 
