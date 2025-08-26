@@ -17,6 +17,7 @@
 #include <lib/fconf/fconf.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/mmio.h>
+#include <services/lfa_svc.h>
 #if TRANSFER_LIST
 #include <transfer_list.h>
 #endif
@@ -136,6 +137,12 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 	}
 #if ENABLE_RME
 	else if (type == REALM) {
+#if LFA_SUPPORT
+		if (lfa_is_prime_complete(RMM_IMAGE_ID)) {
+			rmm_image_ep_info.pc =
+					RMM_BASE + RMM_BANK_SIZE;
+		}
+#endif /* LFA_SUPPORT */
 		next_image_info = &rmm_image_ep_info;
 	}
 #endif
