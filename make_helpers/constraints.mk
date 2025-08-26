@@ -197,14 +197,6 @@ ifneq (${ARCH},aarch64)
         $(error ENABLE_FEAT_PAUTH_LR requires AArch64)
 endif
 
-# Currently, FEAT_PAUTH_LR is only supported by arm/clang compilers
-# TODO implement for GCC when support is added
-ifeq ($($(ARCH)-cc-id),arm-clang)
-        arch-features	:= $(arch-features)+pauth-lr
-else
-        $(error Error: ENABLE_FEAT_PAUTH_LR not supported for GCC compiler)
-endif
-
 endif # ${ENABLE_FEAT_PAUTH_LR}
 
 ifeq ($(FEATURE_DETECTION),1)
