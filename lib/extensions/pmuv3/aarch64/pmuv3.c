@@ -23,16 +23,14 @@ static u_register_t init_mdcr_el2_hpmn(u_register_t mdcr_el2)
 
 static u_register_t mtpmu_disable_el3(u_register_t mdcr_el3)
 {
-	if (!is_feat_mtpmu_supported()) {
-		return mdcr_el3;
+	if (is_feat_mtpmu_supported()) {
+		/*
+		 * MDCR_EL3.MTPME = 0
+		 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>_EL0.MT is
+		 * zero.
+		 */
+		mdcr_el3 &= ~MDCR_MTPME_BIT;
 	}
-
-	/*
-	 * MDCR_EL3.MTPME = 0
-	 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>_EL0.MT is
-	 * zero.
-	 */
-	mdcr_el3 &= ~MDCR_MTPME_BIT;
 
 	return mdcr_el3;
 }
@@ -118,17 +116,14 @@ void pmuv3_init_el3(void)
 
 static u_register_t mtpmu_disable_el2(u_register_t mdcr_el2)
 {
-	if (!is_feat_mtpmu_supported()) {
-		return mdcr_el2;
+	if (is_feat_mtpmu_supported()) {
+		/*
+		 * MDCR_EL2.MTPME = 0
+		 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>_EL0.MT is
+		 * zero.
+		 */
+		mdcr_el2 &= ~MDCR_EL2_MTPME;
 	}
-
-	/*
-	 * MDCR_EL2.MTPME = 0
-	 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>_EL0.MT is
-	 * zero.
-	 */
-	mdcr_el2 &= ~MDCR_EL2_MTPME;
-
 	return mdcr_el2;
 }
 
