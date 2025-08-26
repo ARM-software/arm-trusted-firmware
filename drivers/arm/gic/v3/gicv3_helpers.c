@@ -433,8 +433,8 @@ unsigned int gicv3_get_component_partnum(const uintptr_t gic_frame)
 	 * PIDR1 contain a part number identifying the GIC component at a
 	 * particular base address.
 	 */
-	part_id = mmio_read_32(gic_frame + GICD_PIDR0_GICV3) & 0xff;
-	part_id |= (mmio_read_32(gic_frame + GICD_PIDR1_GICV3) << 8) & 0xf00;
+	part_id = mmio_read_32(gic_frame + GICD_PIDR0_GICV3) & 0xffU;
+	part_id |= (mmio_read_32(gic_frame + GICD_PIDR1_GICV3) << 8) & 0xf00U;
 
 	return part_id;
 }
@@ -456,16 +456,16 @@ void gicv3_get_component_prodid_rev(const uintptr_t gicd_base,
 	*gic_prod_id = gicd_iidr >> IIDR_PRODUCT_ID_SHIFT;
 	*gic_prod_id &= IIDR_PRODUCT_ID_MASK;
 
-	gic_variant = gicd_iidr >> IIDR_VARIANT_SHIFT;
+	gic_variant = (uint8_t)(gicd_iidr >> IIDR_VARIANT_SHIFT);
 	gic_variant &= IIDR_VARIANT_MASK;
 
-	*gic_rev = gicd_iidr >> IIDR_REV_SHIFT;
+	*gic_rev = (uint8_t)(gicd_iidr >> IIDR_REV_SHIFT);
 	*gic_rev &= IIDR_REV_MASK;
 
 	/*
 	 * pack gic variant and gic_rev in 1 byte
 	 * gic_rev = gic_variant[7:4] and gic_rev[0:3]
 	 */
-	*gic_rev = *gic_rev | gic_variant << 0x4;
+	*gic_rev |= gic_variant << 0x4;
 
 }

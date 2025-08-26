@@ -226,7 +226,7 @@
 #define TYPER_VLPI_SHIFT	1
 
 #define TYPER_AFF_VAL_MASK	U(0xffffffff)
-#define TYPER_PROC_NUM_MASK	U(0xffff)
+#define TYPER_PROC_NUM_MASK	UL(0xffff)
 #define TYPER_LAST_MASK		U(0x1)
 
 #define TYPER_LAST_BIT		BIT_32(TYPER_LAST_SHIFT)
