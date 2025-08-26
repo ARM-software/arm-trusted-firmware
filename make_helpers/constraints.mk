@@ -343,11 +343,16 @@ endif #(CTX_INCLUDE_FPREGS)
 
 # SVE context management is only required if secure world has access to SVE/FP
 # functionality.
+# Enabling CTX_INCLUDE_SVE_REGS requires CTX_INCLUDE_FPREGS to be enabled due
+# to architectural dependency between FP and SVE registers.
 ifeq (${CTX_INCLUDE_SVE_REGS},1)
     ifeq (${ENABLE_SVE_FOR_SWD},0)
         $(error "CTX_INCLUDE_SVE_REGS requires ENABLE_SVE_FOR_SWD to also be enabled")
     endif
-endif
+    ifeq (${CTX_INCLUDE_FPREGS},0)
+        $(error "CTX_INCLUDE_SVE_REGS requires CTX_INCLUDE_FPREGS to also be enabled")
+    endif #(CTX_INCLUDE_FPREGS)
+endif #(CTX_INCLUDE_SVE_REGS)
 
 # SME cannot be used with CTX_INCLUDE_FPREGS since SPM does its own context
 # management including FPU registers.
