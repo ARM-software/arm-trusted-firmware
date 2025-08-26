@@ -104,7 +104,13 @@ int trp_validate_warmboot_args(uint64_t x0, uint64_t x1,
 	(void)x0;
 	(void)x1;
 
-	return ((x2 | x3) == 0UL) ? 0 : E_RMM_BOOT_UNKNOWN;
+	if ((x2 | x3) != 0UL) {
+		ERROR("TRP: extra warmboot arguments not 0: x2=0x%lx, x3=0x%lx\n",
+		     x2, x3);
+		return E_RMM_BOOT_UNKNOWN;
+	}
+
+	return 0;
 }
 
 /* Main function for TRP */
