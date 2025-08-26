@@ -53,3 +53,6 @@ ERRATA_A55_1530923 := 1
 HAS_XSPI_SUPPORT := 1
 $(eval $(call assert_boolean,HAS_XSPI_SUPPORT))
 $(eval $(call add_define,HAS_XSPI_SUPPORT))
+
+IMX_CRRM := 0
+$(eval $(call add_define,IMX_CRRM))
