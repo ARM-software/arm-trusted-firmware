@@ -72,8 +72,9 @@ static void psci_suspend_to_pwrdown_start(unsigned int idx,
 	 * Dispatcher to let it do any book-keeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
-	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_suspend != NULL))
+	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_suspend != NULL)) {
 		psci_spd_pm->svc_suspend(max_off_lvl);
+	}
 
 #if !HW_ASSISTED_COHERENCY
 	/*
@@ -82,8 +83,9 @@ static void psci_suspend_to_pwrdown_start(unsigned int idx,
 	 * HW_ASSISTED_COHERENCY = 0 platforms that can safely perform these
 	 * actions with data caches enabled.
 	 */
-	if (psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early != NULL)
+	if (psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early != NULL) {
 		psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early(state_info);
+	}
 #endif
 	/*
 	 * Arch. management. Initiate power down sequence.

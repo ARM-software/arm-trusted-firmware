@@ -37,11 +37,13 @@ static inline void psci_spin_unlock_cpu(unsigned int idx)
  ******************************************************************************/
 static int cpu_on_validate_state(aff_info_state_t aff_state)
 {
-	if (aff_state == AFF_STATE_ON)
+	if (aff_state == AFF_STATE_ON) {
 		return PSCI_E_ALREADY_ON;
+	}
 
-	if (aff_state == AFF_STATE_ON_PENDING)
+	if (aff_state == AFF_STATE_ON_PENDING) {
 		return PSCI_E_ON_PENDING;
+	}
 
 	assert(aff_state == AFF_STATE_OFF);
 	return PSCI_E_SUCCESS;
@@ -93,8 +95,9 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	flush_cpu_data_by_index(target_idx,
 				psci_svc_cpu_data.aff_info_state);
 	rc = cpu_on_validate_state(psci_get_aff_info_state_by_idx(target_idx));
-	if (rc != PSCI_E_SUCCESS)
+	if (rc != PSCI_E_SUCCESS) {
 		goto on_exit;
+	}
 
 	/*
 	 * Call the cpu on handler registered by the Secure Payload Dispatcher

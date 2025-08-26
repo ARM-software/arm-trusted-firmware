@@ -343,8 +343,9 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
 	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
 			(cpu_idx < psci_plat_core_count)) {
 		return &psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx];
-	} else
+	} else {
 		return NULL;
+	}
 }
 
 #if PSCI_OS_INIT_MODE
@@ -736,8 +737,9 @@ int psci_validate_suspend_req(const psci_power_state_t *state_info,
 
 	/* Find the target suspend power level */
 	target_lvl = psci_find_target_suspend_lvl(state_info);
-	if (target_lvl == PSCI_INVALID_PWR_LVL)
+	if (target_lvl == PSCI_INVALID_PWR_LVL) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/* All power domain levels are in a RUN state to begin with */
 	deepest_state_type = STATE_TYPE_RUN;
@@ -753,8 +755,9 @@ int psci_validate_suspend_req(const psci_power_state_t *state_info,
 		 * levels. If this condition is true, then the requested state
 		 * becomes the deepest state encountered so far.
 		 */
-		if (req_state_type < deepest_state_type)
+		if (req_state_type < deepest_state_type) {
 			return PSCI_E_INVALID_PARAMS;
+		}
 		deepest_state_type = req_state_type;
 	}
 
@@ -763,8 +766,9 @@ int psci_validate_suspend_req(const psci_power_state_t *state_info,
 
 	/* The target_lvl is either equal to the max_off_lvl or max_retn_lvl */
 	max_retn_lvl = PSCI_INVALID_PWR_LVL;
-	if (target_lvl != max_off_lvl)
+	if (target_lvl != max_off_lvl) {
 		max_retn_lvl = target_lvl;
+	}
 
 	/*
 	 * If this is not a request for a power down state then max off level
@@ -773,8 +777,9 @@ int psci_validate_suspend_req(const psci_power_state_t *state_info,
 	 */
 	if ((is_power_down_state == 0U) &&
 			((max_off_lvl != PSCI_INVALID_PWR_LVL) ||
-			 (max_retn_lvl == PSCI_INVALID_PWR_LVL)))
+			 (max_retn_lvl == PSCI_INVALID_PWR_LVL))) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	return PSCI_E_SUCCESS;
 }
@@ -805,8 +810,9 @@ unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info)
 	int i;
 
 	for (i = (int) PLAT_MAX_PWR_LVL; i >= (int) PSCI_CPU_PWR_LVL; i--) {
-		if (is_local_state_run(state_info->pwr_domain_state[i]) == 0)
+		if (is_local_state_run(state_info->pwr_domain_state[i]) == 0) {
 			return (unsigned int) i;
+		}
 	}
 
 	return PSCI_INVALID_PWR_LVL;
@@ -888,8 +894,9 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 		 * Check whether a Thumb entry point has been provided for an
 		 * aarch64 EL
 		 */
-		if ((entrypoint & 0x1UL) != 0UL)
+		if ((entrypoint & 0x1UL) != 0UL) {
 			return PSCI_E_INVALID_ADDRESS;
+		}
 
 		mode = ((ns_scr_el3 & SCR_HCE_BIT) != 0U) ? MODE_EL2 : MODE_EL1;
 
@@ -1105,12 +1112,14 @@ void psci_register_spd_pm_hook(const spd_pm_ops_t *pm)
 	assert(pm != NULL);
 	psci_spd_pm = pm;
 
-	if (pm->svc_migrate != NULL)
+	if (pm->svc_migrate != NULL) {
 		psci_caps |= define_psci_cap(PSCI_MIG_AARCH64);
+	}
 
-	if (pm->svc_migrate_info != NULL)
+	if (pm->svc_migrate_info != NULL) {
 		psci_caps |= define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64)
 				| define_psci_cap(PSCI_MIG_INFO_TYPE);
+	}
 }
 
 /*******************************************************************************
@@ -1124,8 +1133,9 @@ int psci_spd_migrate_info(u_register_t *mpidr)
 {
 	int rc;
 
-	if ((psci_spd_pm == NULL) || (psci_spd_pm->svc_migrate_info == NULL))
+	if ((psci_spd_pm == NULL) || (psci_spd_pm->svc_migrate_info == NULL)) {
 		return PSCI_E_NOT_SUPPORTED;
+	}
 
 	rc = psci_spd_pm->svc_migrate_info(mpidr);
 
@@ -1192,8 +1202,9 @@ int psci_secondaries_brought_up(void)
 	unsigned int idx, n_valid = 0U;
 
 	for (idx = 0U; idx < ARRAY_SIZE(psci_cpu_pd_nodes); idx++) {
-		if (psci_cpu_pd_nodes[idx].mpidr != PSCI_INVALID_MPIDR)
+		if (psci_cpu_pd_nodes[idx].mpidr != PSCI_INVALID_MPIDR) {
 			n_valid++;
+		}
 	}
 
 	assert(n_valid > 0U);

@@ -25,8 +25,9 @@ static void psci_set_power_off_state(psci_power_state_t *state_info)
 {
 	unsigned int lvl;
 
-	for (lvl = PSCI_CPU_PWR_LVL; lvl <= PLAT_MAX_PWR_LVL; lvl++)
+	for (lvl = PSCI_CPU_PWR_LVL; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
 		state_info->pwr_domain_state[lvl] = PLAT_MAX_OFF_STATE;
+	}
 }
 
 /******************************************************************************
@@ -94,8 +95,9 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 */
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_off != NULL)) {
 		rc = psci_spd_pm->svc_off(0);
-		if (rc != PSCI_E_SUCCESS)
+		if (rc != PSCI_E_SUCCESS) {
 			goto off_exit;
+		}
 	}
 
 	/*
