@@ -30,7 +30,7 @@ static const int cci_map[] = {
  *****************************************************************************/
 void __init plat_arm_interconnect_init(void)
 {
-	cci_init(PLAT_ARM_CCI_BASE, cci_map, ARRAY_SIZE(cci_map));
+	cci_init(PLAT_ARM_CCI_BASE, cci_map, (unsigned int)ARRAY_SIZE(cci_map));
 }
 
 /******************************************************************************
@@ -38,7 +38,7 @@ void __init plat_arm_interconnect_init(void)
  *****************************************************************************/
 void plat_arm_interconnect_enter_coherency(void)
 {
-	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+	cci_enable_snoop_dvm_reqs((unsigned int)MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
 }
 
 /******************************************************************************
@@ -46,5 +46,5 @@ void plat_arm_interconnect_enter_coherency(void)
  *****************************************************************************/
 void plat_arm_interconnect_exit_coherency(void)
 {
-	cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+	cci_disable_snoop_dvm_reqs((unsigned int)MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
 }

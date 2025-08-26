@@ -96,6 +96,8 @@ static int32_t dcc_console_putc(int32_t ch, console_t *console)
 {
 	int32_t status;
 
+	(void)console;
+
 	status = dcc_status_timeout(DCC_STATUS_TX);
 	if (status != 0U) {
 		return status;
@@ -128,6 +130,8 @@ static int32_t dcc_console_getc(console_t *console)
 static void dcc_console_flush(console_t *console)
 {
 	int32_t status;
+
+	(void)console;
 
 	status = dcc_status_timeout(DCC_STATUS_TX);
 	if (status != 0U) {
