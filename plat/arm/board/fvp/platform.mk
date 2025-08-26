@@ -257,7 +257,8 @@ ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
 				lib/cpus/aarch64/c1_premium.S		\
 				lib/cpus/aarch64/canyon.S		\
 				lib/cpus/aarch64/caddo.S		\
-				lib/cpus/aarch64/veymont.S
+				lib/cpus/aarch64/veymont.S		\
+				lib/cpus/aarch64/dionysus.S
 endif
 
 else
