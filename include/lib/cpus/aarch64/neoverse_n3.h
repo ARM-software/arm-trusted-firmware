@@ -13,7 +13,12 @@
  * CPU Extended Control register specific definitions
  ******************************************************************************/
 #define NEOVERSE_N3_CPUECTLR_EL1			S3_0_C15_C1_4
-#define NEOVERSE_N3_CPUECTLR_EL1_EXTLLC_BIT		(ULL(1) << 0)
+
+/*******************************************************************************
+ * CPU Extended Control register 2 specific definitions.
+ ******************************************************************************/
+#define NEOVERSE_N3_CPUECTLR2_EL1			S3_0_C15_C1_5
+#define NEOVERSE_N3_CPUECTLR2_EL1_SW_EXT_LLC_BIT	(ULL(1) << 10)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions

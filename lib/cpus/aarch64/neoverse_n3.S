@@ -33,9 +33,13 @@ cpu_reset_func_start neoverse_n3
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 
-#if NEOVERSE_Nx_EXTERNAL_LLC
-	/* Some systems may have External LLC, core needs to be made aware */
-	sysreg_bit_set NEOVERSE_N3_CPUECTLR_EL1, NEOVERSE_N3_CPUECTLR_EL1_EXTLLC_BIT
+#if !NEOVERSE_Nx_EXTERNAL_LLC
+	/* -------------------------------------------------------------
+	 * Neoverse n3 has that last level cache is external by default.
+	 * Clear the bit when NEOVERSE_Nx_EXTERNAL_LLC is not enabled.
+	 * -------------------------------------------------------------
+	 */
+	sysreg_bit_clear NEOVERSE_N3_CPUECTLR2_EL1, NEOVERSE_N3_CPUECTLR2_EL1_SW_EXT_LLC_BIT
 #endif
 cpu_reset_func_end neoverse_n3
 
