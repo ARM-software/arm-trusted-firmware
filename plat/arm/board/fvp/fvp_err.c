@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,14 +30,3 @@ __dead2 void plat_arm_error_handler(int err)
 		wfi();
 }
 
-void __dead2 plat_arm_system_reset(void)
-{
-	/* Write the System Configuration Control Register */
-	mmio_write_32(V2M_SYSREGS_BASE + V2M_SYS_CFGCTRL,
-		      V2M_CFGCTRL_START |
-		      V2M_CFGCTRL_RW |
-		      V2M_CFGCTRL_FUNC(V2M_FUNC_REBOOT));
-	wfi();
-	ERROR("FVP System Reset: operation not handled.\n");
-	panic();
-}

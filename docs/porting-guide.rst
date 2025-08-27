@@ -1396,20 +1396,6 @@ environment is initialized.
    The address from where it was called is stored in x30 (Link Register).
    The default implementation simply spins.
 
-Function : plat_system_reset()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : void
-
-This function is used by the platform to resets the system. It can be used
-in any specific use-case where system needs to be resetted. For example,
-in case of DRTM implementation this function reset the system after
-writing the DRTM error code in the non-volatile storage. This function
-never returns. Failure in reset results in panic.
-
 Function : plat_get_bl_image_load_info()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
