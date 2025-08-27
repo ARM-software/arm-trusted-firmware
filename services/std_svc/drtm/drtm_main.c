@@ -538,12 +538,6 @@ static void drtm_dl_reset_dlme_el_state(enum drtm_dlme_el dlme_el)
 {
 	uint64_t sctlr;
 
-	/*
-	 * TODO: Set PE state according to the PSCI's specification of the initial
-	 * state after CPU_ON, or to reset values if unspecified, where they exist,
-	 * or define sensible values otherwise.
-	 */
-
 	switch (dlme_el) {
 	case DLME_AT_EL1:
 		sctlr = read_sctlr_el1();
