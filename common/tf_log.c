@@ -75,6 +75,8 @@ void tf_log_set_max_level(uint32_t log_level)
 	assert((log_level % 10U) == 0U);
 
 	/* Cap log_level to the compile time maximum. */
-	if (log_level <= (uint32_t)LOG_LEVEL)
+	if (log_level <= (uint32_t)LOG_LEVEL) {
 		max_log_level = log_level;
+	}
+
 }

@@ -169,20 +169,22 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 		 * The S-EL1 interrupts are signaled as IRQ in S-EL0/1 contexts
 		 * and as FIQ in the NS-EL0/1/2 contexts
 		 */
-		if (security_state == SECURE)
+		if (security_state == SECURE) {
 			return __builtin_ctz(SCR_IRQ_BIT);
-		else
+		} else {
 			return __builtin_ctz(SCR_FIQ_BIT);
+		}
 		assert(0); /* Unreachable */
 	case INTR_TYPE_NS:
 		/*
 		 * The Non secure interrupts will be signaled as FIQ in S-EL0/1
 		 * contexts and as IRQ in the NS-EL0/1/2 contexts.
 		 */
-		if (security_state == SECURE)
+		if (security_state == SECURE) {
 			return __builtin_ctz(SCR_FIQ_BIT);
-		else
+		} else {
 			return __builtin_ctz(SCR_IRQ_BIT);
+		}
 		assert(0); /* Unreachable */
 	case INTR_TYPE_EL3:
 		/*
