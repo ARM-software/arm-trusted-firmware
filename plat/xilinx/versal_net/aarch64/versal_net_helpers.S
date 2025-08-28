@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,7 @@
 	.globl	plat_is_my_cpu_primary
 	.globl	platform_mem_init
 	.globl	plat_my_core_pos
+	.globl	plat_core_pos_by_mpidr
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -58,6 +59,40 @@ func plat_my_core_pos
 	mrs	x0, mpidr_el1
 	b	plat_core_pos_by_mpidr
 endfunc plat_my_core_pos
+
+/*----------------------------------------------------------------------
+ * unsigned int platform_core_pos_by_mpidr(u_register_t mpid)
+ *
+ * Function to calculate the core position.
+ *
+ * clobbers: x0 - x3
+ * ---------------------------------------------------------------------
+ */
+func plat_core_pos_by_mpidr
+
+	/* Extract individual affinity fields from MPIDR */
+	ubfx	x1, x0, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
+	ubfx	x2, x0, #MPIDR_AFF1_SHIFT, #MPIDR_AFFINITY_BITS
+
+	/* check if cpu_id valid */
+	cmp x2, #PLATFORM_CORE_COUNT_PER_CLUSTER
+	b.hi    error_invalid_core
+
+	/* check if cluster valid */
+	cmp x1, #PLATFORM_CLUSTER_COUNT
+	b.hi    error_invalid_cluster
+
+	/* core-position = cluster-id * cores per cluster + core-id */
+	mov     x3, #PLATFORM_CORE_COUNT_PER_CLUSTER
+	madd	x0, x1, x3, x2
+	ret
+error_invalid_cluster:
+        mov     x0, #E_INVALID_CLUSTER_COUNT
+        ret
+error_invalid_core:
+        mov     x0, #E_INVALID_CORE_COUNT
+        ret
+endfunc plat_core_pos_by_mpidr
 
 	 /* -----------------------------------------------------
 	  * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
