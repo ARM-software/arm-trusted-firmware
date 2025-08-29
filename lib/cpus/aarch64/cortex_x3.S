@@ -44,7 +44,9 @@ check_erratum_ls cortex_x3, ERRATUM(2302506), CPU_REV(1, 1)
 
 .global erratum_cortex_x3_2313909_wa
 workaround_runtime_start cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
-	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
+	/* Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
+	 * the workaround. Second call clears it to undo it. */
+	sysreg_bit_toggle CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end cortex_x3, ERRATUM(2313909), NO_ISB
 
 check_erratum_ls cortex_x3, ERRATUM(2313909), CPU_REV(1, 0)
