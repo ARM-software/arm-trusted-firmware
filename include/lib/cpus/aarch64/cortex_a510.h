@@ -27,6 +27,8 @@
  ******************************************************************************/
 #define CORTEX_A510_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define CORTEX_A510_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
+#define CORTEX_A510_CPUPWRCTLR_EL1_WFI_RET_CTRL_BITS		0x70
+#define CORTEX_A510_CPUPWRCTLR_EL1_WFE_RET_CTRL_BITS		0x380
 
 /*******************************************************************************
  * Complex auxiliary control register specific definitions
