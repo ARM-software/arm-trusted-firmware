@@ -191,7 +191,7 @@ cpu_reset_func_end cortex_a78
 func cortex_a78_core_pwr_dwn
 	sysreg_bit_set CORTEX_A78_CPUPWRCTLR_EL1, CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 
-	apply_erratum cortex_a78, ERRATUM(2772019), ERRATA_A78_2772019, NO_GET_CPU_REV
+	apply_erratum cortex_a78, ERRATUM(2772019), ERRATA_A78_2772019
 
 	isb
 	ret

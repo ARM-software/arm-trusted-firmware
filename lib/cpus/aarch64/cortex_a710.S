@@ -203,8 +203,9 @@ workaround_reset_end cortex_a710, ERRATUM(2282622)
 check_erratum_ls cortex_a710, ERRATUM(2282622), CPU_REV(2, 1)
 
 workaround_runtime_start cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219
-	/* Set bit 36 in ACTLR2_EL1 */
-	sysreg_bit_set CORTEX_A710_CPUACTLR2_EL1, CORTEX_A710_CPUACTLR2_EL1_BIT_36
+	/* Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
+	 * the workaround. Second call clears it to undo it. */
+	sysreg_bit_toggle CORTEX_A710_CPUACTLR2_EL1, CORTEX_A710_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end cortex_a710, ERRATUM(2291219), NO_ISB
 
 check_erratum_ls cortex_a710, ERRATUM(2291219), CPU_REV(2, 0)
@@ -274,7 +275,7 @@ check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
 	 * ----------------------------------------------------
 	 */
 func cortex_a710_core_pwr_dwn
-	apply_erratum cortex_a710, ERRATUM(2008768), ERRATA_A710_2008768, NO_GET_CPU_REV
+	apply_erratum cortex_a710, ERRATUM(2008768), ERRATA_A710_2008768
 	apply_erratum cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219, NO_GET_CPU_REV
 
 	/* ---------------------------------------------------
