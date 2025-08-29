@@ -31,6 +31,61 @@
 
 cpu_reset_prologue cortex_x2
 
+workaround_reset_start cortex_x2, ERRATUM(1901946), ERRATA_X2_1901946
+	sysreg_bit_set CORTEX_X2_CPUACTLR4_EL1, BIT(15)
+workaround_reset_end cortex_x2, ERRATUM(1901946)
+
+check_erratum_range cortex_x2, ERRATUM(1901946), CPU_REV(1, 0), CPU_REV(1, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1916945), ERRATA_X2_1916945
+	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(8)
+workaround_reset_end cortex_x2, ERRATUM(1916945)
+
+check_erratum_ls cortex_x2, ERRATUM(1916945), CPU_REV(1, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1917258), ERRATA_X2_1917258
+	sysreg_bit_set CORTEX_X2_CPUACTLR4_EL1, BIT(43)
+workaround_reset_end cortex_x2, ERRATUM(1917258)
+
+check_erratum_ls cortex_x2, ERRATUM(1917258), CPU_REV(1, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1927200), ERRATA_X2_1927200
+	mov	x0, #0
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10E3900002
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+
+	mov	x0, #1
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10E3800082
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+
+	mov	x0, #2
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10E3800200
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FFF003E0
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+workaround_reset_end cortex_x2, ERRATUM(1927200)
+
+check_erratum_ls cortex_x2, ERRATUM(1927200), CPU_REV(1, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1934260), ERRATA_X2_1934260
+	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, CORTEX_X2_CPUECTLR_EL1_WS_THR_DISABLE_ALL_BITS
+workaround_reset_end cortex_x2, ERRATUM(1934260)
+
+check_erratum_range cortex_x2, ERRATUM(1934260), CPU_REV(1, 0), CPU_REV(1, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2002765), ERRATA_X2_2002765
 	ldr	x0, =0x6
 	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
@@ -79,6 +134,12 @@ workaround_reset_end cortex_x2, ERRATUM(2083908)
 
 check_erratum_range cortex_x2, ERRATUM(2083908), CPU_REV(2, 0), CPU_REV(2, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(2136059), ERRATA_X2_2136059
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(44)
+workaround_reset_end cortex_x2, ERRATUM(2136059)
+
+check_erratum_ls cortex_x2, ERRATUM(2136059), CPU_REV(2, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2147715), ERRATA_X2_2147715
 	/* Apply the workaround by setting bit 22 in CPUACTLR_EL1. */
 	sysreg_bit_set CORTEX_X2_CPUACTLR_EL1, CORTEX_X2_CPUACTLR_EL1_BIT_22
@@ -102,12 +163,28 @@ workaround_reset_end cortex_x2, ERRATUM(2216384)
 
 check_erratum_ls cortex_x2, ERRATUM(2216384), CPU_REV(2, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(2267065), ERRATA_X2_2267065
+	sysreg_bit_set CORTEX_X2_CPUACTLR_EL1, BIT(22)
+workaround_reset_end cortex_x2, ERRATUM(2267065)
+
+check_erratum_ls cortex_x2, ERRATUM(2267065), CPU_REV(2, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(2282622), ERRATA_X2_2282622
 	/* Apply the workaround */
 	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, BIT(0)
 workaround_reset_end cortex_x2, ERRATUM(2282622)
 
 check_erratum_ls cortex_x2, ERRATUM(2282622), CPU_REV(2, 1)
+
+workaround_runtime_start cortex_x2, ERRATUM(2291219), ERRATA_X2_2291219
+	/*
+	 * Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
+	 * the workaround. Second call clears it to undo it.
+	 */
+	sysreg_bit_toggle CORTEX_X2_CPUACTLR2_EL1, BIT(36)
+workaround_runtime_end cortex_x2, ERRATUM(2291219), NO_ISB
+
+check_erratum_ls cortex_x2, ERRATUM(2291219), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2313941), ERRATA_DSU_2313941
 	errata_dsu_2313941_wa_impl
@@ -174,6 +251,8 @@ check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
 	 * ----------------------------------------------------
 	 */
 func cortex_x2_core_pwr_dwn
+	apply_erratum cortex_x2, ERRATUM(2291219), ERRATA_X2_2291219, NO_GET_CPU_REV
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,10 +47,11 @@ func travis_core_pwr_dwn
 1:
 #endif
 	/* ---------------------------------------------------
-	 * Enable CPU power down bit in power control register
+	 * Flip CPU power down bit in power control register.
+	 * It will be set on powerdown and cleared on wakeup
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set TRAVIS_IMP_CPUPWRCTLR_EL1, \
+	sysreg_bit_toggle TRAVIS_IMP_CPUPWRCTLR_EL1, \
 		TRAVIS_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	ret
