@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <common/debug.h>
+#include <common/ep_info.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/arm/common/plat_arm.h>
@@ -47,7 +48,7 @@ static int32_t versal_pwr_domain_on(u_register_t mpidr)
 	/* Send request to PMC to wake up selected ACPU core */
 	(void)pm_req_wakeup(proc->node_id,
 			    (uint32_t)((versal_sec_entry & SEC_ENTRY_ADDRESS_MASK) |
-			    RESUME_ADDR_SET), versal_sec_entry >> 32, 0, SECURE_FLAG);
+			    RESUME_ADDR_SET), versal_sec_entry >> 32, 0, NON_SECURE);
 
 	/* Clear power down request */
 	pm_client_wakeup(proc);
@@ -90,7 +91,7 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	/* Send request to PMC to suspend this core */
 	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_sec_entry,
-			      SECURE_FLAG);
+			      NON_SECURE);
 
 	/* APU is to be turned off */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
@@ -159,7 +160,7 @@ static void __dead2 versal_system_off(void)
 {
 	/* Send the power down request to the PMC */
 	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
-				 pm_get_shutdown_scope(), SECURE_FLAG);
+				 pm_get_shutdown_scope(), NON_SECURE);
 
 	while (true) {
 		wfi();
@@ -184,7 +185,7 @@ static void __dead2 versal_system_reset(void)
 	 */
 	if (!pm_pwrdwn_req_status()) {
 		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-					 pm_get_shutdown_scope(), SECURE_FLAG);
+					 pm_get_shutdown_scope(), NON_SECURE);
 
 		/*
 		 * Wait for system shutdown request completed and idle callback
@@ -249,15 +250,15 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	 * be set.
 	 */
 	ret = (uint32_t)pm_feature_check((uint32_t)PM_SELF_SUSPEND,
-					 &version_type[0], SECURE_FLAG);
+					 &version_type[0], NON_SECURE);
 	if (ret == (uint32_t)PM_RET_SUCCESS) {
 		fw_api_version = version_type[0] & 0xFFFFU;
 		if (fw_api_version >= 3U) {
 			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
-					      SECURE_FLAG);
+					      NON_SECURE);
 		} else {
 			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-					      SECURE_FLAG);
+					      NON_SECURE);
 		}
 	}
 }
