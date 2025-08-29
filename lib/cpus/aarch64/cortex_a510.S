@@ -229,6 +229,12 @@ workaround_reset_end cortex_a510, ERRATUM(3672349)
 
 check_erratum_ls cortex_a510, ERRATUM(3672349), CPU_REV(1, 3)
 
+workaround_reset_start cortex_a510, ERRATUM(3704847), ERRATA_A510_3704847
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(9)
+workaround_reset_end cortex_a510, ERRATUM(3704847)
+
+check_erratum_ls cortex_a510, ERRATUM(3704847), CPU_REV(1, 3)
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
