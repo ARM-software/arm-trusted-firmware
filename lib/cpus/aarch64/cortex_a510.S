@@ -32,6 +32,30 @@ workaround_reset_end cortex_a510, ERRATUM(1922240)
 
 check_erratum_ls cortex_a510, ERRATUM(1922240), CPU_REV(0, 0)
 
+workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
+	/* Stash ERRSELR_EL1 in x2 */
+	mrs	x2, ERRSELR_EL1
+
+	/* Select error record 0 and clear ED bit */
+	msr	ERRSELR_EL1, xzr
+	sysreg_bit_clear ERXCTLR_EL1, ERXCTLR_ED_BIT
+
+	/* Select error record 1 and clear ED bit */
+	mov	x0, #1
+	msr	ERRSELR_EL1, x0
+	sysreg_bit_clear ERXCTLR_EL1, ERXCTLR_ED_BIT
+
+	/* Select error record 2 and clear ED bit */
+	mov	x0, #2
+	msr	ERRSELR_EL1, x0
+	sysreg_bit_clear ERXCTLR_EL1, ERXCTLR_ED_BIT
+
+	/* Restore ERRSELR_EL1 from x2 */
+	msr	ERRSELR_EL1, x2
+workaround_runtime_end cortex_a510, ERRATUM(2008766), NO_ISB
+
+check_erratum_ls cortex_a510, ERRATUM(2008766), CPU_REV(1, 3)
+
 workaround_reset_start cortex_a510, ERRATUM(2041909), ERRATA_A510_2041909
 	/* Apply workaround */
 	mov	x0, xzr
@@ -187,7 +211,8 @@ check_erratum_range cortex_a510, ERRATUM(2971420), CPU_REV(0, 1), CPU_REV(1, 3)
 	 * ----------------------------------------------------
 	 */
 func cortex_a510_core_pwr_dwn
-	apply_erratum cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597
+	apply_erratum cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
+	apply_erratum cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597, NO_GET_CPU_REV
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
