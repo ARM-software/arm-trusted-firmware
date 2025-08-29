@@ -204,6 +204,12 @@ workaround_reset_end cortex_a510, ERRATUM(2371937)
 
 check_erratum_ls cortex_a510, ERRATUM(2371937), CPU_REV(1, 1)
 
+workaround_reset_start cortex_a510, ERRATUM(2420992), ERRATA_A510_2420992
+	sysreg_bit_set CORTEX_A510_CPUACTLR3_EL1, BIT(3)
+workaround_reset_end cortex_a510, ERRATUM(2420992)
+
+check_erratum_range cortex_a510, ERRATUM(2420992), CPU_REV(1, 0), CPU_REV(1, 1)
+
 workaround_reset_start cortex_a510, ERRATUM(2666669), ERRATA_A510_2666669
 	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, CORTEX_A510_CPUACTLR_EL1_BIT_38
 workaround_reset_end cortex_a510, ERRATUM(2666669)
