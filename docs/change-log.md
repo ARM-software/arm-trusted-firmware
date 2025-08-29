@@ -3,6 +3,40 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.5..refs/tags/lts-v2.12.6) (2025-08-29)
+
+### Documentation
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - security advisory for CVE-2024-5660 ([76a1cce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/76a1cce97b16f7f289b6c755f5ef6c42188fb2aa))
+    - security advisory for CVE-2024-7881 ([e90ce75](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e90ce75774a81528cf4950fbdb898d9edd64eec2))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - check minor revision before applying runtime errata ([621560d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/621560d745b5ec9a3aad5a1e01865e27e20dac53))
+    - organize Cortex-X2 errata entries ([885b129](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/885b1291ab9abd61def2b504e82582fdc2928ad4))
+    - put back the global declaration for erratum [#3701747](https://review.trustedfirmware.org/TF-A/trusted-firmware-a/issues/3701747) ([27fa107](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/27fa107db4e05454f4f79ad3a1986d4c8ed8c890))
+    - workaround for Cortex-X2 erratum 1901946 ([4b559e7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4b559e72cf0cb7b20356feee3356d16eed25297e))
+    - workaround for Cortex-X2 erratum 1916945 ([7054fa4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7054fa4e758e50841e620f2cd9b32c8bba2073e6))
+    - workaround for Cortex-X2 erratum 1917258 ([7f0fc6b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7f0fc6bd0516b51ee4dee8cb15b401f6de73288a))
+    - workaround for Cortex-X2 erratum 1927200 ([47ddedb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/47ddedb4d888991df3d797b6926c3b7922d2cca9))
+    - workaround for Cortex-X2 erratum 1934260 ([851c5bf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/851c5bf1ab6025dd8ee96424546e6cfe0672bd18))
+    - workaround for Cortex-X2 erratum 2136059 ([66f25a8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/66f25a8325d24f9bf66cdef1c404915cd5003b8e))
+    - workaround for Cortex-X2 erratum 2267065 ([7430412](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7430412dbaa311447a2f71ace360d3ebac38afa6))
+    - workaround for Cortex-X2 erratum 2291219 ([d1ed44d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d1ed44d6421af6d03bd8cd61e685362a22445f0b))
+    - workaround for Cortex-X3 erratum 3213672 ([e9bc0b9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e9bc0b98b1d60fa371e1ba2237ecb57fb252a26c))
+    - workaround for Cortex-X3 erratum 3692984 ([44fc77f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/44fc77fef621d4ebc1aaf10b5da0c8c98a778e8a))
+    - workaround for Cortex-X3 erratum 3827463 ([cafd1af](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cafd1afdccaab2560c23e3200442fd6b330bfee2))
+    - workaround for Cortex-X4 erratum 3133195 ([7fc7f92](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7fc7f929c4ae03eceb2e5a1f06f09bbb0a8970f9))
+    - workaround for Cortex-X4 erratum 3887999 ([ace292e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ace292ef2e0ceab8006cb3f8fd611b3d5bfbeba7))
+
 ## [lts-2.12.5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.4..refs/tags/lts-v2.12.5) (2025-07-25)
 
 ### Resolved Issues
