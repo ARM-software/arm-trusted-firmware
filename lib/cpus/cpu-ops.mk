@@ -965,6 +965,10 @@ CPU_FLAG_LIST += ERRATA_A510_2008766
 # fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_A510_2169012
 
+# Flag to apply erratum 2218134 workaround during reset. This erratum applies
+# to revision r1p0 of the Cortex-A510 cpu and is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A510_2218134
+
 # Flag to apply erratum 2288014 workaround during reset. This erratum applies
 # to revisions r0p0, r0p1, r0p2, r0p3 and r1p0 of the Cortex-A510 cpu and is
 # fixed in r1p1.
