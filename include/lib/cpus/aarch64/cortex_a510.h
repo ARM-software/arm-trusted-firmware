@@ -52,6 +52,11 @@
 #define CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_SHIFT		U(18)
 #define CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_WIDTH		U(1)
 
+/*******************************************************************************
+ * Auxiliary control register 2 specific definitions
+ ******************************************************************************/
+#define CORTEX_A510_CPUACTLR2_EL1				S3_0_C15_C1_1
+
 #ifndef __ASSEMBLER__
 
 #if ERRATA_A510_2971420
