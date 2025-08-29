@@ -217,6 +217,18 @@ check_erratum_ls cortex_a510, ERRATUM(2684597), CPU_REV(1, 2)
 add_erratum_entry cortex_a510, ERRATUM(2971420), ERRATA_A510_2971420
 check_erratum_range cortex_a510, ERRATUM(2971420), CPU_REV(0, 1), CPU_REV(1, 3)
 
+workaround_reset_start cortex_a510, ERRATUM(3672349), ERRATA_A510_3672349
+	/*
+	 * Disable retention control for WFI and WFE by clearing both RET_CTRL
+	 * fields in CPUPWRCTLR_EL1.
+	 */
+	sysreg_bit_clear CORTEX_A510_CPUPWRCTLR_EL1, \
+			 (CORTEX_A510_CPUPWRCTLR_EL1_WFE_RET_CTRL_BITS | \
+			 CORTEX_A510_CPUPWRCTLR_EL1_WFI_RET_CTRL_BITS)
+workaround_reset_end cortex_a510, ERRATUM(3672349)
+
+check_erratum_ls cortex_a510, ERRATUM(3672349), CPU_REV(1, 3)
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------

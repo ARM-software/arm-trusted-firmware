@@ -1028,6 +1028,11 @@ CPU_FLAG_LIST += ERRATA_A510_2684597
 # Cortex-A510 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A510_2971420
 
+# Flag to apply erratum 3672349 workaround during reset. This erratum applies to
+# revisions r0p0, r0p1, r0p2, r0p3, r1p0, r1p1, r1p2 and r1p3 of the Cortex-A510
+# cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A510_3672349
+
 # Flag to apply erratum 2630792 workaround during reset. This erratum applies
 # to revisions r0p0, r0p1 of the Cortex-A520 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A520_2630792
