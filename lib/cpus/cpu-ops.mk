@@ -1014,6 +1014,10 @@ CPU_FLAG_LIST += ERRATA_A510_2347730
 # to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_A510_2371937
 
+# Flag to apply erratum 2420992 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1. It is fixed in r1p2.
+CPU_FLAG_LIST += ERRATA_A510_2420992
+
 # Flag to apply erratum 2666669 workaround during reset. This erratum applies
 # to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_A510_2666669
