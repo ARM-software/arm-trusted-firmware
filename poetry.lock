@@ -1154,14 +1154,14 @@ test = ["pytest"]
 
 [[package]]
 name = "sphinxcontrib-svg2pdfconverter"
-version = "1.2.2"
+version = "1.3.0"
 description = "Sphinx SVG to PDF converter extension"
 optional = false
-python-versions = "~=3.4"
+python-versions = ">=3.6"
 groups = ["docs"]
 files = [
-    {file = "sphinxcontrib-svg2pdfconverter-1.2.2.tar.gz", hash = "sha256:80a55ca61f70eae93efc65f3814f2f177c86ba55934a9f6c5022f1778b62146b"},
-    {file = "sphinxcontrib_svg2pdfconverter-1.2.2-py3-none-any.whl", hash = "sha256:04ec767b55780a6b18d89cc1a8ada6d900c6efde9d1683abdb98a49b144465ca"},
+    {file = "sphinxcontrib_svg2pdfconverter-1.3.0-py3-none-any.whl", hash = "sha256:5df6b0895e2e2101d720bfd08841bb56d74c57b1f86229a7c18b771dfdf4ffbb"},
+    {file = "sphinxcontrib_svg2pdfconverter-1.3.0.tar.gz", hash = "sha256:6411a4cc2f57eed96a0d7bbfa139f68cbe7983018881e1e6d7c46053cd69911f"},
 ]
 
 [package.dependencies]
