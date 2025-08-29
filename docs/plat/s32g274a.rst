@@ -77,7 +77,7 @@ for S32G274A SoCs.
                 BL33="${UBOOT}/u-boot-nodtb.bin" DEBUG="${DEBUG}" fip
 
         # Extract BL2 entry
-        BL2_START="0x$(poetry run memory -p s32g274ardb2 -b debug -f | \
+        BL2_START="0x$(poetry run memory -p s32g274ardb2 -b debug footprint | \
                                 grep BL2 | awk -F'|' '{print $3}' | xargs)"
         # BL2 bin file size in bytes
         BL2_SIZE="$(stat -c "%s" "${BL2_BIN}")"
