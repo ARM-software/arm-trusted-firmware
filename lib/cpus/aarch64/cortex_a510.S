@@ -121,6 +121,12 @@ workaround_reset_end cortex_a510, ERRATUM(2172148)
 
 check_erratum_ls cortex_a510, ERRATUM(2172148), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a510, ERRATUM(2218134), ERRATA_A510_2218134
+	sysreg_bit_set CORTEX_A510_CPUACTLR2_EL1, BIT(43)
+workaround_reset_end cortex_a510, ERRATUM(2218134)
+
+check_erratum_range cortex_a510, ERRATUM(2218134), CPU_REV(1, 0), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a510, ERRATUM(2218950), ERRATA_A510_2218950
 	/* Set bit 18 in CPUACTLR_EL1 */
 	sysreg_bitfield_insert CORTEX_A510_CPUACTLR_EL1, CORTEX_A510_CPUACTLR_EL1_ALIAS_LOADSTORE_DISABLE, \
