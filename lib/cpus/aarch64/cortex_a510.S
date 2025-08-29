@@ -24,14 +24,6 @@
 
 cpu_reset_prologue cortex_a510
 
-workaround_reset_start cortex_a510, ERRATUM(1922240), ERRATA_A510_1922240
-	/* Apply the workaround by setting IMP_CMPXACTLR_EL1[11:10] = 0b11. */
-	sysreg_bitfield_insert CORTEX_A510_CMPXACTLR_EL1, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_DISABLE, \
-	CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_SHIFT, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_WIDTH
-workaround_reset_end cortex_a510, ERRATUM(1922240)
-
-check_erratum_ls cortex_a510, ERRATUM(1922240), CPU_REV(0, 0)
-
 workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 	/* Stash ERRSELR_EL1 in x2 */
 	mrs	x2, ERRSELR_EL1
@@ -107,6 +99,13 @@ workaround_reset_start cortex_a510, ERRATUM(2080326), ERRATA_A510_2080326
 workaround_reset_end cortex_a510, ERRATUM(2080326)
 
 check_erratum_range cortex_a510, ERRATUM(2080326), CPU_REV(0, 2), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a510, ERRATUM(2169012), ERRATA_A510_2169012
+	sysreg_bitfield_insert CORTEX_A510_CMPXACTLR_EL1, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_DISABLE, \
+	CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_SHIFT, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_WIDTH
+workaround_reset_end cortex_a510, ERRATUM(2169012)
+
+check_erratum_ls cortex_a510, ERRATUM(2169012), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a510, ERRATUM(2172148), ERRATA_A510_2172148
 	/*
