@@ -251,7 +251,8 @@ ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
 	FVP_CPU_LIBS    +=	lib/cpus/aarch64/cortex_gelas.S		\
 				lib/cpus/aarch64/nevis.S		\
 				lib/cpus/aarch64/travis.S		\
-				lib/cpus/aarch64/cortex_alto.S
+				lib/cpus/aarch64/cortex_alto.S		\
+				lib/cpus/aarch64/canyon.S
 endif
 
 else
