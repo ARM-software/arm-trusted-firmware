@@ -23,6 +23,7 @@ enum mhu_error_t {
 	MHU_ERR_INVALID_ARG		= -5,
 	MHU_ERR_BUFFER_TOO_SMALL	= -6,
 	MHU_ERR_GENERAL			= -7,
+	MHU_ERR_INCOMPLETE		= -8,
 };
 
 /**
