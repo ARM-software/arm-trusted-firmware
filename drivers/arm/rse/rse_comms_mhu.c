@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -32,7 +33,10 @@ int rse_mbx_receive_data(uint8_t *receive_buffer, size_t *size)
 {
 	enum mhu_error_t err = mhu_receive_data(receive_buffer, size);
 
-	if (err != MHU_ERR_NONE) {
+	if (err == MHU_ERR_INCOMPLETE) {
+		VERBOSE("mhu_receive_data err=%d\n", err);
+		return -EINPROGRESS;
+	} else if (err != MHU_ERR_NONE) {
 		ERROR("mhu_receive_data err=%d\n", err);
 		return -1;
 	}
