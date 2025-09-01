@@ -826,9 +826,11 @@
 #define CPTR_EL2_SMEN_MASK	ULL(0x3)
 #define CPTR_EL2_SMEN_SHIFT	U(24)
 #define CPTR_EL2_TTA_BIT	(U(1) << 20)
+#define CPTR_EL2_ZEN_MASK	ULL(0x3)
+#define CPTR_EL2_ZEN_SHIFT	U(16)
 #define CPTR_EL2_TSM_BIT	(U(1) << 12)
 #define CPTR_EL2_TFP_BIT	(ULL(1) << 10)
-#define CPTR_EL2_TZ_BIT		(U(1) << 8)
+#define CPTR_EL2_TZ_BIT		(ULL(1) << 8)
 #define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
 
 /* VTCR_EL2 definitions */
