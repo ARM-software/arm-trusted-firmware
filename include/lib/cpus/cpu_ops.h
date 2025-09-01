@@ -124,7 +124,7 @@ struct cpu_ops {
 #if defined(IMAGE_BL31) && CRASH_REPORTING
 	void (*reg_dump)(void);
 #endif /* defined(IMAGE_BL31) && CRASH_REPORTING */
-} __packed;
+} __packed __aligned(CPU_WORD_SIZE);
 
 CASSERT(sizeof(struct cpu_ops) == CPU_OPS_SIZE,
 	assert_cpu_ops_asm_c_different_sizes);

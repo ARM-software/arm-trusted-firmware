@@ -14,25 +14,6 @@
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
 
-	/*
-	 * Initializes the cpu_ops_ptr if not already initialized
-	 * in cpu_data. This can be called without a runtime stack, but may
-	 * only be called after the MMU is enabled.
-	 * clobbers: x0 - x6, x10
-	 */
-	.globl	init_cpu_ops
-func init_cpu_ops
-	mrs	x6, tpidr_el3
-	ldr	x0, [x6, #CPU_DATA_CPU_OPS_PTR]
-	cbnz	x0, 1f
-	mov	x10, x30
-	bl	get_cpu_ops_ptr
-	str	x0, [x6, #CPU_DATA_CPU_OPS_PTR]!
-	mov x30, x10
-1:
-	ret
-endfunc init_cpu_ops
-
 #if defined(IMAGE_BL31) && CRASH_REPORTING
 	/*
 	 * The cpu specific registers which need to be reported in a crash
