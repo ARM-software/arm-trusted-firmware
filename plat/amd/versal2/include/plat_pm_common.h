@@ -19,9 +19,6 @@
 
 #include "pm_defs.h"
 
-#define NON_SECURE_FLAG		1U
-#define SECURE_FLAG		0U
-
 /* Processor core device IDs */
 #define PM_DEV_CLUSTER0_ACPU_0	(0x1810C0AFU)
 #define PM_DEV_CLUSTER0_ACPU_1	(0x1810C0B0U)

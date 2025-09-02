@@ -12,6 +12,7 @@
 
 #include <arch_helpers.h>
 #include <plat/common/platform.h>
+#include <plat_pm_common.h>
 
 #include "pm_api_clock.h"
 #include "pm_api_ioctl.h"

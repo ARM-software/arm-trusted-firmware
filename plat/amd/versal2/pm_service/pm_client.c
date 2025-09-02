@@ -23,6 +23,7 @@
 #include <platform_def.h>
 #include "def.h"
 #include <plat_ipi.h>
+#include <plat_pm_common.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 

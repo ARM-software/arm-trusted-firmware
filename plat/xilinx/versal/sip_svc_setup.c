@@ -62,7 +62,7 @@ static int32_t sip_svc_setup(void)
  * @x4: SMC64 Arguments 4 from kernel.
  * @cookie: Unused
  * @handle: Pointer to caller's context structure.
- * @flags: SECURE_FLAG or NON_SECURE_FLAG.
+ * @flags: SECURE or NON_SECURE.
  *
  * Handler for all SiP SMC calls. Handles standard SIP requests
  * and calls PM SMC handler if the call is for a PM-API function.

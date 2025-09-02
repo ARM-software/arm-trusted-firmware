@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/ep_info.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <drivers/generic_delay_timer.h>
@@ -14,7 +15,6 @@
 #include <plat/common/platform.h>
 #include <plat_common.h>
 #include <plat_ipi.h>
-#include <plat_pm_common.h>
 #include <pm_api_sys.h>
 #include <pm_defs.h>
 
@@ -169,8 +169,9 @@ void get_boot_mode(uint32_t *mode)
 	enum pm_ret_status ret_status;
 
 	if (mode != NULL) {
-		ret_status = pm_handle_eemi_call(SECURE_FLAG, PM_IOCTL, CRP_BOOT_MODE_REG_NODE,
-				IOCTL_READ_REG, CRP_BOOT_MODE_REG_OFFSET, 0, 0, mode);
+		ret_status = pm_handle_eemi_call(SECURE, PM_IOCTL, CRP_BOOT_MODE_REG_NODE,
+						 IOCTL_READ_REG, CRP_BOOT_MODE_REG_OFFSET,
+						 0, 0, mode);
 
 		if (ret_status == PM_RET_SUCCESS) {
 			INFO("bootmode: %u\n", *mode);
