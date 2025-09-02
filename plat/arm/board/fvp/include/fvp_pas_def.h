@@ -82,10 +82,6 @@
 #define	ARM_PAS_4_BASE			ARM_DRAM2_BASE
 #define	ARM_PAS_4_SIZE			(SZ_2G)	/* 2GB */
 
-#define ARM_PAS_GPI_ANY			MAP_GPT_REGION(ARM_PAS_1_BASE, \
-						       ARM_PAS_1_SIZE, \
-						       GPT_GPI_ANY)
-
 #define	ARM_PAS_KERNEL			GPT_MAP_REGION_GRANULE(ARM_PAS_2_BASE, \
 							       ARM_PAS_2_SIZE, \
 							       GPT_GPI_NS)

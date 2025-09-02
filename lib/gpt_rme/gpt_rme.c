@@ -736,12 +736,7 @@ __unused static uintptr_t fill_l1_cont_desc(uint64_t *l1, uintptr_t first,
 
 			/* Fill Contiguous descriptors */
 			fill_desc(&l1[idx], l1_desc, cnt);
-			first += cont_size;
-			length -= cont_size;
-
-			if (length == 0UL) {
-				break;
-			}
+			return (first + cont_size);
 		}
 	}
 
