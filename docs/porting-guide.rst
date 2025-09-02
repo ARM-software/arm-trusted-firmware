@@ -1576,6 +1576,41 @@ This is required for MTD devices like NAND.
 The argument is the ID of the image for which we are looking for an alternative
 place. It returns 0 in case of success and a negative errno value otherwise.
 
+Function : plat_setup_log_gpt_corrupted [optional]
+..................................................
+
+::
+
+    Argument : const struct plat_log_gpt_corrupted *
+    Return   : void
+
+This optional function is called to register platform log GPT corrupted functions,
+given as argument.
+
+Function : plat_setup_log_gpt_corrupted.plat_set_gpt_corruption [optional]
+..........................................................................
+
+::
+
+    Argument : uintptr_t gpt_corrupted_info_ptr, uint8_t flags
+    Return   : void
+
+This optional function will log error information if the GPT is corrupted, by
+setting the address passed by gpt_corrupted_info_ptr to flags value, currently
+bit[0] is used for logging primary GPT corruption, bit[7:1] are reserved.
+The data type passed by reference is uint8_t.
+
+Function : plat_setup_log_gpt_corrupted.plat_log_gpt_corruption [optional]
+..........................................................................
+
+::
+
+    Argument : uintptr_t log_address, uint8_t gpt_corrupted_info
+    Return   : void
+
+This optional function will log if the primary GPT is corrupted, by writing
+the value of gpt_corrupted_info to the address passed by log_address.
+
 Modifications specific to a Boot Loader stage
 ---------------------------------------------
 
