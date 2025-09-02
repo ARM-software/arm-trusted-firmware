@@ -150,6 +150,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |    FEAT_FGWTE3             |
  * +----------------------------+
+ * |	FEAT_MPAM_PE_BW_CTRL	|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -379,6 +381,22 @@ static inline bool is_feat_mpam_present(void)
 }
 
 CREATE_FEATURE_SUPPORTED(feat_mpam, is_feat_mpam_present, ENABLE_FEAT_MPAM)
+
+
+
+/* FEAT_MPAM_PE_BW_CTRL: MPAM PE-side bandwidth controls */
+__attribute__((always_inline))
+static inline bool is_feat_mpam_pe_bw_ctrl_present(void)
+{
+	if (is_feat_mpam_present()) {
+		return ((unsigned long long)(read_mpamidr_el1() &
+				MPAMIDR_HAS_BW_CTRL_BIT) != 0U);
+	}
+	return false;
+}
+
+CREATE_FEATURE_SUPPORTED(feat_mpam_pe_bw_ctrl, is_feat_mpam_pe_bw_ctrl_present,
+		ENABLE_FEAT_MPAM_PE_BW_CTRL)
 
 /*
  * FEAT_DebugV8P9: Debug extension. This function checks the field 3:0 of

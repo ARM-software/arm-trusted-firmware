@@ -431,6 +431,9 @@ ENABLE_FEAT_D128			?=	0
 # Flag to enable access to GICv5 CPU interface extension (FEAT_GCIE)
 ENABLE_FEAT_GCIE			?=	0
 
+# Enables access to PE-side MPAM bandwidth controls (FEAT_MPAM_PE_BW_CTRL)
+ENABLE_FEAT_MPAM_PE_BW_CTRL		?=	0
+
 #----
 #9.4
 #----
