@@ -138,6 +138,9 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
+	/* Initialize the console to provide early debug support */
+	arm_console_boot_init();
+
 	nrd_plat_info.platform_id = plat_arm_nrd_get_platform_id();
 	nrd_plat_info.config_id = plat_arm_nrd_get_config_id();
 	nrd_plat_info.multi_chip_mode = plat_arm_nrd_get_multi_chip_mode();
