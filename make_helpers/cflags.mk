@@ -12,12 +12,8 @@ PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
 ################################################################################
 target-aarch32-arm-clang	:=	-target arm-arm-none-eabi
 target-aarch64-arm-clang	:=	-target aarch64-arm-none-eabi
-ifeq (${ARM_ARCH_MAJOR},7)
-        target-aarch32-llvm-clang	:= 	-target arm-none-eabi
-else
-        target-aarch32-llvm-clang	:= 	-target armv8a-none-eabi
-endif #(ARM_ARCH_MAJOR)
-target-aarch64-llvm-clang	:=	-target aarch64-elf
+target-aarch32-llvm-clang	:=	-target arm-arm-none-eabi
+target-aarch64-llvm-clang	:=	-target aarch64-arm-none-elf
 
 ifneq (${DEBUG}, 0)
 	cflags-common		+=	-g -gdwarf-4
