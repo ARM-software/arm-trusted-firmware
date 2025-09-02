@@ -375,6 +375,14 @@ GIC driver
 :|G|: `loosper-arm`_
 :|F|: drivers/arm/gic/
 
+GICv5 driver
+^^^^^^^^^^^^
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: drivers/arm/gicv5
+:|F|: plat/common/plat_gicv5.c
+:|F|: plat/arm/board/fvp/gicv5_config.yaml
+
 Message Handling Unit (MHU) driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: David Vincze <david.vincze@arm.com>
