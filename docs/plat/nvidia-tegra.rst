@@ -109,6 +109,9 @@ Preparing the BL31 image to run on Tegra SoCs
     TARGET_SOC=<target-soc e.g. t194|t186|t210> SPD=<dispatcher e.g. trusty|tlkd>
     bl31
 
+Note that all Tegra platforms only support compiling with GCC or ARMCLANG. Clang
+is not supported. Images will compile with clang, but will not boot.
+
 Platforms wanting to use different TZDRAM\_BASE, can add ``TZDRAM_BASE=<value>``
 to the build command line.
 
