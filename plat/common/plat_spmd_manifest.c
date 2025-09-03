@@ -116,6 +116,38 @@ static int manifest_parse_root(spmc_manifest_attribute_t *manifest,
 int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 				const void *pm_addr)
 {
+#if TRANSFER_LIST && !RESET_TO_BL31
+	int rc;
+
+	assert(manifest != NULL);
+	assert(pm_addr != NULL);
+
+	/*
+	 * NOTE:
+	 *   If spmc_manifest is delivered via TRANSFER_LIST,
+	 *   the spmc_manifest address is already mapped.
+	 *   So, @pm_addr can be accessed directly.
+	 */
+
+	rc = fdt_check_header(pm_addr);
+	if (rc != 0) {
+		ERROR("Wrong format for SPM Core manifest (%d).\n", rc);
+		return rc;
+	}
+
+	VERBOSE("Reading SPM Core manifest at address %p\n", pm_addr);
+
+	rc = fdt_node_offset_by_compatible(pm_addr, -1,
+				"arm,ffa-core-manifest-1.0");
+	if (rc < 0) {
+		ERROR("Unrecognized SPM Core manifest\n");
+		return rc;
+	}
+
+	rc = manifest_parse_root(manifest, pm_addr, rc);
+
+	return rc;
+#else
 	int rc, unmap_ret;
 	uintptr_t pm_base, pm_base_align;
 	size_t mapped_size;
@@ -191,4 +223,5 @@ exit_unmap:
 	}
 
 	return rc;
+#endif
 }
