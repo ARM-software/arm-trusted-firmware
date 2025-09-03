@@ -52,7 +52,7 @@ are explained below:
   - ``RES0``: Bit 31 of the version number is reserved 0 as to maintain
     consistency with the versioning schemes used in other parts of RMM.
 
-This document specifies the 0.7 version of Boot Interface ABI and RMM-EL3
+This document specifies the 0.8 version of Boot Interface ABI and RMM-EL3
 services specification and the 0.5 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
@@ -681,14 +681,13 @@ a failure. The errors are ordered by condition check.
    the EL3 queue is full, or if the response is not ready yet, for other opcodes"
    ``E_RMM_OK``,No errors detected
 
-
-RMM_MECID_KEY_UPDATE command
-============================
+RMM_MEC_REFRESH command
+=======================
 
 This command updates the tweak for the encryption key/programs a new encryption key
 associated with a given MECID. After the execution of this command, all memory
 accesses associated with the MECID are encrypted/decrypted using the new key.
-This command is available from v0.5 of the RMM-EL3 interface.
+This command is available from v0.8 of the RMM-EL3 interface.
 
 FID
 ---
@@ -698,21 +697,23 @@ FID
 Input values
 ------------
 
-.. csv-table:: Input values for RMM_MECID_KEY_UPDATE
+.. csv-table:: Input values for RMM_MEC_REFRESH
    :header: "Name", "Register", "Field", "Type", "Description"
    :widths: 1 1 1 1 5
 
    fid,x0,[63:0],UInt64,Command FID
-   mecid,x1,[15:0],UInt64,"mecid is a 16-bit value between 0 and 65,535 that identifies the MECID for which the encryption key is to be updated. Value has to be a valid MECID as per field MECIDWidthm1 read from MECIDR_EL2. Bits [63:16] must be 0."
+   mecid,x1,[47:32],UInt64, "mecid is a 16-bit value between 0 and 65,535 that identifies the MECID for which the encryption key is to be updated. Value has to be a valid MECID as per field MECIDWidthm1 read from MECIDR_EL2. Bits [63:16] must be 0."
+   mecid,x1,[31:1],UInt64, "Reserved, MBZ"
+   reason,x1,[0],UInt64, "reason is a single bit field used to indicate the reason for the MEC refresh. Values are: 0 (Realm creation), 1 (Realm destruction)."
 
 Output values
 -------------
 
-.. csv-table:: Output values for RMM_MECID_KEY_UPDATE
+.. csv-table:: Output values for RMM_MEC_REFRESH
    :header: "Name", "Register", "Field", "Type", "Description"
    :widths: 1 1 1 1 5
 
-   Result,x0,[63:0],Error Code,Command return status. Valid for all opcodes listed in input values
+   Result,x0,[63:0],Error Code,"Command return status. Valid for all opcodes listed in input values"
 
 
 Failure conditions
@@ -721,14 +722,13 @@ Failure conditions
 The table below shows all the possible error codes returned in ``Result`` upon
 a failure. The errors are ordered by condition check.
 
-.. csv-table:: Failure conditions for RMM_MECID_KEY_UPDATE
+.. csv-table:: Failure conditions for RMM_MEC_REFRESH
    :header: "ID", "Condition"
    :widths: 1 5
 
-   ``E_RMM_INVAL``,"if mecid is invalid (larger than 65,535 or than the maximum MECID width, determined by MECIDR_EL2.MECIDWidthm1)"
-   ``E_RMM_UNK``,"An unknown error occurred whilst processing the command or the SMC is not present if interface version is <0.5"
-   ``E_RMM_OK``,No errors detected
-
+   ``E_RMM_INVAL``, "If a field in the x1 register is incorrectly encoded or if MECID is invalid (larger than the common MECID width, determined by MECIDR_EL2.MECIDWidthm1 + 1 or by other system components, whichever is lower)"
+   ``E_RMM_UNK``, "An unknown error occurred whilst processing the command, FEAT_MEC is not present in hardware or the SMC is not present if the version is < 0.8."
+   ``E_RMM_OK``, "No errors detected"
 
 RMM_IDE_KEY_PROG command
 =========================
@@ -1038,7 +1038,7 @@ a failure. The errors are ordered by condition check.
    :widths: 1 5
 
    ``E_RMM_INVAL``,"unrecognised flag bit"
-   ``E_RMM_UNK``,"if the SMC is not present, if interface version is <0.5"
+   ``E_RMM_UNK``,"if the SMC is not present, if interface version is <0.7"
    ``E_RMM_NOMEM``,"size of region is larger than the available memory"
    ``E_RMM_OK``,No errors detected
 
