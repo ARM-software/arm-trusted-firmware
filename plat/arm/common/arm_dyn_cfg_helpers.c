@@ -377,6 +377,10 @@ int arm_set_tos_fw_info(uintptr_t log_addr, size_t log_size)
 
 	config_base = cfg_mem_params->image_info.image_base;
 
+#if TRANSFER_LIST
+	event_log_max_size = log_size;
+#endif
+
 	/* Write the Event Log address and its size in the DTB */
 	err = arm_set_event_log_info(config_base,
 #ifdef SPD_opteed
