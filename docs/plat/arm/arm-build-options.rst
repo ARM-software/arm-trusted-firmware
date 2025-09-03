@@ -33,12 +33,12 @@ Arm Platform Build Options
 -  ``ARM_LINUX_KERNEL_AS_BL33``: The Linux kernel expects registers x0-x3 to
    have specific values at boot. This boolean option allows the Trusted Firmware
    to have a Linux kernel image as BL33 by preparing the registers to these
-   values before jumping to BL33. This option defaults to 0 (disabled). For
-   AArch64 ``RESET_TO_BL31`` and for AArch32 ``RESET_TO_SP_MIN`` must be 1 when
-   using it. If this option is set to 1, ``ARM_PRELOADED_DTB_BASE`` must be set
-   to the location of a device tree blob (DTB) already loaded in memory. The
-   Linux Image address must be specified using the ``PRELOADED_BL33_BASE``
-   option.
+   values before jumping to BL33. This option defaults to 0 (disabled). When
+   enabled (1), the address of the Linux image must be provided via the
+   ``PRELOADED_BL33_BASE`` option. Additionally, either the ``HW_CONFIG_BASE``
+   or ``ARM_PRELOADED_DTB_BASE`` option must specify the memory location of a
+   preloaded device tree blob (DTB). This option implies
+   ``USE_KERNEL_DT_CONVENTION``.
 
 -  ``ARM_PLAT_MT``: This flag determines whether the Arm platform layer has to
    cater for the multi-threading ``MT`` bit when accessing MPIDR. When this flag
@@ -167,4 +167,4 @@ Arm Neoverse RD Platform Build Options
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png
 
-*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*

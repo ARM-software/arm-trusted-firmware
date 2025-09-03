@@ -112,15 +112,20 @@ $(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
 ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
+  USE_KERNEL_DT_CONVENTION  := 1
+
   ifneq (${ARCH},aarch64)
     ifneq (${RESET_TO_SP_MIN},1)
       $(error ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_SP_MIN=1.)
     endif
   endif
-  ifeq (${RESET_TO_BL31},1)
+  ifndef HW_CONFIG_BASE
     ifndef ARM_PRELOADED_DTB_BASE
-      $(error ARM_PRELOADED_DTB_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used with RESET_TO_BL31.)
+      $(error If ARM_LINUX_KERNEL_AS_BL33 is used, either HW_CONFIG_BASE or \
+          ARM_PRELOADED_DTB_BASE must be set. )
     endif
+
+    HW_CONFIG_BASE := ${ARM_PRELOADED_DTB_BASE}
     $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
   endif
 endif

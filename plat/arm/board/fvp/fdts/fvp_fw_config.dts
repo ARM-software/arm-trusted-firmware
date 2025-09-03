@@ -27,7 +27,7 @@
 			load-address = <0x0 0x07f00000>;
 			max-size = <PLAT_ARM_HW_CONFIG_SIZE>;
 			id = <HW_CONFIG_ID>;
-			secondary-load-address = <0x0 FVP_HW_CONFIG_ADDR>;
+			secondary-load-address = <0x0 HW_CONFIG_BASE>;
 		};
 
 		/*

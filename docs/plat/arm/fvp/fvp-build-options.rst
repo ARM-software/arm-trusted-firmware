@@ -42,9 +42,6 @@ Arm FVP Platform Specific Build Options
    HW_CONFIG blob instead of the DTS file. This option is useful to override
    the default HW_CONFIG selected by the build system.
 
--  ``FVP_HW_CONFIG_ADDR`` : Specify the memory address in which to load the
-   HW_CONFIG. The default value is ``0x82000000``.
-
 -  ``FVP_GICR_REGION_PROTECTION``: Mark the redistributor pages of
    inactive/fused CPU cores as read-only. The default value of this option
    is ``0``, which means the redistributor pages of all CPU cores are marked

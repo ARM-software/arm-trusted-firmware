@@ -794,6 +794,9 @@ Common build options
    algorithm. It accepts 3 values: ``sha256``, ``sha384`` and ``sha512``.
    The default value of this flag is ``sha256``.
 
+- ``HW_CONFIG_BASE``: This option specifies the location in memory where the DTB
+   should either be loaded by BL2 or can be found by later stages.
+
 -  ``LDFLAGS``: Extra user options appended to the linkers' command line in
    addition to the one set by the build system.
 

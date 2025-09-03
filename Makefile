@@ -898,6 +898,7 @@ $(eval $(call add_defines,\
 	EARLY_CONSOLE \
 	PRESERVE_DSU_PMU_REGS \
 	HOB_LIST \
+	HW_CONFIG_BASE \
 	LFA_SUPPORT \
 )))
 
