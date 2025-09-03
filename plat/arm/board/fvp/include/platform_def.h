@@ -109,9 +109,6 @@
 
 #if SPMC_AT_EL3
 
-/* Define maximum size of sp manifest file. */
-#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	U(0x1000)
-
 /*
  * Number of Secure Partitions supported.
  * SPMC at EL3, uses this count to configure the maximum number of supported
@@ -133,11 +130,6 @@
  */
 #define MAX_EL3_LP_DESCS_COUNT		1
 
-#else /* !SPMC_AT_EL3 */
-
-/* Define maximum size of sp manifest file. */
-#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	U(0x0)
-
 #endif /* SPMC_AT_EL3 */
 
 /*
@@ -146,11 +138,25 @@
 #define PLAT_ARM_NS_IMAGE_BASE		(ARM_DRAM1_BASE + UL(0x8000000))
 
 #if TRANSFER_LIST
-#if SPMC_AT_EL3
-#define PLAT_ARM_FW_HANDOFF_SIZE	U(0x6000)
+
+/* Define maximum size of sp manifest file. */
+#if defined(SPD_spmd)
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	SZ_4K
 #else
-#define PLAT_ARM_FW_HANDOFF_SIZE	U(0x5000)
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	UL(0x0)
 #endif
+
+/*
+ * PLAT_ARM_FW_HANDOFF_SIZE should be page-aligned to ensure proper xlat mapping.
+ * If it is not, generating the page table mapping for FW_HANDOFF will fail.
+ * Because PLAT_ARM_EVENT_LOG_MAX_SIZE is not guaranteed to be aligned,
+ * PLAT_ARM_FW_HANDOFF_SIZE must be explicitly aligned.
+ */
+#define PLAT_ARM_FW_HANDOFF_SIZE	((((PLAT_ARM_HW_CONFIG_SIZE +		\
+					    PLAT_ARM_EVENT_LOG_MAX_SIZE +	\
+					    PLAT_ARM_SPMC_SP_MANIFEST_SIZE) +	\
+					    PAGE_SIZE_MASK) >>			\
+					    PAGE_SIZE_SHIFT) << PAGE_SIZE_SHIFT)
 
 #define FW_NS_HANDOFF_BASE		(PLAT_ARM_NS_IMAGE_BASE - PLAT_ARM_FW_HANDOFF_SIZE)
 #define PLAT_ARM_EL3_FW_HANDOFF_BASE	ARM_BL_RAM_BASE
