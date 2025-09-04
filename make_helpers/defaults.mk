@@ -140,6 +140,9 @@ FIP_NAME			:= fip.bin
 # Default FWU_FIP file name
 FWU_FIP_NAME			:= fwu_fip.bin
 
+# Default BL2 FIP file name
+BL2_FIP_NAME			:= bl2_fip.bin
+
 # By default firmware encryption with SSK
 FW_ENC_STATUS			:= 0
 
@@ -445,3 +448,6 @@ LFA_SUPPORT			:= 0
 
 # Enable support for arm DSU driver.
 USE_DSU_DRIVER			:= 0
+
+# Define the separation of BL2 flag, by default it is disabled.
+SEPARATE_BL2_FIP		:=	0

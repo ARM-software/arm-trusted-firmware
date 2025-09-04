@@ -428,8 +428,9 @@ include ${MAKE_HELPERS_DIRECTORY}constraints.mk
 # The cert_create tool cannot generate certificates individually, so we use the
 # target 'certificates' to create them all
 ifneq (${GENERATE_COT},0)
-        FIP_DEPS += certificates
-        FWU_FIP_DEPS += fwu_certificates
+    FIP_DEPS += certificates
+    FWU_FIP_DEPS += fwu_certificates
+    BL2_FIP_DEPS += bl2_certificates
 endif
 
 ifneq (${DECRYPTION_SUPPORT},none)
@@ -438,6 +439,7 @@ ifneq (${DECRYPTION_SUPPORT},none)
 	ENC_ARGS += -n ${ENC_NONCE}
 	FIP_DEPS += enctool
 	FWU_FIP_DEPS += enctool
+	BL2_FIP_DEPS += enctool
 endif #(DECRYPTION_SUPPORT)
 
 ifeq ($(MEASURED_BOOT)-$(TRUSTED_BOARD_BOOT),1-1)
@@ -510,19 +512,21 @@ endif #(ARCH=aarch64)
 
 # Process TBB related flags
 ifneq (${GENERATE_COT},0)
-	# Common cert_create options
-	ifneq (${CREATE_KEYS},0)
-                $(eval CRT_ARGS += -n)
-                $(eval FWU_CRT_ARGS += -n)
-		ifneq (${SAVE_KEYS},0)
-                        $(eval CRT_ARGS += -k)
-                        $(eval FWU_CRT_ARGS += -k)
-		endif
-	endif
-	# Include TBBR makefile (unless the platform indicates otherwise)
-	ifeq (${INCLUDE_TBBR_MK},1)
-                include make_helpers/tbbr/tbbr_tools.mk
-	endif
+    # Common cert_create options
+    ifneq (${CREATE_KEYS},0)
+        $(eval CRT_ARGS += -n)
+        $(eval FWU_CRT_ARGS += -n)
+        $(eval BL2_CRT_ARGS += -n)
+        ifneq (${SAVE_KEYS},0)
+            $(eval CRT_ARGS += -k)
+            $(eval FWU_CRT_ARGS += -k)
+            $(eval BL2_CRT_ARGS += -k)
+        endif
+    endif
+    # Include TBBR makefile (unless the platform indicates otherwise)
+    ifeq (${INCLUDE_TBBR_MK},1)
+        include make_helpers/tbbr/tbbr_tools.mk
+    endif
 endif #(GENERATE_COT)
 
 ifneq (${FIP_ALIGN},0)
@@ -809,6 +813,7 @@ $(eval $(call add_defines,\
 	RME_GPT_BITLOCK_BLOCK \
 	RME_GPT_MAX_BLOCK \
 	SEPARATE_CODE_AND_RODATA \
+	SEPARATE_BL2_FIP \
 	SEPARATE_BL2_NOLOAD_REGION \
 	SEPARATE_NOBITS_REGION \
 	SEPARATE_RWDATA_REGION \
@@ -979,8 +984,13 @@ endif
 
 BL2_SOURCES := $(sort ${BL2_SOURCES})
 
-$(if ${BL2}, $(eval $(call TOOL_ADD_IMG,bl2,--${FIP_BL2_ARGS})),\
+ifeq (${SEPARATE_BL2_FIP},1)
+$(if ${BL2}, $(eval $(call TOOL_ADD_IMG,bl2,--${FIP_BL2_ARGS},BL2_)), \
+	$(eval $(call MAKE_BL,bl2,${FIP_BL2_ARGS},BL2_)))
+else
+$(if ${BL2}, $(eval $(call TOOL_ADD_IMG,bl2,--${FIP_BL2_ARGS})), \
 	$(eval $(call MAKE_BL,bl2,${FIP_BL2_ARGS})))
+endif #(SEPARATE_BL2_FIP)
 
 endif #(NEED_BL2)
 
@@ -1151,6 +1161,16 @@ certificates: ${CRT_DEPS} ${CRTTOOL} ${DTBS}
 	$(s)echo
 endif #(GENERATE_COT)
 
+ifeq (${SEPARATE_BL2_FIP},1)
+${BUILD_PLAT}/${BL2_FIP_NAME}: ${BL2_FIP_DEPS} ${FIPTOOL}
+	$(eval ${CHECK_BL2_FIP_CMD})
+	$(q)${FIPTOOL} create ${BL2_FIP_ARGS} $@
+	$(q)${FIPTOOL} info $@
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
+endif #(SEPARATE_BL2_FIP)
+
 ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
 	$(eval ${CHECK_FIP_CMD})
 	$(q)${FIPTOOL} create ${FIP_ARGS} $@
@@ -1168,6 +1188,15 @@ fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}
 	$(s)echo
 endif #(GENERATE_COT)
 
+ifneq (${GENERATE_COT},0)
+bl2_certificates: ${BUILD_PLAT}/${FIP_NAME} ${BL2_CRT_DEPS} ${CRTTOOL}
+	$(q)${CRTTOOL} ${BL2_CRT_ARGS}
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo "BL2 certificates can be found in ${BUILD_PLAT}"
+	$(s)echo
+endif #(GENERATE_COT)
+
 ${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
 	$(eval ${CHECK_FWU_FIP_CMD})
 	$(q)${FIPTOOL} create ${FWU_FIP_ARGS} $@
@@ -1177,7 +1206,12 @@ ${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
 	$(s)echo
 
 fiptool: ${FIPTOOL}
+ifeq (${SEPARATE_BL2_FIP},1)
+bl2_fip: ${BUILD_PLAT}/${BL2_FIP_NAME}
+fip: bl2_fip
+else
 fip: ${BUILD_PLAT}/${FIP_NAME}
+endif #(SEPARATE_BL2_FIP)
 fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 # symlink for compatibility before tools were in the build directory
