@@ -3,11 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <common/desc_image_load.h>
 
 #if CRYPTO_SUPPORT
 #include <mbedtls/version.h>
 #endif /* CRYPTO_SUPPORT */
 
+#if BL2_ENABLE_SP_LOAD
+#include <plat/arm/common/fconf_arm_sp_getter.h>
+#endif /* BL2_ENABLE_SP_LOAD */
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 
@@ -48,6 +52,7 @@ int __init arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 void arm_transfer_list_dyn_cfg_init(struct transfer_list_header *tl)
 {
+	int err __maybe_unused;
 	struct transfer_list_entry *te;
 	bl_mem_params_node_t *next_param_node =
 		get_bl_mem_params_node(HW_CONFIG_ID);
@@ -65,6 +70,24 @@ void arm_transfer_list_dyn_cfg_init(struct transfer_list_header *tl)
 	next_param_node->image_info.image_max_size = PLAT_ARM_HW_CONFIG_SIZE;
 	next_param_node->image_info.image_base =
 		(uintptr_t)transfer_list_entry_data(te);
+
+#if BL2_ENABLE_SP_LOAD && defined(PLAT_ARM_TB_FW_CONFIG_TL_TAG)
+	te = transfer_list_find(tl, PLAT_ARM_TB_FW_CONFIG_TL_TAG);
+	assert(te != NULL);
+
+	/*
+	 * TB_FW_CONFIG is loaded in the TL_TAG_FDT entry at
+	 * arm_bl31_platform_setup().
+	 * This data will be clear after loading SP_PKGs information.
+	 *
+	 * Later, TL_TAG_FDT data will be loaded with HW_CONFIG at
+	 * arm_bl31_platform_setup().
+	 */
+	err = fconf_populate_arm_sp((uintptr_t)transfer_list_entry_data(te));
+	if (err) {
+		ERROR("Failed to populate SP information. err: %d\n", err);
+	}
+#endif
 
 #if defined(SPD_spmd) && defined(PLAT_ARM_SPMC_SP_MANIFEST_SIZE)
 	next_param_node = get_bl_mem_params_node(TOS_FW_CONFIG_ID);

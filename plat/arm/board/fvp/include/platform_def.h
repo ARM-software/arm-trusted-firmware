@@ -68,6 +68,10 @@
 #if defined(SPD_spmd)
 #define PLAT_ARM_SPMC_BASE		PLAT_ARM_TRUSTED_DRAM_BASE
 #define PLAT_ARM_SPMC_SIZE		SZ_16M
+
+#if BL2_ENABLE_SP_LOAD
+#define PLAT_ARM_SP_MAX_SIZE		(3 * SZ_1M)
+#endif /* BL2_ENABLE_SP_LOAD */
 #endif
 
 /* Virtual address used by dynamic mem_protect for chunk_base */
@@ -144,9 +148,28 @@
 /* Define maximum size of sp manifest file. */
 #if defined(SPD_spmd)
 #define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	SZ_4K
-#else
+
+#if BL2_ENABLE_SP_LOAD
+/*
+ * TODO:
+ *     There is no standard tag_id defined for TB_FW_CONFIG in
+ *     the xferlist. As a temporary measure,
+ *     use the first value in the non-standard range as
+ *     the tag_id for TB_FW_CONFIG in the xferlist.
+ */
+#define PLAT_ARM_TB_FW_CONFIG_TL_TAG	0x00fff000
+#define PLAT_ARM_TB_FW_CONFIG_SIZE	SZ_4K
+
+#else /* !BL2_ENABLE_SP_LOAD */
+#define PLAT_ARM_TB_FW_CONFIG_SIZE	UL(0x0)
+#endif /* BL2_ENABLE_SP_LOAD */
+
+#else /* !SPD_spmd */
+
 #define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	UL(0x0)
-#endif
+#define PLAT_ARM_TB_FW_CONFIG_SIZE	UL(0x0)
+
+#endif /* SPD_spmd */
 
 /*
  * PLAT_ARM_FW_HANDOFF_SIZE should be page-aligned to ensure proper xlat mapping.
@@ -156,6 +179,7 @@
  */
 #define PLAT_ARM_FW_HANDOFF_SIZE	((((PLAT_ARM_HW_CONFIG_SIZE +		\
 					    PLAT_ARM_EVENT_LOG_MAX_SIZE +	\
+					    PLAT_ARM_TB_FW_CONFIG_SIZE +	\
 					    PLAT_ARM_SPMC_SP_MANIFEST_SIZE) +	\
 					    PAGE_SIZE_MASK) >>			\
 					    PAGE_SIZE_SHIFT) << PAGE_SIZE_SHIFT)

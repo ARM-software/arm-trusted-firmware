@@ -447,6 +447,21 @@ FW_HANDOFF_SIZE			:=	20000
 TRANSFER_LIST_DTB_OFFSET	:=	0x20
 $(eval $(call add_define,TRANSFER_LIST_DTB_OFFSET))
 endif
+
+#
+# To load SP_PKGs with TRANSFER_LIST, FVP_TB_FW_CONFIG is required.
+#
+ifeq (${BL2_ENABLE_SP_LOAD}, 1)
+    FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp/fdts/,	\
+    					${PLAT}_tb_fw_config.dts	\
+    				)
+
+    FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+
+    # Add the TB_FW_CONFIG to FIP and specify the same to certtool
+    $(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config,${FVP_TB_FW_CONFIG}))
+endif
+
 endif
 
 ifeq (${HOB_LIST}, 1)

@@ -188,6 +188,25 @@ void arm_bl1_platform_setup(void)
 
 	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
 
+#if BL2_ENABLE_SP_LOAD && defined(PLAT_ARM_TB_FW_CONFIG_TL_TAG)
+	/*
+	 * To populate the sp_mem_params_descs, load TB_FW_CONFIG.
+	 */
+	te = transfer_list_add(secure_tl, PLAT_ARM_TB_FW_CONFIG_TL_TAG,
+			       PLAT_ARM_TB_FW_CONFIG_SIZE, NULL);
+	assert(te != NULL);
+
+	SET_PARAM_HEAD(&config_image_info, PARAM_IMAGE_BINARY, VERSION_2, 0);
+	config_image_info.image_base = (uintptr_t) transfer_list_entry_data(te);
+	config_image_info.image_max_size = PLAT_ARM_HW_CONFIG_SIZE;
+
+	err = load_auth_image(TB_FW_CONFIG_ID, &config_image_info);
+	if (err < 0) {
+		ERROR("Loading of TB_FW_CONFIG failed %d\n", err);
+		plat_error_handler(err);
+	}
+#endif
+
 	/*
 	 * The event log might have been updated prior to this, make sure we have an
 	 * up to date tl before setting the handoff arguments.
