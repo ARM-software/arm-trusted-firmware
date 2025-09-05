@@ -98,6 +98,11 @@ XILINX_OF_BOARD_DTB_ADDR ?= 0x1000000
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
 endif
 
+ifeq (${SPD},spmd)
+SPMC_MANIFEST_DTB_ADDR ?= 0x9800000
+$(eval $(call add_define,SPMC_MANIFEST_DTB_ADDR))
+endif
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/amd/common/include/			\
@@ -161,6 +166,20 @@ BL31_SOURCES		+=	common/fdt_wrappers.c                           \
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${PLAT_PATH}/gicv3.c
 
+ifeq (${SPD},spmd)
+BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c        \
+				common/uuid.c                           \
+				${LIBFDT_SRCS}                          \
+				${FDT_WRAPPERS_SOURCES}
+
+ARM_SPMC_MANIFEST_DTS	:=	${PLAT_PATH}/spmc_sel1_optee_manifest.dts
+
+FDT_SOURCES		+=	${ARM_SPMC_MANIFEST_DTS}
+
+VERSAL2_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/$(notdir $(basename ${ARM_SPMC_MANIFEST_DTS})).dtb
+
+$(eval $(call TOOL_ADD_PAYLOAD,${VERSAL2_TOS_FW_CONFIG},--tos-fw-config,${VERSAL2_TOS_FW_CONFIG}))
+endif
 
 ifeq ($(DEBUG),1)
 BL31_SOURCES            +=      ${PLAT_PATH}/plat_ocm_coherency.c
