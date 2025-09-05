@@ -35,6 +35,40 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 /* Base address of fw_config received from BL1 */
 static uintptr_t config_base __unused;
 
+#if ARM_GPT_SUPPORT
+// FIXME: should be removed once the transfer list version is updated
+#define TL_TAG_GPT_ERROR_INFO	0x109
+
+/*
+ * Inform the GPT corruption to BL32.
+ */
+static void arm_set_gpt_corruption(uintptr_t gpt_corrupted_info_ptr, uint8_t flags)
+{
+	*(uint8_t *)gpt_corrupted_info_ptr |= flags;
+}
+
+static void arm_get_gpt_corruption(uintptr_t log_address, uint8_t gpt_corrupted_info)
+{
+#if TRANSFER_LIST
+	/* Convey this information to BL2 via its TL. */
+	struct transfer_list_entry *te = transfer_list_add(
+		(struct transfer_list_header *)log_address,
+		TL_TAG_GPT_ERROR_INFO,
+		sizeof(gpt_corrupted_info),
+		(void *)&gpt_corrupted_info);
+	if (te == NULL) {
+		ERROR("Failed to log GPT corruption info in transfer list\n");
+	}
+#endif /* TRANSFER_LIST */
+}
+
+static struct plat_log_gpt_corrupted arm_log_gpt_corruption = {
+	.gpt_corrupted_info = 0U,
+	.plat_set_gpt_corruption = arm_set_gpt_corruption,
+	.plat_log_gpt_corruption = arm_get_gpt_corruption,
+};
+#endif /* ARM_GPT_SUPPORT */
+
 /*
  * Check that BL2_BASE is above ARM_FW_CONFIG_LIMIT. This reserved page is
  * for `meminfo_t` data structure and fw_configs passed from BL1.
@@ -95,11 +129,18 @@ void arm_bl2_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 	/* Load partition table */
 #if ARM_GPT_SUPPORT
+	plat_setup_log_gpt_corrupted(&arm_log_gpt_corruption);
+
 	ret = gpt_partition_init();
 	if (ret != 0) {
 		ERROR("GPT partition initialisation failed!\n");
 		panic();
 	}
+
+#if TRANSFER_LIST
+	plat_log_gpt_ptr->plat_log_gpt_corruption((uintptr_t)secure_tl,
+						   plat_log_gpt_ptr->gpt_corrupted_info);
+#endif	/* TRANSFER_LIST */
 
 #endif /* ARM_GPT_SUPPORT */
 }
