@@ -44,9 +44,11 @@ uint32_t pm_get_shutdown_scope(void)
  * pm_client_set_wakeup_sources - Set all devices with enabled interrupts as
  *                                wake sources in the XilPM.
  * @node_id: Node id of processor.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  */
-void pm_client_set_wakeup_sources(uint32_t node_id)
+void pm_client_set_wakeup_sources(uint32_t node_id, uint32_t flag)
 {
 	uint32_t reg_num, device_id;
 	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX] = {0U};
@@ -83,7 +85,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 					device_id = PERIPH_DEVID((uint32_t)node_idx);
 					ret = pm_set_wakeup_source(node_id,
 								   device_id, 1U,
-								   SECURE_FLAG);
+								   flag);
 					pm_wakeup_nodes_set[node_idx] = (ret == PM_RET_SUCCESS) ?
 										 1U : 0U;
 				}
@@ -159,7 +161,7 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 	 * Do client specific suspend operations
 	 * (e.g. set powerdown request bit)
 	 */
-	pm_client_suspend(proc, state);
+	pm_client_suspend(proc, state, flag);
 
 	/* Send request to the PLM */
 	PM_PACK_PAYLOAD6(payload, LIBPM_MODULE_ID, flag, PM_SELF_SUSPEND,

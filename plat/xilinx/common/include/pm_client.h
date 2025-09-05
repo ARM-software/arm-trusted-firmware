@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
 #include "pm_defs.h"
 
 /* Functions to be implemented by each PU */
-void pm_client_suspend(const struct pm_proc *proc, uint32_t state);
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag);
 void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
 

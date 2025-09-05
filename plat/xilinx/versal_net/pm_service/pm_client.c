@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -284,9 +284,11 @@ enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
  *                       taken depend on the state system is suspending to.
  * @proc: processor which need to suspend.
  * @state: desired suspend state.
+ * @flag: 0 - Call from secure source.
+ *	  1 - Call from non-secure source.
  *
  */
-void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag)
 {
 	uint32_t cpu_id = plat_my_core_pos();
 	uintptr_t val;
@@ -294,7 +296,7 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
 	pm_client_lock_get();
 
 	if (state == PM_STATE_SUSPEND_TO_RAM) {
-		pm_client_set_wakeup_sources((uint32_t)proc->node_id);
+		pm_client_set_wakeup_sources((uint32_t)proc->node_id, flag);
 	}
 
 	val = read_cpu_pwrctrl_val();

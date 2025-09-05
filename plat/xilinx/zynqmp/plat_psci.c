@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,7 +50,7 @@ static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 	}
 
 	/* Check the APU proc status before wakeup */
-	ret = pm_get_node_status(proc->node_id, buff);
+	ret = pm_get_node_status(proc->node_id, buff, NON_SECURE);
 	if ((ret != PM_RET_SUCCESS) || (buff[0] == PM_PROC_STATE_SUSPENDING)) {
 		goto exit_label;
 	}
@@ -59,7 +59,8 @@ static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 	pm_client_wakeup(proc);
 
 	/* Send request to PMU to wake up selected APU CPU core */
-	(void)pm_req_wakeup(proc->node_id, 1, zynqmp_sec_entry, REQ_ACK_BLOCKING);
+	(void)pm_req_wakeup(proc->node_id, 1, zynqmp_sec_entry, REQ_ACK_BLOCKING,
+			    NON_SECURE);
 
 	result = PSCI_E_SUCCESS;
 
@@ -92,7 +93,8 @@ static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0);
+	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+			      NON_SECURE);
 }
 
 static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -114,7 +116,8 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
 
 	/* Send request to PMU to suspend this core */
-	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, state, zynqmp_sec_entry);
+	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, state, zynqmp_sec_entry,
+			      NON_SECURE);
 
 	/* APU is to be turned off */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
@@ -172,7 +175,8 @@ static void __dead2 zynqmp_system_off(void)
 
 	/* Send the power down request to the PMU */
 	(void)pm_system_shutdown((uint32_t)PMF_SHUTDOWN_TYPE_SHUTDOWN,
-			   pm_get_shutdown_scope());
+				 pm_get_shutdown_scope(),
+				 NON_SECURE);
 
 	while (true) {
 		wfi();
@@ -186,7 +190,8 @@ static void __dead2 zynqmp_system_reset(void)
 
 	/* Send the system reset request to the PMU */
 	(void)pm_system_shutdown((uint32_t)PMF_SHUTDOWN_TYPE_RESET,
-			   pm_get_shutdown_scope());
+				 pm_get_shutdown_scope(),
+				 NON_SECURE);
 
 	while (true) {
 		wfi();

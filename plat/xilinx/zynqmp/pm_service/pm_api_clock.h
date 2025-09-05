@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -315,16 +316,19 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id);
 enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id);
 
-enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
-enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
+enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll, uint32_t flag);
+enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll, uint32_t flag);
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
-					  uint32_t *state);
+					  uint32_t *state,
+					  uint32_t flag);
 enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   uint32_t parent_index);
+					   uint32_t parent_index,
+					   uint32_t flag);
 enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   uint32_t *parent_index);
+					   uint32_t *parent_index,
+					   uint32_t flag);
 enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 					 uint32_t mode);
 enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
