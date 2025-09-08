@@ -55,12 +55,12 @@ void setup_smmu_secure_context(void)
 
 	/*
 	 * Program SCR1 register (0xFA000004)
-	 * to set NSNUMSMRGO bit[14:8] to 0x4 which stream mapping register
+	 * to set NSNUMSMRGO bit[14:8] to 0x20 which stream mapping register
 	 * for non-secure context and the rest will be secure context
-	 * to set NSNUMCBO bit[5:0] to 0x4 which allocate context bank
+	 * to set NSNUMCBO bit[5:0] to 0x10 which allocate context bank
 	 * for non-secure context and the rest will be secure context
 	 */
-	mmio_write_32(0xFA000004, 0x00000404);
+	mmio_write_32(0xFA000004, 0x00002010);
 }
 
 
