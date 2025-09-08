@@ -25,6 +25,7 @@
 #include <lib/cpus/errata.h>
 #include <neoverse_n2.h>
 #include <neoverse_n3.h>
+#include <neoverse_v2.h>
 #include <neoverse_v3.h>
 
 struct erratum_entry *find_erratum_entry(uint32_t errata_id)
@@ -157,6 +158,13 @@ bool errata_ich_vmcr_el2_applies(void)
 			return true;
 		break;
 #endif /* ERRATA_N3_3699563 */
+
+#if ERRATA_V2_3701771
+	case EXTRACT_PARTNUM(NEOVERSE_V2_MIDR):
+		if (check_erratum_neoverse_v2_3701771(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_V2_3701771 */
 
 #if ERRATA_V3_3701767
 	case EXTRACT_PARTNUM(NEOVERSE_V3_MIDR):
