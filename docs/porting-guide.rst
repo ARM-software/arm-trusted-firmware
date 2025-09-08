@@ -2371,6 +2371,23 @@ Return value is 0 upon success and -EFAULT otherwise.
 
 This function needs to be implemented by a platform if it enables RME.
 
+Function : plat_rmmd_reserve_memory() [when ENABLE_RME == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Arguments : size_t size, unsigned long alignment
+    Return    : uintptr_t
+
+Reserve memory to be used by the RMM. This could be memory simply taken from a pool of reserved
+memory, for instance from a carveout dedicated to RMM.
+
+Return value is the physical address of a memory region of at least ``size`` bytes, which needs
+to be aligned to ``alignment`` bytes.
+
+This function needs to be implemented if a platform enables RME and the RMM requires the memory
+reservation feature.
+
 Function : plat_rmmd_el3_token_sign_push_req() [mandatory when RMMD_ENABLE_EL3_TOKEN_SIGN == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

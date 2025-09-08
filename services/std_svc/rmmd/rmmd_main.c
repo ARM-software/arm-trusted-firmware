@@ -200,11 +200,13 @@ int rmmd_setup(void)
 	 * arg2: PLATFORM_CORE_COUNT.
 	 * arg3: Base address for the EL3 <-> RMM shared area. The boot
 	 *       manifest will be stored at the beginning of this area.
+	 * arg4: opaque activation token, as returned by previous calls
 	 */
 	rmm_ep_info->args.arg0 = linear_id;
 	rmm_ep_info->args.arg1 = RMM_EL3_INTERFACE_VERSION;
 	rmm_ep_info->args.arg2 = PLATFORM_CORE_COUNT;
 	rmm_ep_info->args.arg3 = shared_buf_base;
+	rmm_ep_info->args.arg4 = rmm_ctx->activation_token;
 
 	/* Initialise RMM context with this entry point information */
 	cm_setup_context(&rmm_ctx->cpu_ctx, rmm_ep_info);
@@ -333,10 +335,11 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 	/*
 	 * Prepare warmboot arguments for RMM:
 	 * arg0: This CPUID.
-	 * arg1 to arg3: Not used.
+	 * arg1: opaque activation token, as returned by previous calls
+	 * arg2 to arg3: Not used.
 	 */
 	rmm_ep_info->args.arg0 = linear_id;
-	rmm_ep_info->args.arg1 = 0ULL;
+	rmm_ep_info->args.arg1 = ctx->activation_token;
 	rmm_ep_info->args.arg2 = 0ULL;
 	rmm_ep_info->args.arg3 = 0ULL;
 
@@ -505,10 +508,18 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		SMC_RET4(handle, ret, req_resp, req_id, cookie_var);
 	}
 #endif /* RMMD_ENABLE_IDE_KEY_PROG */
+	case RMM_RESERVE_MEMORY:
+		ret = rmmd_reserve_memory(x1, &x2);
+		SMC_RET2(handle, ret, x2);
+
 	case RMM_BOOT_COMPLETE:
+	{
+		rmmd_rmm_context_t *ctx = &rmm_context[plat_my_core_pos()];
+
+		ctx->activation_token = x2;
 		VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
 		rmmd_rmm_sync_exit(x1);
-
+	}
 	case RMM_MECID_KEY_UPDATE:
 		ret = rmmd_mecid_key_update(x1);
 		SMC_RET1(handle, ret);

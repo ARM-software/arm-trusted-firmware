@@ -401,6 +401,7 @@ int plat_rmmd_el3_token_sign_pull_resp(struct el3_token_sign_response *resp);
 size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared);
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest);
 int plat_rmmd_mecid_key_update(uint16_t mecid);
+uintptr_t plat_rmmd_reserve_memory(size_t size, unsigned long alignment);
 
 /* The following 4 functions are to be implemented if
  * RMMD_ENABLE_IDE_KEY_PROG=1.
