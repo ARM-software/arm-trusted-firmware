@@ -73,6 +73,13 @@
 #define CPU_DATA_EHF_DATA_SIZE		0
 #define CPU_DATA_EHF_DATA_ALIGN		1
 #endif
+#if ENABLE_FEAT_IDTE3 && defined(__aarch64__)
+#define CPU_DATA_PCPU_IDREGS_SIZE	(16 * CPU_CONTEXT_NUM)
+#define CPU_DATA_PCPU_IDREGS_ALIGN	8
+#else /* ENABLE_FEAT_IDTE3 && defined(__aarch64__) */
+#define CPU_DATA_PCPU_IDREGS_SIZE	0
+#define CPU_DATA_PCPU_IDREGS_ALIGN	1
+#endif /* ENABLE_FEAT_IDTE3 && defined(__aarch64__) */
 /* cpu_data size is the data size rounded up to the platform cache line size */
 #define CPU_DATA_SIZE_ALIGN		CACHE_WRITEBACK_GRANULE
 
@@ -85,7 +92,8 @@
 #define CPU_DATA_CPU_DATA_PMF_TS	ROUND_UP_2EVAL((CPU_DATA_CRASH_BUF + CPU_DATA_CRASH_BUF_SIZE), CPU_DATA_CPU_DATA_PMF_TS_ALIGN)
 #define CPU_DATA_PLATFORM_CPU_DATA	ROUND_UP_2EVAL((CPU_DATA_CPU_DATA_PMF_TS + CPU_DATA_CPU_DATA_PMF_TS_SIZE), CPU_DATA_PLATFORM_CPU_DATA_ALIGN)
 #define CPU_DATA_EHF_DATA		ROUND_UP_2EVAL((CPU_DATA_PLATFORM_CPU_DATA + CPU_DATA_PLATFORM_CPU_DATA_SIZE), CPU_DATA_EHF_DATA_ALIGN)
-#define CPU_DATA_SIZE			ROUND_UP_2EVAL((CPU_DATA_EHF_DATA + CPU_DATA_EHF_DATA_SIZE), CPU_DATA_SIZE_ALIGN)
+#define CPU_DATA_PCPU_IDREGS		ROUND_UP_2EVAL((CPU_DATA_EHF_DATA + CPU_DATA_EHF_DATA_SIZE), CPU_DATA_PCPU_IDREGS_ALIGN)
+#define CPU_DATA_SIZE			ROUND_UP_2EVAL((CPU_DATA_PCPU_IDREGS + CPU_DATA_PCPU_IDREGS_SIZE), CPU_DATA_SIZE_ALIGN)
 
 #ifndef __ASSEMBLER__
 
@@ -102,6 +110,13 @@
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
+#if ENABLE_FEAT_IDTE3 && defined(__aarch64__)
+typedef struct percpu_idreg {
+	u_register_t id_aa64dfr0_el1;
+	u_register_t id_aa64dfr1_el1;
+} percpu_idregs_t;
+#endif /* ENABLE_FEAT_IDTE3 && defined(__aarch64__) */
+
 
 /*******************************************************************************
  * Cache of frequently used per-cpu data:
@@ -136,6 +151,9 @@ typedef struct cpu_data {
 #if EL3_EXCEPTION_HANDLING
 	pe_exc_data_t ehf_data;
 #endif
+#if (ENABLE_FEAT_IDTE3 && defined(__aarch64__))
+	percpu_idregs_t idregs[CPU_CONTEXT_NUM];
+#endif
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 
 PER_CPU_DECLARE(cpu_data_t, percpu_data);
@@ -163,6 +181,9 @@ CPU_DATA_ASSERT_OFFSET(PLATFORM_CPU_DATA, platform_cpu_data);
 #endif
 #if EL3_EXCEPTION_HANDLING
 CPU_DATA_ASSERT_OFFSET(EHF_DATA, ehf_data);
+#endif
+#if (ENABLE_FEAT_IDTE3 && defined(__aarch64__))
+CPU_DATA_ASSERT_OFFSET(PCPU_IDREGS, idregs);
 #endif
 
 CASSERT(CPU_DATA_SIZE == sizeof(cpu_data_t),

@@ -428,3 +428,7 @@ ifeq (${ERROR_DEPRECATED}, 1)
         $(error "SPM_MM build option is deprecated")
     endif
 endif
+
+ifneq (${ENABLE_FEAT_IDTE3},0)
+        $(info FEAT_IDTE3 is an experimental feature)
+endif #(ENABLE_FEAT_IDTE3)

@@ -152,6 +152,12 @@
 #define SCR_FEAT_PFAR (0)
 #endif
 
+#if ENABLE_FEAT_IDTE3
+#define SCR_FEAT_IDTE3 (SCR_TID3_BIT | SCR_TID5_BIT)
+#else
+#define SCR_FEAT_IDTE3 (0)
+#endif
+
 #ifndef SCR_PLAT_FEATS
 #define SCR_PLAT_FEATS (0)
 #endif
@@ -213,6 +219,7 @@
 	SCR_FEAT_RAS		|						\
 	SCR_FEAT_AIE		|						\
 	SCR_FEAT_PFAR		|						\
+	SCR_FEAT_IDTE3		|						\
 	SCR_PLAT_FEATS)
 #define SCR_EL3_FLIPPED (							\
 	SCR_FEAT_RAS		|						\

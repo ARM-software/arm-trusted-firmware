@@ -177,7 +177,12 @@
  ******************************************************************************/
 #define CTX_CPTR_EL3			U(0x0)
 #define CTX_MPAM3_EL3			U(0x8)
+#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
+#define CTX_IDREGS_EL3			U(0x10)
+#define CTX_PERWORLD_EL3STATE_END	U(0x78)
+#else
 #define CTX_PERWORLD_EL3STATE_END	U(0x10)
+#endif /* ENABLE_FEAT_IDTE3 && IMAGE_BL31 */
 
 #ifndef __ASSEMBLER__
 
@@ -246,6 +251,24 @@ DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
 #define write_ctx_reg(ctx, offset, val)	(((ctx)->ctx_regs[(offset) >> DWORD_SHIFT]) \
 					 = (uint64_t) (val))
 
+#if ENABLE_FEAT_IDTE3
+typedef struct perworld_idreg {
+	u_register_t id_aa64pfr0_el1;
+	u_register_t id_aa64pfr1_el1;
+	u_register_t id_aa64pfr2_el1;
+	u_register_t id_aa64smfr0_el1;
+	u_register_t id_aa64isar0_el1;
+	u_register_t id_aa64isar1_el1;
+	u_register_t id_aa64isar2_el1;
+	u_register_t id_aa64isar3_el1;
+	u_register_t id_aa64mmfr0_el1;
+	u_register_t id_aa64mmfr1_el1;
+	u_register_t id_aa64mmfr2_el1;
+	u_register_t id_aa64mmfr3_el1;
+	u_register_t id_aa64mmfr4_el1;
+} perworld_idregs_t;
+#endif
+
 /*
  * Top-level context structure which is used by EL3 firmware to preserve
  * the state of a core at the next lower EL in a given security state and
@@ -292,6 +315,9 @@ typedef struct cpu_context {
 typedef struct per_world_context {
 	uint64_t ctx_cptr_el3;
 	uint64_t ctx_mpam3_el3;
+#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
+	perworld_idregs_t idregs;
+#endif
 } per_world_context_t;
 
 static inline uint8_t get_cpu_context_index(size_t security_state)

@@ -222,6 +222,9 @@ the Non-Secure, Realm and Secure security state context structures as listed bel
 	....
 	....
 
+	#if (ENABLE_FEAT_IDTE3 && defined(__aarch64__))
+	percpu_idregs_t idregs[CPU_CONTEXT_NUM];
+	#endif
 	}cpu_data_t;
 
 |CPU Data Structure|
@@ -230,6 +233,18 @@ At runtime, ``cpu_context[CPU_DATA_CONTEXT_NUM]`` array will be intitialised wit
 the Secure, Non-Secure and Realm context structure addresses to ensure proper
 handling of the register state.
 See :ref:`Library APIs` section for more details.
+
+When FEAT_IDTE3 is enabled, the ID registers ID_AA64DFR0_EL1 and
+ID_AA64DFR1_EL1 are cached in the
+percpu_idregs_t idregs[CPU_CONTEXT_NUM] array within the CPU data
+structure. These cached copies are used to service trapped reads of the
+corresponding registers from lower exception levels. Because debug and
+trace features can vary across CPUs, these ID registers are cached
+per-CPU and per-world to accurately represent asymmetric
+configurations.
+
+The per-cpu cached ID registers are initialized in ``psci_arch_setup()``
+via ``cm_init_percpu_once_regs()``.
 
 CPU Context and Memory allocation
 =================================
@@ -499,7 +514,19 @@ structure and is intended to manage specific EL3 registers.
 	typedef struct per_world_context {
 		uint64_t ctx_cptr_el3;
 		uint64_t ctx_mpam3_el3;
+	#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
+		perworld_idregs_t idregs;
+	#endif
 	} per_world_context_t;
+
+When FEAT_IDTE3 (Trapping ID register accesses to EL3) is enabled,
+the ``per_world_context_t`` structure includes a ``perworld_idregs_t`` member
+that caches architectural ID registers common across all CPUs in a world.
+This cache allows EL3 firmware to provide consistent, virtualized ID register
+values to lower exception levels when traps occur. The cached values stored in
+``idregs`` are returned in place of the actual hardware register values.
+During initialization, the per-world ID register cache is populated by
+``idte3_init_cached_idregs_per_world()``.
 
 These functions facilitate the activation of architectural extensions that possess
 identical values across all cores for the individual Non-secure, Secure, and

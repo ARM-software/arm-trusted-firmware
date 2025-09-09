@@ -463,3 +463,10 @@ ENABLE_FEAT_FGWTE3			?=	0
 # Flag to enable checked pointer arithmetic (FEAT_CPA2) for EL3.
 # We don't have a flag for FEAT_CPA since that has no effect on software
 ENABLE_FEAT_CPA2			?=	0
+
+#----
+#9.6
+#----
+
+# Flag to enable trapping of ID registers to EL3
+ENABLE_FEAT_IDTE3                       ?=      0

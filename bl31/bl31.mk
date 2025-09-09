@@ -111,6 +111,10 @@ ifneq (${ENABLE_FEAT_FGT2},0)
 BL31_SOURCES		+=	lib/extensions/fgt/fgt2.c
 endif
 
+ifneq (${ENABLE_FEAT_IDTE3},0)
+BL31_SOURCES		+=	lib/extensions/idte/idte3.c
+endif
+
 ifneq (${ENABLE_FEAT_TCR2},0)
 BL31_SOURCES		+=	lib/extensions/tcr/tcr2.c
 endif
