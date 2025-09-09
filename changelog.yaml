@@ -821,6 +821,9 @@ subsections:
           - errata
           - errata_report
 
+      - title: Debug FS
+        scope: debugfs
+
       - title: EL3 Runtime
         scope: el3-runtime
 

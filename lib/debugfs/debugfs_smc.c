@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,9 +76,9 @@ uintptr_t debugfs_smc_handler(unsigned int smc_fid,
 		SMC_RET1(handle, DEBUGFS_E_DENIED);
 	}
 
-	/* Expect a SiP service fast call */
+	/* Expect a vendor specific EL3 service fast call */
 	if ((GET_SMC_TYPE(smc_fid) != SMC_TYPE_FAST) ||
-		(GET_SMC_OEN(smc_fid) != OEN_SIP_START)) {
+		(GET_SMC_OEN(smc_fid) != OEN_VEN_EL3_START)) {
 		SMC_RET1(handle, SMC_UNK);
 	}
 
