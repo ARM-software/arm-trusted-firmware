@@ -18,12 +18,12 @@
  * OPTEE PM state information e.g. OPTEE is suspended, uninitialised etc
  * and macros to access the state information in the per-cpu 'state' flags
  ******************************************************************************/
-#define OPTEE_PSTATE_OFF		1
-#define OPTEE_PSTATE_ON			2
-#define OPTEE_PSTATE_SUSPEND		3
-#define OPTEE_PSTATE_UNKNOWN		0
-#define OPTEE_PSTATE_SHIFT		0
-#define OPTEE_PSTATE_MASK		0x3
+#define OPTEE_PSTATE_OFF		1U
+#define OPTEE_PSTATE_ON			2U
+#define OPTEE_PSTATE_SUSPEND		3U
+#define OPTEE_PSTATE_UNKNOWN		0U
+#define OPTEE_PSTATE_SHIFT		0U
+#define OPTEE_PSTATE_MASK		0x3U
 #define get_optee_pstate(state)	((state >> OPTEE_PSTATE_SHIFT) & \
 				 OPTEE_PSTATE_MASK)
 #define clr_optee_pstate(state)	(state &= ~(OPTEE_PSTATE_MASK \

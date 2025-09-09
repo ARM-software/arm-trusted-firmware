@@ -177,7 +177,7 @@ static int32_t opteed_setup(void)
 	 * conditionally include the SPD service
 	 */
 	optee_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	if (!optee_ep_info) {
+	if (optee_ep_info == NULL) {
 		WARN("No OPTEE provided by BL2 boot loader, Booting device"
 			" without OPTEE initialization. SMC`s destined for OPTEE"
 			" will return SMC_UNK\n");
@@ -189,7 +189,7 @@ static int32_t opteed_setup(void)
 	 * signalling failure initializing the service. We bail out without
 	 * registering any handlers
 	 */
-	if (!optee_ep_info->pc)
+	if (optee_ep_info->pc == 0U)
 		return 1;
 
 #if TRANSFER_LIST
