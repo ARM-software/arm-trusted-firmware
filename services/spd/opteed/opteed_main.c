@@ -188,8 +188,9 @@ static int32_t opteed_setup(void)
 	 * signalling failure initializing the service. We bail out without
 	 * registering any handlers
 	 */
-	if (optee_ep_info->pc == 0U)
+	if (optee_ep_info->pc == 0U) {
 		return 1;
+	}
 
 #if TRANSFER_LIST
 	tl = (void *)optee_ep_info->args.arg3;
