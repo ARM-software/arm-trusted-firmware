@@ -98,13 +98,13 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		SMC_RET1(handle, ret);
 
 	switch (GET_SMC_NUM(smc_fid)) {
-	case IPI_MAILBOX_OPEN:
+	case (uint32_t)IPI_MAILBOX_OPEN:
 		ipi_mb_open(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, 0);
-	case IPI_MAILBOX_RELEASE:
+	case (uint32_t)IPI_MAILBOX_RELEASE:
 		ipi_mb_release(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, 0);
-	case IPI_MAILBOX_STATUS_ENQUIRY:
+	case (uint32_t)IPI_MAILBOX_STATUS_ENQUIRY:
 	{
 		bool disable_interrupt;
 
@@ -115,15 +115,15 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		}
 		SMC_RET1(handle, ret);
 	}
-	case IPI_MAILBOX_NOTIFY:
+	case (uint32_t)IPI_MAILBOX_NOTIFY:
 	{
 		uint32_t is_blocking;
 
-		is_blocking = ((x3 & IPI_SMC_NOTIFY_BLOCK_MASK) != 0U);
+		is_blocking = (uint32_t)((x3 & IPI_SMC_NOTIFY_BLOCK_MASK) != 0U);
 		ipi_mb_notify(ipi_local_id, ipi_remote_id, is_blocking);
 		SMC_RET1(handle, 0);
 	}
-	case IPI_MAILBOX_ACK:
+	case (uint32_t)IPI_MAILBOX_ACK:
 	{
 		bool enable_interrupt;
 
@@ -134,10 +134,10 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		}
 		SMC_RET1(handle, 0);
 	}
-	case IPI_MAILBOX_ENABLE_IRQ:
+	case (uint32_t)IPI_MAILBOX_ENABLE_IRQ:
 		ipi_mb_enable_irq(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, 0);
-	case IPI_MAILBOX_DISABLE_IRQ:
+	case (uint32_t)IPI_MAILBOX_DISABLE_IRQ:
 		ipi_mb_disable_irq(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, 0);
 	default:
