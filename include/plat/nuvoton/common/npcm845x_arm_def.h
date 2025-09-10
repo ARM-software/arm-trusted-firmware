@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * Copyright (C) 2017-2023 Nuvoton Ltd.
  *
@@ -438,7 +438,7 @@
 /******************************************************************************
  * BL2 specific defines.
  *****************************************************************************/
-#if BL2_AT_EL3
+#if RESET_TO_BL2
 /* Put BL2 towards the middle of the Trusted SRAM */
 #define BL2_BASE			(ARM_TRUSTED_SRAM_BASE +	\
 			PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + 0x2000)
@@ -449,7 +449,7 @@
  */
 #define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)
 #define BL2_LIMIT			BL1_RW_BASE
-#endif /* BL2_AT_EL3 */
+#endif /* RESET_TO_BL2 */
 
 /*******************************************************************************
  * BL31 specific defines.
@@ -495,14 +495,14 @@
 #define BL31_PROGBITS_LIMIT		BL2_BASE
 
 /*
- * For BL2_AT_EL3 make sure the BL31 can grow up until BL2_BASE.
- * This is because in the BL2_AT_EL3 configuration, BL2 is always resident.
+ * For RESET_TO_BL2 make sure the BL31 can grow up until BL2_BASE.
+ * This is because in the RESET_TO_BL2 configuration, BL2 is always resident.
  */
-#if BL2_AT_EL3
+#if RESET_TO_BL2
 #define BL31_LIMIT			BL2_BASE
 #else
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
-#endif /* BL2_AT_EL3 */
+#endif /* RESET_TO_BL2 */
 #endif /* ARM_BL31_IN_DRAM || SEPARATE_NOBITS_REGION */
 
 /*
