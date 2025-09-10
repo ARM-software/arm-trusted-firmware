@@ -567,6 +567,9 @@ subsections:
                 deprecated:
                   - plat/rcar3
 
+              - title: R-Car 4
+                scope: rcar4
+
       - title: Rockchip
         scope: rockchip
 
