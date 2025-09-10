@@ -412,3 +412,9 @@ ifeq (${ERROR_DEPRECATED}, 1)
         $(error "NS_TIMER_SWITCH breaks Linux preemption model, hence deprecated")
     endif
 endif
+
+ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
+        ifeq (${WORKAROUND_CVE_2018_3639},0)
+                $(error Error: WORKAROUND_CVE_2018_3639 must be 1 if DYNAMIC_WORKAROUND_CVE_2018_3639 is 1)
+        endif
+endif

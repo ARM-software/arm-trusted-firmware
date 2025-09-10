@@ -1184,33 +1184,11 @@ CPU_FLAG_LIST += ERRATA_DSU_2313941
 # the erratum is fixed in this part. It is fixed in r2p1.
 CPU_FLAG_LIST += ERRATA_DSU_2900952
 
-ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
-        ifeq (${WORKAROUND_CVE_2018_3639},0)
-                $(error "Error: WORKAROUND_CVE_2018_3639 must be 1 if DYNAMIC_WORKAROUND_CVE_2018_3639 is 1")
-        endif
-endif
-
 # process all flags
 ifeq (${ENABLE_ERRATA_ALL},1)
 $(eval $(call default_ones, $(CPU_FLAG_LIST)))
 else
 $(eval $(call default_zeros, $(CPU_FLAG_LIST)))
-endif
-$(eval $(call add_defines, $(CPU_FLAG_LIST)))
-$(eval $(call assert_booleans, $(CPU_FLAG_LIST)))
-
-# Errata build flags
-ifneq (${ERRATA_A53_843419},0)
-ldflags-aarch64		+= $(call ld_option,--fix-cortex-a53-843419)
-else
-# GCC automatically adds fix-cortex-a53-843419 flag when used to link
-# which breaks some builds, so disable if errata fix is not explicitly enabled
-ldflags-aarch64		+= $(call ld_option,--no-fix-cortex-a53-843419)
-endif
-
-ifneq (${ERRATA_A53_835769},0)
-cflags-aarch64		+= -mfix-cortex-a53-835769
-ldflags-aarch64		+= $(call ld_option,--fix-cortex-a53-835769)
 endif
 
 ifneq ($(filter 1,${ERRATA_A53_1530924} ${ERRATA_A55_1530923}	\
