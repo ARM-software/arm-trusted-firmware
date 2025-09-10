@@ -72,7 +72,7 @@ uintptr_t debugfs_smc_handler(unsigned int smc_fid,
 	int ret;
 
 	/* Allow calls from non-secure only */
-	if (is_caller_secure(flags)) {
+	if (!is_caller_non_secure(flags)) {
 		SMC_RET1(handle, DEBUGFS_E_DENIED);
 	}
 
