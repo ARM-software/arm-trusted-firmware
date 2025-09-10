@@ -7,14 +7,6 @@
 GCC_V_OUTPUT		:=	$(if $($(ARCH)-cc),$(shell $($(ARCH)-cc) -v 2>&1))
 PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
 
-################################################################################
-# Compiler Configuration for the correct ARCH
-################################################################################
-target-aarch32-arm-clang	:=	-target arm-arm-none-eabi
-target-aarch64-arm-clang	:=	-target aarch64-arm-none-eabi
-target-aarch32-llvm-clang	:=	-target arm-arm-none-eabi
-target-aarch64-llvm-clang	:=	-target aarch64-arm-none-elf
-
 ifneq (${DEBUG}, 0)
 	cflags-common		+=	-g -gdwarf-4
 endif #(Debug)
@@ -153,7 +145,7 @@ endif
 cflags-common		+=	$(TF_CFLAGS_$(ARCH))
 cflags-common		+=	$(CPPFLAGS) $(CFLAGS) # some platforms set these
 TF_CFLAGS		+=	$(cflags-common)
-TF_CFLAGS		+=	$(target-$(ARCH)-$($(ARCH)-cc-id))
+TF_CFLAGS		+=	$(target-flag-$(ARCH)-$($(ARCH)-cc-id))
 TF_CFLAGS		+=	$(cc-flags-$($(ARCH)-cc-id))
 
 # it's logical to give the same flags to the linker when it's invoked through
@@ -164,7 +156,7 @@ ifeq ($($(ARCH)-ld-id),$($(ARCH)-cc-id))
         TF_LDFLAGS	+=	$(LTO_CFLAGS)
 endif
 
-TF_LDFLAGS		+= 	$(target-$(ARCH)-$($(ARCH)-ld-id))
+TF_LDFLAGS		+= 	$(target-flag-$(ARCH)-$($(ARCH)-ld-id))
 
 ASFLAGS			+=	-Wa,--fatal-warnings
 TF_LDFLAGS		+=	-z noexecstack
