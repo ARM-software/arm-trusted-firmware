@@ -124,11 +124,7 @@ void __no_pauth bl31_main(u_register_t arg0, u_register_t arg1, u_register_t arg
 	/* Prints context_memory allocated for all the security states */
 	report_ctx_memory_usage();
 
-	if (is_feat_pauth_supported()) {
-		pauth_init_enable_el3();
-	}
-
-	/* Init registers that never change for the lifetime of TF-A */
+	/* Init registers that never change for the lifetime of the core. */
 	cm_manage_extensions_el3(core_pos);
 
 	/* Init per-world context registers */
@@ -243,6 +239,13 @@ void __no_pauth bl31_main(u_register_t arg0, u_register_t arg1, u_register_t arg
 
 void __no_pauth bl31_warmboot(void)
 {
+	unsigned int core_pos = plat_my_core_pos();
+
+#if FEATURE_DETECTION
+	/* Detect if features enabled during compilation are supported by PE. */
+	detect_arch_features(core_pos);
+#endif /* FEATURE_DETECTION */
+
 	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.
 	 *
@@ -265,6 +268,9 @@ void __no_pauth bl31_warmboot(void)
 	bl31_plat_enable_mmu(DISABLE_DCACHE);
 #endif
 
+	/* Init registers that never change for the lifetime of the core. */
+	cm_manage_extensions_el3(core_pos);
+
 #if ENABLE_RME
 	/*
 	 * At warm boot GPT data structures have already been initialized in RAM
@@ -277,11 +283,7 @@ void __no_pauth bl31_warmboot(void)
 	}
 #endif
 
-	if (is_feat_pauth_supported()) {
-		pauth_init_enable_el3();
-	}
-
-	psci_warmboot_entrypoint();
+	psci_warmboot_entrypoint(core_pos);
 }
 
 /*******************************************************************************

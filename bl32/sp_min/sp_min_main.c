@@ -229,7 +229,7 @@ void sp_min_warm_boot(void)
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	u_register_t ns_sctlr;
 
-	psci_warmboot_entrypoint();
+	psci_warmboot_entrypoint(plat_my_core_pos());
 
 	smc_set_next_ctx(NON_SECURE);
 
