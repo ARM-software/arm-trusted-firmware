@@ -197,6 +197,10 @@ else
         ifeq ($($(ARCH)-ld-id),llvm-clang)
                 ldflags-common		+=	-fuse-ld=lld
         endif
+
+        ifneq ($(call bool,$(USE_ROMLIB)),)
+                ldflags-common	+= @${BUILD_PLAT}/romlib/romlib.ldflags
+        endif
 endif
 
 ifneq ($(PIE_FOUND),)
