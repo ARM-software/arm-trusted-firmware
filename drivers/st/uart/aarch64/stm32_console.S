@@ -170,11 +170,6 @@ txe_loop:
 	tst	w2, #USART_ISR_TXE
 	beq	txe_loop
 	str	w0, [x1, #USART_TDR]
-	/* Check transmit complete flag */
-tc_loop:
-	ldr	w2, [x1, #USART_ISR]
-	tst	w2, #USART_ISR_TC
-	beq	tc_loop
 	ret
 endfunc console_stm32_core_putc
 
@@ -214,11 +209,11 @@ func console_stm32_core_getc
 endfunc console_stm32_core_getc
 
 	/* ---------------------------------------------
-	 * int console_stm32_core_flush(uintptr_t base_addr)
+	 * void console_stm32_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
@@ -227,21 +222,20 @@ func console_stm32_core_flush
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	/* Check Transmit Data Register Empty */
-txe_loop_3:
+	/* Check Transmission Complete flag  */
+tc_loop:
 	ldr	w1, [x0, #USART_ISR]
-	tst	w1, #USART_ISR_TXE
-	beq	txe_loop_3
-	mov	w0, #0
+	tst	w1, #USART_ISR_TC
+	beq	tc_loop
 	ret
 endfunc console_stm32_core_flush
 
 	/* ---------------------------------------------
-	 * int console_stm32_flush(console_t *console)
+	 * void console_stm32_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure
-	 * Out : return -1 on error else return 0.
+	 * Out : void
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
