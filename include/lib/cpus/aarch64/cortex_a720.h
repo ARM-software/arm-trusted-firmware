@@ -10,7 +10,7 @@
 #define CORTEX_A720_MIDR					U(0x410FD810)
 
 /* Cortex A720 loop count for CVE-2022-23960 mitigation */
-#define CORTEX_A720_BHB_LOOP_COUNT				U(132)
+#define CORTEX_A720_BHB_LOOP_COUNT				U(38)
 
 /*******************************************************************************
  * CPU Auxiliary Control register 1 specific definitions.
