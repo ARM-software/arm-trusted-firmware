@@ -317,3 +317,9 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	return 0;
 }
 #endif /* TRANSFER_LIST*/
+
+/* For ARM platform, the NV ctr is shared among all components */
+bool bl1_plat_is_shared_nv_ctr(void)
+{
+	return true;
+}
