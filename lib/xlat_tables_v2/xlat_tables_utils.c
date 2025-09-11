@@ -279,7 +279,7 @@ void xlat_tables_print(xlat_ctx_t *ctx)
  *   Size in bytes of the virtual address space.
  */
 static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
-				       void *xlat_table_base,
+				       uint64_t *xlat_table_base,
 				       unsigned int xlat_table_base_entries,
 				       unsigned long long virt_addr_space_size,
 				       unsigned int *out_level)
