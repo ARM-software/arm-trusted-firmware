@@ -2703,7 +2703,9 @@ Function : plat_init_apkey [optional]
 This function returns the 128-bit value which can be used to program ARMv8.3
 pointer authentication keys.
 
-The value should be obtained from a reliable source of randomness.
+The value should be obtained from a reliable source of randomness. It will be
+called each time a core powers up and it is the platform's responsibility to
+decide when to regenerate the keys if generating them is an expensive operation.
 
 This function is only needed if ARMv8.3 pointer authentication is used in the
 Trusted Firmware by building with ``BRANCH_PROTECTION`` option set to 1, 2 or 3.

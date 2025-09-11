@@ -34,13 +34,17 @@ void pauth_init(void)
 	write_apiakeyhi_el1(key_hi);
 
 #if IMAGE_BL31
+	/*
+	 * In the warmboot entrypoint, cpu_data may have been used before data
+	 * caching was enabled.  Flush the caches so nothing stale is
+	 * overwritten.
+	 */
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+	flush_cpu_data(apiakey);
+#endif
 	set_cpu_data(apiakey[0], key_lo);
 	set_cpu_data(apiakey[1], key_hi);
 
-	/*
-	 * In the warmboot entrypoint, cpu_data may have been written before
-	 * data caching was enabled. Flush the caches so nothing stale is read.
-	 */
 #if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_cpu_data(apiakey);
 #endif
