@@ -6,6 +6,8 @@
  */
 
 #include <common/debug.h>
+#include <plat_private.h>
+#include <plat_scmi_def.h>
 #include <ti_sci.h>
 #include <ti_sci_protocol.h>
 #include <ti_sci_transport.h>
@@ -31,6 +33,8 @@ int ti_soc_init(void)
 	int ret;
 
 	generic_delay_timer_init();
+
+	ti_init_scmi_server();
 
 	ret = ti_sci_boot_notification();
 	if (ret != 0) {
@@ -62,6 +66,8 @@ int ti_soc_init(void)
 		ERROR("Unable to set boot control (%d)\n", ret);
 		return ret;
 	}
+
+        ti_clk_handler_init();
 
 	return 0;
 }
