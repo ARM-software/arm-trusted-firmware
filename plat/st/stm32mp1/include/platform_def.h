@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -183,12 +183,6 @@
  * higher than this is invalid.
  */
 #define PLAT_MAX_OFF_STATE		ARM_LOCAL_STATE_OFF
-
-/*******************************************************************************
- * Size of the per-cpu data in bytes that should be reserved in the generic
- * per-cpu data structure for the FVP port.
- ******************************************************************************/
-#define PLAT_PCPU_DATA_SIZE	2
 
 /*******************************************************************************
  * Number of parallel entry slots in SMT SCMI server entry context. For this

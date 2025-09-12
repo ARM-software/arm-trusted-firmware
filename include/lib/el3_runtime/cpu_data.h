@@ -91,15 +91,6 @@
 
 #include <platform_def.h>
 
-/* Offsets for the cpu_data structure */
-#define CPU_DATA_PSCI_LOCK_OFFSET	__builtin_offsetof\
-		(cpu_data_t, psci_svc_cpu_data.pcpu_bakery_info)
-
-#if PLAT_PCPU_DATA_SIZE
-#define CPU_DATA_PLAT_PCPU_OFFSET	__builtin_offsetof\
-		(cpu_data_t, platform_cpu_data)
-#endif
-
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/

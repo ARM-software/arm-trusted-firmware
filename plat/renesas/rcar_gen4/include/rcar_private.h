@@ -54,13 +54,6 @@ typedef struct rcar_cpu_data {
 #define rcar_lock_release()	bakery_lock_release(&rcar_lock)
 
 /*
- * Ensure that the size of the RCAR specific per-cpu data structure and the size
- * of the memory allocated in generic per-cpu data for the platform are the same
- */
-CASSERT(sizeof(rcar_cpu_data_t) == PLAT_PCPU_DATA_SIZE,
-	rcar_pcpu_data_size_mismatch);
-
-/*
  * Function and variable prototypes
  */
 void rcar_configure_mmu_el3(uintptr_t total_base,

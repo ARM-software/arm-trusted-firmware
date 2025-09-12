@@ -113,12 +113,6 @@
 #define CACHE_WRITEBACK_SHIFT		6
 #define CACHE_WRITEBACK_GRANULE		BIT(CACHE_WRITEBACK_SHIFT)
 
-/*******************************************************************************
- * Size of the per-cpu data in bytes that should be reserved in the generic
- * per-cpu data structure for the RCAR port.
- ******************************************************************************/
-#define PLAT_PCPU_DATA_SIZE		4
-
 /*
  * Define a list of Group 1 Secure and Group 0 interrupt properties as per GICv3
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
