@@ -191,6 +191,24 @@ associated with the related Secure Partition.
       - Bit[0]: VM created
       - Bit[1]: VM destroyed
 
+- lifecycle-support
+   - value type: <empty>
+   - Presence of this field indicates support for all partition lifecycle states
+     defined in the FF-A v1.3 ALP2 spec.
+
+- abort-action
+   - value type: <u32>
+   - Specifies the action that the SPMC takes when a partition encounters a fatal
+     error.
+
+      - 0x0: STOP
+      - 0x1: DESTROY
+      - 0x2: RESTART
+      - 0x3: PROPAGATE
+
+   - All other values are unsupported. If a partition does not specify this
+     field in the manifest, the SPMC takes implementation defined action.
+
 .. _memory_region_node:
 
 Memory Regions

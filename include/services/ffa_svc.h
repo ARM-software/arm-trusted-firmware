@@ -24,7 +24,7 @@
 
 /* The macros below are used to identify FFA calls from the SMC function ID */
 #define FFA_FNUM_MIN_VALUE	U(0x60)
-#define FFA_FNUM_MAX_VALUE	U(0x8F)
+#define FFA_FNUM_MAX_VALUE	U(0x90)
 #define is_ffa_fid(fid) __extension__ ({		\
 	__typeof__(fid) _fid = (fid);			\
 	((GET_SMC_NUM(_fid) >= FFA_FNUM_MIN_VALUE) &&	\
@@ -207,6 +207,10 @@
 #define FFA_NS_RES_INFO_GET_SMC64	\
 	FFA_FID(SMC_64, FFA_FNUM_NS_RES_INFO_GET)
 
+/* FF-A v1.3 ALP2 specification. */
+#define FFA_FNUM_ABORT			U(0x90)
+#define FFA_ABORT_SMC32	FFA_FID(SMC_32, FFA_FNUM_ABORT)
+#define FFA_ABORT_SMC64	FFA_FID(SMC_64, FFA_FNUM_ABORT)
 /*
  * FF-A partition properties values.
  */
