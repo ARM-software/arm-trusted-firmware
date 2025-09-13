@@ -17,21 +17,6 @@ CRASH_REPORTING			:= 1
 HANDLE_EA_EL3_FIRST_NS		:= 1
 ENABLE_STACK_PROTECTOR	:= strong
 
-# Process SET_SCMI_PARAM flag
-# 0:Disable(default), 1:Enable
-ifndef SET_SCMI_PARAM
-    SET_SCMI_PARAM := 0
-    $(eval $(call add_define,SET_SCMI_PARAM))
-else
-    ifeq (${SET_SCMI_PARAM}, 0)
-        $(eval $(call add_define,SET_SCMI_PARAM))
-    else ifeq (${SET_SCMI_PARAM},1)
-        $(eval $(call add_define,SET_SCMI_PARAM))
-    else
-        $(error "Error:SET_SCMI_PARAM=${SET_SCMI_PARAM} is not supported.")
-    endif
-endif
-
 ifndef PTP_NONSECURE_ACCESS
   PTP_NONSECURE_ACCESS:=0
 endif
@@ -54,7 +39,6 @@ $(eval $(call add_define,RCAR_V4H))
 $(eval $(call add_define,RCAR_V4M))
 $(eval $(call add_define,RCAR_AUTO))
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
-
 
 ifndef LSI
   $(error "Error: Unknown LSI. Please use LSI=<LSI name> to specify the LSI")
@@ -99,7 +83,6 @@ endif
 USE_COHERENT_MEM := 0
 HW_ASSISTED_COHERENCY := 1
 
-
 PLAT_INCLUDES	:=	-Iplat/renesas/rcar_gen4/include		\
 			-Iplat/renesas/rcar_gen4			\
 			-Idrivers/renesas/rcar_gen4/pwrc		\
@@ -118,15 +101,6 @@ GICV3_SUPPORT_GIC600 := 1
 # Include GICv3 driver files
 USE_GIC_DRIVER := 3
 
-# SCMI driver configuration
-SCMI_DRIVER_SOURES :=	drivers/arm/css/scmi/scmi_common.c		\
-			drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
-			drivers/arm/css/scmi/scmi_sys_pwr_proto.c
-
-PLAT_INCLUDES	+=	-Idrivers/arm/css/scmi				\
-			-Iinclude/drivers
-#
-
 BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			plat/common/plat_psci_common.c			\
 			plat/renesas/rcar_gen4/plat_topology.c		\
@@ -144,11 +118,6 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/rcar_gen4/mssr/mssr.c		\
 			drivers/renesas/rcar_gen4/ptp/ptp.c		\
 			drivers/arm/cci/cci.c
-
-ifeq (${SET_SCMI_PARAM},1)
-BL31_SOURCES	+=	${SCMI_DRIVER_SOURES}				\
-			plat/renesas/rcar_gen4/plat_pm_scmi.c
-endif
 
 include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}

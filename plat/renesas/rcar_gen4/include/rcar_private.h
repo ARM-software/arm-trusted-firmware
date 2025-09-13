@@ -60,10 +60,6 @@ typedef struct rcar_cpu_data {
 CASSERT(sizeof(rcar_cpu_data_t) == PLAT_PCPU_DATA_SIZE,
 	rcar_pcpu_data_size_mismatch);
 
-/* lock for SCMI */
-#define RCAR_SCMI_INSTANTIATE_LOCK	spinlock_t rcar_scmi_lock
-#define RCAR_SCMI_LOCK_GET_INSTANCE	(&rcar_scmi_lock)
-
 /*
  * Function and variable prototypes
  */
@@ -78,33 +74,6 @@ void plat_invalidate_icache(void);
 
 void rcar_console_boot_init(void);
 void rcar_console_runtime_init(void);
-
-#if (SET_SCMI_PARAM == 1)
-void __init plat_rcar_scmi_setup(void);
-void rcar_scmi_sys_shutdown(void);
-void rcar_scmi_sys_reboot(void);
-void rcar_scmi_sys_suspend(void);
-const plat_psci_ops_t *plat_rcar_psci_override_pm_ops(plat_psci_ops_t *ops);
-#else
-static inline void plat_rcar_scmi_setup(void) { }
-
-static inline void rcar_scmi_sys_shutdown(void) { }
-
-static inline void rcar_scmi_sys_reboot(void)
-{
-	mmio_write_32(RCAR_SRESCR, 0x5AA50000U | BIT(15));
-}
-
-static inline void rcar_scmi_sys_suspend(void)
-{
-	while true;
-}
-
-static inline const plat_psci_ops_t *plat_rcar_psci_override_pm_ops(plat_psci_ops_t *ops)
-{
-	return ops;
-}
-#endif /* SET_SCMI_PARAM == 1 */
 
 int32_t rcar_cluster_pos_by_mpidr(u_register_t mpidr);
 

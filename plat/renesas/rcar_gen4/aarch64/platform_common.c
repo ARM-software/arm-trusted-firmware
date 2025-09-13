@@ -52,18 +52,12 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 						 DEVICE_SRAM_STACK_SIZE), \
 						MT_MEMORY | MT_RW | MT_SECURE)
 
-#define MAP_SCMI_CHANNEL	MAP_REGION_FLAT(RCAR_SCMI_CHANNEL_BASE,	\
-						RCAR_SCMI_CHANNEL_SIZE,	\
-						MT_DEVICE | MT_RW | MT_SECURE)
-
-
 static const mmap_region_t rcar_mmap[] = {
 	MAP_SHARED_RAM,	  /* 0x46422000 - 0x46422FFF  Shared ram area       */
 	MAP_ATFW_CRASH,	  /* 0x4643F000 - 0x4643FFFF  Stack for Crash Log   */
 	MAP_DEVICE_RCAR,  /* 0xE6000000 - 0xE62FFFFF  SoC registers area    */
 	MAP_SRAM,         /* 0xE6342000 - 0xE6343FFF  System RAM code area  */
 	MAP_SRAM_DATA_STACK, /* 0xE6344000 - 0xE6344FFF  System RAM data & stack area */
-	MAP_SCMI_CHANNEL, /* 0xE6359000 - 0xE6359FFF  SCMI channel area     */
 	MAP_DEVICE_RCAR2, /* 0xE6370000 - 0xFFFFFFFF  SoC registers area 2  */
 	{ 0 }
 };
