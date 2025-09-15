@@ -96,4 +96,4 @@ $(BUILD_PLAT)/$(BOOT_IMAGE): $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(FIP_NAME)
 mrvl_bootimage: $(BUILD_PLAT)/$(BOOT_IMAGE)
 
 .PHONY: mrvl_flash
-mrvl_flash: $(BUILD_PLAT)/$(FLASH_IMAGE)
+mrvl_flash: $(BUILD_PLAT)/$(FLASH_IMAGE) | $(BUILD_PLAT)
