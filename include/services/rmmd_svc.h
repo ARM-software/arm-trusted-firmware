@@ -169,11 +169,12 @@
  * Function code to support update of MEC keys.
  * The arguments of this SMC are:
  * 	arg0 - Function ID.
- * 	arg1 - MECID
+ * 	arg1 - [63:48]: Res0, [47:32]: MECID, [31:1]: Res0, [0]: MEC refresh
+ * 	       reason
  * The return arguments are:
  * 	ret0 - Status/Error
  */
-#define RMM_MECID_KEY_UPDATE			SMC64_RMMD_EL3_FID(U(6))
+#define RMM_MEC_REFRESH				SMC64_RMMD_EL3_FID(U(6))
 
 /* ECC Curve types for attest key generation */
 #define ATTEST_KEY_CURVE_ECC_SECP384R1		U(0)
@@ -292,7 +293,7 @@ typedef struct rp_ide_key_info {
  * Increase this when a bug is fixed, or a feature is added without
  * breaking compatibility.
  */
-#define RMM_EL3_IFC_VERSION_MINOR	(U(7))
+#define RMM_EL3_IFC_VERSION_MINOR	(U(8))
 
 #define RMM_EL3_INTERFACE_VERSION				\
 	(((RMM_EL3_IFC_VERSION_MAJOR << 16) & 0x7FFFF) |	\

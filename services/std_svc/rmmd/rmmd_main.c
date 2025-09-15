@@ -38,6 +38,12 @@
 #include <lib/extensions/trbe.h>
 #include "rmmd_private.h"
 
+#define MECID_SHIFT			U(32)
+#define MECID_MASK			0xFFFFU
+
+#define MEC_REFRESH_REASON_SHIFT	U(0)
+#define MEC_REFRESH_REASON_MASK		BIT(0)
+
 /*******************************************************************************
  * RMM boot failure flag
  ******************************************************************************/
@@ -398,11 +404,13 @@ static int rmm_el3_ifc_get_feat_register(uint64_t feat_reg_idx,
 }
 
 /*
- * Update encryption key associated with @mecid.
+ * Update encryption key associated with mecid included in x1.
  */
-static int rmmd_mecid_key_update(uint64_t mecid)
+static int rmmd_mecid_key_update(uint64_t x1)
 {
 	uint64_t mecid_width, mecid_width_mask;
+	uint16_t mecid;
+	unsigned int reason;
 	int ret;
 
 	/*
@@ -418,13 +426,16 @@ static int rmmd_mecid_key_update(uint64_t mecid)
 	 * in length.
 	 */
 	mecid_width = ((read_mecidr_el2() >> MECIDR_EL2_MECIDWidthm1_SHIFT) &
-		MECIDR_EL2_MECIDWidthm1_MASK) + 1;
-	mecid_width_mask = ((1 << mecid_width) - 1);
+		MECIDR_EL2_MECIDWidthm1_MASK) + 1UL;
+	mecid_width_mask = ((1UL << mecid_width) - 1UL);
+
+	mecid = (x1 > MECID_SHIFT) & MECID_MASK;
 	if ((mecid & ~mecid_width_mask) != 0U) {
 		return E_RMM_INVAL;
 	}
 
-	ret = plat_rmmd_mecid_key_update(mecid);
+	reason = (x1 >> MEC_REFRESH_REASON_SHIFT) & MEC_REFRESH_REASON_MASK;
+	ret = plat_rmmd_mecid_key_update(mecid, reason);
 
 	if (ret != 0) {
 		return E_RMM_UNK;
@@ -520,7 +531,7 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
 		rmmd_rmm_sync_exit(x1);
 	}
-	case RMM_MECID_KEY_UPDATE:
+	case RMM_MEC_REFRESH:
 		ret = rmmd_mecid_key_update(x1);
 		SMC_RET1(handle, ret);
 	default:
