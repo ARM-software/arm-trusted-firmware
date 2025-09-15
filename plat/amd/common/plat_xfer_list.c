@@ -43,7 +43,7 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 				switch (GET_SECURITY_STATE(ep->h.attr)) {
 				case NON_SECURE:
 					*bl33 = *ep;
-					continue;
+					break;
 				case SECURE:
 					*bl32 = *ep;
 #if defined(SPD_opteed)
@@ -58,11 +58,19 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 						ERROR("Invalid transfer list\n");
 					}
 #endif /* SPD_opteed */
-					continue;
+					break;
 				default:
 					ERROR("Unrecognized Image Security State %lu\n",
 					      GET_SECURITY_STATE(ep->h.attr));
 					ret = TL_OPS_NON;
+				}
+				/*
+				 * Clearing the transfer list handoff entry data.
+				 */
+				memset(ep, 0, te->data_size);
+
+				if (transfer_list_rem(tl_hdr, te) == false) {
+					INFO("Failed to remove handoff info\n");
 				}
 			}
 		}
