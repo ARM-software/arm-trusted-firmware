@@ -20,6 +20,10 @@
 
 #define WKUP_CTRL_MMR0_DEVICE_RESET_OFFSET	UL(0x54000)
 
+/* Device Control Region - covers PSC, PLL, and other control registers */
+#define K3LOW_DEVCTRL_BASE    UL(0x200000)    /* Start of device control registers */
+#define K3LOW_DEVCTRL_SIZE    UL(0x9380000)   /* Size of device control region */
+
 #define TI_SCMI_CHANNELS		U(0x1)
 
 #endif /* PLATFORM_DEF_H */
