@@ -2353,8 +2353,8 @@ RMM image and stores it in the area specified by manifest.
 
 When ENABLE_RME is disabled, this function is not used.
 
-Function : plat_rmm_mecid_key_update() [when ENABLE_RME == 1]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function : plat_rmmd_mecid_key_update() [when ENABLE_RME == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
