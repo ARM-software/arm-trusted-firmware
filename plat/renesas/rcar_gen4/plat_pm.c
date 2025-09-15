@@ -116,7 +116,6 @@ static void rcar_pwr_domain_suspend_finish(const psci_power_state_t
 	if (SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
 		rcar_pwrc_restore_timer_state();
 		rcar_pwrc_setup();
-		plat_rcar_scmi_setup();
 	}
 
 	rcar_pwrc_disable_interrupt_wakeup(mpidr);
@@ -142,13 +141,11 @@ static void rcar_system_off(void)
 		panic();
 
 	rcar_pwrc_clusteroff(mpidr);
-
-	rcar_scmi_sys_shutdown();
 }
 
 static void rcar_system_reset(void)
 {
-	rcar_scmi_sys_reboot();
+	mmio_write_32(RCAR_SRESCR, 0x5AA50000U | BIT(15));
 }
 
 static void rcar_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
@@ -214,7 +211,7 @@ static plat_psci_ops_t rcar_plat_psci_ops = {
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint, const plat_psci_ops_t **psci_ops)
 {
-	*psci_ops = plat_rcar_psci_override_pm_ops(&rcar_plat_psci_ops);
+	*psci_ops = &rcar_plat_psci_ops;
 	rcar_sec_entrypoint = sec_entrypoint;
 
 	return 0;

@@ -28,15 +28,6 @@ SECTIONS
 		__system_ram_start__ = .;
 		*(.system_ram)
 		*spinlock.o(.text.*)
-		*scmi_sys_pwr_proto.o(
-			.text.validate_scmi_channel
-			.text.scmi_sys_pwr_state_set
-		)
-		*scmi_common.o(
-			.text.scmi_get_channel
-			.text.scmi_send_sync_command
-			.text.scmi_put_channel
-		)
 	        __system_ram_end__ = .;
 	} >SRAM AT>PRAM
 

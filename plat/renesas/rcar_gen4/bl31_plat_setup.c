@@ -77,7 +77,6 @@ void bl31_platform_setup(void)
 
 	gic_set_gicr_frames(gicr_base_addrs);
 
-	plat_rcar_scmi_setup();
 	rcar_pwrc_setup();
 	rcar_ptp_setup();
 }
