@@ -10,7 +10,7 @@ readme = "readme.rst"
 python = "^3.8"
 cot-dt2c = {path = "tools/cot_dt2c", develop = true}
 memory = {path = "tools/memory", develop = true}
-tlc = {path = "tools/tlc", develop = true}
+tlc = {path = "contrib/libtl/tlc", develop = true}
 
 [tool.poetry.group.docs]
 optional = true

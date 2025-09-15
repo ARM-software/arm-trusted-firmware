@@ -1517,9 +1517,6 @@ subsections:
           - title: R/ZG Layout Tool
             scope: rzg-layout
 
-      - title: Transfer List Compiler
-        scope: tlc
-
       - title: Chain of Trust device tree to C source file
         scope: cot-dt2c
 
