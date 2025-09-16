@@ -152,7 +152,7 @@ workaround_reset_start cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a715, CVE(2022, 23960)
 
-check_erratum_chosen cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+check_erratum_ls cortex_a715, CVE(2022, 23960), CPU_REV(1, 0)
 
 cpu_reset_func_start cortex_a715
 	/* Disable speculative loads */
