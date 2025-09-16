@@ -190,7 +190,7 @@ int parse_optee_header(entry_point_info_t *header_ep,
 	 * header image arguments so that can be read by the
 	 * BL32 SPD.
 	 */
-	if (paged_image_info != NULL) {
+	if (paged_image_info != NULL && paged_image_info->image_size != 0) {
 		header_ep->args.arg1 = paged_image_info->image_base;
 		header_ep->args.arg2 = paged_image_info->image_size;
 	}

@@ -291,6 +291,7 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 #if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE) || defined(SPMC_OPTEE)
 	bl_mem_params_node_t *pager_mem_params = NULL;
 	bl_mem_params_node_t *paged_mem_params = NULL;
+	image_info_t *paged_image_info = NULL;
 #endif
 #if defined(SPD_spmd)
 	bl_mem_params_node_t *bl32_mem_params = NULL;
@@ -328,18 +329,26 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
 		assert(pager_mem_params);
 
+#if !defined(SPMC_OPTEE)
 		paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
 		assert(paged_mem_params);
+#endif
+		if (paged_mem_params)
+			paged_image_info = &paged_mem_params->image_info;
 
 		err = parse_optee_header(&bl_mem_params->ep_info,
 					 &pager_mem_params->image_info,
-					 &paged_mem_params->image_info);
+					 paged_image_info);
 		if (err != 0) {
 			WARN("OPTEE header parse error.\n");
 		}
 
-		/* add TL_TAG_OPTEE_PAGABLE_PART entry to the TL */
-		if (handoff_pageable_part(bl_mem_params->ep_info.args.arg1)) {
+		/*
+		 * Only add TL_TAG_OPTEE_PAGABLE_PART entry to the TL if
+		 * the paged image has a size.
+		 */
+		if (paged_image_info && paged_image_info->image_size &&
+		    handoff_pageable_part(paged_image_info->image_base)) {
 			return -1;
 		}
 #endif
