@@ -264,7 +264,7 @@ DYN_CFG_SOURCES	+=	plat/arm/common/arm_dyn_cfg.c \
 BL1_SOURCES	+=	${DYN_CFG_SOURCES}
 BL2_SOURCES	+=	${DYN_CFG_SOURCES}
 
-ifeq (${BL2_AT_EL3},1)
+ifeq (${RESET_TO_BL2},1)
 BL2_SOURCES	+=	plat/arm/common/arm_bl2_el3_setup.c
 endif
 

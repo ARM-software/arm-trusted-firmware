@@ -69,7 +69,7 @@ void fvp_pcpu_init(void)
 void fvp_gic_driver_pre_init(void)
 {
 /* FCONF won't be used in these cases, so we couldn't do this */
-#if !(BL2_AT_EL3 || RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2)
+#if !(RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2)
 	/*
 	 * Get GICD and GICR base addressed through FCONF APIs.
 	 * FCONF is not supported in BL32 for FVP.
@@ -97,5 +97,5 @@ void fvp_gic_driver_pre_init(void)
 	gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
 #endif
 	gic_set_gicr_frames(fvp_gicr_base_addrs);
-#endif /* !(BL2_AT_EL3 || RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2) */
+#endif /* !(RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2) */
 }

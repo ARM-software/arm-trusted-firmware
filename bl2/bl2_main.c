@@ -35,49 +35,39 @@
 		BL_TOTAL_IDS, PMF_DUMP_ENABLE);
 #endif
 
-#if RESET_TO_BL2
 /*******************************************************************************
- * Setup function for BL2 when RESET_TO_BL2=1
+ * The only thing to do in BL2 is to load further images and pass control to
+ * next BL. The memory occupied by BL2 will be reclaimed by BL3x stages.
  ******************************************************************************/
-void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
-		   u_register_t arg3)
+void __no_pauth bl2_main(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+	       u_register_t arg3)
 {
+	entry_point_info_t *next_bl_ep_info;
+
 	/* Enable early console if EARLY_CONSOLE flag is enabled */
 	plat_setup_early_console();
+#if RESET_TO_BL2
 
 	/* Perform early platform-specific setup */
 	bl2_el3_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/* Perform late platform-specific setup */
 	bl2_el3_plat_arch_setup();
-}
 #else /* RESET_TO_BL2 */
-
-/*******************************************************************************
- * Setup function for BL2 when RESET_TO_BL2=0
- ******************************************************************************/
-void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
-	       u_register_t arg3)
-{
-	/* Enable early console if EARLY_CONSOLE flag is enabled */
-	plat_setup_early_console();
-
 	/* Perform early platform-specific setup */
 	bl2_early_platform_setup2(arg0, arg1, arg2, arg3);
 
 	/* Perform late platform-specific setup */
 	bl2_plat_arch_setup();
-}
 #endif /* RESET_TO_BL2 */
 
-/*******************************************************************************
- * The only thing to do in BL2 is to load further images and pass control to
- * next BL. The memory occupied by BL2 will be reclaimed by BL3x stages. BL2
- * runs entirely in S-EL1.
- ******************************************************************************/
-void bl2_main(void)
-{
-	entry_point_info_t *next_bl_ep_info;
+	if (is_feat_pauth_supported()) {
+#if BL2_RUNS_AT_EL3
+		pauth_init_enable_el3();
+#else
+		pauth_init_enable_el1();
+#endif
+	}
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_ENTRY, PMF_CACHE_MAINT);

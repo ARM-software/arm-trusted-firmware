@@ -17,7 +17,11 @@
 #define __section(x)	__attribute__((__section__(x)))
 #define __fallthrough	__attribute__((__fallthrough__))
 #define __noinline	__attribute__((__noinline__))
+#if ENABLE_PAUTH
 #define __no_pauth	__attribute__((target("branch-protection=none")))
+#else
+#define __no_pauth
+#endif
 #if RECLAIM_INIT_CODE
 /*
  * Add each function to a section that is unique so the functions can still

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -83,7 +83,6 @@ u_register_t bl1_smc_handler(unsigned int smc_fid,
 
 void bl1_print_next_bl_ep_info(const struct entry_point_info *bl_ep_info);
 
-void bl1_setup(void);
 void bl1_main(void);
 void bl1_plat_prepare_exit(entry_point_info_t *ep_info);
 

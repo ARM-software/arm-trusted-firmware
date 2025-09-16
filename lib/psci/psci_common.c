@@ -1004,20 +1004,11 @@ int psci_validate_entry_point(entry_point_info_t *ep,
  * code to enable the gic cpu interface and for a cluster it will enable
  * coherency at the interconnect level in addition to gic cpu interface.
  ******************************************************************************/
-void psci_warmboot_entrypoint(void)
+void psci_warmboot_entrypoint(unsigned int cpu_idx)
 {
 	unsigned int end_pwrlvl;
-	unsigned int cpu_idx = plat_my_core_pos();
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
-
-#if FEATURE_DETECTION
-	/* Detect if features enabled during compilation are supported by PE. */
-	detect_arch_features(cpu_idx);
-#endif /* FEATURE_DETECTION */
-
-	/* Init registers that never change for the lifetime of TF-A */
-	cm_manage_extensions_el3(cpu_idx);
 
 	/*
 	 * Verify that we have been explicitly turned ON or resumed from

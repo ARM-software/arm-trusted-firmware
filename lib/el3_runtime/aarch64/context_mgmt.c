@@ -678,8 +678,12 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
  * overwritten by el3_exit. Expects the core_pos of the current core as argument.
  ******************************************************************************/
 #if IMAGE_BL31
-void cm_manage_extensions_el3(unsigned int my_idx)
+void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 {
+	if (is_feat_pauth_supported()) {
+		pauth_init_enable_el3();
+	}
+
 	if (is_feat_sve_supported()) {
 		sve_init_el3();
 	}

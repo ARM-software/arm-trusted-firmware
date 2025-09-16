@@ -13,18 +13,14 @@ extern uint64_t bl1_apiakey[2];
 
 void __no_pauth pauth_init_enable_el3(void)
 {
-	if (is_feat_pauth_supported()) {
-		pauth_init();
-		pauth_enable_el3();
-	}
+	pauth_init();
+	pauth_enable_el3();
 }
 
 void __no_pauth pauth_init_enable_el1(void)
 {
-	if (is_feat_pauth_supported()) {
-		pauth_init();
-		pauth_enable_el1();
-	}
+	pauth_init();
+	pauth_enable_el1();
 }
 
 void pauth_init(void)

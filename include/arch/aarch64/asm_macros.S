@@ -357,7 +357,7 @@
 	.endm
 
 .macro call_reset_handler
-#if !(defined(IMAGE_BL2) && ENABLE_RME)
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && RESET_TO_BL2)
 	/* ---------------------------------------------------------------------
 	 * It is a cold boot.
 	 * Perform any processor specific actions upon reset e.g. cache, TLB

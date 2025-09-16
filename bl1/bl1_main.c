@@ -20,6 +20,7 @@
 #include <drivers/console.h>
 #include <lib/bootmarker_capture.h>
 #include <lib/cpus/errata.h>
+#include <lib/extensions/pauth.h>
 #include <lib/pmf/pmf.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
@@ -41,9 +42,14 @@ uint64_t bl1_apiakey[2];
 
 /*******************************************************************************
  * Setup function for BL1.
+ * Also perform late architectural and platform specific initialization.
+ * It also queries the platform to load and run next BL image. Only called
+ * by the primary cpu after a cold boot.
  ******************************************************************************/
-void bl1_setup(void)
+void __no_pauth bl1_main(void)
 {
+	unsigned int image_id;
+
 	/* Enable early console if EARLY_CONSOLE flag is enabled */
 	plat_setup_early_console();
 
@@ -52,16 +58,10 @@ void bl1_setup(void)
 
 	/* Perform late platform-specific setup */
 	bl1_plat_arch_setup();
-}
 
-/*******************************************************************************
- * Function to perform late architectural and platform specific initialization.
- * It also queries the platform to load and run next BL image. Only called
- * by the primary cpu after a cold boot.
- ******************************************************************************/
-void bl1_main(void)
-{
-	unsigned int image_id;
+	if (is_feat_pauth_supported()) {
+		pauth_init_enable_el3();
+	}
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(bl_svc, BL1_ENTRY, PMF_CACHE_MAINT);
@@ -143,6 +143,11 @@ void bl1_main(void)
 #endif
 
 	console_flush();
+
+	/* Disable pointer authentication before jumping to next boot image. */
+	if (is_feat_pauth_supported()) {
+		pauth_disable_el3();
+	}
 }
 
 /*******************************************************************************

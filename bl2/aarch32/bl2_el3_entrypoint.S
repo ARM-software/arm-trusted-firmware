@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,12 +35,6 @@ func bl2_entrypoint
 	mov	r1, r10
 	mov	r2, r11
 	mov	r3, r12
-
-	/* ---------------------------------------------
-	 * Perform BL2 setup
-	 * ---------------------------------------------
-	 */
-	bl	bl2_el3_setup
 
 	/* ---------------------------------------------
 	 * Jump to main function.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -118,8 +118,6 @@ func bl2_entrypoint
 	mov	r1, r9
 	mov	r2, r10
 	mov	r3, r11
-
-	bl	bl2_setup
 
 	/* ---------------------------------------------
 	 * Jump to main function.
