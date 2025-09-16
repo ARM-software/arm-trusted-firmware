@@ -120,6 +120,11 @@ static int lfa_activate(uint32_t component_id, uint64_t flags,
 		return LFA_NOT_SUPPORTED;
 	}
 
+	ret = plat_lfa_notify_activate(component_id);
+	if (ret != 0) {
+		return LFA_ACTIVATION_FAILED;
+	}
+
 	activator = lfa_components[component_id].activator;
 	if (activator->activate != NULL) {
 		/*
