@@ -69,3 +69,8 @@ int plat_lfa_load_auth_image(uint32_t img_id)
 	 */
 	return 0;
 }
+
+int plat_lfa_notify_activate(uint32_t img_id)
+{
+	return 0;
+}
