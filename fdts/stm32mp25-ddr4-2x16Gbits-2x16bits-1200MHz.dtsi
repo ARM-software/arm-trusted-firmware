@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2025, STMicroelectronics - All Rights Reserved
  */
 
 /*
@@ -13,7 +13,7 @@
  * Speed_Bin    Worse    from JEDEC
  * device_width 16       x16 by default
  * width        32       32: full width / 16: half width
- * density      16Gbits  (per 16bit device)
+ * density      16Gbits  (per device)
  * Addressing   RBC      row/bank interleaving
  * RDBI         No       Read DBI
  */
@@ -223,7 +223,7 @@
 #define DDR_UIS_SWIZZLE_19 0x0000000B
 #define DDR_UIS_SWIZZLE_20 0x00000000
 #define DDR_UIS_SWIZZLE_21 0x00000000
-#define DDR_UIS_SWIZZLE_22 0x00000000
+#define DDR_UIS_SWIZZLE_22 0x00000011
 #define DDR_UIS_SWIZZLE_23 0x00000008
 #define DDR_UIS_SWIZZLE_24 0x00000002
 #define DDR_UIS_SWIZZLE_25 0x00000018
@@ -232,7 +232,7 @@
 #define DDR_UIS_SWIZZLE_28 0x0D0A0407
 #define DDR_UIS_SWIZZLE_29 0x00000014
 #define DDR_UIS_SWIZZLE_30 0x000B0600
-#define DDR_UIS_SWIZZLE_31 0x02080000
+#define DDR_UIS_SWIZZLE_31 0x02081100
 #define DDR_UIS_SWIZZLE_32 0x00000018
 #define DDR_UIS_SWIZZLE_33 0x00000000
 #define DDR_UIS_SWIZZLE_34 0x00000000
