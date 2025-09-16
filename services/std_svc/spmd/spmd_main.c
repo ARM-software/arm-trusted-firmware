@@ -33,6 +33,9 @@
 #include <services/spmd_svc.h>
 #include <smccc_helpers.h>
 #include "spmd_private.h"
+#if TRANSFER_LIST
+#include <transfer_list.h>
+#endif
 
 /*******************************************************************************
  * SPM Core context information.
@@ -644,6 +647,8 @@ int spmd_setup(void)
 {
 	int rc;
 	void *spmc_manifest;
+	struct transfer_list_header *tl __maybe_unused;
+	struct transfer_list_entry *te __maybe_unused;
 
 	/*
 	 * If the SPMC is at EL3, then just initialise it directly. The
@@ -669,11 +674,31 @@ int spmd_setup(void)
 	/* Under no circumstances will this parameter be 0 */
 	assert(spmc_ep_info->pc != 0ULL);
 
+
+#if TRANSFER_LIST && !RESET_TO_BL31
+	tl = (struct transfer_list_header *)spmc_ep_info->args.arg3;
+	te = transfer_list_find(tl, TL_TAG_DT_SPMC_MANIFEST);
+	if (te == NULL) {
+		WARN("SPM Core manifest absent in TRANSFER_LIST.\n");
+		return -ENOENT;
+	}
+
+	spmc_manifest = (void *)transfer_list_entry_data(te);
+
+	/* Change the DT in the handoff */
+	if (sizeof(spmc_ep_info->args.arg0) == sizeof(uint64_t)) {
+		spmc_ep_info->args.arg0 = (uintptr_t)spmc_manifest;
+	} else {
+		spmc_ep_info->args.arg3 = (uintptr_t)spmc_manifest;
+	}
+#else
 	/*
 	 * Check if BL32 ep_info has a reference to 'tos_fw_config'. This will
 	 * be used as a manifest for the SPM Core at the next lower EL/mode.
 	 */
 	spmc_manifest = (void *)spmc_ep_info->args.arg0;
+#endif
+
 	if (spmc_manifest == NULL) {
 		WARN("Invalid or absent SPM Core manifest.\n");
 		return 0;

@@ -69,7 +69,6 @@ void bl2_plat_mboot_init(void)
 	event_log_start = transfer_list_event_log_extend(
 		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE, &event_log_max_size);
 	event_log_finish = event_log_start + event_log_max_size;
-
 	event_log_base = (uintptr_t)event_log_start;
 #else
 	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size,
@@ -173,6 +172,8 @@ void bl2_plat_mboot_finish(void)
 	/* Event Log filled size */
 	size_t event_log_cur_size;
 
+	struct transfer_list_entry *te __maybe_unused;
+
 	rc = fvp_populate_and_measure_critical_data();
 	if (rc != 0) {
 		panic();
@@ -188,6 +189,22 @@ void bl2_plat_mboot_finish(void)
 	event_log_base = (uintptr_t)transfer_list_event_log_finish(
 		secure_tl, (uintptr_t)event_log_base + event_log_cur_size);
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
+
+	/* If there is DT_SPMC_MANIFEST, update event log information. */
+	te = transfer_list_find(secure_tl, TL_TAG_DT_SPMC_MANIFEST);
+	if (te != NULL) {
+		te = transfer_list_find(secure_tl, TL_TAG_TPM_EVLOG);
+		assert(te != NULL && te->data_size > 0);
+
+		rc = arm_set_tos_fw_info((uintptr_t)transfer_list_entry_data(te),
+					 te->data_size);
+		if (rc != 0) {
+			WARN("%s(): Unable to update %s_FW_CONFIG\n",
+			      __func__, "TOS");
+		}
+
+		transfer_list_update_checksum(secure_tl);
+	}
 #else
 #if defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)
 	/* Copy Event Log to TZC secured DRAM memory */

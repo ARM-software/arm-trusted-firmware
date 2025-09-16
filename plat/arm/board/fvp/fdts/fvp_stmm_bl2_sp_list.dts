@@ -1,0 +1,10 @@
+/*
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+smm_gateway {
+	uuid = "378daedc-f06b-4446-8314-40ab933c87a3";
+	load-address = <0x07000000>;
+};
