@@ -5,6 +5,7 @@
  */
 
 #include <errno.h>
+#include <string.h>
 
 #include <plat/common/platform.h>
 #include <services/bl31_lfa.h>
