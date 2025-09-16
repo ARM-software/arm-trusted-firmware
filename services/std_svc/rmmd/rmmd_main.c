@@ -429,7 +429,7 @@ static int rmmd_mecid_key_update(uint64_t x1)
 		MECIDR_EL2_MECIDWidthm1_MASK) + 1UL;
 	mecid_width_mask = ((1UL << mecid_width) - 1UL);
 
-	mecid = (x1 > MECID_SHIFT) & MECID_MASK;
+	mecid = (x1 >> MECID_SHIFT) & MECID_MASK;
 	if ((mecid & ~mecid_width_mask) != 0U) {
 		return E_RMM_INVAL;
 	}
