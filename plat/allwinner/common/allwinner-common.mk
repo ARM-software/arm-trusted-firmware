@@ -86,11 +86,16 @@ endif
 # The bootloader is guaranteed to only run on CPU 0 by the boot ROM.
 COLD_BOOT_SINGLE_CPU		:=	1
 
-# Do not enable SPE (not supported on ARM v8.0).
+# Disable SPE, SVE and MPAM, since they are not supported on Allwinner CPUs.
 ENABLE_SPE_FOR_NS		:=	0
-
-# Do not enable SVE (not supported on ARM v8.0).
 ENABLE_SVE_FOR_NS		:=	0
+ENABLE_FEAT_MPAM		:=	0
+
+WORKAROUND_CVE_2017_5715	:=	0
+WORKAROUND_CVE_2018_3639	:=	0
+WORKAROUND_CVE_2022_23960	:=	0
+WORKAROUND_CVE_2024_7881	:=	0
+WORKAROUND_CVE_2024_5660	:=	0
 
 # Enable workarounds for Cortex-A53 errata. Allwinner uses at least r0p4.
 ERRATA_A53_835769		:=	1
