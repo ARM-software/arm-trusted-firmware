@@ -10,12 +10,6 @@
 
 #include <plat_arm.h>
 
-/******************************************************************************
- * The following functions are defined as weak to allow a platform to override
- * the way ARM CCI driver is initialised and used.
- *****************************************************************************/
-#pragma weak plat_arm_interconnect_enter_coherency
-#pragma weak plat_arm_interconnect_exit_coherency
 
 /******************************************************************************
  * Helper function to place current master into coherency

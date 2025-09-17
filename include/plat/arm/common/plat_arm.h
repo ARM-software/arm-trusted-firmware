@@ -364,9 +364,11 @@ void plat_arm_gic_resume(void);
 #endif
 void plat_arm_security_setup(void);
 void plat_arm_pwrc_setup(void);
+#if !HW_ASSISTED_COHERENCY
 void plat_arm_interconnect_init(void);
 void plat_arm_interconnect_enter_coherency(void);
 void plat_arm_interconnect_exit_coherency(void);
+#endif /* HW_ASSISTED_COHERENCY */
 void plat_arm_program_trusted_mailbox(uintptr_t address);
 bool plat_arm_bl1_fwu_needed(void);
 int plat_arm_ni_setup(uintptr_t global_cfg);
