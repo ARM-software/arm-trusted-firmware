@@ -14,7 +14,8 @@
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #if TRANSFER_LIST && MEASURED_BOOT
-#include <drivers/measured_boot/event_log/event_log.h>
+#include <event_measure.h>
+#include <event_print.h>
 #endif
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>

@@ -20,6 +20,10 @@ LIBTL_SRCS	:=	$(addprefix $(LIBTL_SRC_PATH)/, \
 				generic/logging.c \
 				generic/transfer_list.c)
 
+ifeq ($(MEASURED_BOOT), 1)
+LIBTL_SRCS	+=	$(LIBTL_SRC_PATH)/generic/tpm_event_log.c
+endif
+
 $(eval $(call MAKE_LIB,tl))
 
 endif	# TRANSFER_LIST

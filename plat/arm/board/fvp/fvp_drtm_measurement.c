@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <drivers/measured_boot/event_log/event_log.h>
 #include <plat/common/platform.h>
-
 #include <platform_def.h>
+
+#include <event_measure.h>
+#include <event_print.h>
 
 /* DRTM TPM Features */
 static const plat_drtm_tpm_features_t tpm_features = {

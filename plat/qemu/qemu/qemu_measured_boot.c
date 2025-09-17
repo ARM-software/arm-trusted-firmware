@@ -7,11 +7,14 @@
 
 #include <stdint.h>
 
-#include <common/debug.h>
-#include <drivers/measured_boot/event_log/event_log.h>
-#include <drivers/measured_boot/metadata.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
+
+#include <common/debug.h>
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/measured_boot/metadata.h>
+#include <event_measure.h>
+#include <event_print.h>
 #include <tools_share/tbbr_oid.h>
 
 #include "../common/qemu_private.h"
@@ -19,6 +22,12 @@
 /* Event Log data */
 static uint8_t event_log[PLAT_EVENT_LOG_MAX_SIZE];
 static uint64_t event_log_base;
+
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
+};
 
 /* QEMU table with platform specific image IDs, names and PCRs */
 static const event_log_metadata_t qemu_event_log_metadata[] = {
@@ -43,8 +52,18 @@ void bl2_plat_mboot_init(void)
 	 * to measure the BL2 code which is a common case for
 	 * already existing platforms
 	 */
-	event_log_init(event_log, event_log + sizeof(event_log));
-	event_log_write_header();
+	int rc = event_log_init_and_reg(
+		event_log, event_log + sizeof(event_log), &crypto_hash_info);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
+
+	rc = event_log_write_header();
+	if (rc < 0) {
+		ERROR("Failed to write event log header (%d).\n", rc);
+		panic();
+	}
 
 	/*
 	 * TBD - Add code to do self measurement of BL2 code and add an

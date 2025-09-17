@@ -8,19 +8,21 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-#include "./include/rpi3_measured_boot.h"
+#include <plat/common/common_def.h>
+#include <plat/common/platform.h>
+#include <platform_def.h>
 
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/gpio_spi.h>
-#include <drivers/measured_boot/event_log/event_log.h>
 #include <drivers/measured_boot/metadata.h>
 #include <drivers/tpm/tpm2.h>
 #include <drivers/tpm/tpm2_chip.h>
 #include <drivers/tpm/tpm2_slb9670/slb9670_gpio.h>
-#include <plat/common/common_def.h>
-#include <plat/common/platform.h>
-#include <platform_def.h>
+#include <event_measure.h>
+#include <event_print.h>
 #include <tools_share/tbbr_oid.h>
+
+#include "./include/rpi3_measured_boot.h"
 
 /* RPI3 table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t rpi3_event_log_metadata[] = {
@@ -29,6 +31,12 @@ const event_log_metadata_t rpi3_event_log_metadata[] = {
 	{ NT_FW_CONFIG_ID, MBOOT_NT_FW_CONFIG_STRING, PCR_0 },
 
 	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
+};
+
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
 };
 
 #if DISCRETE_TPM
@@ -55,10 +63,9 @@ void bl2_plat_mboot_init(void)
 {
 	uint8_t *bl2_event_log_start;
 	uint8_t *bl2_event_log_finish;
-
-#if DISCRETE_TPM
 	int rc;
 
+#if DISCRETE_TPM
 	rpi3_bl2_tpm_early_interface_setup();
 	rc = tpm_interface_init(&tpm_chip_data, 0);
 	if (rc != 0) {
@@ -70,7 +77,13 @@ void bl2_plat_mboot_init(void)
 	rpi3_mboot_fetch_eventlog_info(&event_log_start, &event_log_size);
 	bl2_event_log_start = event_log_start + event_log_size;
 	bl2_event_log_finish = event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE;
-	event_log_init(bl2_event_log_start, bl2_event_log_finish);
+
+	rc = event_log_init_and_reg(bl2_event_log_start, bl2_event_log_finish,
+				    &crypto_hash_info);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
 }
 
 void bl2_plat_mboot_finish(void)

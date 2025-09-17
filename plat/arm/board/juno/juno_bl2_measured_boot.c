@@ -7,10 +7,16 @@
 #include <stdint.h>
 
 #include <common/tbbr/tbbr_img_def.h>
-#include <drivers/measured_boot/event_log/event_log.h>
-#include <drivers/measured_boot/metadata.h>
+#if TRANSFER_LIST
+#include <tpm_event_log.h>
+#endif
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/common_def.h>
+
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/measured_boot/metadata.h>
+#include <event_measure.h>
+#include <event_print.h>
 #if defined(ARM_COT_cca)
 #include <tools_share/cca_oid.h>
 #else
@@ -19,6 +25,12 @@
 
 /* Event Log data */
 static uint8_t *event_log_base;
+
+static const struct event_log_hash_info crypto_hash_info = {
+	.func = crypto_mod_calc_hash,
+	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
+	.count = 1U,
+};
 
 /* table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t juno_event_log_metadata[] = {
@@ -40,19 +52,20 @@ void bl2_plat_mboot_init(void)
 #if TRANSFER_LIST
 	uint8_t *event_log_start;
 	uint8_t *event_log_finish;
-	size_t event_log_max_size;
+	int rc;
 
 	event_log_start = transfer_list_event_log_extend(
-		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE, &event_log_max_size);
-	if (event_log_start == NULL) {
-		panic();
-	}
-
-	event_log_finish = event_log_start + event_log_max_size;
+		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE);
 
 	event_log_base = event_log_start;
+	event_log_finish = event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE;
 
-	event_log_init(event_log_start, event_log_finish);
+	rc = event_log_init_and_reg(event_log_start, event_log_finish,
+				    &crypto_hash_info);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
 #endif
 }
 

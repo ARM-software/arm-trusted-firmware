@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,10 +7,13 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include <common/desc_image_load.h>
-#include <drivers/measured_boot/event_log/event_log.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+
+#include <common/desc_image_load.h>
+#include <drivers/auth/crypto_mod.h>
+#include <event_measure.h>
+#include <event_print.h>
 
 extern event_log_metadata_t fvp_event_log_metadata[];
 
