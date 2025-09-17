@@ -495,7 +495,7 @@ void detect_arch_features(unsigned int core_pos)
 	tainted |= check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(),
 				 "GCS", 1, 1);
 	tainted |= check_feature(ENABLE_RME, read_feat_rme_id_field(),
-				 "RME", 1, 1);
+				 "RME", 1, 2);
 	tainted |= check_feature(ENABLE_FEAT_PAUTH_LR, is_feat_pauth_lr_present(),
 				 "PAUTH_LR", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_FGWTE3, read_feat_fgwte3_id_field(),

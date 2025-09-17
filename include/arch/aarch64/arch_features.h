@@ -158,6 +158,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_PFAR		|
  * +----------------------------+
+ * |	FEAT_RME_GPC2		|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -335,6 +337,11 @@ CREATE_FEATURE_FUNCS(feat_sctlr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_SCTLR2_SHIF
 CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128_SHIFT,
 		     ID_AA64MMFR3_EL1_D128_MASK, D128_IMPLEMENTED,
 		     ENABLE_FEAT_D128)
+
+/* FEAT_RME_GPC2 */
+CREATE_FEATURE_PRESENT(feat_rme_gpc2, id_aa64pfr0_el1,
+		       ID_AA64PFR0_FEAT_RME_SHIFT, ID_AA64PFR0_FEAT_RME_MASK,
+		       RME_GPC2_IMPLEMENTED)
 
 /* FEAT_FPMR */
 CREATE_FEATURE_FUNCS(feat_fpmr, id_aa64pfr2_el1, ID_AA64PFR2_EL1_FPMR_SHIFT,

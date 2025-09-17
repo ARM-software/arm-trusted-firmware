@@ -84,6 +84,7 @@
 #define GPT_L1_SECURE_DESC	GPT_BUILD_L1_DESC(GPT_GPI_SECURE)
 #define GPT_L1_NS_DESC		GPT_BUILD_L1_DESC(GPT_GPI_NS)
 #define GPT_L1_REALM_DESC	GPT_BUILD_L1_DESC(GPT_GPI_REALM)
+#define GPT_L1_NSO_DESC		GPT_BUILD_L1_DESC(GPT_GPI_NSO)
 #define GPT_L1_ANY_DESC		GPT_BUILD_L1_DESC(GPT_GPI_ANY)
 
 /******************************************************************************/

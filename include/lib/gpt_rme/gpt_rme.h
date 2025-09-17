@@ -39,6 +39,7 @@ typedef struct pas_region {
 #define GPT_GPI_NS			U(0x9)
 #define GPT_GPI_ROOT			U(0xA)
 #define GPT_GPI_REALM			U(0xB)
+#define GPT_GPI_NSO			U(0xD)
 #define GPT_GPI_ANY			U(0xF)
 #define GPT_GPI_VAL_MASK		UL(0xF)
 
@@ -104,6 +105,10 @@ typedef struct pas_region {
 /******************************************************************************/
 /* GPT register field definitions                                             */
 /******************************************************************************/
+
+/* NSO bit definitions */
+#define GPCCR_NSO_SHIFT		U(19)
+#define GPCCR_NSO_BIT		(ULL(1) << GPCCR_NSO_SHIFT)
 
 /*
  * Least significant address bits protected by each entry in level 0 GPT. This

@@ -264,6 +264,7 @@ static void shatter_512mb(uintptr_t base, const gpi_info_t *gpi_info,
  *   GPT_GPI_NS          U(0x9)
  *   GPT_GPI_ROOT        U(0xA)
  *   GPT_GPI_REALM       U(0xB)
+ *   GPT_GPI_NSO         U(0xD)
  *   GPT_GPI_ANY         U(0xF)
  *
  * Parameters
@@ -274,11 +275,19 @@ static void shatter_512mb(uintptr_t base, const gpi_info_t *gpi_info,
  */
 static bool is_gpi_valid(unsigned int gpi)
 {
-	if ((gpi == GPT_GPI_NO_ACCESS) || (gpi == GPT_GPI_ANY) ||
-	    ((gpi >= GPT_GPI_SECURE) && (gpi <= GPT_GPI_REALM))) {
+	switch (gpi) {
+	case GPT_GPI_NO_ACCESS:
+	case GPT_GPI_SECURE:
+	case GPT_GPI_NS:
+	case GPT_GPI_ROOT:
+	case GPT_GPI_REALM:
+	case GPT_GPI_ANY:
 		return true;
+	case GPT_GPI_NSO:
+		return is_feat_rme_gpc2_present();
+	default:
+		return false;
 	}
-	return false;
 }
 
 /*
@@ -1055,6 +1064,11 @@ int gpt_enable(void)
 
 	/* Enable GPT */
 	gpccr_el3 |= GPCCR_GPC_BIT;
+
+	/* Enable NSO encoding if FEAT_RME_GPC2 is supported. */
+	if (is_feat_rme_gpc2_present()) {
+		gpccr_el3 |= GPCCR_NSO_BIT;
+	}
 
 	/* TODO: Configure GPCCR_EL3_GPCP for Fault control */
 	write_gpccr_el3(gpccr_el3);
