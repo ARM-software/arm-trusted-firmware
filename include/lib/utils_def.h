@@ -135,10 +135,10 @@
  * round_down() is similar but rounds the value down instead.
  */
 #define round_boundary(value, boundary)		\
-	((__typeof__(value))((boundary) - 1))
+	((__typeof__(value))((boundary) - ((__typeof__(value))1U)))
 
 #define round_up(value, boundary)		\
-	((((value) - 1) | round_boundary(value, boundary)) + 1)
+	((((value) - ((__typeof__(value))1U)) | round_boundary(value, boundary)) + ((__typeof__(value))1U))
 
 #define round_down(value, boundary)		\
 	((value) & ~round_boundary(value, boundary))
