@@ -20,6 +20,7 @@
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/simd_ctx.h>
 #include <lib/utils_def.h>
+#include <platform_def.h> /* For CACHE_WRITEBACK_GRANULE */
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'gp_regs'
@@ -269,7 +270,10 @@ typedef struct cpu_context {
 	el1_sysregs_t el1_sysregs_ctx;
 #endif
 
-} cpu_context_t;
+	/* TODO: the CACHE_WRITEBACK_GRANULE alignment is not necessary if this is
+	 * contained in a per-cpu data structure (i.e. cpu_data_t).
+	 */
+} __aligned(CACHE_WRITEBACK_GRANULE) cpu_context_t;
 
 /*
  * Per-World Context.
