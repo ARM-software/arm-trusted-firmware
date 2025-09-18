@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,11 +25,15 @@ static io_block_spec_t fwu_metadata_spec;
 
 io_block_spec_t fip_block_spec = {
 /*
- * This is fixed FIP address used by BL1, BL2 loads partition table
- * to get FIP address.
+ *  - With ARM_GPT_SUPPORT and BL1: a fixed FIP offset within the GPT image is used.
+ *  - With ARM_GPT_SUPPORT and BL2: the FIP offset is derived from
+ *    the partition table entries at runtime.
+ *  - Without ARM_GPT_SUPPORT: both BL1 and BL2 use the fixed FIP base address.
  */
 #if ARM_GPT_SUPPORT
+#if IMAGE_BL1
 	.offset = PLAT_ARM_FLASH_IMAGE_BASE + PLAT_ARM_FIP_OFFSET_IN_GPT,
+#endif /* IMAGE_BL1 */
 #else
 	.offset = PLAT_ARM_FLASH_IMAGE_BASE,
 #endif /* ARM_GPT_SUPPORT */

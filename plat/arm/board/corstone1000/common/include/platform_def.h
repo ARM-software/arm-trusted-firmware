@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -168,7 +168,6 @@
 #define PLAT_ARM_FIP_MAX_SIZE		UL(0x1ff000)  /* 1.996 MB */
 #define PLAT_ARM_FLASH_IMAGE_BASE	UL(0x08000000)
 #define PLAT_ARM_FLASH_IMAGE_MAX_SIZE	PLAT_ARM_FIP_MAX_SIZE
-#define PLAT_ARM_FIP_OFFSET_IN_GPT	(0x86000)
 
 /* FIP Information */
 #define FIP_SIGNATURE_AREA_SIZE         (0x1000)      /* 4 KB */
