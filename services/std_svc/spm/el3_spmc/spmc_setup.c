@@ -32,7 +32,7 @@
 #include "spmc.h"
 #if TRANSFER_LIST
 #include <transfer_list.h>
-#include <drivers/measured_boot/event_log/event_handoff.h>
+#include <tpm_event_log.h>
 #endif
 #include <tools_share/firmware_image_package.h>
 
