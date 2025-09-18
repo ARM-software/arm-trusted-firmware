@@ -803,6 +803,7 @@
 #define CLUSTERPMSELR		p15, 0, c15, c5, 5
 #define CLUSTERPMXEVTYPER	p15, 0,	c15, c6, 1
 #define CLUSTERPMXEVCNTR	p15, 0, c15, c6, 2
+#define CLUSTERPMMDCR		p15, 6, c15, c6, 3
 
 /* CLUSTERPMCR register definitions */
 #define CLUSTERPMCR_E_BIT	BIT(0)
@@ -815,5 +816,8 @@
 #define DSU_CLUSTER_PWR_ON	1
 #define DSU_CLUSTER_PWR_MASK	U(1)
 #define DSU_CLUSTER_MEM_RET	BIT(1)
+
+/* CLUSTERPMMDCR register definitions */
+#define CLUSTERPMMDCR_SPME	U(1)
 
 #endif /* ARCH_H */

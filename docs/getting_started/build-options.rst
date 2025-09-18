@@ -1158,8 +1158,8 @@ Common build options
 
 -  ``USE_DSU_DRIVER``: This flag enables DSU (DynamIQ Shared Unit) driver.
    The DSU driver allows save/restore of DSU PMU registers through
-   ``PRESERVE_DSU_PMU_REGS`` build option and allows platforms to
-   configure powerdown and power settings of DSU.
+   ``PRESERVE_DSU_PMU_REGS`` build option, provides access to PMU registers at
+   EL1 and allows platforms to configure powerdown and power settings of DSU.
 
 -  ``ARM_IO_IN_DTB``: This flag determines whether to use IO based on the
    firmware configuration framework. This will move the io_policies into a

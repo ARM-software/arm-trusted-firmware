@@ -1640,6 +1640,9 @@
 #define DSU_CLUSTER_PWR_MASK	U(1)
 #define DSU_CLUSTER_MEM_RET	BIT(1)
 
+/* CLUSTERPMMDCR register definitions */
+#define CLUSTERPMMDCR_SPME	U(1)
+
 /*******************************************************************************
  * Definitions for CPU Power/Performance Management registers
  ******************************************************************************/
@@ -1661,6 +1664,7 @@
 #define CLUSTERPMSELR_EL1		S3_0_C15_C5_5
 #define CLUSTERPMXEVTYPER_EL1		S3_0_C15_C6_1
 #define CLUSTERPMXEVCNTR_EL1		S3_0_C15_C6_2
+#define CLUSTERPMMDCR_EL3		S3_6_C15_C6_3
 
 #define CLUSTERPMCR_E_BIT		BIT(0)
 #define CLUSTERPMCR_N_SHIFT		U(11)

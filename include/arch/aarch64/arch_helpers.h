@@ -754,6 +754,7 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmovsclr_el1, CLUSTERPMOVSCLR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmselr_el1, CLUSTERPMSELR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmxevcntr_el1, CLUSTERPMXEVCNTR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmxevtyper_el1, CLUSTERPMXEVTYPER_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmmdcr_el3, CLUSTERPMMDCR_EL3)
 
 /* CPU Power/Performance Management registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpuppmcr_el3, CPUPPMCR_EL3)
@@ -950,6 +951,9 @@ static inline void tlbirpalos_512m(uintptr_t addr)
 
 #define read_clusterpmxevtyper()	read_clusterpmxevtyper_el1()
 #define write_clusterpmxevtyper(_v)	write_clusterpmxevtyper_el1(_v)
+
+#define read_clusterpmmdcr()		read_clusterpmmdcr_el3()
+#define write_clusterpmmdcr(_v)		write_clusterpmmdcr_el3(_v)
 
 #if ERRATA_SPECULATIVE_AT
 /*

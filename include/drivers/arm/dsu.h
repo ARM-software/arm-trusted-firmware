@@ -18,6 +18,9 @@
  */
 #define ACTLR_EL3_PWREN_BIT		BIT(7)
 
+/* PMU Registers enable bit of Auxilary Control register of EL3 and EL2. */
+#define ACTLR_CLUSTERPMUEN		BIT(12)
+
 #define PMCR_N_MAX			0x1f
 
 #define save_pmu_reg(state, reg) state->reg = read_##reg()
