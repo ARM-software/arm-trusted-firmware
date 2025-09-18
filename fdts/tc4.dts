@@ -13,9 +13,9 @@
 #define MHU_TX_ADDR			46240000 /* hex */
 #define MHU_RX_ADDR			46250000 /* hex */
 
-#define LIT_CPU_PMU_COMPATIBLE		"arm,nevis-pmu"
-#define MID_CPU_PMU_COMPATIBLE		"arm,gelas-pmu"
-#define BIG_CPU_PMU_COMPATIBLE		"arm,travis-pmu"
+#define LIT_CPU_PMU_COMPATIBLE		"arm,c1-nano-pmu"
+#define MID_CPU_PMU_COMPATIBLE		"arm,c1-pro-pmu"
+#define BIG_CPU_PMU_COMPATIBLE		"arm,c1-ultra-pmu"
 
 #define RSE_MHU_TX_ADDR			49020000 /* hex */
 #define RSE_MHU_RX_ADDR			49030000 /* hex */
