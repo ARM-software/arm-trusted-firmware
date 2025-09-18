@@ -40,12 +40,23 @@ void sve_enable_per_world(per_world_context_t *per_world_ctx)
 
 void sve_init_el2_unused(void)
 {
+	u_register_t reg;
+
 	/*
 	 * CPTR_EL2.TFP: Set to zero so that Non-secure accesses to Advanced
 	 *  SIMD and floating-point functionality from both Execution states do
 	 *  not trap to EL2.
+	 *
+	 * CPTR_EL2.TZ: Set to zero so that no SVE instruction execution is
+	 *  trapped.
+	 *
+	 * CPTR_EL2.ZEN: Set to 0b11 so that no SVE instruction execution is
+	 *  trapped.
 	 */
-	write_cptr_el2(read_cptr_el2() & ~CPTR_EL2_TFP_BIT);
+	reg = read_cptr_el2();
+	reg &= ~(CPTR_EL2_TFP_BIT | CPTR_EL2_TZ_BIT);
+	reg |= ULL(3) << CPTR_EL2_ZEN_SHIFT;
+	write_cptr_el2(reg);
 }
 
 void sve_disable_per_world(per_world_context_t *per_world_ctx)
