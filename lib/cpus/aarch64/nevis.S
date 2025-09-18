@@ -21,6 +21,10 @@
 #error "Nevis supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+#if ERRATA_SME_POWER_DOWN == 0
+#error "Nevis needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
+#endif
+
 cpu_reset_prologue nevis
 
 cpu_reset_func_start nevis
@@ -29,6 +33,9 @@ cpu_reset_func_start nevis
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	/* model bug: not cleared on reset */
+	sysreg_bit_clear 	NEVIS_IMP_CPUPWRCTLR_EL1, \
+		NEVIS_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	enable_mpmm
 cpu_reset_func_end nevis
 
@@ -37,9 +44,10 @@ func nevis_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set NEVIS_IMP_CPUPWRCTLR_EL1, \
+	sysreg_bit_toggle NEVIS_IMP_CPUPWRCTLR_EL1, \
 		NEVIS_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
+	signal_pabandon_handled
 	ret
 endfunc nevis_core_pwr_dwn
 
