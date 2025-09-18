@@ -202,17 +202,17 @@ unsigned int plat_ic_get_running_priority(void)
 	return gicv3_get_running_priority();
 }
 
-int plat_ic_is_spi(unsigned int id)
+bool plat_ic_is_spi(unsigned int id)
 {
 	return (id >= MIN_SPI_ID) && (id <= MAX_SPI_ID);
 }
 
-int plat_ic_is_ppi(unsigned int id)
+bool plat_ic_is_ppi(unsigned int id)
 {
 	return (id >= MIN_PPI_ID) && (id < MIN_SPI_ID);
 }
 
-int plat_ic_is_sgi(unsigned int id)
+bool plat_ic_is_sgi(unsigned int id)
 {
 	return (id >= MIN_SGI_ID) && (id < MIN_PPI_ID);
 }
@@ -320,7 +320,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		irm = GICV3_IRM_ANY;
 		break;
 	default:
-		assert(0); /* Unreachable */
+		assert(false); /* Unreachable */
 		break;
 	}
 

@@ -61,14 +61,17 @@ static int32_t validate_routing_model(uint32_t type, uint32_t flags)
 {
 	uint32_t rm_flags = (flags >> INTR_RM_FLAGS_SHIFT) & INTR_RM_FLAGS_MASK;
 
-	if (type == INTR_TYPE_S_EL1)
+	if (type == INTR_TYPE_S_EL1) {
 		return validate_sel1_interrupt_rm(rm_flags);
+	}
 
-	if (type == INTR_TYPE_NS)
+	if (type == INTR_TYPE_NS) {
 		return validate_ns_interrupt_rm(rm_flags);
+	}
 
-	if (type == INTR_TYPE_EL3)
+	if (type == INTR_TYPE_EL3) {
 		return validate_el3_interrupt_rm(rm_flags);
+	}
 
 	return -EINVAL;
 }
@@ -110,8 +113,9 @@ static void set_scr_el3_from_rm(uint32_t type,
 	 * will be updated later during context initialization which will obtain
 	 * the scr_el3 value to be used via get_scr_el3_from_routing_model()
 	 */
-	if (cm_get_context(security_state) != NULL)
+	if (cm_get_context(security_state) != NULL) {
 		cm_write_scr_el3_bit(security_state, bit_pos, flag);
+	}
 }
 
 /*******************************************************************************
@@ -125,12 +129,14 @@ int32_t set_routing_model(uint32_t type, uint32_t flags)
 	int32_t rc;
 
 	rc = validate_interrupt_type(type);
-	if (rc != 0)
+	if (rc != 0) {
 		return rc;
+	}
 
 	rc = validate_routing_model(type, flags);
-	if (rc != 0)
+	if (rc != 0) {
 		return rc;
+	}
 
 	/* Update the routing model in internal data structures */
 	intr_type_descs[type].flags = flags;
@@ -191,20 +197,22 @@ int32_t register_interrupt_type_handler(uint32_t type,
 	int32_t rc;
 
 	/* Validate the 'handler' parameter */
-	if (handler == NULL)
+	if (handler == NULL) {
 		return -EINVAL;
+	}
 
 	/* Validate the 'flags' parameter */
-	if ((flags & INTR_TYPE_FLAGS_MASK) != 0U)
+	if ((flags & INTR_TYPE_FLAGS_MASK) != 0U) {
 		return -EINVAL;
-
+	}
 	/* Check if a handler has already been registered */
-	if (intr_type_descs[type].handler != NULL)
+	if (intr_type_descs[type].handler != NULL) {
 		return -EALREADY;
-
+	}
 	rc = set_routing_model(type, flags);
-	if (rc != 0)
+	if (rc != 0) {
 		return rc;
+	}
 
 	/* Save the handler */
 	intr_type_descs[type].handler = handler;
