@@ -266,4 +266,13 @@ int ti_sci_enter_sleep(uint8_t proc_id,
 		       uint64_t core_resume_addr);
 int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode);
 
+/**
+ * Boot Notification
+ * - ti_sci_boot_notification - Wait for a boot notification msg from the
+ *   system-firmware which indicates that it is ready to begin receiving and
+ *   processing TISCI messages.
+ * Returns 0 for successful request, else returns corresponding error message.
+ */
+int ti_sci_boot_notification(void);
+
 #endif /* TI_SCI_H */

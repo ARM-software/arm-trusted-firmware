@@ -22,6 +22,7 @@
 #define TI_SCI_MSG_WAKE_REASON		0x0003
 #define TI_SCI_MSG_GOODBYE		0x0004
 #define TI_SCI_MSG_SYS_RESET		0x0005
+#define TI_SCI_MSG_BOOT_NOTIFICATION	0x000A
 #define TI_SCI_MSG_QUERY_FW_CAPS	0x0022
 
 /* Device requests */
@@ -808,6 +809,20 @@ struct ti_sci_msg_req_lpm_get_next_sys_mode {
 struct ti_sci_msg_resp_lpm_get_next_sys_mode {
 	struct ti_sci_msg_hdr hdr;
 	uint8_t mode;
+} __packed;
+
+/**
+ * struct tisci_msg_boot_notification_msg - Response to TIFS boot notification
+ *
+ * This structure is used to consume the self initiated boot notification message
+ * from TIFS(TI Foundation Security) firmware which indicates that it is available.
+ *
+ * @hdr: Standard TISCI message header.
+ * @extboot_status: Status of extended boot. Applicable only for combined image
+ */
+struct tisci_msg_boot_notification_msg {
+	struct ti_sci_msg_hdr hdr;
+	uint32_t extboot_status;
 } __packed;
 
 #endif /* TI_SCI_PROTOCOL_H */
