@@ -287,6 +287,18 @@ func neoverse_n1_errata_ic_trap_handler
 	tlbi	vae3is, xzr
 	dsb	sy
 
+#if WORKAROUND_CVE_2025_10263
+	/*
+	 * Perform workaround for CVE-2025-10263
+	 *
+	 * This is sort of a special case where we don't use the workaround
+	 * function because N1 will always need to apply it so there's no
+	 * need to perform a check and incur the additional overhead.
+	 */
+	tlbi	vale3is, xzr
+	dsb	ish
+#endif /* WORKAROUND_CVE_2025_10263 */
+
 	# Skip the IC instruction itself
 	mrs     x3, elr_el3
 	add     x3, x3, #4
