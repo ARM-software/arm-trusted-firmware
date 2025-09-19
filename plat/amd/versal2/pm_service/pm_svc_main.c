@@ -6,7 +6,7 @@
  */
 
 /*
- * Top-level SMC handler for Versal2 power management calls and
+ * Top-level SMC handler for Versal Gen 2 power management calls and
  * IPI setup functions for communication with PMC.
  */
 

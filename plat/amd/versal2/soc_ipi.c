@@ -11,7 +11,7 @@
 
 #include <plat_ipi.h>
 
-/* versal2 ipi configuration table */
+/* Versal Gen 2 ipi configuration table */
 static const struct ipi_config ipi_table[IPI_ID_MAX] = {
 	/* A78 IPI */
 	[IPI_ID_APU] = {
@@ -120,7 +120,7 @@ static const struct ipi_config ipi_table[IPI_ID_MAX] = {
 };
 
 /**
- * soc_ipi_config_table_init() - Initialize versal2 IPI configuration data.
+ * soc_ipi_config_table_init() - Initialize Versal Gen 2 IPI configuration data.
  */
 void soc_ipi_config_table_init(void)
 {
