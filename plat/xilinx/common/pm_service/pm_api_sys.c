@@ -406,6 +406,7 @@ enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload)
 		break;
 	case TF_A_PM_REGISTER_SGI:
 	case TF_A_FEATURE_CHECK:
+	case TF_A_CLEAR_PM_STATE:
 		ret_payload[0] = PM_API_BASE_VERSION;
 		ret = PM_RET_SUCCESS;
 		break;

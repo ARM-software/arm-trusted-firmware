@@ -390,6 +390,23 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, const uint32_t *pm_a
 }
 
 /**
+ * tfa_clear_pm_state() - Reset TF-A-specific PM state.
+ *
+ * This function resets TF-A-specific state that may have been modified,
+ * such as during a kexec-based kernel reload. It resets the SGI number
+ * and the shutdown scope to its default value.
+ */
+static enum pm_ret_status tfa_clear_pm_state(void)
+{
+	/* Reset SGI number to default value(-1). */
+	sgi = (uint32_t)INVALID_SGI;
+
+	/* Reset the shutdown scope to its default value(system). */
+	return pm_system_shutdown(XPM_SHUTDOWN_TYPE_SETSCOPE_ONLY, XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM,
+				  0U);
+}
+
+/**
  * TF_A_specific_handler() - SMC handler for TF-A specific functionality.
  * @api_id: identifier for the API being called.
  * @pm_arg: pointer to the argument data for the API call.
@@ -447,6 +464,15 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, const uint32_t *pm_arg,
 	case PM_GET_TRUSTZONE_VERSION:
 		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
 			 ((uint64_t)TZ_VERSION << 32U));
+
+	case TF_A_CLEAR_PM_STATE:
+	{
+		enum pm_ret_status ret;
+
+		ret = tfa_clear_pm_state();
+
+		SMC_RET1(handle, (uint64_t)ret);
+	}
 
 	default:
 		return (uintptr_t)0;
