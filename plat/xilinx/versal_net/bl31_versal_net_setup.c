@@ -97,7 +97,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 #if DEBUG
-	uint32_t boot_mode;
+	uint32_t boot_mode[RET_PAYLOAD_ARG_CNT] = {0};
 #endif
 #endif /* !(TFA_NO_PM) */
 
@@ -164,8 +164,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			goto success;
 		}
 #if DEBUG
-		get_boot_mode(&boot_mode);
-		if ((xbl_ret != XBL_HANDOFF_SUCCESS) && (boot_mode == JTAG_MODE)) {
+		get_boot_mode(boot_mode);
+		if ((xbl_ret != XBL_HANDOFF_SUCCESS) && (boot_mode[1] == JTAG_MODE)) {
 			bl31_set_default_config();
 			goto success;
 		}
