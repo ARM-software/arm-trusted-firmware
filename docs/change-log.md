@@ -3,6 +3,31 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.22](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.21..refs/tags/lts-v2.10.22) (2025-09-19)
+
+### Build System
+
+- **Platforms**
+
+  - **Allwinner**
+
+    - disable unneeded CVE workarounds and MPAM ([61d9a82](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/61d9a828cf2a13a38897d202bc3d809750ed8c85))
+
+### Resolved Issues
+
+- **aarch32:** make get_cpu_ops_ptr() PCS compliant ([c4bff8b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c4bff8bfb9187d38eb30ae359efb51e5fe98ec76))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - inform the compiler that struct cpu_ops is aligned ([6856179](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/68561798010e5df014467f540f162ed63353c6e7))
+    - use correct Makefile indentation for CVE-2018-3639 check ([bb1fcfd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bb1fcfd2f65dc310689574614135b80139b73f2c))
+
+  - **SMCCC**
+
+    - cleanup unused declaration ([3466985](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3466985b97489ee5bbfdf57eac049b9e89322473))
+
 ## [lts-2.10.21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.20..refs/tags/lts-v2.10.21) (2025-08-29)
 
 ### Build System
