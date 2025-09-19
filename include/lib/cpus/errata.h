@@ -81,7 +81,6 @@ static inline bool errata_a75_764081_applies(void)
 
 
 bool check_if_trbe_disable_affected_core(void);
-int check_wa_cve_2024_7881(void);
 bool errata_ich_vmcr_el2_applies(void);
 struct erratum_entry *find_erratum_entry(uint32_t errata_id);
 int check_erratum_applies(uint32_t cve, int errata_id);
