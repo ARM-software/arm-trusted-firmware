@@ -3,6 +3,39 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.36..refs/tags/lts-v2.8.37) (2025-09-19)
+
+### Build System
+
+- **Platforms**
+
+  - **Allwinner**
+
+    - disable unneeded CVE workarounds and MPAM ([3d25bdf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3d25bdfca3eceeba4ae2c1b24636d01114b1e854))
+
+### Documentation
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - update Advisory TFV-6 ([6be9e30](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6be9e30f8f9fbbcf3488a9881e3fe0e1e59864a9))
+
+### Resolved Issues
+
+- **aarch32:** make get_cpu_ops_ptr() PCS compliant ([4f6a7e4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4f6a7e4b1410e393ef5ef8e614a3775ad093df9a))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - inform the compiler that struct cpu_ops is aligned ([15bf0a7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/15bf0a7ec146a31c6c095bf2529d51f98672b4c5))
+    - use correct Makefile indentation for CVE-2018-3639 check ([00b2f9f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/00b2f9f9eeaeffbc3d51518622f31d990c58c76a))
+
+  - **SMCCC**
+
+    - cleanup unused declaration ([c56bd3a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c56bd3a42fb106917e92a38c9ffb1928ae72d627))
+
 ## [lts-2.8.36](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.35..refs/tags/lts-v2.8.36) (2025-08-29)
 
 ### Documentation
