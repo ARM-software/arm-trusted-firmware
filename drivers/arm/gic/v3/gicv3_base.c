@@ -131,19 +131,19 @@ void gic_pcpu_init(unsigned int cpu_idx)
 {
 	/* to guard against an empty array */
 	int result = -1;
+	const uintptr_t *frame = gicr_frames;
 
-	/* did the paltform initialise the array with gic_set_gicr_frames() */
+	/* did the platform initialise the array with gic_set_gicr_frames() */
 	assert(gicr_frames != NULL);
 
-	do {
-		result = gicv3_rdistif_probe(*gicr_frames);
+	while (*frame != 0U) {
+		result = gicv3_rdistif_probe(*frame);
 
-		/* If the probe is successful, no need to proceed further */
 		if (result == 0)
 			break;
 
-		gicr_frames++;
-	} while (*gicr_frames != 0U);
+		frame++;
+	}
 
 	if (result == -1) {
 		ERROR("No GICR base frame found for CPU 0x%lx\n", read_mpidr());
