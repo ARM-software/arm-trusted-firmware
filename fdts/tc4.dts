@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,7 +58,7 @@
 #else
 #include "tc-fpga.dtsi"
 #endif /* TARGET_FLAVOUR_FVP */
-#include "tc3-4-base.dtsi"
+#include "tc-base.dtsi"
 
 / {
 	spe-pmu-mid {
