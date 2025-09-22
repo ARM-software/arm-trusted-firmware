@@ -48,6 +48,9 @@
 /* Declare the maximum number of SPs and El3 LPs. */
 #define MAX_SP_LP_PARTITIONS SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT
 
+#define FFA_VERSION_SPMC_MAJOR U(1)
+#define FFA_VERSION_SPMC_MINOR U(2)
+
 /*
  * Allocate a secure partition descriptor to describe each SP in the system that
  * does not reside at EL3.
@@ -808,8 +811,8 @@ static uint64_t ffa_version_handler(uint32_t smc_fid,
 		spmc_get_hyp_ctx()->ffa_version = requested_version;
 	}
 
-	SMC_RET1(handle, MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
-					  FFA_VERSION_MINOR));
+	SMC_RET1(handle, MAKE_FFA_VERSION(FFA_VERSION_SPMC_MAJOR,
+					  FFA_VERSION_SPMC_MINOR));
 }
 
 static uint64_t rxtx_map_handler(uint32_t smc_fid,
@@ -2407,8 +2410,8 @@ static void initalize_ns_ep_descs(void)
  ******************************************************************************/
 void spmc_populate_attrs(spmc_manifest_attribute_t *spmc_attrs)
 {
-	spmc_attrs->major_version = FFA_VERSION_MAJOR;
-	spmc_attrs->minor_version = FFA_VERSION_MINOR;
+	spmc_attrs->major_version = FFA_VERSION_SPMC_MAJOR;
+	spmc_attrs->minor_version = FFA_VERSION_SPMC_MINOR;
 	spmc_attrs->exec_state = MODE_RW_64;
 	spmc_attrs->spmc_id = FFA_SPMC_ID;
 }
