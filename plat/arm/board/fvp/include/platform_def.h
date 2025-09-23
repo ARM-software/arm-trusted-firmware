@@ -371,7 +371,7 @@ FVP_TRUSTED_SRAM_SIZE == 512
 #define PLAT_ARM_FLASH_IMAGE_BASE	V2M_FLASH0_BASE
 #define PLAT_ARM_FLASH_IMAGE_MAX_SIZE	(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
-#if ARM_GPT_SUPPORT
+#if ARM_GPT_SUPPORT && IMAGE_BL1
 /*
  * Offset of the FIP in the GPT image. BL1 component uses this option
  * as it does not load the partition table to get the FIP base
