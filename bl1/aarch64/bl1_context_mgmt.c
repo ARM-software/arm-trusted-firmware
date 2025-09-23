@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,21 +14,18 @@
 
 #include "../bl1_private.h"
 
-/* Following contains the cpu context pointers. */
-static void *bl1_cpu_context_ptr[2];
 entry_point_info_t *bl2_ep_info;
 
+/*
+ * Following array will be used for context management.
+ * There are 2 instances, for the Secure and Non-Secure contexts.
+ */
+static cpu_context_t bl1_cpu_context[2];
 
 void *cm_get_context(size_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
-	return bl1_cpu_context_ptr[security_state];
-}
-
-void cm_set_context(void *context, uint32_t security_state)
-{
-	assert(sec_state_is_valid(security_state));
-	bl1_cpu_context_ptr[security_state] = context;
+	return &bl1_cpu_context[security_state];
 }
 
 #if ENABLE_RME
@@ -71,13 +68,6 @@ void bl1_prepare_next_image(unsigned int image_id)
  ******************************************************************************/
 void bl1_prepare_next_image(unsigned int image_id)
 {
-
-	/*
-	 * Following array will be used for context management.
-	 * There are 2 instances, for the Secure and Non-Secure contexts.
-	 */
-	static cpu_context_t bl1_cpu_context[2];
-
 	unsigned int security_state, mode = MODE_EL1;
 	image_desc_t *desc;
 	entry_point_info_t *next_bl_ep;
@@ -103,10 +93,6 @@ void bl1_prepare_next_image(unsigned int image_id)
 
 	/* Get the image security state. */
 	security_state = GET_SECURITY_STATE(next_bl_ep->h.attr);
-
-	/* Setup the Secure/Non-Secure context if not done already. */
-	if (cm_get_context(security_state) == NULL)
-		cm_set_context(&bl1_cpu_context[security_state], security_state);
 
 	/* Prepare the SPSR for the next BL image. */
 	if ((security_state != SECURE) && (el_implemented(2) != EL_IMPL_NONE)) {
