@@ -180,7 +180,7 @@ manually by running:
     chmod +x $(git rev-parse --git-dir)/hooks/commit-msg
 
 You can read more about Git hooks in the *githooks* page of the Git
-documentation, available `here <https://git-scm.com/docs/githooks>`_.
+documentation, available `here <https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks>`_.
 
 .. _git_submodules:
 
@@ -226,8 +226,6 @@ To fetch the latest commits from all submodules, you can use:
 
 .. _Arm Developer website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
 .. _Gerrit Code Review: https://www.gerritcodereview.com/
-.. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
-.. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
 .. _Arm-DS: https://developer.arm.com/Tools%20and%20Software/Arm%20Development%20Studio
 .. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
 .. _TrustedFirmware.org: https://www.trustedfirmware.org/

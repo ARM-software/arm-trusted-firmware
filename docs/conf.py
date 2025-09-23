@@ -51,6 +51,9 @@ language = "en"
 # Don't try to build the venv in case it's placed with the sources
 exclude_patterns = [".env", "env", ".venv", "venv"]
 
+linkcheck_anchors = False
+linkcheck_ignore = ["change-log.md"]
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 

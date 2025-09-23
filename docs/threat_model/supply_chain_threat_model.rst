@@ -658,12 +658,10 @@ Summary of trustedfirmware.org security:
   |            |   Gerrit CI. The   |   level            |                    |
   |            |   plugins are      | - No API token     |                    |
   |            |   downloaded from  |   enabled          |                    |
-  |            |   https://gerrit-  | - A ci-bot-user    |                    |
-  |            |   ci.gerritforge.  |   created for      |                    |
-  |            |   com/             |   getting comments |                    |
-  |            | - Do not check     |   from Jenkins     |                    |
-  |            |   md5sum for every |                    |                    |
-  |            |   plugin           |                    |                    |
+  |            |   [14]_            | - A ci-bot-user    |                    |
+  |            | - Do not check     |   created for      |                    |
+  |            |   md5sum for every |   getting comments |                    |
+  |            |   plugin           |   from Jenkins     |                    |
   +------------+--------------------+--------------------+--------------------+
   | Git        | - Package is from  | - All credentials  | - Monitor all      |
   |            |   Linaro OBS (Open |   use GitHub. So   |   CVE's and apply  |
@@ -752,8 +750,9 @@ References
 .. [11] https://docs.github.com/en/github/managing-security-vulnerabilities/about-alerts-for-vulnerable-dependencies
 .. [12] "Backstabber’s Knife Collection: A Review of Open Source Software Supply Chain Attacks"
 .. [13] https://www.wired.com/story/supply-chain-hackers-videogames-asus-ccleaner/
+.. [14] https://gerrit-ci.gerritforge.com/plugin-manager/
 
-*Copyright (c) 2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2024-2025, Arm Limited. All rights reserved.*
 
 .. |TF-A System Diagram| image:: ../resources/diagrams/tf-a_system_diagram.png
 .. |TF-A Data Flow Diagram| image:: ../resources/diagrams/tf-a_data_flow_diagram.png
