@@ -322,6 +322,12 @@ Common build options
    onwards. This flag can take the values 0 to 2, to align with the
    ``ENABLE_FEAT`` mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_CPA2``: Numeric value to enable the ``FEAT_CPA2`` extension.
+   It enables checked pointer arithmetic in EL3, which will result in address
+   faults in the event that a pointer arithmetic overflow error occurs. This is
+   an optional feature starting from Arm v9.4 and This flag can take values 0 to
+   2, to align with the ``ENABLE_FEAT`` mechanism. Default value is ``0``.
+
 -  ``ENABLE_FEAT_CSV2_2``: Numeric value to enable the ``FEAT_CSV2_2``
    extension. It allows access to the SCXTNUM_EL2 (Software Context Number)
    register during EL2 context save/restore operations. ``FEAT_CSV2_2`` is an

@@ -152,6 +152,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_MPAM_PE_BW_CTRL	|
  * +----------------------------+
+ * |    FEAT_CPA2               |
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -551,5 +553,9 @@ CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
  ************************************************************************/
 CREATE_FEATURE_FUNCS(feat_gcie, id_aa64pfr2_el1, ID_AA64PFR2_EL1_GCIE_SHIFT,
 		     ID_AA64PFR2_EL1_GCIE_MASK, 1U, ENABLE_FEAT_GCIE)
+
+CREATE_FEATURE_FUNCS(feat_cpa2, id_aa64isar3_el1, ID_AA64ISAR3_EL1_CPA_SHIFT,
+		     ID_AA64ISAR3_EL1_CPA_MASK, CPA2_IMPLEMENTED,
+		     ENABLE_FEAT_CPA2)
 
 #endif /* ARCH_FEATURES_H */

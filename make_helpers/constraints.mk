@@ -274,6 +274,9 @@ ifeq (${ARCH},aarch32)
 	ifneq (${ENABLE_FEAT_GCIE},0)
                 $(error "ENABLE_FEAT_GCIE cannot be used with ARCH=aarch32")
 	endif
+	ifneq (${ENABLE_FEAT_CPA2},0)
+                $(error "ENABLE_FEAT_CPA2 cannot be used with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
 
 ifneq (${ENABLE_FEAT_FPMR},0)
@@ -284,6 +287,12 @@ ifneq (${ENABLE_FEAT_FPMR},0)
                 $(error "ENABLE_FEAT_FPMR requires ENABLE_FEAT_HCX")
 	endif
 endif #(ENABLE_FEAT_FPMR)
+
+ifneq (${ENABLE_FEAT_CPA2},0)
+	ifeq (${ENABLE_FEAT_SCTLR2},0)
+                $(error "Error: ENABLE_FEAT_CPA2 cannot be used without ENABLE_FEAT_SCTLR2")
+	endif
+endif #${ENABLE_FEAT_CPA2}
 
 ifneq (${ENABLE_SME_FOR_NS},0)
 	ifeq (${ENABLE_SVE_FOR_NS},0)
