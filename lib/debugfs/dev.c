@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -162,18 +162,18 @@ void channel_close(chan_t *channel)
  * This function copies data from src to dst after applying the offset of the
  * channel c. nbytes bytes are expected to be copied unless the data goes over
  * dst + len.
- * It returns the actual number of bytes that were copied.
+ * It returns the actual number of bytes that were copied, or -1 on error.
  ******************************************************************************/
-int buf_to_channel(chan_t *channel, void *dst, void *src, int nbytes, long len)
+int buf_to_channel(chan_t *channel, void *dst, void *src, size_t nbytes, long len)
 {
 	const char *addr = src;
 
 	if ((channel == NULL) || (dst == NULL) || (src == NULL)) {
-		return 0;
+		return -1;
 	}
 
 	if (channel->offset >= len) {
-		return 0;
+		return -1;
 	}
 
 	if ((channel->offset + nbytes) > len) {
