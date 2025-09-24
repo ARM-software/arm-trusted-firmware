@@ -7,12 +7,12 @@
 #include <services/bl31_lfa.h>
 #include <services/lfa_svc.h>
 
-static int32_t lfa_bl31_prime(struct lfa_component_status *activation)
+static int lfa_bl31_prime(struct lfa_component_status *activation)
 {
 	return LFA_WRONG_STATE;
 }
 
-static int32_t lfa_bl31_activate(struct lfa_component_status *activation,
+static int lfa_bl31_activate(struct lfa_component_status *activation,
 		uint64_t ep_address,
 		uint64_t context_id)
 {
