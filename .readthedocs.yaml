@@ -9,6 +9,10 @@
 # readthedocs config version
 version: 2
 
+submodules:
+  include: all
+  recursive: true
+
 build:
   os: ubuntu-22.04 # Ubuntu Jammy LTS
   tools:
