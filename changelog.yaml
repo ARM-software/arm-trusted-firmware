@@ -544,6 +544,9 @@ subsections:
           - title: Kodiak
             scope: kodiak
 
+          - title: RB3Gen2
+            scope: rb3gen2
+
       - title: Raspberry Pi
         scope: rpi
 
