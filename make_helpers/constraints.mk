@@ -239,6 +239,13 @@ ifeq (${ARCH},aarch32)
         ifneq (${ENABLE_LTO},0)
                 $(error "ENABLE_LTO is not supported with ARCH=aarch32")
         endif
+        ifneq (${EL3_EXCEPTION_HANDLING},0)
+                $(error "EL3_EXCEPTION_HANDLING is not supported outside BL31")
+        endif
+
+        ifeq (${CRASH_REPORTING},1)
+                $(error "CRASH_REPORTING is not supported with ARCH=aarch32")
+        endif
 
 	# SME/SVE only supported on AArch64
 	ifneq (${ENABLE_SME_FOR_NS},0)
