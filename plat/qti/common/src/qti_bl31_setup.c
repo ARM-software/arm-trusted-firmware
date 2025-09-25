@@ -22,6 +22,9 @@
 #include <qti_uart_console.h>
 #include <qtiseclib_interface.h>
 
+/* Variable to hold QTI UART configuration */
+static console_t g_qti_console_uart;
+
 /*
  * Placeholder variables for copying the arguments that have been passed to
  * BL31 from BL2.
@@ -47,15 +50,9 @@ void bl31_early_platform_setup(u_register_t from_bl2,
 {
 	bl_aux_params_parse(plat_params_from_bl2, NULL);
 
-#if COREBOOT
-	if (coreboot_serial.baseaddr != 0) {
-		static console_t g_qti_console_uart;
-
-		qti_console_uart_register(&g_qti_console_uart,
-					  coreboot_serial.baseaddr);
-	}
-#endif
-
+	qti_console_uart_register(&g_qti_console_uart, PLAT_QTI_UART_BASE);
+	console_set_scope(&g_qti_console_uart, CONSOLE_FLAG_RUNTIME |
+			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH);
 	/*
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
