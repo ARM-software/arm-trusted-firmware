@@ -12,6 +12,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/qti/accesscontrol/xpu.h>
 #include <lib/bl_aux_params/bl_aux_params.h>
 #include <lib/coreboot.h>
 #include <lib/spinlock.h>
@@ -89,6 +90,10 @@ void bl31_plat_arch_setup(void)
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+#ifdef QTI_MSM_XPU_BYPASS
+	INFO("Bypassing QTI MSM XPU...\n");
+	qti_msm_xpu_bypass();
+#endif
 	generic_delay_timer_init();
 	/* Initialize the GIC driver, CPU and distributor interfaces */
 	plat_qti_gic_driver_init();
