@@ -29,7 +29,7 @@ struct transfer_list_header *secure_tl;
 struct transfer_list_header *ns_tl __unused;
 
 #if USE_GIC_DRIVER == 3
-const uintptr_t gicr_base_addrs[2] = {
+uintptr_t arm_gicr_base_addrs[2] = {
 	PLAT_ARM_GICR_BASE,	/* GICR Base address of the primary CPU */
 	0U			/* Zero Termination */
 };
@@ -449,10 +449,6 @@ void arm_bl31_platform_setup(void)
 #if USE_DEBUGFS
 	debugfs_init();
 #endif /* USE_DEBUGFS */
-
-#if USE_GIC_DRIVER == 3
-	gic_set_gicr_frames(gicr_base_addrs);
-#endif
 }
 
 /*******************************************************************************
@@ -529,6 +525,10 @@ void arm_free_init_memory(void)
 void __init bl31_platform_setup(void)
 {
 	arm_bl31_platform_setup();
+
+#if USE_GIC_DRIVER == 3
+	gic_set_gicr_frames(arm_gicr_base_addrs);
+#endif
 }
 
 void bl31_plat_runtime_setup(void)

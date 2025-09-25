@@ -21,9 +21,6 @@
 static bool fvp_gicr_rw_region_init[PLATFORM_CORE_COUNT] = {false};
 #endif /* FVP_GICR_REGION_PROTECTION */
 
-/* Default GICR base address to be used for GICR probe. */
-static uintptr_t __unused fvp_gicr_base_addrs[2] = { 0U };
-
 static const interrupt_prop_t __unused fvp_interrupt_props[] = {
 	PLAT_ARM_G1S_IRQ_PROPS(INTR_GROUP1S),
 	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
@@ -79,7 +76,7 @@ void fvp_gic_driver_pre_init(void)
 	gic_data.gicd_base = (uintptr_t)FCONF_GET_PROPERTY(hw_config,
 							       gicv3_config,
 							       gicd_base);
-	fvp_gicr_base_addrs[0] = FCONF_GET_PROPERTY(hw_config, gicv3_config,
+	arm_gicr_base_addrs[0] = FCONF_GET_PROPERTY(hw_config, gicv3_config,
 						    gicr_base);
 #if SEC_INT_DESC_IN_FCONF
 	gic_data.interrupt_props = FCONF_GET_PROPERTY(hw_config,
@@ -92,10 +89,10 @@ void fvp_gic_driver_pre_init(void)
 #endif
 #else
 	gic_data.gicd_base = PLAT_ARM_GICD_BASE;
-	fvp_gicr_base_addrs[0] = PLAT_ARM_GICR_BASE;
+	arm_gicr_base_addrs[0] = PLAT_ARM_GICR_BASE;
 	gic_data.interrupt_props = fvp_interrupt_props;
 	gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
 #endif
-	gic_set_gicr_frames(fvp_gicr_base_addrs);
 #endif /* !(RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2) */
+	gic_set_gicr_frames(arm_gicr_base_addrs);
 }

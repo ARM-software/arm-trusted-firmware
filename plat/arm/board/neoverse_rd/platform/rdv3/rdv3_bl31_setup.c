@@ -112,10 +112,12 @@ static struct gic600_multichip_data rdv3mc_multichip_data __init = {
 #endif
 	}
 };
+#endif /* NRD_PLATFORM_VARIANT == 2 */
 
 static uintptr_t rdv3mc_multichip_gicr_frames[] = {
 	/* Chip 0's GICR Base */
 	PLAT_ARM_GICR_BASE,
+#if (NRD_PLATFORM_VARIANT == 2)
 #if NRD_CHIP_COUNT > 1
 	/* Chip 1's GICR BASE */
 	PLAT_ARM_GICR_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(1),
@@ -128,9 +130,9 @@ static uintptr_t rdv3mc_multichip_gicr_frames[] = {
 	/* Chip 3's GICR BASE */
 	PLAT_ARM_GICR_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(3),
 #endif
+#endif /* NRD_PLATFORM_VARIANT == 2 */
 	UL(0)	/* Zero Termination */
 };
-#endif /* NRD_PLATFORM_VARIANT == 2 */
 
 void bl31_platform_setup(void)
 {
@@ -171,12 +173,13 @@ void bl31_platform_setup(void)
 			}
 		}
 
-		gic_set_gicr_frames(
-			rdv3mc_multichip_gicr_frames);
 		gic600_multichip_init(&rdv3mc_multichip_data);
 	}
 #endif /* NRD_PLATFORM_VARIANT == 2 */
 	nrd_bl31_common_platform_setup();
+
+	gic_set_gicr_frames(
+		rdv3mc_multichip_gicr_frames);
 
 	if (plat_rse_comms_init() != 0) {
 		WARN("Failed initializing AP-RSE comms.\n");

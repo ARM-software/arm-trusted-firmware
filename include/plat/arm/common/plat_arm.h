@@ -361,6 +361,8 @@ void plat_arm_gic_redistif_off(void);
 void plat_arm_gic_pcpu_init(void);
 void plat_arm_gic_save(void);
 void plat_arm_gic_resume(void);
+#elif USE_GIC_DRIVER == 3
+extern uintptr_t arm_gicr_base_addrs[];
 #endif
 void plat_arm_security_setup(void);
 void plat_arm_pwrc_setup(void);

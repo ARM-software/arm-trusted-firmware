@@ -108,10 +108,10 @@ static struct gic600_multichip_data rdn2mc_multichip_data __init = {
 };
 #endif
 
-#if (NRD_PLATFORM_VARIANT == 2)
 static uintptr_t rdn2mc_multichip_gicr_frames[] = {
 	/* Chip 0's GICR Base */
 	PLAT_ARM_GICR_BASE,
+#if (NRD_PLATFORM_VARIANT == 2)
 #if NRD_CHIP_COUNT > 1
 	/* Chip 1's GICR BASE */
 	PLAT_ARM_GICR_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(1),
@@ -124,9 +124,9 @@ static uintptr_t rdn2mc_multichip_gicr_frames[] = {
 	/* Chip 3's GICR BASE */
 	PLAT_ARM_GICR_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(3),
 #endif
+#endif
 	UL(0)	/* Zero Termination */
 };
-#endif
 #endif /* IMAGE_BL31 */
 
 unsigned int plat_arm_nrd_get_platform_id(void)
@@ -174,13 +174,14 @@ void bl31_platform_setup(void)
 			}
 		}
 
-		gic_set_gicr_frames(
-			rdn2mc_multichip_gicr_frames);
 		gic600_multichip_init(&rdn2mc_multichip_data);
 	}
 #endif
 
 	nrd_bl31_common_platform_setup();
+
+	gic_set_gicr_frames(
+		rdn2mc_multichip_gicr_frames);
 
 #if ENABLE_FEAT_RAS && FFH_SUPPORT
 	nrd_ras_platform_setup(&ras_config);
