@@ -44,18 +44,20 @@ static uint64_t qti_el3_interrupt_handler(uint32_t id, uint32_t flags,
 	return (uint64_t) handle;
 }
 
-int qti_interrupt_svc_init(void)
+int qti_interrupt_svc_init(bool have_sel1)
 {
 	int ret;
 	uint64_t flags = 0U;
 
 	/*
 	 * Route EL3 interrupts to EL3 when in Non-secure.
-	 * Note: EL3 won't have interrupt enable
-	 * & we don't have S-EL1 support.
+	 * Note: EL3 won't have interrupts enabled.
+	 * When we have a Secure EL1 interrupt handler, allow it
+	 * to handle Secure interrupts.
 	 */
 	set_interrupt_rm_flag(flags, NON_SECURE);
-	set_interrupt_rm_flag(flags, SECURE);
+	if (!have_sel1)
+		set_interrupt_rm_flag(flags, SECURE);
 
 	/* Register handler for EL3 interrupts */
 	ret = register_interrupt_type_handler(INTR_TYPE_EL3,

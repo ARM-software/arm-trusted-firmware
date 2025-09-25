@@ -26,9 +26,10 @@
 static console_t g_qti_console_uart;
 
 /*
- * Placeholder variables for copying the arguments that have been passed to
- * BL31 from BL2.
+ * Placeholder variables for copying the BL32 and Bl33 arguments that have been
+ * passed to BL31 from BL2.
  */
+static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
 /*
@@ -57,7 +58,7 @@ void bl31_early_platform_setup(u_register_t from_bl2,
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
-	bl31_params_parse_helper(from_bl2, NULL, &bl33_image_ep_info);
+	bl31_params_parse_helper(from_bl2, &bl32_image_ep_info, &bl33_image_ep_info);
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
@@ -92,7 +93,7 @@ void bl31_platform_setup(void)
 	/* Initialize the GIC driver, CPU and distributor interfaces */
 	plat_qti_gic_driver_init();
 	plat_qti_gic_init();
-	qti_interrupt_svc_init();
+	qti_interrupt_svc_init(bl32_image_ep_info.pc != 0);
 	qtiseclib_bl31_platform_setup();
 
 	/* set boot state to cold boot complete. */
@@ -107,19 +108,12 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
-	/* QTI platform don't have BL32 implementation. */
-	assert(type == NON_SECURE);
-	assert(bl33_image_ep_info.h.type == PARAM_EP);
-	assert(bl33_image_ep_info.h.attr == NON_SECURE);
-	/*
-	 * None of the images on the platforms can have 0x0
-	 * as the entrypoint.
-	 */
-	if (bl33_image_ep_info.pc) {
-		return &bl33_image_ep_info;
-	} else {
-		return NULL;
-	}
+	entry_point_info_t *ep;
+
+	assert(sec_state_is_valid(type) != 0);
+	ep = (type == SECURE) ? &bl32_image_ep_info : &bl33_image_ep_info;
+
+	return ep->pc ? ep : NULL;
 }
 
 /*******************************************************************************
