@@ -7,9 +7,6 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-/* Enable the dynamic translation tables library. */
-#define PLAT_XLAT_TABLES_DYNAMIC	1
-
 #include <common_def.h>
 
 #include <qti_board_def.h>

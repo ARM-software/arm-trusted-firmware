@@ -32,6 +32,10 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 
 RESET_TO_BL31			:=	0
 
+# Enable the dynamic translation tables library
+PLAT_XLAT_TABLES_DYNAMIC	:=	1
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
 QTI_SDI_BUILD := 0
 $(eval $(call assert_boolean,QTI_SDI_BUILD))
 $(eval $(call add_define,QTI_SDI_BUILD))
