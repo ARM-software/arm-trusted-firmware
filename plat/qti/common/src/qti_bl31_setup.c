@@ -29,13 +29,6 @@
 static entry_point_info_t bl33_image_ep_info;
 
 /*
- * Variable to hold counter frequency for the CPU's generic timer. In this
- * platform coreboot image configure counter frequency for boot core before
- * reaching TF-A.
- */
-static uint64_t g_qti_cpu_cntfrq;
-
-/*
  * Variable to hold bl31 cold boot status. Default value 0x0 means yet to boot.
  * Any other value means cold booted.
  */
@@ -52,9 +45,6 @@ uint32_t g_qti_bl31_cold_booted;
 void bl31_early_platform_setup(u_register_t from_bl2,
 			       u_register_t plat_params_from_bl2)
 {
-
-	g_qti_cpu_cntfrq = read_cntfrq_el0();
-
 	bl_aux_params_parse(plat_params_from_bl2, NULL);
 
 #if COREBOOT
@@ -145,6 +135,5 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  ******************************************************************************/
 unsigned int plat_get_syscnt_freq2(void)
 {
-	assert(g_qti_cpu_cntfrq != 0);
-	return g_qti_cpu_cntfrq;
+	return PLAT_SYSCNT_FREQ;
 }

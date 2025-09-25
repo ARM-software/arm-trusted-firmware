@@ -34,4 +34,9 @@
  */
 #define MAX_XLAT_TABLES		12
 
+/*
+ * Common platform specific system counter frequency
+ */
+#define PLAT_SYSCNT_FREQ	UL(19200000)
+
 #endif /* QTI_BOARD_DEF_H */
