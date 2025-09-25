@@ -937,8 +937,8 @@ static int32_t mailbox_get_free_resp_desc(void)
 
 	for (try = 0; try < MBOX_SVC_RESP_QUEUE_SIZE; try++) {
 		free_index = (free_index + 1) % MBOX_SVC_RESP_QUEUE_SIZE;
-		if ((mbox_svc.resp_queue[free_index].flags &
-			FLAG_SDM_RESPONSE_IS_USED) != 0U) {
+		if (!(mbox_svc.resp_queue[free_index].flags &
+			FLAG_SDM_RESPONSE_IS_USED)) {
 			count = free_index;
 			spin_unlock(&mbox_db_lock);
 			return count;
@@ -963,8 +963,8 @@ static sdm_command_t *mailbox_get_free_cmd_desc(void)
 	}
 
 	for (; free_index < MBOX_SVC_CMD_QUEUE_SIZE; free_index++) {
-		if ((mbox_svc.cmd_queue[free_index].flags &
-			MBOX_SVC_CMD_IS_USED) != 0U) {
+		if (!(mbox_svc.cmd_queue[free_index].flags &
+			MBOX_SVC_CMD_IS_USED)) {
 			mbox_svc.cmd_queue[free_index].flags |= MBOX_SVC_CMD_IS_USED;
 			spin_unlock(&mbox_db_lock);
 			return &(mbox_svc.cmd_queue[free_index]);
