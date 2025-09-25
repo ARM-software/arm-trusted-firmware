@@ -5,10 +5,8 @@
  */
 #include <stddef.h>
 
+#include <drivers/qti/crypto/rng.h>
 #include <lib/mmio.h>
-
-#include <qti_rng.h>
-#include <qti_rng_io.h>
 
 int qti_rng_get_data(uint8_t *out, uint32_t out_len)
 {
