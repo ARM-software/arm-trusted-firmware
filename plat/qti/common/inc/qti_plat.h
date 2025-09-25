@@ -33,6 +33,8 @@ void qti_setup_page_tables(
 			   uintptr_t rodata_start,
 			   uintptr_t rodata_limit
 			  );
+int qti_io_setup(void);
+struct image_info *qti_get_image_info(unsigned int image_id);
 
 /*
  * Mandatory functions required in ARM standard platforms
