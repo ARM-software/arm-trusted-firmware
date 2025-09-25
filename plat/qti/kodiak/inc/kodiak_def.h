@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2018, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2025, Qualcomm Technologies, Inc. and/or its subsidiaries.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef PLATFORM_DEF_H
-#define PLATFORM_DEF_H
+#ifndef KODIAK_DEF_H
+#define KODIAK_DEF_H
 
 #include <common_def.h>
 
@@ -165,16 +166,7 @@
 /* Device address space for mapping. Excluding starting 4K */
 /*----------------------------------------------------------------------------*/
 #define QTI_DEVICE_BASE				0x1000
-#define QTI_DEVICE_SIZE				(0x80000000 - QTI_DEVICE_BASE)
-
-/*******************************************************************************
- * BL31 specific defines.
- ******************************************************************************/
-/*
- * Put BL31 at DDR as per memory map. BL31_BASE is calculated using the
- * current BL31 debug size plus a little space for growth.
- */
-#define BL31_LIMIT				(BL31_BASE + BL31_SIZE)
+#define QTI_DEVICE_SIZE				(0x1C000000 - QTI_DEVICE_BASE)
 
 /*----------------------------------------------------------------------------*/
 /* AOSS registers */
@@ -198,4 +190,4 @@
 #define PON_PS_HOLD_RESET_CTL2			0x853
 /*----------------------------------------------------------------------------*/
 
-#endif /* PLATFORM_DEF_H */
+#endif /* KODIAK_DEF_H */

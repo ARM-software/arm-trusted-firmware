@@ -8,7 +8,7 @@
 # Make for SC7280 QTI platform.
 
 QTI_PLAT_PATH		:=	plat/qti
-CHIPSET			:=	${PLAT}
+CHIPSET			:=	kodiak
 
 # Turn On Separate code & data.
 SEPARATE_CODE_AND_RODATA	:=	1
@@ -51,10 +51,11 @@ ENABLE_STACK_PROTECTOR := strong
 
 
 QTI_EXTERNAL_INCLUDES	:=	-I${QTI_PLAT_PATH}/${CHIPSET}/inc			\
+				-I${QTI_PLAT_PATH}/${CHIPSET}/${PLAT}/inc		\
 				-I${QTI_PLAT_PATH}/common/inc				\
 				-I${QTI_PLAT_PATH}/common/inc/$(ARCH)			\
 				-I${QTI_PLAT_PATH}/qtiseclib/inc			\
-				-I${QTI_PLAT_PATH}/qtiseclib/inc/${CHIPSET}			\
+				-I${QTI_PLAT_PATH}/qtiseclib/inc/${CHIPSET}		\
 
 QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_helpers.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo6_silver.S	\
@@ -111,9 +112,6 @@ BL31_SOURCES		+=	${QTI_BL31_SOURCES}				\
 				${TIMER_SOURCES}				\
 				${CPU_SOURCES}					\
 
-LIB_QTI_PATH	:=	${QTI_PLAT_PATH}/qtiseclib/lib/${CHIPSET}
-
-
 # Override this on the command line to point to the qtiseclib library which
 # will be available in coreboot.org
 QTISECLIB_PATH ?=
@@ -129,4 +127,3 @@ else
 LDFLAGS += -L $(dir $(QTISECLIB_PATH))
 LDLIBS += -l$(patsubst lib%.a,%,$(notdir $(QTISECLIB_PATH)))
 endif
-

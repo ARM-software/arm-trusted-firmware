@@ -31,7 +31,7 @@ The build command looks like
     make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sc7180 COREBOOT=1
 
 Update value of CROSS_COMPILE argument with your cross-compilation toolchain.
-Update the value of PLAT to be either of sc7180, sc7280 or qcs615
+Update the value of PLAT to be either of sc7180, sc7280_chrome or qcs615
 
 Additional QTISECLIB_PATH=<path to qtiseclib> can be added in build command.
 if QTISECLIB_PATH is not added in build command stub implementation of qtiseclib
