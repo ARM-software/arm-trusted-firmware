@@ -450,3 +450,28 @@ define shell-word.sh =
         shift "$${n}";
         printf '%s' "$${1:-}";
 endef
+
+#
+# Parse a shell fragment and count the number of shell words.
+#
+# Parses the shell fragment given by `$(1)` using the shell's word-splitting and
+# quoting rules, then prints the total number of words in the result.
+#
+# This function is useful when working with lists that may contain whitespace or
+# quoted values, since it relies on the shell to do the parsing rather than
+# Make's own word functions.
+#
+# Parameters:
+#
+#   - $(1): The shell fragment to parse.
+#
+# Example usage:
+#
+#       $(call shell-words,) # "0"
+#       $(call shell-words,foo) # "1"
+#       $(call shell-words,foo bar baz) # "3"
+#       $(call shell-words,foo 'bar baz' qux) # "3"
+#
+
+shell-words = $(shell $(shell-words.sh))
+shell-words.sh = set -Cefu -- $(1); printf '%s' "$$\#";
