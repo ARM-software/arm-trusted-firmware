@@ -11,8 +11,6 @@ endif
 
 MORELLO_BASE		:=	plat/arm/board/morello
 
-INTERCONNECT_SOURCES	:=	${MORELLO_BASE}/morello_interconnect.c
-
 PLAT_INCLUDES		:=	-I${MORELLO_BASE}/include
 
 MORELLO_CPU_SOURCES	:=	lib/cpus/aarch64/rainier.S
@@ -25,7 +23,6 @@ PLAT_BL_COMMON_SOURCES	:=	${MORELLO_BASE}/morello_plat.c		\
 				${MORELLO_BASE}/aarch64/morello_helper.S
 
 BL1_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
-				${INTERCONNECT_SOURCES}			\
 				${MORELLO_BASE}/morello_err.c		\
 				${MORELLO_BASE}/morello_trusted_boot.c	\
 				${MORELLO_BASE}/morello_bl1_setup.c	\
@@ -40,7 +37,6 @@ BL2_SOURCES		:=	${MORELLO_BASE}/morello_security.c	\
 				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
-				${INTERCONNECT_SOURCES}			\
 				${MORELLO_BASE}/morello_bl31_setup.c	\
 				${MORELLO_BASE}/morello_pm.c		\
 				${MORELLO_BASE}/morello_topology.c	\

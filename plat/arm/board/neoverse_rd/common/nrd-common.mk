@@ -25,8 +25,6 @@ ENABLE_SVE_FOR_NS		:=	0
 
 CTX_INCLUDE_FPREGS		:=	1
 
-INTERCONNECT_SOURCES	:=	${NRD_COMMON_BASE}/nrd_interconnect.c
-
 PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include
 
 # GIC-600 configuration
@@ -35,15 +33,13 @@ GICV3_SUPPORT_GIC600	:=	1
 
 PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/arch/aarch64/nrd_helper.S
 
-BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
-				${NRD_COMMON_BASE}/nrd_bl1_setup.c	\
+BL1_SOURCES		+=	${NRD_COMMON_BASE}/nrd_bl1_setup.c	\
 				drivers/arm/sbsa/sbsa.c
 
 BL2_SOURCES		+=	${NRD_COMMON_BASE}/nrd_image_load.c	\
 				drivers/arm/css/sds/sds.c
 
-BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
-				${NRD_COMMON_BASE}/nrd_bl31_setup.c	\
+BL31_SOURCES		+=	${NRD_COMMON_BASE}/nrd_bl31_setup.c	\
 				${NRD_COMMON_BASE}/nrd_topology.c	\
 				drivers/delay_timer/generic_delay_timer.c
 

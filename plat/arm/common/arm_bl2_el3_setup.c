@@ -52,7 +52,7 @@ void bl2_el3_early_platform_setup(u_register_t arg0 __unused,
 				  u_register_t arg3 __unused)
 {
 	arm_bl2_el3_early_platform_setup();
-
+#if !HW_ASSISTED_COHERENCY
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.
 	 * No need for locks as no other CPU is active.
@@ -62,7 +62,7 @@ void bl2_el3_early_platform_setup(u_register_t arg0 __unused,
 	 * Enable Interconnect coherency for the primary CPU's cluster.
 	 */
 	plat_arm_interconnect_enter_coherency();
-
+#endif
 	generic_delay_timer_init();
 }
 

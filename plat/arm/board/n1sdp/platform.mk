@@ -7,8 +7,6 @@
 
 N1SDP_BASE		:=	plat/arm/board/n1sdp
 
-INTERCONNECT_SOURCES	:=	${N1SDP_BASE}/n1sdp_interconnect.c
-
 PLAT_INCLUDES		:=	-I${N1SDP_BASE}/include
 
 
@@ -27,7 +25,6 @@ PLAT_BL_COMMON_SOURCES	:=	${N1SDP_BASE}/n1sdp_plat.c	        \
 				${N1SDP_BASE}/aarch64/n1sdp_helper.S
 
 BL1_SOURCES		:=	${N1SDP_CPU_SOURCES}                \
-				${INTERCONNECT_SOURCES}             \
 				${N1SDP_BASE}/n1sdp_err.c           \
 				${N1SDP_BASE}/n1sdp_trusted_boot.c  \
 				${N1SDP_BASE}/n1sdp_bl1_setup.c     \
@@ -42,7 +39,6 @@ BL2_SOURCES		:=	${N1SDP_BASE}/n1sdp_security.c      \
 				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		:=	${N1SDP_CPU_SOURCES}			\
-				${INTERCONNECT_SOURCES}			\
 				${N1SDP_BASE}/n1sdp_bl31_setup.c	\
 				${N1SDP_BASE}/n1sdp_pm.c		\
 				${N1SDP_BASE}/n1sdp_topology.c	        \

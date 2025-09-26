@@ -166,6 +166,7 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 {
 	arm_sp_min_early_platform_setup(arg0, arg1, arg2, arg3);
 
+#if !HW_ASSISTED_COHERENCY
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.
 	 * No need for locks as no other CPU is active.
@@ -181,6 +182,7 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	 * clusters.
 	 */
 	plat_arm_interconnect_enter_coherency();
+#endif
 }
 
 void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,

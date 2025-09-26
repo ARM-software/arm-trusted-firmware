@@ -34,22 +34,6 @@ void plat_arm_secure_wdt_stop(void)
 }
 
 /*
- * For rd1ae we should not do anything in these interface functions.
- * They are used to override the weak functions in cci drivers
- */
-void plat_arm_interconnect_init(void)
-{
-}
-
-void plat_arm_interconnect_enter_coherency(void)
-{
-}
-
-void plat_arm_interconnect_exit_coherency(void)
-{
-}
-
-/*
  * TZC programming is currently not done.
  */
 void plat_arm_security_setup(void)
