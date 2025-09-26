@@ -268,6 +268,54 @@ ifndef toolchain-mk
                 $(if $(call toolchain-guess-tool-$(candidate),$(2)),$(candidate)))))
 
         #
+        # Get the index of the first valid tool path in a shell command.
+        #
+        # To support compiler wrappers like `ccache`, we need to be able to
+        # robustly identify which part of a shell command is the wrapper and
+        # which part is the wrapped.
+        #
+        # To do this, we iterate through each shell word in the string, query it
+        # to see if it is one the tools we would expect to see, and return its
+        # index.
+        #
+        #   - $(1): A list of candidate tool identifiers to check.
+        #   - $(2): The shell command to parse.
+        #
+
+        toolchain-tool-program-index = $(or $(firstword $\
+                $(foreach i,$(call irange,$(call shell-words,$(2))),$\
+                        $(and $(call which,$(call shell-word,$(i),$(2))),$\
+                                $(call toolchain-guess-tool,$(1),$\
+                                        $(call shell-word,$(i),$(2))),$\
+                                $(i)))),1)
+
+        #
+        # Strip any program wrappers from a tool's shell command.
+        #
+        # This function removes any program wrappers, like `ccache`, from the
+        # shell command of a tool.
+        #
+        #   - $(1): A list of candidate tool identifiers to check.
+        #   - $(2): The shell command to parse.
+        #
+
+        toolchain-tool-program = $(call shell-slice,$(2),$\
+                $(call toolchain-tool-program-index,$(1),$(2)))
+
+        #
+        # Extract the program wrapper from a tool's shell command.
+        #
+        # This function returns any program wrappers, like `ccache`, from the
+        # shell command of a tool.
+        #
+        #   - $(1): A list of candidate tool identifiers to check.
+        #   - $(2): The shell command to parse.
+        #
+
+        toolchain-tool-wrapper = $(call shell-slice,$(2),1,$\
+                $(call toolchain-tool-program-index,$(1),$(2)))
+
+        #
         # Warn the user that a tool could not be identified.
         #
         # Parameters:
@@ -506,6 +554,11 @@ ifndef toolchain-mk
                                 $$(toolchain-tools-$2),$$($1-$2)),$\
                         $$(call toolchain-warn-unrecognized,$1,$2)$\
                                 $$($1-$2-default-id)))
+
+                $1-$2-program := $$(call toolchain-tool-program,$\
+                        $$($1-$2-id),$$($1-$2))
+                $1-$2-wrapper := $$(call toolchain-tool-wrapper,$\
+                        $$($1-$2-id),$$($1-$2))
         endef
 
         $(foreach toolchain,$(toolchains), \
