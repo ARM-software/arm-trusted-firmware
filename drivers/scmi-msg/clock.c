@@ -146,7 +146,7 @@ static void scmi_clock_attributes(struct scmi_msg *msg)
 	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
 
 	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
@@ -182,7 +182,7 @@ static void scmi_clock_rate_get(struct scmi_msg *msg)
 	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
 
 	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
@@ -209,7 +209,7 @@ static void scmi_clock_rate_set(struct scmi_msg *msg)
 	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
 
 	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
@@ -236,7 +236,7 @@ static void scmi_clock_config_set(struct scmi_msg *msg)
 	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
 
 	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
@@ -293,7 +293,7 @@ static void scmi_clock_describe_rates(struct scmi_msg *msg)
 	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
 
 	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
