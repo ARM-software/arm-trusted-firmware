@@ -415,3 +415,38 @@ endef
 #
 
 shell-quote = '$(subst ','\'',$(1))'
+
+#
+# Parse a shell fragment and extract the N-th word.
+#
+# Parses the shell fragment given by `$(2)` using the shell's word-splitting and
+# quoting rules, then prints the `$(1)`-th shell word in the result. If the
+# index is out of range then this function evaluates to an empty string.
+#
+# This function is useful when working with lists that may contain whitespace or
+# quoted values, since it relies on the shell to do the parsing rather than
+# Make's own word functions. Whitespace is preserved in the return value.
+#
+# Parameters:
+#
+#   - $(1): The 1-based index of the word to extract.
+#   - $(2): The shell fragment to parse.
+#
+# Example usage:
+#
+#       $(call shell-word,1,foo 'bar baz' qux) # "foo"
+#       $(call shell-word,2,foo 'bar baz' qux) # "bar baz"
+#       $(call shell-word,3,foo 'bar baz' qux) # "qux"
+#       $(call shell-word,4,foo 'bar baz' qux) # <empty>
+#
+
+shell-word = $(shell $(shell-word.sh))
+
+define shell-word.sh =
+        set -Cefu -- '' $(2);
+
+        n=$(call shell-quote,$(1));
+
+        shift "$${n}";
+        printf '%s' "$${1:-}";
+endef
