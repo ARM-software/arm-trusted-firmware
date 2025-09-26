@@ -475,3 +475,47 @@ endef
 
 shell-words = $(shell $(shell-words.sh))
 shell-words.sh = set -Cefu -- $(1); printf '%s' "$$\#";
+
+#
+# Parse a shell fragment and extract a sequence of shell words.
+#
+# Parses the shell fragment given by `$(1)` using the shell's word-splitting and
+# quoting rules, then extracts the words from index `$(2)` up to but not
+# including index `$(3)`. Each extracted shell word is returned sanitized for
+# safe use in the shell.
+#
+# If `$(3)` is omitted, it defaults to one past the total number of words in the
+# string, allowing you to express "all words starting from `$(2)`".
+#
+# This function is useful for safely selecting and passing subsequences of
+# shell-parsed arguments into other shell commands, ensuring correct handling
+# of whitespace and special characters.
+#
+# Parameters:
+#
+#   - $(1): The shell fragment to parse.
+#   - $(2): The 1-based start index of the slice (default: 1).
+#   - $(3): The 1-based end index of the slice (exclusive).
+#           Defaults to all remaining words in the shell fragment.
+#
+# Example usage:
+#
+#       $(call shell-slice,foo 'bar baz' qux)     # "'foo' 'bar baz' 'qux'"
+#       $(call shell-slice,foo 'bar baz' qux,1,3) # "'foo' 'bar baz'"
+#       $(call shell-slice,foo 'bar baz' qux,2)   # "'bar baz' 'qux'"
+#       $(call shell-slice,foo 'bar baz' qux,2,4) # "'bar baz' 'qux'"
+#       $(call shell-slice,foo 'bar baz' qux,2,5) # "'bar baz' 'qux'"
+#
+
+shell-slice = $(shell $(shell-slice.sh))
+
+define shell-slice.sh =
+        set -Cefu -- $(1);
+
+        n=$(if $(2),$(call shell-quote,$(2)),1);
+        m=$(if $(3),$(call shell-quote,$(3)),$$#);
+
+        printf '%s\n' "$$@" $\
+                | sed -n "$${n},$${m}p" $\
+                | sed "s/'/'\\\\''/g; s/^/'/; s/\$$/'/";
+endef
