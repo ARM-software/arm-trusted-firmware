@@ -280,13 +280,7 @@ ifndef toolchain-mk
                 $(warning )
                 $(warning The configured $($(1)-name) $(toolchain-tool-class-name-$(2)) could not be identified:)
                 $(warning )
-                $(warning $(space)   $($(1)-$(2))$(if $($(1)-$(2)-parameter), (via `$($(1)-$(2)-parameter)`)))
-                $(warning )
-                $(warning The following tools were tried, but either did not exist or could not be identified:)
-                $(warning )
-
-                $(foreach default,$($(1)-$(2)-default), \
-                        $(warning $(space) - $(default)))
+                $(warning $(space)   $($(1)-$(2)) ($($(1)-$(2)-origin)))
 
                 $(warning )
                 $(warning The following tools are supported:)
@@ -485,10 +479,16 @@ ifndef toolchain-mk
                 $1-$2-from-cc = $$(call toolchain-from-cc,$1,$2)
                 $1-$2-from-default = $$(call toolchain-from-default,$1,$2)
 
-                $1-$2-from := $$(or $\
-                        $$($1-$2-from-parameter),$\
-                        $$($1-$2-from-cc),$\
-                        $$($1-$2-from-default))
+                ifneq ($$($1-$2-from-parameter),)
+                        $1-$2-from := $$($1-$2-from-parameter)
+                        $1-$2-origin := via `$$($1-$2-parameter)` parameter
+                else ifneq ($$($1-$2-from-cc),)
+                        $1-$2-from := $$($1-$2-from-cc)
+                        $1-$2-origin := inferred from C compiler
+                else ifneq ($$($1-$2-from-default),)
+                        $1-$2-from := $$($1-$2-from-default)
+                        $1-$2-origin := default
+                endif
 
                 #
                 # Sanitize the command for the shell by either escaping the
