@@ -10,6 +10,7 @@
 #include <platform_def.h>	/* CACHE_WRITEBACK_GRANULE required */
 
 #include <bl31/ehf.h>
+#include <context.h>
 
 /* Size of psci_cpu_data structure */
 #define PSCI_CPU_DATA_SIZE		12
@@ -19,15 +20,8 @@
 /* 8-bytes aligned size of psci_cpu_data structure */
 #define PSCI_CPU_DATA_SIZE_ALIGNED	((PSCI_CPU_DATA_SIZE + 7) & ~7)
 
-#if ENABLE_RME
-/* Size of cpu_context array */
-#define CPU_DATA_CONTEXT_NUM		3
 /* Offset of cpu_ops_ptr, size 8 bytes */
-#define CPU_DATA_CPU_OPS_PTR		0x20
-#else /* ENABLE_RME */
-#define CPU_DATA_CONTEXT_NUM		2
-#define CPU_DATA_CPU_OPS_PTR		0x18
-#endif /* ENABLE_RME */
+#define CPU_DATA_CPU_OPS_PTR		(8 + (8 * CPU_CONTEXT_NUM))
 
 #if ENABLE_PAUTH
 /* 8-bytes aligned offset of apiakey[2], size 16 bytes */
@@ -106,15 +100,6 @@
 		(cpu_data_t, platform_cpu_data)
 #endif
 
-typedef enum context_pas {
-	CPU_CONTEXT_SECURE = 0,
-	CPU_CONTEXT_NS,
-#if ENABLE_RME
-	CPU_CONTEXT_REALM,
-#endif
-	CPU_CONTEXT_NUM
-} context_pas_t;
-
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
@@ -132,7 +117,7 @@ typedef enum context_pas {
  ******************************************************************************/
 typedef struct cpu_data {
 #ifdef __aarch64__
-	void *cpu_context[CPU_DATA_CONTEXT_NUM];
+	void *cpu_context[CPU_CONTEXT_NUM];
 #endif /* __aarch64__ */
 	entry_point_info_t *warmboot_ep_info;
 	struct cpu_ops *cpu_ops_ptr;
@@ -155,11 +140,6 @@ typedef struct cpu_data {
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 
 extern cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
-
-#ifdef __aarch64__
-CASSERT(CPU_DATA_CONTEXT_NUM == CPU_CONTEXT_NUM,
-		assert_cpu_data_context_num_mismatch);
-#endif
 
 #if ENABLE_PAUTH
 CASSERT(CPU_DATA_APIAKEY_OFFSET == __builtin_offsetof
@@ -207,31 +187,6 @@ static inline cpu_data_t *_cpu_data(void)
 #else
 cpu_data_t *_cpu_data(void);
 #endif
-
-/*
- * Returns the index of the cpu_context array for the given security state.
- * All accesses to cpu_context should be through this helper to make sure
- * an access is not out-of-bounds. The function assumes security_state is
- * valid.
- */
-static inline context_pas_t get_cpu_context_index(size_t security_state)
-{
-	if (security_state == SECURE) {
-		return CPU_CONTEXT_SECURE;
-	} else {
-#if ENABLE_RME
-		if (security_state == NON_SECURE) {
-			return CPU_CONTEXT_NS;
-		} else {
-			assert(security_state == REALM);
-			return CPU_CONTEXT_REALM;
-		}
-#else
-		assert(security_state == NON_SECURE);
-		return CPU_CONTEXT_NS;
-#endif
-	}
-}
 
 /**************************************************************************
  * APIs for initialising and accessing per-cpu data

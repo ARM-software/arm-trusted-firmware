@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022, Google LLC. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -7,6 +7,10 @@
 
 #ifndef SIMD_CTX_H
 #define SIMD_CTX_H
+
+#include <stdbool.h>
+#include <lib/cassert.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'simd_context'

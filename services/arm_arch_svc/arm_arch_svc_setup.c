@@ -180,28 +180,26 @@ static uintptr_t smccc_arch_feature_availability(u_register_t reg,
 						 void *handle,
 						 u_register_t flags)
 {
-	cpu_context_t *caller_context;
 	per_world_context_t *caller_per_world_context;
 	el3_state_t *state;
 	u_register_t bitmask, check;
+	size_t security_state;
 
 	/* check the caller security state */
 	if (is_caller_secure(flags)) {
-		caller_context = cm_get_context(SECURE);
-		caller_per_world_context = &per_world_context[CPU_CONTEXT_SECURE];
+		security_state = SECURE;
 	} else if (is_caller_non_secure(flags)) {
-		caller_context = cm_get_context(NON_SECURE);
-		caller_per_world_context = &per_world_context[CPU_CONTEXT_NS];
+		security_state = NON_SECURE;
 	} else {
 #if ENABLE_RME
-		caller_context = cm_get_context(REALM);
-		caller_per_world_context = &per_world_context[CPU_CONTEXT_REALM];
+		security_state = REALM;
 #else /* !ENABLE_RME */
 		assert(0); /* shouldn't be possible */
 #endif /* ENABLE_RME */
 	}
 
-	state = get_el3state_ctx(caller_context);
+	caller_per_world_context = &per_world_context[get_cpu_context_index(security_state)];
+	state = get_el3state_ctx(cm_get_context(security_state));
 
 	switch (reg) {
 	case SCR_EL3_OPCODE:

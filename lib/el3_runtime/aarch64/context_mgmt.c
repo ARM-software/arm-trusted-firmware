@@ -48,7 +48,7 @@
 CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 #endif /* ENABLE_FEAT_TWED */
 
-per_world_context_t per_world_context[CPU_DATA_CONTEXT_NUM];
+per_world_context_t per_world_context[CPU_CONTEXT_NUM];
 
 static void manage_extensions_nonsecure(cpu_context_t *ctx);
 static void manage_extensions_secure(cpu_context_t *ctx);

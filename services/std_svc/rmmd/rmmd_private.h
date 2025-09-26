@@ -8,6 +8,7 @@
 #define RMMD_PRIVATE_H
 
 #include <context.h>
+#include <lib/psci/psci_lib.h>
 #include <services/rmmd_svc.h>
 
 /*******************************************************************************
