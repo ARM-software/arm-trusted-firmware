@@ -3,6 +3,29 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.23](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.22..refs/tags/lts-v2.10.23) (2025-09-26)
+
+### Build System
+
+- **deps-dev:** bump anytree from 2.8.0 to 2.12.1 ([e57596f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e57596f83b7cfbc76b32b32ee314de7830477162))
+- **deps-dev:** bump click from 8.1.3 to 8.1.8 ([5f0adf4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5f0adf430e3f32693008cbcce4b8e662db744ed8))
+- **deps-dev:** bump prettytable from 3.7.0 to 3.11.0 ([b0372fb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b0372fb95435c83fac415caeb5b91943196482eb))
+- **deps-dev:** bump sphinx-rtd-theme from 1.2.0 to 1.3.0 ([fd0b9fc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fd0b9fc9e1448b54d2520d80fa7cedd28865adc9))
+- **dev-deps:** bump brace-expansion ([bc8e250](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bc8e2505a99a1c0f0f3f788e5cc1dcce20bf01e5))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A510 erratum 2008766 ([f665e3e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f665e3e5963d865308d4fe3aa4f09d775de85856))
+    - workaround for Cortex-A510 erratum 2169012 ([b32738d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b32738dcd1244a486459eef77947fbb4e68faa35))
+    - workaround for Cortex-A510 erratum 2218134 ([8338b41](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8338b416f8b5571465e70b6cb804117e2756ef4a))
+    - workaround for Cortex-A510 erratum 2420992 ([bc5a532](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bc5a532bf417513f2b93f666e0bb2e27f06660fe))
+    - workaround for Cortex-A510 erratum 3672349 ([021e3d4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/021e3d449e9d8630909b42bce0ef4f79833af971))
+    - workaround for Cortex-A510 erratum 3704847 ([d6b88dc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d6b88dc8a9099566398d9490d4a7804b2139d193))
+
 ## [lts-2.10.22](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.21..refs/tags/lts-v2.10.22) (2025-09-19)
 
 ### Build System
