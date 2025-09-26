@@ -519,3 +519,42 @@ define shell-slice.sh =
                 | sed -n "$${n},$${m}p" $\
                 | sed "s/'/'\\\\''/g; s/^/'/; s/\$$/'/";
 endef
+
+#
+# Join shell words with a custom delimiter.
+#
+# Parses the shell fragment given by `$(1)` using the shell's word-splitting and
+# quoting rules, then joins the resulting words together with the delimiter
+# specified by `$(2)`. If no delimiter is provided, no delimiter is used.
+#
+# This function is useful for safely rejoining a sequence of shell-parsed
+# arguments into a single string with controlled separators, ensuring that
+# whitespace and quoting are preserved correctly.
+#
+# Parameters:
+#
+#   - $(1): The shell fragment to parse and join.
+#   - $(2): The delimiter to insert between words (optional).
+#
+# Example usage:
+#
+#       $(call shell-join,foo 'bar baz' qux) # "foobar bazqux"
+#       $(call shell-join,foo 'bar baz' qux,:) # "foo:bar baz:qux"
+#       $(call shell-join,foo 'bar baz' qux,;) # "foo;bar baz;qux"
+#
+
+shell-join = $(shell $(shell-join.sh))
+
+define shell-join.sh =
+        set -Cefu -- $(1);
+
+        delimiter=$(call shell-quote,$(2));
+
+        printf '%s' "$${1:-}";
+        shift 1;
+
+        while [ "$$#" -gt 0 ]; do
+                printf '%s%s' "$${delimiter}" "$${1}";
+                shift 1;
+        done
+endef
