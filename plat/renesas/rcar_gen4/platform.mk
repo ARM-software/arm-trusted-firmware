@@ -85,9 +85,9 @@ HW_ASSISTED_COHERENCY := 1
 
 PLAT_INCLUDES	:=	-Iplat/renesas/rcar_gen4/include		\
 			-Iplat/renesas/rcar_gen4			\
+			-Idrivers/renesas/common/scif			\
 			-Idrivers/renesas/common/timer			\
 			-Idrivers/renesas/rcar_gen4/pwrc		\
-			-Idrivers/renesas/rcar_gen4/scif		\
 			-Idrivers/renesas/rcar_gen4/ptp			\
 			-Idrivers/renesas/rcar_gen4/mssr
 
@@ -112,6 +112,7 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/delay_timer/delay_timer.c		\
 			drivers/delay_timer/generic_delay_timer.c	\
 			drivers/renesas/common/pwrc/call_sram.S		\
+			drivers/renesas/common/scif/scif-common.c	\
 			drivers/renesas/common/scif/scif_helpers.S	\
 			drivers/renesas/common/timer/timer.c		\
 			drivers/renesas/rcar_gen4/pwrc/pwrc.c		\
