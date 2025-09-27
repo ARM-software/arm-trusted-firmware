@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,8 @@
 #include <plat/common/platform.h>
 
 #include "pwrc.h"
+#include "timer.h"
+
 #include "rcar_def.h"
 #include "rcar_private.h"
 #include "rcar_version.h"

@@ -16,6 +16,8 @@
 #include <plat/common/platform.h>
 
 #include "pwrc.h"
+#include "timer.h"
+
 #include "rcar_def.h"
 #include "rcar_private.h"
 
@@ -110,9 +112,6 @@ static uint32_t rcar_pwrc_core_pos(u_register_t mpidr)
 
 	return (uint32_t)cpu;
 }
-
-static uint64_t rcar_pwrc_saved_cntpct_el0;
-static uint32_t rcar_pwrc_saved_cntfid;
 
 void rcar_pwrc_cpuon(u_register_t mpidr)
 {
@@ -311,36 +310,6 @@ uint32_t rcar_pwrc_cpu_on_check(u_register_t mpidr)
 	}
 
 	return count;
-}
-
-static void rcar_pwrc_save_timer_state(void)
-{
-	rcar_pwrc_saved_cntpct_el0 = read_cntpct_el0();
-
-	rcar_pwrc_saved_cntfid =
-		mmio_read_32((uintptr_t)(RCAR_CNTC_BASE + CNTFID_OFF));
-}
-
-void rcar_pwrc_restore_timer_state(void)
-{
-	/* Stop timer before restoring counter value */
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + CNTCR_OFF), 0U);
-
-	/* restore lower counter value */
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTCVL_OFF),
-		(uint32_t)(rcar_pwrc_saved_cntpct_el0 & 0xFFFFFFFFU));
-	/* restore upper counter value */
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTCVU_OFF),
-		(uint32_t)(rcar_pwrc_saved_cntpct_el0 >> 32U));
-	/* restore counter frequency setting */
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + CNTFID_OFF),
-		rcar_pwrc_saved_cntfid);
-
-	/* Start generic timer back */
-	write_cntfrq_el0((u_register_t)plat_get_syscnt_freq2());
-
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + CNTCR_OFF),
-			CNTCR_FCREQ((uint32_t)(0)) | CNTCR_EN);
 }
 
 static void __section(".system_ram") rcar_pwrc_set_self_refresh(void)

@@ -16,6 +16,7 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 #include "pwrc.h"
+#include "timer.h"
 
 #include "platform_def.h"
 #include "rcar_def.h"

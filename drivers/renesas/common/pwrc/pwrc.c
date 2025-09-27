@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,9 +18,11 @@
 #include "iic_dvfs.h"
 #include "micro_delay.h"
 #include "pwrc.h"
+#include "timer.h"
+
+#include "cpg_registers.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
-#include "cpg_registers.h"
 
 /*
  * Someday there will be a generic power controller api. At the moment each
@@ -128,14 +130,6 @@ RCAR_INSTANTIATE_LOCK
 #define RST_BASE				(0xE6160000U)
 #define RST_MODEMR				(RST_BASE + 0x0060U)
 #define RST_MODEMR_BIT0				(0x00000001U)
-
-#define RCAR_CNTCR_OFF				(0x00U)
-#define RCAR_CNTCVL_OFF				(0x08U)
-#define RCAR_CNTCVU_OFF				(0x0CU)
-#define RCAR_CNTFID_OFF				(0x20U)
-
-#define RCAR_CNTCR_EN				((uint32_t)1U << 0U)
-#define RCAR_CNTCR_FCREQ(x)			((uint32_t)(x) << 8U)
 
 #if PMIC_ROHM_BD9571
 #define BIT_BKUP_CTRL_OUT			((uint8_t)(1U << 4))
@@ -378,39 +372,6 @@ void rcar_pwrc_clusteroff(u_register_t mpidr)
 	mmio_write_32(dst, MODE_L2_DOWN);
 done:
 	rcar_lock_release();
-}
-
-static uint64_t rcar_pwrc_saved_cntpct_el0;
-static uint32_t rcar_pwrc_saved_cntfid;
-
-#if RCAR_SYSTEM_SUSPEND
-static void rcar_pwrc_save_timer_state(void)
-{
-	rcar_pwrc_saved_cntpct_el0 = read_cntpct_el0();
-
-	rcar_pwrc_saved_cntfid =
-		mmio_read_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTFID_OFF));
-}
-#endif /* RCAR_SYSTEM_SUSPEND */
-
-void rcar_pwrc_restore_timer_state(void)
-{
-	/* Stop timer before restoring counter value */
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTCR_OFF), 0U);
-
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTCVL_OFF),
-		(uint32_t)(rcar_pwrc_saved_cntpct_el0 & 0xFFFFFFFFU));
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTCVU_OFF),
-		(uint32_t)(rcar_pwrc_saved_cntpct_el0 >> 32U));
-
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTFID_OFF),
-		rcar_pwrc_saved_cntfid);
-
-	/* Start generic timer back */
-	write_cntfrq_el0((u_register_t)plat_get_syscnt_freq2());
-
-	mmio_write_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTCR_OFF),
-		(RCAR_CNTCR_FCREQ(0U) | RCAR_CNTCR_EN));
 }
 
 #if !PMIC_ROHM_BD9571

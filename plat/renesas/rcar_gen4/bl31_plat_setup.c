@@ -20,6 +20,7 @@
 #include <plat/common/platform.h>
 #include "ptp.h"
 #include "pwrc.h"
+#include "timer.h"
 
 #include "rcar_def.h"
 #include "rcar_private.h"

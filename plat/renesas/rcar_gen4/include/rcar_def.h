@@ -88,10 +88,6 @@
 #elif (RCAR_LSI == RCAR_V4M)
 #define RCAR_CNTC_EXTAL			16666600U
 #endif
-/* Counter Count Value Lower register */
-#define RCAR_CNTCVL_OFF			UL(0x008)
-/* Counter Count Value Upper register */
-#define RCAR_CNTCVU_OFF			UL(0x00C)
 /* Conversion value from seconds to micro seconds */
 #define RCAR_CONV_MICROSEC		1000000UL
 

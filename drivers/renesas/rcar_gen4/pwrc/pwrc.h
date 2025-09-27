@@ -19,7 +19,6 @@ uint32_t rcar_pwrc_cpu_on_check(u_register_t mpidr);
 
 void rcar_pwrc_code_copy_to_system_ram(void);
 void rcar_pwrc_suspend_to_ram(void);
-void rcar_pwrc_restore_timer_state(void);
 
 void plat_secondary_reset(void);
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2022, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2025, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -135,6 +135,7 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/common/delay/micro_delay.c	\
 			drivers/renesas/common/pwrc/call_sram.S		\
 			drivers/renesas/common/pwrc/pwrc.c		\
+			drivers/renesas/common/timer/timer.c		\
 			drivers/renesas/common/common.c			\
 			drivers/arm/cci/cci.c
 

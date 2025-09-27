@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,7 +55,6 @@ uint32_t rcar_pwrc_status(u_register_t mpidr);
 uint32_t rcar_pwrc_get_cluster(void);
 uint32_t rcar_pwrc_get_mpidr_cluster(u_register_t mpidr);
 uint32_t rcar_pwrc_get_cpu_num(uint32_t cluster_type);
-void rcar_pwrc_restore_timer_state(void);
 void plat_secondary_reset(void);
 
 void rcar_pwrc_code_copy_to_system_ram(void);
