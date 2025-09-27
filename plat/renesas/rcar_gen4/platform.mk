@@ -91,9 +91,8 @@ PLAT_INCLUDES	:=	-Iplat/renesas/rcar_gen4/include		\
 			-Idrivers/renesas/rcar_gen4/mssr
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
-BL_COMMON_SOURCES	+=	plat/renesas/rcar_gen4/rcar_stack_protector.c
+BL_COMMON_SOURCES	+=	plat/renesas/common/rcar_stack_protector.c
 endif
-
 
 # GIC-600 configuration
 #GICV3_IMPL := GIC600
