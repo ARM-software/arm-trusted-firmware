@@ -102,6 +102,7 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			plat/renesas/common/bl2_cpg_init.c		\
 			drivers/renesas/common/console/rcar_printf.c	\
 			drivers/renesas/common/scif/scif.S		\
+			drivers/renesas/common/scif/scif_helpers.S	\
 			drivers/renesas/common/common.c			\
 			drivers/renesas/common/io/io_emmcdrv.c		\
 			drivers/renesas/common/io/io_memdrv.c		\

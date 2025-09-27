@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
