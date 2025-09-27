@@ -85,6 +85,7 @@ HW_ASSISTED_COHERENCY := 1
 
 PLAT_INCLUDES	:=	-Iplat/renesas/rcar_gen4/include		\
 			-Iplat/renesas/rcar_gen4			\
+			-Iplat/renesas/common/include			\
 			-Idrivers/renesas/common/scif			\
 			-Idrivers/renesas/common/timer			\
 			-Idrivers/renesas/rcar_gen4/pwrc		\

@@ -5,3 +5,4 @@
  */
 
 #include "plat_macros_cci.S"
+#include "plat_macros_gic.S"

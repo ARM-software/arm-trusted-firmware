@@ -318,7 +318,9 @@ include drivers/renesas/rcar/qos/qos.mk
 include drivers/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_INCLUDES	+=	-Idrivers/renesas/common/ddr		\
+PLAT_INCLUDES	+=	-Iplat/renesas/rcar/include		\
+			-Iplat/renesas/common/include		\
+			-Idrivers/renesas/common/ddr		\
 			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\
