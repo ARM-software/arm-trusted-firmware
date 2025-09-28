@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,14 @@
 #pragma weak plat_get_soc_version
 #pragma weak plat_get_soc_revision
 #pragma weak plat_get_soc_name
+
+/* Pointer and function to register platform function to log GPT corruption */
+const struct plat_log_gpt_corrupted *plat_log_gpt_ptr;
+
+void plat_setup_log_gpt_corrupted(const struct plat_log_gpt_corrupted *log_gpt)
+{
+	plat_log_gpt_ptr = log_gpt;
+}
 
 int32_t plat_get_soc_version(void)
 {
