@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,12 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
+#if (defined(IMAGE_BL31) && (DRTM_SUPPORT)) ||                           \
+	((MEASURED_BOOT) && (defined(IMAGE_BL1) || defined(IMAGE_BL2) || \
+			     (defined(SPD_tspd) && defined(IMAGE_BL32))))
+#define PLAT_ARM_USING_EVENT_LOG
+#include <event_log_def.h>
+#endif
 #include <drivers/arm/tzc400.h>
 #include <lib/utils_def.h>
 #include <plat/arm/board/common/v2m_def.h>
@@ -177,11 +183,11 @@
 /*
  * PLAT_ARM_FW_HANDOFF_SIZE should be page-aligned to ensure proper xlat mapping.
  * If it is not, generating the page table mapping for FW_HANDOFF will fail.
- * Because EVENT_LOG_ENTRY_SIZE is not guaranteed to be aligned,
+ * Because PLAT_ARM_FW_HANDOFF_EVENT_LOG_SIZE is not guaranteed to be aligned,
  * PLAT_ARM_FW_HANDOFF_SIZE must be explicitly aligned.
  */
 #define PLAT_ARM_FW_HANDOFF_SIZE	((((PLAT_ARM_HW_CONFIG_SIZE +		\
-					    EVENT_LOG_ENTRY_SIZE +		\
+					    PLAT_ARM_FW_HANDOFF_EVENT_LOG_SIZE + \
 					    PLAT_ARM_TB_FW_CONFIG_SIZE +	\
 					    PLAT_ARM_SPMC_SP_MANIFEST_SIZE) +	\
 					    PAGE_SIZE_MASK) >>			\
@@ -193,13 +199,22 @@
 
 #if RESET_TO_BL31
 #define PLAT_ARM_TRANSFER_LIST_DTB_OFFSET	FW_NS_HANDOFF_BASE + TRANSFER_LIST_DTB_OFFSET
-#define EVENT_LOG_ENTRY_SIZE			PLAT_ARM_EVENT_LOG_MAX_SIZE
+#define PLAT_ARM_FW_HANDOFF_RESET_TO_BL31_SIZE	SZ_1K
+#define PLAT_ARM_FW_HANDOFF_EVENT_LOG_SIZE			\
+	((PLAT_ARM_EVENT_LOG_MAX_SIZE >				\
+	  PLAT_ARM_FW_HANDOFF_RESET_TO_BL31_SIZE) ?		\
+	 PLAT_ARM_EVENT_LOG_MAX_SIZE :				\
+	 PLAT_ARM_FW_HANDOFF_RESET_TO_BL31_SIZE)
 #else
 /*
- * The maximum PLAT_ARM_EVENT_LOG_MAX_SIZE for BL2 is SZ_4K
- * SZ_512 is maximum event log size for BL1.
+ * Reserve room for the BL1 event log handed to BL2 and the BL2 extension
+ * handed to BL31.
  */
-#define EVENT_LOG_ENTRY_SIZE			(SZ_512 + SZ_4K)
+#define PLAT_ARM_FW_HANDOFF_BL1_EVENT_LOG_SIZE	PLAT_ARM_BL1_EVENT_LOG_MAX_SIZE
+#define PLAT_ARM_FW_HANDOFF_BL2_EVENT_LOG_SIZE	PLAT_ARM_BL2_EVENT_LOG_MAX_SIZE
+#define PLAT_ARM_FW_HANDOFF_EVENT_LOG_SIZE		\
+	(PLAT_ARM_FW_HANDOFF_BL1_EVENT_LOG_SIZE +	\
+	 PLAT_ARM_FW_HANDOFF_BL2_EVENT_LOG_SIZE)
 #endif
 
 #else
@@ -271,11 +286,15 @@ defined(IMAGE_BL2) && MEASURED_BOOT
  * In case of PSA Crypto API, few algorithms like ECDSA needs bigger BL1 RW
  * area.
  */
+#define PLAT_ARM_PAGE_ROUND_UP(S) \
+	(((((S) + PAGE_SIZE_MASK) >> PAGE_SIZE_SHIFT)) << PAGE_SIZE_SHIFT)
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA || PSA_CRYPTO || \
 FVP_TRUSTED_SRAM_SIZE == 512
-#define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xD000)
+#define PLAT_ARM_MAX_BL1_RW_SIZE \
+	PLAT_ARM_PAGE_ROUND_UP(UL(0xD000) + PLAT_ARM_EVENT_LOG_MAX_SIZE)
 #else
-#define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xB000)
+#define PLAT_ARM_MAX_BL1_RW_SIZE \
+	PLAT_ARM_PAGE_ROUND_UP(UL(0xB000) + PLAT_ARM_EVENT_LOG_MAX_SIZE)
 #endif
 
 /*
@@ -566,21 +585,57 @@ FVP_TRUSTED_SRAM_SIZE == 512
 
 /*
  * Maximum size of Event Log buffer used in Measured Boot Event Log driver
- * TODO: calculate maximum EventLog size using the calculation:
- * Maximum size of Event Log * Number of images
  */
-#if defined(IMAGE_BL1) && TRANSFER_LIST
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_512
-#elif (defined(SPD_spmd)) || (ENABLE_RMM && (defined(SPD_tspd) || defined(SPD_opteed)))
+#define PLAT_ARM_EVENT_LOG_BASE_EVENTS \
+	(U(8)) /* BL2, SCP_BL2, BL31, BL32, BL33, +3 configs */
+#define PLAT_ARM_EVENT_LOG_BL1_TL_EVENTS U(1) /* BL2 */
+#define PLAT_ARM_EVENT_LOG_SECURE_EVENTS \
+	(U(10)) /* SPM + up to 8 SPs + 1 safety */
+#define PLAT_ARM_EVENT_LOG_SAFETY_MARGIN U(2) /* for unanticipated events */
+
+#define PLAT_ARM_EVENT_LOG_BL1_EVENT_COUNT		\
+	(PLAT_ARM_EVENT_LOG_BL1_TL_EVENTS +		\
+	 PLAT_ARM_EVENT_LOG_SAFETY_MARGIN)
+
 /*
- * Account for additional measurements of secure partitions and SPM.
- * Also, account for OP-TEE running with maximum number of SPs.
+ * Combine BL2 counts based on build flags.
  */
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_4K
-#elif ENABLE_RMM
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_2K
+#if (defined(SPD_spmd)) || \
+	(ENABLE_RMM && (defined(SPD_tspd) || defined(SPD_opteed)))
+#define PLAT_ARM_EVENT_LOG_BL2_EVENT_COUNT                                  \
+	(PLAT_ARM_EVENT_LOG_BASE_EVENTS + PLAT_ARM_EVENT_LOG_SECURE_EVENTS + \
+	 PLAT_ARM_EVENT_LOG_SAFETY_MARGIN)
 #else
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_1K
+/* Default path: BL2-BL33 with classic FW_CONFIG handling */
+#define PLAT_ARM_EVENT_LOG_BL2_EVENT_COUNT \
+	(PLAT_ARM_EVENT_LOG_BASE_EVENTS + PLAT_ARM_EVENT_LOG_SAFETY_MARGIN)
+#endif
+
+#ifdef PLAT_ARM_USING_EVENT_LOG
+#define PLAT_ARM_EVENT_MAX_NAME_CHARS U(64)
+#define PLAT_ARM_EVENT_LOG_SIZE(_event_count)			\
+	(LOG_MIN_SIZE + ((_event_count) *			\
+			 (EVENT2_HDR_SIZE +			\
+			  PLAT_ARM_EVENT_MAX_NAME_CHARS)))
+#define PLAT_ARM_BL1_EVENT_LOG_MAX_SIZE			\
+	PLAT_ARM_EVENT_LOG_SIZE(PLAT_ARM_EVENT_LOG_BL1_EVENT_COUNT)
+#define PLAT_ARM_BL2_EVENT_LOG_MAX_SIZE			\
+	PLAT_ARM_EVENT_LOG_SIZE(PLAT_ARM_EVENT_LOG_BL2_EVENT_COUNT)
+
+#if defined(IMAGE_BL1) && TRANSFER_LIST
+/* BL1 with TRANSFER_LIST measures BL2 only, then BL2 extends the entry. */
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE	PLAT_ARM_BL1_EVENT_LOG_MAX_SIZE
+#else
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE	PLAT_ARM_BL2_EVENT_LOG_MAX_SIZE
+#endif
+#else
+/*
+ * These are firmware handoff reservation fallbacks for images that do not
+ * build the event log library and therefore cannot use event_log_def.h.
+ */
+#define PLAT_ARM_BL1_EVENT_LOG_MAX_SIZE	SZ_512
+#define PLAT_ARM_BL2_EVENT_LOG_MAX_SIZE	SZ_4K
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE	U(0)
 #endif
 
 /*
