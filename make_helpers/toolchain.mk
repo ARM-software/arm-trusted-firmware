@@ -320,28 +320,36 @@ ifndef toolchain-mk
         # toolchain.
         #
 
-        toolchain-derive-arm-clang-cpp = $(1)
-        toolchain-derive-arm-clang-as = $(1)
-        toolchain-derive-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
-        toolchain-derive-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
-        toolchain-derive-arm-clang-od = # Fall back to `$(toolchain)-od-default`
-        toolchain-derive-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
+        toolchain-from-parameter = $($($(1)-$(2)-parameter))
 
-        toolchain-derive-llvm-clang-cpp = $(1)
-        toolchain-derive-llvm-clang-as = $(1)
-        toolchain-derive-llvm-clang-ld = $(1)
-        toolchain-derive-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>/dev/null)
-        toolchain-derive-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>/dev/null)
-        toolchain-derive-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>/dev/null)
+        toolchain-from-cc-arm-clang-cpp = $(1)
+        toolchain-from-cc-arm-clang-as = $(1)
+        toolchain-from-cc-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
+        toolchain-from-cc-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
+        toolchain-from-cc-arm-clang-od = # Fall back to `$(toolchain)-od-default`
+        toolchain-from-cc-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
 
-        toolchain-derive-gnu-gcc-cpp = $(1)
-        toolchain-derive-gnu-gcc-as = $(1)
-        toolchain-derive-gnu-gcc-ld = $(1)
-        toolchain-derive-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>/dev/null)
-        toolchain-derive-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>/dev/null)
-        toolchain-derive-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>/dev/null)
+        toolchain-from-cc-llvm-clang-cpp = $(1)
+        toolchain-from-cc-llvm-clang-as = $(1)
+        toolchain-from-cc-llvm-clang-ld = $(1)
+        toolchain-from-cc-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>/dev/null)
+        toolchain-from-cc-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>/dev/null)
+        toolchain-from-cc-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>/dev/null)
 
-        toolchain-derive = $(if $3,$(call toolchain-derive-$1-$2,$3))
+        toolchain-from-cc-gnu-gcc-cpp = $(1)
+        toolchain-from-cc-gnu-gcc-as = $(1)
+        toolchain-from-cc-gnu-gcc-ld = $(1)
+        toolchain-from-cc-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>/dev/null)
+        toolchain-from-cc-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>/dev/null)
+        toolchain-from-cc-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>/dev/null)
+
+        toolchain-from-cc = $(and $(filter-out cc,$(2)),$($(1)-cc),$\
+                $(call toolchain-from-cc-$($(1)-cc-id)-$(2),$($(1)-cc)))
+
+        toolchain-from-default = $(firstword $\
+                $(foreach candidate,$($(1)-$(2)-default),$\
+                        $(if $(call which,$(candidate)),$(candidate))) $\
+                $($(1)-$(2)-default))
 
         #
         # Compiler configuration for the correct ARCH
@@ -463,32 +471,41 @@ ifndef toolchain-mk
         #
 
         define toolchain-determine-tool
-                toolchain-$1-$2-derive-from-cc = $$(if $$(filter-out cc,$2),$\
-                        $$(call toolchain-derive,$$($1-cc-id),$2,$$($1-cc)))
+                #
+                # Try to determine the tool command by:
+                #
+                #   1. Using the user-specified value (if one is provided).
+                #   2. Otherwise, inferring a reasonable default by:
+                #      a. Querying the C compiler, if available.
+                #      b. Falling back to a hard-coded default, if specified.
+                #      c. Giving up, and erroring out if the tool is mandatory.
+                #
 
-                toolchain-$1-$2-shell = $\
-                        $$(if $$(call defined,$$($1-$2-parameter)),$\
-                                $$($$($1-$2-parameter)),$\
-                                $$(or $$(toolchain-$1-$2-derive-from-cc),$\
-                                        $$(toolchain-$1-$2-default)))
+                $1-$2-from-parameter = $$(call toolchain-from-parameter,$1,$2)
+                $1-$2-from-cc = $$(call toolchain-from-cc,$1,$2)
+                $1-$2-from-default = $$(call toolchain-from-default,$1,$2)
 
-                toolchain-$1-$2-default = $$(firstword $\
-                        $$(foreach default,$$($1-$2-default),$\
-                                $$(if $$(call which,$$(default)),$$(default))) $\
-                        $$($1-$2-default))
+                $1-$2-from := $$(or $\
+                        $$($1-$2-from-parameter),$\
+                        $$($1-$2-from-cc),$\
+                        $$($1-$2-from-default))
 
-                $1-$2 := $$(if $$(call which,$$(toolchain-$1-$2-shell)),$\
-                        $$(call escape-shell,$$(toolchain-$1-$2-shell)),$\
-                        $$(toolchain-$1-$2-shell))
+                #
+                # Sanitize the command for the shell by either escaping the
+                # entire string if it's a program name/path, or by expanding and
+                # escaping each shell word.
+                #
+
+                $1-$2 := $$(call shell-program,$$($1-$2-from))
+
+                $$(if $$(or $$($1-$2),$$($1-$2-optional)),,$\
+                        $$(error no $$($1-name) $$(toolchain-tool-class-name-$2) configured))
 
                 $1-$2-id := $$(if $$($1-$2),$$(or $\
                         $$(call toolchain-guess-tool,$$\
                                 $$(toolchain-tools-$2),$$($1-$2)),$\
-                        $$($1-$2-default-id)))
-
-                ifeq ($$(or $$($1-$2-id),$$(call bool,$$($1-$2-optional))),)
-                        $$(call toolchain-warn-unrecognized,$1,$2)
-                endif
+                        $$(call toolchain-warn-unrecognized,$1,$2)$\
+                                $$($1-$2-default-id)))
         endef
 
         $(foreach toolchain,$(toolchains), \
