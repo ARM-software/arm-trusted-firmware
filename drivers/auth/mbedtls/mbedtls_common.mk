@@ -77,6 +77,11 @@ LIBMBEDTLS_SRCS         += $(addprefix ${MBEDTLS_DIR}/library/,    	\
 					)
 endif
 
+# This is a temporary workaround due to changes in the locations of helper
+# function declarations in Mbed-TLS version 3.6.4
+# TODO: remove this once the related Mbedt-TLS issue is resolved
+LIBMBEDTLS_CFLAGS	+=	-Wno-error=redundant-decls
+
 # The platform may define the variable 'TF_MBEDTLS_KEY_ALG' to select the key
 # algorithm to use. If the variable is not defined, select it based on
 # algorithm used for key generation `KEY_ALG`. If `KEY_ALG` is not defined,
