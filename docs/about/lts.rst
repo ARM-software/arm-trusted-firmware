@@ -264,6 +264,8 @@ or candidate patch selection.
    CI results.
 #. Monitor the mailing list for any LTS related issues
 #. Propose or solicit patches to the main branch and tag them as candidates for LTS
+#. Monitor Github dependabot pull requests to identify patches that could be taken for a given LTS
+   branch: https://github.com/TrustedFirmware-A/trusted-firmware-a/pulls
 
 Playbook for new releases
 -------------------------
@@ -286,6 +288,11 @@ To make a new minor release (e.g. 2.x.y → 2.x.y+1), follow these steps.
    on Discord or during the LTS weekly meeting.
 #. Some dependency patches, not listed in the CSV file, may have to be taken, to ease the
    application of the LTS patches. This can also be discussed with the other LTS maintainers.
+#. Run ``git remote add dependabot https://github.com/TrustedFirmware-A/trusted-firmware-a.git``
+   (This has to be done only once).
+#. Run ``git fetch dependabot``.
+#. Cherry-pick the dependabot patches dedicated to the given LTS. Those patches should be amended
+   to add a gerrit Change ID.
 #. Push the stack of changes: ``git push origin
    HEAD:refs/for/lts-v2.x%topic=for-lts-v2.x.y+1``. You might need the
    ``--no-verify`` option: ``git push origin --no-verify
