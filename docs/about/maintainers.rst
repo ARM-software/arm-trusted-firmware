@@ -840,6 +840,8 @@ QTI platform port
 :|G|: `quic_mkf`_
 :|M|: Saurabh Gorecha <quic_sgorecha@quicinc.com>
 :|G|: `quic_sgorecha`_
+:|M|: Sumit Garg <sumit.garg@oss.qualcomm.com>
+:|G|: `b49020`_
 :|M|: QTI TF Maintainers <qti.trustedfirmware.maintainers@codeaurora.org>
 :|F|: docs/plat/qti/
 :|F|: plat/qti/
