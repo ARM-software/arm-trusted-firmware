@@ -202,38 +202,6 @@ enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
 }
 
 /**
- * pm_req_suspend() - PM call to request for another PU or subsystem to
- *                    be suspended gracefully.
- * @target: Node id of the targeted PU or subsystem.
- * @ack: Flag to specify whether acknowledge is requested.
- * @latency: Requested wakeup latency (not supported)
- * @state: Requested state (not supported).
- * @flag: 0 - Call from secure source.
- *        1 - Call from non-secure source.
- *
- * Return: Returns status, either success or error+reason.
- *
- */
-enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
-				  uint32_t latency, uint32_t state,
-				  uint32_t flag)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, flag, PM_REQ_SUSPEND, target,
-			 latency, state);
-	if (ack == (uint32_t)IPI_BLOCKING) {
-		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	} else {
-		ret = pm_ipi_send(primary_proc, payload);
-	}
-
-	return ret;
-}
-
-/**
  * pm_req_wakeup() - PM call for processor to wake up selected processor
  *                   or subsystem.
  * @target: Device ID of the processor or subsystem to wake up.
