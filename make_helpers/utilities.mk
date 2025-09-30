@@ -390,3 +390,28 @@ define with.core.restore =
                 undefine $(bind.name)
         endif
 endef
+
+#
+# Quote a string for safe use as a shell word.
+#
+# Takes the input string `$(1)` and escapes any single quotes it contains so
+# that the result can be safely used as a literal shell argument. The output is
+# wrapped in single quotes to ensure that whitespace and special characters are
+# preserved exactly when passed to the shell.
+#
+# This function is useful when constructing shell commands dynamically, since it
+# guarantees that arbitrary values are quoted correctly and will not be
+# misinterpreted by the shell.
+#
+# Parameters:
+#
+#   - $(1): The string to quote for safe shell usage.
+#
+# Examples:
+#
+#   $(call shell-quote,foo) # "'foo'"
+#   $(call shell-quote,bar baz) # "'bar baz'"
+#   $(call shell-quote,foo 'bar baz' qux) # "'foo '\''bar baz'\'' qux'"
+#
+
+shell-quote = '$(subst ','\'',$(1))'
