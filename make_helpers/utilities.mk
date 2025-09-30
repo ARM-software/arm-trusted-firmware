@@ -604,3 +604,42 @@ define shell-map.sh =
                 printf '$$(call %s,%s)\n' "$${function}" "$${sanitized}";
         done
 endef
+
+#
+# Resolve a program name or shell fragment to a safely quoted shell command.
+#
+# Attempts to locate the program given by `$(1)` on the system `PATH`. If the
+# program is found, its name is returned wrapped in single quotes so it can be
+# used safely in a shell command. If the program cannot be found, then the
+# argument is instead parsed as a shell fragment and returned as a sanitized
+# sequence of words, ensuring whitespace and quoting are preserved correctly.
+#
+# This function is useful when dynamically constructing shell command lines
+# that may include either well-known executables or arbitrary user-supplied
+# fragments. It guarantees that the result is safe to embed in shell commands,
+# regardless of whether it resolves to a `PATH` entry or a literal fragment.
+#
+# Parameters:
+#
+#   - $(1): The program name or shell fragment to resolve.
+#
+# Example usage:
+#
+#       $(call shell-program,sh)    # "'sh'"
+#       $(call shell-program,sh -c) # "'sh' '-c'"
+#
+#       # If the program exists and is executable:
+#
+#       $(call shell-program,/foo bar/sh)      # "'/foo bar/sh'"
+#       $(call shell-program,"/foo bar/sh" -c) # "'/foo bar/sh' '-c'"
+#
+#       # If the program does not exist or is not executable:
+#
+#       $(call shell-program,/foo bar/sh)    # "'/foo' 'bar/sh'"
+#       $(call shell-program,/foo bar/sh -c) # "'/foo' 'bar/sh' '-c'"
+#
+
+shell-program = $\
+        $(if $(call which,$(1)),$\
+                $(call shell-quote,$(1)),$\
+                $(call shell-slice,$(1)))
