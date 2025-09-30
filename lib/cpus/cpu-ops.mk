@@ -1149,6 +1149,10 @@ CPU_FLAG_LIST += ERRATA_A720_2940794
 # the Cortex-A720 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A720_3699561
 
+# Flag to apply erratum 2940794 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1 and r0p2 of the Cortex-A720 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A720_3711910
+
 # Flag to apply erratum 3699562 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revision r0p0 the Cortex-A720-AE
 # cpu and is still open.
