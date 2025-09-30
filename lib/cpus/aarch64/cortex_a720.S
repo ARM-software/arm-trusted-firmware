@@ -31,6 +31,12 @@ cpu_reset_prologue cortex_a720
         wa_cve_2022_23960_bhb_vector_table CORTEX_A720_BHB_LOOP_COUNT, cortex_a720
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+workaround_reset_start cortex_a720, ERRATUM(2729604), ERRATA_A720_2729604
+	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, (BIT(60) | BIT(61))
+workaround_reset_end cortex_a720, ERRATUM(2729604)
+
+check_erratum_ls cortex_a720, ERRATUM(2729604), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a720, ERRATUM(2792132), ERRATA_A720_2792132
         sysreg_bit_set CORTEX_A720_CPUACTLR2_EL1, BIT(26)
 workaround_reset_end cortex_a720, ERRATUM(2792132)
