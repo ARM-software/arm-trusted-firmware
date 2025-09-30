@@ -9,6 +9,7 @@ space := $(space) $(space)
 comma := ,
 
 null := �
+rparen := )
 
 compat-path = $(subst $(space),$(null),$(1))
 decompat-path = $(subst $(null), ,$(1))
@@ -556,5 +557,50 @@ define shell-join.sh =
         while [ "$$#" -gt 0 ]; do
                 printf '%s%s' "$${delimiter}" "$${1}";
                 shift 1;
+        done
+endef
+
+#
+# Apply a function to each shell word in a fragment.
+#
+# Parses the shell fragment given by `$(2)` into words using the shell's
+# word-splitting and quoting rules. For each word, the function `$(1)` is
+# invoked with the word as its argument. The results are concatenated and
+# returned, separated by whitespace.
+#
+# This function is useful when you want to process each shell word from a
+# fragment through another function, while preserving correct handling of
+# whitespace and quoting.
+#
+# Parameters:
+#
+#   - $(1): The function to apply to each word.
+#   - $(2): The shell fragment to parse into words.
+#
+# Example usage:
+#
+#       $(call shell-map,words,foo 'bar baz' qux) # "1 2 1"
+#       $(call shell-map,uppercase,foo 'bar baz' qux) # "FOO BAR BAZ QUX"
+#
+#       shout = $(1)!
+#       $(call shell-map,shout,foo 'bar baz' qux) # "foo! bar baz! qux!"
+#
+#       make-binary = /bin/$(1)
+#       $(call shell-map,make-binary,cp "ls" 'sh') # "/bin/cp /bin/ls /bin/sh"
+#
+
+shell-map = $(call with,,$(shell $(shell-map.sh)))
+
+define shell-map.sh =
+        set -Cefu -- $(2);
+
+        function=$(call shell-quote,$(1));
+
+        for argument in "$$@"; do
+                sanitized=$$(printf '%s' "$${argument}" $\
+                        | sed -e 's/[$$]/$$/g' -e 's/)/$$(rparen)/g' $\
+                                -e 's/,/$$(comma)/g');
+
+                printf '$$(call %s,%s)\n' "$${function}" "$${sanitized}";
         done
 endef
