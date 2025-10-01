@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,11 @@ void arm_console_runtime_init(void)
 {
 	uintptr_t uart_base;
 	uint32_t uart_clk;
+
+	/* If the console was initialized already, don't initialize again */
+	if (fvp_runtime_console.base != 0UL) {
+		return;
+	}
 
 	/*
 	 * fconf APIs are not supported for RESET_TO_SP_MIN, RESET_TO_BL31 and
@@ -45,10 +50,4 @@ void arm_console_runtime_init(void)
 	}
 
 	console_set_scope(&fvp_runtime_console, CONSOLE_FLAG_RUNTIME);
-}
-
-void arm_console_runtime_end(void)
-{
-	console_flush();
-	(void)console_unregister(&fvp_runtime_console);
 }
