@@ -85,7 +85,7 @@ static void versal2_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	pm_ret = pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+	pm_ret = pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
 				 NON_SECURE);
 
 	if (pm_ret != PM_RET_SUCCESS) {
