@@ -1467,6 +1467,9 @@ subsections:
         deprecated:
           - git-hooks
 
+      - title: Visual Studio Code
+        scope: vscode
+
   - title: Tools
     scope: tools
 
