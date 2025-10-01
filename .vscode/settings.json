@@ -1,0 +1,26 @@
+{
+    "files.exclude": {
+        "**/.mypy_cache/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.ruff_cache/**": true,
+        "**/.venv/**": true,
+        "**/node_modules/**": true,
+        "build/**": true,
+    },
+    "files.watcherExclude": {
+        "**/.mypy_cache/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.ruff_cache/**": true,
+        "**/.venv/**": true,
+        "**/node_modules/**": true,
+        "build/**": true,
+    },
+    "search.exclude": {
+        "**/.mypy_cache/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.ruff_cache/**": true,
+        "**/.venv/**": true,
+        "**/node_modules/**": true,
+        "build/**": true,
+    },
+}
