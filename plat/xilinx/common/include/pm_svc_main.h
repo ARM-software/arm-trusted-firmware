@@ -11,6 +11,7 @@
 #include <pm_common.h>
 
 #define PASS_THROUGH_FW_CMD_ID	U(0xfff)
+#define API_ID_MASK		U(0xff)
 
 /******************************************************************************/
 /**

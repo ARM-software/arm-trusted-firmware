@@ -329,8 +329,9 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, uint32_t *pm_arg,
 					   void *handle, uint32_t security_flag)
 {
 	enum pm_ret_status ret;
+	uint32_t pm_api_id = api_id & API_ID_MASK;
 
-	switch (api_id) {
+	switch (pm_api_id) {
 
 	case (uint32_t)PM_SELF_SUSPEND:
 		ret = pm_self_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
@@ -509,6 +510,11 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		EXTRACT_ARGS(pm_arg, x);
 
+		ret = eemi_psci_debugfs_handler(api_id, pm_arg, handle, (uint32_t)flags);
+		if (ret !=  (uintptr_t)0) {
+			return ret;
+		}
+
 		return eemi_api_handler(api_id, pm_arg, handle, security_flag);
 	}
 
@@ -520,14 +526,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	(void)(x4);
 	api_id = smc_fid & FUNCID_NUM_MASK;
 
-	ret = eemi_psci_debugfs_handler(api_id, pm_arg, handle, (uint32_t)flags);
-	if (ret !=  (uintptr_t)0)
-		goto error;
-
 	ret = TF_A_specific_handler(api_id, pm_arg, handle, security_flag);
-	if (ret !=  (uintptr_t)0)
-		goto error;
 
-error:
 	return ret;
 }
