@@ -80,6 +80,10 @@ workaround_reset_end cortex_a720, ERRATUM(2940794)
 
 check_erratum_ls cortex_a720, ERRATUM(2940794), CPU_REV(0, 1)
 
+add_erratum_entry cortex_a720, ERRATUM(3699561), ERRATA_A720_3699561
+
+check_erratum_ls cortex_a720, ERRATUM(3699561), CPU_REV(0, 2)
+
 workaround_reset_start cortex_a720, ERRATUM(3711910), ERRATA_A720_3711910
 	mov	x0, #5
 	msr	CORTEX_A720_CPUPSELR_EL3, x0
@@ -104,10 +108,6 @@ workaround_reset_start cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_a720, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-
-add_erratum_entry cortex_a720, ERRATUM(3699561), ERRATA_A720_3699561
-
-check_erratum_ls cortex_a720, ERRATUM(3699561), CPU_REV(0, 2)
 
 cpu_reset_func_start cortex_a720
 	/* Disable speculative loads */
