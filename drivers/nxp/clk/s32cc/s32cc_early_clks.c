@@ -7,6 +7,8 @@
 #include <platform_def.h>
 #include <s32cc-clk-drv.h>
 #include <s32cc-clk-ids.h>
+#include <s32cc-clk-regs.h>
+#include <s32cc-mc-rgm.h>
 #include <s32cc-clk-utils.h>
 
 #define S32CC_FXOSC_FREQ		(40U * MHZ)
@@ -20,6 +22,8 @@
 #define S32CC_DDR_PLL_PHI0_FREQ		(800U * MHZ)
 #define S32CC_PERIPH_DFS_PHI3_FREQ	(800U * MHZ)
 #define S32CC_USDHC_FREQ		(200U * MHZ)
+
+#define S32CC_DDR_RESET_TIMEOUT_US 1000000U
 
 static int setup_fxosc(void)
 {
@@ -209,6 +213,30 @@ static int enable_usdhc_clk(void)
 	}
 
 	return ret;
+}
+
+int plat_deassert_ddr_reset(void)
+{
+	int err;
+
+	clk_disable(S32CC_CLK_DDR);
+
+	err = clk_set_parent(S32CC_CLK_MC_CGM5_MUX0, S32CC_CLK_FIRC);
+	if (err != 0) {
+		return err;
+	}
+
+	err = clk_enable(S32CC_CLK_DDR);
+	if (err != 0) {
+		return err;
+	}
+
+	err = mc_rgm_ddr_reset(MC_RGM_BASE_ADDR, S32CC_DDR_RESET_TIMEOUT_US);
+	if (err != 0) {
+		return err;
+	}
+
+	return enable_ddr_clk();
 }
 
 int s32cc_init_core_clocks(void)

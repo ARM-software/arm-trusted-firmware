@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <lib/mmio.h>
+#include <lib/mmio_poll.h>
 #include <lib/utils_def.h>
 #include <s32cc-mc-rgm.h>
+#include <s32cc-clk-regs.h>
 
 #define MC_RGM_PRST(RGM, PER)		((RGM) + 0x40UL + ((PER) * 0x8UL))
 #define MC_RGM_PRST_PERIPH_N_RST(PER)	BIT_32(PER)
@@ -86,4 +88,22 @@ void mc_rgm_wait_part_deassert(uintptr_t rgm, uint32_t part)
 	while ((mmio_read_32(MC_RGM_PSTAT(rgm, part)) &
 		MC_RGM_PSTAT_PERIPH(0)) != 0U) {
 	}
+}
+
+int mc_rgm_ddr_reset(uintptr_t rgm, uint32_t timeout)
+{
+	uint32_t pstat, prst;
+	int err;
+
+	prst = mmio_read_32(MC_RGM_PRST(MC_RGM_BASE_ADDR, 0U));
+	if ((prst & MC_RGM_PRST_PERIPH_N_RST(3)) == 0U) {
+		return -EINVAL;
+	}
+
+	mc_rgm_release_periph(MC_RGM_BASE_ADDR, 0, 3);
+
+	err = mmio_read_32_poll_timeout(MC_RGM_PSTAT(MC_RGM_BASE_ADDR, 0U), pstat,
+					((pstat & MC_RGM_PSTAT_PERIPH(3)) == 0U),
+					timeout);
+	return err;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,5 +8,6 @@
 
 int s32cc_init_core_clocks(void);
 int s32cc_init_early_clks(void);
+int plat_deassert_ddr_reset(void);
 
 #endif
