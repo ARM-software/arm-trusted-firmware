@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <common/tbbr/tbbr_img_def.h>
+#include <platform_def.h>
+
+/dts-v1/;
+
+/ {
+	dtb-registry {
+		compatible = "fconf,dyn_cfg-dtb_registry";
+
+		hw-config {
+			load-address = <0x0 PLAT_HW_CONFIG_DTB_BASE>;
+			max-size = <PLAT_ARM_HW_CONFIG_SIZE>;
+			id = <HW_CONFIG_ID>;
+		};
+	};
+};

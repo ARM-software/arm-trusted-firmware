@@ -379,6 +379,7 @@ DEFINE_COPROCR_RW_FUNCS(clusterpmovsclr, CLUSTERPMOVSCLR)
 DEFINE_COPROCR_RW_FUNCS(clusterpmselr, CLUSTERPMSELR)
 DEFINE_COPROCR_RW_FUNCS(clusterpmxevcntr, CLUSTERPMXEVCNTR)
 DEFINE_COPROCR_RW_FUNCS(clusterpmxevtyper, CLUSTERPMXEVTYPER)
+DEFINE_COPROCR_RW_FUNCS(clusterpmmdcr, CLUSTERPMMDCR)
 
 /*
  * RNDR is AArch64 only, so just provide a placeholder here to make the
@@ -455,6 +456,9 @@ static inline unsigned int get_current_el(void)
 
 #define read_amcntenset0_el0()	read_amcntenset0()
 #define read_amcntenset1_el0()	read_amcntenset1()
+
+#define read_clusterpmmdcr_el3()	read_clusterpmmdcr()
+#define write_clusterpmmdcr_el3(_v)	write_clusterpmmdcr(_v)
 
 /* Helper functions to manipulate CPSR */
 static inline void enable_irq(void)

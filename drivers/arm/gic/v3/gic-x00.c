@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -129,7 +129,8 @@ static bool gicv3_redists_need_power_mgmt(uintptr_t gicr_base)
 	 */
 	return (((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600) ||
 		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600AE) ||
-		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_700));
+		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_700) ||
+		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_720AE));
 }
 
 #endif	/* GICV3_SUPPORT_GIC600 */

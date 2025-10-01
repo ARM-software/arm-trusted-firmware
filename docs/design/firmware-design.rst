@@ -1062,8 +1062,9 @@ DSU driver
 Platforms that include a DSU (DynamIQ Shared Unit) can define
 the ``USE_DSU_DRIVER`` build flag to enable the DSU driver.
 This driver is responsible for configuring DSU-related powerdown
-and power feature settings using ``dsu_driver_init()`` and for
-preserving the context of DSU PMU system registers.
+and power feature settings, enabling access to PMU registers at EL1
+using ``dsu_driver_init()`` and for preserving the context of DSU
+PMU system registers.
 
 To support the DSU driver, platforms must define the ``plat_dsu_data``
 structure.
