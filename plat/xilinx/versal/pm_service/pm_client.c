@@ -205,27 +205,6 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag
 }
 
 /**
- * pm_client_abort_suspend() - Client-specific abort-suspend actions.
- *
- * This function should contain any PU-specific actions
- * required for aborting a prior suspend request.
- *
- */
-void pm_client_abort_suspend(void)
-{
-	/* Enable interrupts at processor level (for current cpu) */
-	gicv3_cpuif_enable(plat_my_core_pos());
-
-	bakery_lock_get(&pm_client_secure_lock);
-
-	/* Clear powerdown request */
-	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) &
-		      ~((uint32_t)primary_proc->pwrdn_mask));
-
-	bakery_lock_release(&pm_client_secure_lock);
-}
-
-/**
  * pm_get_cpuid() - get the local cpu ID for a global node ID.
  * @nid: node id of the processor.
  *
