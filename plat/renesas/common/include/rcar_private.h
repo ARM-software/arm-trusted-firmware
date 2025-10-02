@@ -52,29 +52,6 @@ typedef struct bl2_to_bl31_params_mem {
 typedef struct rcar_cpu_data {
 	bakery_info_t pcpu_bakery_info[RCAR_MAX_BAKERIES];
 } rcar_cpu_data_t;
-
-#define RCAR_CPU_DATA_LOCK_OFFSET	\
-	__builtin_offsetof(rcar_cpu_data_t, pcpu_bakery_info)
-/*
- * Helper macros for bakery lock api when using the above rcar_cpu_data_t for
- * bakery lock data structures. It assumes that the bakery_info is at the
- * beginning of the platform specific per-cpu data.
- */
-#define rcar_lock_init(_lock_arg)
-
-#define rcar_lock_get(_lock_arg)					\
-	bakery_lock_get(_lock_arg,					\
-		CPU_DATA_PLAT_PCPU_OFFSET + RCAR_CPU_DATA_LOCK_OFFSET)
-
-#define rcar_lock_release(_lock_arg)					\
-	bakery_lock_release(_lock_arg,					\
-		CPU_DATA_PLAT_PCPU_OFFSET + RCAR_CPU_DATA_LOCK_OFFSET)
-/*
- * Ensure that the size of the RCAR specific per-cpu data structure and the size
- * of the memory allocated in generic per-cpu data for the platform are the same
- */
-CASSERT(sizeof(rcar_cpu_data_t) == PLAT_PCPU_DATA_SIZE,
-	rcar_pcpu_data_size_mismatch);
 #endif
 /*
  * Function and variable prototypes

@@ -190,13 +190,4 @@
  ******************************************************************************/
 #define CACHE_WRITEBACK_SHIFT   (6)
 #define CACHE_WRITEBACK_GRANULE (1 << CACHE_WRITEBACK_SHIFT)
-
-/*******************************************************************************
- * Size of the per-cpu data in bytes that should be reserved in the generic
- * per-cpu data structure for the RCAR port.
- ******************************************************************************/
-#if !USE_COHERENT_MEM
-#define PLAT_PCPU_DATA_SIZE	(2)
-#endif
-
 #endif /* PLATFORM_DEF_H */
