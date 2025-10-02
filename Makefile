@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -1246,6 +1246,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_PAUTH \
 	ENABLE_FEAT_AMU \
 	ENABLE_FEAT_AMUv1p1 \
+	ENABLE_FEAT_CLRBHB \
 	ENABLE_FEAT_CSV2_2 \
 	ENABLE_FEAT_DIT \
 	ENABLE_FEAT_ECV \
@@ -1402,6 +1403,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_AMUv1p1 \
 	ENABLE_FEAT_SEL2 \
 	ENABLE_FEAT_VHE \
+	ENABLE_FEAT_CLRBHB \
 	ENABLE_FEAT_CSV2_2 \
 	ENABLE_FEAT_PAN \
 	ENABLE_FEAT_TCR2 \

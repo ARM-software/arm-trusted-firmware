@@ -274,6 +274,14 @@ Common build options
    onwards. This flag can take the values 0 to 2, to align with the
    ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_CLRBHB``: Numeric value to enable the CLRBHB instruction.
+    Clear Branch History clears the branch history for the current context to
+    the extent that branch history information created before the CLRBHB instruction
+    cannot be used by code. This is an optional architectural feature available on v8.0
+    onwards and is a mandatory feature from v8.9 onwards.
+    This flag can take the values of 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
+    Default value is ``0``.
+
 -  ``ENABLE_FEAT_CSV2_2``: Numeric value to enable the ``FEAT_CSV2_2``
    extension. It allows access to the SCXTNUM_EL2 (Software Context Number)
    register during EL2 context save/restore operations. ``FEAT_CSV2_2`` is an

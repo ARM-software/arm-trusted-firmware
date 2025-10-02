@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -288,6 +288,9 @@
 
 #define ID_AA64ISAR2_APA3_SHIFT		U(12)
 #define ID_AA64ISAR2_APA3_MASK		ULL(0xf)
+
+#define ID_AA64ISAR2_CLRBHB_SHIFT	U(28)
+#define ID_AA64ISAR2_CLRBHB_MASK	ULL(0xf)
 
 /* ID_AA64MMFR0_EL1 definitions */
 #define ID_AA64MMFR0_EL1_PARANGE_SHIFT	U(0)
