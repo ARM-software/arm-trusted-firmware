@@ -229,6 +229,14 @@
 	.endm
 
 	/*
+	 * Clear Branch History instruction, translates to NOP on CPUs
+	 * that don't implement the clrbhb instruction.
+	 */
+	.macro clrbhb
+	hint	#22
+	.endm
+
+	/*
 	 * Macro for mitigating against speculative execution beyond ERET. Uses the
 	 * speculation barrier instruction introduced by FEAT_SB, if it's enabled.
 	 */

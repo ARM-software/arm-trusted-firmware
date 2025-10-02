@@ -34,3 +34,8 @@ endif
 ifeq "8.7" "$(word 1, $(sort 8.7 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
 ENABLE_FEAT_HCX		=	1
 endif
+
+# Enable the features which are mandatory from ARCH version 8.9 and upwards.
+ifeq "8.9" "$(word 1, $(sort 8.9 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+ENABLE_FEAT_CLRBHB	=	1
+endif
