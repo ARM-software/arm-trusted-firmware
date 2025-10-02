@@ -162,7 +162,6 @@ void bl2_el3_early_platform_setup(u_register_t x0 __unused,
 
 	/* Configure USB 3.1 in system manager */
 	reg_val = mmio_read_32(SOCFPGA_SYSMGR(USB3_MISC_CTRL_REG0));
-	reg_val |= SYSMGR_USB3_MISC0_RST_PUL_OVRD; /* set reset pulse override bit */
 	reg_val |= SYSMGR_USB3_MISC0_PORT_OVR_CURR_PIPE_PWR; /* set pipe power present bit */
 	mmio_write_32(SOCFPGA_SYSMGR(USB3_MISC_CTRL_REG0), reg_val);
 	VERBOSE("USB3_MISC_CTRL_REG0 = 0x%X\n", mmio_read_32(SOCFPGA_SYSMGR(USB3_MISC_CTRL_REG0)));
