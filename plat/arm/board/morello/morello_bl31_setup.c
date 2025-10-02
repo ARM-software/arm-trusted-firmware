@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,6 +61,8 @@ void bl31_platform_setup(void)
 	}
 #endif
 	arm_bl31_platform_setup();
+
+	gic_set_gicr_frames(arm_gicr_base_addrs);
 }
 
 #ifdef TARGET_PLATFORM_SOC

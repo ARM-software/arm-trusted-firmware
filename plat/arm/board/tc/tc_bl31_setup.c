@@ -187,6 +187,8 @@ void tc_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
+	gic_set_gicr_frames(arm_gicr_base_addrs);
+
 #ifdef PLATFORM_TESTS
 	tc_run_platform_tests();
 #endif
