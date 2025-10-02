@@ -322,6 +322,14 @@ Common build options
    onwards. This flag can take the values 0 to 2, to align with the
    ``ENABLE_FEAT`` mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_CLRBHB``: Numeric value to enable the CLRBHB instruction.
+    Clear Branch History clears the branch history for the current context to
+    the extent that branch history information created before the CLRBHB instruction
+    cannot be used by code. This is an optional architectural feature available on v8.0
+    onwards and is a mandatory feature from v8.9 onwards.
+    This flag can take the values of 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
+    Default value is ``0``.
+
 -  ``ENABLE_FEAT_CPA2``: Numeric value to enable the ``FEAT_CPA2`` extension.
    It enables checked pointer arithmetic in EL3, which will result in address
    faults in the event that a pointer arithmetic overflow error occurs. This is
