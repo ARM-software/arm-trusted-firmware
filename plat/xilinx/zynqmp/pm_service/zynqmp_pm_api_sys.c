@@ -60,10 +60,6 @@ static const eemi_api_dependency api_dep_table[] = {
 		.api_id = (uint8_t)PM_REQ_WAKEUP,
 	},
 	{
-		.id = (uint8_t)PM_ABORT_SUSPEND,
-		.api_id = (uint8_t)PM_ABORT_SUSPEND,
-	},
-	{
 		.id = (uint8_t)PM_SET_WAKEUP_SOURCE,
 		.api_id = (uint8_t)PM_SET_WAKEUP_SOURCE,
 	},
@@ -217,7 +213,6 @@ static const eemi_api_dependency api_dep_table[] = {
 static const uint8_t tfa_expected_ver_id[] = {
 	[PM_SELF_SUSPEND] = FW_API_BASE_VERSION,
 	[PM_REQ_WAKEUP] = FW_API_BASE_VERSION,
-	[PM_ABORT_SUSPEND] = FW_API_BASE_VERSION,
 	[PM_SET_WAKEUP_SOURCE] = FW_API_BASE_VERSION,
 	[PM_SYSTEM_SHUTDOWN] = FW_API_BASE_VERSION,
 	[PM_GET_API_VERSION] = FW_API_BASE_VERSION,
@@ -399,35 +394,6 @@ enum pm_ret_status pm_force_powerdown(enum pm_node_id target,
 	}
 
 	return ret;
-}
-
-/**
- * pm_abort_suspend() - PM call to announce that a prior suspend request
- *                      is to be aborted.
- * @reason: Reason for the abort.
- * @flag: 0 - Call from secure source.
- *	  1 - Call from non-secure source.
- *
- * Calling PU expects the PMU to abort the initiated suspend procedure.
- * This is a non-blocking call without any acknowledge.
- *
- * Return: Returns status, either success or error+reason
- *
- */
-enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/*
-	 * Do client specific abort suspend operations
-	 * (e.g. enable interrupts and clear powerdown request bit)
-	 */
-	pm_client_abort_suspend();
-	/* Send request to the PMU */
-	/* TODO: allow passing the node ID of the affected CPU */
-	PM_PACK_PAYLOAD3(payload, flag, PM_ABORT_SUSPEND, reason,
-			 primary_proc->node_id);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -925,7 +891,6 @@ static enum pm_ret_status get_tfa_version_for_partial_apis(uint32_t api_id,
 	switch (api_id) {
 	case PM_SELF_SUSPEND:
 	case PM_REQ_WAKEUP:
-	case PM_ABORT_SUSPEND:
 	case PM_SET_WAKEUP_SOURCE:
 	case PM_SYSTEM_SHUTDOWN:
 	case PM_GET_API_VERSION:
@@ -976,7 +941,6 @@ static enum pm_ret_status feature_check_partial(uint32_t api_id,
 	switch (api_id) {
 	case PM_SELF_SUSPEND:
 	case PM_REQ_WAKEUP:
-	case PM_ABORT_SUSPEND:
 	case PM_SET_WAKEUP_SOURCE:
 	case PM_SYSTEM_SHUTDOWN:
 	case PM_GET_API_VERSION:
