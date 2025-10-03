@@ -407,6 +407,9 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	uint32_t module_id;
 	enum pm_ret_status ret;
 
+	WARN("pm_feature_check() will be deprecated in 2027.1 release."
+	     " Use tfa_api_feature_check() for TF-A specific APIs.\n");
+
 	/* Return version of API which are implemented in TF-A only */
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
