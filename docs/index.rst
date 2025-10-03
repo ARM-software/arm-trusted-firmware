@@ -17,6 +17,7 @@ Trusted Firmware-A Documentation
    security_advisories/index
    design_documents/index
    threat_model/index
+   architecture_features
    tools/index
    change-log
    glossary
