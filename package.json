@@ -1,6 +1,6 @@
 {
   "name": "trusted-firmware-a",
-  "version": "2.12.6",
+  "version": "2.12.7",
   "license": "BSD-3-Clause",
   "type": "module",
   "private": true,
