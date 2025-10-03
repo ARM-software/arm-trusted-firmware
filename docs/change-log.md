@@ -3,6 +3,23 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.38](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.37..refs/tags/lts-v2.8.38) (2025-10-03)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A510 erratum 2008766 ([350252f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/350252f46c05d89d4caad2bf32b2775aa1265c97))
+    - workaround for Cortex-A510 erratum 2169012 ([50c936b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/50c936b5a3135416471322b7441e05bd3e6cc540))
+    - workaround for Cortex-A510 erratum 2218134 ([a8dcd16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a8dcd1673a428d4c675f4aa90bdf9c09f72cfd1a))
+    - workaround for Cortex-A510 erratum 2420992 ([6571174](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/65711740d84fa8e11a04db1f31ad747cfe261aaf))
+    - workaround for Cortex-A510 erratum 3672349 ([372e132](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/372e1322d23a306172dac6dc63c4bf0996b39563))
+    - workaround for Cortex-A510 erratum 3704847 ([bdefd87](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bdefd871d2b3fa23cbf8eefe6c34ec9759e25b53))
+    - workaround for Neoverse-V2 erratum 3701771 ([17e7be5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/17e7be571df40c22e22a0e98d38c571606e3e7a2))
+    - workaround for Neoverse-V2 erratum 3841324 ([dcbc9b2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dcbc9b2eac870ffc7c33ebbbb5cfb6d35f8b6b3e))
+
 ## [lts-2.8.37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.36..refs/tags/lts-v2.8.37) (2025-09-19)
 
 ### Build System
