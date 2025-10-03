@@ -3,6 +3,18 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.24](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.23..refs/tags/lts-v2.10.24) (2025-10-03)
+
+### New Features
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update mbedtls to version 3.6.4 ([a130a58](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a130a58ecb8ec876bd5ee9cb63e051701adb7b89))
+
 ## [lts-2.10.23](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.22..refs/tags/lts-v2.10.23) (2025-09-26)
 
 ### Build System
