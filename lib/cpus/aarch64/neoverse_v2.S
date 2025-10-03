@@ -22,6 +22,8 @@
 #error "Neoverse V2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_neoverse_v2_3701771
+
 cpu_reset_prologue neoverse_v2
 
 workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
@@ -68,6 +70,16 @@ workaround_runtime_start neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 workaround_runtime_end neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 
 check_erratum_ls neoverse_v2, ERRATUM(2801372), CPU_REV(0, 1)
+
+add_erratum_entry neoverse_v2, ERRATUM(3701771), ERRATA_V2_3701771
+
+check_erratum_ls neoverse_v2, ERRATUM(3701771), CPU_REV(0, 2)
+
+workaround_reset_start neoverse_v2, ERRATUM(3841324), ERRATA_V2_3841324
+       sysreg_bit_set  NEOVERSE_V2_CPUACTLR_EL1, BIT(1)
+workaround_reset_end neoverse_v2, ERRATUM(3841324)
+
+check_erratum_ls neoverse_v2, ERRATUM(3841324), CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31

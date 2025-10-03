@@ -562,6 +562,14 @@ For Neoverse V2, the following errata build flags are defined :
    CPU, this affects all configurations. This needs to be enabled for revisions
    r0p0 and r0p1. It has been fixed in r0p2.
 
+-  ``ERRATA_V2_3701771``: This applies errata 3701771 workaround to Neoverse-V2
+   CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2 and is
+   still open.
+
+-  ``ERRATA_V2_3841324``: This applies errata 3841324 workaround to Neoverse-V2
+   CPU. This needs to be enabled only for revisions r0p0 and r0p1 of
+   the CPU. It is fixed in r0p2.
+
 For Neoverse V3, the following errata build flags are defined :
 
 - ``ERRATA_V3_2970647``: This applies errata 2970647 workaround to Neoverse-V3
@@ -924,9 +932,9 @@ For Cortex-X4, the following errata build flags are defined :
 
 For Cortex-A510, the following errata build flags are defined :
 
--  ``ERRATA_A510_1922240``: This applies errata 1922240 workaround to
-   Cortex-A510 CPU. This needs to be enabled only for revision r0p0, it is
-   fixed in r0p1.
+-  ``ERRATA_A510_2008766``: This applies errata 2008766 workaround to
+   Cortex-A510 CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2,
+   r0p3, r1p0, r1p1, r1p2 and r1p3. It is still open.
 
 -  ``ERRATA_A510_2288014``: This applies errata 2288014 workaround to
    Cortex-A510 CPU. This needs to be enabled only for revisions r0p0, r0p1,
@@ -945,6 +953,14 @@ For Cortex-A510, the following errata build flags are defined :
    Cortex-A510 CPU. This needs to be enabled only for revision r0p2 and is
    fixed in r0p3. This issue is also present in r0p0 and r0p1 but there is no
    workaround for those revisions.
+
+-  ``ERRATA_A510_2169012``: This applies errata 2169012 workaround to
+   Cortex-A510 CPU. This needs to be enabled only for revisions r0p0, r0p1,
+   r0p2, r0p3 and r1p0, it is fixed in r1p1.
+
+-  ``ERRATA_A510_2218134``: This applies errata 2218134 workaround to
+   Cortex-A510 CPU. This needs to be enabled only for revision r1p0 and is fixed
+   in r1p1.
 
 -  ``ERRATA_A510_2250311``: This applies errata 2250311 workaround to
    Cortex-A510 CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2,
@@ -967,6 +983,10 @@ For Cortex-A510, the following errata build flags are defined :
    Cortex-A510 CPU. This needs to applied for revisions r0p0, r0p1, r0p2,
    r0p3, r1p0, r1p1, and is fixed in r1p2.
 
+-  ``ERRATA_A510_2420992``: This applies errata 2420992 workaround to
+   Cortex-A510 CPU. This needs to applied for revisions r1p0 and r1p1, and is
+   fixed in r1p2.
+
 -  ``ERRATA_A510_2666669``: This applies errata 2666669 workaround to
    Cortex-A510 CPU. This needs to applied for revisions r0p0, r0p1, r0p2,
    r0p3, r1p0, r1p1. It is fixed in r1p2.
@@ -976,6 +996,14 @@ For Cortex-A510, the following errata build flags are defined :
    r0p3, r1p0, r1p1 and r1p2. It is fixed in r1p3.
 
 -  ``ERRATA_A510_2971420``: This applies erratum 2971420 workaround to
+   Cortex-A510 CPU. This needs to be applied to revisions r0p1, r0p2, r0p3,
+   r1p0, r1p1, r1p2 and r1p3 and is still open.
+
+-  ``ERRATA_A510_3672349``: This applies erratum 3672349 workaround to
+   Cortex-A510 CPU. This needs to be applied to revisions r0p1, r0p2, r0p3,
+   r1p0, r1p1, r1p2 and r1p3 and is still open.
+
+-  ``ERRATA_A510_3704847``: This applies erratum 3704847 workaround to
    Cortex-A510 CPU. This needs to be applied to revisions r0p1, r0p2, r0p3,
    r1p0, r1p1, r1p2 and r1p3 and is still open.
 
