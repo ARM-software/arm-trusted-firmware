@@ -36,6 +36,11 @@
 #define NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_WIDTH		U(3)
 
 /*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define NEOVERSE_V2_CPUACTLR_EL1			S3_0_C15_C1_0
+
+/*******************************************************************************
  * CPU Auxiliary Control register 2 specific definitions.
  ******************************************************************************/
 #define NEOVERSE_V2_CPUACTLR2_EL1			S3_0_C15_C1_1
@@ -58,5 +63,9 @@
  * CPU Auxiliary control register 6 specific definitions
  ******************************************************************************/
 #define NEOVERSE_V2_CPUACTLR6_EL1			S3_0_C15_C8_1
+
+#ifndef __ASSEMBLER__
+long check_erratum_neoverse_v2_3701771(long cpu_rev);
+#endif /* __ASSEMBLER__ */
 
 #endif /* NEOVERSE_V2_H */
