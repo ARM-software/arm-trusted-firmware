@@ -25,6 +25,7 @@
 #define NEOVERSE_N2_CPUECTLR_EL1			S3_0_C15_C1_4
 #define NEOVERSE_N2_CPUECTLR_EL1_EXTLLC_BIT		(ULL(1) << 0)
 #define NEOVERSE_N2_CPUECTLR_EL1_PFSTIDIS_BIT		(ULL(1) << 8)
+#define NEOVERSE_N2_CPUECTLR_EL1_PFDIS_BIT		(ULL(1) << 15)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
