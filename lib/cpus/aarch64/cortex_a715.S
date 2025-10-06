@@ -64,6 +64,12 @@ workaround_reset_end cortex_a715, ERRATUM(2344187)
 
 check_erratum_ls cortex_a715, ERRATUM(2344187), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a715, ERRATUM(2376701), ERRATA_A715_2376701
+sysreg_bit_set CORTEX_A715_CPUACTLR_EL1, BIT(0)
+workaround_reset_end cortex_a715, ERRATUM(2376701)
+
+check_erratum_ls cortex_a715, ERRATUM(2376701), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a715, ERRATUM(2409570), ERRATA_A715_2409570
 sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(32)
 workaround_reset_end cortex_a715, ERRATUM(2409570)
