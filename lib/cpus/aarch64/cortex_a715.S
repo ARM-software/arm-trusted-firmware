@@ -154,6 +154,19 @@ add_erratum_entry cortex_a715, ERRATUM(3699560), ERRATA_A715_3699560
 
 check_erratum_ls cortex_a715, ERRATUM(3699560), CPU_REV(1, 3)
 
+workaround_reset_start cortex_a715, ERRATUM(3711916), ERRATA_A715_3711916
+	mov	x0, #5
+	msr	CORTEX_A715_CPUPSELR_EL3, x0
+	ldr	x0, =0xd503329f
+	msr	CORTEX_A715_CPUPOR_EL3, x0
+	ldr	x0, =0xfffff3ff
+	msr	CORTEX_A715_CPUPMR_EL3, x0
+	ldr	x0, =0x1004003F1
+	msr	CORTEX_A715_CPUPCR_EL3, x0
+workaround_reset_end cortex_a715, ERRATUM(3711916)
+
+check_erratum_ls cortex_a715, ERRATUM(3711916), CPU_REV(1, 3)
+
 workaround_reset_start cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
