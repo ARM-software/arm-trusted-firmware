@@ -1031,6 +1031,12 @@ For Cortex-A715, the following errata build flags are defined :
    Cortex-A715 CPU. This needs to be enabled for revisions r0p0 and r1p0. It is
    fixed in r1p1.
 
+-  ``ERRATA_A715_2409570``: This applies errata 2409570 workaround to
+   Cortex-A715 CPU. This needs to be enabled only for revision r1p0.
+   It is fixed in r1p1. This errata also applies to r0p0 but that revision has a
+   different workaround, and since r0p0 is not used in production hardware it is
+   not implemented.
+
 -  ``ERRATA_A715_2413290``: This applies errata 2413290 workaround to
    Cortex-A715 CPU. This needs to be enabled only for revision r1p0 and
    when SPE(Statistical profiling extension)=True. The errata is fixed
