@@ -24,12 +24,6 @@ static uint8_t *event_log;
 static uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
 #endif
 
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
-
 /* FVP table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t fvp_event_log_metadata[] = {
 	{ FW_CONFIG_ID, MBOOT_FW_CONFIG_STRING, PCR_0 },
@@ -43,6 +37,20 @@ void bl1_plat_mboot_init(void)
 {
 	size_t event_log_max_size;
 	int rc;
+	tpm_alg_id algos[] = {
+#ifdef TPM_ALG_ID
+		TPM_ALG_ID,
+#else
+		/*
+		 * TODO: with MEASURED_BOOT=1 several algorithms are now compiled into
+		 * Mbed-TLS, we ought to query the backend to figure out what algorithms
+		 * to use.
+		 */
+		TPM_ALG_SHA256,
+		TPM_ALG_SHA384,
+		TPM_ALG_SHA512,
+#endif
+	};
 
 #if TRANSFER_LIST
 	event_log_max_size = PLAT_ARM_EVENT_LOG_MAX_SIZE;
@@ -55,13 +63,13 @@ void bl1_plat_mboot_init(void)
 #endif
 
 	rc = event_log_init_and_reg(event_log, event_log + event_log_max_size,
-				    &crypto_hash_info);
+				    0U, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
 	}
 
-	rc = event_log_write_header();
+	rc = event_log_write_header(algos, ARRAY_SIZE(algos), 0, NULL, 0);
 	if (rc < 0) {
 		ERROR("Failed to write event log header (%d).\n", rc);
 		panic();
