@@ -252,17 +252,16 @@ smc_handler:
 	mov	sp, x12
 
 	/* -----------------------------------------------------
-	 * Save the SPSR_EL3, ELR_EL3, & SCR_EL3 in case there
+	 * Save the SPSR_EL3, ELR_EL3 in case there
 	 * is a world switch during SMC handling.
 	 * -----------------------------------------------------
 	 */
 	mrs	x16, spsr_el3
 	mrs	x17, elr_el3
-	mrs	x18, scr_el3
 	stp	x16, x17, [x6, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	str	x18, [x6, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 
 	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
+	mrs	x18, scr_el3
 	bfi	x7, x18, #0, #1
 
 	/* -----------------------------------------------------

@@ -249,8 +249,6 @@ func ea_proceed
 	mrs	x2, spsr_el3
 	mrs	x3, elr_el3
 	stp	x2, x3, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	mrs	x4, scr_el3
-	str	x4, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 
 	/*
 	 * Save CTX_DOUBLE_FAULT_ESR, so that if another fault happens in lower EL, we
@@ -301,13 +299,6 @@ func ea_proceed
 
 	/* Clear Double Fault storage */
 	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_DOUBLE_FAULT_ESR]
-
-	/* Restore EL3 state */
-	ldp	x1, x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	msr	spsr_el3, x1
-	msr	elr_el3, x2
-	ldr	x3, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
-	msr	scr_el3, x3
 
 	ret	x29
 endfunc ea_proceed
