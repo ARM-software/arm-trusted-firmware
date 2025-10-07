@@ -923,6 +923,7 @@
 #define SPSR_N_BIT		(U(1) << 31)
 #define SPSR_DAIF_SHIFT		U(6)
 #define SPSR_DAIF_MASK		U(0xf)
+#define SPSR_DAIF_WIDTH		U(4)
 
 #define SPSR_AIF_SHIFT		U(6)
 #define SPSR_AIF_MASK		U(0x7)
@@ -1201,6 +1202,8 @@
 #define EC_AARCH64_FP			U(0x2c)
 #define EC_SERROR			U(0x2f)
 #define EC_BRK				U(0x3c)
+
+#define EC_ABORT_CUR_EL_BIT		U(0x1)
 
 /* ISS layout for trapped AArch64 system-register access (ESR_EL3.ISS)
  *
@@ -1738,6 +1741,7 @@
  * FEAT_HCX - Extended Hypervisor Configuration Register
  ******************************************************************************/
 #define HCRX_EL2		S3_4_C1_C2_2
+#define HCRX_EL2_TMEA_BIT	(UL(1) << 19)
 #define HCRX_EL2_MSCEn_BIT	(UL(1) << 11)
 #define HCRX_EL2_MCE2_BIT	(UL(1) << 10)
 #define HCRX_EL2_CMOW_BIT	(UL(1) << 9)

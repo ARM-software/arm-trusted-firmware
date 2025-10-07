@@ -287,6 +287,46 @@ static unsigned int get_undef_target_el(u_register_t scr_el3, unsigned int from_
 	}
 }
 
+#if FFH_SUPPORT
+/* based on shared.exceptions.aborts.EffectiveHCRX_EL2_TMEA */
+static bool is_hcrx_el2_tmea_set(u_register_t scr_el3)
+{
+	return is_feat_doublefault2_supported() && el2_enabled(scr_el3) &&
+	       is_feat_hcx_supported() &&
+	       (read_hcrx_el2() & HCRX_EL2_TMEA_BIT) != 0U;
+}
+
+/*
+ * Get target EL for a Synchronous External Abort. Based on
+ * shared.exceptions.aborts.SyncExternalAbortTarget. Three branches of the
+ * pseudocode are ignored:
+ *   - EL3 routing - this already happened in HW
+ *   - FEAT_NV2 access type - cannot end up in EL3 (rule RYWCZS)
+ *   - Second stage faults - cannot be distinguished in SW
+ */
+static unsigned int target_el_sync_ea(el3_state_t *state)
+{
+	u_register_t spsr_el3 = read_ctx_reg(state, CTX_SPSR_EL3);
+	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	u_register_t hcr_el2 = read_hcr_el2();
+	uint8_t el = GET_EL(spsr_el3);
+	bool pstate_a = (EXTRACT(SPSR_DAIF, spsr_el3) & DAIF_ABT_BIT) != 0;
+
+	if (el2_enabled(scr_el3) && (el == MODE_EL1 || el == MODE_EL0) &&
+	   /* effective_tea */
+	   (is_feat_ras_supported() && ((hcr_el2 & HCR_TEA_BIT) != 0U)) &&
+	   ((el == 0) && is_tge_enabled())) {
+		return MODE_EL2;
+	} else if (is_hcrx_el2_tmea_set(scr_el3) && pstate_a && el == MODE_EL1) {
+			return MODE_EL2;
+	} else if (el == MODE_EL2) {
+		return MODE_EL2;
+	}
+
+	return MODE_EL1;
+}
+#endif
+
 /*******************************************************************************
  * END OF HARDWARE PSEUDOCODE
  ******************************************************************************/
@@ -374,3 +414,51 @@ void inject_undef64(cpu_context_t *ctx)
 
 	inject_exception(state, esr, to_el);
 }
+
+#if FFH_SUPPORT
+/*
+ * Handler for injecting SEA to either EL2 or EL1 for
+ * Data abort exception or instruction abort exception.
+ */
+void inject_sync_ea64(el3_state_t *state, u_register_t esr_el3)
+{
+	u_register_t spsr_el3 = read_ctx_reg(state, CTX_SPSR_EL3);
+	u_register_t new_esr;
+	unsigned int to_el = 0;
+
+	to_el = target_el_sync_ea(state);
+
+	/*
+	 * create the lower EL syndrome. This hinges on the assumption that
+	 * ESR_EL3 for D/A aborts is a subset of ESR_ELx for the same. This
+	 * allows skipping the very complicated logic to recreate the ISS.
+	 */
+	new_esr = esr_el3;
+	/*
+	 * Uses the fact that the EC values for current EL D/A aborts are the
+	 * same as the values for lower EL D/A aborts with the lowermost bit
+	 * set. ESR_EL3 is expected to always contain a lower EL abort value.
+	 */
+	if (GET_EL(spsr_el3) == to_el) {
+		new_esr |= EC_ABORT_CUR_EL_BIT << ESR_EC_SHIFT;
+	}
+
+	/*
+	 * Sync EAs will architecturally clear FnV (FAR not Valid) and set PFV
+	 * (PFAR Valid) in the ESR. So write those registers.
+	 */
+	if (to_el == MODE_EL2) {
+		write_far_el2(read_far_el3());
+		if (is_feat_pfar_supported()) {
+			write_pfar_el2(read_mfar_el3());
+		}
+	} else {
+		write_far_el1(read_far_el3());
+		if (is_feat_pfar_supported()) {
+			write_pfar_el1(read_mfar_el3());
+		}
+	}
+
+	inject_exception(state, new_esr, to_el);
+}
+#endif
