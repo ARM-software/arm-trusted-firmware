@@ -670,4 +670,11 @@ static inline bool is_feat_tgran64K_present(void)
 	return (tgranx < 8U);
 }
 
+/* FEAT_DoubleFault2: Double Fault Extension v2 */
+__attribute__((always_inline))
+static inline bool is_feat_doublefault2_supported(void)
+{
+	/* this function is a placeholder until proper support is added */
+	return false;
+}
 #endif /* ARCH_FEATURES_H */
