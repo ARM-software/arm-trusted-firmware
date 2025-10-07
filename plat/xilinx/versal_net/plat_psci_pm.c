@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <common/debug.h>
+#include <common/ep_info.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/arm/common/plat_arm.h>
@@ -84,15 +85,15 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version_type[0], SECURE_FLAG);
+	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version_type[0], NON_SECURE);
 	if (ret == (uint32_t)PM_RET_SUCCESS) {
 		fw_api_version = version_type[0] & 0xFFFFU;
 		if (fw_api_version >= 3U) {
 			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
-					      SECURE_FLAG);
+					      NON_SECURE);
 		} else {
 			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-					      SECURE_FLAG);
+					      NON_SECURE);
 		}
 	}
 
@@ -132,7 +133,7 @@ static void __dead2 versal_net_system_reset_scope(uint32_t scope)
 	 */
 	if (!pm_pwrdwn_req_status()) {
 		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-					 scope, SECURE_FLAG);
+					 scope, NON_SECURE);
 
 		/*
 		 * Wait for system shutdown request completed and idle callback
@@ -231,7 +232,7 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 
 	/* Send request to PMC to suspend this core */
 	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_net_sec_entry,
-			SECURE_FLAG);
+			      NON_SECURE);
 
 	/* TODO: disable coherency */
 
@@ -287,7 +288,7 @@ static void __dead2 versal_net_system_off(void)
 {
 	/* Send the power down request to the PMC */
 	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
-			  pm_get_shutdown_scope(), SECURE_FLAG);
+				 pm_get_shutdown_scope(), NON_SECURE);
 
 	while (true) {
 		wfi();

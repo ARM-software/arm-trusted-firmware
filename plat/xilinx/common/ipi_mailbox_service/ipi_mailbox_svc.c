@@ -54,7 +54,7 @@
  * @x4: Arguments.
  * @cookie: Unused.
  * @handle: Pointer to caller's context structure.
- * @flags: SECURE_FLAG or NON_SECURE_FLAG.
+ * @flags: SECURE or NON_SECURE.
  *
  * Return: Unused.
  *

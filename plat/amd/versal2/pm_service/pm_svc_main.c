@@ -15,6 +15,7 @@
 
 #include "../drivers/arm/gic/v3/gicv3_private.h"
 
+#include <common/ep_info.h>
 #include <common/runtime_svc.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/psci/psci.h>
@@ -299,7 +300,7 @@ int32_t pm_setup(void)
 
 	/* Register for idle callback during force power down/restart */
 	ret = (int32_t)pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
-				   0x0U, 0x1U, SECURE_FLAG);
+					    0x0U, 0x1U, SECURE);
 	if (ret != 0) {
 		WARN("BL31: registering idle callback for restart/force power down failed\n");
 	}
@@ -312,7 +313,7 @@ int32_t pm_setup(void)
  * @api_id: identifier for the API being called.
  * @pm_arg: pointer to the argument data for the API call.
  * @handle: Pointer to caller's context structure.
- * @security_flag: SECURE_FLAG or NON_SECURE_FLAG.
+ * @security_flag: SECURE or NON_SECURE.
  *
  * These EEMI APIs performs CPU specific power management tasks.
  * These EEMI APIs are invoked either from PSCI or from debugfs in kernel.
@@ -358,7 +359,7 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, uint32_t *pm_arg,
  * @api_id: identifier for the API being called.
  * @pm_arg: pointer to the argument data for the API call.
  * @handle: Pointer to caller's context structure.
- * @security_flag: SECURE_FLAG or NON_SECURE_FLAG.
+ * @security_flag: SECURE or NON_SECURE.
  *
  * These EEMI calls performs functionality that does not require
  * IPI transaction. The handler ends in TF-A and returns requested data to
@@ -422,7 +423,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
  * @api_id: identifier for the API being called.
  * @pm_arg: pointer to the argument data for the API call.
  * @handle: Pointer to caller's context structure.
- * @security_flag: SECURE_FLAG or NON_SECURE_FLAG.
+ * @security_flag: SECURE or NON_SECURE.
  *
  * EEMI - Embedded Energy Management Interface is AMD-Xilinx proprietary
  * protocol to allow communication between power management controller and
@@ -465,7 +466,7 @@ static uintptr_t eemi_api_handler(uint32_t api_id, const uint32_t *pm_arg,
  * @x4: Unused.
  * @cookie: Unused.
  * @handle: Pointer to caller's context structure.
- * @flags: SECURE_FLAG or NON_SECURE_FLAG.
+ * @flags: SECURE or NON_SECURE.
  *
  * Return: Unused.
  *
@@ -482,7 +483,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 {
 	uintptr_t ret;
 	uint32_t pm_arg[PAYLOAD_ARG_CNT] = {0};
-	uint32_t security_flag = NON_SECURE_FLAG;
+	uint32_t security_flag = NON_SECURE;
 	uint32_t api_id;
 	bool status = false, status_tmp = false;
 	uint64_t x[4] = {x1, x2, x3, x4};
@@ -500,7 +501,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	 */
 	SECURE_REDUNDANT_CALL(status, status_tmp, is_caller_secure, flags);
 	if ((status != false) && (status_tmp != false)) {
-		security_flag = SECURE_FLAG;
+		security_flag = SECURE;
 	}
 
 	if ((smc_fid & FUNCID_NUM_MASK) == PASS_THROUGH_FW_CMD_ID) {

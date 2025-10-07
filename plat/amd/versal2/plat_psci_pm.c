@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <common/debug.h>
+#include <common/ep_info.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
@@ -85,7 +86,7 @@ static void versal2_pwr_domain_off(const psci_power_state_t *target_state)
 	 * be set.
 	 */
 	pm_ret = pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-			      SECURE_FLAG);
+				 NON_SECURE);
 
 	if (pm_ret != PM_RET_SUCCESS) {
 		ERROR("Failed to power down CPU %d\n", cpu_id);
@@ -118,7 +119,7 @@ static void __dead2 versal2_system_reset(void)
 		 * including the implementation of SYSTEM_RESET2.
 		 */
 		pm_ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-					 pm_get_shutdown_scope(), SECURE_FLAG);
+					 pm_get_shutdown_scope(), NON_SECURE);
 
 		if (pm_ret != PM_RET_SUCCESS) {
 			WARN("System shutdown failed\n");
@@ -177,7 +178,7 @@ static void versal2_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	/* Send request to PMC to suspend this core */
 	ret = pm_self_suspend(proc->node_id, MAX_LATENCY, state, sec_entry,
-			      SECURE_FLAG);
+			      NON_SECURE);
 
 	if (ret != PM_RET_SUCCESS) {
 		ERROR("Failed to power down CPU %d\n", cpu_id);
@@ -272,7 +273,7 @@ static void __dead2 versal2_system_off(void)
 
 	/* Send the power down request to the PMC */
 	ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
-				 pm_get_shutdown_scope(), SECURE_FLAG);
+				 pm_get_shutdown_scope(), NON_SECURE);
 
 	if (ret != PM_RET_SUCCESS) {
 		ERROR("System shutdown failed\n");

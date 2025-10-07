@@ -18,6 +18,7 @@
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
 #include <plat/common/platform.h>
+#include <plat_pm_common.h>
 
 #include <plat_private.h>
 #include "pm_client.h"

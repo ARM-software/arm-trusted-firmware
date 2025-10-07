@@ -10,6 +10,8 @@
  * IPI interrupts
  */
 
+#include <common/ep_info.h>
+#include <common/debug.h>
 #include <drivers/arm/gic_common.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
@@ -499,7 +501,7 @@ enum pm_ret_status pm_get_chipid(uint32_t *value)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
-	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, SECURE_FLAG, PM_GET_CHIPID);
+	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, SECURE, PM_GET_CHIPID);
 
 	return pm_ipi_send_sync(primary_proc, payload, value, 2);
 }

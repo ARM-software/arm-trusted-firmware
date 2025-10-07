@@ -8,6 +8,7 @@
 
 
 #include <arch_helpers.h>
+#include <common/debug.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
