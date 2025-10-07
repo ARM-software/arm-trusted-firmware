@@ -697,6 +697,13 @@ subsections:
           - title: npcm845x
             scope: npcm845x
 
+      - title: Altera
+        scope: altera
+
+        subsections:
+          - title: Agilex3
+            scope: agilex3
+
   - title: Bootloader Images
     scope: bl
 
