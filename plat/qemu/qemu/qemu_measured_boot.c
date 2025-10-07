@@ -5,16 +5,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <stdint.h>
 
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 
 #include <common/debug.h>
+#include <common/measured_boot.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/measured_boot/metadata.h>
 #include <event_measure.h>
 #include <event_print.h>
+#include <tcg.h>
 #include <tools_share/tbbr_oid.h>
 
 #include "../common/qemu_private.h"
@@ -22,12 +25,6 @@
 /* Event Log data */
 static uint8_t event_log[PLAT_EVENT_LOG_MAX_SIZE];
 static uint64_t event_log_base;
-
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
 
 /* QEMU table with platform specific image IDs, names and PCRs */
 static const event_log_metadata_t qemu_event_log_metadata[] = {
@@ -47,19 +44,35 @@ static const event_log_metadata_t qemu_event_log_metadata[] = {
 
 void bl2_plat_mboot_init(void)
 {
+	int rc;
+	tpm_alg_id algos[] = {
+#ifdef TPM_ALG_ID
+		TPM_ALG_ID,
+#else
+		/*
+		 * TODO: with MEASURED_BOOT=1 several algorithms are now compiled into
+		 * Mbed-TLS, we ought to query the backend to figure out what algorithms
+		 * to use.
+		 */
+		TPM_ALG_SHA256,
+		TPM_ALG_SHA384,
+		TPM_ALG_SHA512,
+#endif
+	};
+
 	/*
 	 * Here we assume that BL1/ROM code doesn't have the driver
 	 * to measure the BL2 code which is a common case for
 	 * already existing platforms
 	 */
-	int rc = event_log_init_and_reg(
-		event_log, event_log + sizeof(event_log), &crypto_hash_info);
+	rc = event_log_init_and_reg(event_log, event_log + sizeof(event_log),
+				    0U, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
 	}
 
-	rc = event_log_write_header();
+	rc = event_log_write_header(algos, ARRAY_SIZE(algos), 0, NULL, 0);
 	if (rc < 0) {
 		ERROR("Failed to write event log header (%d).\n", rc);
 		panic();
@@ -137,11 +150,22 @@ void bl2_plat_mboot_finish(void)
 
 int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 {
+	const event_log_metadata_t *metadata_ptr;
+	int err;
+
+	metadata_ptr = mboot_find_event_log_metadata(qemu_event_log_metadata,
+						     image_id);
+	if (metadata_ptr == NULL) {
+		ERROR("Unable to find metadata for image %u.\n", image_id);
+		return -1;
+	}
+
 	/* Calculate image hash and record data in Event Log */
-	int err = event_log_measure_and_record(image_data->image_base,
-					       image_data->image_size,
-					       image_id,
-					       qemu_event_log_metadata);
+	err = event_log_measure_and_record(metadata_ptr->pcr,
+					   image_data->image_base,
+					   image_data->image_size,
+					   metadata_ptr->name,
+					   strlen(metadata_ptr->name) + 1U);
 	if (err != 0) {
 		ERROR("%s%s image id %u (%i)\n",
 		      "Failed to ", "record", image_id, err);

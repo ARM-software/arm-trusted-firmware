@@ -304,7 +304,7 @@
 /*
  * Maximum size of Event Log buffer used in Measured Boot Event Log driver
  */
-#define	PLAT_EVENT_LOG_MAX_SIZE		UL(0x400)
+#define PLAT_EVENT_LOG_MAX_SIZE UL(0x800)
 
 #if SPMC_AT_EL3
 /*

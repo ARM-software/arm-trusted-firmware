@@ -94,13 +94,18 @@ ifeq (${MEASURED_BOOT},1)
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
 
-    BL2_SOURCES		+=	plat/qemu/qemu/qemu_measured_boot.c	\
-				plat/qemu/qemu/qemu_helpers.c
+    BL2_SOURCES	+=	plat/qemu/qemu/qemu_measured_boot.c	\
+			plat/qemu/qemu/qemu_helpers.c		\
+			common/measured_boot_helpers.c
 
-    BL2_LIBS += $(LIBEVLOG_LIBS)
-    BL2_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
+    BL2_LIBS		+=	$(LIBEVLOG_LIBS)
+    BL2_INCLUDE_DIRS	+=	$(LIBEVLOG_INCLUDE_DIRS)
 
-     BL1_SOURCES	+=      plat/qemu/qemu/qemu_bl1_measured_boot.c
+    BL1_LIBS		+=	$(LIBEVLOG_LIBS)
+    BL1_INCLUDE_DIRS	+=	$(LIBEVLOG_INCLUDE_DIRS)
+
+    BL1_SOURCES	+=	plat/qemu/qemu/qemu_bl1_measured_boot.c	\
+			common/measured_boot_helpers.c
 
 endif
 
