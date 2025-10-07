@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <arch_helpers.h>
+#include <common/measured_boot.h>
 
 void rpi3_mboot_fetch_eventlog_info(uint8_t **eventlog_addr, size_t *eventlog_size);
 

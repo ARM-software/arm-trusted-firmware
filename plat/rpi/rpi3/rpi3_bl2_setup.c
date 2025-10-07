@@ -6,7 +6,9 @@
 
 #include <assert.h>
 
+#if MEASURED_BOOT
 #include "./include/rpi3_measured_boot.h"
+#endif
 
 #include <arch_helpers.h>
 #include <common/bl_common.h>
