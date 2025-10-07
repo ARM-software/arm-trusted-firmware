@@ -128,10 +128,12 @@ ifeq (${MEASURED_BOOT},1)
 PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 BL1_SOURCES		+=	plat/arm/board/juno/juno_common_measured_boot.c	\
-				plat/arm/board/juno/juno_bl1_measured_boot.c
+				plat/arm/board/juno/juno_bl1_measured_boot.c	\
+				common/measured_boot_helpers.c
 
 BL2_SOURCES		+=	plat/arm/board/juno/juno_common_measured_boot.c	\
-				plat/arm/board/juno/juno_bl2_measured_boot.c
+				plat/arm/board/juno/juno_bl2_measured_boot.c	\
+				common/measured_boot_helpers.c
 endif
 
 endif

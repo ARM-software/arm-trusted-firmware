@@ -17,12 +17,6 @@
 #include <event_print.h>
 #include <tools_share/zero_oid.h>
 
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
-
 /* Event Log data */
 static uint8_t *event_log;
 
@@ -37,21 +31,34 @@ const event_log_metadata_t juno_event_log_metadata[] = {
 void bl1_plat_mboot_init(void)
 {
 #if TRANSFER_LIST
-	size_t event_log_max_size = PLAT_ARM_EVENT_LOG_MAX_SIZE;
 	int rc;
+	size_t event_log_max_size = PLAT_ARM_EVENT_LOG_MAX_SIZE;
+	tpm_alg_id algos[] = {
+#ifdef TPM_ALG_ID
+		TPM_ALG_ID,
+#else
+		/*
+		 * TODO: with MEASURED_BOOT=1 several algorithms now compiled into Mbed-TLS,
+		 * we ought to query the backend to figure out what algorithms to use.
+		 */
+		TPM_ALG_SHA256,
+		TPM_ALG_SHA384,
+		TPM_ALG_SHA512,
+#endif
+	};
 
 	event_log =
 		transfer_list_event_log_extend(secure_tl, event_log_max_size);
 	assert(event_log != NULL);
 
 	rc = event_log_init_and_reg(event_log, event_log + event_log_max_size,
-				    &crypto_hash_info);
+				    0U, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
 	}
 
-	rc = event_log_write_header();
+	rc = event_log_write_header(algos, ARRAY_SIZE(algos), 0, NULL, 0);
 	if (rc < 0) {
 		ERROR("Failed to write event log header (%d).\n", rc);
 		panic();
