@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -196,7 +196,7 @@ static QCBORError decode_derive_context_response(UsefulBufC encoded_buf,
 {
 	QCBORDecodeContext decode_ctx;
 	UsefulBufC out;
-	int64_t response_dpe_err;
+	int64_t response_dpe_err = 0;
 
 	QCBORDecode_Init(&decode_ctx, encoded_buf, QCBOR_DECODE_MODE_NORMAL);
 

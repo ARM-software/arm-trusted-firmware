@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,7 +76,7 @@ int dpe_measure_and_record(struct dpe_metadata *metadata,
 {
 	static int current_context_handle;
 	DiceInputValues dice_inputs = { 0 };
-	int new_parent_context_handle;
+	int new_parent_context_handle = 0;
 	int new_context_handle;
 	dpe_error_t ret;
 	int rc;
