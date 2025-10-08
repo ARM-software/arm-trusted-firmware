@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
@@ -48,7 +48,7 @@
 static struct mmc_device_info mmc_info;
 
 /* Declare cadence idmac descriptor */
-extern struct cdns_idmac_desc cdns_desc[8] __aligned(32);
+extern struct cdns_idmac_desc cdns_desc[CONFIG_CDNS_DESC_COUNT] __aligned(8);
 
 const mmap_region_t agilex_plat_mmap[] = {
 	MAP_REGION_FLAT(DRAM_BASE, DRAM_SIZE,
