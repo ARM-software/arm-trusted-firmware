@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -59,7 +59,7 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 include lib/coreboot/coreboot.mk
 include lib/libfdt/libfdt.mk
 
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0

@@ -173,7 +173,7 @@ BL31_SOURCES		+=	common/fdt_wrappers.c		\
 				common/uuid.c
 
 # Add support for platform supplied linker script for BL31 build
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 endif
 
 ifeq ($(PLAT_SP_MANIFEST_DTS),)

@@ -897,6 +897,10 @@ Common build options
    by each world and each privileged exception level. This build option is
    applicable only for ``ARCH=aarch64`` builds. The default value is 0.
 
+- ``PLAT_EXTRA_LD_SCRIPT``: Allows the platform to include a custom LD script
+   snippet for any custom sections that cannot be expressed otherwise. Defaults
+   to 0.
+
 -  ``PRELOADED_BL33_BASE``: This option enables booting a preloaded BL33 image
    instead of the normal boot flow. When defined, it must specify the entry
    point address for the preloaded BL33 image. This option is incompatible with

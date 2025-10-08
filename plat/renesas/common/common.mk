@@ -21,7 +21,7 @@ HANDLE_EA_EL3_FIRST_NS		:= 1
 # Crypto module.
 override CRYPTO_SUPPORT		:= 0
 
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 ifeq (${SPD},none)
   SPD_NONE:=1
