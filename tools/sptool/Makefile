@@ -34,7 +34,7 @@ ${PROJECT}: ${OBJECTS} Makefile
 	$(s)echo "Built $@ successfully"
 	$(s)echo
 
-%.o: %.c Makefile
+$(OBJECTS): %.o: %.c Makefile
 	$(s)echo "  HOSTCC  $<"
 	$(q)$(host-cc) -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
