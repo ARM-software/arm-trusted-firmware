@@ -66,6 +66,8 @@
 #define SOCFPGA_MMC_BLOCK_SIZE					U(8192)
 #endif
 
+#define PLAT_NAND_SCRATCH_BUFF					(0x96400000)
+
 /* Register Mapping */
 #define SOCFPGA_CCU_NOC_REG_BASE				0x1c000000
 #define SOCFPGA_F2SDRAMMGR_REG_BASE				0x18001000
