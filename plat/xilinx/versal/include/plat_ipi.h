@@ -63,8 +63,8 @@ void versal_ipi_config_table_init(void);
 #define IPI3_REG_BASE		U(0xFF360000)
 #define IPI3_TRIG_BIT		(1U << 5U)
 #define IPI4_REG_BASE		U(0xFF370000)
-#define IPI4_TRIG_BIT		(1U << 5U)
+#define IPI4_TRIG_BIT		(1U << 6U)
 #define IPI5_REG_BASE		U(0xFF380000)
-#define IPI5_TRIG_BIT		(1U << 6U)
+#define IPI5_TRIG_BIT		(1U << 7U)
 
 #endif /* PLAT_IPI_H */
