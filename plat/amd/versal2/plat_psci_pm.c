@@ -28,6 +28,9 @@
 
 static uintptr_t sec_entry;
 
+/* 1 sec of wait timeout for receiving idle callback */
+#define IDLE_CB_WAIT_TIMEOUT	(1000000U)
+
 static int32_t versal2_pwr_domain_on(u_register_t mpidr)
 {
 	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
@@ -269,7 +272,10 @@ err:
  */
 static void __dead2 versal2_system_off(void)
 {
+	uint64_t timeout;
 	enum pm_ret_status ret;
+
+	request_cpu_pwrdwn();
 
 	/* Send the power down request to the PMC */
 	ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
@@ -278,6 +284,19 @@ static void __dead2 versal2_system_off(void)
 	if (ret != PM_RET_SUCCESS) {
 		ERROR("System shutdown failed\n");
 	}
+
+	/*
+	 * Wait for system shutdown request completed and idle callback
+	 * not received.
+	 */
+	timeout = timeout_init_us(IDLE_CB_WAIT_TIMEOUT);
+	do {
+		ret = ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
+					    primary_proc->ipi->remote_ipi_id);
+		udelay(100);
+	} while ((ret != (int32_t)IPI_MB_STATUS_RECV_PENDING) && !timeout_elapsed(timeout));
+
+	(void)psci_cpu_off();
 
 	while (true) {
 		wfi();
