@@ -19,7 +19,6 @@
 
 /* Functions to be implemented by each PU */
 void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag);
-void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
 
 #if !defined(PLAT_zynqmp)
