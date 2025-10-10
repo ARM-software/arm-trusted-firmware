@@ -159,6 +159,14 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  */
 void bl2_plat_preload_setup(void)
 {
+#if ARM_GPT_SUPPORT && !PSA_FWU_SUPPORT
+	/*
+	 * Find FIP in GPT before FW Config load.
+	 * Always use the FIP from bank 0
+	 */
+	arm_set_fip_addr(0U);
+#endif /* ARM_GPT_SUPPORT && !PSA_FWU_SUPPORT */
+
 #if TRANSFER_LIST
 /* Assume the secure TL hasn't been initialised if BL2 is running at EL3. */
 #if RESET_TO_BL2
@@ -178,10 +186,6 @@ void bl2_plat_preload_setup(void)
 	arm_bl2_dyn_cfg_init();
 #endif
 
-#if ARM_GPT_SUPPORT && !PSA_FWU_SUPPORT
-	/* Always use the FIP from bank 0 */
-	arm_set_fip_addr(0U);
-#endif /* ARM_GPT_SUPPORT && !PSA_FWU_SUPPORT */
 }
 
 /*
