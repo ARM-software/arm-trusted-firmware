@@ -1062,6 +1062,10 @@ For Cortex-A715, the following errata build flags are defined :
 
 For Cortex-A720, the following errata build flags are defined :
 
+-  ``ERRATA_A720_2729604``: This applies errata 2729604 workaround to
+   Cortex-A720 CPU. This needs to be enabled for revisions r0p0 and r0p1.
+   It is fixed in r0p2.
+
 -  ``ERRATA_A720_2792132``: This applies errata 2792132 workaround to
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0 and r0p1.
    It is fixed in r0p2.
@@ -1079,6 +1083,10 @@ For Cortex-A720, the following errata build flags are defined :
    It is fixed in r0p2.
 
 -  ``ERRATA_A720_3699561``: This applies errata 3699561 workaround to
+   Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
+   and r0p2. It is still open.
+
+-  ``ERRATA_A720_3711910``: This applies errata 3711910 workaround to
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
    and r0p2. It is still open.
 
