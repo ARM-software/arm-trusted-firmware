@@ -370,6 +370,21 @@ static int is_out_of_sec_range(uint64_t reg_addr)
 	return 0;
 #endif
 
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	if (is_agilex5_A5F4() == true) {
+		switch (reg_addr) {
+		/* TSN stream control registers — only accessible on Agilex5 B0 */
+		case SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN0):
+		case SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN1):
+		case SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN2):
+			return 0;
+
+		default:
+			break;
+		}
+	}
+#endif
+
 #if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX5
 	switch (reg_addr) {
 	case(0xF8011100):	/* ECCCTRL1 */
@@ -445,16 +460,6 @@ static int is_out_of_sec_range(uint64_t reg_addr)
 	case(SOCFPGA_SYSMGR(EMAC_0)):	/* EMAC0 */
 	case(SOCFPGA_SYSMGR(EMAC_1)):	/* EMAC1 */
 	case(SOCFPGA_SYSMGR(EMAC_2)):	/* EMAC2 */
-
-	/* TSN stream control registers — only accessible on Agilex5 B0 */
-	case SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN0):
-	case SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN1):
-	case SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN2):
-	if (is_agilex5_A5F4() == true) {
-		return 0;
-	}
-	break;
-
 	case(SOCFPGA_SYSMGR(ECC_INTMASK_VALUE)):	/* ECC_INT_MASK_VALUE */
 	case(SOCFPGA_SYSMGR(ECC_INTMASK_SET)):	/* ECC_INT_MASK_SET */
 	case(SOCFPGA_SYSMGR(ECC_INTMASK_CLR)):	/* ECC_INT_MASK_CLEAR */
