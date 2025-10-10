@@ -3,6 +3,23 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.25](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.24..refs/tags/lts-v2.10.25) (2025-10-10)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A720 erratum 2729604 ([af2b4d1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af2b4d148a240d1dfa97bfc2ca0025ed52e7d566))
+    - workaround for Cortex-A720 erratum 3711910 ([b5a976a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b5a976a0c9d056341b30bf7cdbd275055da95fa0))
+    - workaround for Neoverse-V2 erratum 3701771 ([9461048](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/94610488dd310e7f054f41a2ce2ebd22d9ae1640))
+    - workaround for Neoverse-V2 erratum 3841324 ([a4d0e81](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a4d0e8156cf5a789564012d2f53b2a9e7afccdc7))
+
+### Code Refactoring
+
+- fix workaround order for Cortex-A720 ([9344c4e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9344c4e10e41014e1aa77973acd23213bbb141f4))
+
 ## [lts-2.10.24](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.23..refs/tags/lts-v2.10.24) (2025-10-03)
 
 ### New Features
