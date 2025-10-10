@@ -4037,6 +4037,19 @@ The platform uses this API to load, authenticate and measure the component
 specified by ``lfa_component_id``. It should return 0 on success or appropriate
 error codes for load/authentication failures.
 
+Function : plat_lfa_notify_activate()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint32_t
+    Return   : int
+
+This API is invoked by the platform to notify its security engine to initiate
+the required steps for component activation. The function takes the component
+identifier ``lfa_component_id`` as an argument. It should return 0 on success
+or appropriate negative error codes on failures.
+
 --------------
 
 *Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.*
