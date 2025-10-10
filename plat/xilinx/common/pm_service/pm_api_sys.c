@@ -356,14 +356,14 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 }
 
 /**
- * eemi_feature_check() - Returns the supported API version if supported.
- * @api_id: API ID to check.
+ * tfa_api_feature_check() - Returns the supported TF-A API version if supported.
+ * @api_id: TF-A specific API ID to check.
  * @ret_payload: pointer to array of PAYLOAD_ARG_CNT number of
  *               words Returned supported API version
  *
  * Return: Returns status, either success or error+reason.
  */
-enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload)
+enum pm_ret_status tfa_api_feature_check(uint32_t api_id, uint32_t *ret_payload)
 {
 	enum pm_ret_status ret;
 
@@ -406,6 +406,9 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t module_id;
 	enum pm_ret_status ret;
+
+	WARN("pm_feature_check() will be deprecated in 2027.1 release."
+	     " Use tfa_api_feature_check() for TF-A specific APIs.\n");
 
 	/* Return version of API which are implemented in TF-A only */
 	switch (api_id) {

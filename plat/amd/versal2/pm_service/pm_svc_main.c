@@ -379,7 +379,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 		enum pm_ret_status ret;
 		uint32_t result[PAYLOAD_ARG_CNT] = {0U};
 
-		ret = eemi_feature_check(pm_arg[0], result);
+		ret = tfa_api_feature_check(pm_arg[0], result);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)result[0] << 32U));
 	}
 
