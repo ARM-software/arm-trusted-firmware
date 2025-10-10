@@ -31,6 +31,12 @@ cpu_reset_prologue cortex_a720
         wa_cve_2022_23960_bhb_vector_table CORTEX_A720_BHB_LOOP_COUNT, cortex_a720
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+workaround_reset_start cortex_a720, ERRATUM(2729604), ERRATA_A720_2729604
+	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, (BIT(60) | BIT(61))
+workaround_reset_end cortex_a720, ERRATUM(2729604)
+
+check_erratum_ls cortex_a720, ERRATUM(2729604), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a720, ERRATUM(2792132), ERRATA_A720_2792132
         sysreg_bit_set CORTEX_A720_CPUACTLR2_EL1, BIT(26)
 workaround_reset_end cortex_a720, ERRATUM(2792132)
@@ -74,6 +80,23 @@ workaround_reset_end cortex_a720, ERRATUM(2940794)
 
 check_erratum_ls cortex_a720, ERRATUM(2940794), CPU_REV(0, 1)
 
+add_erratum_entry cortex_a720, ERRATUM(3699561), ERRATA_A720_3699561
+
+check_erratum_ls cortex_a720, ERRATUM(3699561), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a720, ERRATUM(3711910), ERRATA_A720_3711910
+	mov	x0, #5
+	msr	CORTEX_A720_CPUPSELR_EL3, x0
+	ldr	x0, =0xD503329F
+	msr	CORTEX_A720_CPUPOR_EL3, x0
+	ldr	x0, =0xFFFFF3FF
+	msr	CORTEX_A720_CPUPMR_EL3, x0
+	ldr	x0, =0x1004003F1
+	msr	CORTEX_A720_CPUPCR_EL3, x0
+workaround_reset_end cortex_a720, ERRATUM(3711910)
+
+check_erratum_ls cortex_a720, ERRATUM(3711910), CPU_REV(0, 2)
+
 workaround_reset_start cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -85,10 +108,6 @@ workaround_reset_start cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_a720, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-
-add_erratum_entry cortex_a720, ERRATUM(3699561), ERRATA_A720_3699561
-
-check_erratum_ls cortex_a720, ERRATUM(3699561), CPU_REV(0, 2)
 
 cpu_reset_func_start cortex_a720
 	/* Disable speculative loads */

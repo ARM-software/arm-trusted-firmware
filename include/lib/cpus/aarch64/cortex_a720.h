@@ -38,6 +38,14 @@
 #define CORTEX_A720_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define CORTEX_A720_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
 
+/*******************************************************************************
+ * CPU Instruction Patching Register Definitions
+ ******************************************************************************/
+#define CORTEX_A720_CPUPSELR_EL3				S3_6_C15_C8_0
+#define CORTEX_A720_CPUPCR_EL3					S3_6_C15_C8_1
+#define CORTEX_A720_CPUPOR_EL3					S3_6_C15_C8_2
+#define CORTEX_A720_CPUPMR_EL3					S3_6_C15_C8_3
+
 #ifndef __ASSEMBLER__
 long check_erratum_cortex_a720_3699561(long cpu_rev);
 #endif /* __ASSEMBLER__ */
