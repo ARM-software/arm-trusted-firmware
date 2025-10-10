@@ -25,12 +25,18 @@ uint32_t intel_hps_get_jtag_id(void)
 }
 
 /* Check for Agilex5 SM4 */
-bool is_agilex5_A5F0(void)
+bool is_agilex5_A5C0(void)
 {
-	return ((intel_hps_get_jtag_id() & JTAG_ID_MASK) == A5F0_JTAG_ID);
+	return ((intel_hps_get_jtag_id() & JTAG_ID_MASK) == A5C0_JTAG_ID);
 }
 
 /* Check for Agilex5 SM4 B0 */
+bool is_agilex5_A5C4(void)
+{
+	return ((intel_hps_get_jtag_id() & JTAG_ID_MASK) == A5C4_JTAG_ID);
+}
+
+/* Check for Agilex5 SM7 B0 */
 bool is_agilex5_A5F4(void)
 {
 	return ((intel_hps_get_jtag_id() & JTAG_ID_MASK) == A5F4_JTAG_ID);
