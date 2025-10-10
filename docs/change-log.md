@@ -3,6 +3,21 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.39](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.38..refs/tags/lts-v2.8.39) (2025-10-10)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A720 erratum 2729604 ([7e9945a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7e9945ac319373e3e0b20b591e41006c45a45028))
+    - workaround for Cortex-A720 erratum 3711910 ([8d101b3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d101b32e19911e4f7edf278b31e7a3a56f879b4))
+
+### Code Refactoring
+
+- fix workaround order for Cortex-A720 ([8ba7218](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8ba721842cb4c3a5c0aaaa7b0de4dcb6c4b1c4a5))
+
 ## [lts-2.8.38](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.37..refs/tags/lts-v2.8.38) (2025-10-03)
 
 ### Resolved Issues

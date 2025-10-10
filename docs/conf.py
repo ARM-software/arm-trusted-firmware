@@ -14,8 +14,8 @@
 
 project = "Trusted Firmware-A"
 author = "Trusted Firmware-A contributors"
-version = "2.8.38"
-release = "2.8.38"
+version = "2.8.39"
+release = "2.8.39"
 
 # -- General configuration ---------------------------------------------------
 
