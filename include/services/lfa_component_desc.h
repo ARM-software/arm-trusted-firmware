@@ -22,8 +22,8 @@ struct lfa_component_status {
 	bool cpu_rendezvous_required;
 };
 
-typedef int32_t (*component_prime_fn)(struct lfa_component_status *activation);
-typedef int32_t (*component_activate_fn)(struct lfa_component_status *activation,
+typedef int (*component_prime_fn)(struct lfa_component_status *activation);
+typedef int (*component_activate_fn)(struct lfa_component_status *activation,
 					 uint64_t ep_address,
 					 uint64_t context_id);
 

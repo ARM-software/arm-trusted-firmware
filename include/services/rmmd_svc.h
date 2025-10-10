@@ -307,6 +307,8 @@ typedef struct rp_ide_key_info {
 #include <stdint.h>
 
 int rmmd_setup(void);
+int rmmd_primary_activate(void);
+int rmmd_secondary_activate(void);
 uint64_t rmmd_rmi_handler(uint32_t smc_fid,
 		uint64_t x1,
 		uint64_t x2,
