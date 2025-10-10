@@ -81,6 +81,9 @@
 #define PMIC_STBY_INACTIVE	BIT(3)
 #define OSC24M_ACTIVE		BIT(4)
 
+#define IMX9_SCMI_SYS_PWR_FULL_SHUTDOWN		0x80000001U
+#define IMX9_SCMI_SYS_PWR_FULL_RESET		0x80000002U
+
 /*
  * sleep_mode[3:0] – Currently unused.
  * sleep_mode[7:4] – sleep mode performance level

@@ -21,6 +21,14 @@
 #include <imx_scmi_client.h>
 #include <plat_imx8.h>
 
+#if SYS_PWR_FULL_CTRL == 1
+#define PLAT_SCMI_SYS_PWR_SHUTDOWN	IMX9_SCMI_SYS_PWR_FULL_SHUTDOWN
+#define PLAT_SCMI_SYS_PWR_COLD_RESET	IMX9_SCMI_SYS_PWR_FULL_RESET
+#else
+#define PLAT_SCMI_SYS_PWR_SHUTDOWN	SCMI_SYS_PWR_SHUTDOWN
+#define PLAT_SCMI_SYS_PWR_COLD_RESET	SCMI_SYS_PWR_COLD_RESET
+#endif
+
 /* platform secure warm boot entry */
 uintptr_t secure_entrypoint;
 
@@ -273,7 +281,7 @@ void imx_system_off(void)
 
 	ret = scmi_sys_pwr_state_set(imx9_scmi_handle,
 				     SCMI_SYS_PWR_FORCEFUL_REQ,
-				     SCMI_SYS_PWR_SHUTDOWN);
+				     PLAT_SCMI_SYS_PWR_SHUTDOWN);
 	if (ret) {
 		NOTICE("%s failed: %d\n", __func__, ret);
 	}
@@ -293,7 +301,7 @@ void imx_system_reset(void)
 	/* Force: work, Gracefull: not work */
 	ret = scmi_sys_pwr_state_set(imx9_scmi_handle,
 				     SCMI_SYS_PWR_FORCEFUL_REQ,
-				     SCMI_SYS_PWR_COLD_RESET);
+				     PLAT_SCMI_SYS_PWR_COLD_RESET);
 	if (ret) {
 		VERBOSE("%s failed: %d\n", __func__, ret);
 	}

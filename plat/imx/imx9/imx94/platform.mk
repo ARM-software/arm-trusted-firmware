@@ -51,6 +51,9 @@ PROGRAMMABLE_RESET_ADDRESS := 1
 COLD_BOOT_SINGLE_CPU := 1
 ERRATA_A55_1530923 := 1
 
+SYS_PWR_FULL_CTRL ?= 0
+$(eval $(call add_define,SYS_PWR_FULL_CTRL))
+
 HAS_XSPI_SUPPORT := 1
 $(eval $(call assert_boolean,HAS_XSPI_SUPPORT))
 $(eval $(call add_define,HAS_XSPI_SUPPORT))
