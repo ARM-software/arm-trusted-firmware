@@ -688,10 +688,6 @@ Common build options
    trapped during secure world execution are trapped to the SPMC. This is
    supported only for AArch64 builds.
 
--  ``EVENT_LOG_LEVEL``: Chooses the log level to use for Measured Boot when
-   ``MEASURED_BOOT`` is enabled. For a list of valid values, see ``LOG_LEVEL``.
-   Default value is 40 (LOG_LEVEL_INFO).
-
 -  ``FAULT_INJECTION_SUPPORT``: ARMv8.4 extensions introduced support for fault
    injection from lower ELs, and this build option enables lower ELs to use
    Error Records accessed via System Registers to inject faults. This is

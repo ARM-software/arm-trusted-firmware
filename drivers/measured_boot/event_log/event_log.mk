@@ -11,6 +11,11 @@ LIBEVLOG_BUILD_DIR	:= $(BUILD_PLAT)/lib$(LIBEVLOG_NAME)
 LIBEVLOG_INSTALL_DIR	:= $(BUILD_PLAT)/$(LIBEVLOG_NAME)-install
 LIBEVLOG_TARGET		:= $(LIBEVLOG_INSTALL_DIR)/lib/lib$(LIBEVLOG_NAME).a
 
+# We currently support up to SHA512, use that as a sane default that platforms
+# may override.
+LIBEVLOG_MAX_DIGEST_SIZE	?=	64U
+LIBEVLOG_MAX_HASH_COUNT		?=	3U
+
 ifeq ($(DEBUG),1)
 LIBEVLOG_BUILD_TYPE	:= Debug
 else
@@ -30,34 +35,26 @@ LIBEVLOG_DIRS_TO_CHECK	+= $(LIBEVLOG_INSTALL_DIR)/include
 # for attestation.
 ifdef MBOOT_TPM_HASH_ALG
     MBOOT_EL_HASH_ALG		:=	${MBOOT_TPM_HASH_ALG}
-else
-    MBOOT_EL_HASH_ALG		:=	sha256
 endif
 
-# Measured Boot hash algorithm.
-# SHA-256 (or stronger) is required for all devices that are TPM 2.0 compliant.
-ifeq (${MBOOT_EL_HASH_ALG}, sha512)
-    TPM_ALG_ID			:=	TPM_ALG_SHA512
-    TCG_DIGEST_SIZE		:=	64U
-    CRYPTO_MD_ID		:=	CRYPTO_MD_SHA512
-else ifeq (${MBOOT_EL_HASH_ALG}, sha384)
-    TPM_ALG_ID			:=	TPM_ALG_SHA384
-    TCG_DIGEST_SIZE		:=	48U
-    CRYPTO_MD_ID		:=	CRYPTO_MD_SHA384
+# Legacy support only. Do NOT set by default.
+# Valid only if explicitly provided by old build environments.
+ifdef MBOOT_EL_HASH_ALG
+$(warning MBOOT_EL_HASH_ALG is supported solely for backward compatibility. \
+Please configure the hash algorithm at runtime instead.)
+ifeq ($(MBOOT_EL_HASH_ALG),sha256)
+    TPM_ALG_ID					:= TPM_ALG_SHA256
+else ifeq ($(MBOOT_EL_HASH_ALG),sha384)
+    TPM_ALG_ID					:= TPM_ALG_SHA384
+else ifeq ($(MBOOT_EL_HASH_ALG),sha512)
+    TPM_ALG_ID					:= TPM_ALG_SHA512
 else
-    TPM_ALG_ID			:=	TPM_ALG_SHA256
-    TCG_DIGEST_SIZE		:=	32U
-    CRYPTO_MD_ID		:=	CRYPTO_MD_SHA256
-endif #MBOOT_EL_HASH_ALG
+    $(error Unsupported legacy MBOOT_EL_HASH_ALG '$(MBOOT_EL_HASH_ALG)'. Expected: sha256, sha384, sha512)
+endif
 
-# Set definitions for Measured Boot driver.
-$(eval $(call add_defines,\
-    $(sort \
-        TPM_ALG_ID \
-        TCG_DIGEST_SIZE \
-        EVENT_LOG_LEVEL \
-        CRYPTO_MD_ID \
-)))
+LIBEVLOG_MAX_HASH_COUNT	:= 1U
+$(eval $(call add_define,TPM_ALG_ID))
+endif # MBOOT_EL_HASH_ALG
 
 LIBEVLOG_CFLAGS ?= $(filter-out -I%,$(TF_CFLAGS))
 LIBEVLOG_CFLAGS += $(patsubst %,-I%,$(call include-dirs,$(TF_CFLAGS)))
@@ -66,7 +63,6 @@ $(LIBEVLOG_INSTALL_DIR)/% $(LIBEVLOG_INSTALL_DIR)/%/: $(LIBEVLOG_TARGET) ;
 $(LIBEVLOG_TARGET) $(LIBEVLOG_INSTALL_DIR)/ &: $(LIB_DIR)/libc.a
 	$(s)echo "  CM      $@"
 	$(q)cmake -S $(LIBEVLOG_PATH) -B $(LIBEVLOG_BUILD_DIR) \
-		-DHASH_ALGORITHM=$(call uppercase,$(MBOOT_EL_HASH_ALG)) \
 		-DCMAKE_BUILD_TYPE=$(LIBEVLOG_BUILD_TYPE) \
 		-DCMAKE_SYSTEM_NAME=Generic \
 		-DCMAKE_SYSTEM_VERSION= \
@@ -75,6 +71,8 @@ $(LIBEVLOG_TARGET) $(LIBEVLOG_INSTALL_DIR)/ &: $(LIB_DIR)/libc.a
 		-DCMAKE_C_COMPILER_LAUNCHER=$(call shell-quote,$(call shell-join,$($(ARCH)-cc-wrapper),;)) \
 		-DCMAKE_C_FLAGS=$(call escape-shell,$(LIBEVLOG_CFLAGS)) \
 		-DDEBUG_BACKEND_HEADER="log_backend_tf.h" \
+		-DMAX_DIGEST_SIZE=${LIBEVLOG_MAX_DIGEST_SIZE} \
+		-DMAX_HASH_COUNT=${LIBEVLOG_MAX_HASH_COUNT} \
 		$(if $(V),, --log-level=ERROR) > /dev/null
 	$(q)cmake --build $(LIBEVLOG_BUILD_DIR) -- $(if $(V),,-s) > /dev/null
 	$(q)cmake --install $(LIBEVLOG_BUILD_DIR) \
