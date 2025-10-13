@@ -681,10 +681,8 @@ static void spmc_el0_sp_setup_system_registers(struct secure_partition_desc *sp,
 	/* Shim Exception Vector Base Address */
 	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), vbar_el1,
 			SPM_SHIM_EXCEPTIONS_PTR);
-#if NS_TIMER_SWITCH
 	write_el1_ctx_arch_timer(get_el1_sysregs_ctx(ctx), cntkctl_el1,
 		      EL0PTEN_BIT | EL0VTEN_BIT | EL0PCTEN_BIT | EL0VCTEN_BIT);
-#endif
 
 	/*
 	 * FPEN: Allow the Secure Partition to access FP/SIMD registers.

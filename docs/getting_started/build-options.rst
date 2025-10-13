@@ -871,10 +871,11 @@ Common build options
    optional. It is only needed if the platform makefile specifies that it
    is required in order to build the ``fwu_fip`` target.
 
--  ``NS_TIMER_SWITCH``: Enable save and restore for non-secure timer register
-   contents upon world switch. It can take either 0 (don't save and restore) or
-   1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
-   wants the timer registers to be saved and restored.
+-  ``NS_TIMER_SWITCH``: (deprecated) Enable save and restore for non-secure
+   timer register contents upon world switch. It can take either 0 (don't save
+   and restore) or 1 (do save and restore). 0 is the default. An SPD may set
+   this to 1 if it wants the timer registers to be saved and restored. This
+   option has been deprecated since it breaks Linux preemption model.
 
 -  ``OVERRIDE_LIBC``: This option allows platforms to override the default libc
    for the BL image. It can be either 0 (include) or 1 (remove). The default

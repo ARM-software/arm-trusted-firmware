@@ -58,10 +58,12 @@ typedef struct el1_aarch32_regs {
 } el1_aarch32_regs_t;
 
 typedef struct el1_arch_timer_regs {
+#if NS_TIMER_SWITCH
 	uint64_t cntp_ctl_el0;
 	uint64_t cntp_cval_el0;
 	uint64_t cntv_ctl_el0;
 	uint64_t cntv_cval_el0;
+#endif
 	uint64_t cntkctl_el1;
 } el1_arch_timer_regs_t;
 
@@ -125,13 +127,10 @@ typedef struct el1_ls64_regs {
 typedef struct el1_sysregs {
 
 	el1_common_regs_t common;
+	el1_arch_timer_regs_t arch_timer;
 
 #if CTX_INCLUDE_AARCH32_REGS
 	el1_aarch32_regs_t el1_aarch32;
-#endif
-
-#if NS_TIMER_SWITCH
-	el1_arch_timer_regs_t arch_timer;
 #endif
 
 #if ENABLE_FEAT_MTE2
@@ -197,14 +196,9 @@ typedef struct el1_sysregs {
 #define write_el1_ctx_common_sysreg128(ctx, reg, val)	((((ctx)->common).reg)	\
 							= (sysreg_t) (val))
 
-#if NS_TIMER_SWITCH
 #define read_el1_ctx_arch_timer(ctx, reg)		(((ctx)->arch_timer).reg)
 #define write_el1_ctx_arch_timer(ctx, reg, val)	((((ctx)->arch_timer).reg)	\
 							= (uint64_t) (val))
-#else
-#define read_el1_ctx_arch_timer(ctx, reg)		ULL(0)
-#define write_el1_ctx_arch_timer(ctx, reg, val)
-#endif /* NS_TIMER_SWITCH */
 
 #if CTX_INCLUDE_AARCH32_REGS
 #define read_el1_ctx_aarch32(ctx, reg)		(((ctx)->el1_aarch32).reg)

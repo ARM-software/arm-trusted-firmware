@@ -413,3 +413,10 @@ ifneq (${ENABLE_FEAT_MPAM_PE_BW_CTRL},0)
                 $(error "ENABLE_FEAT_MPAM_PW_BW_CTRL requires ENABLE_FEAT_MPAM")
         endif
 endif #(ENABLE_FEAT_MPAM_PE_BW_CTRL)
+
+# Handle all deprecated build options.
+ifeq (${ERROR_DEPRECATED}, 1)
+    ifneq (${NS_TIMER_SWITCH},0)
+        $(error "NS_TIMER_SWITCH breaks Linux preemption model, hence deprecated")
+    endif
+endif
