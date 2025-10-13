@@ -72,8 +72,8 @@ void bl2_plat_mboot_init(void)
 {
 	uint8_t *event_log_start;
 	uint8_t *event_log_finish;
-	size_t bl1_event_log_size __unused;
-	size_t event_log_max_size __unused;
+	size_t bl1_event_log_size __unused = 0;
+	size_t event_log_max_size __unused = 0;
 	int rc __unused;
 
 #if TRANSFER_LIST
