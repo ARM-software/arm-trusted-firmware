@@ -11082,7 +11082,7 @@ feature is not available in the release.
   The PSCI library has been refactored to allow integration with **EL3 Runtime
   Software**. This is software that is executing at the highest secure privilege
   which is EL3 in AArch64 or Secure SVC/Monitor mode in AArch32. See
-  \{ref}`PSCI Library Integration guide for Armv8-A AArch32 systems`.
+  \{ref}`Porting Guide`.
 
   Included is a minimal AArch32 Secure Payload, **SP-MIN**, that illustrates the
   usage and integration of the PSCI library with EL3 Runtime Software running in
