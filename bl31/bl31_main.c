@@ -283,6 +283,11 @@ void __no_pauth bl31_warmboot(void)
 	}
 #endif
 
+/* Enable DSU driver for each booting core */
+#if USE_DSU_DRIVER
+	dsu_driver_init(&plat_dsu_data);
+#endif
+
 	psci_warmboot_entrypoint(core_pos);
 }
 
