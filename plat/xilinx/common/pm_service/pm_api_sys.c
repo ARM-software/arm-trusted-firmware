@@ -175,35 +175,6 @@ exit_label:
 }
 
 /**
- * pm_abort_suspend() - PM call to announce that a prior suspend request
- *                      is to be aborted.
- * @reason: Reason for the abort.
- * @flag: 0 - Call from secure source.
- *        1 - Call from non-secure source.
- *
- * Calling PU expects the PMU to abort the initiated suspend procedure.
- * This is a non-blocking call without any acknowledge.
- *
- * Return: Returns status, either success or error+reason.
- *
- */
-enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/*
-	 * Do client specific abort suspend operations
-	 * (e.g. enable interrupts and clear powerdown request bit)
-	 */
-	pm_client_abort_suspend();
-
-	/* Send request to the PLM */
-	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, flag, PM_ABORT_SUSPEND,
-			 reason, primary_proc->node_id);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
  * pm_req_wakeup() - PM call for processor to wake up selected processor
  *                   or subsystem.
  * @target: Device ID of the processor or subsystem to wake up.

@@ -371,34 +371,3 @@ void pm_client_wakeup(const struct pm_proc *proc)
 
 	pm_client_lock_release();
 }
-
-/**
- * pm_client_abort_suspend() - Client-specific abort-suspend actions.
- *
- * This function should contain any PU-specific actions
- * required for aborting a prior suspend request.
- *
- */
-void pm_client_abort_suspend(void)
-{
-	uint32_t cpu_id = plat_my_core_pos();
-	uintptr_t val;
-
-	/* Enable interrupts at processor level (for current cpu) */
-	gic_cpuif_enable(plat_my_core_pos());
-
-	pm_client_lock_get();
-
-	/* Clear powerdown request */
-	val = read_cpu_pwrctrl_val();
-	val &= ~CORE_PWRDN_EN_BIT_MASK;
-	write_cpu_pwrctrl_val(val);
-
-	isb();
-
-	/* Disabled power down interrupt */
-	mmio_write_32(APU_PCIL_CORE_X_IDS_POWER_REG(cpu_id),
-			APU_PCIL_CORE_X_IDS_POWER_MASK);
-
-	pm_client_lock_release();
-}

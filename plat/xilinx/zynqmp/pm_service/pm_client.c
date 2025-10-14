@@ -298,28 +298,6 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state, uint32_t flag
 	bakery_lock_release(&pm_client_secure_lock);
 }
 
-
-/**
- * pm_client_abort_suspend() - Client-specific abort-suspend actions.
- *
- * This function should contain any PU-specific actions
- * required for aborting a prior suspend request.
- *
- */
-void pm_client_abort_suspend(void)
-{
-	/* Enable interrupts at processor level (for current cpu) */
-	gicv2_cpuif_enable();
-
-	bakery_lock_get(&pm_client_secure_lock);
-
-	/* Clear powerdown request */
-	mmio_write_32(APU_PWRCTL,
-		 mmio_read_32(APU_PWRCTL) & ~primary_proc->pwrdn_mask);
-
-	bakery_lock_release(&pm_client_secure_lock);
-}
-
 /**
  * pm_client_wakeup() - Client-specific wakeup actions.
  * @proc: Processor which need to wakeup.

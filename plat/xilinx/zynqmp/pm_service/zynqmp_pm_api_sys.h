@@ -86,9 +86,6 @@ enum pm_ret_status pm_force_powerdown(enum pm_node_id target,
 				      enum pm_request_ack ack,
 				      uint32_t flag);
 
-enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason,
-				    uint32_t flag);
-
 enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 				 uint32_t set_address,
 				 uintptr_t address,

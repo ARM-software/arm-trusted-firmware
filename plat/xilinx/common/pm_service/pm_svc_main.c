@@ -372,10 +372,6 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, const uint32_t *pm_a
 		ret = pm_force_powerdown(pm_arg[0], (uint8_t)pm_arg[1], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);
 
-	case (uint32_t)PM_ABORT_SUSPEND:
-		ret = pm_abort_suspend((enum pm_abort_reason)pm_arg[0], security_flag);
-		SMC_RET1(handle, (u_register_t)ret);
-
 	case (uint32_t)PM_SYSTEM_SHUTDOWN:
 		ret = pm_system_shutdown(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);

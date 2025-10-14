@@ -29,7 +29,6 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 				   uint32_t latency,
 				   uint32_t state,
 				   uintptr_t address, uint32_t flag);
-enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag);
 enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 				 uintptr_t address, uint8_t ack, uint32_t flag);
 enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
