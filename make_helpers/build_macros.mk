@@ -318,7 +318,7 @@ $(eval OBJS := $(patsubst %.c,$(1)/$(2)/%.o,$(SRCS)))
 $(eval DST := $(1)/$(2)/$(2)$(.exe))
 $(eval $(foreach src,$(SRCS),$(call MAKE_TOOL_C,$(1),$(src),$(2),$(3))))
 
-$(DST): $(OBJS) $(filter-out %.d,$(MAKEFILE_LIST))
+$(DST): $(OBJS) $(filter-out %.d,$(MAKEFILE_LIST)) | $(1)
 	$$(s)echo "  HOSTLD  $$@"
 	$$(q)$(host-cc) $${OBJS} -o $$@ $($(3)_LDFLAGS)
 	$$(s)echo

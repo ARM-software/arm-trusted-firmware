@@ -610,6 +610,7 @@ $(eval $(call assert_booleans,\
 	NS_TIMER_SWITCH \
 	OVERRIDE_LIBC \
 	PL011_GENERIC_UART \
+	PLAT_EXTRA_LD_SCRIPT \
 	PROGRAMMABLE_RESET_ADDRESS \
 	PSCI_EXTENDED_STATE_ID \
 	PSCI_OS_INIT_MODE \
@@ -805,6 +806,7 @@ $(eval $(call add_defines,\
 	DRTM_SUPPORT \
 	NS_TIMER_SWITCH \
 	PL011_GENERIC_UART \
+	PLAT_EXTRA_LD_SCRIPT \
 	PLAT_${PLAT} \
 	PROGRAMMABLE_RESET_ADDRESS \
 	PSCI_EXTENDED_STATE_ID \
@@ -1147,7 +1149,7 @@ checkpatch:		locate-checkpatch
 
 certtool: ${CRTTOOL}
 
-${CRTTOOL}: FORCE
+${CRTTOOL}: FORCE | $$(@D)/
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) USE_TBBR_DEFS=${USE_TBBR_DEFS} COT=${COT} OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${CRTTOOLPATH} all
 	$(q)ln -sf ${CRTTOOL} ${CRTTOOLPATH}/cert_create
 	$(s)echo
@@ -1164,7 +1166,7 @@ certificates: ${CRT_DEPS} ${CRTTOOL} ${DTBS}
 endif #(GENERATE_COT)
 
 ifeq (${SEPARATE_BL2_FIP},1)
-${BUILD_PLAT}/${BL2_FIP_NAME}: ${BL2_FIP_DEPS} ${FIPTOOL}
+${BUILD_PLAT}/${BL2_FIP_NAME}: ${BL2_FIP_DEPS} ${FIPTOOL} | $$(@D)/
 	$(eval ${CHECK_BL2_FIP_CMD})
 	$(q)${FIPTOOL} create ${BL2_FIP_ARGS} $@
 	$(q)${FIPTOOL} info $@
@@ -1173,7 +1175,7 @@ ${BUILD_PLAT}/${BL2_FIP_NAME}: ${BL2_FIP_DEPS} ${FIPTOOL}
 	$(s)echo
 endif #(SEPARATE_BL2_FIP)
 
-${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
+${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL} | $$(@D)/
 	$(eval ${CHECK_FIP_CMD})
 	$(q)${FIPTOOL} create ${FIP_ARGS} $@
 	$(q)${FIPTOOL} info $@
@@ -1191,7 +1193,7 @@ fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}
 endif #(GENERATE_COT)
 
 ifneq (${GENERATE_COT},0)
-bl2_certificates: ${BUILD_PLAT}/${FIP_NAME} ${BL2_CRT_DEPS} ${CRTTOOL}
+bl2_certificates: ${BUILD_PLAT}/${FIP_NAME} ${BL2_CRT_DEPS} ${CRTTOOL} | ${BUILD_PLAT}/
 	$(q)${CRTTOOL} ${BL2_CRT_ARGS}
 	$(s)echo
 	$(s)echo "Built $@ successfully"
@@ -1199,7 +1201,7 @@ bl2_certificates: ${BUILD_PLAT}/${FIP_NAME} ${BL2_CRT_DEPS} ${CRTTOOL}
 	$(s)echo
 endif #(GENERATE_COT)
 
-${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
+${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL} | $$(@D)/
 	$(eval ${CHECK_FWU_FIP_CMD})
 	$(q)${FIPTOOL} create ${FWU_FIP_ARGS} $@
 	$(q)${FIPTOOL} info $@
@@ -1217,11 +1219,11 @@ endif #(SEPARATE_BL2_FIP)
 fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 # symlink for compatibility before tools were in the build directory
-${FIPTOOL}: FORCE
+${FIPTOOL}: FORCE | $$(@D)/
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${FIPTOOLPATH} all
 	$(q)ln -sf ${FIPTOOL} ${FIPTOOLPATH}/fiptool
 
-$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB)
+$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB) | $$(@D)/
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_SUPPORT=${CRYPTO_SUPPORT} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
@@ -1229,7 +1231,7 @@ memmap: all
 	$(q)$(if $(host-poetry),poetry run )memory --root ${BUILD_PLAT} symbols
 
 tl: ${BUILD_PLAT}/tl.bin
-${BUILD_PLAT}/tl.bin: ${HW_CONFIG}
+${BUILD_PLAT}/tl.bin: ${HW_CONFIG} | $$(@D)/
 	$(if $(host-poetry),$(q)poetry -q install --no-root)
 	$(q)$(if $(host-poetry),poetry run )tlc create --fdt $< -s ${FW_HANDOFF_SIZE} $@
 
@@ -1240,7 +1242,7 @@ doc:
 
 enctool: ${ENCTOOL}
 
-${ENCTOOL}: FORCE
+${ENCTOOL}: FORCE | $$(@D)/
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) BUILD_INFO=0 OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${ENCTOOLPATH} all
 	$(s)echo
 	$(s)echo "Built $@ successfully"

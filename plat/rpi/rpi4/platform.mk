@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -51,7 +51,7 @@ else
 endif
 
 # Add support for platform supplied linker script for BL31 build
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 # Enable all errata workarounds for Cortex-A72
 ERRATA_A72_859971		:= 1

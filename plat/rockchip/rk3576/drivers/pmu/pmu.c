@@ -43,7 +43,7 @@ static struct rk3576_sleep_ddr_data ddr_data;
 
 void rockchip_plat_mmu_el3(void)
 {
-#ifdef PLAT_EXTRA_LD_SCRIPT
+#if PLAT_EXTRA_LD_SCRIPT
 	size_t sram_size;
 
 	sram_size = (char *)&__bl31_pmusram_text_end -

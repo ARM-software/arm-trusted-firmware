@@ -38,7 +38,7 @@ $(eval $(call add_define,RCAR_V3U))
 $(eval $(call add_define,RCAR_V4H))
 $(eval $(call add_define,RCAR_V4M))
 $(eval $(call add_define,RCAR_AUTO))
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 ifndef LSI
   $(error "Error: Unknown LSI. Please use LSI=<LSI name> to specify the LSI")

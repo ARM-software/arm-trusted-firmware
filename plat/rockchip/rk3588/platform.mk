@@ -94,5 +94,5 @@ USE_COHERENT_MEM	:=	0
 
 ENABLE_SPE_FOR_LOWER_ELS	:= 0
 
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 $(eval $(call add_define,PLAT_RK_CPU_RESET_EARLY))

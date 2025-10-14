@@ -1,5 +1,5 @@
 #
-#Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+#Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
 #
 #SPDX-License-Identifier: BSD-3-Clause
 #
@@ -67,6 +67,6 @@ ENABLE_PLAT_COMPAT	:=	0
 
 include lib/libfdt/libfdt.mk
 
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 $(eval $(call add_define,PLAT_SKIP_OPTEE_S_EL1_INT_REGISTER))
 $(eval $(call add_define,PLAT_WARMBOOT_ADDR_NOT_ALIGN))

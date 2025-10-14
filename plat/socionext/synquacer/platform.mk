@@ -117,7 +117,7 @@ BL31_SOURCES		+=	$(PLAT_PATH)/drivers/scp/sq_scmi.c		\
 endif
 
 ifeq (${SPM_MM},1)
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 BL31_SOURCES		+=	$(PLAT_PATH)/sq_spm.c
 endif

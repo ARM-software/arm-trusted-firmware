@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -90,7 +90,7 @@ ERRATA_A55_1530923	:=	1
 USE_COHERENT_MEM	:=	0
 
 $(eval $(call add_define,PLAT_SKIP_OPTEE_S_EL1_INT_REGISTER))
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0

@@ -428,6 +428,9 @@ CTX_INCLUDE_MPAM_REGS		:= 0
 # Enable context memory usage reporting during BL31 setup.
 PLATFORM_REPORT_CTX_MEM_USE	:= 0
 
+# Request a custom addition to the BL31 linker script
+PLAT_EXTRA_LD_SCRIPT		:= 0
+
 # Enable early console
 EARLY_CONSOLE			:= 0
 

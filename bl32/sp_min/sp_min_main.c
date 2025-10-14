@@ -127,7 +127,7 @@ static void copy_cpu_ctx_to_smc_stx(const regs_t *cpu_reg_ctx,
 static void sp_min_prepare_next_image_entry(void)
 {
 	entry_point_info_t *next_image_info;
-	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	regs_t *gpregs = get_regs_ctx(cm_get_context(NON_SECURE));
 	u_register_t ns_sctlr;
 
 	/* Program system registers to proceed to non-secure */
@@ -142,13 +142,13 @@ static void sp_min_prepare_next_image_entry(void)
 	smc_set_next_ctx(NON_SECURE);
 
 	/* Copy r0, lr and spsr from cpu context to SMC context */
-	copy_cpu_ctx_to_smc_stx(get_regs_ctx(cm_get_context(NON_SECURE)),
+	copy_cpu_ctx_to_smc_stx(gpregs,
 			smc_get_next_ctx());
 
 	/* Temporarily set the NS bit to access NS SCTLR */
 	write_scr(read_scr() | SCR_NS_BIT);
 	isb();
-	ns_sctlr = read_ctx_reg(get_regs_ctx(ctx), CTX_NS_SCTLR);
+	ns_sctlr = read_ctx_reg(gpregs, CTX_NS_SCTLR);
 	write_sctlr(ns_sctlr);
 	isb();
 
@@ -226,7 +226,7 @@ void sp_min_main(void)
 void sp_min_warm_boot(void)
 {
 	smc_ctx_t *next_smc_ctx;
-	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	regs_t *gpregs = get_regs_ctx(cm_get_context(NON_SECURE));
 	u_register_t ns_sctlr;
 
 	psci_warmboot_entrypoint(plat_my_core_pos());
@@ -236,13 +236,13 @@ void sp_min_warm_boot(void)
 	next_smc_ctx = smc_get_next_ctx();
 	zeromem(next_smc_ctx, sizeof(smc_ctx_t));
 
-	copy_cpu_ctx_to_smc_stx(get_regs_ctx(cm_get_context(NON_SECURE)),
+	copy_cpu_ctx_to_smc_stx(gpregs,
 			next_smc_ctx);
 
 	/* Temporarily set the NS bit to access NS SCTLR */
 	write_scr(read_scr() | SCR_NS_BIT);
 	isb();
-	ns_sctlr = read_ctx_reg(get_regs_ctx(ctx), CTX_NS_SCTLR);
+	ns_sctlr = read_ctx_reg(gpregs, CTX_NS_SCTLR);
 	write_sctlr(ns_sctlr);
 	isb();
 

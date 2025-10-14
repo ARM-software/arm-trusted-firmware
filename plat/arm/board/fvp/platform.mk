@@ -499,7 +499,7 @@ ifeq (${USE_DEBUGFS},1)
 endif
 
 # Add support for platform supplied linker script for BL31 build
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+PLAT_EXTRA_LD_SCRIPT	:=	1
 
 ifneq (${RESET_TO_BL2}, 0)
     override BL1_SOURCES =

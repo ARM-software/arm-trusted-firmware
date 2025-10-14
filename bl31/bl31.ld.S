@@ -27,7 +27,7 @@ MEMORY {
 #endif /* SEPARATE_RWDATA_REGION */
 }
 
-#ifdef PLAT_EXTRA_LD_SCRIPT
+#if PLAT_EXTRA_LD_SCRIPT
 #   include <plat.ld.S>
 #endif /* PLAT_EXTRA_LD_SCRIPT */
 
