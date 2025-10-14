@@ -124,7 +124,7 @@ workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x3, CVE(2022, 23960)
 
-check_erratum_chosen cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+check_erratum_ls cortex_x3, CVE(2022, 23960), CPU_REV(1, 0)
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
