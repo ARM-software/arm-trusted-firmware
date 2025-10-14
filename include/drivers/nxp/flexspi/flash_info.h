@@ -84,6 +84,26 @@
 #define F_SECTOR_ERASE_SZ		F_SECTOR_4K
 #endif
 
-#endif /* End of #elif defined(CONFIG_MT35XU02G) */
+/* End of #elif defined(CONFIG_MT35XU02G) */
+
+/* Start of #elif Micron MT25QU01GBBB, GigaDevice GD55LB01GF, Macronix MX66U1G45G, Winbond W25Q01NW */
+#elif defined(CONFIG_MT25QU01GBBB) || \
+      defined(CONFIG_GD55LB01GF)   || \
+      defined(CONFIG_MX66U1G45G)   || \
+      defined(CONFIG_W25Q01NW)
+
+/* Common geometry for 1Gbit (128MiB) */
+#define F_SECTOR_64K			0x10000U
+#define F_PAGE_256			0x100U
+#define F_SECTOR_4K			0x1000U
+#define F_FLASH_SIZE_BYTES		0x8000000U   /* 128 MiB */
+#define F_SECTOR_ERASE_SZ		F_SECTOR_64K
+#ifdef CONFIG_FSPI_4K_ERASE
+#undef  F_SECTOR_ERASE_SZ
+#define F_SECTOR_ERASE_SZ		F_SECTOR_4K
+#endif
+
+/* End of #elif Micron MT25QU01GBBB, GigaDevice GD55LB01GF, Macronix MX66U1G45G, Winbond W25Q01NW */
+#endif
 
 #endif /* FLASH_INFO_H */
