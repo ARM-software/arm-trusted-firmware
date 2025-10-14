@@ -60,13 +60,9 @@ static void imx_rdc_console_access_enable(struct imx_rdc_cfg *rdc_cfg,
 			continue;
 		}
 
-		if (rdc->index == console_pdap_index &&
-		    rdc->setting.rdc_pdap == (D0R | D0W)) {
-			return;
-		}
-
 		if (rdc->index == console_pdap_index) {
 			rdc->setting.rdc_pdap = D0R | D0W;
+			return;
 		}
 	}
 }
