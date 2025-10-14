@@ -130,6 +130,9 @@ ENABLE_FEAT_S1PIE	:=	2
 ENABLE_FEAT_S2POE	:=	2
 ENABLE_FEAT_S1POE	:=	2
 
+# 9.3
+ENABLE_FEAT_GCS		:=	2
+
 # SPM_MM is not compatible with ENABLE_SVE_FOR_NS (build breaks)
 ifeq (${SPM_MM},1)
 	ENABLE_SVE_FOR_NS	:= 0
