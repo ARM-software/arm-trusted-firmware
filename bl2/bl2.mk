@@ -15,12 +15,6 @@ ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-        BL2_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
-        BL2_LDFLAGS	+=	--sort-section=alignment
-endif
-
 ifeq (${ENABLE_RME},1)
 include lib/gpt_rme/gpt_rme.mk
 

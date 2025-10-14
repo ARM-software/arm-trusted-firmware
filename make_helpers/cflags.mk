@@ -8,57 +8,47 @@ GCC_V_OUTPUT		:=	$(if $($(ARCH)-cc),$(shell $($(ARCH)-cc) -v 2>&1))
 PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
 
 ################################################################################
-# Compiler Configuration based on ARCH_MAJOR and ARCH_MINOR flags
+# Compiler Configuration for the correct ARCH
 ################################################################################
-ifeq (${ARM_ARCH_MAJOR},7)
-	target32-directive	= 	-target arm-none-eabi
-# Will set march-directive from platform configuration
-else
-	target32-directive	= 	-target armv8a-none-eabi
-endif #(ARM_ARCH_MAJOR)
+target-aarch32-arm-clang	:=	-target arm-arm-none-eabi
+target-aarch64-arm-clang	:=	-target aarch64-arm-none-eabi
+target-aarch32-llvm-clang	:=	-target arm-arm-none-eabi
+target-aarch64-llvm-clang	:=	-target aarch64-arm-none-elf
 
-ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
-	ifeq ($($(ARCH)-cc-id),arm-clang)
-		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi
-		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi
-	else
-		TF_CFLAGS_aarch32	=	$(target32-directive)
-		TF_CFLAGS_aarch64	:=	-target aarch64-elf
-	endif
-endif #(clang)
-
-# Process Debug flag
 ifneq (${DEBUG}, 0)
-	TF_CFLAGS	+=	-g -gdwarf-4
+	cflags-common		+=	-g -gdwarf-4
 endif #(Debug)
 
 ifeq (${AARCH32_INSTRUCTION_SET},A32)
-	TF_CFLAGS_aarch32	+=	-marm
+	cflags-aarch32		:=	-marm
 else ifeq (${AARCH32_INSTRUCTION_SET},T32)
-	TF_CFLAGS_aarch32	+=	-mthumb
+	cflags-aarch32		:=	-mthumb
 endif #(AARCH32_INSTRUCTION_SET)
 
-TF_CFLAGS_aarch32	+=	-mno-unaligned-access
-TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
+cflags-aarch32			+=	-mno-unaligned-access
+cflags-aarch64			:=	-mgeneral-regs-only -mstrict-align
+
+cflags-common			+=	$(cflags-$(ARCH))
 
 ##############################################################################
 # WARNINGS Configuration
 ###############################################################################
 # General warnings
-WARNINGS		:=	-Wall -Wmissing-include-dirs -Wunused	\
+WARNING0		:=	-Wall -Wmissing-include-dirs -Wunused	\
 				-Wdisabled-optimization -Wvla -Wshadow	\
 				-Wredundant-decls
 # stricter warnings
-WARNINGS		+=	-Wextra -Wno-trigraphs
+WARNING0		+=	-Wextra -Wno-trigraphs
 # too verbose for generic build
-WARNINGS		+=	-Wno-missing-field-initializers \
+WARNING0		+=	-Wno-missing-field-initializers \
 				-Wno-type-limits -Wno-sign-compare \
 # on clang this flag gets reset if -Wextra is set after it. No difference on gcc
-WARNINGS		+=	-Wno-unused-parameter
+WARNING0		+=	-Wno-unused-parameter
 
 # Additional warnings
 # Level 1 - infrequent warnings we should have none of
 # full -Wextra
+WARNING1 := $(WARNING0)
 WARNING1 += -Wsign-compare
 WARNING1 += -Wtype-limits
 WARNING1 += -Wmissing-field-initializers
@@ -66,6 +56,7 @@ WARNING1 += -Wmissing-field-initializers
 # Level 2 - problematic warnings that we want
 # zlib, compiler-rt, coreboot, and mbdedtls blow up with these
 # TODO: disable just for them and move into default build
+WARNING2 := $(WARNING1)
 WARNING2 += -Wold-style-definition
 WARNING2 += -Wmissing-prototypes
 WARNING2 += -Wmissing-format-attribute
@@ -75,7 +66,8 @@ WARNING2 += -Wundef
 WARNING2 += -Wunused-const-variable=2
 
 # Level 3 - very pedantic, frequently ignored
-WARNING3 := -Wbad-function-cast
+WARNING3 := $(WARNING2)
+WARNING3 += -Wbad-function-cast
 WARNING3 += -Waggregate-return
 WARNING3 += -Wnested-externs
 WARNING3 += -Wcast-align
@@ -85,73 +77,56 @@ WARNING3 += -Wpacked
 WARNING3 += -Wpointer-arith
 WARNING3 += -Wswitch-default
 
-ifeq (${W},1)
-	WARNINGS += $(WARNING1)
-else ifeq (${W},2)
-	WARNINGS += $(WARNING1) $(WARNING2)
-else ifeq (${W},3)
-	WARNINGS += $(WARNING1) $(WARNING2) $(WARNING3)
-endif #(W)
-
+cflags-common	+=	$(WARNING$(W))
 ifneq (${E},0)
-	ERRORS := -Werror
+	cflags-common	+= -Werror
 endif #(E)
 
-# Compiler specific warnings
-ifeq ($(filter %-clang,$($(ARCH)-cc-id)),)
-# not using clang
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
 TF_CFLAGS_MIN_PAGE_SIZE	:=	$(call cc_option, --param=min-pagesize=0)
-TF_CFLAGS		+=	$(TF_CFLAGS_MIN_PAGE_SIZE)
-
 ifeq ($(HARDEN_SLS), 1)
         TF_CFLAGS_MHARDEN_SLS	:=      $(call cc_option, -mharden-sls=all)
-        TF_CFLAGS_aarch64	+=      $(TF_CFLAGS_MHARDEN_SLS)
 endif
 
-WARNINGS	+=		-Wunused-but-set-variable -Wmaybe-uninitialized	\
+LTO_CFLAGS		:=	$(if $(call bool,$(ENABLE_LTO)),-flto)
+
+# Compiler specific warnings
+cc-flags-gnu-gcc	+=	-Wunused-but-set-variable -Wmaybe-uninitialized	\
 				-Wpacked-bitfield-compat -Wshift-overflow=2 \
-				-Wlogical-op
-
-else
-# using clang
-WARNINGS	+=		-Wshift-overflow -Wshift-sign-overflow \
+				-Wlogical-op $(TF_CFLAGS_MIN_PAGE_SIZE) $(TF_CFLAGS_MHARDEN_SLS)
+cc-flags-llvm-clang	+=	-Wshift-overflow -Wshift-sign-overflow \
 				-Wlogical-op-parentheses
-endif #(Clang Warning)
+# TODO: some day GCC will be able to LTO __builtin functions (i.e. the libc and
+# with it all libs). When this happens, this should become generic. This can
+# also happen when GCC14 is the oldest reasonable version we support, then this
+# can work with -ffat-lto-objects.
+cc-flags-llvm-clang	+=	$(LTO_CFLAGS)
 
-CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc	\
-				$(ERRORS) $(WARNINGS)
+# arm-clang has the same flags
+cc-flags-arm-clang	+=	$(cc-flags-llvm-clang)
 
+cflags-common		+=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc
 
-TF_CFLAGS		+=	-ffunction-sections -fdata-sections		\
+cflags-common		+=	-ffunction-sections -fdata-sections		\
 				-ffreestanding -fno-common			\
 				-Os -std=gnu99
 
 ifneq (${BP_OPTION},none)
-	TF_CFLAGS_aarch64	+=	-mbranch-protection=${BP_OPTION}
+	cflags-common	+=	-mbranch-protection=${BP_OPTION}
 endif #(BP_OPTION)
 
 ifeq (${SANITIZE_UB},on)
-	TF_CFLAGS	+=	-fsanitize=undefined -fno-sanitize-recover
+	cflags-common	+=	-fsanitize=undefined -fno-sanitize-recover
 endif #(${SANITIZE_UB},on)
 
 ifeq (${SANITIZE_UB},trap)
-	TF_CFLAGS	+=	-fsanitize=undefined -fno-sanitize-recover	\
+	cflags-common	+=	-fsanitize=undefined -fno-sanitize-recover	\
 				-fsanitize-undefined-trap-on-error
 endif #(${SANITIZE_UB},trap)
 
-ifeq ($($(ARCH)-cc-id),gnu-gcc)
-	# Enable LTO only for aarch64
-	LTO_CFLAGS	=	$(if $(filter-out 0,$(ENABLE_LTO)),-flto)
-endif #(gnu-gcc)
-
 ifeq (${ERROR_DEPRECATED},0)
-# Check if deprecated declarations and cpp warnings should be treated as error or not.
-ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
-    CPPFLAGS		+= 	-Wno-error=deprecated-declarations
-else
-    CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
-endif
+        cflags-common	+= 	-Wno-error=deprecated-declarations
+        cflags-common	+= 	-Wno-error=cpp
 endif #(!ERROR_DEPRECATED)
 
 ################################################################################
@@ -163,14 +138,34 @@ ifeq (${ARM_ARCH_MAJOR},7)
 include make_helpers/armv7-a-cpus.mk
 endif
 
-TF_CFLAGS	+=	$(march-directive)
+cflags-common		+=	$(march-directive)
 
 ifneq ($(PIE_FOUND),)
-	TF_CFLAGS	+=	-fno-PIE
+        cflags-common	+=	-fno-PIE
 endif
 
-TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))
-TF_CFLAGS		+=	$(CFLAGS)
+ifeq ($(ENABLE_LTO),1)
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
+        cflags-common	+=	-flto-partition=one
+endif
+endif
+
+cflags-common		+=	$(TF_CFLAGS_$(ARCH))
+cflags-common		+=	$(CPPFLAGS) $(CFLAGS) # some platforms set these
+TF_CFLAGS		+=	$(cflags-common)
+TF_CFLAGS		+=	$(target-$(ARCH)-$($(ARCH)-cc-id))
+TF_CFLAGS		+=	$(cc-flags-$($(ARCH)-cc-id))
+
+# it's logical to give the same flags to the linker when it's invoked through
+# the compiler. This is requied for LTO to work correctly
+ifeq ($($(ARCH)-ld-id),$($(ARCH)-cc-id))
+        TF_LDFLAGS	+= 	$(cflags-common)
+        TF_LDFLAGS	+=	$(cc-flags-$($(ARCH)-ld-id))
+        TF_LDFLAGS	+=	$(LTO_CFLAGS)
+endif
+
+TF_LDFLAGS		+= 	$(target-$(ARCH)-$($(ARCH)-ld-id))
+
 ASFLAGS			+=	-Wa,--fatal-warnings
 TF_LDFLAGS		+=	-z noexecstack
 
@@ -178,67 +173,46 @@ TF_LDFLAGS		+=	-z noexecstack
 ifeq ($($(ARCH)-ld-id),arm-link)
 	TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
 	TF_LDFLAGS		+=	--remove --info=unused,unusedsymbols
-	TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 
-# LD = gcc (used when GCC LTO is enabled)
-else ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	# Pass ld options with Wl or Xlinker switches
-	TF_LDFLAGS		+=	$(call ld_option,-Xlinker --no-warn-rwx-segments)
-	TF_LDFLAGS		+=	-Wl,--fatal-warnings -O1
-	TF_LDFLAGS		+=	-Wl,--gc-sections
-
-	TF_LDFLAGS		+=	-Wl,-z,common-page-size=4096 #Configure page size constants
-	TF_LDFLAGS		+=	-Wl,-z,max-page-size=4096
-	TF_LDFLAGS		+=	-Wl,--build-id=none
-
-	ifeq ($(ENABLE_LTO),1)
-		TF_LDFLAGS	+=	-flto -fuse-linker-plugin
-		TF_LDFLAGS      +=	-flto-partition=one
-	endif #(ENABLE_LTO)
-
-# GCC automatically adds fix-cortex-a53-843419 flag when used to link
-# which breaks some builds, so disable if errata fix is not explicitly enabled
-	ifeq (${ARCH},aarch64)
-		ifneq (${ERRATA_A53_843419},1)
-			TF_LDFLAGS	+= 	-mno-fix-cortex-a53-843419
-		endif
-	endif
-	TF_LDFLAGS		+= 	-nostdlib
-	TF_LDFLAGS		+=	$(subst --,-Xlinker --,$(TF_LDFLAGS_$(ARCH)))
-
-# LD = gcc-ld (ld) or llvm-ld (ld.lld) or other
+# LD = gcc or clang
 else
-# With ld.bfd version 2.39 and newer new warnings are added. Skip those since we
-# are not loaded by a elf loader.
-	TF_LDFLAGS		+=	$(call ld_option, --no-warn-rwx-segments)
-	TF_LDFLAGS		+=	-O1
-	TF_LDFLAGS		+=	--gc-sections
+        ldflags-common		:=	$(call ld_option,--no-warn-rwx-segments)
+        # ld.lld reports section type mismatch warnings,
+        # so don't add --fatal-warnings to it.
+        ifneq ($($(ARCH)-ld-id),$(filter $($(ARCH)-ld-id),llvm-clang llvm-lld))
+                ldflags-common	+=	$(call ld_prefix,--fatal-warnings)
+        endif
+        ldflags-common		+=	$(call ld_prefix,--gc-sections)
+        ldflags-common		+=	-z common-page-size=4096 # Configure page size constants
+        ldflags-common		+=	-z max-page-size=4096
+        ldflags-common		+=	$(call ld_prefix,--build-id=none)
+        ldflags-common		+=	$(call ld_option,--sort-section=alignment)
 
-	TF_LDFLAGS		+=	-z common-page-size=4096 # Configure page size constants
-	TF_LDFLAGS		+=	-z max-page-size=4096
-	TF_LDFLAGS		+=	--build-id=none
+        ifeq ($(ENABLE_LTO),1)
+                ldflags-common	+=	-fuse-linker-plugin
+        endif #(ENABLE_LTO)
 
-# ld.lld doesn't recognize the errata flags,
-# therefore don't add those in that case.
-# ld.lld reports section type mismatch warnings,
-# therefore don't add --fatal-warnings to it.
-	ifneq ($($(ARCH)-ld-id),llvm-lld)
-		TF_LDFLAGS	+=	$(TF_LDFLAGS_$(ARCH)) --fatal-warnings
-	endif
+        ldflags-common		+= 	-nostdlib
 
-endif #(LD = armlink)
+        ifeq ($($(ARCH)-ld-id),llvm-clang)
+                ldflags-common		+=	-fuse-ld=lld
+        endif
+
+        ifneq ($(call bool,$(USE_ROMLIB)),)
+                ldflags-common	+= @${BUILD_PLAT}/romlib/romlib.ldflags
+        endif
+endif
 
 ifneq ($(PIE_FOUND),)
 ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	TF_LDFLAGS	+=	-no-pie
+        ldflags-common	+=	-no-pie
 endif
 endif #(PIE_FOUND)
+TF_LDFLAGS	+=	$(ldflags-common)
+TF_LDFLAGS	+=	$(ldflags-$(ARCH))
 
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	PIE_LDFLAGS	+=	-Wl,-pie -Wl,--no-dynamic-linker
-else
-	PIE_LDFLAGS	+=	-pie --no-dynamic-linker
-endif
+PIE_LDFLAGS	+=	$(call ld_prefix,-pie)
+PIE_LDFLAGS	+=	$(call ld_prefix,--no-dynamic-linker)
 
 ifeq ($(ENABLE_PIE),1)
 	ifeq ($(RESET_TO_BL2),1)

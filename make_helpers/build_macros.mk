@@ -90,9 +90,15 @@ define assert_numerics
     $(foreach num,$1,$(eval $(call assert_numeric,$(num))))
 endef
 
-# Convenience function to check for a given linker option. An call to
-# $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker
-ld_option = $(shell $($(ARCH)-ld) $(1) -Wl,--version >/dev/null 2>&1 || $($(ARCH)-ld) $(1) -v >/dev/null 2>&1 && echo $(1))
+# Convenience function to check for a given linker option. A call to
+# $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker,
+# prefixed appropriately for the linker in use
+ld_option = $(call toolchain-ld-option,$(ARCH),$(1))
+
+# Convenience function to add a prefix to a linker flag if necessary. Useful
+# when the flag is known to be supported and it just needs to be prefixed
+# correctly.
+ld_prefix = $(toolchain-ld-prefix-$($(ARCH)-ld-id))
 
 # Convenience function to check for a given compiler option. A call to
 # $(call cc_option, --no-XYZ) will return --no-XYZ if supported by the compiler
@@ -533,10 +539,6 @@ define linker_script_path
         $(patsubst %.S,$(BUILD_DIR)/%,$(1))
 endef
 
-ifeq ($(USE_ROMLIB),1)
-WRAPPER_FLAGS := @${BUILD_PLAT}/romlib/romlib.ldflags
-endif
-
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
 #   $(1) = BL stage
@@ -561,6 +563,7 @@ define MAKE_BL
 
         $(eval LINKER_SCRIPT_SOURCES := $($(BL)_LINKER_SCRIPT_SOURCES))
         $(eval LINKER_SCRIPTS := $(call linker_script_path,$(LINKER_SCRIPT_SOURCES)))
+        $(eval GNU_LINKER_ARGS := $(call ld_prefix,-Map=$(MAPFILE)) $(foreach script,$(LINKER_SCRIPTS) $(DEFAULT_LINKER_SCRIPT), $(call ld_prefix,--script $(script))))
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1),$(BL)))
 
@@ -586,13 +589,8 @@ ifeq ($($(ARCH)-ld-id),arm-link)
 		--predefine=$(call escape-shell,-DTF_CFLAGS=$(TF_CFLAGS)) \
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) $(OBJS)
-else ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $$(WRAPPER_FLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
-		$(addprefix -Wl$(comma)--script$(comma),$(LINKER_SCRIPTS)) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) \
-		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
-	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $$(WRAPPER_FLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
-		$(addprefix -T ,$(LINKER_SCRIPTS)) --script $(DEFAULT_LINKER_SCRIPT) \
+	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) $(GNU_LINKER_ARGS) \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 endif
 ifeq ($(DISABLE_BIN_GENERATION),1)
