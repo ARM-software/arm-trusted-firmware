@@ -810,12 +810,12 @@ References
 .. [3] https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/measured_boot_integration_guide.html
 .. [4] https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/delegated_attestation/delegated_attest_integration_guide.html
 .. [5] https://trustedfirmware-m.readthedocs.io/en/latest/platform/arm/rse/rse_key_management.html
-.. [6] https://developer.arm.com/-/media/Files/pdf/PlatformSecurityArchitecture/Architect/DEN0063-PSA_Firmware_Framework-1.0.0-2.pdf?revision=2d1429fa-4b5b-461a-a60e-4ef3d8f7f4b4&hash=3BFD6F3E687F324672F18E5BE9F08EDC48087C93
+.. [6] https://developer.arm.com/documentation/den0063
 .. [7] https://developer.arm.com/documentation/DEN0096/A_a/?lang=en
 .. [8] https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/dice_protection_environment/dice_protection_environment.html
 
 --------------
 
-*Copyright (c) 2023-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2025, Arm Limited. All rights reserved.*
 *Copyright (c) 2024, Linaro Limited. All rights reserved.*
 *Copyright (c) 2025, STMicroelectronics - All Rights Reserved*

@@ -136,17 +136,15 @@ Chain of Trust Descriptors
 --------------------------
 
 If a structure includes a Chain of Trust (CoT) for secure authentication and
-verification, it must conform to the bindings described in the `Chain of Trust
-Bindings`_ document. Specifically, the CoT should be represented using a ``cot``
+verification, it must conform to the bindings described in the :ref:`Chain of Trust
+Bindings` document. Specifically, the CoT should be represented using a ``cot``
 node containing ``manifests`` and ``images`` sub-nodes, with certificates,
 images, and non-volatile counters defined as per the specifications therein.
 This ensures compatibility with the authentication framework and supports
 features such as certificate hierarchies, rollback protection, and root-of-trust
 key integration. For full details on required properties and node structure,
-refer to the `Chain of Trust Bindings`_ document.
+refer to the :ref:`Chain of Trust Bindings` document.
 
 --------------
 
 *Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
-
-.. _Chain of Trust Bindings: ../cot-binding.html

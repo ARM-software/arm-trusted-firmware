@@ -832,12 +832,12 @@ Error Codes
 
 --------------
 
-*Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. _Armv8-A ARM: https://developer.arm.com/docs/ddi0487/latest/arm-architecture-reference-manual-armv8-for-armv8-a-architecture-profile
 .. _instructions in the EDK2 repository: https://github.com/tianocore/edk2-staging/blob/AArch64StandaloneMm/HowtoBuild.MD
-.. _Management Mode Interface Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0060a/DEN0060A_ARM_MM_Interface_Specification.pdf
-.. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
+.. _Management Mode Interface Specification: https://developer.arm.com/documentation/den0060
+.. _SDEI Specification: https://developer.arm.com/documentation/den0054
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 
 .. |Image 1| image:: ../resources/diagrams/secure_sw_stack_tos.png

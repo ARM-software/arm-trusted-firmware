@@ -614,6 +614,6 @@ The |EHF| has the following limitations:
 
 --------------
 
-*Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.*
 
-.. _SDEI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
+.. _SDEI specification: https://developer.arm.com/documentation/den0054

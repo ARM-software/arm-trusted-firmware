@@ -398,7 +398,7 @@ handling finishes in finite time and notify the dispatcher through
 fails to complete the event handling, it might result in ``UNPREDICTABLE`` behavior
 in the client and potentially end up in unusable PE.
 
-*Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. rubric:: Footnotes
 
@@ -409,5 +409,5 @@ in the client and potentially end up in unusable PE.
                      External Abort*, *Fault Handling interrupt* or *Error
                      Recovery interrupt* from one of RAS nodes in the system.
 
-.. _SDEI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
+.. _SDEI specification: https://developer.arm.com/documentation/den0054
 .. _Software Delegated Exception Interface: `SDEI specification`_

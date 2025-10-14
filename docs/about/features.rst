@@ -145,7 +145,7 @@ Still to come
 
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
-.. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
+.. _NVIDIA Trusted Little Kernel: https://nv-tegra.nvidia.com/r/plugins/gitiles/3rdparty/ote_partner/tlk
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _ProvenCore Secure OS: https://provenrun.com/products/provencore/
 

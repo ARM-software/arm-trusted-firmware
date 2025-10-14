@@ -103,7 +103,7 @@ TF-A implements this approach for the following affected CPU:
 .. _Google Project Zero: https://bugs.chromium.org/p/project-zero/issues/detail?id=1528
 .. _Arm Processor Security Update: http://www.arm.com/security-update
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
-.. _Software Delegated Exception Interface (SDEI): http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
+.. _Software Delegated Exception Interface (SDEI): https://developer.arm.com/documentation/den0054
 .. _Firmware interfaces for mitigating cache speculation vulnerabilities: https://developer.arm.com/cache-speculation-vulnerability-firmware-specification
 .. _Pull Request #1392: https://github.com/ARM-software/arm-trusted-firmware/pull/1392
 .. _Pull Request #1397: https://github.com/ARM-software/arm-trusted-firmware/pull/1397
