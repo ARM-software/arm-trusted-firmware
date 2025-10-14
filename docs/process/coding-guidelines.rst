@@ -61,14 +61,13 @@ Ignored Checkpatch Warnings
 Some checkpatch warnings in the TF codebase are deliberately ignored. These
 include:
 
-- ``**WARNING: line over 80 characters**``: Although the codebase should
-  generally conform to the 80 character limit this is overly restrictive in some
-  cases.
-
 - ``**WARNING: Use of volatile is usually wrong``: see
   `Why the “volatile” type class should not be used`_ . Although this document
   contains some very useful information, there are several legimate uses of the
   volatile keyword within the TF codebase.
+
+Those warnings are already handled with ``.checkpatch.conf`` file in the
+top-level directory.
 
 Performance considerations
 --------------------------
