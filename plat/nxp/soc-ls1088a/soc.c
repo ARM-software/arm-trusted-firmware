@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022, 2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,9 @@
 #include <pmu.h>
 #if defined(NXP_SFP_ENABLED)
 #include <sfp.h>
+#endif
+#if TRUSTED_BOARD_BOOT
+#include <snvs.h>
 #endif
 
 #include <errata.h>
@@ -228,6 +231,10 @@ void soc_early_init(void)
 {
 	enum boot_device dev;
 	dram_regions_info_t *dram_regions_info = get_dram_regions_info();
+
+#if TRUSTED_BOARD_BOOT
+	snvs_init(NXP_SNVS_ADDR);
+#endif
 
 #ifdef CONFIG_OCRAM_ECC_EN
 	ocram_init(NXP_OCRAM_ADDR, NXP_OCRAM_SIZE);
