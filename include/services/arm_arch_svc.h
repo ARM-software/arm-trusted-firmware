@@ -35,7 +35,7 @@
 #if ENABLE_FEAT_FPMR
 #define SCR_FEAT_FPMR SCR_EnFPM_BIT
 #else
-#define SCR_FEAT_FPMR
+#define SCR_FEAT_FPMR (0)
 #endif
 
 #if ENABLE_FEAT_D128
