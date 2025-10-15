@@ -12,6 +12,7 @@
 #include <arch_features.h>
 #include <arch_helpers.h>
 #include <lib/cassert.h>
+#include <lib/cpus/errata.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
@@ -269,6 +270,8 @@ void xlat_arch_tlbi_va_sync(void)
 	 * "Ordering and completion of TLB maintenance instructions".
 	 */
 	dsbish();
+
+	apply_cve_2025_10263_wa();
 
 	/*
 	 * The effects of a completed TLB maintenance instruction are
