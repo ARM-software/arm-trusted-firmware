@@ -1574,12 +1574,12 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		write_el2_ctx_tcr2(el2_sysregs_ctx, tcr2_el2, read_tcr2_el2());
 	}
 
-	if (is_feat_sxpie_supported()) {
+	if (is_feat_s1pie_supported()) {
 		write_el2_ctx_sxpie(el2_sysregs_ctx, pire0_el2, read_pire0_el2());
 		write_el2_ctx_sxpie(el2_sysregs_ctx, pir_el2, read_pir_el2());
 	}
 
-	if (is_feat_sxpoe_supported()) {
+	if (is_feat_s1poe_supported()) {
 		write_el2_ctx_sxpoe(el2_sysregs_ctx, por_el2, read_por_el2());
 	}
 
@@ -1669,12 +1669,12 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		write_tcr2_el2(read_el2_ctx_tcr2(el2_sysregs_ctx, tcr2_el2));
 	}
 
-	if (is_feat_sxpie_supported()) {
+	if (is_feat_s1pie_supported()) {
 		write_pire0_el2(read_el2_ctx_sxpie(el2_sysregs_ctx, pire0_el2));
 		write_pir_el2(read_el2_ctx_sxpie(el2_sysregs_ctx, pir_el2));
 	}
 
-	if (is_feat_sxpoe_supported()) {
+	if (is_feat_s1poe_supported()) {
 		write_por_el2(read_el2_ctx_sxpoe(el2_sysregs_ctx, por_el2));
 	}
 
