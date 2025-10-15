@@ -144,6 +144,11 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 	int node, parent, ret;
 	uint32_t reg;
 
+	if (fdt == NULL) {
+		INFO("No DTB, skipping PMIC detection and setup\n");
+		return -ENOENT;
+	}
+
 	node = fdt_node_offset_by_compatible(fdt, 0, "x-powers,axp806");
 	if (node >= 0) {
 		pmic = AXP305;
