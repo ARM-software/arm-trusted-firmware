@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -97,7 +97,7 @@ void plat_gic_cpuif_disable(void)
 	gicv3_cpuif_disable(plat_my_core_pos());
 }
 
-void gic_cpuif_enable(void)
+void gic_cpuif_enable(unsigned int cpu_idx)
 {
 #ifdef SM_AP_SEMA_ADDR
 	request_sm_ap_sema();
@@ -109,7 +109,7 @@ void gic_cpuif_enable(void)
 #endif
 }
 
-void gic_cpuif_disable(void)
+void gic_cpuif_disable(unsigned int cpu_idx)
 {
 #ifdef SM_AP_SEMA_ADDR
 	request_sm_ap_sema();
