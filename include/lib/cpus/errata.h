@@ -112,7 +112,15 @@ static inline void wa_cve_2025_0647_execute_cpp_el3(uint64_t arg)
 }
 #endif /* WORKAROUND_CVE_2025_0647 */
 
+#if WORKAROUND_CVE_2025_10263
+void apply_cve_2025_10263_wa(void);
 #else
+static inline void apply_cve_2025_10263_wa(void)
+{
+}
+#endif
+
+#else /* __ASSEMBLER__ */
 
 /*
  * errata framework macro helpers

@@ -220,3 +220,15 @@ int check_erratum_applies(uint32_t cve, int errata_id)
 
 	return entry->check_func(rev_var);
 }
+
+#if WORKAROUND_CVE_2025_10263
+/*
+ * Mitigation for CVE-2025-10263 requires inserting an extra TLBI and
+ * DSB after a shareable TLBI-DSB sequence.
+ */
+void apply_cve_2025_10263_wa(void)
+{
+	tlbivale3is(0);
+	dsbish();
+}
+#endif /* WORKAROUND_CVE_2025_10263 */
