@@ -322,6 +322,9 @@ func cortex_x2_impl_defined_el3_handler
 endfunc cortex_x2_impl_defined_el3_handler
 #endif
 
+add_erratum_entry cortex_x2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen cortex_x2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------

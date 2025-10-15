@@ -291,6 +291,9 @@ func neoverse_n2_impl_defined_el3_handler
 endfunc neoverse_n2_impl_defined_el3_handler
 #endif
 
+add_erratum_entry neoverse_n2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen neoverse_n2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+
 	/* -------------------------------------------
 	 * The CPU Ops reset function for Neoverse N2.
 	 * -------------------------------------------

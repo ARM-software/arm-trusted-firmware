@@ -218,6 +218,9 @@ func cortex_x3_impl_defined_el3_handler
 endfunc cortex_x3_impl_defined_el3_handler
 #endif
 
+add_erratum_entry cortex_x3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen cortex_x3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+
 cpu_reset_func_start cortex_x3
 	/* Disable speculative loads */
 	msr	SSBS, xzr

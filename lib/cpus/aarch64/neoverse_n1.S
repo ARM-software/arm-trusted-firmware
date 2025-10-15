@@ -211,6 +211,9 @@ workaround_reset_end neoverse_n1, CVE(2022, 23960)
 
 check_erratum_chosen neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+add_erratum_entry neoverse_n1, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen neoverse_n1, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+
 /* --------------------------------------------------
  * Disable speculative loads if Neoverse N1 supports
  * SSBS.
