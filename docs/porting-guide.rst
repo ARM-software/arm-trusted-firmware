@@ -4124,6 +4124,9 @@ The platform uses this API to load, authenticate and measure the component
 specified by ``lfa_component_id``. It should return 0 on success or appropriate
 error codes for load/authentication failures.
 
+NOTE: The error code -EAGAIN is not treated as an error, it means the operation
+is incomplete and the function should be called again by the caller.
+
 Function : plat_lfa_notify_activate()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

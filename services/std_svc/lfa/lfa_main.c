@@ -202,29 +202,37 @@ static int lfa_prime(uint32_t component_id, uint64_t *flags)
 		break;
 	}
 
-	ret = plat_lfa_load_auth_image(component_id);
-	if (ret != 0) {
-		return convert_to_lfa_error(ret);
-	}
-
-	activator = lfa_components[component_id].activator;
-	if (activator->prime != NULL) {
-		ret = activator->prime(&current_activation);
-		if (ret != LFA_SUCCESS) {
-			/*
-			 * TODO: it should be LFA_PRIME_FAILED but specification
-			 * has not define this error yet
-			 */
-			return ret;
-		}
-	}
-
-	current_activation.prime_status = PRIME_COMPLETE;
-
-	/* TODO: split this into multiple PRIME calls */
+	/* Initialise the flags to start with. Only valid if ret=LFA_SUCCESS. */
 	*flags = 0ULL;
 
-	return ret;
+	ret = plat_lfa_load_auth_image(component_id);
+	if (ret == 0) {
+		activator = lfa_components[component_id].activator;
+		if (activator->prime != NULL) {
+			ret = activator->prime(&current_activation);
+			if (ret != LFA_SUCCESS) {
+				/*
+				* TODO: it should be LFA_PRIME_FAILED but specification
+				* has not define this error yet
+				*/
+				return ret;
+			}
+		}
+
+		current_activation.prime_status = PRIME_COMPLETE;
+	}
+
+	/*
+	 * Set lfa_flags to indicate that LFA_PRIME must be called again and
+	 * reset ret to 0, as LFA_PRIME must return LFA_SUCCESS if it is
+	 * incomplete.
+	 */
+	if (ret == -EAGAIN) {
+		ret = 0;
+		*flags = LFA_CALL_AGAIN;
+	}
+
+	return convert_to_lfa_error(ret);
 }
 
 bool lfa_is_prime_complete(uint32_t lfa_component_id)

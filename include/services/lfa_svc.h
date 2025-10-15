@@ -59,6 +59,8 @@
 
 #define LFA_SKIP_CPU_RENDEZVOUS_BIT		BIT(0)
 
+#define LFA_CALL_AGAIN				ULL(1)
+
 /* List of errors as per the specification */
 enum lfa_retc {
 	LFA_SUCCESS			=  0,
