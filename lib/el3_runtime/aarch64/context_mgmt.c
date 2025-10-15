@@ -326,6 +326,13 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		scr_el3 |= SCR_EnFPM_BIT;
 	}
 
+	if (is_feat_aie_supported()) {
+		/* Set the AIEn bit in SCR_EL3 to enable access to (A)MAIR2
+		 * system registers from NS world.
+		 */
+		scr_el3 |= SCR_AIEn_BIT;
+	}
+
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
 	/* Initialize EL2 context registers */
