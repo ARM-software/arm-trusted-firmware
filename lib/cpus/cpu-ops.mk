@@ -45,6 +45,13 @@ CPU_FLAG_LIST += WORKAROUND_CVE_2024_7881
 WORKAROUND_CVE_2025_0647		?=1
 CPU_FLAG_LIST += WORKAROUND_CVE_2025_0647
 
+# Flag to enable the CVE-2025-10263 workaround. The platform should enable this
+# flag if it contains at least one affected CPU. It is disabled by default since
+# if any affected core is present, it must unconditionally be applied on all
+# CPUs in the platform.
+WORKAROUND_CVE_2025_10263		?=0
+CPU_FLAG_LIST += WORKAROUND_CVE_2025_10263
+
 # Flags to indicate internal or external Last level cache
 # By default internal
 CPU_FLAG_LIST += NEOVERSE_Nx_EXTERNAL_LLC
