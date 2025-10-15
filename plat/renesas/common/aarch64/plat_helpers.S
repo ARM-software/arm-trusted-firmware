@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,6 +148,9 @@ func plat_secondary_reset
 	bic	w0, w0, #TFP_BIT
 	msr	cptr_el3, x0
 
+	/* Clear TCR_EL1 on secondary cores */
+	msr	tcr_el1, xzr
+
 	mov_imm	x0, PARAMS_BASE
 	mov_imm	x2, BL31_BASE
        ldr x3, =BOOT_KIND_BASE
@@ -187,6 +190,10 @@ func bl2_enter_bl31
 	ic	iallu
 	dsb	sy
 	isb
+
+	/* Clear TCR_EL1 on primary core */
+	msr	tcr_el1, xzr
+
 	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
 	msr	elr_el3, x0
 	msr	spsr_el3, x1
