@@ -137,7 +137,7 @@ static void scmi_pd_attributes(struct scmi_msg *msg)
 	pd_id = SPECULATION_SAFE_VALUE(in_args->pd_id);
 
 	if (pd_id >= plat_scmi_pd_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
@@ -171,7 +171,7 @@ static void scmi_pd_state_get(struct scmi_msg *msg)
 	pd_id = SPECULATION_SAFE_VALUE(in_args->pd_id);
 
 	if (pd_id >= plat_scmi_pd_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
@@ -198,7 +198,7 @@ static void scmi_pd_state_set(struct scmi_msg *msg)
 	pd_id = SPECULATION_SAFE_VALUE(in_args->pd_id);
 
 	if (pd_id >= plat_scmi_pd_count(msg->agent_id)) {
-		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		scmi_status_response(msg, SCMI_NOT_FOUND);
 		return;
 	}
 
