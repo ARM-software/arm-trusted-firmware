@@ -144,7 +144,7 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 	 * Initialize EL1 context registers unless SPMC is running
 	 * at S-EL2.
 	 */
-#if (!SPMD_SPM_AT_SEL2)
+#if !CTX_INCLUDE_EL2_REGS || IMAGE_BL1
 	setup_el1_context(ctx, ep);
 #endif
 
@@ -611,7 +611,7 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 
 	pmuv3_enable(ctx);
 
-#if CTX_INCLUDE_EL2_REGS
+#if CTX_INCLUDE_EL2_REGS && IMAGE_BL31
 	/*
 	 * Initialize SCTLR_EL2 context register with reset value.
 	 */
@@ -1211,7 +1211,7 @@ void cm_prepare_el3_exit(size_t security_state)
 			write_fgwte3_el3(FGWTE3_EL3_LATE_INIT_VAL);
 		}
 	}
-#if (!CTX_INCLUDE_EL2_REGS)
+#if !CTX_INCLUDE_EL2_REGS || IMAGE_BL1
 	/* Restore EL1 system registers, only when CTX_INCLUDE_EL2_REGS=0 */
 	cm_el1_sysregs_context_restore(security_state);
 #endif
