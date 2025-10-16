@@ -947,7 +947,7 @@ static int sdei_signal(int ev_num, uint64_t target_pe)
 		for (i = 0; i < SDEI_PRIVATE_MAPPING()->num_maps; i++) {
 			if (map_priv->ev_num == SDEI_EVENT_0) {
 				se = get_event_entry_target_pe((long int) i,
-				(unsigned int) SDEI_PRIVATE_MAPPING()->num_maps, target_pe);
+					SDEI_PRIVATE_MAPPING()->num_maps, target_pe);
 				if (se == NULL) {
 					return SDEI_EINVAL;
 				}

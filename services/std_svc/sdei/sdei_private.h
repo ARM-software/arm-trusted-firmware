@@ -233,7 +233,7 @@ void init_sdei_state(void);
 sdei_ev_map_t *find_event_map_by_intr(unsigned int intr_num, bool shared);
 sdei_ev_map_t *find_event_map(int ev_num);
 sdei_entry_t *get_event_entry(const sdei_ev_map_t *map);
-sdei_entry_t *get_event_entry_target_pe(long int mapsub, unsigned int nm, uint64_t target_pe);
+sdei_entry_t *get_event_entry_target_pe(long int mapsub, size_t nm, uint64_t target_pe);
 
 int64_t sdei_event_context(void *handle, unsigned int param);
 int sdei_event_complete(bool resume, uint64_t pc);
