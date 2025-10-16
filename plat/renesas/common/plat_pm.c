@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,8 +19,11 @@
 #include "iic_dvfs.h"
 #include "platform_def.h"
 #include "pwrc.h"
+#include "timer.h"
+
 #include "rcar_def.h"
 #include "rcar_private.h"
+
 #if RCAR_GEN3_ULCB
 #include "ulcb_cpld.h"
 #endif /* RCAR_GEN3_ULCB */

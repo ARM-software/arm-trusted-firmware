@@ -236,6 +236,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/common/ddr		\
 			-Idrivers/renesas/common/scif		\
 			-Idrivers/renesas/common/emmc		\
 			-Idrivers/renesas/common/pwrc		\
+			-Idrivers/renesas/common/timer		\
 			-Idrivers/renesas/common/io
 
 BL2_SOURCES	+=	plat/renesas/rzg/bl2_plat_setup.c	\
