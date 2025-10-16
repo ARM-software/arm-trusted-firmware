@@ -208,6 +208,10 @@ For Cortex-A65, the following errata build flags are defined :
    CPU. This needs to be enabled only for revision r0p0 of the CPU, and is fixed
    in r1p0.
 
+-  ``ERRATA_A65_1227419``: This applies errata 1227419 workaround to Cortex-A65
+   CPU. This needs to be enabled only for revision r0p0 and r1p0 of the CPU and
+   is fixed in r1p1.
+
 For Cortex-A72, the following errata build flags are defined :
 
 -  ``ERRATA_A72_859971``: This applies errata 859971 workaround to Cortex-A72
