@@ -76,9 +76,9 @@ void save_dsu_pmu_state(cluster_pmu_state_t *cluster_pmu_state)
 
 void cluster_off_dsu_pmu_context_save(void)
 {
-	unsigned int cluster_pos;
+	unsigned int cluster_pos = plat_cluster_id_by_mpidr(read_mpidr_el1());
 
-	cluster_pos = (unsigned int) plat_cluster_id_by_mpidr(read_mpidr_el1());
+	assert(cluster_pos < ARRAY_SIZE(cluster_pmu_context));
 
 	save_dsu_pmu_state(&cluster_pmu_context[cluster_pos]);
 }
@@ -128,9 +128,9 @@ void restore_dsu_pmu_state(cluster_pmu_state_t *cluster_pmu_state)
 
 void cluster_on_dsu_pmu_context_restore(void)
 {
-	unsigned int cluster_pos;
+	unsigned int cluster_pos = plat_cluster_id_by_mpidr(read_mpidr_el1());
 
-	cluster_pos = (unsigned int) plat_cluster_id_by_mpidr(read_mpidr_el1());
+	assert(cluster_pos < ARRAY_SIZE(cluster_pmu_context));
 
 	restore_dsu_pmu_state(&cluster_pmu_context[cluster_pos]);
 }
