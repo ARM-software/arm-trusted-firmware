@@ -61,6 +61,7 @@ import hob
 import struct
 from hob import HobList
 
+DEBUG = 0
 MAX_SP = 8
 UUID_LEN = 4
 HOB_OFFSET_DEFAULT=0x2000
@@ -94,16 +95,18 @@ def get_sp_img_full_path(sp_node, args :dict):
 
 def get_size(sp_node):
     if not "size" in sp_node:
-        print("WARNING: default image size 0x100000")
+        if DEBUG==1:
+            print("WARNING: default image size 0x100000")
         return 0x100000
 
     # Try if it was a decimal value.
     try:
-        return int(sp_node["size"])
-    except ValueError:
-        print("WARNING: trying to parse base 16 size")
-        # Try if it is of base 16
         return int(sp_node["size"], 16)
+    except ValueError:
+        if DEBUG==1:
+            print("WARNING: trying to parse base 10 size")
+        # Try if it is of base 10
+        return int(sp_node["size"])
 
 def get_sp_pkg(sp, args :dict):
     check_out_dir(args)
@@ -291,7 +294,7 @@ def check_dualroot(sp_layout, _, args :dict):
     # If it is owned by the platform owner, it is assigned to the SiP.
     args["sip_max_count"] = len(sp_layout.keys()) - args["plat_max_count"]
     if  args["sip_max_count"] > args["split"] or args["sip_max_count"] > args["split"]:
-        print(f"WARN: SiP Secure Partitions should not be more than {args['split']}")
+        print(f"WARNING: SiP Secure Partitions should not be more than {args['split']}")
     # Counters for gen_crt_args.
     args["sip_count"] = 1
     args["plat_count"] = 1
@@ -349,7 +352,7 @@ f'''\
 
 ''')
         else:
-            print("Warning: No load-address was found in the SP manifest.")
+            print("WARNING: No load-address was found in the SP manifest.")
 
     return args
 
