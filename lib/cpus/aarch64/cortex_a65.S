@@ -40,6 +40,12 @@ workaround_reset_end cortex_a65, ERRATUM(1179935)
 
 check_erratum_ls cortex_a65, ERRATUM(1179935), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a65, ERRATUM(1227419), ERRATA_A65_1227419
+	sysreg_bit_set CORTEX_A65_CPUACTLR_EL1, BIT(51)
+workaround_reset_end cortex_a65, ERRATUM(1227419)
+
+check_erratum_ls cortex_a65, ERRATUM(1227419), CPU_REV(1, 0)
+
 cpu_reset_func_start cortex_a65
 cpu_reset_func_end cortex_a65
 
