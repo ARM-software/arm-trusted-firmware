@@ -57,6 +57,9 @@ void __no_pauth bl2_main(u_register_t arg0, u_register_t arg1, u_register_t arg2
 	/* Perform early platform-specific setup */
 	bl2_early_platform_setup2(arg0, arg1, arg2, arg3);
 
+	/* Perform remaining generic architectural setup in S-EL1 */
+	bl2_arch_setup();
+
 	/* Perform late platform-specific setup */
 	bl2_plat_arch_setup();
 #endif /* RESET_TO_BL2 */
@@ -75,9 +78,6 @@ void __no_pauth bl2_main(u_register_t arg0, u_register_t arg1, u_register_t arg2
 
 	NOTICE("BL2: %s\n", build_version_string);
 	NOTICE("BL2: %s\n", build_message);
-
-	/* Perform remaining generic architectural setup in S-EL1 */
-	bl2_arch_setup();
 
 #if PSA_FWU_SUPPORT
 	fwu_init();
