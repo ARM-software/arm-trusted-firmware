@@ -475,6 +475,7 @@
 
 #define ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT	U(28)
 #define ID_AA64PFR1_EL1_RNDR_TRAP_MASK	U(0xf)
+#define RNG_TRAP_IMPLEMENTED		ULL(0x1)
 
 #define ID_AA64PFR1_EL1_NMI_SHIFT	U(36)
 #define ID_AA64PFR1_EL1_NMI_MASK	ULL(0xf)
@@ -488,7 +489,9 @@
 #define ID_AA64PFR1_EL1_THE_MASK	ULL(0xf)
 #define THE_IMPLEMENTED			ULL(1)
 
-#define RNG_TRAP_IMPLEMENTED		ULL(0x1)
+#define ID_AA64PFR1_EL1_PFAR_SHIFT	U(60)
+#define ID_AA64PFR1_EL1_PFAR_MASK	ULL(0xf)
+
 
 /* ID_AA64PFR2_EL1 definitions */
 #define ID_AA64PFR2_EL1				S3_0_C0_C4_2
@@ -661,8 +664,9 @@
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
 #endif
 #define SCR_NSE_SHIFT		U(62)
-#define SCR_FGTEN2_BIT		(UL(1) << 59)
 #define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
+#define SCR_FGTEN2_BIT		(UL(1) << 59)
+#define SCR_PFAREn_BIT		(UL(1) << 53)
 #define SCR_EnFPM_BIT		(ULL(1) << 50)
 #define SCR_MECEn_BIT		(UL(1) << 49)
 #define SCR_GPF_BIT		(UL(1) << 48)

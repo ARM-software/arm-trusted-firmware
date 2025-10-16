@@ -570,6 +570,11 @@ Common build options
    align  with the ``ENABLE_FEAT`` mechanism.
    Default value is ``0``.
 
+-  ``ENABLE_FEAT_PFAR``: Numeric value to enable access to the PFAR system
+   registers from non-secure world. This flag can take the values 0 to 2, to
+   align  with the ``ENABLE_FEAT`` mechanism.
+   Default value is ``0``.
+
 -  ``ENABLE_MPMM``: Boolean option to enable support for the Maximum Power
    Mitigation Mechanism supported by certain Arm cores, which allows the SoC
    firmware to detect and limit high activity events to assist in SoC processor
