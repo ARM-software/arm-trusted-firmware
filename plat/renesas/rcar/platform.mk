@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2025, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -343,7 +343,7 @@ BL2_SOURCES	+=	common/image_decompress.c               \
 endif
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
-BL_COMMON_SOURCES	+=	plat/renesas/rcar/rcar_stack_protector.c
+BL_COMMON_SOURCES	+=	plat/renesas/common/rcar_stack_protector.c
 endif
 
 ifeq (${RCAR_GEN3_ULCB},1)
