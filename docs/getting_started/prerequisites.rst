@@ -31,7 +31,7 @@ Arm GNU Compiler         14.2
 Clang/LLVM               18.1.8
 Device Tree Compiler     1.6.1
 GNU make                 3.81
-mbed TLS\ [#f1]_         3.6.4
+mbed TLS\ [#f1]_         3.6.5
 Node.js [#f2]_           16
 OpenSSL                  1.0.0
 Poetry                   1.3.2
