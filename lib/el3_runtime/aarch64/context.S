@@ -75,6 +75,9 @@
  */
 #if CTX_INCLUDE_FPREGS
 func fpregs_context_save
+	/* Save x0 and pass its original value to fpregs_state_save */
+	mov	x1, x0
+
 	stp	q0, q1, [x0], #32
 	stp	q2, q3, [x0], #32
 	stp	q4, q5, [x0], #32
@@ -92,7 +95,7 @@ func fpregs_context_save
 	stp	q28, q29, [x0], #32
 	stp	q30, q31, [x0], #32
 
-	fpregs_state_save x0, x9
+	fpregs_state_save x1, x9
 
 	ret
 endfunc fpregs_context_save
@@ -112,6 +115,9 @@ endfunc fpregs_context_save
  * ------------------------------------------------------------------
  */
 func fpregs_context_restore
+	/* Save x0 and pass its original value to fpregs_state_restore */
+	mov	x1, x0
+
 	ldp	q0, q1, [x0], #32
 	ldp	q2, q3, [x0], #32
 	ldp	q4, q5, [x0], #32
@@ -129,7 +135,7 @@ func fpregs_context_restore
 	ldp	q28, q29, [x0], #32
 	ldp	q30, q31, [x0], #32
 
-	fpregs_state_restore x0, x9
+	fpregs_state_restore x1, x9
 
 	ret
 endfunc fpregs_context_restore
