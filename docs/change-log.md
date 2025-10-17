@@ -3,6 +3,47 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.6..refs/tags/lts-v2.12.7) (2025-10-17)
+
+### Documentation
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - update Advisory TFV-6 ([01d80d0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/01d80d085df090c75c269c26badd200ec82b5d21))
+
+### Build System
+
+- **Platforms**
+
+  - **Allwinner**
+
+    - disable unneeded CVE workarounds and MPAM ([84e8bc2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/84e8bc22f5fe4f11dd6b9dffb205cecd1ba308d8))
+
+### Resolved Issues
+
+- **aarch32:** make get_cpu_ops_ptr() PCS compliant ([9cb5a78](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9cb5a78aa57574ef965d976dab573765788e4d97))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - inform the compiler that struct cpu_ops is aligned ([616a798](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/616a7983db27e17969e9e9de0d7f4da88857b78c))
+    - use correct Makefile indentation for CVE-2018-3639 check ([79ba33a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/79ba33aa3900d94f44264660674ca7a50da34550))
+    - workaround for Cortex-A510 erratum 2008766 ([7c30022](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7c300227e459637e2dd67d694f982b93ae3f82a0))
+    - workaround for Cortex-A510 erratum 2169012 ([4e62dbf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4e62dbf9b62b0b8709d83dcac648f25e6e22ce4c))
+    - workaround for Cortex-A510 erratum 2218134 ([399477f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/399477f9fbb1cec0a8613818369b2a14ab3a43b6))
+    - workaround for Cortex-A510 erratum 2420992 ([05f71e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/05f71e3443d3ec04f39c1f6afbf0c023bd2c3637))
+    - workaround for Cortex-A510 erratum 3672349 ([8c67b1a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c67b1a2797105a100fcf9d7f6312973a99ab9af))
+    - workaround for Cortex-A510 erratum 3704847 ([1f547e2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1f547e2282ae7035e8108c37e6942b8992d6b05f))
+    - workaround for Neoverse-V2 erratum 3701771 ([72f26f1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/72f26f182fe4e73522c52cae0df00cebdbc479a2))
+    - workaround for Neoverse-V2 erratum 3841324 ([e26cd2c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e26cd2c524653846eb9a65801bbcdfdecef94e5e))
+
+  - **SMCCC**
+
+    - cleanup unused declaration ([7a24181](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7a241814b11d74018888c5d9e4e63cb756b4dbd2))
+
 ## [lts-2.12.6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.5..refs/tags/lts-v2.12.6) (2025-08-29)
 
 ### Documentation
