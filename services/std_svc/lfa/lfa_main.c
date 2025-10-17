@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2025, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -193,7 +194,9 @@ static int lfa_prime(uint32_t component_id, uint64_t *flags)
 	}
 
 	ret = plat_lfa_load_auth_image(component_id);
-	ret = convert_to_lfa_error(ret);
+	if (ret != 0) {
+		return convert_to_lfa_error(ret);
+	}
 
 	activator = lfa_components[component_id].activator;
 	if (activator->prime != NULL) {

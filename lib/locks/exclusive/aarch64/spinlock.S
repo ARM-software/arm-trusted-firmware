@@ -7,6 +7,7 @@
 #include <asm_macros.S>
 
 	.globl	spin_lock
+	.globl	spin_trylock
 	.globl	spin_unlock
 	.globl	bit_lock
 	.globl	bit_unlock

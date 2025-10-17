@@ -7,6 +7,7 @@
 #include <asm_macros.S>
 
 	.globl	spin_lock
+	.globl	spin_trylock
 	.globl	spin_unlock
 
 #if ARM_ARCH_AT_LEAST(8, 0)
