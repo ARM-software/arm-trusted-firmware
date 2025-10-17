@@ -67,6 +67,11 @@ int imx_srtc_handler(uint32_t smc_fid,
 
 static void imx_cpufreq_set_target(uint32_t cluster_id, unsigned long freq)
 {
+	/* Return if not a valid cluster */
+	if (cluster_id >= PLATFORM_CLUSTER_COUNT) {
+		return;
+	}
+
 	sc_pm_clock_rate_t rate = (sc_pm_clock_rate_t)freq;
 
 #ifdef PLAT_imx8qm
