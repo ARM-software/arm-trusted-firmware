@@ -317,16 +317,6 @@ ifneq (${ENABLE_PAUTH},0)
 # Pauth support. As it's not secure, it must be reimplemented for real platforms
 	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth.c
 endif
-#
-ifneq (${ENABLE_FEAT_PAUTH_LR},0)
-# Currently, FEAT_PAUTH_LR is only supported by arm/clang compilers
-# TODO implement for GCC when support is added
-ifeq ($($(ARCH)-cc-id),arm-clang)
-	arch-features	:= $(arch-features)+pauth-lr
-else
-	$(error Error: ENABLE_FEAT_PAUTH_LR not supported for GCC compiler)
-endif
-endif
 
 ################################################################################
 # RME dependent flags configuration, Enable optional features for RME.
