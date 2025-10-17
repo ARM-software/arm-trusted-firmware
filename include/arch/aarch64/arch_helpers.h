@@ -272,7 +272,7 @@ void disable_mpu_icache_el2(void);
 #define write_daifset(val) SYSREG_WRITE_CONST(daifset, val)
 
 
-#if ENABLE_FEAT_D128 && !defined(SPD_tspd)
+#if ENABLE_FEAT_D128 && !IMAGE_BL32
 /* Don't use mrrs/msrr read/write implementation with tspd,
  * While using SPD=tspd, tspd compiles with current arch_helpers
  * thus trying to use mrrs/msrr read/write from Secure-world.
@@ -305,7 +305,7 @@ DEFINE_SYSREG_RW_FUNCS(vttbr_el2)
 DEFINE_RENAME_SYSREG_RW_FUNCS(rcwmask_el1, RCWMASK_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(rcwsmask_el1, RCWSMASK_EL1)
 
-#endif /* ENABLE_FEAT_D128 && !defined(SPD_tspd) */
+#endif /* ENABLE_FEAT_D128 && !IMAGE_BL32 */
 
 DEFINE_IDREG_READ_FUNC(id_pfr1_el1)
 DEFINE_IDREG_READ_FUNC(id_aa64isar0_el1)
