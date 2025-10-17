@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,8 @@
 #include <mmio.h>
 #include <platform_def.h>
 
+#include <plat_private.h>
+#include <rk3568_clk.h>
 #include <soc.h>
 
 const mmap_region_t plat_rk_mmap[] = {
@@ -16,6 +18,8 @@ const mmap_region_t plat_rk_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(PMUSRAM_BASE, PMUSRAM_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(DDR_SHARE_MEM, DDR_SHARE_SIZE,
+			MT_DEVICE | MT_RW | MT_NS),
 
 	{ 0 }
 };
@@ -94,9 +98,11 @@ void __dead2 rockchip_soc_soft_reset(void)
 
 void plat_rockchip_soc_init(void)
 {
+	rockchip_clock_init();
 	secure_timer_init();
 	sgrf_init();
 	rockchip_system_reset_init();
+	rockchip_init_scmi_server();
 	NOTICE("BL31: Rockchip release version: v%d.%d\n",
 		MAJOR_VERSION, MINOR_VERSION);
 }
