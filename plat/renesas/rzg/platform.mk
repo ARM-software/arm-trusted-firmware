@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2025, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -225,7 +225,8 @@ include drivers/renesas/rzg/qos/qos.mk
 include drivers/renesas/rzg/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_INCLUDES	+=	-Idrivers/renesas/common/ddr		\
+PLAT_INCLUDES	+=	-Iplat/renesas/rzg/include		\
+			-Idrivers/renesas/common/ddr		\
 			-Idrivers/renesas/rzg/qos		\
 			-Idrivers/renesas/rzg/board		\
 			-Idrivers/renesas/common		\

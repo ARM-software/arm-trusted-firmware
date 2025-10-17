@@ -9,6 +9,7 @@
 
 int console_rcar_register(uintptr_t base, uint32_t clk, uint32_t baud,
 			  console_t *pconsole);
+void scif_console_set_regs(uint32_t fsr, uint32_t tdr);
 int console_rcar_init(uintptr_t base_addr, uint32_t uart_clk,
 		      uint32_t baud_rate);
 int console_rcar_putc(int c, console_t *pconsole);
