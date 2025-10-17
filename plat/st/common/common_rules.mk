@@ -27,7 +27,7 @@ check_boot_device:
 
 stm32image: ${STM32IMAGE}
 
-${STM32IMAGE}: ${STM32IMAGE_SRC}
+${STM32IMAGE}: ${STM32IMAGE_SRC} | $$(@D)/
 	$(q)${MAKE} CPPFLAGS="" BUILD_PLAT=$(abspath ${BUILD_PLAT}) --no-print-directory -C ${STM32IMAGEPATH}
 
 clean_stm32image:
