@@ -110,6 +110,12 @@ struct mailbox {
 
 	/* Lock access to mailbox. */
 	spinlock_t lock;
+
+	/* The offset of the last transmitted RX fragment */
+	uint32_t last_rx_fragment_offset;
+
+	/* The offset of the next RX fragment to transmit */
+	uint32_t next_rx_fragment_offset;
 };
 
 /*
