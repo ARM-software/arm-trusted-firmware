@@ -5,6 +5,9 @@
 
 include common/fdt_wrappers.mk
 
+# TARGET_PLATFORM must be defined as a pre-requisite
+$(eval $(call assert_numerics,TARGET_PLATFORM))
+
 TARGET_FLAVOUR			:=	fvp
 # DPU with SCMI may not necessarily work, so allow its independence
 TC_DPU_USE_SCMI_CLK		:=	1
