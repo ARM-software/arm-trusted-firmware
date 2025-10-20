@@ -344,6 +344,19 @@ ifndef toolchain-mk
         toolchain-derive = $(if $3,$(call toolchain-derive-$1-$2,$3))
 
         #
+        # Compiler configuration for the correct ARCH
+        #
+
+        target-arch-aarch32-arm-clang := arm-arm-none-eabi
+        target-arch-aarch64-arm-clang := aarch64-arm-none-eabi
+        target-arch-aarch32-llvm-clang := arm-arm-none-eabi
+        target-arch-aarch64-llvm-clang := aarch64-arm-none-elf
+
+        target-flag-aarch32-arm-clang := -target $(target-arch-aarch32-arm-clang)
+        target-flag-aarch64-arm-clang := -target $(target-arch-aarch64-arm-clang)
+        target-flag-aarch32-llvm-clang := -target $(target-arch-aarch32-llvm-clang)
+        target-flag-aarch64-llvm-clang := -target $(target-arch-aarch64-llvm-clang)
+
         # Prefixes a linker flag appropriately for the linker in use.
         #
         # Parameters:
@@ -379,13 +392,13 @@ ifndef toolchain-mk
         toolchain-ld-option-gnu-ld = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\
                 echo $(call escape-shell,$(2)))
 
-        toolchain-ld-option-llvm-clang = $(shell $($(1)-ld) $(target-$(1)-llvm-clang) $\
+        toolchain-ld-option-llvm-clang = $(shell $($(1)-ld) $(target-flag-$(1)-llvm-clang) $\
                 $(call toolchain-ld-prefix-llvm-clang,$(2)) -Xlinker --help >/dev/null 2>&1 && $\
                 echo $(call escape-shell,$(call toolchain-ld-prefix-llvm-clang,$(2))))
         toolchain-ld-option-llvm-lld = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\
                 echo $(call escape-shell,$(2)))
 
-        toolchain-ld-option-arm-clang = $(shell $($(1)-ld) $(target-$(1)-arm-clang) $\
+        toolchain-ld-option-arm-clang = $(shell $($(1)-ld) $(target-flag-$(1)-arm-clang) $\
                 $(call toolchain-ld-prefix-arm-clang,$(2)) -Xlinker --help >/dev/null 2>&1 && $\
                 echo $(call escape-shell,$(call toolchain-ld-prefix-arm-clang,$(2))))
         toolchain-ld-option-arm-link = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\

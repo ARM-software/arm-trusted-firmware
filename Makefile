@@ -31,6 +31,11 @@ include ${MAKE_HELPERS_DIRECTORY}common.mk
 ################################################################################
 
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
+# Include the CPU specific operations makefile, which provides default
+# values for all CPU errata workarounds and CPU specific optimisations.
+# This can be overridden by the platform.
+include lib/cpus/cpu-ops.mk
+
 PLAT				:= ${DEFAULT_PLAT}
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
 
@@ -376,11 +381,6 @@ else
 	FFH_SUPPORT := 0
 endif
 
-# Include the CPU specific operations makefile, which provides default
-# values for all CPU errata workarounds and CPU specific optimisations.
-# This can be overridden by the platform.
-include lib/cpus/cpu-ops.mk
-
 ################################################################################
 # Build `AARCH32_SP` as BL32 image for AArch32
 ################################################################################
@@ -563,6 +563,7 @@ $(eval $(call assert_booleans,\
 	ALLOW_RO_XLAT_TABLES \
 	BL2_ENABLE_SP_LOAD \
 	COLD_BOOT_SINGLE_CPU \
+	$(CPU_FLAG_LIST) \
 	CREATE_KEYS \
 	CTX_INCLUDE_AARCH32_REGS \
 	CTX_INCLUDE_FPREGS \
@@ -748,6 +749,7 @@ $(eval $(call add_defines,\
 	ARM_ARCH_MINOR \
 	BL2_ENABLE_SP_LOAD \
 	COLD_BOOT_SINGLE_CPU \
+	$(CPU_FLAG_LIST) \
 	CTX_INCLUDE_AARCH32_REGS \
 	CTX_INCLUDE_FPREGS \
 	CTX_INCLUDE_SVE_REGS \
