@@ -67,7 +67,7 @@
 
 struct entry_point_info;
 
-u_register_t bl1_smc_wrapper(uint32_t smc_fid,
+u_register_t bl1_smc_wrapper_aarch32(uint32_t smc_fid,
 	void *cookie,
 	void *handle,
 	unsigned int flags);

@@ -15,6 +15,7 @@
 #include <common/bl_common.h>
 #include <common/build_message.h>
 #include <common/debug.h>
+#include <context.h>
 #include <drivers/auth/auth_mod.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/console.h>
@@ -266,11 +267,30 @@ u_register_t bl1_smc_handler(unsigned int smc_fid,
 	}
 }
 
+#if __aarch64__
+u_register_t bl1_smc_wrapper_aarch64(cpu_context_t *ctx)
+{
+	u_register_t x1, x2, x3, x4;
+	unsigned int smc_fid, flags;
+	gp_regs_t *gpregs = get_gpregs_ctx(ctx);
+
+	smc_fid = read_ctx_reg(gpregs, CTX_GPREG_X0);
+	x1 = read_ctx_reg(gpregs, CTX_GPREG_X1);
+	x2 = read_ctx_reg(gpregs, CTX_GPREG_X2);
+	x3 = read_ctx_reg(gpregs, CTX_GPREG_X3);
+	x4 = read_ctx_reg(gpregs, CTX_GPREG_X4);
+
+	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
+	flags = read_scr_el3() & SCR_NS_BIT;
+
+	return bl1_smc_handler(smc_fid, x1, x2, x3, x4, NULL, ctx, flags);
+}
+#else
 /*******************************************************************************
  * BL1 SMC wrapper.  This function is only used in AArch32 mode to ensure ABI
  * compliance when invoking bl1_smc_handler.
  ******************************************************************************/
-u_register_t bl1_smc_wrapper(uint32_t smc_fid,
+u_register_t bl1_smc_wrapper_aarch32(uint32_t smc_fid,
 	void *cookie,
 	void *handle,
 	unsigned int flags)
@@ -282,3 +302,4 @@ u_register_t bl1_smc_wrapper(uint32_t smc_fid,
 	get_smc_params_from_ctx(handle, x1, x2, x3, x4);
 	return bl1_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
 }
+#endif

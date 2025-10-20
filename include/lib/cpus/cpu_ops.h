@@ -100,6 +100,7 @@
 #ifndef __ASSEMBLER__
 #include <lib/cassert.h>
 #include <lib/spinlock.h>
+typedef void (*e_handler_t)(long);
 
 typedef u_register_t(*cpu_ops_pwr_dwn_op_t)(void);
 

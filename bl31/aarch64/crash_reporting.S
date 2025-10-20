@@ -201,6 +201,8 @@ endfunc str_in_crash_buf_print_128
 	 * -----------------------------------------------------
 	 */
 func report_unhandled_exception
+	/* Switch to SP_ELx */
+	msr     spsel, #MODE_SP_ELX
 	prepare_crash_buf_save_x0_x1
 	adr	x0, excpt_msg
 	mov	sp, x0

@@ -936,6 +936,7 @@
 
 #define SPSR_M_SHIFT		U(4)
 #define SPSR_M_MASK		U(0x1)
+#define SPSR_M_WIDTH		U(1)
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
 #define SPSR_M_EL1H		U(0x5)
@@ -1159,6 +1160,7 @@
 #define ESR_EC_SHIFT			U(26)
 #define ESR_EC_MASK			U(0x3f)
 #define ESR_EC_LENGTH			U(6)
+#define ESR_EC_WIDTH			U(6)
 #define ESR_ISS_SHIFT			U(0)
 #define ESR_ISS_LENGTH			U(25)
 #define ESR_IL_BIT			(U(1) << 25)

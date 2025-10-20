@@ -94,32 +94,52 @@
 #endif
 
 	mrs	x30, esr_el3
-	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 
-	/* Handle SMC exceptions separately from other synchronous exceptions */
-	cmp	x30, #EC_AARCH32_SMC
-	b.eq	smc_handler32
-
-	cmp	x30, #EC_AARCH64_SMC
-	b.eq	sync_handler64
-
-	cmp	x30, #EC_AARCH64_SYS
-	b.eq	sync_handler64
-
+	/* fast paths that have a minimal environment */
 	cmp	x30, #EC_IMP_DEF_EL3
 	b.eq	imp_def_el3_handler
 
-	/* If FFH Support then try to handle lower EL EA exceptions. */
-#if FFH_SUPPORT
-	mrs	x30, scr_el3
-	tst	x30, #SCR_EA_BIT
-	b.eq	1f
-	b	handle_lower_el_sync_ea
+	/* setup the full environment */
+	bl	prepare_el3_entry
+
+#if ENABLE_ASSERTIONS
+	/* save the stack pointer */
+	mov	x28, sp
 #endif
-1:
-	/* Synchronous exceptions other than the above are unhandled */
-	b	report_unhandled_exception
+
+	bl	handler_sync_exception
+
+	/* validate the stack has been completely unwound */
+#if ENABLE_ASSERTIONS
+	mov	x27, sp
+	cmp	x28, x27
+	ASM_ASSERT(eq)
+#endif
+
+	no_ret	el3_exit
 	.endm
+
+.macro handle_lower_el_async_ea
+	bl	prepare_el3_entry
+
+	bl	handler_lower_el_async_ea
+
+	no_ret	el3_exit
+.endm
+
+	/* ---------------------------------------------------------------------
+	 * This function handles FIQ or IRQ interrupts i.e. EL3, S-EL1 and NS
+	 * interrupts.
+	 * ---------------------------------------------------------------------
+	 */
+.macro handle_interrupt_exception
+	bl	prepare_el3_entry
+
+	bl	handler_interrupt_exception
+
+	/* Return from exception, possibly in a different security state */
+	no_ret	el3_exit
+.endm
 
 vector_base runtime_exceptions
 
@@ -207,7 +227,8 @@ vector_entry serror_sp_elx
 	 */
 	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_NESTED_EA_FLAG]
 	unmask_async_ea
-	b	handle_lower_el_async_ea
+
+	handle_lower_el_async_ea
 1:
 	restore_x30
 #endif
@@ -236,14 +257,14 @@ vector_entry irq_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	b	handle_interrupt_exception
+	handle_interrupt_exception
 end_vector_entry irq_aarch64
 
 vector_entry fiq_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	b 	handle_interrupt_exception
+	handle_interrupt_exception
 end_vector_entry fiq_aarch64
 
 	/*
@@ -255,7 +276,7 @@ vector_entry serror_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	b	handle_lower_el_async_ea
+	handle_lower_el_async_ea
 #else
 	b	report_unhandled_exception
 #endif
@@ -282,14 +303,14 @@ vector_entry irq_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	b	handle_interrupt_exception
+	handle_interrupt_exception
 end_vector_entry irq_aarch32
 
 vector_entry fiq_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	b	handle_interrupt_exception
+	handle_interrupt_exception
 end_vector_entry fiq_aarch32
 
 	/*
@@ -301,7 +322,7 @@ vector_entry serror_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	b	handle_lower_el_async_ea
+	handle_lower_el_async_ea
 #else
 	b	report_unhandled_exception
 #endif
@@ -314,288 +335,6 @@ brk_location:
 brk_message:
 	.asciz "Unexpected BRK instruction with value 0x"
 #endif /* MONITOR_TRAPS */
-
-	/* ---------------------------------------------------------------------
-	 * The following code handles secure monitor calls.
-	 * Depending upon the execution state from where the SMC has been
-	 * invoked, it frees some general purpose registers to perform the
-	 * remaining tasks. They involve finding the runtime service handler
-	 * that is the target of the SMC & switching to runtime stacks (SP_EL0)
-	 * before calling the handler.
-	 *
-	 * Note that x30 has been explicitly saved and can be used here
-	 * ---------------------------------------------------------------------
-	 */
-func sync_exception_handler
-smc_handler32:
-	/* Check whether aarch32 issued an SMC64 */
-	tbnz	x0, #FUNCID_CC_SHIFT, smc_prohibited
-
-sync_handler64:
-	/* NOTE: The code below must preserve x0-x4 */
-
-	/*
-	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
-	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
-	 */
-	bl	prepare_el3_entry
-
-	/*
-	 * Populate the parameters for the SMC handler.
-	 * We already have x0-x4 in place. x5 will point to a cookie (not used
-	 * now). x6 will point to the context structure (SP_EL3) and x7 will
-	 * contain flags we need to pass to the handler.
-	 */
-	mov	x5, xzr
-	mov	x6, sp
-
-	/*
-	 * Restore the saved C runtime stack value which will become the new
-	 * SP_EL0 i.e. EL3 runtime stack. It was saved in the 'cpu_context'
-	 * structure prior to the last ERET from EL3.
-	 */
-	ldr	x12, [x6, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
-
-	/* Switch to SP_EL0 */
-	msr	spsel, #MODE_SP_EL0
-
-	/*
-	 * Save the SPSR_EL3 and ELR_EL3 in case there is a world
-	 * switch during SMC handling.
-	 * TODO: Revisit if all system registers can be saved later.
-	 */
-	mrs	x16, spsr_el3
-	mrs	x17, elr_el3
-	stp	x16, x17, [x6, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-
-	/* Load SCR_EL3 */
-	mrs	x18, scr_el3
-
-	/* Clear flag register */
-	mov	x7, xzr
-
-#if ENABLE_RME
-	/* Copy SCR_EL3.NSE bit to the flag to indicate caller's security */
-	ubfx	x7, x18, #SCR_NSE_SHIFT, #1
-
-	/*
-	 * Shift copied SCR_EL3.NSE bit by 5 to create space for
-	 * SCR_EL3.NS bit. Bit 5 of the flag corresponds to
-	 * the SCR_EL3.NSE bit.
-	 */
-	lsl	x7, x7, #5
-#endif /* ENABLE_RME */
-
-	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
-	bfi	x7, x18, #0, #1
-
-	/* check for system register traps */
-	mrs	x16, esr_el3
-	ubfx	x17, x16, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x17, #EC_AARCH64_SYS
-	b.eq	sysreg_handler64
-
-	mov	sp, x12
-
-	/*
-	 * Per SMCCC documentation, bits [23:17] must be zero for Fast
-	 * SMCs. Other values are reserved for future use. Ensure that
-	 * these bits are zeroes, if not report as unknown SMC.
-	 */
-	tbz	x0, #FUNCID_TYPE_SHIFT, 2f  /* Skip check if its a Yield Call*/
-	tst	x0, #(FUNCID_FC_RESERVED_MASK << FUNCID_FC_RESERVED_SHIFT)
-	b.ne	smc_unknown
-
-	/*
-	 * Per SMCCCv1.3 a caller can set the SVE hint bit in the SMC FID
-	 * passed through x0. Copy the SVE hint bit to flags and mask the
-	 * bit in smc_fid passed to the standard service dispatcher.
-	 * A service/dispatcher can retrieve the SVE hint bit state from
-	 * flags using the appropriate helper.
-	 */
-2:
-	and	x16, x0, #(FUNCID_SVE_HINT_MASK << FUNCID_SVE_HINT_SHIFT)
-	orr	x7, x7, x16
-	bic	x0, x0, #(FUNCID_SVE_HINT_MASK << FUNCID_SVE_HINT_SHIFT)
-
-	/* Get the unique owning entity number */
-	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #FUNCID_OEN_WIDTH
-	ubfx	x15, x0, #FUNCID_TYPE_SHIFT, #FUNCID_TYPE_WIDTH
-	orr	x16, x16, x15, lsl #FUNCID_OEN_WIDTH
-
-	/* Load descriptor index from array of indices */
-	adrp	x14, rt_svc_descs_indices
-	add	x14, x14, :lo12:rt_svc_descs_indices
-	ldrb	w15, [x14, x16]
-
-	/* Any index greater than 127 is invalid. Check bit 7. */
-	tbnz	w15, 7, smc_unknown
-
-	/*
-	 * Get the descriptor using the index
-	 * x11 = (base + off), w15 = index
-	 *
-	 * handler = (base + off) + (index << log2(size))
-	 */
-	adr_l	x11, (__RT_SVC_DESCS_START__ + RT_SVC_DESC_HANDLE)
-	lsl	w10, w15, #RT_SVC_SIZE_LOG2
-	ldr	x15, [x11, w10, uxtw]
-
-	/*
-	 * Call the Secure Monitor Call handler and then drop directly into
-	 * el3_exit() which will program any remaining architectural state
-	 * prior to issuing the ERET to the desired lower EL.
-	 */
-#if DEBUG
-	cbz	x15, rt_svc_fw_critical_error
-#endif
-	blr	x15
-
-	b	el3_exit
-
-sysreg_handler64:
-	mov	x0, x16		/* ESR_EL3, containing syndrome information */
-	mov	x1, x6		/* lower EL's context */
-	mov	x2, x7		/* flags, used to find security state */
-	mov	x19, x6		/* save context pointer for after the call */
-	mov	sp, x12		/* EL3 runtime stack, as loaded above */
-
-	/* int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx); */
-	bl	handle_sysreg_trap
-	/*
-	 * returns:
-	 *   -1: unhandled trap, UNDEF injection into lower EL
-	 *    0: handled trap, return to the trapping instruction (repeating it)
-	 *    1: handled trap, return to the next instruction
-	 */
-
-	tst	w0, w0
-	b.mi	2f	/* negative: undefined exception injection */
-
-	b.eq	1f	/* zero: do not change ELR_EL3 */
-	/* positive: advance the PC to continue after the instruction */
-	ldr	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
-	add	x1, x1, #4
-	str	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
-1:
-	b	el3_exit
-2:
-	/*
-	 * UNDEF injection to lower EL, the support is only provided for lower
-	 * EL in AArch64 mode, for AArch32 mode it will do elx_panic as before.
-	 */
-	mrs	x0, spsr_el3
-	tst	x0, #(SPSR_M_MASK << SPSR_M_SHIFT)
-	b.ne	elx_panic
-	/* Pass context pointer as an argument to inject_undef64 */
-	mov	x0, x19
-	bl	inject_undef64
-	b	el3_exit
-
-smc_unknown:
-	/*
-	 * Unknown SMC call. Populate return value with SMC_UNK and call
-	 * el3_exit() which will restore the remaining architectural state
-	 * i.e., SYS, GP and PAuth registers(if any) prior to issuing the ERET
-	 * to the desired lower EL.
-	 */
-	mov	x0, #SMC_UNK
-	str	x0, [x6, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	b	el3_exit
-
-smc_prohibited:
-	restore_ptw_el1_sys_regs
-	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	mov	x0, #SMC_UNK
-	exception_return
-
-#if DEBUG
-rt_svc_fw_critical_error:
-	/* Switch to SP_ELx */
-	msr	spsel, #MODE_SP_ELX
-	no_ret	report_unhandled_exception
-#endif
-endfunc sync_exception_handler
-
-	/* ---------------------------------------------------------------------
-	 * This function handles FIQ or IRQ interrupts i.e. EL3, S-EL1 and NS
-	 * interrupts.
-	 *
-	 * Note that x30 has been explicitly saved and can be used here
-	 * ---------------------------------------------------------------------
-	 */
-func handle_interrupt_exception
-	/*
-	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
-	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
-	 */
-	bl	prepare_el3_entry
-
-	/* Save the EL3 system registers needed to return from this exception */
-	mrs	x0, spsr_el3
-	mrs	x1, elr_el3
-	stp	x0, x1, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-
-	/* Switch to the runtime stack i.e. SP_EL0 */
-	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
-	mov	x20, sp
-	msr	spsel, #MODE_SP_EL0
-	mov	sp, x2
-
-	/*
-	 * Find out whether this is a valid interrupt type.
-	 * If the interrupt controller reports a spurious interrupt then return
-	 * to where we came from.
-	 */
-	bl	plat_ic_get_pending_interrupt_type
-	cmp	x0, #INTR_TYPE_INVAL
-	b.eq	interrupt_exit
-
-	/*
-	 * Get the registered handler for this interrupt type.
-	 * A NULL return value could be 'cause of the following conditions:
-	 *
-	 * a. An interrupt of a type was routed correctly but a handler for its
-	 *    type was not registered.
-	 *
-	 * b. An interrupt of a type was not routed correctly so a handler for
-	 *    its type was not registered.
-	 *
-	 * c. An interrupt of a type was routed correctly to EL3, but was
-	 *    deasserted before its pending state could be read. Another
-	 *    interrupt of a different type pended at the same time and its
-	 *    type was reported as pending instead. However, a handler for this
-	 *    type was not registered.
-	 *
-	 * a. and b. can only happen due to a programming error. The
-	 * occurrence of c. could be beyond the control of Trusted Firmware.
-	 * It makes sense to return from this exception instead of reporting an
-	 * error.
-	 */
-	bl	get_interrupt_type_handler
-	cbz	x0, interrupt_exit
-	mov	x21, x0
-
-	mov	x0, #INTR_ID_UNAVAILABLE
-
-	/* Set the current security state in the 'flags' parameter */
-	mrs	x2, scr_el3
-	ubfx	x1, x2, #0, #1
-
-	/* Restore the reference to the 'handle' i.e. SP_EL3 */
-	mov	x2, x20
-
-	/* x3 will point to a cookie (not used now) */
-	mov	x3, xzr
-
-	/* Call the interrupt type handler */
-	blr	x21
-
-interrupt_exit:
-	/* Return from exception, possibly in a different security state */
-	b	el3_exit
-endfunc handle_interrupt_exception
 
 func imp_def_el3_handler
 	/* Save GP registers */
