@@ -177,6 +177,24 @@ __dead2 void spmd_spm_core_sync_exit(uint64_t rc)
 	panic();
 }
 
+void spmd_setup_context(unsigned int core_id)
+{
+	cpu_context_t *cpu_ctx;
+
+	spm_core_context[core_id].state = SPMC_STATE_OFF;
+
+	/* Setup an initial cpu context for the SPMC. */
+	cpu_ctx = &spm_core_context[core_id].cpu_ctx;
+	cm_setup_context(cpu_ctx, spmc_ep_info);
+
+	/*
+	 * Pass the core linear ID to the SPMC through x4.
+	 * (TF-A implementation defined behavior helping
+	 * a legacy TOS migration to adopt FF-A).
+	 */
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X4, core_id);
+}
+
 /*******************************************************************************
  * Jump to the SPM Core for the first time.
  ******************************************************************************/
@@ -458,8 +476,6 @@ static void spmd_do_sec_cpy(uintptr_t root_base_addr, uintptr_t sec_base_addr,
  ******************************************************************************/
 static int spmd_spmc_init(void *pm_addr)
 {
-	cpu_context_t *cpu_ctx;
-	unsigned int core_id;
 	uint32_t ep_attr, flags;
 	int rc;
 	const struct dyn_cfg_dtb_info_t *image_info __unused;
@@ -573,21 +589,7 @@ static int spmd_spmc_init(void *pm_addr)
 	spmc_ep_info->args.arg0 = image_info->secondary_config_addr;
 #endif /* ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31 */
 
-	/* Set an initial SPMC context state for all cores. */
-	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
-		spm_core_context[core_id].state = SPMC_STATE_OFF;
-
-		/* Setup an initial cpu context for the SPMC. */
-		cpu_ctx = &spm_core_context[core_id].cpu_ctx;
-		cm_setup_context(cpu_ctx, spmc_ep_info);
-
-		/*
-		 * Pass the core linear ID to the SPMC through x4.
-		 * (TF-A implementation defined behavior helping
-		 * a legacy TOS migration to adopt FF-A).
-		 */
-		write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X4, core_id);
-	}
+	spmd_setup_context(plat_my_core_pos());
 
 	/* Register power management hooks with PSCI */
 	psci_register_spd_pm_hook(&spmd_pm);

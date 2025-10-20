@@ -78,6 +78,7 @@ void spmd_build_spmc_message(gp_regs_t *gpregs, uint8_t target,
 /* Functions used to enter/exit SPMC synchronously */
 uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *ctx);
 __dead2 void spmd_spm_core_sync_exit(uint64_t rc);
+void spmd_setup_context(unsigned int core_id);
 
 bool is_spmd_logical_sp_dir_req_in_progress(const spmd_spm_core_context_t *ctx);
 
