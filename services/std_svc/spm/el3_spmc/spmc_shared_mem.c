@@ -1053,8 +1053,13 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		goto err_arg;
 	}
 
-	/* Ensure the NS bit is set to 0. */
-	if ((obj->desc.memory_region_attributes & FFA_MEM_ATTR_NS_BIT) != 0U) {
+	/*
+	 * Ensure the NS bit is set to 0. Only perform this check
+	 * for the first fragment, because the bit will be set for
+	 * all the later fragments.
+	 */
+	if (obj->desc_filled == 0U &&
+	    (obj->desc.memory_region_attributes & FFA_MEM_ATTR_NS_BIT) != 0U) {
 		WARN("%s: NS mem attributes flags MBZ.\n", __func__);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_arg;
