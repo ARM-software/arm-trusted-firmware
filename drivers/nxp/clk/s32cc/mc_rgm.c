@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,13 +67,18 @@ void mc_rgm_periph_reset(uintptr_t rgm, uint32_t part, uint32_t value)
 }
 #endif /* ERRATA_S32_051700 */
 
-void mc_rgm_release_part(uintptr_t rgm, uint32_t part)
+void mc_rgm_release_periph(uintptr_t rgm, uint32_t part, uint32_t periph)
 {
 	uint32_t reg;
 
 	reg = mmio_read_32(MC_RGM_PRST(rgm, part));
-	reg &= ~MC_RGM_PRST_PERIPH_N_RST(0);
+	reg &= ~MC_RGM_PRST_PERIPH_N_RST(periph);
 	mc_rgm_periph_reset(rgm, part, reg);
+}
+
+void mc_rgm_release_part(uintptr_t rgm, uint32_t part)
+{
+	mc_rgm_release_periph(rgm, part, 0);
 }
 
 void mc_rgm_wait_part_deassert(uintptr_t rgm, uint32_t part)
