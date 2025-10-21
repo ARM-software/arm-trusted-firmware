@@ -330,6 +330,8 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 	long rc;
 	uint32_t linear_id = plat_my_core_pos();
 	rmmd_rmm_context_t *ctx = &rmm_context[linear_id];
+	/* Create a local copy of ep info to avoid race conditions */
+	entry_point_info_t local_rmm_ep_info = *rmm_ep_info;
 
 	if (rmm_boot_failed) {
 		/* RMM Boot failed on a previous CPU. Abort. */
@@ -344,13 +346,13 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 	 * arg1: opaque activation token, as returned by previous calls
 	 * arg2 to arg3: Not used.
 	 */
-	rmm_ep_info->args.arg0 = linear_id;
-	rmm_ep_info->args.arg1 = ctx->activation_token;
-	rmm_ep_info->args.arg2 = 0ULL;
-	rmm_ep_info->args.arg3 = 0ULL;
+	local_rmm_ep_info.args.arg0 = linear_id;
+	local_rmm_ep_info.args.arg1 = ctx->activation_token;
+	local_rmm_ep_info.args.arg2 = 0ULL;
+	local_rmm_ep_info.args.arg3 = 0ULL;
 
 	/* Initialise RMM context with this entry point information */
-	cm_setup_context(&ctx->cpu_ctx, rmm_ep_info);
+	cm_setup_context(&ctx->cpu_ctx, &local_rmm_ep_info);
 
 	rc = rmmd_rmm_sync_entry(ctx);
 
