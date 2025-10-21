@@ -53,7 +53,8 @@ static inline bool is_sysreg_iss_write(uint64_t esr)
  *   TRAP_RET_CONTINUE(1): trap was handled, return to the next instruction
  *		           (continuing after it)
  */
-int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx);
+int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx,
+			u_register_t flags __unused);
 
 /* Handler for injecting UNDEF exception to lower EL */
 void inject_undef64(cpu_context_t *ctx);
