@@ -55,6 +55,7 @@ is given on Table 1. On the diagram, the red broken lines indicate
 trust boundaries. Components outside of the broken lines
 are considered untrusted by TF-A.
 
+.. _tfa_dfd:
 .. uml:: ../../resources/diagrams/plantuml/tfa_dfd.puml
   :caption: Figure 1: TF-A Data Flow Diagram
 
