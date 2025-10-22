@@ -406,15 +406,18 @@ ifneq (${ENABLE_FEAT_MPAM_PE_BW_CTRL},0)
         endif
 endif #(ENABLE_FEAT_MPAM_PE_BW_CTRL)
 
+ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
+        ifeq (${WORKAROUND_CVE_2018_3639},0)
+                $(error Error: WORKAROUND_CVE_2018_3639 must be 1 if DYNAMIC_WORKAROUND_CVE_2018_3639 is 1)
+        endif
+endif
+
 # Handle all deprecated build options.
 ifeq (${ERROR_DEPRECATED}, 1)
     ifneq (${NS_TIMER_SWITCH},0)
         $(error "NS_TIMER_SWITCH breaks Linux preemption model, hence deprecated")
     endif
-endif
-
-ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
-        ifeq (${WORKAROUND_CVE_2018_3639},0)
-                $(error Error: WORKAROUND_CVE_2018_3639 must be 1 if DYNAMIC_WORKAROUND_CVE_2018_3639 is 1)
-        endif
+    ifneq (${SPM_MM},0)
+        $(error "SPM_MM build option is deprecated")
+    endif
 endif
