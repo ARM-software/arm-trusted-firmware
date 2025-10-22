@@ -489,6 +489,7 @@ feat_sctlr2_not_supported\@:
 		mrs	x15, scr_el3
 		orr	x15, x15, #SCR_EA_BIT
 		orr	x15, x15, #SCR_SIF_BIT
+		bic	x15, x15, #SCR_TRNDR_BIT
 		msr	scr_el3, x15
 
 		mrs 	x15, pmcr_el0
