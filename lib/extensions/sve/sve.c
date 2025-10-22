@@ -34,7 +34,7 @@ void sve_enable_per_world(per_world_context_t *per_world_ctx)
 
 	/* Enable access to SVE functionality for all ELs. */
 	cptr_el3 = per_world_ctx->ctx_cptr_el3;
-	cptr_el3 = (cptr_el3 | CPTR_EZ_BIT) & ~(TFP_BIT);
+	cptr_el3 = (cptr_el3 | CPTR_EZ_BIT);
 	per_world_ctx->ctx_cptr_el3 = cptr_el3;
 }
 
@@ -43,10 +43,6 @@ void sve_init_el2_unused(void)
 	u_register_t reg;
 
 	/*
-	 * CPTR_EL2.TFP: Set to zero so that Non-secure accesses to Advanced
-	 *  SIMD and floating-point functionality from both Execution states do
-	 *  not trap to EL2.
-	 *
 	 * CPTR_EL2.TZ: Set to zero so that no SVE instruction execution is
 	 *  trapped.
 	 *
@@ -54,7 +50,7 @@ void sve_init_el2_unused(void)
 	 *  trapped.
 	 */
 	reg = read_cptr_el2();
-	reg &= ~(CPTR_EL2_TFP_BIT | CPTR_EL2_TZ_BIT);
+	reg &= ~(CPTR_EL2_TZ_BIT);
 	reg |= ULL(3) << CPTR_EL2_ZEN_SHIFT;
 	write_cptr_el2(reg);
 }
@@ -66,6 +62,5 @@ void sve_disable_per_world(per_world_context_t *per_world_ctx)
 	/* Disable SVE and FPU since they share registers. */
 	reg = per_world_ctx->ctx_cptr_el3;
 	reg &= ~CPTR_EZ_BIT;	/* Trap SVE */
-	reg |= TFP_BIT;		/* Trap FPU/SIMD */
 	per_world_ctx->ctx_cptr_el3 = reg;
 }

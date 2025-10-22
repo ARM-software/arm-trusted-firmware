@@ -20,6 +20,7 @@
 #include <drivers/console.h>
 #include <lib/bootmarker_capture.h>
 #include <lib/cpus/errata.h>
+#include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/pauth.h>
 #include <lib/pmf/pmf.h>
 #include <lib/utils.h>
@@ -59,9 +60,14 @@ void __no_pauth bl1_main(void)
 	/* Perform late platform-specific setup */
 	bl1_plat_arch_setup();
 
-	if (is_feat_pauth_supported()) {
-		pauth_init_enable_el3();
-	}
+	/* Init registers that don't get contexted */
+	cm_manage_extensions_el3(plat_my_core_pos());
+
+	/* When BL2 runs in Secure world, it needs a coherent context. */
+#if !BL2_RUNS_AT_EL3
+	/* Init per-world context registers. */
+	cm_manage_extensions_per_world();
+#endif
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(bl_svc, BL1_ENTRY, PMF_CACHE_MAINT);

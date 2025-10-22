@@ -29,7 +29,6 @@
 #include <lib/extensions/cpa2.h>
 #include <lib/extensions/debug_v8p9.h>
 #include <lib/extensions/fgt2.h>
-#include <lib/extensions/fpmr.h>
 #include <lib/extensions/mpam.h>
 #include <lib/extensions/pauth.h>
 #include <lib/extensions/pmuv3.h>
@@ -692,13 +691,13 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
  * registers in-place which are expected to either never change or be
  * overwritten by el3_exit. Expects the core_pos of the current core as argument.
  ******************************************************************************/
-#if IMAGE_BL31
 void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 {
 	if (is_feat_pauth_supported()) {
 		pauth_init_enable_el3();
 	}
 
+#if IMAGE_BL31
 	if (is_feat_sve_supported()) {
 		sve_init_el3();
 	}
@@ -724,6 +723,7 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 	}
 
 	pmuv3_init_el3();
+#endif /* IMAGE_BL31 */
 }
 
 /******************************************************************************
@@ -732,27 +732,7 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
  ******************************************************************************/
 static void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx)
 {
-	/*
-	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
-	 *
-	 * CPTR_EL3.TFP: Set to zero so that accesses to the V- or Z- registers
-	 *  by Advanced SIMD, floating-point or SVE instructions (if
-	 *  implemented) do not trap to EL3.
-	 *
-	 * CPTR_EL3.TCPAC: Set to zero so that accesses to CPACR_EL1,
-	 *  CPTR_EL2,CPACR, or HCPTR do not trap to EL3.
-	 */
-	uint64_t cptr_el3 = CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TFP_BIT);
-
-	per_world_ctx->ctx_cptr_el3 = cptr_el3;
-
-	/*
-	 * Initialize MPAM3_EL3 to its default reset value
-	 *
-	 * MPAM3_EL3_RESET_VAL sets the MPAM3_EL3.TRAPLOWER bit that forces
-	 * all lower ELn MPAM3_EL3 register access to, trap to EL3
-	 */
-
+	per_world_ctx->ctx_cptr_el3 = CPTR_EL3_RESET_VAL;
 	per_world_ctx->ctx_mpam3_el3 = MPAM3_EL3_RESET_VAL;
 }
 
@@ -765,6 +745,7 @@ static void manage_extensions_nonsecure_per_world(void)
 {
 	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_NS]);
 
+#if IMAGE_BL31
 	if (is_feat_sme_supported()) {
 		sme_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
 	}
@@ -784,10 +765,7 @@ static void manage_extensions_nonsecure_per_world(void)
 	if (is_feat_mpam_supported()) {
 		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
 	}
-
-	if (is_feat_fpmr_supported()) {
-		fpmr_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
-	}
+#endif /* IMAGE_BL31 */
 }
 
 /*******************************************************************************
@@ -799,6 +777,7 @@ static void manage_extensions_secure_per_world(void)
 {
 	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
 
+#if IMAGE_BL31
 	if (is_feat_sme_supported()) {
 
 		if (ENABLE_SME_FOR_SWD) {
@@ -835,11 +814,12 @@ static void manage_extensions_secure_per_world(void)
 	if (is_feat_sys_reg_trace_supported()) {
 		sys_reg_trace_disable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
 	}
+#endif /* IMAGE_BL31 */
 }
 
 static void manage_extensions_realm_per_world(void)
 {
-#if ENABLE_RME
+#if ENABLE_RME && IMAGE_BL31
 	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_REALM]);
 
 	if (is_feat_sve_supported()) {
@@ -874,7 +854,7 @@ static void manage_extensions_realm_per_world(void)
 	if (is_feat_mpam_supported()) {
 		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
 	}
-#endif /* ENABLE_RME */
+#endif /* ENABLE_RME && IMAGE_BL31 */
 }
 
 void cm_manage_extensions_per_world(void)
@@ -883,7 +863,6 @@ void cm_manage_extensions_per_world(void)
 	manage_extensions_secure_per_world();
 	manage_extensions_realm_per_world();
 }
-#endif /* IMAGE_BL31 */
 
 /*******************************************************************************
  * Enable architecture extensions on first entry to Non-secure world.

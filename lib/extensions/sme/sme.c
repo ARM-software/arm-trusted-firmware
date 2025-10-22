@@ -97,6 +97,5 @@ void sme_disable_per_world(per_world_context_t *per_world_ctx)
 	reg = per_world_ctx->ctx_cptr_el3;
 	reg &= ~ESM_BIT;	/* Trap SME */
 	reg &= ~CPTR_EZ_BIT;	/* Trap SVE */
-	reg |= TFP_BIT;		/* Trap FPU/SIMD */
 	per_world_ctx->ctx_cptr_el3 = reg;
 }
