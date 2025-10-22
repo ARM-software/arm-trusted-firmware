@@ -209,8 +209,10 @@ static uintptr_t smccc_arch_feature_availability(u_register_t reg,
 		bitmask &= SCR_EL3_FEATS;
 		bitmask ^= SCR_EL3_FLIPPED;
 		/* will only report 0 if neither is implemented */
-		if (is_feat_rng_trap_supported() || is_feat_rng_present())
+		if (is_feat_rng_trap_supported() || is_feat_rng_present()) {
 			bitmask |= SCR_TRNDR_BIT;
+			check   &= ~SCR_TRNDR_BIT;
+		}
 		break;
 	case CPTR_EL3_OPCODE:
 		bitmask  = caller_per_world_context->ctx_cptr_el3;
