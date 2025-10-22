@@ -403,7 +403,7 @@ no_mpam:
 	/* tpidr_el3 contains the address of the cpu_data structure */
 	mrs	x9, tpidr_el3
 	/* Load APIAKey from cpu_data */
-	ldp	x10, x11, [x9, #CPU_DATA_APIAKEY_OFFSET]
+	ldp	x10, x11, [x9, #CPU_DATA_APIAKEY]
 #endif /* IMAGE_BL31 */
 
 #if IMAGE_BL1
