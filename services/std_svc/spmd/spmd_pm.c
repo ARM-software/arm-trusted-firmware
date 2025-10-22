@@ -74,6 +74,8 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 
 	spin_lock(&g_spmd_pm.lock);
 
+	spmd_setup_context(linear_id);
+
 	/*
 	 * Leave the possibility that the SPMC does not call
 	 * FFA_SECONDARY_EP_REGISTER in which case re-use the
@@ -81,8 +83,8 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 	 */
 	if (g_spmd_pm.secondary_ep_locked == true) {
 		/*
-		 * The CPU context has already been initialized at boot time
-		 * (in spmd_spmc_init by a call to cm_setup_context). Adjust
+		 * The CPU context has already been initialized
+		 * (in spmd_setup_context by a call to cm_setup_context). Adjust
 		 * below the target core entry point based on the address
 		 * passed to by FFA_SECONDARY_EP_REGISTER.
 		 */
