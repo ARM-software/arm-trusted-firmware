@@ -10,7 +10,7 @@
 #include <services/rmmd_rmm_lfa.h>
 #include <tools_share/firmware_image_package.h>
 
-#include <fvp_lfa_components.h>
+#include <plat/arm/common/plat_arm_lfa_components.h>
 
 /* Keep this array consistent with enum fvp_lfa_component_id_t */
 static plat_lfa_component_info_t fvp_lfa_components[LFA_MAX_DEFINED_COMPONENTS] = {
@@ -60,7 +60,7 @@ int plat_lfa_cancel(uint32_t lfa_component_id)
 	return 0;
 }
 
-int plat_lfa_load_auth_image(uint32_t img_id)
+int plat_lfa_load_auth_image(uint32_t lfa_component_id)
 {
 	/*
 	 * In AEM FVP, we don't want to bloat the code by adding
@@ -70,7 +70,7 @@ int plat_lfa_load_auth_image(uint32_t img_id)
 	return 0;
 }
 
-int plat_lfa_notify_activate(uint32_t img_id)
+int plat_lfa_notify_activate(uint32_t lfa_component_id)
 {
 	return 0;
 }
