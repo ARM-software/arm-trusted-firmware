@@ -1630,6 +1630,10 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		memcpy(resp, &obj->desc, copy_size);
 	}
 
+	/* Update the RX fragment state */
+	mbox->last_rx_fragment_offset = 0;
+	mbox->next_rx_fragment_offset = copy_size;
+
 	/* Update the NS bit in the response if applicable. */
 	spmc_ffa_mem_retrieve_update_ns_bit(resp, sp_ctx, secure_origin);
 
@@ -1726,6 +1730,15 @@ long spmc_ffa_mem_frag_rx(uint32_t smc_fid,
 		goto err_unlock_all;
 	}
 
+	if (fragment_offset != mbox->last_rx_fragment_offset &&
+	    fragment_offset != mbox->next_rx_fragment_offset) {
+		WARN("%s: invalid fragment_offset 0x%x expected 0x%x or 0x%x\n",
+		     __func__, fragment_offset, mbox->last_rx_fragment_offset,
+		     mbox->next_rx_fragment_offset);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
+	}
+
 	buf_size = mbox->rxtx_page_count * FFA_PAGE_SIZE;
 
 	mbox->state = MAILBOX_STATE_FULL;
@@ -1754,6 +1767,9 @@ long spmc_ffa_mem_frag_rx(uint32_t smc_fid,
 
 		memcpy(mbox->rx_buffer, src + fragment_offset, copy_size);
 	}
+
+	mbox->last_rx_fragment_offset = fragment_offset;
+	mbox->next_rx_fragment_offset = fragment_offset + copy_size;
 
 	spin_unlock(&mbox->lock);
 	spin_unlock(&spmc_shmem_obj_state.lock);
