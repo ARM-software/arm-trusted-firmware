@@ -1190,10 +1190,3 @@ $(eval $(call default_ones, $(CPU_FLAG_LIST)))
 else
 $(eval $(call default_zeros, $(CPU_FLAG_LIST)))
 endif
-
-ifneq ($(filter 1,${ERRATA_A53_1530924} ${ERRATA_A55_1530923}	\
-        ${ERRATA_A57_1319537} ${ERRATA_A72_1319367} ${ERRATA_A76_1165522}),)
-ERRATA_SPECULATIVE_AT	:= 1
-else
-ERRATA_SPECULATIVE_AT	:= 0
-endif
