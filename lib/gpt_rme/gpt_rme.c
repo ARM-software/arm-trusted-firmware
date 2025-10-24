@@ -260,6 +260,8 @@ static void shatter_512mb(uintptr_t base, const gpi_info_t *gpi_info,
  *
  * These are valid GPI values.
  *   GPT_GPI_NO_ACCESS   U(0x0)
+ *   GPT_GPI_SA          U(0x4)
+ *   GPT_GPI_NSP	 U(0x5)
  *   GPT_GPI_SECURE      U(0x8)
  *   GPT_GPI_NS          U(0x9)
  *   GPT_GPI_ROOT        U(0xA)
@@ -285,6 +287,9 @@ static bool is_gpi_valid(unsigned int gpi)
 		return true;
 	case GPT_GPI_NSO:
 		return is_feat_rme_gpc2_present();
+	case GPT_GPI_SA:
+	case GPT_GPI_NSP:
+		return is_feat_rme_gdi_supported();
 	default:
 		return false;
 	}
@@ -1052,6 +1057,12 @@ int gpt_enable(void)
 	/* Outer and Inner cacheability set to Normal memory, WB, RA, WA */
 	gpccr_el3 |= SET_GPCCR_ORGN(GPCCR_ORGN_WB_RA_WA);
 	gpccr_el3 |= SET_GPCCR_IRGN(GPCCR_IRGN_WB_RA_WA);
+
+	/* Enable NSP and SA if FEAT_RME_GDI is implemented */
+	if (is_feat_rme_gdi_supported()) {
+		gpccr_el3 |= GPCCR_NSP_BIT;
+		gpccr_el3 |= GPCCR_SA_BIT;
+	}
 
 	/* Prepopulate GPCCR_EL3 but don't enable GPC yet */
 	write_gpccr_el3(gpccr_el3);

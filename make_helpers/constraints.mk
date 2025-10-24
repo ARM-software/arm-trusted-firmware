@@ -8,10 +8,16 @@ ifneq ($(AARCH32_INSTRUCTION_SET),$(filter $(AARCH32_INSTRUCTION_SET),A32 T32))
          $(error Error: Unknown AArch32 instruction set ${AARCH32_INSTRUCTION_SET})
 endif
 
-ifneq (${ENABLE_RME},0)
+# Make sure RME configuration is valid
+ifeq (${ENABLE_RME},1)
+	ifneq (${SEPARATE_CODE_AND_RODATA},1)
+                $(error ENABLE_RME requires SEPARATE_CODE_AND_RODATA)
+	endif
+
 	ifneq (${ARCH},aarch64)
                 $(error ENABLE_RME requires AArch64)
 	endif
+
 	ifeq ($(SPMC_AT_EL3),1)
                 $(error SPMC_AT_EL3 and ENABLE_RME cannot both be enabled.)
 	endif
@@ -20,6 +26,10 @@ ifneq (${ENABLE_RME},0)
 		ifneq (${SPD}, spmd)
                         $(error ENABLE_RME is incompatible with SPD=${SPD}. Use SPD=spmd)
 		endif
+	endif
+else
+	ifeq (${ENABLE_FEAT_RME_GDI},1)
+                $(error ENABLE_FEAT_RME_GDI requires ENABLE_RME)
 	endif
 endif
 
@@ -380,12 +390,6 @@ endif
 
 ifeq (${TRANSFER_LIST},1)
         $(info TRANSFER_LIST is an experimental feature)
-endif
-
-ifeq (${ENABLE_RME},1)
-	ifneq (${SEPARATE_CODE_AND_RODATA},1)
-                $(error `ENABLE_RME=1` requires `SEPARATE_CODE_AND_RODATA=1`)
-	endif
 endif
 
 ifeq ($(PSA_CRYPTO),1)

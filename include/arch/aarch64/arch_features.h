@@ -148,17 +148,19 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_PAUTH_LR		|
  * +----------------------------+
- * |    FEAT_FGWTE3             |
+ * |	FEAT_FGWTE3		|
  * +----------------------------+
  * |	FEAT_MPAM_PE_BW_CTRL	|
  * +----------------------------+
- * |    FEAT_CPA2               |
+ * |	FEAT_CPA2		|
  * +----------------------------+
  * |	FEAT_AIE		|
  * +----------------------------+
  * |	FEAT_PFAR		|
  * +----------------------------+
  * |	FEAT_RME_GPC2		|
+ * +----------------------------+
+ * |	FEAT_RME_GDI		|
  * +----------------------------+
  */
 
@@ -342,6 +344,12 @@ CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128_SHIFT,
 CREATE_FEATURE_PRESENT(feat_rme_gpc2, id_aa64pfr0_el1,
 		       ID_AA64PFR0_FEAT_RME_SHIFT, ID_AA64PFR0_FEAT_RME_MASK,
 		       RME_GPC2_IMPLEMENTED)
+
+/* FEAT_RME_GDI */
+CREATE_FEATURE_FUNCS(feat_rme_gdi, id_aa64mmfr4_el1,
+		     ID_AA64MMFR4_EL1_RME_GDI_SHIFT,
+		     ID_AA64MMFR4_EL1_RME_GDI_MASK, RME_GDI_IMPLEMENTED,
+		     ENABLE_FEAT_RME_GDI)
 
 /* FEAT_FPMR */
 CREATE_FEATURE_FUNCS(feat_fpmr, id_aa64pfr2_el1, ID_AA64PFR2_EL1_FPMR_SHIFT,

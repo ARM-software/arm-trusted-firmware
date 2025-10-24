@@ -35,6 +35,8 @@ typedef struct pas_region {
 
 /* GPT GPI definitions */
 #define GPT_GPI_NO_ACCESS		U(0x0)
+#define GPT_GPI_SA			U(0x4)
+#define GPT_GPI_NSP			U(0x5)
 #define GPT_GPI_SECURE			U(0x8)
 #define GPT_GPI_NS			U(0x9)
 #define GPT_GPI_ROOT			U(0xA)
@@ -49,6 +51,11 @@ typedef struct pas_region {
 #define GPT_NSE_REALM			U(0b11)
 
 #define GPT_NSE_SHIFT                   U(62)
+
+#define GPT_NSE2_SA			U(0b001)
+#define GPT_NSE2_NSP			U(0b101)
+
+#define GPT_NSE2_SHIFT			U(61)
 
 /* PAS attribute GPI definitions. */
 #define GPT_PAS_ATTR_GPI_SHIFT		U(0)
@@ -109,6 +116,14 @@ typedef struct pas_region {
 /* NSO bit definitions */
 #define GPCCR_NSO_SHIFT		U(19)
 #define GPCCR_NSO_BIT		(ULL(1) << GPCCR_NSO_SHIFT)
+
+/* SA bit definitions */
+#define GPCCR_NSP_SHIFT		U(26)
+#define GPCCR_NSP_BIT		(ULL(1) << GPCCR_NSP_SHIFT)
+
+/* SA bit definitions */
+#define GPCCR_SA_SHIFT		U(25)
+#define GPCCR_SA_BIT		(ULL(1) << GPCCR_SA_SHIFT)
 
 /*
  * Least significant address bits protected by each entry in level 0 GPT. This
