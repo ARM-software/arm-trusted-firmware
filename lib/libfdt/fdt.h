@@ -7,7 +7,7 @@
  * Copyright 2012 Kim Phillips, Freescale Semiconductor.
  */
 
-#ifndef __ASSEMBLER__
+#ifndef __ASSEMBLY__
 
 struct fdt_header {
 	fdt32_t magic;			 /* magic word FDT_MAGIC */
@@ -45,9 +45,9 @@ struct fdt_property {
 	char data[];
 };
 
-#endif /* !__ASSEMBLER__*/
+#endif /* !__ASSEMBLY */
 
-#define FDT_MAGIC	0xd00dfeedU	/* 4: version, 4: total size */
+#define FDT_MAGIC	0xd00dfeed	/* 4: version, 4: total size */
 #define FDT_TAGSIZE	sizeof(fdt32_t)
 
 #define FDT_BEGIN_NODE	0x1		/* Start node: full name */

@@ -1,0 +1,43 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "authors": [
+      {
+        "name": "@VCS_SBOM_AUTHORS@"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:github/dgibson/libfdt@@VCS_TAG@",
+      "cpe": "cpe:2.3:a:dgibson:libfdt:@VCS_TAG@:*:*:*:*:*:*:*",
+      "name": "libfdt",
+      "version": "@VCS_VERSION@",
+      "description": "Utility library for reading and manipulating the FDT binary format",
+      "supplier": {
+        "name": "libfdt developers"
+      },
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        },
+        {
+          "license": {
+            "id": "GPL-2.0-or-later"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dgibson/dtc"
+        }
+      ]
+    }
+  ]
+}
