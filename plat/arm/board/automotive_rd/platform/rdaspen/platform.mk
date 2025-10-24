@@ -28,10 +28,11 @@ override ENABLE_SVE_FOR_SWD		:=	1
 ARM_ARCH_MAJOR				:=	9
 ARM_ARCH_MINOR				:=	2
 CSS_USE_SCMI_SDS_DRIVER			:=	1
-ENABLE_FEAT_AMU				:=	1
-ENABLE_FEAT_ECV				:=	1
-ENABLE_FEAT_FGT				:=	1
-ENABLE_FEAT_MTE2			:=	1
+# Enable runtime feature detection for emulation environments
+ENABLE_FEAT_AMU				:=	2
+ENABLE_FEAT_ECV				:=	2
+ENABLE_FEAT_FGT				:=	2
+ENABLE_FEAT_MTE2			:=	2
 ENABLE_MPAM_FOR_LOWER_ELS		:=	1
 GIC_ENABLE_V4_EXTN			:=	1
 GICV3_SUPPORT_GIC600			:=	1
@@ -85,6 +86,15 @@ HW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
+
+# Using graceful flag to send SCMI system power set command
+# the css_scp_system_off() use forceful flag by default
+$(eval $(call add_define_val,CSS_SCP_SYSTEM_OFF_GRACEFUL,1))
+
+ifdef PLATFORM_CORE_COUNT
+# Pass PLATFORM_CORE_COUNT to the build system.
+$(eval $(call add_define,PLATFORM_CORE_COUNT))
+endif
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk

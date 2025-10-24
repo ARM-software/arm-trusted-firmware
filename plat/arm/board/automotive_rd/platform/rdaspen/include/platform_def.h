@@ -35,12 +35,49 @@
 #include <plat/arm/css/common/css_def.h>
 #include <plat/common/common_def.h>
 
+/* Set default topology value if not passed from platform's makefile */
+#ifndef PLATFORM_CORE_COUNT
 #define PLATFORM_CORE_COUNT			U(16)
-#define PLAT_ARM_CLUSTER_COUNT			U(4)
+#endif /* PLATFORM_CORE_COUNT */
+
+#if (PLATFORM_CORE_COUNT > 16) || (PLATFORM_CORE_COUNT < 1)
+#error "Invalid number of platform's cores was passed."
+#endif /* 1 <= PLATFORM_CORE_COUNT <= 16 */
+
+#if (PLATFORM_CORE_COUNT <= 4)
+#define PLATFORM_CLUSTER_0_CORE_COUNT		U(PLATFORM_CORE_COUNT)
+#define PLATFORM_CLUSTER_1_CORE_COUNT		U(0)
+#define PLATFORM_CLUSTER_2_CORE_COUNT		U(0)
+#define PLATFORM_CLUSTER_3_CORE_COUNT		U(0)
+
+#else /* PLATFORM_CORE_COUNT <= 4 */
+#define PLATFORM_CLUSTER_0_CORE_COUNT		U(4)
+
+#if (PLATFORM_CORE_COUNT <= 8)
+#define PLATFORM_CLUSTER_1_CORE_COUNT		U(PLATFORM_CORE_COUNT - 4)
+#define PLATFORM_CLUSTER_2_CORE_COUNT		U(0)
+#define PLATFORM_CLUSTER_3_CORE_COUNT		U(0)
+
+#else /* PLATFORM_CORE_COUNT <= 8 */
+#define PLATFORM_CLUSTER_1_CORE_COUNT		U(4)
+
+#if (PLATFORM_CORE_COUNT <= 12)
+#define PLATFORM_CLUSTER_2_CORE_COUNT		U(PLATFORM_CORE_COUNT - 8)
+#define PLATFORM_CLUSTER_3_CORE_COUNT		U(0)
+
+#else /* PLATFORM_CORE_COUNT <= 12 */
+#define PLATFORM_CLUSTER_2_CORE_COUNT		U(4)
+#define PLATFORM_CLUSTER_3_CORE_COUNT		U(PLATFORM_CORE_COUNT - 12)
+
+#endif /* PLATFORM_CORE_COUNT <= 12 */
+#endif /* PLATFORM_CORE_COUNT <= 8 */
+#endif /* PLATFORM_CORE_COUNT <= 4 */
+
 #define PLAT_MAX_CPUS_PER_CLUSTER		U(4)
 #define PLAT_MAX_PE_PER_CPU			U(1)
-
-#define RDASPEN_CLUSTER_CORE_COUNT		U(4)
+#define PLAT_ARM_CLUSTER_COUNT			((PLATFORM_CORE_COUNT + \
+						  PLAT_MAX_CPUS_PER_CLUSTER - 1) / \
+						  PLAT_MAX_CPUS_PER_CLUSTER)
 
 #define PLATFORM_STACK_SIZE			UL(0x1000)
 
