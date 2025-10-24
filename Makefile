@@ -381,6 +381,13 @@ else
 	FFH_SUPPORT := 0
 endif
 
+ifneq ($(filter 1,${ERRATA_A53_1530924} ${ERRATA_A55_1530923}	\
+        ${ERRATA_A57_1319537} ${ERRATA_A72_1319367} ${ERRATA_A76_1165522}),)
+ERRATA_SPECULATIVE_AT	:= 1
+else
+ERRATA_SPECULATIVE_AT	:= 0
+endif
+
 ################################################################################
 # Build `AARCH32_SP` as BL32 image for AArch32
 ################################################################################
