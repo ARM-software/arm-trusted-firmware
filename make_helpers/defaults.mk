@@ -235,6 +235,9 @@ SAVE_KEYS			:= 0
 # Software Delegated Exception support
 SDEI_SUPPORT			:= 0
 
+# Number of UUIDs allowed for a physical partition
+SPMC_AT_EL3_PARTITION_MAX_UUIDS := 4
+
 # True Random Number firmware Interface support
 TRNG_SUPPORT			:= 0
 

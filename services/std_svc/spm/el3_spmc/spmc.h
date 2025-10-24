@@ -145,6 +145,10 @@ struct sp_exec_ctx {
 	uint16_t dir_req_funcid;
 };
 
+struct ffa_uuid {
+	uint32_t uuid[4];
+};
+
 /*
  * Structure to describe the cumulative properties of an SP.
  */
@@ -162,8 +166,11 @@ struct secure_partition_desc {
 	/* Runtime EL. */
 	enum sp_runtime_el runtime_el;
 
-	/* Partition UUID. */
-	uint32_t uuid[4];
+	/* Partition UUID array. */
+	struct ffa_uuid uuid_array[SPMC_AT_EL3_PARTITION_MAX_UUIDS];
+
+	/* Number of UUIDs in uuid array. */
+	uint32_t num_uuids;
 
 	/* Partition Properties. */
 	uint32_t properties;
