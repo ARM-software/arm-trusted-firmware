@@ -1274,11 +1274,11 @@ static uint64_t ffa_features_retrieve_request(bool secure_origin,
 	} else {
 		struct secure_partition_desc *sp = spmc_get_current_sp_ctx();
 		/*
-		 * If v1.1 the NS bit must be set otherwise it is an invalid
-		 * call. If v1.0 check and store whether the SP has requested
-		 * the use of the NS bit.
+		 * If v1.1 or higher the NS bit must be set otherwise it is
+		 * an invalid call. If v1.0 check and store whether the SP
+		 * has requested the use of the NS bit.
 		 */
-		if (sp->ffa_version == MAKE_FFA_VERSION(1, 1)) {
+		if (spmc_compatible_version(sp->ffa_version, 1, 1)) {
 			if ((input_properties &
 			     FFA_FEATURES_RET_REQ_NS_BIT) == 0U) {
 				return spmc_ffa_error_return(handle,
