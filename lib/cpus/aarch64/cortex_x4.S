@@ -28,10 +28,6 @@ cpu_reset_prologue cortex_x4
 .global check_erratum_cortex_x4_2726228
 .global check_erratum_cortex_x4_3701758
 
-#if WORKAROUND_CVE_2022_23960
-        wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
-#endif /* WORKAROUND_CVE_2022_23960 */
-
 add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
 
 check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
@@ -125,18 +121,6 @@ workaround_reset_start cortex_x4, ERRATUM(3887999), ERRATA_X4_3887999
 workaround_reset_end cortex_x4, ERRATUM(3887999)
 
 check_erratum_ls cortex_x4, ERRATUM(3887999), CPU_REV(0, 3)
-
-workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
-	/*
-	 * The Cortex X4 generic vectors are overridden to apply errata
-	 * mitigation on exception entry from lower ELs.
-	 */
-	override_vector_table wa_cve_vbar_cortex_x4
-#endif /* IMAGE_BL31 */
-workaround_reset_end cortex_x4, CVE(2022, 23960)
-
-check_erratum_chosen cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
