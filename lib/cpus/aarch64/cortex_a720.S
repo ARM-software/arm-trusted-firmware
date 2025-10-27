@@ -27,10 +27,6 @@ cpu_reset_prologue cortex_a720
 
 .global check_erratum_cortex_a720_3699561
 
-#if WORKAROUND_CVE_2022_23960
-        wa_cve_2022_23960_bhb_vector_table CORTEX_A720_BHB_LOOP_COUNT, cortex_a720
-#endif /* WORKAROUND_CVE_2022_23960 */
-
 workaround_reset_start cortex_a720, ERRATUM(2729604), ERRATA_A720_2729604
 	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, (BIT(60) | BIT(61))
 workaround_reset_end cortex_a720, ERRATUM(2729604)
@@ -96,18 +92,6 @@ workaround_reset_start cortex_a720, ERRATUM(3711910), ERRATA_A720_3711910
 workaround_reset_end cortex_a720, ERRATUM(3711910)
 
 check_erratum_ls cortex_a720, ERRATUM(3711910), CPU_REV(0, 2)
-
-workaround_reset_start cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
-	/*
-	 * The Cortex A720 generic vectors are overridden to apply errata
-	 * mitigation on exception entry from lower ELs.
-	 */
-	override_vector_table wa_cve_vbar_cortex_a720
-#endif /* IMAGE_BL31 */
-workaround_reset_end cortex_a720, CVE(2022, 23960)
-
-check_erratum_chosen cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 cpu_reset_func_start cortex_a720
 	/* Disable speculative loads */
