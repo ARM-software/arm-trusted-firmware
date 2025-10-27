@@ -17,7 +17,7 @@
 	.globl	platform_mem_init
 	.globl	plat_my_core_pos
 	.globl	plat_core_pos_by_mpidr
-
+	.extern plat_primary_cpu_core
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -44,7 +44,21 @@ endfunc plat_secondary_cold_boot_setup
 func plat_is_my_cpu_primary
 	mov	x9, x30
 	bl	plat_my_core_pos
-	cmp	x0, #PRIMARY_CPU
+
+	/* Load address of var into x2. */
+	ldr	x2, =plat_primary_cpu_core
+	/* Load var value into x3 */
+	ldr	w3, [x2]
+	mov	w4, #PLAT_INVALID_CPU_CORE
+	cmp	w3, w4
+	/* On first instance (as it equals) primary core pos is updated. */
+	b.ne	skip_var_update
+
+	str     w0, [x2]
+	mov	x3, x0
+
+skip_var_update:
+	cmp	x0, x3
 	cset	x0, eq
 	ret	x9
 endfunc plat_is_my_cpu_primary

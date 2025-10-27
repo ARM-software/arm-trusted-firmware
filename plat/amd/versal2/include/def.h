@@ -76,7 +76,7 @@
 #define PCLI_PSTATE_VAL_CLEAR		U(0x38)
 
 /* Firmware Image Package */
-#define PRIMARY_CPU		U(0)
+#define PLAT_INVALID_CPU_CORE	U(0xFFF)
 
 #define CORE_0_ISR_WAKE_OFFSET			(0x00000020ULL)
 #define APU_PCIL_CORE_X_ISR_WAKE_REG(cpu_id)	(APU_PCLI + (CORE_0_ISR_WAKE_OFFSET + \

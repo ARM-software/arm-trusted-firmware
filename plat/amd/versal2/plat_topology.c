@@ -12,6 +12,9 @@
 
 #include <plat_private.h>
 
+/* Global definition of primary core variable */
+uint32_t plat_primary_cpu_core = PLAT_INVALID_CPU_CORE;
+
 static const uint8_t plat_power_domain_tree_desc[] = {
 	/* Number of root nodes */
 	1,
