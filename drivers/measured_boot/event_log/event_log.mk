@@ -67,8 +67,11 @@ $(LIBEVLOG_TARGET): $(LIB_DIR)/libc.a
 		-DHASH_ALGORITHM=$(call uppercase,$(MBOOT_EL_HASH_ALG)) \
 		-DCMAKE_BUILD_TYPE=$(LIBEVLOG_BUILD_TYPE) \
 		-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(abspath $(BUILD_PLAT)/lib)" \
+		-DCMAKE_SYSTEM_NAME=Generic \
+		-DCMAKE_SYSTEM_VERSION= \
 		-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY \
-		-DCMAKE_C_COMPILER="$($(ARCH)-cc)" \
+		-DCMAKE_C_COMPILER=$(call shell-quote,$(call shell-join,$($(ARCH)-cc-program),;)) \
+		-DCMAKE_C_COMPILER_LAUNCHER=$(call shell-quote,$(call shell-join,$($(ARCH)-cc-wrapper),;)) \
 		-DCMAKE_C_FLAGS=$(call escape-shell,$(LIBEVLOG_CFLAGS)) \
 		-DDEBUG_BACKEND_HEADER="log_backend_tf.h" \
 		$(if $(V),, --log-level=ERROR) > /dev/null
