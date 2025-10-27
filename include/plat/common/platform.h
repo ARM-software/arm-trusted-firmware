@@ -281,6 +281,8 @@ int bl1_plat_handle_post_image_load(unsigned int image_id);
 void bl1_plat_calc_bl2_layout(const meminfo_t *bl1_mem_layout,
 			      meminfo_t *bl2_mem_layout);
 
+bool bl1_plat_is_shared_nv_ctr(void);
+
 #if MEASURED_BOOT
 void bl1_plat_mboot_init(void);
 void bl1_plat_mboot_finish(void);

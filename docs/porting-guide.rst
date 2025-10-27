@@ -1871,6 +1871,18 @@ This function must return 0 on success, a non-null error code otherwise.
 The default implementation of this function asserts therefore platforms must
 override it when using the FWU feature.
 
+Function : bl1_plat_is_shared_nv_ctr() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : bool
+
+This function inquiry the platform if the non-volatile counter is shared
+across all secure images (BL2, BL31, BL32, etc.). It is used only in BL1
+and when `PSA_FWU_SUPPORT` is enabled.
+
 Boot Loader Stage 2 (BL2)
 -------------------------
 
