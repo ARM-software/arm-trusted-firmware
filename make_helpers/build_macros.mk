@@ -41,6 +41,36 @@ define default_ones
 	$(foreach var,$1,$(eval $(call default_one,$(var))))
 endef
 
+# Convenience function for setting CRYPTO_SUPPORT per component based on build flags
+# and set MBEDTLS_LIB based on CRYPTO_SUPPORT
+# $(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
+#   $(1) = NEED_AUTH, determines need for authentication verification support
+#   $(2) = NEED_HASH, determines need for hash calculation support
+# CRYPTO_SUPPORT is set to 0 (default), 1 (authentication only), 2 (hash only), or
+# 3 (both) based on what support is required.
+define set_crypto_support
+	ifeq ($($1)-$($2),1-1)
+		CRYPTO_SUPPORT := 3
+	else ifeq ($($2),1)
+		CRYPTO_SUPPORT := 2
+	else ifeq ($($1),1)
+		CRYPTO_SUPPORT := 1
+	else
+		CRYPTO_SUPPORT := 0
+	endif
+	MBEDTLS_LIB ?= $(BUILD_PLAT)/lib/libmbedtls.a
+	CRYPTO_LIB := $(if $(filter-out 0,$(CRYPTO_SUPPORT)),$(MBEDTLS_LIB),)
+endef
+
+# Convenience function for creating a build definition
+# $(call make_define,FOO) will have:
+# -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
+make_define = -D$(1)$(if $($(1)),=$($(1)))
+
+# Convenience function for creating multiple build definitions
+# For BL1, BL1_CPPFLAGS += $(call make_defines,FOO BOO)
+make_defines = $(foreach def,$(1),$(call make_define,$(def)))
+
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
 # -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise

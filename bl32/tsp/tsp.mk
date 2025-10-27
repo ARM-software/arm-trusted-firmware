@@ -25,6 +25,23 @@ BL32_SOURCES		+=	bl32/tsp/aarch64/tsp_entrypoint.S	\
 
 BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/tsp/tsp.ld.S
 
+# CRYPTO_SUPPORT
+NEED_AUTH := 0
+NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT)),1,)
+$(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
+
+# BL32_CPPFLAGS
+$(eval BL32_CPPFLAGS += $(call make_defines, \
+    $(sort \
+        CRYPTO_SUPPORT \
+)))
+
+# Numeric_Flags
+$(eval $(call assert_numerics,\
+    $(sort \
+	CRYPTO_SUPPORT \
+)))
+
 # This flag determines if the TSPD initializes BL32 in tspd_init() (synchronous
 # method) or configures BL31 to pass control to BL32 instead of BL33
 # (asynchronous method).

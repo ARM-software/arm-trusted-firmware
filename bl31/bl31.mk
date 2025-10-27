@@ -202,11 +202,22 @@ endif
 
 BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S
 
+# CRYPTO_SUPPORT
+NEED_AUTH := 0
+NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT) $(DRTM_SUPPORT)),1,)
+$(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
+
 # Flag used to indicate if Crash reporting via console should be included
 # in BL31. This defaults to being present in DEBUG builds only
 ifndef CRASH_REPORTING
 CRASH_REPORTING		:=	$(DEBUG)
 endif
+
+# BL31_CPPFLAGS
+$(eval BL31_CPPFLAGS += $(call make_defines, \
+    $(sort \
+        CRYPTO_SUPPORT \
+)))
 
 $(eval $(call assert_booleans,\
     $(sort \
@@ -214,6 +225,12 @@ $(eval $(call assert_booleans,\
 	EL3_EXCEPTION_HANDLING \
 	SDEI_SUPPORT \
 	USE_DSU_DRIVER \
+)))
+
+# Numeric_Flags
+$(eval $(call assert_numerics,\
+    $(sort \
+	CRYPTO_SUPPORT \
 )))
 
 $(eval $(call add_defines,\
