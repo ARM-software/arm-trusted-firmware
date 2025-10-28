@@ -561,7 +561,7 @@ int rmmd_primary_activate(void)
 	}
 
 	rc = rmm_init();
-	if (rc != 0) {
+	if (rc == 0) {
 		ERROR("rmm_init failed during LFA: %d\n", rc);
 		return rc;
 	}
