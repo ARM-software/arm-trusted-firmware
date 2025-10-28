@@ -35,9 +35,8 @@ memory regions as Root or Realm respectively.
 
 Changes to context management
 *******************************
-A new CPU context for the Realm world has been added. The existing
-:ref:`CPU context management API<PSCI Library Integration guide for Armv8-A
-AArch32 systems>` can be used to manage Realm context.
+A new CPU context for the Realm world has been added. The existing can be used
+to manage Realm context.
 
 Boot flow changes
 *******************

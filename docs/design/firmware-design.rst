@@ -811,8 +811,7 @@ data access and all interrupt sources masked:
 
 The warm boot entrypoint may be implemented by using TF-A
 ``psci_warmboot_entrypoint()`` function. In that case, the platform must fulfil
-the pre-requisites mentioned in the
-:ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
+the pre-requisites mentioned in the :ref:`Porting Guide`.
 
 EL3 runtime services framework
 ------------------------------
@@ -1053,8 +1052,8 @@ hooks to be registered with the generic PSCI code to be supported.
 
 The PSCI implementation in TF-A is a library which can be integrated with
 AArch64 or AArch32 EL3 Runtime Software for Armv8-A systems. A guide to
-integrating PSCI library with AArch32 EL3 Runtime Software can be found
-at :ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
+integrating the PSCI library for EL3 Runtime Software can be found
+at :ref:`Porting Guide`.
 
 DSU driver
 ----------

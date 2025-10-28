@@ -75,7 +75,7 @@ Performing an Initial Build
       an AArch32 EL3 Runtime Software. Some AArch32 EL3 Runtime Software may
       include other runtime services, for example Trusted OS services. A guide
       to integrate PSCI library with AArch32 EL3 Runtime Software can be found
-      at :ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
+      at :ref:`Porting Guide`.
 
    -  (AArch64 only) The TSP (Test Secure Payload), corresponding to the BL32
       image, is not compiled in by default. Refer to the
@@ -115,4 +115,4 @@ Performing an Initial Build
 
 --------------
 
-*Copyright (c) 2020-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2025, Arm Limited. All rights reserved.*

@@ -2879,7 +2879,7 @@ is available, it must return false and the storage must not be written.
 
 .. _psci_in_bl31:
 
-Power State Coordination Interface (in BL31)
+Power State Coordination Interface (PSCI)
 --------------------------------------------
 
 The TF-A implementation of the PSCI API is based around the concept of a
@@ -3362,6 +3362,79 @@ bytes is protected by ``MEM_PROTECT``.  If the region is protected
 then it must return 0, otherwise it must return a negative number.
 
 .. _porting_guide_imf_in_bl31:
+
+Secure payload power management callback
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+During PSCI power management operations, the EL3 Runtime Software may
+need to perform some bookkeeping, and PSCI library provides
+``spd_pm_ops_t`` callbacks for this purpose. These hooks must be
+populated and registered by using ``psci_register_spd_pm_hook()`` PSCI
+library interface.
+
+Typical bookkeeping during PSCI power management calls include save/restore
+of the EL3 Runtime Software context. Also if the EL3 Runtime Software makes
+use of secure interrupts, then these interrupts must also be managed
+appropriately during CPU power down/power up. Any secure interrupt targeted
+to the current CPU must be disabled or re-targeted to other running CPU prior
+to power down of the current CPU. During power up, these interrupt can be
+enabled/re-targeted back to the current CPU.
+
+.. code:: c
+
+        typedef struct spd_pm_ops {
+                void (*svc_on)(u_register_t target_cpu);
+                int32_t (*svc_off)(u_register_t __unused);
+                void (*svc_suspend)(u_register_t max_off_pwrlvl);
+                void (*svc_on_finish)(u_register_t __unused);
+                void (*svc_suspend_finish)(u_register_t max_off_pwrlvl);
+                int32_t (*svc_migrate)(u_register_t from_cpu, u_register_t to_cpu);
+                int32_t (*svc_migrate_info)(u_register_t *resident_cpu);
+                void (*svc_system_off)(void);
+                void (*svc_system_reset)(void);
+        } spd_pm_ops_t;
+
+A brief description of each callback is given below:
+
+-  svc_on, svc_off, svc_on_finish
+
+   The ``svc_on``, ``svc_off`` callbacks are called during PSCI_CPU_ON,
+   PSCI_CPU_OFF APIs respectively. The ``svc_on_finish`` is called when the
+   target CPU of PSCI_CPU_ON API powers up and executes the
+   ``psci_warmboot_entrypoint()`` PSCI library interface.
+
+-  svc_suspend, svc_suspend_finish
+
+   The ``svc_suspend`` callback is called during power down bu either
+   PSCI_SUSPEND or PSCI_SYSTEM_SUSPEND APIs. The ``svc_suspend_finish`` is
+   called when the CPU wakes up from suspend and executes the
+   ``psci_warmboot_entrypoint()`` PSCI library interface. The ``max_off_pwrlvl``
+   (first parameter) denotes the highest power domain level being powered down
+   to or woken up from suspend.
+
+-  svc_system_off, svc_system_reset
+
+   These callbacks are called during PSCI_SYSTEM_OFF and PSCI_SYSTEM_RESET
+   PSCI APIs respectively.
+
+-  svc_migrate_info
+
+   This callback is called in response to PSCI_MIGRATE_INFO_TYPE or
+   PSCI_MIGRATE_INFO_UP_CPU APIs. The return value of this callback must
+   correspond to the return value of PSCI_MIGRATE_INFO_TYPE API as described
+   in `PSCI`_. If the secure payload is a Uniprocessor (UP)
+   implementation, then it must update the mpidr of the CPU it is resident in
+   via ``resident_cpu`` (first argument). The updates to ``resident_cpu`` is
+   ignored if the secure payload is a multiprocessor (MP) implementation.
+
+-  svc_migrate
+
+   This callback is only relevant if the secure payload in EL3 Runtime
+   Software is a Uniprocessor (UP) implementation and supports migration from
+   the current CPU ``from_cpu`` (first argument) to another CPU ``to_cpu``
+   (second argument). This callback is called in response to PSCI_MIGRATE
+   API. This callback is never called if the secure payload is a
+   Multiprocessor (MP) implementation.
 
 Interrupt Management framework (in BL31)
 ----------------------------------------
