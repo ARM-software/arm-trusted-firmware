@@ -1205,7 +1205,7 @@ int psci_secondaries_brought_up(void)
 	return (n_valid > 1U) ? 1 : 0;
 }
 
-static u_register_t call_cpu_pwr_dwn(unsigned int power_level)
+static cpu_ops_pwr_dwn_op_t get_cpu_pwr_dwn(unsigned int power_level)
 {
 	struct cpu_ops *ops = get_cpu_data(cpu_ops_ptr);
 
@@ -1217,13 +1217,7 @@ static u_register_t call_cpu_pwr_dwn(unsigned int power_level)
 	assert(ops != NULL);
 	assert(ops->pwr_dwn_ops[power_level] != NULL);
 
-	return ops->pwr_dwn_ops[power_level]();
-}
-
-static void prepare_cpu_pwr_dwn(unsigned int power_level)
-{
-	/* ignore the return, all cpus should behave the same */
-	(void)call_cpu_pwr_dwn(power_level);
+	return ops->pwr_dwn_ops[power_level];
 }
 
 static void prepare_cpu_pwr_up(unsigned int power_level)
@@ -1235,7 +1229,7 @@ static void prepare_cpu_pwr_up(unsigned int power_level)
 	 * heuristic: the value has been chosen such that an unported CPU is
 	 * extremely unlikely to return this value.
 	 */
-	u_register_t ret = call_cpu_pwr_dwn(power_level);
+	u_register_t ret = get_cpu_pwr_dwn(power_level)();
 
 	/* unreachable on AArch32 so cast down to calm the compiler */
 	if (ret != (u_register_t) PABANDON_ACK) {
@@ -1260,6 +1254,9 @@ void psci_pwrdown_cpu_start(unsigned int power_level)
 		PMF_CACHE_MAINT);
 #endif
 
+	/* do this prior to turning off caches to avoid coherency issues */
+	cpu_ops_pwr_dwn_op_t prepare_cpu_pwr_dwn = get_cpu_pwr_dwn(power_level);
+
 #if !HW_ASSISTED_COHERENCY
 	/*
 	 * Disable data caching and handle the stack's cache maintenance.
@@ -1275,8 +1272,11 @@ void psci_pwrdown_cpu_start(unsigned int power_level)
 	psci_do_pwrdown_cache_maintenance();
 #endif
 
-	/* Initiate the power down sequence by calling into the cpu driver. */
-	prepare_cpu_pwr_dwn(power_level);
+	/*
+	 * Initiate the power down sequence by calling into the cpu driver.
+	 * Ignore the return, all cpus should behave the same.
+	 */
+	(void)prepare_cpu_pwr_dwn();
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
