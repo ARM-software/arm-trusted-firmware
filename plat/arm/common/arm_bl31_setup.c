@@ -23,6 +23,7 @@
 #endif
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
+#include <plat/arm/common/plat_arm_lfa_components.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
@@ -138,7 +139,7 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 #if ENABLE_RME
 	else if (type == REALM) {
 #if LFA_SUPPORT
-		if (lfa_is_prime_complete(RMM_IMAGE_ID)) {
+		if (lfa_is_prime_complete(LFA_RMM_COMPONENT)) {
 			rmm_image_ep_info.pc =
 					RMM_BASE + RMM_BANK_SIZE;
 		}

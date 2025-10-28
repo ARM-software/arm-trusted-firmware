@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef FVP_LFA_COMPONENTS_H
-#define FVP_LFA_COMPONENTS_H
+#ifndef PLAT_ARM_LFA_COMPONENTS_H
+#define PLAT_ARM_LFA_COMPONENTS_H
 
 /*
  * Define platform-specific numeric IDs for LFA FVP components.
@@ -22,4 +22,4 @@ typedef enum {
 	LFA_MAX_DEFINED_COMPONENTS
 } fvp_lfa_component_id_t;
 
-#endif /* FVP_LFA_COMPONENTS_H */
+#endif /* PLAT_ARM_LFA_COMPONENTS_H */
