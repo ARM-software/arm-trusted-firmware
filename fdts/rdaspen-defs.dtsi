@@ -22,7 +22,7 @@
 		d-cache-line-size = <0x40>;					\
 		d-cache-sets = <0x100>;						\
 		next-level-cache = <&CL##cluster_num##_L2_##cluster_core_num>;	\
-		CL##cluster_num##_L2_##cluster_core_num: l2-cache##cpu_num {	\
+		CL##cluster_num##_L2_##cluster_core_num: l2-cache {		\
 			compatible = "cache";					\
 			cache-unified;						\
 			cache-level = <0x02>;					\
@@ -43,7 +43,8 @@
 
 #define	CLUSTER_L3_CACHE(cluster_num)				\
 	CL##cluster_num##_L3: l3-cache##cluster_num## {		\
-		compatible = "arm,dsu-l3-cache", "cache";	\
+		compatible = "cache";				\
+		cache-unified;					\
 		cache-level = <0x03>;				\
 		/* 4MB */					\
 		cache-size = <0x400000>;			\
