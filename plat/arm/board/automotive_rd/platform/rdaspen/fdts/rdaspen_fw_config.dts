@@ -13,6 +13,12 @@
 	dtb-registry {
 		compatible = "fconf,dyn_cfg-dtb_registry";
 
+		tos_fw-config {
+			load-address = <0x0 PLAT_TOS_FW_CONFIG_BASE>;
+			max-size = <PLAT_TOS_FW_CONFIG_SIZE>;
+			id = <TOS_FW_CONFIG_ID>;
+		};
+
 		hw-config {
 			load-address = <0x0 PLAT_HW_CONFIG_DTB_BASE>;
 			max-size = <PLAT_ARM_HW_CONFIG_SIZE>;

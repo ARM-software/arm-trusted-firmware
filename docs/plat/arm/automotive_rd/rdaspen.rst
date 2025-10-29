@@ -29,6 +29,8 @@ The following tasks are executed for each AP BL stage:
 1. AP BL2:
 
    * Performs the actions described in the `Trusted Board Boot (TBB)`_ document.
+   * (Optional step) Find the FIP image in a GPT partition, incase the FIP lies
+     within in a GPT image.
    * Copies the FW_CONFIG from Secure Flash to Trusted SRAM.
    * Completes its dynamic configuration from the FW_CONFIG loaded.
      This includes:
@@ -37,13 +39,24 @@ The following tasks are executed for each AP BL stage:
       * Setting up the required system parameters.
 
    * Reads and loads AP BL31 image into the Trusted SRAM.
+   * (If present) Reads and loads AP BL32 (Secure Payload) image into Secure DRAM.
+   * (If present) Reads and loads the SPMC manifest (for S-EL2 firmware configuration)
+     into Trusted SRAM and passes its location to BL31.
    * Copies AP BL33 and Device tree blob from Secure Flash to Normal DRAM.
    * Transfers the execution to AP BL31.
 
 2. AP BL31:
 
    * Initializes Trusted Firmware-A Services.
-   * Transfers the execution to AP BL33.
+   * Transfers the execution to AP BL32 and then transfers the execution to AP BL33
+
+3. AP BL32:
+
+   * Initializes Trusted OS (OP-TEE) environment
+   * Initializes Secure Partitions
+   * Transfers the execution back to AP BL31
+   * During runtime, it facilitates secure communication between the
+     normal world environment (e.g. Linux) and the Trusted Execution Environment.
 
 Build Procedure (TF-A only)
 ---------------------------
@@ -52,6 +65,7 @@ Build Procedure (TF-A only)
    variable is properly set.
 
 -  Build TF-A:
+
 
    .. code:: shell
 
@@ -64,7 +78,17 @@ Build Procedure (TF-A only)
       COT=tbbr \
       ARM_ROTPK_LOCATION=devel_rsa \
       ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem \
+      BL32=<path to optee binary> \
+      ARM_GPT_SUPPORT=1 \
       BL33=<PATH-TO-BL33-BINARY> \
+
+.. note::
+
+   The ``BL32`` flag is optional and should be set only if a Trusted OS is required.
+   If it is not set, then ``BL33`` will be loaded directly after ``BL31``.
+
+   The ``ARM_GPT_SUPPORT`` flag is also optional. It must be enabled when the
+   FIP image resides inside a GPT partition on Secure Flash.
 
 --------------
 

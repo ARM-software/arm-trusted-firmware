@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <platform_def.h>
+/dts-v1/;
+
+/ {
+	compatible = "arm,ffa-core-manifest-1.0";
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	/*
+	 * BL32 image details needed by SPMC
+	 *
+	 * Note:
+	 * binary_size: size of BL32 + TOS_FW_CONFIG
+	 */
+
+	attribute {
+		spmc_id = <0x8000>;
+		maj_ver = <0x1>;
+		min_ver = <0x1>;
+		exec_state = <0x0>;
+		load_address = <0x0 PLAT_ARM_SPMC_BASE>;
+		entrypoint = <0x0 PLAT_ARM_SPMC_BASE>;
+		binary_size = <PLAT_ARM_SPMC_SIZE>;
+	};
+};
