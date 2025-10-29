@@ -33,6 +33,7 @@ cpu_reset_func_start caddo
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end caddo
 
 func caddo_core_pwr_dwn

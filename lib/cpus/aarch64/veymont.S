@@ -33,6 +33,7 @@ cpu_reset_func_start veymont
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end veymont
 
 func veymont_core_pwr_dwn
