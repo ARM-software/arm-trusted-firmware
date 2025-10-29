@@ -190,8 +190,10 @@ ifeq (${MEASURED_BOOT},1)
     include ${MEASURED_BOOT_MK}
 
 BL2_SOURCES		+=	plat/imx/imx8m/imx8m_measured_boot.c	\
-				plat/imx/imx8m/imx8m_dyn_cfg_helpers.c	\
-				${EVENT_LOG_SOURCES}
+				plat/imx/imx8m/imx8m_dyn_cfg_helpers.c
+
+    BL2_LIBS += $(LIBEVLOG_LIBS)
+    BL2_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 endif
 
 ifeq (${SPD},trusty)
