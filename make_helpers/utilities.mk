@@ -496,8 +496,7 @@ shell-words.sh = set -Cefu -- $(1); printf '%s' "$$\#";
 #
 #   - $(1): The shell fragment to parse.
 #   - $(2): The 1-based start index of the slice (default: 1).
-#   - $(3): The 1-based end index of the slice (exclusive).
-#           Defaults to all remaining words in the shell fragment.
+#   - $(3): The 1-based end index of the slice (exclusive, optional).
 #
 # Example usage:
 #
@@ -514,10 +513,10 @@ define shell-slice.sh =
         set -Cefu -- $(1);
 
         n=$(if $(2),$(call shell-quote,$(2)),1);
-        m=$(if $(3),$(call shell-quote,$(3)),$$#);
+        m=$(if $(3),$(call shell-quote,$(3)),$$(($$# + 1)));
 
         printf '%s\n' "$$@" $\
-                | sed -n "$${n},$${m}p" $\
+                | sed -n "$${n},$${m}{ $${m}!p }; $${m}q" $\
                 | sed "s/'/'\\\\''/g; s/^/'/; s/\$$/'/";
 endef
 

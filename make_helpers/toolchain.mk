@@ -282,12 +282,16 @@ ifndef toolchain-mk
         #   - $(2): The shell command to parse.
         #
 
-        toolchain-tool-program-index = $(or $(firstword $\
-                $(foreach i,$(call irange,$(call shell-words,$(2))),$\
-                        $(and $(call which,$(call shell-word,$(i),$(2))),$\
-                                $(call toolchain-guess-tool,$(1),$\
-                                        $(call shell-word,$(i),$(2))),$\
-                                $(i)))),1)
+        toolchain-tool-program-index = $\
+                $(call with,p:candidates p:command,$(1),$(2),$\
+                        $$(firstword $$(call shell-map,$\
+                                toolchain-tool-program-index.map,$\
+                                $$(command))))
+
+        toolchain-tool-program-index.map = $(and $\
+                $(call which,$(1)),$\
+                $(call toolchain-guess-tool,$(candidates),$(1)),$\
+                $(2))
 
         #
         # Strip any program wrappers from a tool's shell command.
