@@ -12,6 +12,7 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32mp2_clk.h>
 #include <drivers/st/stm32mp2_risaf.h>
+#include <drivers/st/stm32mp_rifsc_regs.h>
 #endif
 #if STM32MP21
 #include <drivers/st/stm32mp21_pwr.h>
@@ -37,6 +38,7 @@
 #endif /* STM32MP25 */
 #include <dt-bindings/gpio/stm32-gpio.h>
 #include <dt-bindings/soc/rif.h>
+#include <dt-bindings/soc/stm32mp25-rif.h>
 
 #ifndef __ASSEMBLER__
 #include <boot_api.h>
@@ -92,6 +94,20 @@
 #define SRAM1_SIZE_FOR_TFA			U(0x00010000)
 #define RETRAM_BASE				U(0x0E080000)
 #define RETRAM_SIZE				U(0x00020000)
+
+#if defined(IMAGE_BL2) && STM32MP_USB_PROGRAMMER
+#define STM32MP_USB_DWC3_SIZE			PAGE_SIZE
+#define STM32MP_USB_DWC3_BASE			(STM32MP_SYSRAM_BASE + \
+						 STM32MP_SYSRAM_SIZE - \
+						 STM32MP_SYSRAM_DEVICE_SIZE)
+
+#define STM32MP_SYSRAM_DEVICE_SIZE		STM32MP_USB_DWC3_SIZE
+#define STM32MP_SYSRAM_DEVICE_BASE		STM32MP_USB_DWC3_BASE
+
+#define STM32MP_SYSRAM_MEM_SIZE			(STM32MP_SYSRAM_SIZE - \
+						 STM32MP_SYSRAM_DEVICE_SIZE)
+#define STM32MP_SYSRAM_MEM_BASE			STM32MP_SYSRAM_BASE
+#endif /* IMAGE_BL2 && STM32MP_USB_PROGRAMMER */
 
 /* DDR configuration */
 #define STM32MP_DDR_BASE			U(0x80000000)
@@ -151,7 +167,7 @@ enum ddr_type {
  * MAX_MMAP_REGIONS is usually:
  * BL stm32mp2_mmap size + mmap regions in *_plat_arch_setup
  */
-#if defined(IMAGE_BL31)
+#if STM32MP_USB_PROGRAMMER || defined(IMAGE_BL31)
 #define MAX_MMAP_REGIONS			7
 #else
 #define MAX_MMAP_REGIONS			6
@@ -395,6 +411,11 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #endif
 
 /*******************************************************************************
+ * STM32MP2 USB
+ ******************************************************************************/
+#define USB_DWC3_BASE				U(0x48300000)
+
+/*******************************************************************************
  * STM32MP2 DDRCTRL
  ******************************************************************************/
 #define DDRCTRL_BASE				U(0x48040000)
@@ -422,6 +443,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 /*******************************************************************************
  * STM32MP RIF
  ******************************************************************************/
+#define RIFSC_BASE				U(0x42080000)
 #define RISAB1_BASE				U(0x420F0000)
 #define RISAB2_BASE				U(0x42100000)
 #define RISAB3_BASE				U(0x42110000)
@@ -467,6 +489,18 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 
 #define RISAF_KEY_SIZE_IN_BYTES			RISAF_ENCRYPTION_KEY_SIZE_IN_BYTES
 #define RISAF_SEED_SIZE_IN_BYTES		U(4)
+
+/*******************************************************************************
+ * RIFSC
+ ******************************************************************************/
+#define STM32MP2_RIMU_USB3DR			U(4)
+
+/*
+ * USB3DR Secure/Priv Master (DMA) access
+ */
+#define RIFSC_USB_BOOT_USB3DR_RIMC_CONF		(RIFSC_RIMC_ATTRx_MPRIV | RIFSC_RIMC_ATTRx_MSEC | \
+						 RIF_CID1 << RIFSC_RIMC_ATTRx_MCID_SHIFT | \
+						 RIFSC_RIMC_ATTRx_CIDSEL)
 
 /*******************************************************************************
  * STM32MP CA35SSC

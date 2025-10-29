@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -188,7 +188,33 @@ int stm32_get_otp_value_from_idx(const uint32_t otp_idx, uint32_t *otp_val)
 	return 0;
 }
 
-#if  defined(IMAGE_BL2)
+int stm32_get_uid_otp(uint32_t uid[])
+{
+	uint8_t i;
+	uint32_t otp;
+	uint32_t len;
+
+	if (stm32_get_otp_index(UID_OTP, &otp, &len) != 0) {
+		ERROR("BSEC: Get UID_OTP number Error\n");
+		return -1;
+	}
+
+	if ((len / __WORD_BIT) != UID_WORD_NB) {
+		ERROR("BSEC: Get UID_OTP length Error\n");
+		return -1;
+	}
+
+	for (i = 0U; i < UID_WORD_NB; i++) {
+		if (stm32_otp_shadow_read(&uid[i], i + otp) != BSEC_OK) {
+			ERROR("BSEC: UID%u Error\n", i);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+#if defined(IMAGE_BL2)
 static void reset_uart(uint32_t reset)
 {
 	int ret;

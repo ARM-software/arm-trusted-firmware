@@ -215,14 +215,19 @@ BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c			\
 
 BL2_SOURCES			+=	drivers/st/crypto/stm32_hash.c
 
-BL2_SOURCES			+=	drivers/st/rif/stm32mp2_risaf.c
+BL2_SOURCES			+=	drivers/st/rif/stm32_rifsc.c 				\
+					drivers/st/rif/stm32mp2_risaf.c
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c
 endif
 
 ifeq (${STM32MP_USB_PROGRAMMER},1)
-BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_usb_dfu.c
+#The DFU stack uses only one end point, reduce the USB stack footprint
+$(eval $(call add_define_val,CONFIG_USBD_EP_NB,1U))
+$(eval $(call add_define,USB_CORE_AVOID_PACKET_SPLIT_MPS))
+BL2_SOURCES			+=	drivers/st/usb_dwc3/usb_dwc3.c				\
+					plat/st/stm32mp2/stm32mp2_usb_dfu.c
 endif
 
 BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr.c				\
@@ -285,6 +290,29 @@ check_ddr_type:
 		echo "One and only one DDR type must be defined"; \
 		false; \
 	fi
+
+# Generate separate DDR FIP image
+ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
+ifneq ($(filter 1,${STM32MP_UART_PROGRAMMER} ${STM32MP_USB_PROGRAMMER}),)
+
+STM32MP_DDR_FW_COPY		:=	${STM32MP_DDR_FW}
+DDR_FIP_NAME			?=	fip-ddr.bin
+
+$(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW_COPY,--ddr-fw,DDR_))
+
+${BUILD_PLAT}/${DDR_FIP_NAME}: ${DDR_FIP_DEPS} fiptool
+	${Q}${FIPTOOL} create ${DDR_FIP_ARGS} $@
+	${Q}${FIPTOOL} info $@
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@${ECHO_BLANK_LINE}
+
+fip-ddr: ${BUILD_PLAT}/${DDR_FIP_NAME}
+
+fip: fip-ddr
+
+endif
+endif
 
 # Create DTB file for BL31
 ${BUILD_PLAT}/fdts/%-bl31.dts: fdts/%.dts fdts/${BL31_DTSI} | $$(@D)/

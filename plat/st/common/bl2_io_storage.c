@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 #include <tools_share/firmware_image_package.h>
-
 #include <platform_def.h>
 #include <stm32cubeprogrammer.h>
 #include <stm32mp_efi.h>
@@ -413,7 +412,7 @@ static void mmap_io_setup(void)
 }
 
 #if STM32MP_UART_PROGRAMMER
-static void stm32cubeprogrammer_uart(void)
+static void stm32cubeprogrammer_uart(uint8_t phase, uintptr_t base, size_t len)
 {
 	int ret __maybe_unused;
 	boot_api_context_t *boot_context =
@@ -421,21 +420,23 @@ static void stm32cubeprogrammer_uart(void)
 	uintptr_t uart_base;
 
 	uart_base = get_uart_address(boot_context->boot_interface_instance);
-	ret = stm32cubeprog_uart_load(uart_base, DWL_BUFFER_BASE, DWL_BUFFER_SIZE);
+	ret = stm32cubeprog_uart_load(uart_base, phase, base, len);
 	assert(ret == 0);
 }
 #endif
 
 #if STM32MP_USB_PROGRAMMER
-static void stm32cubeprogrammer_usb(void)
+static void stm32cubeprogrammer_usb(uint8_t phase, uintptr_t base, size_t len)
 {
 	int ret __maybe_unused;
-	struct usb_handle *pdev;
+	static struct usb_handle *pdev;
 
 	/* Init USB on platform */
-	pdev = usb_dfu_plat_init();
+	if (pdev == NULL) {
+		pdev = usb_dfu_plat_init();
+	}
 
-	ret = stm32cubeprog_usb_load(pdev, DWL_BUFFER_BASE, DWL_BUFFER_SIZE);
+	ret = stm32cubeprog_usb_load(pdev, phase, base, len);
 	assert(ret == 0);
 }
 #endif
@@ -458,15 +459,13 @@ void stm32mp_io_setup(void)
 	io_result = register_io_dev_fip(&fip_dev_con);
 	assert(io_result == 0);
 
-	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
-				&fip_dev_handle);
+	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL, &fip_dev_handle);
 
 #ifndef DECRYPTION_SUPPORT_none
 	io_result = register_io_dev_enc(&enc_dev_con);
 	assert(io_result == 0);
 
-	io_result = io_dev_open(enc_dev_con, (uintptr_t)NULL,
-				&enc_dev_handle);
+	io_result = io_dev_open(enc_dev_con, (uintptr_t)NULL, &enc_dev_handle);
 	assert(io_result == 0);
 #endif
 
@@ -607,8 +606,19 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 
 #if STM32MP_UART_PROGRAMMER
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART:
+#if STM32MP_DDR_FIP_IO_STORAGE
+		if (image_id == DDR_FW_ID) {
+			stm32cubeprogrammer_uart(PHASE_DDR_FW,
+						 DWL_DDR_BUFFER_BASE,
+						 DWL_DDR_BUFFER_SIZE);
+			/* FIP loaded at DWL address */
+			image_block_spec.offset = DWL_DDR_BUFFER_BASE;
+			image_block_spec.length = DWL_DDR_BUFFER_SIZE;
+		}
+#endif
 		if (image_id == FW_CONFIG_ID) {
-			stm32cubeprogrammer_uart();
+			stm32cubeprogrammer_uart(PHASE_SSBL, DWL_BUFFER_BASE,
+						 DWL_BUFFER_SIZE);
 			/* FIP loaded at DWL address */
 			image_block_spec.offset = DWL_BUFFER_BASE;
 			image_block_spec.length = DWL_BUFFER_SIZE;
@@ -617,8 +627,19 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 #endif
 #if STM32MP_USB_PROGRAMMER
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
+#if STM32MP_DDR_FIP_IO_STORAGE
+		if (image_id == DDR_FW_ID) {
+			stm32cubeprogrammer_usb(PHASE_DDR_FW,
+						DWL_DDR_BUFFER_BASE,
+						DWL_DDR_BUFFER_SIZE);
+			/* FIP loaded at DWL address */
+			image_block_spec.offset = DWL_DDR_BUFFER_BASE;
+			image_block_spec.length = DWL_DDR_BUFFER_SIZE;
+		}
+#endif
 		if (image_id == FW_CONFIG_ID) {
-			stm32cubeprogrammer_usb();
+			stm32cubeprogrammer_usb(PHASE_SSBL, DWL_BUFFER_BASE,
+						DWL_BUFFER_SIZE);
 			/* FIP loaded at DWL address */
 			image_block_spec.offset = DWL_BUFFER_BASE;
 			image_block_spec.length = DWL_BUFFER_SIZE;
@@ -693,7 +714,7 @@ uint32_t plat_fwu_get_boot_idx(void)
 			stm32_set_max_fwu_trial_boot_cnt();
 		} else {
 			ERROR("The active bank(%u) of the platform is in Invalid State.\n",
-				boot_idx);
+			      boot_idx);
 			boot_idx = fwu_get_alternate_boot_bank();
 			stm32_clear_fwu_trial_boot_cnt();
 		}

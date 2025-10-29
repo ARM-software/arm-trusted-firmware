@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,24 +10,14 @@
 #include <common/debug.h>
 #include <drivers/usb_device.h>
 
-/* Define for EP address */
-#define EP_DIR_MASK		BIT(7)
-#define EP_DIR_IN		BIT(7)
-#define EP_NUM_MASK		GENMASK(3, 0)
-
-#define EP0_IN			(0U | EP_DIR_IN)
-#define EP0_OUT			0U
-
-/* USB address between 1 through 127 = 0x7F mask */
-#define ADDRESS_MASK		GENMASK(6, 0)
-
 /*
  * Set a STALL condition over an endpoint
  * pdev: USB handle
  * ep_addr: endpoint address
  * return : status
  */
-static enum usb_status usb_core_set_stall(struct usb_handle *pdev, uint8_t ep_addr)
+static enum usb_status usb_core_set_stall(struct usb_handle *pdev,
+					  uint8_t ep_addr)
 {
 	struct usbd_ep *ep;
 	struct pcd_handle *hpcd = (struct pcd_handle *)pdev->data;
@@ -47,7 +37,7 @@ static enum usb_status usb_core_set_stall(struct usb_handle *pdev, uint8_t ep_ad
 	ep->num = num;
 
 	pdev->driver->ep_set_stall(hpcd->instance, ep);
-	if (num == 0U) {
+	if (ep_addr == EP0_OUT) {
 		pdev->driver->ep0_out_start(hpcd->instance);
 	}
 
@@ -60,7 +50,8 @@ static enum usb_status usb_core_set_stall(struct usb_handle *pdev, uint8_t ep_ad
  * pdev : device instance
  * req : usb request
  */
-static void usb_core_get_desc(struct usb_handle *pdev, struct usb_setup_req *req)
+static void usb_core_get_desc(struct usb_handle *pdev,
+			      struct usb_setup_req *req)
 {
 	uint16_t len;
 	uint8_t *pbuf;
@@ -105,7 +96,8 @@ static void usb_core_get_desc(struct usb_handle *pdev, struct usb_setup_req *req
 		/* For all USER string */
 		case USBD_IDX_USER0_STR:
 		default:
-			pbuf = pdev->desc->get_usr_desc(desc_idx - USBD_IDX_USER0_STR, &len);
+			pbuf = pdev->desc->get_usr_desc(
+				desc_idx - USBD_IDX_USER0_STR, &len);
 			break;
 		}
 		break;
@@ -142,7 +134,8 @@ static void usb_core_get_desc(struct usb_handle *pdev, struct usb_setup_req *req
  * pdev : device instance
  * req : usb request
  */
-static void usb_core_set_config(struct usb_handle *pdev, struct usb_setup_req *req)
+static void usb_core_set_config(struct usb_handle *pdev,
+				struct usb_setup_req *req)
 {
 	static uint8_t cfgidx;
 
@@ -249,15 +242,16 @@ static void usb_core_set_address(struct usb_handle *pdev,
 	}
 
 	pdev->dev_address = dev_addr;
-	pdev->driver->set_address(((struct pcd_handle *)(pdev->data))->instance, dev_addr);
+	pdev->driver->set_address(((struct pcd_handle *)(pdev->data))->instance,
+				  dev_addr);
 
 	/* Send status */
 	usb_core_transmit_ep0(pdev, NULL, 0U);
 
 	if (dev_addr != 0U) {
-		pdev->dev_state  = USBD_STATE_ADDRESSED;
+		pdev->dev_state = USBD_STATE_ADDRESSED;
 	} else {
-		pdev->dev_state  = USBD_STATE_DEFAULT;
+		pdev->dev_state = USBD_STATE_DEFAULT;
 	}
 }
 
@@ -364,7 +358,8 @@ static enum usb_status usb_core_setup_stage(struct usb_handle *pdev,
 	default:
 		ERROR("receive unsupported request %u",
 		      pdev->request.bm_request & USB_REQ_RECIPIENT_MASK);
-		usb_core_set_stall(pdev, pdev->request.bm_request & USB_REQ_DIRECTION);
+		usb_core_set_stall(pdev, pdev->request.bm_request &
+						 USB_REQ_DIRECTION);
 		return USBD_FAIL;
 	}
 
@@ -395,7 +390,8 @@ static enum usb_status usb_core_data_out(struct usb_handle *pdev, uint8_t epnum,
 						     pep->maxpacket));
 			} else {
 				if (pdev->class->ep0_rx_ready &&
-				    (pdev->dev_state == USBD_STATE_CONFIGURED)) {
+				    (pdev->dev_state ==
+				     USBD_STATE_CONFIGURED)) {
 					pdev->class->ep0_rx_ready(pdev);
 				}
 
@@ -435,7 +431,8 @@ static enum usb_status usb_core_data_in(struct usb_handle *pdev, uint8_t epnum,
 				usb_core_receive(pdev, 0U, NULL, 0U);
 			} else {
 				/* Last packet is MPS multiple, send ZLP packet */
-				if ((pep->total_length % pep->maxpacket == 0U) &&
+				if ((pep->total_length % pep->maxpacket ==
+				     0U) &&
 				    (pep->total_length >= pep->maxpacket) &&
 				    (pep->total_length < pdev->ep0_data_len)) {
 					usb_core_transmit(pdev, 0U, NULL, 0U);
@@ -456,7 +453,7 @@ static enum usb_status usb_core_data_in(struct usb_handle *pdev, uint8_t epnum,
 			}
 		}
 	} else if ((pdev->class->data_in != NULL) &&
-		  (pdev->dev_state == USBD_STATE_CONFIGURED)) {
+		   (pdev->dev_state == USBD_STATE_CONFIGURED)) {
 		pdev->class->data_in(pdev, epnum);
 	}
 
@@ -469,11 +466,11 @@ static enum usb_status usb_core_data_in(struct usb_handle *pdev, uint8_t epnum,
  * pdev : device instance
  * return : status
  */
-static enum usb_status usb_core_suspend(struct usb_handle  *pdev)
+static enum usb_status usb_core_suspend(struct usb_handle *pdev)
 {
 	INFO("USB Suspend mode\n");
-	pdev->dev_old_state =  pdev->dev_state;
-	pdev->dev_state  = USBD_STATE_SUSPENDED;
+	pdev->dev_old_state = pdev->dev_state;
+	pdev->dev_state = USBD_STATE_SUSPENDED;
 
 	return USBD_OK;
 }
@@ -549,17 +546,17 @@ enum usb_status usb_core_handle_it(struct usb_handle *pdev)
 		break;
 
 	case USB_READ_DATA_PACKET:
-		ep = &pdev->data->out_ep[param &  USBD_OUT_EPNUM_MASK];
-		len = (param &  USBD_OUT_COUNT_MASK) >> USBD_OUT_COUNT_SHIFT;
-		pdev->driver->read_packet(pdev->data->instance,
-					  ep->xfer_buff, len);
+		ep = &pdev->data->out_ep[param & USBD_OUT_EPNUM_MASK];
+		len = (param & USBD_OUT_COUNT_MASK) >> USBD_OUT_COUNT_SHIFT;
+		pdev->driver->read_packet(pdev->data->instance, ep->xfer_buff,
+					  len);
 		ep->xfer_buff += len;
 		ep->xfer_count += len;
 		break;
 
 	case USB_READ_SETUP_PACKET:
-		ep = &pdev->data->out_ep[param &  USBD_OUT_EPNUM_MASK];
-		len = (param &  USBD_OUT_COUNT_MASK) >> 0x10;
+		ep = &pdev->data->out_ep[param & USBD_OUT_EPNUM_MASK];
+		len = (param & USBD_OUT_COUNT_MASK) >> 0x10;
 		pdev->driver->read_packet(pdev->data->instance,
 					  (uint8_t *)pdev->data->setup, 8);
 		ep->xfer_count += len;
@@ -598,11 +595,12 @@ enum usb_status usb_core_handle_it(struct usb_handle *pdev)
 		break;
 
 	case USB_WRITE_EMPTY:
-		pdev->driver->write_empty_tx_fifo(pdev->data->instance, param,
-				     pdev->data->in_ep[param].xfer_len,
-				     (uint32_t *)&pdev->data->in_ep[param].xfer_count,
-				     pdev->data->in_ep[param].maxpacket,
-				     &pdev->data->in_ep[param].xfer_buff);
+		pdev->driver->write_empty_tx_fifo(
+			pdev->data->instance, param,
+			pdev->data->in_ep[param].xfer_len,
+			(uint32_t *)&pdev->data->in_ep[param].xfer_count,
+			pdev->data->in_ep[param].maxpacket,
+			&pdev->data->in_ep[param].xfer_buff);
 		break;
 
 	case USB_NOTHING:
@@ -613,8 +611,7 @@ enum usb_status usb_core_handle_it(struct usb_handle *pdev)
 	return USBD_OK;
 }
 
-static void usb_core_start_xfer(struct usb_handle *pdev,
-				void *handle,
+static void usb_core_start_xfer(struct usb_handle *pdev, void *handle,
 				struct usbd_ep *ep)
 {
 	if (ep->num == 0U) {
@@ -711,7 +708,11 @@ enum usb_status usb_core_receive_ep0(struct usb_handle *pdev, uint8_t *buf,
 	}
 
 	pdev->ep_out[0].total_length = len;
+#ifdef USB_CORE_AVOID_PACKET_SPLIT_MPS
+	pdev->ep_out[0].rem_length = 0;
+#else
 	pdev->ep_out[0].rem_length = len;
+#endif
 
 	/* Start the transfer */
 	return usb_core_receive(pdev, 0U, buf, len);
@@ -736,7 +737,11 @@ enum usb_status usb_core_transmit_ep0(struct usb_handle *pdev, uint8_t *buf,
 	}
 
 	pdev->ep_in[0].total_length = len;
+#ifdef USB_CORE_AVOID_PACKET_SPLIT_MPS
+	pdev->ep_in[0].rem_length = 0;
+#else
 	pdev->ep_in[0].rem_length = len;
+#endif
 
 	/* Start the transfer */
 	return usb_core_transmit(pdev, 0U, buf, len);
@@ -833,7 +838,7 @@ enum usb_status register_usb_driver(struct usb_handle *pdev,
  * return : USBD Status
  */
 enum usb_status register_platform(struct usb_handle *pdev,
-			       const struct usb_desc *plat_call_back)
+				  const struct usb_desc *plat_call_back)
 {
 	assert(pdev != NULL);
 	assert(plat_call_back != NULL);

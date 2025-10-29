@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -137,6 +137,7 @@ static int dfu_callback_manifestation(uint8_t alt, void *user_data)
 	     dfu->phase, alt, dfu->address);
 
 	switch (dfu->phase) {
+	case PHASE_DDR_FW:
 	case PHASE_SSBL:
 		if (!is_valid_header((fip_toc_header_t *)dfu->base)) {
 			DFU_ERROR("FIP Header check failed for phase %d\n", alt);
@@ -163,9 +164,8 @@ static const struct usb_dfu_media usb_dfu_fops = {
 	.manifestation = dfu_callback_manifestation,
 };
 
-int stm32cubeprog_usb_load(struct usb_handle *usb_core_handle,
-			   uintptr_t base,
-			   size_t len)
+int stm32cubeprog_usb_load(struct usb_handle *usb_core_handle, uint8_t phase,
+			   uintptr_t base, size_t len)
 {
 	int ret;
 
@@ -177,7 +177,7 @@ int stm32cubeprog_usb_load(struct usb_handle *usb_core_handle,
 		return -EIO;
 	}
 
-	dfu_state.phase = PHASE_SSBL;
+	dfu_state.phase = phase;
 	dfu_state.address = base;
 	dfu_state.base = base;
 	dfu_state.len = len;
