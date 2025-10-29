@@ -313,6 +313,12 @@ static unsigned int read_feat_cpa_id_field(void)
 			     ID_AA64ISAR3_EL1_CPA_MASK);
 }
 
+static unsigned int read_feat_clrbhb_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64isar2_el1(), ID_AA64ISAR2_CLRBHB_SHIFT,
+			     ID_AA64ISAR2_CLRBHB_MASK);
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -350,6 +356,8 @@ void detect_arch_features(unsigned int core_pos)
 				 "SB", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_CSV2_2, read_feat_csv2_id_field(),
 				 "CSV2_2", 2, 3);
+	tainted |= check_feature(ENABLE_FEAT_CLRBHB, read_feat_clrbhb_id_field(),
+				 "CLRBHB", 1, 1);
 	/*
 	 * Even though the PMUv3 is an OPTIONAL feature, it is always
 	 * implemented and Arm prescribes so. So assume it will be there and do

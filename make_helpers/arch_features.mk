@@ -86,7 +86,8 @@ endif
 
 # Enable the features which are mandatory from ARCH version 8.9 and upwards.
 ifeq "8.9" "$(word 1, $(sort 8.9 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-armv8-9-a-feats         := ENABLE_FEAT_TCR2 ENABLE_FEAT_DEBUGV8P9 ENABLE_FEAT_SCTLR2
+armv8-9-a-feats         := ENABLE_FEAT_TCR2 ENABLE_FEAT_DEBUGV8P9	\
+			   ENABLE_FEAT_SCTLR2 ENABLE_FEAT_CLRBHB
 # 8.8 Compliant
 armv8-9-a-feats         += ${armv8-8-a-feats}
 FEAT_LIST               := ${armv8-9-a-feats}
@@ -241,6 +242,9 @@ ENABLE_FEAT_SCTLR2		?=	0
 #----
 # 8.0
 #----
+
+# Flag to enable support for clrbhb instruction.
+ENABLE_FEAT_CLRBHB			?=	0
 
 # Flag to enable CSV2_2 extension.
 ENABLE_FEAT_CSV2_2			?=	0
