@@ -62,6 +62,8 @@ struct stm32_clk_platdata {
 
 #define A35_SS_CHGCLKREQ_ARM_CHGCLKREQ		BIT(0)
 #define A35_SS_CHGCLKREQ_ARM_CHGCLKACK		BIT(1)
+#define A35_SS_CHGCLKREQ_ARM_DIVSEL		BIT(16)
+#define A35_SS_CHGCLKREQ_ARM_DIVSELACK		BIT(17)
 
 #define A35_SS_PLL_FREQ1_FBDIV_MASK		GENMASK(11, 0)
 #define A35_SS_PLL_FREQ1_FBDIV_SHIFT		0
@@ -589,7 +591,7 @@ static const struct gate_cfg gates_mp2[LAST_GATE] = {
 	GATE_CFG(GATE_STGEN,		RCC_STGENCFGR,		1,	0),
 #if !STM32MP21
 	GATE_CFG(GATE_USB3PCIEPHY,	RCC_USB3PCIEPHYCFGR,	1,	0),
-	GATE_CFG(GATE_USBTC,		RCC_USBTCCFGR,		1,	0),
+	GATE_CFG(GATE_USBTC,		RCC_UCPDCFGR,		1,	0),
 	GATE_CFG(GATE_I2C8,		RCC_I2C8CFGR,		1,	0),
 #endif /* !STM32MP21 */
 	GATE_CFG(GATE_OSPI1,		RCC_OSPI1CFGR,		1,	0),
@@ -1496,12 +1498,26 @@ static void stm32mp2_a35_ss_on_hsi(void)
 	uintptr_t a35_ss_address = A35SSC_BASE;
 	uintptr_t chgclkreq_reg = a35_ss_address + A35_SS_CHGCLKREQ;
 	uintptr_t pll_enable_reg = a35_ss_address + A35_SS_PLL_ENABLE;
+	uint32_t chgclkreq;
 	uint64_t timeout;
 
-	if ((mmio_read_32(chgclkreq_reg) & A35_SS_CHGCLKREQ_ARM_CHGCLKACK) ==
-	    A35_SS_CHGCLKREQ_ARM_CHGCLKACK) {
+	chgclkreq = mmio_read_32(chgclkreq_reg);
+	if ((chgclkreq & A35_SS_CHGCLKREQ_ARM_CHGCLKACK) == A35_SS_CHGCLKREQ_ARM_CHGCLKACK) {
 		/* Nothing to do, clock source is already set on bypass clock */
 		return;
+	}
+
+	/* for clkext2f frequency at 400MHZ, default flexgen63 config, divider by 2 is required */
+	if ((chgclkreq & A35_SS_CHGCLKREQ_ARM_DIVSEL) == A35_SS_CHGCLKREQ_ARM_DIVSEL) {
+		mmio_clrbits_32(chgclkreq_reg, A35_SS_CHGCLKREQ_ARM_DIVSEL);
+		timeout = timeout_init_us(CLKSRC_TIMEOUT);
+		while ((mmio_read_32(chgclkreq_reg) & A35_SS_CHGCLKREQ_ARM_DIVSELACK) ==
+		       A35_SS_CHGCLKREQ_ARM_DIVSELACK) {
+			if (timeout_elapsed(timeout)) {
+				EARLY_ERROR("Cannot set div on A35 bypass clock\n");
+				panic();
+			}
+		}
 	}
 
 	mmio_setbits_32(chgclkreq_reg, A35_SS_CHGCLKREQ_ARM_CHGCLKREQ);
