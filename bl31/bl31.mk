@@ -144,10 +144,6 @@ ifneq (${ENABLE_TRF_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/trf/aarch64/trf.c
 endif
 
-ifneq (${ENABLE_FEAT_FPMR},0)
-BL31_SOURCES		+=	lib/extensions/fpmr/fpmr.c
-endif
-
 ifneq (${ENABLE_FEAT_CPA2}, 0)
 BL31_SOURCES		+=	lib/extensions/cpa2/cpa2.c
 endif
