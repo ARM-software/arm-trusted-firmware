@@ -622,8 +622,11 @@ ifeq ($($(ARCH)-ld-id),arm-link)
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) $(OBJS)
 else
-	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) $(GNU_LINKER_ARGS) \
-		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
+	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) \
+		$(GNU_LINKER_ARGS) $(LDPATHS) \
+		$(call ld_prefix,--start-group) \
+			$(OBJS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
+		$(call ld_prefix,--end-group)
 endif
 ifeq ($(DISABLE_BIN_GENERATION),1)
 	$(s)echo
