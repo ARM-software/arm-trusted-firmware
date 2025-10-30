@@ -8,7 +8,8 @@ LIBEVLOG_PATH		?= contrib/libeventlog
 LIBEVLOG_NAME		:= eventlog
 
 LIBEVLOG_BUILD_DIR	:= $(BUILD_PLAT)/lib$(LIBEVLOG_NAME)
-LIBEVLOG_TARGET		:= $(LIBEVLOG_BUILD_DIR)/lib$(LIBEVLOG_NAME).a
+LIBEVLOG_INSTALL_DIR	:= $(BUILD_PLAT)/$(LIBEVLOG_NAME)-install
+LIBEVLOG_TARGET		:= $(LIBEVLOG_INSTALL_DIR)/lib/lib$(LIBEVLOG_NAME).a
 
 ifeq ($(DEBUG),1)
 LIBEVLOG_BUILD_TYPE	:= Debug
@@ -17,9 +18,9 @@ LIBEVLOG_BUILD_TYPE	:= Release
 endif
 
 LIBEVLOG_LIBS		:= $(LIBEVLOG_TARGET)
-LIBEVLOG_INCLUDE_DIRS	:= $(LIBEVLOG_PATH)/include
+LIBEVLOG_INCLUDE_DIRS	:= $(LIBEVLOG_INSTALL_DIR)/include
 
-LIBEVLOG_DIRS_TO_CHECK	+= $(LIBEVLOG_PATH)/include
+LIBEVLOG_DIRS_TO_CHECK	+= $(LIBEVLOG_INSTALL_DIR)/include
 
 # When using a TPM, adopt the TPM's hash algorithm for
 # measurements through the Event Log mechanism, ensuring
@@ -61,7 +62,8 @@ $(eval $(call add_defines,\
 LIBEVLOG_CFLAGS ?= $(filter-out -I%,$(TF_CFLAGS))
 LIBEVLOG_CFLAGS += $(patsubst %,-I%,$(call include-dirs,$(TF_CFLAGS)))
 
-$(LIBEVLOG_TARGET): $(LIB_DIR)/libc.a
+$(LIBEVLOG_INSTALL_DIR)/% $(LIBEVLOG_INSTALL_DIR)/%/: $(LIBEVLOG_TARGET) ;
+$(LIBEVLOG_TARGET) $(LIBEVLOG_INSTALL_DIR)/ &: $(LIB_DIR)/libc.a
 	$(s)echo "  CM      $@"
 	$(q)cmake -S $(LIBEVLOG_PATH) -B $(LIBEVLOG_BUILD_DIR) \
 		-DHASH_ALGORITHM=$(call uppercase,$(MBOOT_EL_HASH_ALG)) \
@@ -75,3 +77,6 @@ $(LIBEVLOG_TARGET): $(LIB_DIR)/libc.a
 		-DDEBUG_BACKEND_HEADER="log_backend_tf.h" \
 		$(if $(V),, --log-level=ERROR) > /dev/null
 	$(q)cmake --build $(LIBEVLOG_BUILD_DIR) -- $(if $(V),,-s) > /dev/null
+	$(q)cmake --install $(LIBEVLOG_BUILD_DIR) \
+		--prefix $(LIBEVLOG_INSTALL_DIR) \
+		--config $(LIBEVLOG_BUILD_TYPE) > /dev/null
