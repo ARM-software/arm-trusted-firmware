@@ -496,8 +496,7 @@ shell-words.sh = set -Cefu -- $(1); printf '%s' "$$\#";
 #
 #   - $(1): The shell fragment to parse.
 #   - $(2): The 1-based start index of the slice (default: 1).
-#   - $(3): The 1-based end index of the slice (exclusive).
-#           Defaults to all remaining words in the shell fragment.
+#   - $(3): The 1-based end index of the slice (exclusive, optional).
 #
 # Example usage:
 #
@@ -514,10 +513,10 @@ define shell-slice.sh =
         set -Cefu -- $(1);
 
         n=$(if $(2),$(call shell-quote,$(2)),1);
-        m=$(if $(3),$(call shell-quote,$(3)),$$#);
+        m=$(if $(3),$(call shell-quote,$(3)),$$(($$# + 1)));
 
         printf '%s\n' "$$@" $\
-                | sed -n "$${n},$${m}p" $\
+                | sed -n "$${n},$${m}{ $${m}!p }; $${m}q" $\
                 | sed "s/'/'\\\\''/g; s/^/'/; s/\$$/'/";
 endef
 
@@ -565,8 +564,9 @@ endef
 #
 # Parses the shell fragment given by `$(2)` into words using the shell's
 # word-splitting and quoting rules. For each word, the function `$(1)` is
-# invoked with the word as its argument. The results are concatenated and
-# returned, separated by whitespace.
+# invoked with the word as its first argument and the 1-based index of the word
+# as its second argument. The results are concatenated and returned, separated
+# by whitespace.
 #
 # This function is useful when you want to process each shell word from a
 # fragment through another function, while preserving correct handling of
@@ -588,6 +588,9 @@ endef
 #       make-binary = /bin/$(1)
 #       $(call shell-map,make-binary,cp "ls" 'sh') # "/bin/cp /bin/ls /bin/sh"
 #
+#       index-label = $(1):$(2)
+#       $(call shell-map,index-label,foo 'bar baz') # "foo:1 bar baz:2"
+#
 
 shell-map = $(call with,,$(shell $(shell-map.sh)))
 
@@ -595,13 +598,17 @@ define shell-map.sh =
         set -Cefu -- $(2);
 
         function=$(call shell-quote,$(1));
+        index=1;
 
         for argument in "$$@"; do
                 sanitized=$$(printf '%s' "$${argument}" $\
                         | sed -e 's/[$$]/$$/g' -e 's/)/$$(rparen)/g' $\
                                 -e 's/,/$$(comma)/g');
 
-                printf '$$(call %s,%s)\n' "$${function}" "$${sanitized}";
+                printf '$$(call %s,%s,%s)\n' $\
+                        "$${function}" "$${sanitized}" "$${index}";
+
+                index=$$((index + 1));
         done
 endef
 
