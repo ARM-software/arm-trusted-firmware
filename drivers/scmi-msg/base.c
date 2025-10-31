@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Linaro Limited
  */
 #include <assert.h>
@@ -139,6 +139,8 @@ static void discover_list_protocols(struct scmi_msg *msg)
 	};
 	const uint8_t *list = NULL;
 	unsigned int count = 0U;
+	unsigned int rounded_count = 0U;
+	int overflow;
 
 	if (msg->in_size != sizeof(*a2p)) {
 		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
@@ -161,7 +163,14 @@ static void discover_list_protocols(struct scmi_msg *msg)
 
 	memcpy(msg->out, &p2a, sizeof(p2a));
 	memcpy(msg->out + sizeof(p2a), list + a2p->skip, count);
-	msg->out_size_out = sizeof(p2a) + round_up(count, sizeof(uint32_t));
+
+	overflow = round_up_overflow(count, sizeof(uint32_t), &rounded_count);
+	if (overflow) {
+		ERROR("Overflow rounding up protocol count\n");
+		panic();
+	}
+
+	msg->out_size_out = sizeof(p2a) + rounded_count;
 }
 
 static const scmi_msg_handler_t scmi_base_handler_table[] = {
