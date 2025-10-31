@@ -120,7 +120,7 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_TRF		|
  * +----------------------------+
- * |	FEAT_NV/NV2		|
+ * |	FEAT_NV2		|
  * +----------------------------+
  * |	FEAT_BRBE		|
  * +----------------------------+
@@ -499,8 +499,6 @@ CREATE_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT_SHIFT,
 		     ID_AA64DFR0_TRACEFILT_MASK, 1U, ENABLE_TRF_FOR_NS)
 
 /* FEAT_NV2: Enhanced Nested Virtualization */
-CREATE_FEATURE_FUNCS(feat_nv, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT,
-		     ID_AA64MMFR2_EL1_NV_MASK, 1U, 0U)
 CREATE_FEATURE_FUNCS(feat_nv2, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT,
 		     ID_AA64MMFR2_EL1_NV_MASK, NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS)
 
