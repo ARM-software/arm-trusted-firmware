@@ -2345,7 +2345,11 @@ void usb_dwc3_init_driver(struct usb_handle *usb_core_handle, struct pcd_handle 
 		 * OUT Endpoint X maps to Physical Endpoint 2*X.
 		 * So USB endpoint 0x81 is 0x03.
 		 */
+#if USB_DWC3_NUM_IN_EP > 1
 		dwc3_handle->IN_ep[i].phy_epnum = __HAL_PCD_EPADDR_TO_PHYEPNUM(i | EP_DIR_IN);
+#else
+		dwc3_handle->IN_ep[i].phy_epnum = 1U;
+#endif
 
 		dwc3_handle->IN_ep[i].intr_num = PCD_DEV_EVENTS_INTR;
 	}
