@@ -1197,6 +1197,12 @@ architecture that can be enabled by the platform as desired.
    This is used to control how the LL_CACHE* PMU events count.
    Default value is 0 (Disabled).
 
+-  ``NEOVERSE_N2_PREFETCHER_DISABLE``: This flag disables the region prefetcher
+   on the Neoverse N2 core. This is used during performance analysis to get clean
+   and repeatable measurements of the cache by preventing speculative data fetches
+   from interfering with benchmark results.
+   Default value is 0 (Disabled).
+
 GIC Errata Workarounds
 ----------------------
 -  ``GIC600_ERRATA_WA_2384374``: This flag applies part 2 of errata 2384374

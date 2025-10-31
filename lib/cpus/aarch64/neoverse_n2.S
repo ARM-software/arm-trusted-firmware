@@ -271,6 +271,10 @@ cpu_reset_func_start neoverse_n2
 	/* Some systems may have External LLC, core needs to be made aware */
 	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, NEOVERSE_N2_CPUECTLR_EL1_EXTLLC_BIT
 #endif
+#if NEOVERSE_N2_PREFETCHER_DISABLE
+	/* Disable region prefetcher for L2 cache perf measurement */
+	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, NEOVERSE_N2_CPUECTLR_EL1_PFDIS_BIT
+#endif
 cpu_reset_func_end neoverse_n2
 
 func neoverse_n2_core_pwr_dwn
