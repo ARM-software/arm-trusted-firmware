@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,9 +44,9 @@ static psci_stat_t psci_non_cpu_stat[PSCI_NUM_NON_CPU_PWR_DOMAINS]
  * local power state and power domain level. If the platform implements the
  * `get_pwr_lvl_state_idx` pm hook, then that will be used to return the index.
  */
-static int get_stat_idx(plat_local_state_t local_state, unsigned int pwr_lvl)
+static unsigned int get_stat_idx(plat_local_state_t local_state, unsigned int pwr_lvl)
 {
-	int idx;
+	unsigned int idx;
 
 	if (psci_plat_pm_ops->get_pwr_lvl_state_idx == NULL) {
 		assert(PLAT_MAX_PWR_LVL_STATES == 2U);
@@ -58,7 +58,7 @@ static int get_stat_idx(plat_local_state_t local_state, unsigned int pwr_lvl)
 	}
 
 	idx = psci_plat_pm_ops->get_pwr_lvl_state_idx(local_state, pwr_lvl);
-	assert((idx >= 0) && (idx < (int) PLAT_MAX_PWR_LVL_STATES));
+	assert(idx < PLAT_MAX_PWR_LVL_STATES);
 	return idx;
 }
 
@@ -109,7 +109,7 @@ void psci_stats_update_pwr_up(unsigned int cpu_idx, unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info)
 {
 	unsigned int lvl, parent_idx;
-	int stat_idx;
+	unsigned int stat_idx;
 	plat_local_state_t local_state;
 	u_register_t residency;
 
@@ -174,8 +174,7 @@ static int psci_get_stat(u_register_t target_cpu, unsigned int power_state,
 			 psci_stat_t *psci_stat)
 {
 	int rc;
-	unsigned int pwrlvl, lvl, parent_idx, target_idx;
-	int stat_idx;
+	unsigned int pwrlvl, lvl, parent_idx, target_idx, stat_idx;
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 	plat_local_state_t local_state;
 

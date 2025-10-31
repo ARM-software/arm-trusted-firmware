@@ -340,7 +340,7 @@ typedef struct plat_psci_ops {
 	int (*validate_ns_entrypoint)(uintptr_t ns_entrypoint);
 	void (*get_sys_suspend_power_state)(
 				    psci_power_state_t *req_state);
-	int (*get_pwr_lvl_state_idx)(plat_local_state_t pwr_domain_state,
+	unsigned int (*get_pwr_lvl_state_idx)(plat_local_state_t pwr_domain_state,
 				    int pwrlvl);
 	int (*translate_power_state_by_mpidr)(u_register_t mpidr,
 				    unsigned int power_state,
