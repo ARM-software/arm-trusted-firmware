@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trusted-firmware-a"
-version = "2.12.7"
+version = "2.12.8"
 description = "Trusted Firmware-A (TF-A) Python dependencies."
 authors = ["Arm Ltd."]
 license = "BSD-3-Clause"

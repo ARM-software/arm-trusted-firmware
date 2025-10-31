@@ -3,6 +3,35 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.7..refs/tags/lts-v2.12.8) (2025-10-31)
+
+### Code Refactoring
+
+- fix workaround order for Cortex-A720 ([ccb4219](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ccb4219217926604a555f5e09c92098ee1c560dc))
+
+### Resolved Issues
+
+- **Services**
+
+  - **SPM**
+
+    - **SPM MM**
+
+      - prevent excessive racing ([200fa20](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/200fa2012666f5eadfb08e5a98d1258e08c7cc2b))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A720 erratum 2729604 ([6cce517](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6cce5175fb92dda0d61fd7f569eed6687b0b7fcb))
+    - workaround for Cortex-A720 erratum 3711910 ([0dba1a2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0dba1a220fadb868b86bd6973d9dd50ec30ea721))
+
+  - **EL3 Runtime**
+
+    - **SIMD**
+
+      - fix base register in fpregs_context_* ([776781d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/776781d6d816f7f29c58049495974e23f33fda6b))
+
 ## [lts-2.12.7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.6..refs/tags/lts-v2.12.7) (2025-10-17)
 
 ### Documentation
