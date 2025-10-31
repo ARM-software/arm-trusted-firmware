@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  * Copyright (c) 2022-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -112,13 +112,17 @@ static void set_gicd_chipr_n(uintptr_t base,
 	}
 
 	/*
-	 * spi_id_min and spi_id_max of value 0 is used to intidicate that the
+	 * spi_id_min and spi_id_max of value 0 is used to indicate that the
 	 * chip doesn't own any SPI block. Re-assign min and max values as SPI
 	 * id starts from 32.
 	 */
-	if (spi_id_min == 0 && spi_id_max == 0) {
+	if (spi_id_min == 0U && spi_id_max == 0U) {
 		spi_id_min = GIC600_SPI_ID_MIN;
 		spi_id_max = GIC600_SPI_ID_MIN;
+	} else if (spi_id_min < GIC600_SPI_ID_MIN || spi_id_max < spi_id_min ||
+		   spi_id_max > GIC600_SPI_ID_MAX) {
+		ERROR("Invalid SPI ID range: min=%u max=%u\n", spi_id_min, spi_id_max);
+		panic();
 	}
 
 	switch ((gicd_iidr_val & IIDR_MODEL_MASK)) {
