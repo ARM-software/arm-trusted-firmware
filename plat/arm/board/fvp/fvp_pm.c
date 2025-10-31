@@ -308,8 +308,9 @@ static int fvp_node_hw_state(u_register_t target_cpu,
 	 * The format of 'power_level' is implementation-defined, but 0 must
 	 * mean a CPU. We also allow 1 to denote the cluster
 	 */
-	if ((power_level < ARM_PWR_LVL0) || (power_level > ARM_PWR_LVL1))
+	if (power_level > ARM_PWR_LVL1) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/*
 	 * Read the status of the given MPDIR from FVP power controller. The
