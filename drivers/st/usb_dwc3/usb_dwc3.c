@@ -695,7 +695,7 @@ static enum usb_status dwc3_execute_dep_cmd(dwc3_handle_t *dwc3_handle, uint8_t 
 
 		/* Can be called from interrupt context hence cannot wait for Tick */
 		if (timeout_elapsed(timeout)) {
-			ERROR("TIMEOUT Command Complete --> %u PHYEP%lu %x\n",
+			ERROR("TIMEOUT Command Complete --> %u PHYEP%u %x\n",
 				   DWC3_DEPCMD_STATUS(reg), phy_epnum, reg);
 			/* "Command Timed Out" */
 			return USBD_TIMEOUT;
