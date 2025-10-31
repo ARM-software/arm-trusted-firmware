@@ -6,6 +6,8 @@
 # RD1AE (Kronos) platform.
 $(info Platform ${PLAT} is (kronos) specific.)
 
+$(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
+
 RD1AE_BASE		=	plat/arm/board/automotive_rd/platform/rd1ae
 
 PLAT_INCLUDES		+=	-I${RD1AE_BASE}/include/
