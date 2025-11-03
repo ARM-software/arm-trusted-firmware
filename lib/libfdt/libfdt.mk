@@ -1,23 +1,17 @@
 #
-# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 ifndef libfdt-mk
-        libfdt-mk := 1
+        libfdt-mk := $(lastword $(MAKEFILE_LIST))
+        libfdt-root := $(patsubst %/,%,$(dir $(libfdt-mk)))
 
-        LIBFDT_SRCS := $(addprefix lib/libfdt/, \
-                fdt.c \
-                fdt_addresses.c \
-                fdt_empty_tree.c \
-                fdt_ro.c \
-                fdt_rw.c \
-                fdt_strerror.c \
-                fdt_sw.c \
-                fdt_wip.c)
+        include $(libfdt-root)/Makefile.libfdt
 
-        INCLUDES += -Iinclude/lib/libfdt
+        LIBFDT_SRCS := $(addprefix $(libfdt-root)/,$(LIBFDT_SRCS))
+        INCLUDES += -I$(libfdt-root)
 
         $(eval $(call MAKE_LIB,fdt))
 endif

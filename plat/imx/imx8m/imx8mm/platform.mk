@@ -12,7 +12,7 @@ PLAT_INCLUDES		:=	-Iplat/imx/common/include		\
 				-Iplat/imx/imx8m/imx8mm/include		\
 				-Idrivers/imx/usdhc			\
 				-Iinclude/common/tbbr			\
-				-Iinclude/lib/libfdt
+				-Ilib/libfdt
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk

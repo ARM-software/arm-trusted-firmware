@@ -64,7 +64,7 @@ INC_DRV_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/drivers/arm,		\
 					$(wildcard include/drivers/*)))
 INC_LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
-					include/lib/libfdt		\
+					lib/libfdt		\
 					include/lib/libc,		\
 					$(wildcard include/lib/*)))
 INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\

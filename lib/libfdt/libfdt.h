@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #define FDT_FIRST_SUPPORTED_VERSION	0x02
-#define FDT_LAST_COMPATIBLE_VERSION 0x10
+#define FDT_LAST_COMPATIBLE_VERSION	0x10
 #define FDT_LAST_SUPPORTED_VERSION	0x11
 
 /* Error codes: informative error codes */
@@ -285,7 +285,7 @@ size_t fdt_header_size(const void *fdt);
 
 /**
  * fdt_header_size_ - internal function to get header size from a version number
- * @version: devicetree version number
+ * @version: device tree version number
  *
  * Return: size of DTB header in bytes
  */
@@ -524,12 +524,37 @@ int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
  * level matching the given component, differentiated only by unit
  * address).
  *
+ * If the path is not absolute (i.e. does not begin with '/'), the
+ * first component is treated as an alias.  That is, the property by
+ * that name is looked up in the /aliases node, and the value of that
+ * property used in place of that first component.
+ *
+ * For example, for this small fragment
+ *
+ * / {
+ *     aliases {
+ *         i2c2 = &foo; // RHS compiles to "/soc@0/i2c@30a40000/eeprom@52"
+ *     };
+ *     soc@0 {
+ *         foo: i2c@30a40000 {
+ *             bar: eeprom@52 {
+ *             };
+ *         };
+ *     };
+ * };
+ *
+ * these would be equivalent:
+ *
+ *   /soc@0/i2c@30a40000/eeprom@52
+ *   i2c2/eeprom@52
+ *
  * returns:
  *	structure block offset of the node with the requested path (>=0), on
  *		success
- *	-FDT_ERR_BADPATH, given path does not begin with '/' or is invalid
+ *	-FDT_ERR_BADPATH, given path does not begin with '/' and the first
+ *		component is not a valid alias
  *	-FDT_ERR_NOTFOUND, if the requested node does not exist
- *      -FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE,
@@ -574,7 +599,7 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *lenp);
  *	structure block offset of the property (>=0), on success
  *	-FDT_ERR_NOTFOUND, if the requested node has no properties
  *	-FDT_ERR_BADOFFSET, if nodeoffset did not point to an FDT_BEGIN_NODE tag
- *      -FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE,
@@ -595,7 +620,7 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset);
  *	structure block offset of the next property (>=0), on success
  *	-FDT_ERR_NOTFOUND, if the given property is the last in its node
  *	-FDT_ERR_BADOFFSET, if nodeoffset did not point to an FDT_PROP tag
- *      -FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE,
@@ -739,7 +764,7 @@ static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
  * to within the device blob itself, not a copy of the value).  If
  * lenp is non-NULL, the length of the property value is also
  * returned, in the integer pointed to by lenp.  If namep is non-NULL,
- * the property's namne will also be returned in the char * pointed to
+ * the property's name will also be returned in the char * pointed to
  * by namep (this will be a pointer to within the device tree's string
  * block, not a new copy of the name).
  *
@@ -747,7 +772,7 @@ static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
  *	pointer to the property's value
  *		if lenp is non-NULL, *lenp contains the length of the property
  *		value (>=0)
- *		if namep is non-NULL *namep contiains a pointer to the property
+ *		if namep is non-NULL *namep contains a pointer to the property
  *		name.
  *	NULL, on error
  *		if lenp is non-NULL, *lenp contains an error code (<0):
@@ -841,7 +866,7 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
 /**
  * fdt_get_alias_namelen - get alias based on substring
  * @fdt: pointer to the device tree blob
- * @name: name of the alias th look up
+ * @name: name of the alias to look up
  * @namelen: number of characters of name to consider
  *
  * Identical to fdt_get_alias(), but only examine the first @namelen
@@ -858,7 +883,7 @@ const char *fdt_get_alias_namelen(const void *fdt,
 /**
  * fdt_get_alias - retrieve the path referenced by a given alias
  * @fdt: pointer to the device tree blob
- * @name: name of the alias th look up
+ * @name: name of the alias to look up
  *
  * fdt_get_alias() retrieves the value of a given alias.  That is, the
  * value of the property named @name in the node /aliases.
@@ -868,6 +893,42 @@ const char *fdt_get_alias_namelen(const void *fdt,
  *	NULL, if the given alias or the /aliases node does not exist
  */
 const char *fdt_get_alias(const void *fdt, const char *name);
+
+/**
+ * fdt_get_symbol_namelen - get symbol based on substring
+ * @fdt: pointer to the device tree blob
+ * @name: name of the symbol to look up
+ * @namelen: number of characters of name to consider
+ *
+ * Identical to fdt_get_symbol(), but only examine the first @namelen
+ * characters of @name for matching the symbol name.
+ *
+ * Return: a pointer to the expansion of the symbol named @name, if it exists,
+ *	   NULL otherwise
+ */
+#ifndef SWIG /* Not available in Python */
+const char *fdt_get_symbol_namelen(const void *fdt,
+				   const char *name, int namelen);
+#endif
+
+/**
+ * fdt_get_symbol - retrieve the path referenced by a given symbol
+ * @fdt: pointer to the device tree blob
+ * @name: name of the symbol to look up
+ *
+ * fdt_get_symbol() retrieves the value of a given symbol.  That is,
+ * the value of the property named @name in the node
+ * /__symbols__. Such a node exists only for a device tree blob that
+ * has been compiled with the -@ dtc option. Each property corresponds
+ * to a label appearing in the device tree source, with the name of
+ * the property being the label and the value being the full path of
+ * the node it is attached to.
+ *
+ * returns:
+ *	a pointer to the expansion of the symbol named 'name', if it exists
+ *	NULL, if the given symbol or the /__symbols__ node does not exist
+ */
+const char *fdt_get_symbol(const void *fdt, const char *name);
 
 /**
  * fdt_get_path - determine the full path of a node
@@ -1198,8 +1259,8 @@ const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
  *
  * returns:
  *	0 <= n < FDT_MAX_NCELLS, on success
- *      2, if the node has no #address-cells property
- *      -FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
+ *	2, if the node has no #address-cells property
+ *	-FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
  *		#address-cells property
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
@@ -1219,8 +1280,8 @@ int fdt_address_cells(const void *fdt, int nodeoffset);
  *
  * returns:
  *	0 <= n < FDT_MAX_NCELLS, on success
- *      1, if the node has no #size-cells property
- *      -FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
+ *	1, if the node has no #size-cells property
+ *	-FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
  *		#size-cells property
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
@@ -1450,7 +1511,7 @@ int fdt_nop_node(void *fdt, int nodeoffset);
  * fdt_create_with_flags() begins the process of creating a new fdt with
  * the sequential write interface.
  *
- * fdt creation process must end with fdt_finished() to produce a valid fdt.
+ * fdt creation process must end with fdt_finish() to produce a valid fdt.
  *
  * returns:
  *	0, on success
@@ -1637,7 +1698,7 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
  * @len: length of the property value
  * @prop_data: return pointer to property data
  *
- * fdt_setprop_placeholer() allocates the named property in the given node.
+ * fdt_setprop_placeholder() allocates the named property in the given node.
  * If the property exists it is resized. In either case a pointer to the
  * property data is returned.
  *
@@ -1968,7 +2029,7 @@ static inline int fdt_appendprop_cell(void *fdt, int nodeoffset,
  * address and size) to the value of the named property in the given
  * node, or creates a new property with that value if it does not
  * already exist.
- * If "name" is not specified, a default "reg" is used.
+ *
  * Cell sizes are determined by parent's #address-cells and #size-cells.
  *
  * This function may insert data into the blob, and will therefore
@@ -1998,7 +2059,7 @@ int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
  * @nodeoffset: offset of the node whose property to nop
  * @name: name of the property to nop
  *
- * fdt_del_property() will delete the given property.
+ * fdt_delprop() will delete the given property.
  *
  * This function will delete data from the blob, and will therefore
  * change the offsets of some existing nodes.
@@ -2050,8 +2111,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
  * change the offsets of some existing nodes.
  *
  * returns:
- *	structure block offset of the created nodeequested subnode (>=0), on
- *		success
+ *	structure block offset of the created subnode (>=0), on success
  *	-FDT_ERR_NOTFOUND, if the requested subnode does not exist
  *	-FDT_ERR_BADOFFSET, if parentoffset did not point to an FDT_BEGIN_NODE
  *		tag
@@ -2061,7 +2121,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
  *		blob to contain the new node
  *	-FDT_ERR_NOSPACE
  *	-FDT_ERR_BADLAYOUT
- *      -FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE,
@@ -2106,7 +2166,7 @@ int fdt_del_node(void *fdt, int nodeoffset);
  * returns:
  *	0, on success
  *	-FDT_ERR_NOSPACE, there's not enough space in the base device tree
- *	-FDT_ERR_NOTFOUND, the overlay points to some inexistant nodes or
+ *	-FDT_ERR_NOTFOUND, the overlay points to some nonexistent nodes or
  *		properties in the base DT
  *	-FDT_ERR_BADPHANDLE,
  *	-FDT_ERR_BADOVERLAY,
