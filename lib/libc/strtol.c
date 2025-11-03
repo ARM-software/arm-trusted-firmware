@@ -52,6 +52,7 @@ long strtol(const char *nptr, char **endptr, int base)
 	char c;
 	unsigned long cutoff;
 	int neg, any, cutlim;
+	long result;
 
 	/*
 	 * Skip white space and pick up leading +/- sign if any.
@@ -123,11 +124,15 @@ long strtol(const char *nptr, char **endptr, int base)
 			acc += c;
 		}
 	}
+
 	if (any < 0) {
-		acc = neg ? LONG_MIN : LONG_MAX;
-	} else if (neg)
-		acc = -acc;
+		result = neg ? LONG_MIN : LONG_MAX;
+	} else {
+		result = neg ? -(long)acc : (long)acc;
+	}
+
 	if (endptr != NULL)
 		*endptr = (char *)(any ? s - 1 : nptr);
-	return (acc);
+
+	return result;
 }

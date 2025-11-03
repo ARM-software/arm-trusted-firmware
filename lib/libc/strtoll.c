@@ -52,6 +52,7 @@ long long strtoll(const char *nptr, char **endptr, int base)
 	char c;
 	unsigned long long cutoff;
 	int neg, any, cutlim;
+	long long result;
 
 	/*
 	 * Skip white space and pick up leading +/- sign if any.
@@ -124,11 +125,15 @@ long long strtoll(const char *nptr, char **endptr, int base)
 			acc += c;
 		}
 	}
+
 	if (any < 0) {
-		acc = neg ? LLONG_MIN : LLONG_MAX;
-	} else if (neg)
-		acc = -acc;
+		result = neg ? LLONG_MIN : LLONG_MAX;
+	} else {
+		result = neg ? -(long long)acc : (long long)acc;
+	}
+
 	if (endptr != NULL)
 		*endptr = (char *)(any ? s - 1 : nptr);
-	return (acc);
+
+	return result;
 }
