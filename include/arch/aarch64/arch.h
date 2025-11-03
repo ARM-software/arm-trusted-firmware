@@ -190,6 +190,26 @@
 
 #define ID_REG_FIELD_MASK			ULL(0xf)
 
+/*******************************************************************************
+ * PFR0_EL1 - Definitions for AArch32 Processor Feature Register 0
+ ******************************************************************************/
+#define ID_PFR0_EL1				S3_0_C0_C1_0
+
+/*******************************************************************************
+ * PFR2_EL1 - Definitions for AArch32 Processor Feature Register 2
+ ******************************************************************************/
+#define ID_PFR2_EL1				S3_0_C0_C3_4
+
+/*******************************************************************************
+ * ID_ISAR6_EL1 - Definition for AArch32 Instruction Set Attribute Register 6
+ ******************************************************************************/
+#define ID_ISAR6_EL1				S3_0_C0_C2_7
+
+/*******************************************************************************
+ * ID_DFR1_EL1 - Definition for AArch32 Debug Feature Register 1
+ ******************************************************************************/
+#define ID_DFR1_EL1				S3_0_C0_C3_5
+
 /* ID_AA64PFR0_EL1 definitions */
 #define ID_AA64PFR0_EL0_SHIFT			U(0)
 #define ID_AA64PFR0_EL1_SHIFT			U(4)
@@ -202,6 +222,10 @@
 #define ID_AA64PFR0_AMU_V1P1			U(0x2)
 
 #define ID_AA64PFR0_ELX_MASK			ULL(0xf)
+#define ID_AA64PFR0_EL0_MASK			ID_AA64PFR0_ELX_MASK
+#define ID_AA64PFR0_EL1_MASK			ID_AA64PFR0_ELX_MASK
+#define ID_AA64PFR0_EL2_MASK			ID_AA64PFR0_ELX_MASK
+#define ID_AA64PFR0_EL3_MASK			ID_AA64PFR0_ELX_MASK
 
 #define ID_AA64PFR0_GIC_SHIFT			U(24)
 #define ID_AA64PFR0_GIC_WIDTH			U(4)
@@ -300,6 +324,11 @@
 
 #define ID_AA64DFR1_BRP_SHIFT		U(8)
 #define ID_AA64DFR1_BRP_WIDTH		U(8)
+
+#define ID_AA64ZFR0_EL1			S3_0_C0_C4_4
+#define ID_AA64FPFR0_EL1		S3_0_C0_C4_7
+#define ID_AA64DFR2_EL1			S3_0_C0_C5_2
+#define GMID_EL1			S3_1_C0_C0_4
 
 /* ID_AA64ISAR0_EL1 definitions */
 #define ID_AA64ISAR0_RNDR_SHIFT	U(60)
@@ -410,6 +439,9 @@
 
 /* ID_AA64MMFR2_EL1 definitions */
 #define ID_AA64MMFR2_EL1			S3_0_C0_C7_2
+
+#define ID_AA64MMFR2_EL1_IDS_SHIFT		U(36)
+#define ID_AA64MMFR2_EL1_IDS_MASK		ULL(0xf)
 
 #define ID_AA64MMFR2_EL1_ST_SHIFT		U(28)
 #define ID_AA64MMFR2_EL1_ST_MASK		ULL(0xf)
