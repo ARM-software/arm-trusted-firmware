@@ -12,29 +12,6 @@
 static bool detection_done[PLATFORM_CORE_COUNT] = { false };
 
 /*******************************************************************************
- * This section lists the wrapper modules for each feature to evaluate the
- * feature states (FEAT_STATE_ALWAYS and FEAT_STATE_CHECK) and perform
- * necessary action as below:
- *
- * It verifies whether the FEAT_XXX (eg: FEAT_SB) is supported by the PE or not.
- * Without this check an exception would occur during context save/restore
- * routines, if the feature is enabled but not supported by PE.
- ******************************************************************************/
-
-#define feat_detect_panic(a, b)		((a) ? (void)0 : feature_panic(b))
-
-/*******************************************************************************
- * Function : feature_panic
- * Customised panic function with error logging mechanism to list the feature
- * not supported by the PE.
- ******************************************************************************/
-static inline void feature_panic(char *feat_name)
-{
-	ERROR("FEAT_%s not supported by the PE\n", feat_name);
-	panic();
-}
-
-/*******************************************************************************
  * Function : check_feature
  * Check for a valid combination of build time flags (ENABLE_FEAT_xxx) and
  * feature availability on the hardware. <min> is the smallest feature
