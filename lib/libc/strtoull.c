@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 /*
@@ -97,9 +98,20 @@ unsigned long long strtoull(const char *nptr, char **endptr, int base)
 		if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
 			any = -1;
 		else {
+#ifdef __aarch64__
+			uint128_t extended = (uint128_t)acc * (unsigned)base;
+			extended += (unsigned)c;
+
+			if (extended > ULLONG_MAX) {
+				any = -1;
+			} else {
+				acc = (unsigned long long)extended;
+				any = 1;
+			}
+#else
 			any = 1;
-			acc *= base;
-			acc += c;
+			acc = acc * (unsigned long long)base + (unsigned long long)c;
+#endif
 		}
 	}
 	if (any < 0) {
