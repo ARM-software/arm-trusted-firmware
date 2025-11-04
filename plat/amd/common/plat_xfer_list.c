@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,7 @@
 #include <platform_def.h>
 
 static struct transfer_list_header *tl_hdr;
+static struct transfer_list_header *ns_tl_hdr;
 static int32_t tl_ops_holder;
 
 struct xfer_list_region {
@@ -27,6 +28,7 @@ struct xfer_list_region {
 
 /* Secure and Non-Secure transfer list region */
 static struct xfer_list_region secure_tl_region = {0};
+static struct xfer_list_region ns_tl_region = {0};
 
 static int32_t map_xfer_list_region(struct xfer_list_region *region, uint32_t attr)
 {
@@ -300,4 +302,178 @@ void *transfer_list_retrieve_dt_address(void)
 	}
 
 	return dtb;
+}
+
+int32_t tl_init_ns_transfer_list(entry_point_info_t *bl33_image)
+{
+	struct transfer_list_entry *ns_te = NULL;
+	struct transfer_list_entry *te = NULL;
+	int32_t ret = 0;
+	int32_t map_ret;
+
+	/* Initialize non-secure transfer list region structure */
+	ns_tl_region.base = NS_FW_HANDOFF_BASE;
+	/* Reusing max secure TL size for the NS region */
+	ns_tl_region.size = FW_HANDOFF_SIZE;
+	ns_tl_region.is_mapped = false;
+
+	if (bl33_image == NULL) {
+		WARN("BL33 image info is NULL\n");
+		ret = -1;
+		goto out;
+	}
+
+	if (!secure_tl_region.is_mapped) {
+		WARN("Secure TL region is not mapped\n");
+		ret = -1;
+		goto out;
+	}
+
+	/* Map non-secure TL range */
+	map_ret = map_xfer_list_region(&ns_tl_region, MT_MEMORY | MT_RW | MT_NS);
+	if (map_ret != 0) {
+		WARN("Failed to map non-secure TL region\n");
+		ret = -1;
+		goto out;
+	}
+
+	/*
+	 * Placeholder non-secure transfer list to be updated at runtime setup.
+	 * next_image_entry runs prior to runtime setup where in non-secure args
+	 * are updated. In order to account for valid non-secure TL entries, DT only
+	 * transfer list is created.
+	 */
+	ns_tl_hdr = transfer_list_init((void *)(NS_FW_HANDOFF_BASE), FW_HANDOFF_SIZE);
+	if (ns_tl_hdr == NULL) {
+		WARN("Non-secure transfer list initialization failed\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	te = transfer_list_find(tl_hdr, TL_TAG_FDT);
+	if (te == NULL) {
+		WARN("Secure transfer list DT not found\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	ns_te = transfer_list_add(ns_tl_hdr, TL_TAG_FDT, te->data_size,
+			transfer_list_entry_data(te));
+	if (ns_te == NULL) {
+		WARN("Failed to add DT to non-secure transfer list\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	/*
+	 * Populate the args expected by BL33,
+	 * arg0 - dt address,
+	 * arg1 - Xfer List Convention Version,
+	 * arg2 - reserved/0,
+	 * arg3 - Xfer List address
+	 * remaining args are set to 0.
+	 */
+	if (transfer_list_set_handoff_args(ns_tl_hdr, bl33_image) == NULL) {
+		ret = -1;
+		WARN("Failed to update handoff args based on non-secure TL\n");
+	}
+
+	goto out;
+
+unmap_tl:
+	/* Unmap non-secure transfer list region on failure */
+	map_ret = unmap_xfer_list_region(&ns_tl_region);
+	if (map_ret != 0) {
+		WARN("Failed to unmap non-secure TL on failure\n");
+	}
+
+out:
+	return ret;
+}
+
+int32_t tl_populate_ns_transfer_list(void)
+{
+	struct transfer_list_entry *ns_te = NULL;
+	struct transfer_list_entry *te = NULL;
+	int32_t map_ret;
+	int32_t ret = 0;
+
+	/* Check if secure and non-secure TL regions are mapped */
+	if (!secure_tl_region.is_mapped || !ns_tl_region.is_mapped) {
+		ERROR("Secure or NS TL region is not mapped\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	/* Invalidate cache to get updated tl post bl32 updates it */
+	inv_dcache_range((uintptr_t)tl_hdr, tl_hdr->max_size);
+
+#if defined(SPD_opteed) || defined(SPD_spmd)
+	/*
+	 * Find the post-BL32 DT in the secure TL and update the NS TL DT
+	 * entry placed at init time.
+	 */
+	te = transfer_list_find(tl_hdr, TL_TAG_FDT);
+	if (te == NULL) {
+		WARN("Transfer list DT not found\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	ns_te = transfer_list_find(ns_tl_hdr, TL_TAG_FDT);
+	if (ns_te == NULL) {
+		WARN("NS transfer list DT entry not found\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	if (!transfer_list_set_data_size(ns_tl_hdr, ns_te, te->data_size)) {
+		WARN("Failed to resize DT entry in NS TL\n");
+		ret = -1;
+		goto unmap_tl;
+	}
+
+	(void)memcpy(transfer_list_entry_data(ns_te),
+		     transfer_list_entry_data(te), te->data_size);
+
+	/* Update NS TL header and checksum */
+	transfer_list_update_checksum(ns_tl_hdr);
+
+	/* Restart iteration from the beginning of TL entries */
+	te = NULL;
+
+#endif /* SPD_opteed || SPD_spmd */
+
+	/* Copy non-DT entries from secure TL to non-secure TL */
+	while ((te = transfer_list_next(tl_hdr, te)) != NULL) {
+		if ((te->tag_id != TL_TAG_FDT) && (te->tag_id != TL_TAG_EMPTY)) {
+			ns_te = transfer_list_add(ns_tl_hdr, te->tag_id, te->data_size,
+					transfer_list_entry_data(te));
+			if (ns_te == NULL) {
+				WARN("Failed to add overlay to ns TL\n");
+				ret = -1;
+				goto unmap_tl;
+			}
+		}
+	}
+
+	transfer_list_update_checksum(ns_tl_hdr);
+
+	/* Flush NS TL to memory so BL33 in normal world sees the data */
+	flush_dcache_range((uintptr_t)ns_tl_hdr, ns_tl_hdr->size);
+
+unmap_tl:
+	/* unmap non-secure TL region */
+	map_ret = unmap_xfer_list_region(&ns_tl_region);
+	if (map_ret != 0) {
+		WARN("Failed to unmap non-secure TL region\n");
+	}
+
+	/* unmapping secure TL region */
+	map_ret = unmap_xfer_list_region(&secure_tl_region);
+	if (map_ret != 0) {
+		WARN("Failed to unmap secure TL region\n");
+	}
+
+	return ret;
 }
