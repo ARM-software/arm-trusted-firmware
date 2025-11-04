@@ -471,15 +471,21 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     include ${MEASURED_BOOT_MK}
 
     ifeq (${MEASURED_BOOT},1)
-         BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
-         BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
+        BL1_LIBS += $(LIBEVLOG_LIBS)
+        BL1_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
+
+        BL2_LIBS += $(LIBEVLOG_LIBS)
+        BL2_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
+
          ifeq (${SPD_tspd},1)
-             BL32_SOURCES		+= 	${EVENT_LOG_SOURCES}
+            BL32_LIBS += $(LIBEVLOG_LIBS)
+            BL32_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
          endif
     endif
 
     ifeq (${DRTM_SUPPORT},1)
-         BL31_SOURCES	        += 	${EVENT_LOG_SOURCES}
+        BL31_LIBS += $(LIBEVLOG_LIBS)
+        BL31_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
     endif
 endif
 

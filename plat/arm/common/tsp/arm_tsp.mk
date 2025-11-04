@@ -12,6 +12,7 @@ BL32_SOURCES		+=	plat/arm/common/arm_topology.c			\
 ifeq (${TRANSFER_LIST},1)
 BL32_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
 ifeq (${MEASURED_BOOT},1)
-BL32_SOURCES	+=	$(EVENT_LOG_SOURCES)
+        BL32_LIBS += $(LIBEVLOG_LIBS)
+        BL32_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 endif
 endif

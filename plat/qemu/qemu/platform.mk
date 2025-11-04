@@ -95,8 +95,10 @@ ifeq (${MEASURED_BOOT},1)
     include ${MEASURED_BOOT_MK}
 
     BL2_SOURCES		+=	plat/qemu/qemu/qemu_measured_boot.c	\
-				plat/qemu/qemu/qemu_helpers.c		\
-				${EVENT_LOG_SOURCES}
+				plat/qemu/qemu/qemu_helpers.c
+
+    BL2_LIBS += $(LIBEVLOG_LIBS)
+    BL2_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 
      BL1_SOURCES	+=      plat/qemu/qemu/qemu_bl1_measured_boot.c
 
