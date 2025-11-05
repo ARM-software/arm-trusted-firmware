@@ -23,6 +23,7 @@
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
+#define CORTEX_A76AE_CPUACTLR_EL1	S3_0_C15_C1_0
 #define CORTEX_A76AE_CPUACTLR2_EL1	S3_0_C15_C1_1
 
 /* Definitions of register field mask in CORTEX_A76AE_CPUPWRCTLR_EL1 */
