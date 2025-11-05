@@ -35,6 +35,12 @@ workaround_reset_end cortex_a76ae, ERRATUM(1931427)
 
 check_erratum_ls cortex_a76ae, ERRATUM(1931427), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a76ae, ERRATUM(1931435), ERRATA_A76AE_1931435
+	sysreg_bit_set CORTEX_A76AE_CPUACTLR_EL1, BIT(13)
+workaround_reset_end cortex_a76ae, ERRATUM(1931435)
+
+check_erratum_ls cortex_a76ae, ERRATUM(1931435), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
