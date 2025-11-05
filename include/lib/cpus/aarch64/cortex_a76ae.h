@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,11 @@
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
 #define CORTEX_A76AE_CPUPWRCTLR_EL1	S3_0_C15_C2_7
+
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A76AE_CPUACTLR2_EL1	S3_0_C15_C1_1
 
 /* Definitions of register field mask in CORTEX_A76AE_CPUPWRCTLR_EL1 */
 #define CORTEX_A76AE_CORE_PWRDN_EN_MASK	U(0x1)
