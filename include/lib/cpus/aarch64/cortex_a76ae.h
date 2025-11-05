@@ -26,6 +26,14 @@
 #define CORTEX_A76AE_CPUACTLR_EL1	S3_0_C15_C1_0
 #define CORTEX_A76AE_CPUACTLR2_EL1	S3_0_C15_C1_1
 
+/*******************************************************************************
+ * CPU Private Control register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A76AE_CPUPSELR_EL3	S3_6_c15_c8_0
+#define CORTEX_A76AE_CPUPCR_EL3		S3_6_c15_c8_1
+#define CORTEX_A76AE_CPUPOR_EL3		S3_6_c15_c8_2
+#define CORTEX_A76AE_CPUPMR_EL3		S3_6_c15_c8_3
+
 /* Definitions of register field mask in CORTEX_A76AE_CPUPWRCTLR_EL1 */
 #define CORTEX_A76AE_CORE_PWRDN_EN_MASK	U(0x1)
 
