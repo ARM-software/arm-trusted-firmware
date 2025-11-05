@@ -41,6 +41,37 @@ workaround_reset_end cortex_a76ae, ERRATUM(1931435)
 
 check_erratum_ls cortex_a76ae, ERRATUM(1931435), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a76ae, ERRATUM(1969401), ERRATA_A76AE_1969401
+	ldr x0,=0x3
+	msr CORTEX_A76AE_CPUPSELR_EL3,x0
+	ldr x0,=0x10E3900002
+	msr CORTEX_A76AE_CPUPOR_EL3,x0
+	ldr x0,=0x10FFF00083
+	msr CORTEX_A76AE_CPUPMR_EL3,x0
+	ldr x0,=0x2001003FF
+	msr CORTEX_A76AE_CPUPCR_EL3,x0
+
+	ldr x0,=0x4
+	msr CORTEX_A76AE_CPUPSELR_EL3,x0
+	ldr x0,=0x10E3800082
+	msr CORTEX_A76AE_CPUPOR_EL3,x0
+	ldr x0,= 0x10FFF00083
+	msr CORTEX_A76AE_CPUPMR_EL3,x0
+	ldr x0,=0x2001003FF
+	msr CORTEX_A76AE_CPUPCR_EL3,x0
+
+	ldr x0,=0x5
+	msr CORTEX_A76AE_CPUPSELR_EL3,x0
+	ldr x0,=0x10E3800200
+	msr CORTEX_A76AE_CPUPOR_EL3,x0
+	ldr x0,=0x10FFF003E0
+	msr CORTEX_A76AE_CPUPMR_EL3,x0
+	ldr x0,=0x2001003FF
+	msr CORTEX_A76AE_CPUPCR_EL3,x0
+workaround_reset_end cortex_a76ae, ERRATUM(1969401)
+
+check_erratum_ls cortex_a76ae, ERRATUM(1969401), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
