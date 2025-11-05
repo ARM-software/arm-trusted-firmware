@@ -81,10 +81,17 @@ void pmuv3_enable(cpu_context_t *ctx)
 	 *
 	 * MDCR_EL3.TPM: Set to zero so that EL0, EL1, and EL2 System register
 	 *  accesses to all Performance Monitors registers do not trap to EL3.
+	 *
+	 * MDCR_EL3.PMEE set to 0b01 to delegate PMU IRQ and Profiling exception
+	 * control to MDCR_EL2, to allow lower ELs own this policy.
 	 */
 	mdcr_el3_val |= MDCR_SCCD_BIT | MDCR_MCCD_BIT | MDCR_EnPM2_BIT;
 	mdcr_el3_val &=	~(MDCR_MPMX_BIT | MDCR_SPME_BIT | MDCR_TPM_BIT);
 	mdcr_el3_val = mtpmu_disable_el3(mdcr_el3_val);
+
+	if (is_feat_ebep_supported()) {
+		mdcr_el3_val |= MDCR_PMEE(MDCR_PMEE_CTRL_EL2);
+	}
 
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }

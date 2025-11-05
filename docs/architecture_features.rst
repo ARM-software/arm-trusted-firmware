@@ -2,11 +2,12 @@ Architecture Features
 =====================
 
 The Arm architecture evolves through versioning, with new architectural features being introduced
-almost every year listed in `Feature_description`_. While most of these features require no control at EL3, some demand explicit
-configuration of EL3 control registers to enable their use at lower Exception Levels. For features
-with EL3 controls, it is relatively straightforward to examine the code and determine whether TF-A
-supports them. However, for features that are transparent to EL3, it is more challenging to confirm
-whether they have been analyzed and verified as not requiring changes in TF-A.
+almost every year listed in `Feature_description`_. While most of these features require no control
+at EL3, some demand explicit configuration of EL3 control registers to enable their use at lower
+Exception Levels. For features with EL3 controls, it is relatively straightforward to examine the
+code and determine whether TF-A support them. However, for features that are transparent to EL3, it
+is more challenging to confirm whether they have been analyzed and verified as not requiring changes
+in TF-A.
 
 This document serves as a central reference point to track and clarify the support status of
 architectural features within TF-A.
@@ -263,7 +264,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +--------------------------+--------+
 | FEAT_SPECRES2            |        |
 +--------------------------+--------+
-| FEAT_CLRBHB              |        |
+| FEAT_CLRBHB              |   Ok   |
 +--------------------------+--------+
 | FEAT_ECBHB               |   NA   |
 +--------------------------+--------+
@@ -305,7 +306,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +--------------------------+--------+
 | FEAT_SPE_CRR             |        |
 +--------------------------+--------+
-| FEAT_EBEP                |   WIP  |
+| FEAT_EBEP                |   OK   |
 +--------------------------+--------+
 | FEAT_SEBEP               |   OK   |
 +--------------------------+--------+

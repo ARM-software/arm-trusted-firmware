@@ -288,6 +288,12 @@ static unsigned int read_feat_gcie_id_field(void)
 			     ID_AA64PFR2_EL1_GCIE_MASK);
 }
 
+static unsigned int read_feat_ebep_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64dfr1_el1(), ID_AA64DFR1_EBEP_SHIFT,
+			     ID_AA64DFR1_EBEP_MASK);
+}
+
 static unsigned int read_feat_fpmr_id_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64pfr2_el1(), ID_AA64PFR2_EL1_FPMR_SHIFT,
@@ -482,6 +488,8 @@ void detect_arch_features(unsigned int core_pos)
 	tainted |= check_feature(ENABLE_FEAT_MPAM_PE_BW_CTRL,
 				is_feat_mpam_pe_bw_ctrl_present(),
 				"MPAM_PE_BW_CTRL", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_EBEP, read_feat_ebep_id_field(),
+				 "EBEP", 1, 1);
 
 	/* v9.4 features */
 	tainted |= check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(),

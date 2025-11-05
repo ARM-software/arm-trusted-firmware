@@ -312,6 +312,12 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 #define MDCR_DEBUGV8P9 (0)
 #endif
 
+#if ENABLE_FEAT_EBEP
+#define MDCR_FEAT_EBEP MDCR_PMEE(MDCR_PMEE_CTRL_EL2)
+#else
+#define MDCR_FEAT_EBEP (0)
+#endif
+
 #define MDCR_EL3_FEATS (							\
 	MDCR_DEBUGV8P9		|						\
 	MDCR_FEAT_BRBE		|						\
@@ -319,6 +325,7 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 	MDCR_FEAT_TRBE		|						\
 	MDCR_FEAT_TRF		|						\
 	MDCR_FEAT_SPE		|						\
+	MDCR_FEAT_EBEP		|						\
 	MDCR_TDOSA_BIT		|						\
 	MDCR_TDA_BIT		|						\
 	MDCR_EnPM2_BIT		|						\

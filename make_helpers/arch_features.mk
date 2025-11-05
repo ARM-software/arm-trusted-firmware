@@ -444,6 +444,9 @@ ENABLE_FEAT_GCIE			?=	0
 # Enables access to PE-side MPAM bandwidth controls (FEAT_MPAM_PE_BW_CTRL)
 ENABLE_FEAT_MPAM_PE_BW_CTRL		?=	0
 
+# Flag to enable Exception-based Event Profiling (FEAT_EBEP)
+ENABLE_FEAT_EBEP			?=	0
+
 #----
 #9.4
 #----
