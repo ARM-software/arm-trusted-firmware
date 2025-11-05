@@ -286,6 +286,10 @@ CPU_FLAG_LIST += ERRATA_A76AE_1931435
 # in r1p1.
 CPU_FLAG_LIST += ERRATA_A76AE_1969401
 
+# Flag to apply erratum 2371140 workaround during powerdown. This erratum
+# applies to all revisions <= r1p1 of the Cortex A76AE cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A76AE_2371140
+
 # Flag to apply erratum 1508412 workaround during reset. This erratum applies
 # only to revision <= r1p0 of the Cortex A77 cpu.
 CPU_FLAG_LIST += ERRATA_A77_1508412
