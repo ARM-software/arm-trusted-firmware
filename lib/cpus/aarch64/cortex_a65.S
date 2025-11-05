@@ -46,6 +46,11 @@ workaround_reset_end cortex_a65, ERRATUM(1227419)
 
 check_erratum_ls cortex_a65, ERRATUM(1227419), CPU_REV(1, 0)
 
+/* Due to the nature of the errata it is applied unconditionally when chosen */
+check_erratum_chosen cortex_a65, ERRATUM(1541130), ERRATA_A65_1541130
+/* erratum workaround is interleaved with generic code */
+add_erratum_entry cortex_a65, ERRATUM(1541130), ERRATA_A65_1541130
+
 cpu_reset_func_start cortex_a65
 cpu_reset_func_end cortex_a65
 
