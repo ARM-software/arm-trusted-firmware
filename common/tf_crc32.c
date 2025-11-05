@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,10 +13,9 @@
 
 /* compute CRC using Arm intrinsic function
  *
- * This function is useful for the platforms with the CPU ARMv8.0
- * (with CRC instructions supported), and onwards.
- * Platforms with CPU ARMv8.0 should make sure to add a compile switch
- * '-march=armv8-a+crc" for successful compilation of this file.
+ * This function is useful for platforms with FEAT_CRC32 (mandatory from v8.1)
+ * Platforms with CPU ARMv8.0 should make sure to add a make switch
+ * `ARM_ARCH_FEATURE := crc` for successful compilation of this file.
  *
  * @crc: previous accumulated CRC
  * @buf: buffer base address

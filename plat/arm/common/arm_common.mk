@@ -213,15 +213,6 @@ ifeq (${ARM_GPT_SUPPORT}, 1)
 			drivers/partition/partition.c
 endif
 
-# Enable CRC instructions via extension for ARMv8-A CPUs.
-# For ARMv8.1-A, and onwards CRC instructions are default enabled.
-# Enable HW computed CRC support unconditionally in BL2 component.
-ifeq (${ARM_ARCH_MAJOR},8)
-    ifeq (${ARM_ARCH_MINOR},0)
-        BL2_CPPFLAGS += -march=armv8-a+crc
-    endif
-endif
-
 ifeq ($(PSA_FWU_SUPPORT),1)
     # GPT support is recommended as per PSA FWU specification hence
     # PSA FWU implementation is tightly coupled with GPT support,

@@ -2768,7 +2768,8 @@ These build options serve dual purpose
   this will try to come up with an appropriate -march value to be passed to compiler
   by probing the compiler and checking what's supported by the compiler and what's best
   that can be used. But if platform provides a ``MARCH_DIRECTIVE`` then it will used
-  directly and compiler probing will be skipped.
+  directly and compiler probing will be skipped. Use ``ARM_ARCH_FEATURE`` to provide a
+  list of optional features that can be relied upon.
 
 The build system requires that the platform provides a valid numeric value based on
 CPU architecture extension, otherwise it defaults to base Armv8.0-A architecture.

@@ -36,6 +36,13 @@ USE_KERNEL_DT_CONVENTION	:= 1
 # By default dont build CPUs with no FVP model.
 BUILD_CPUS_WITH_NO_FVP_MODEL	?= 0
 
+# Enable CRC instructions via extension for ARMv8-A CPUs.
+# For ARMv8.1-A, and onwards CRC instructions are default enabled.
+ifeq (${ARM_ARCH_MAJOR},8)
+ifeq (${ARM_ARCH_MINOR},0)
+      ARM_ARCH_FEATURE		:= crc
+endif
+endif
 ENABLE_FEAT_AMU			:= 2
 ENABLE_FEAT_AMUv1p1		:= 2
 ENABLE_FEAT_HCX			:= 2

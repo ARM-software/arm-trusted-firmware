@@ -81,7 +81,7 @@ BL2_SOURCES += \
 	drivers/partition/partition.c \
 	lib/cpus/aarch64/cortex_a53.S \
 
-BL2_CPPFLAGS += -march=armv8-a+crc
+ARM_ARCH_FEATURE := crc
 
 BL31_SOURCES += \
 	${GICV3_SOURCES} \
