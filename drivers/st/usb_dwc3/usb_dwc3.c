@@ -695,7 +695,7 @@ static enum usb_status dwc3_execute_dep_cmd(dwc3_handle_t *dwc3_handle, uint8_t 
 
 		/* Can be called from interrupt context hence cannot wait for Tick */
 		if (timeout_elapsed(timeout)) {
-			ERROR("TIMEOUT Command Complete --> %u PHYEP%lu %x\n",
+			ERROR("TIMEOUT Command Complete --> %u PHYEP%u %x\n",
 				   DWC3_DEPCMD_STATUS(reg), phy_epnum, reg);
 			/* "Command Timed Out" */
 			return USBD_TIMEOUT;
@@ -1523,6 +1523,7 @@ static uint8_t dwc3_read_dev_evt_type(uint32_t event)
 	return ret;
 }
 
+#if (USB_DWC3_NUM_IN_EP > 1) || (USB_DWC3_NUM_OUT_EP > 1)
 static enum usb_status dwc3_ep_clear_stall(dwc3_handle_t *dwc3_handle, usb_dwc3_endpoint_t *dwc3_ep)
 {
 	dwc3_epcmd_params_t params;
@@ -1532,6 +1533,7 @@ static enum usb_status dwc3_ep_clear_stall(dwc3_handle_t *dwc3_handle, usb_dwc3_
 	return dwc3_execute_dep_cmd(dwc3_handle, dwc3_ep->phy_epnum, USB_DWC3_DEPCMD_CLEARSTALL,
 				    &params);
 }
+#endif
 
 static uint8_t dwc3_get_dev_speed(dwc3_handle_t *dwc3_handle)
 {
@@ -1672,7 +1674,6 @@ static enum usb_action dwc3_handle_dev_event(dwc3_handle_t *dwc3_handle, uint32_
 	enum usb_action action = USB_NOTHING;
 	uint8_t type = dwc3_read_dev_evt_type(event);
 	uint8_t i, speed;
-	usb_dwc3_endpoint_t *ep;
 	enum usb_status ret;
 	uint32_t ep0_mps = USB3_MAX_PACKET_SIZE;
 
@@ -1713,15 +1714,18 @@ static enum usb_action dwc3_handle_dev_event(dwc3_handle_t *dwc3_handle, uint32_
 					      &dwc3_handle->pcd_handle->in_ep[i]);
 		}
 
+#if USB_DWC3_NUM_OUT_EP > 1
 		/* Stop transfers for all EP except EP0OUT k = USB_DWC3_NUM_OUT_EP */
 		for (i = 1; i < USB_DWC3_NUM_OUT_EP; i++) {
 			dwc3_ep_stop_xfer(dwc3_handle,
 					      &dwc3_handle->pcd_handle->out_ep[i]);
 		}
+#endif
 
+#if USB_DWC3_NUM_IN_EP > 1
 		/* Clear Stall for all EP except EP0IN k = USB_DWC3_NUM_IN_EP */
 		for (i = 1; i < USB_DWC3_NUM_IN_EP; i++) {
-			ep = &dwc3_handle->IN_ep[i];
+			usb_dwc3_endpoint_t *ep = &dwc3_handle->IN_ep[i];
 
 			if (!ep->is_stall) {
 				continue;
@@ -1735,10 +1739,12 @@ static enum usb_action dwc3_handle_dev_event(dwc3_handle_t *dwc3_handle, uint32_
 				return action;
 			}
 		}
+#endif
 
+#if USB_DWC3_NUM_OUT_EP > 1
 		/* Clear Stall for all EP except EP0OUT k = USB_DWC3_NUM_OUT_EP */
 		for (i = 1; i < USB_DWC3_NUM_OUT_EP; i++) {
-			ep = &dwc3_handle->OUT_ep[i];
+			usb_dwc3_endpoint_t *ep = &dwc3_handle->OUT_ep[i];
 
 			if (!ep->is_stall) {
 				continue;
@@ -1754,6 +1760,7 @@ static enum usb_action dwc3_handle_dev_event(dwc3_handle_t *dwc3_handle, uint32_
 				return action;
 			}
 		}
+#endif
 
 		/* Reset device address to zero */
 		ret = usb_dwc3_set_address(dwc3_handle, 0);
@@ -2338,7 +2345,11 @@ void usb_dwc3_init_driver(struct usb_handle *usb_core_handle, struct pcd_handle 
 		 * OUT Endpoint X maps to Physical Endpoint 2*X.
 		 * So USB endpoint 0x81 is 0x03.
 		 */
+#if USB_DWC3_NUM_IN_EP > 1
 		dwc3_handle->IN_ep[i].phy_epnum = __HAL_PCD_EPADDR_TO_PHYEPNUM(i | EP_DIR_IN);
+#else
+		dwc3_handle->IN_ep[i].phy_epnum = 1U;
+#endif
 
 		dwc3_handle->IN_ep[i].intr_num = PCD_DEV_EVENTS_INTR;
 	}
