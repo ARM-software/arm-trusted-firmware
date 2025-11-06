@@ -7,6 +7,8 @@
 #ifndef PLATFORM_TSP_H
 #define PLATFORM_TSP_H
 
+#include <stdint.h>
+
 /*******************************************************************************
  * Mandatory TSP functions (only if platform contains a TSP)
  ******************************************************************************/
