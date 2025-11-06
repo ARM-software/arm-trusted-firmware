@@ -12,6 +12,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/qti/accesscontrol/xpu.h>
 #include <lib/bl_aux_params/bl_aux_params.h>
 #include <lib/coreboot.h>
 #include <lib/spinlock.h>
@@ -22,18 +23,15 @@
 #include <qti_uart_console.h>
 #include <qtiseclib_interface.h>
 
-/*
- * Placeholder variables for copying the arguments that have been passed to
- * BL31 from BL2.
- */
-static entry_point_info_t bl33_image_ep_info;
+/* Variable to hold QTI UART configuration */
+static console_t g_qti_console_uart;
 
 /*
- * Variable to hold counter frequency for the CPU's generic timer. In this
- * platform coreboot image configure counter frequency for boot core before
- * reaching TF-A.
+ * Placeholder variables for copying the BL32 and Bl33 arguments that have been
+ * passed to BL31 from BL2.
  */
-static uint64_t g_qti_cpu_cntfrq;
+static entry_point_info_t bl32_image_ep_info;
+static entry_point_info_t bl33_image_ep_info;
 
 /*
  * Variable to hold bl31 cold boot status. Default value 0x0 means yet to boot.
@@ -52,25 +50,16 @@ uint32_t g_qti_bl31_cold_booted;
 void bl31_early_platform_setup(u_register_t from_bl2,
 			       u_register_t plat_params_from_bl2)
 {
-
-	g_qti_cpu_cntfrq = read_cntfrq_el0();
-
 	bl_aux_params_parse(plat_params_from_bl2, NULL);
 
-#if COREBOOT
-	if (coreboot_serial.baseaddr != 0) {
-		static console_t g_qti_console_uart;
-
-		qti_console_uart_register(&g_qti_console_uart,
-					  coreboot_serial.baseaddr);
-	}
-#endif
-
+	qti_console_uart_register(&g_qti_console_uart, PLAT_QTI_UART_BASE);
+	console_set_scope(&g_qti_console_uart, CONSOLE_FLAG_RUNTIME |
+			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH);
 	/*
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
-	bl31_params_parse_helper(from_bl2, NULL, &bl33_image_ep_info);
+	bl31_params_parse_helper(from_bl2, &bl32_image_ep_info, &bl33_image_ep_info);
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
@@ -101,11 +90,15 @@ void bl31_plat_arch_setup(void)
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+#ifdef QTI_MSM_XPU_BYPASS
+	INFO("Bypassing QTI MSM XPU...\n");
+	qti_msm_xpu_bypass();
+#endif
 	generic_delay_timer_init();
 	/* Initialize the GIC driver, CPU and distributor interfaces */
 	plat_qti_gic_driver_init();
 	plat_qti_gic_init();
-	qti_interrupt_svc_init();
+	qti_interrupt_svc_init(bl32_image_ep_info.pc != 0);
 	qtiseclib_bl31_platform_setup();
 
 	/* set boot state to cold boot complete. */
@@ -120,19 +113,12 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
-	/* QTI platform don't have BL32 implementation. */
-	assert(type == NON_SECURE);
-	assert(bl33_image_ep_info.h.type == PARAM_EP);
-	assert(bl33_image_ep_info.h.attr == NON_SECURE);
-	/*
-	 * None of the images on the platforms can have 0x0
-	 * as the entrypoint.
-	 */
-	if (bl33_image_ep_info.pc) {
-		return &bl33_image_ep_info;
-	} else {
-		return NULL;
-	}
+	entry_point_info_t *ep;
+
+	assert(sec_state_is_valid(type) != 0);
+	ep = (type == SECURE) ? &bl32_image_ep_info : &bl33_image_ep_info;
+
+	return ep->pc ? ep : NULL;
 }
 
 /*******************************************************************************
@@ -145,6 +131,5 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  ******************************************************************************/
 unsigned int plat_get_syscnt_freq2(void)
 {
-	assert(g_qti_cpu_cntfrq != 0);
-	return g_qti_cpu_cntfrq;
+	return PLAT_SYSCNT_FREQ;
 }

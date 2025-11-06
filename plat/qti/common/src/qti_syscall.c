@@ -139,6 +139,7 @@ bool qti_mem_assign_validate_param(memprot_info_t *mem_info,
 			      (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
+#if COREBOOT == 1
 		coreboot_memory_t mem_type = coreboot_get_memory_type(
 						mem_info[i].mem_addr,
 						mem_info[i].mem_size);
@@ -148,6 +149,7 @@ bool qti_mem_assign_validate_param(memprot_info_t *mem_info,
 			     (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
+#endif
 	}
 	for (i = 0; i < src_vm_list_cnt; i++) {
 		if (source_vm_list[i] >= QTI_VM_LAST) {

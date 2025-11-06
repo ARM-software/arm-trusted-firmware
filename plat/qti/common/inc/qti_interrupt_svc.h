@@ -7,6 +7,6 @@
 #ifndef QTI_INTERRUPT_SVC_H
 #define QTI_INTERRUPT_SVC_H
 
-int qti_interrupt_svc_init(void);
+int qti_interrupt_svc_init(bool have_sel1);
 
 #endif /* QTI_INTERRUPT_SVC_H */

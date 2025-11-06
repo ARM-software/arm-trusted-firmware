@@ -531,14 +531,21 @@ subsections:
             deprecated:
               - plat/qti/sc7180
 
-          - title: SC7280
-            scope: sc7280
+          - title: SC7280 Chrome
+            scope: sc7280_chrome
 
             deprecated:
               - plat/qti/sc7280
+              - sc7280
 
           - title: MSM8916
             scope: msm8916
+
+          - title: Kodiak
+            scope: kodiak
+
+          - title: RB3Gen2
+            scope: rb3gen2
 
       - title: Raspberry Pi
         scope: rpi

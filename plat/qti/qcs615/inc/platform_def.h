@@ -8,9 +8,6 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-/* Enable the dynamic translation tables library. */
-#define PLAT_XLAT_TABLES_DYNAMIC 1
-
 #include <common_def.h>
 
 #include <qti_board_def.h>
@@ -143,6 +140,7 @@
 /*----------------------------------------------------------------------------*/
 /* UART related constants. */
 /*----------------------------------------------------------------------------*/
+#define PLAT_QTI_UART_BASE	0x880000
 /* BASE ADDRESS OF DIFFERENT REGISTER SPACES IN HW */
 #define GENI4_CFG          0x0
 #define GENI4_IMAGE_REGS   0x100
@@ -158,6 +156,11 @@
 #define GENI_TX_FIFOn_REG                    (GENI4_DATA + 0x00000100)
 
 #define GENI_M_CMD_TX                        (0x08000000)
+
+/*----------------------------------------------------------------------------*/
+/* Peripherals base addresses */
+/*----------------------------------------------------------------------------*/
+#define QTI_SEC_PRNG_BASE			0x790000
 
 /*----------------------------------------------------------------------------*/
 /* Device address space for mapping. Excluding starting 4K */
