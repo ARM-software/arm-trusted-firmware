@@ -1,0 +1,14 @@
+/*
+ * Copyright 2025 NXP
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef PLAT_DEF_FIP_UUID_H
+#define PLAT_DEF_FIP_UUID_H
+
+#define UUID_DDR_FW \
+	{{0xa2, 0x64, 0x7b, 0x40}, {0xcd, 0xba}, {0x11, 0xef}, 0x9b, 0x1c, \
+	{0x8b, 0x9e, 0x0c, 0x40, 0x25, 0x6f} }
+
+#endif	/*	PLAT_DEF_FIP_UUID_H	*/
