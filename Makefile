@@ -328,6 +328,9 @@ endif
 ################################################################################
 # FEAT_RME
 ifeq (${ENABLE_RME},1)
+	# RMM relies on SMCCC_ARCH_FEATURE_AVAILABILITY to discover EL3 enablement
+	ARCH_FEATURE_AVAILABILITY := 1
+
 	# RME requires el2 context to be saved for now.
 	CTX_INCLUDE_EL2_REGS := 1
 	CTX_INCLUDE_AARCH32_REGS := 0
