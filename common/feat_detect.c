@@ -325,6 +325,13 @@ static unsigned int read_feat_clrbhb_id_field(void)
 			     ID_AA64ISAR2_CLRBHB_MASK);
 }
 
+static unsigned int read_feat_rme_gdi_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr4_el1(),
+			     ID_AA64MMFR4_EL1_RME_GDI_SHIFT,
+			     ID_AA64MMFR4_EL1_RME_GDI_MASK);
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -495,13 +502,15 @@ void detect_arch_features(unsigned int core_pos)
 	tainted |= check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(),
 				 "GCS", 1, 1);
 	tainted |= check_feature(ENABLE_RME, read_feat_rme_id_field(),
-				 "RME", 1, 1);
+				 "RME", 1, 2);
 	tainted |= check_feature(ENABLE_FEAT_PAUTH_LR, is_feat_pauth_lr_present(),
 				 "PAUTH_LR", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_FGWTE3, read_feat_fgwte3_id_field(),
 				 "FGWTE3", 1, 1);
 	tainted |= check_feature(ENABLE_FEAT_CPA2, read_feat_cpa_id_field(),
 				 "CPA2", 2, 2);
+	tainted |= check_feature(ENABLE_FEAT_RME_GDI, read_feat_rme_gdi_id_field(),
+				 "RME_GDI", 1, 1);
 
 	if (tainted) {
 		panic();

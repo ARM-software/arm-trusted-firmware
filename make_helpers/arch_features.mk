@@ -451,6 +451,9 @@ ENABLE_FEAT_EBEP			?=	0
 #9.4
 #----
 
+# Flag to enable FEAT_RME_GDI
+ENABLE_FEAT_RME_GDI			?=	0
+
 # Flag to enable access to Guarded Control Stack (FEAT_GCS).
 ENABLE_FEAT_GCS				?=	0
 
