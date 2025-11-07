@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,8 +15,25 @@
 #define SPMD_PARTITION_PROPERTIES FFA_PARTITION_DIRECT_REQ_SEND
 
 #define SPMD_LP_MAX_SUPPORTED_SP 10
+
 static void fvp_get_partition_info(void)
 {
+	/*
+	 * This helper invokes FFA_PARTITION_INFO_GET_REGS to obtain partition
+	 * properties of Secure Partitions managed by SPMC. This happens even
+	 * before the normal world is booted. Hafnium SPMC mistakes this as a
+	 * FF-A invocation from NWd. As per FF-A version negotiation protocol,
+	 * Hafnium locks the version of NWd to v1.3 whereas the NWd never got
+	 * an opportunity to register its own framework version.
+	 *
+	 * This patch performs early exit from the helper utility to give NWd
+	 * endpoint/Hypervisor an opportunity to register its FF-A version with
+	 * SPM.
+	 *
+	 * TODO: Integrate this helper function for a new anticipated feature.
+	 */
+	return;
+
 	struct ffa_value ret = { 0 };
 	uint32_t target_uuid[4] = { 0 };
 	static struct ffa_partition_info_v1_1
