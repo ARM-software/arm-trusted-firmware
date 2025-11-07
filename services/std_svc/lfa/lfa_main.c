@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include <lib/spinlock.h>
 #include <plat/common/platform.h>
 #include <services/bl31_lfa.h>
 #include <services/lfa_svc.h>
@@ -18,6 +19,14 @@ static uint32_t lfa_component_count;
 static plat_lfa_component_info_t *lfa_components;
 static struct lfa_component_status current_activation;
 static bool is_lfa_initialized;
+
+/*
+ * Spinlock to serialize LFA operations (PRIME, ACTIVATE).
+ * This ensures that these calls from different CPUs are properly
+ * serialized and do not execute concurrently, while still allowing
+ * the same operation to be invoked from any CPU.
+ */
+static spinlock_t lfa_lock;
 
 void lfa_reset_activation(void)
 {
@@ -193,29 +202,37 @@ static int lfa_prime(uint32_t component_id, uint64_t *flags)
 		break;
 	}
 
-	ret = plat_lfa_load_auth_image(component_id);
-	if (ret != 0) {
-		return convert_to_lfa_error(ret);
-	}
-
-	activator = lfa_components[component_id].activator;
-	if (activator->prime != NULL) {
-		ret = activator->prime(&current_activation);
-		if (ret != LFA_SUCCESS) {
-			/*
-			 * TODO: it should be LFA_PRIME_FAILED but specification
-			 * has not define this error yet
-			 */
-			return ret;
-		}
-	}
-
-	current_activation.prime_status = PRIME_COMPLETE;
-
-	/* TODO: split this into multiple PRIME calls */
+	/* Initialise the flags to start with. Only valid if ret=LFA_SUCCESS. */
 	*flags = 0ULL;
 
-	return ret;
+	ret = plat_lfa_load_auth_image(component_id);
+	if (ret == 0) {
+		activator = lfa_components[component_id].activator;
+		if (activator->prime != NULL) {
+			ret = activator->prime(&current_activation);
+			if (ret != LFA_SUCCESS) {
+				/*
+				* TODO: it should be LFA_PRIME_FAILED but specification
+				* has not define this error yet
+				*/
+				return ret;
+			}
+		}
+
+		current_activation.prime_status = PRIME_COMPLETE;
+	}
+
+	/*
+	 * Set lfa_flags to indicate that LFA_PRIME must be called again and
+	 * reset ret to 0, as LFA_PRIME must return LFA_SUCCESS if it is
+	 * incomplete.
+	 */
+	if (ret == -EAGAIN) {
+		ret = 0;
+		*flags = LFA_CALL_AGAIN;
+	}
+
+	return convert_to_lfa_error(ret);
 }
 
 bool lfa_is_prime_complete(uint32_t lfa_component_id)
@@ -324,7 +341,20 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 		break;
 
 	case LFA_PRIME:
+		/*
+		 * Acquire lock to serialize PRIME operations across CPUs.
+		 * This ensures that multiple PRIME calls to the same component
+		 * do not execute concurrently, even if issued from different
+		 * CPUs.
+		 */
+		if (!spin_trylock(&lfa_lock)) {
+			SMC_RET1(handle, LFA_BUSY);
+		}
+
 		ret = lfa_prime(x1, &lfa_flags);
+
+		spin_unlock(&lfa_lock);
+
 		if (ret != LFA_SUCCESS) {
 			SMC_RET1(handle, ret);
 		} else {
