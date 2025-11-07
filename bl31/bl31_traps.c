@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -13,7 +13,8 @@
 #include <context.h>
 #include <lib/el3_runtime/context_mgmt.h>
 
-int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx)
+int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx,
+			u_register_t flags __unused)
 {
 	uint64_t __unused opcode = esr_el3 & ISS_SYSREG_OPCODE_MASK;
 

@@ -371,12 +371,6 @@ sync_handler64:
 	/* Load SCR_EL3 */
 	mrs	x18, scr_el3
 
-	/* check for system register traps */
-	mrs	x16, esr_el3
-	ubfx	x17, x16, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x17, #EC_AARCH64_SYS
-	b.eq	sysreg_handler64
-
 	/* Clear flag register */
 	mov	x7, xzr
 
@@ -394,6 +388,12 @@ sync_handler64:
 
 	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
 	bfi	x7, x18, #0, #1
+
+	/* check for system register traps */
+	mrs	x16, esr_el3
+	ubfx	x17, x16, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+	cmp	x17, #EC_AARCH64_SYS
+	b.eq	sysreg_handler64
 
 	mov	sp, x12
 
@@ -456,6 +456,7 @@ sync_handler64:
 sysreg_handler64:
 	mov	x0, x16		/* ESR_EL3, containing syndrome information */
 	mov	x1, x6		/* lower EL's context */
+	mov	x2, x7		/* flags, used to find security state */
 	mov	x19, x6		/* save context pointer for after the call */
 	mov	sp, x12		/* EL3 runtime stack, as loaded above */
 
