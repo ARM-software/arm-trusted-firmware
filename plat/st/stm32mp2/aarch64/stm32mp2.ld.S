@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,7 +45,7 @@ SECTIONS
          */
         . = ABSOLUTE( STM32MP_BL2_DTB_BASE );
         __DTB_IMAGE_START__ = .;
-        *(.dtb_image*)
+        KEEP(*(.dtb_image*))
         __DTB_IMAGE_END__ = .;
 
         /*
@@ -59,7 +59,7 @@ SECTIONS
         . = ABSOLUTE( STM32MP_BL2_BASE );
 #endif
         __BL2_IMAGE_START__ = .;
-        *(.bl2_image*)
+        KEEP(*(.bl2_image*))
         __BL2_IMAGE_END__ = .;
 
         __DATA_END__ = .;
