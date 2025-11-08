@@ -9,6 +9,8 @@
 #include <assert_macros.S>
 #include <context.h>
 #include <el3_common_macros.S>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/per_cpu/per_cpu_macros.S>
 #include <platform_def.h>
 
 #if CTX_INCLUDE_FPREGS
@@ -401,7 +403,7 @@ no_mpam:
 #if ENABLE_PAUTH
 #if IMAGE_BL31
 	/* tpidr_el3 contains the address of the cpu_data structure */
-	mrs	x9, tpidr_el3
+	per_cpu_cur	percpu_data, x9, x10
 	/* Load APIAKey from cpu_data */
 	ldp	x10, x11, [x9, #CPU_DATA_APIAKEY]
 #endif /* IMAGE_BL31 */

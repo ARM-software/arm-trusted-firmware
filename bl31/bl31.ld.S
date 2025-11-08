@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/bl_common.ld.h>
+#include <lib/per_cpu/per_cpu_defs.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
@@ -200,6 +201,7 @@ SECTIONS {
 
     STACK_SECTION >NOBITS
     BSS_SECTION >NOBITS
+    PER_CPU >NOBITS
     XLAT_TABLE_SECTION >NOBITS
 
 #if USE_COHERENT_MEM

@@ -11,6 +11,7 @@
 #include <asm_macros.S>
 #include <context.h>
 #include <lib/el3_runtime/cpu_data.h>
+#include <lib/per_cpu/per_cpu_macros.S>
 #include <lib/utils_def.h>
 
 	.globl	report_unhandled_exception
@@ -181,7 +182,7 @@ endfunc str_in_crash_buf_print_128
 	/* we can corrupt this reg to free up x0 */
 	mov	sp, x0
 	/* tpidr_el3 contains the address to cpu_data structure */
-	mrs	x0, tpidr_el3
+	per_cpu_cur percpu_data, x0, x2
 	/* Calculate the Crash buffer offset in cpu_data */
 	add	x0, x0, #CPU_DATA_CRASH_BUF
 	/* Store crash buffer address in tpidr_el3 */
@@ -306,7 +307,7 @@ no_pauth:
 	bl	asm_print_newline
 
 	/* tpidr_el3 contains the address to cpu_data structure */
-	mrs	x0, tpidr_el3
+	per_cpu_cur percpu_data, x0, x2
 	/* Calculate the Crash buffer offset in cpu_data */
 	add	x0, x0, #CPU_DATA_CRASH_BUF
 	/* Store crash buffer address in tpidr_el3 */

@@ -17,6 +17,7 @@
 #define __section(x)	__attribute__((__section__(x)))
 #define __fallthrough	__attribute__((__fallthrough__))
 #define __noinline	__attribute__((__noinline__))
+#define __pure		__attribute__((__pure__))
 #if ENABLE_PAUTH
 #define __no_pauth	__attribute__((target("branch-protection=none")))
 #else

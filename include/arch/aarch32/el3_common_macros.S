@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -411,6 +411,13 @@
 		ldr	r1, =__BSS_END__
 		sub 	r1, r1, r0
 		bl	zeromem
+
+#if defined(IMAGE_BL32)
+		ldr	r0, =__PER_CPU_START__
+		ldr	r1, =__PER_CPU_END__
+		sub 	r1, r1, r0
+		bl	zeromem
+#endif
 
 #if USE_COHERENT_MEM
 		ldr	r0, =__COHERENT_RAM_START__

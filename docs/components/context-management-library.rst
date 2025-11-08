@@ -279,7 +279,7 @@ handles memory allocation for ``Non-Secure`` world context for all CPUs.
 
 .. code:: c
 
-	static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
+	static PER_CPU_DEFINE(cpu_context_t, psci_ns_context);
 
 Secure-Context Memory
 ~~~~~~~~~~~~~~~~~~~~~
@@ -288,7 +288,7 @@ world context of all CPUs.
 
 .. code:: c
 
-	static spmd_spm_core_context_t spm_core_context[PLATFORM_CORE_COUNT];
+	static PER_CPU_DEFINE(spmd_spm_core_context_t, spm_core_context);
 
 Realm-Context Memory
 ~~~~~~~~~~~~~~~~~~~~
@@ -297,7 +297,7 @@ context of all CPUs.
 
 .. code:: c
 
-	rmmd_rmm_context_t rmm_context[PLATFORM_CORE_COUNT];
+	PER_CPU_DEFINE(rmmd_rmm_context_t, rmm_context);
 
 To summarize, the world-specific context structures are synchronized with
 per-CPU data structures, which means that each CPU will have an array of pointers

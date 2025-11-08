@@ -140,6 +140,11 @@ func sp_min_entrypoint
 	sub	r1, r1, r0
 	bl	clean_dcache_range
 
+	ldr	r0, =__PER_CPU_START__
+	ldr	r1, =__PER_CPU_END__
+	sub	r1, r1, r0
+	bl	clean_dcache_range
+
 	bl	smc_get_next_ctx
 
 	/* r0 points to `smc_ctx_t` */

@@ -86,9 +86,9 @@
 	 * will be extracted from per-cpu data by the C level SMC handler and
 	 * saved to the PMF timestamp region.
 	 */
-	mrs	x30, cntpct_el0
 	str	x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
-	mrs	x29, tpidr_el3
+	per_cpu_cur percpu_data, x29, x30
+	mrs	x30, cntpct_el0
 	str	x30, [x29, #CPU_DATA_CPU_DATA_PMF_TS]
 	ldr	x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
 #endif

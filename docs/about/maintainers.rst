@@ -523,6 +523,20 @@ Live Firmware Activation Service
 :|F|: include/plat/common/plat_lfa.h
 :|F|: include/services/lfa_svc.h
 
+Per-CPU Framework
+^^^^^^^^^^^^^^^^^
+:|M|: Rohit Mathew <rohit.mathew@arm.com>
+:|G|: `rohit-arm`_
+:|M|: Sammit Joshi <sammit.joshi@arm.com>
+:|G|: `sammit-arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|F|: include/lib/per_cpu
+:|F|: lib/per_cpu
+:|F|: docs/components/numa-per-cpu.rst
+
 Platform Ports
 ~~~~~~~~~~~~~~
 
@@ -1154,6 +1168,7 @@ Conventional Changelog Extensions
 .. _rohit-arm: https://github.com/rohit-arm
 .. _o-tarhunakov: https://github.com/o-tarhunakov
 .. _rutigl: https://github.com/rutigl
+.. _sammit-arm: https://github.com/sammit-arm
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
 .. _shawnguo2: https://github.com/shawnguo2
 .. _sieumunt: https://github.com/sieumunt

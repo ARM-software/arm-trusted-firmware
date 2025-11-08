@@ -8,15 +8,16 @@
 
 #include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/cpu_data.h>
+#include <lib/per_cpu/per_cpu.h>
 #include <plat/common/platform.h>
 
-/* The per_cpu_ptr_cache_t space allocation */
-cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
+/* percpu_data space allocation */
+PER_CPU_DEFINE(cpu_data_t, percpu_data);
 
 #ifndef __aarch64__
 cpu_data_t *_cpu_data(void)
 {
-	return _cpu_data_by_index(plat_my_core_pos());
+	return PER_CPU_CUR(percpu_data);
 }
 #endif
 

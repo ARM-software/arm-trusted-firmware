@@ -457,3 +457,7 @@ USE_DSU_DRIVER			:= 0
 
 # Define the separation of BL2 flag, by default it is disabled.
 SEPARATE_BL2_FIP		:=	0
+
+# Disable NUMA awareness for per-CPU framework by default. Platforms should
+# enable this feature by setting PLATFORM_NODE_COUNT > 1
+PLATFORM_NODE_COUNT		:= 1
