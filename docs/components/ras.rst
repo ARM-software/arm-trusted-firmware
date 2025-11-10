@@ -73,6 +73,35 @@ reflected back to lower EL (KFH) or handled in EL3 itself (FFH).
 
 |Image 1|
 
+Limitation in KFH Mode
+----------------------
+
+When handling asynchronous External Aborts (EAs) synchronized at EL3 entry in Kernel First Handling
+(KFH) mode, there is a limitation in the current implementation:
+
+* The handler reflects pending async EAs back to the lower EL if the EA routing model is KFH
+* However, if the asynchronous EA is masked at the target exception level, or if its priority
+  relative to an EL3/secure interrupt is lower, repeated back-and-forth transitions between
+  lower EL and EL3 can occur.
+
+To prevent infinite cycling between EL3 and lower EL, a loop counter (``CTX_NESTED_EA_FLAG``) and
+the previously saved ELR (``CTX_SAVED_ELR_EL3``) are used to detect this condition. If a loop is
+detected, EL3 will trigger a panic (label ``check_loop_ctr``) to indicate a problem.
+
+Future Plan: Delegated SError Injection (FEAT_E3DSE)
+----------------------------------------------------
+
+In future revisions, this limitation can be mitigated by utilizing **FEAT_E3DSE** — the
+**Delegated SError exception injection** feature introduced for EL3.
+
+FEAT_E3DSE provides a mechanism for EL3 to inject a virtual SError into lower exception levels.
+Once this capability is supported in TF-A, EL3 will be able to handle the original exception
+and then inject the delegated SError to the appropriate lower EL before returning, thereby
+eliminating the need for panic handling in this scenario.
+
+This planned enhancement will improve robustness and correctness of asynchronous error handling
+in KFH mode.
+
 TF-A build options
 ==================
 
