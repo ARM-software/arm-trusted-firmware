@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2025, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,13 +61,13 @@
 			(((spi_id_min) - GIC700_ESPI_ID_MIN + 1) / \
 			GIC700_SPI_ID_MIN)
 #define GICD_CHIPR_VALUE_GIC_700(chip_addr, spi_block_min, spi_blocks) \
-			(((chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
-			((spi_block_min) << GIC_700_SPI_BLOCK_MIN_SHIFT) | \
-			((spi_blocks) << GIC_700_SPI_BLOCKS_SHIFT))
+		(((uint64_t)(chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
+		((uint64_t)(spi_block_min) << GIC_700_SPI_BLOCK_MIN_SHIFT) | \
+		((uint64_t)(spi_blocks) << GIC_700_SPI_BLOCKS_SHIFT))
 #define GICD_CHIPR_VALUE_GIC_600(chip_addr, spi_block_min, spi_blocks) \
-			(((chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
-			((spi_block_min) << GIC_600_SPI_BLOCK_MIN_SHIFT) | \
-			((spi_blocks) << GIC_600_SPI_BLOCKS_SHIFT))
+		(((uint64_t)(chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
+		((uint64_t)(spi_block_min) << GIC_600_SPI_BLOCK_MIN_SHIFT) | \
+		((uint64_t)(spi_blocks) << GIC_600_SPI_BLOCKS_SHIFT))
 
 /*
  * Multichip data assertion macros

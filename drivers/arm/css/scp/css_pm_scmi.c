@@ -114,6 +114,13 @@ static void css_scp_core_pos_to_scmi_channel(unsigned int core_pos,
 	*scmi_domain_id = GET_SCMI_DOMAIN_ID(composite_id);
 }
 
+static inline void css_scp_set_state_pwr_lvl(uint32_t *pwr_state, unsigned int lvl)
+{
+    unsigned int max_lvl = (lvl == 0U) ? 0U : (lvl - 1U);
+
+    SCMI_SET_PWR_STATE_MAX_PWR_LVL(*pwr_state, max_lvl);
+}
+
 /*
  * Helper function to suspend a CPU power domain and its parent power domains
  * if applicable.
@@ -166,7 +173,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 						scmi_power_state_off);
 	}
 
-	SCMI_SET_PWR_STATE_MAX_PWR_LVL(scmi_pwr_state, lvl - 1);
+	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
 	css_scp_core_pos_to_scmi_channel(plat_my_core_pos(),
 			&domain_id, &channel_id);
@@ -208,7 +215,7 @@ void css_scp_off(const struct psci_power_state *target_state)
 				scmi_power_state_off);
 	}
 
-	SCMI_SET_PWR_STATE_MAX_PWR_LVL(scmi_pwr_state, lvl - 1);
+	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
 	css_scp_core_pos_to_scmi_channel(plat_my_core_pos(),
 			&domain_id, &channel_id);
@@ -235,7 +242,7 @@ void css_scp_on(u_register_t mpidr)
 		SCMI_SET_PWR_STATE_LVL(scmi_pwr_state, lvl,
 				scmi_power_state_on);
 
-	SCMI_SET_PWR_STATE_MAX_PWR_LVL(scmi_pwr_state, lvl - 1);
+	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
 	core_pos = (unsigned int)plat_core_pos_by_mpidr(mpidr);
 	assert(core_pos < PLATFORM_CORE_COUNT);
