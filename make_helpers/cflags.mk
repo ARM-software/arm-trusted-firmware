@@ -168,6 +168,10 @@ ifeq ($($(ARCH)-ld-id),arm-link)
 
 # LD = gcc or clang
 else
+        ifeq ($($(ARCH)-ld-id),llvm-clang)
+                ldflags-common		+=	-fuse-ld=lld
+        endif
+
         ldflags-common		:=	$(call ld_option,--no-warn-rwx-segments)
         # ld.lld reports section type mismatch warnings,
         # so don't add --fatal-warnings to it.
@@ -185,10 +189,6 @@ else
         endif #(ENABLE_LTO)
 
         ldflags-common		+= 	-nostdlib
-
-        ifeq ($($(ARCH)-ld-id),llvm-clang)
-                ldflags-common		+=	-fuse-ld=lld
-        endif
 
         ifneq ($(call bool,$(USE_ROMLIB)),)
                 ldflags-common	+= @${BUILD_PLAT}/romlib/romlib.ldflags
