@@ -284,32 +284,6 @@ Common build options
    builds, but this behaviour can be overridden in each platform's Makefile or
    in the build command line.
 
--  ``ENABLE_FEAT``
-   The Arm architecture defines several architecture extension features,
-   named FEAT_xxx in the architecure manual. Some of those features require
-   setup code in higher exception levels, other features might be used by TF-A
-   code itself.
-   Most of the feature flags defined in the TF-A build system permit to take
-   the values 0, 1 or 2, with the following meaning:
-
-   ::
-
-     ENABLE_FEAT_* = 0: Feature is disabled statically at compile time.
-     ENABLE_FEAT_* = 1: Feature is enabled unconditionally at compile time.
-     ENABLE_FEAT_* = 2: Feature is enabled, but checked at runtime.
-
-   When setting the flag to 0, the feature is disabled during compilation,
-   and the compiler's optimisation stage and the linker will try to remove
-   as much of this code as possible.
-   If it is defined to 1, the code will use the feature unconditionally, so the
-   CPU is expected to support that feature. The FEATURE_DETECTION debug
-   feature, if enabled, will verify this.
-   If the feature flag is set to 2, support for the feature will be compiled
-   in, but its existence will be checked at runtime, so it works on CPUs with
-   or without the feature. This is mostly useful for platforms which either
-   support multiple different CPUs, or where the CPU is configured at runtime,
-   like in emulators.
-
 -  ``ENABLE_FEAT_AMU``: Numeric value to enable Activity Monitor Unit
    extensions. This flag can take the values 0 to 2, to align with the
    ``ENABLE_FEAT`` mechanism. This is an optional architectural feature
