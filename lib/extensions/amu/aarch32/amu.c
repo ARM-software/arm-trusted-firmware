@@ -44,17 +44,18 @@ void amu_enable(bool el2_unused)
 
 	/* Enable all architected counters by default */
 	write_amcntenset0(AMCNTENSET0_Pn_MASK);
+
+	/* Bail out if FEAT_AMUv1p1 features are not present. */
+	if (!is_feat_amuv1p1_supported()) {
+		return;
+	}
+
 	if (is_feat_amu_aux_supported()) {
 		unsigned int core_pos = plat_my_core_pos();
 
 		/* Something went wrong if we're trying to write higher bits */
 		assert((get_amu_aux_enables(core_pos) & ~AMCNTENSET1_Pn_MASK) == 0);
 		write_amcntenset1(get_amu_aux_enables(core_pos));
-	}
-
-	/* Bail out if FEAT_AMUv1p1 features are not present. */
-	if (!is_feat_amuv1p1_supported()) {
-		return;
 	}
 
 #if AMU_RESTRICT_COUNTERS
