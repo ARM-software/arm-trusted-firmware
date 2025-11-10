@@ -52,6 +52,7 @@ unsigned long strtoul(const char *nptr, char **endptr, int base)
 	char c;
 	unsigned long cutoff;
 	int neg, any, cutlim;
+	unsigned long long extended;
 
 	/*
 	 * See strtol for comments as to the logic used.
@@ -97,9 +98,15 @@ unsigned long strtoul(const char *nptr, char **endptr, int base)
 		if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
 			any = -1;
 		else {
-			any = 1;
-			acc *= base;
-			acc += c;
+			extended = (unsigned long long)acc * (unsigned)base;
+			extended += (unsigned)c;
+
+			if (extended > (unsigned long long)ULONG_MAX) {
+				any = -1;
+			} else {
+				acc = (unsigned long)extended;
+				any = 1;
+			}
 		}
 	}
 	if (any < 0) {
