@@ -21,6 +21,11 @@
 #define CORTEX_A725_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define CORTEX_A725_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions
+ ******************************************************************************/
+#define CORTEX_A725_CPUACTLR_EL1				S3_0_C15_C1_0
+
 #ifndef __ASSEMBLER__
 long check_erratum_cortex_a725_3699564(long cpu_rev);
 #endif /* __ASSEMBLER__ */
