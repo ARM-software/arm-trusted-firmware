@@ -1179,6 +1179,10 @@ CPU_FLAG_LIST += ERRATA_A720_AE_3699562
 # to revisions r0p0 of the Cortex-A725 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_A725_2874943
 
+# Flag to apply erratum 2936490 workaround during reset. This erratum applies
+# to revisions r0p0 of the Cortex-A725 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_A725_2936490
+
 # Flag to apply erratum 3699564 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1 of
 # the Cortex-A725 cpu and is fixed in r0p2
