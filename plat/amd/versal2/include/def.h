@@ -175,7 +175,7 @@
 #elif CONSOLE_IS(none)
 # define UART_TYPE	CONSOLE_NONE
 #else
-# error "invalid VERSAL2_CONSOLE"
+# error "invalid CONSOLE"
 #endif
 
 /* Runtime console */
