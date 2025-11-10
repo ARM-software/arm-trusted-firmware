@@ -25,8 +25,8 @@ FVP_GICR_REGION_PROTECTION		:= 0
 FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 
 # Size (in kilobytes) of the Trusted SRAM region to  utilize when building for
-# the FVP platform. This option defaults to 256.
-FVP_TRUSTED_SRAM_SIZE	:= 256
+# the FVP platform. This option defaults to 384.
+FVP_TRUSTED_SRAM_SIZE	:= 384
 
 # Enable passing the DT to BL33 in x0 by default.
 USE_KERNEL_DT_CONVENTION	:= 1
