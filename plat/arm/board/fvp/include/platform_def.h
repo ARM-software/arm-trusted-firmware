@@ -262,16 +262,16 @@ FVP_TRUSTED_SRAM_SIZE == 512
  * Set the maximum size of BL2 to be close to half of the Trusted SRAM.
  * Maximum size of BL2 increases as Trusted SRAM size increases.
  */
-#if CRYPTO_SUPPORT
-#if (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA) || COT_DESC_IN_DTB
+#if (defined(TF_MBEDTLS_KEY_ALG_ID) && \
+     (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)) || \
+    (TRUSTED_BOARD_BOOT && COT_DESC_IN_DTB)
 # define PLAT_ARM_MAX_BL2_SIZE	((PLAT_ARM_TRUSTED_SRAM_SIZE / 2) - \
 				 (2 * PAGE_SIZE) - \
 				 FVP_BL2_ROMLIB_OPTIMIZATION)
-#else
+#elif TRUSTED_BOARD_BOOT || MEASURED_BOOT
 # define PLAT_ARM_MAX_BL2_SIZE	((PLAT_ARM_TRUSTED_SRAM_SIZE / 2) - \
 				 (3 * PAGE_SIZE) - \
 				 FVP_BL2_ROMLIB_OPTIMIZATION)
-#endif
 #elif ARM_BL31_IN_DRAM
 /* When ARM_BL31_IN_DRAM is set, BL2 can use almost all of Trusted SRAM. */
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1F000) - FVP_BL2_ROMLIB_OPTIMIZATION)
