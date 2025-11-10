@@ -54,6 +54,27 @@ add_erratum_entry cortex_a725, ERRATUM(3699564), ERRATA_A725_3699564
 
 check_erratum_ls cortex_a725, ERRATUM(3699564), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a725, ERRATUM(3711914), ERRATA_A725_3711914
+	mov x0, #5
+	msr CORTEX_A725_CPUPSELR_EL3, x0
+	isb
+
+	ldr x0, =0xd503329f
+	msr CORTEX_A725_CPUPOR_EL3, x0
+	ldr x0, =0xfffff3ff
+	msr CORTEX_A725_CPUPMR_EL3, x0
+	mov x1, #0
+	orr x1, x1, #(1<<0)
+	orr x1, x1, #(3<<4)
+	orr x1, x1, #(0xf<<6)
+	orr x1, x1, #(1<<22)
+	orr x1, x1, #(1<<32)
+	msr CORTEX_A725_CPUPCR_EL3, x1
+	isb
+workaround_reset_end cortex_a725, ERRATUM(3711914)
+
+check_erratum_ls cortex_a725, ERRATUM(3711914), CPU_REV(0, 1)
+
 cpu_reset_func_start cortex_a725
 	/* Disable speculative loads */
 	msr	SSBS, xzr
