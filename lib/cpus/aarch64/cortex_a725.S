@@ -44,6 +44,12 @@ check_erratum_custom_start cortex_a725, ERRATUM(2900952)
 	ret
 check_erratum_custom_end cortex_a725, ERRATUM(2900952)
 
+workaround_reset_start cortex_a725, ERRATUM(2936490), ERRATA_A725_2936490
+	sysreg_bit_set CORTEX_A725_CPUACTLR2_EL1, BIT(37)
+workaround_reset_end cortex_a725, ERRATUM(2936490)
+
+check_erratum_ls cortex_a725, ERRATUM(2936490), CPU_REV(0, 0)
+
 add_erratum_entry cortex_a725, ERRATUM(3699564), ERRATA_A725_3699564
 
 check_erratum_ls cortex_a725, ERRATUM(3699564), CPU_REV(0, 1)
