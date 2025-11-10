@@ -26,6 +26,15 @@ cpu_reset_prologue cortex_a725
 
 .global check_erratum_cortex_a725_3699564
 
+#if ENABLE_SPE_FOR_NS
+workaround_reset_start cortex_a725, ERRATUM(2874943), ERRATA_A725_2874943
+	sysreg_bit_set CORTEX_A725_CPUACTLR_EL1, BIT(57)
+	sysreg_bit_set CORTEX_A725_CPUACTLR_EL1, BIT(58)
+workaround_reset_end cortex_a725, ERRATUM(2874943)
+
+check_erratum_ls cortex_a725, ERRATUM(2874943), CPU_REV(0, 0)
+#endif
+
 workaround_reset_start cortex_a725, ERRATUM(2900952), ERRATA_DSU_2900952
 	errata_dsu_2900952_wa_apply
 workaround_reset_end cortex_a725, ERRATUM(2900952)
