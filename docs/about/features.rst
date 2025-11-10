@@ -129,6 +129,7 @@ in a platform:
 
 -  RSE comms driver ``drivers/arm/rse``
 -  GICv5 driver ``drivers/arm/gicv5`` via ``USE_GIC_DRIVER=5``
+-  FEAT_IDTE3 ``lib/extensions/idte/`` via ``ENABLE_FEAT_IDTE3``
 
 Still to come
 -------------

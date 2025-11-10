@@ -29,6 +29,7 @@
 #include <lib/extensions/cpa2.h>
 #include <lib/extensions/debug_v8p9.h>
 #include <lib/extensions/fgt2.h>
+#include <lib/extensions/idte3.h>
 #include <lib/extensions/mpam.h>
 #include <lib/extensions/pauth.h>
 #include <lib/extensions/pmuv3.h>
@@ -610,6 +611,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 
 	pmuv3_enable(ctx);
 
+	if (is_feat_idte3_supported()) {
+		idte3_enable(ctx);
+	}
+
 #if CTX_INCLUDE_EL2_REGS && IMAGE_BL31
 	/*
 	 * Initialize SCTLR_EL2 context register with reset value.
@@ -765,6 +770,10 @@ static void manage_extensions_nonsecure_per_world(void)
 	if (is_feat_mpam_supported()) {
 		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
 	}
+
+	if (is_feat_idte3_supported()) {
+		idte3_init_cached_idregs_per_world(CPU_CONTEXT_NS);
+	}
 #endif /* IMAGE_BL31 */
 }
 
@@ -814,6 +823,10 @@ static void manage_extensions_secure_per_world(void)
 	if (is_feat_sys_reg_trace_supported()) {
 		sys_reg_trace_disable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
 	}
+
+	if (is_feat_idte3_supported()) {
+		idte3_init_cached_idregs_per_world(CPU_CONTEXT_SECURE);
+	}
 #endif /* IMAGE_BL31 */
 }
 
@@ -854,6 +867,10 @@ static void manage_extensions_realm_per_world(void)
 	if (is_feat_mpam_supported()) {
 		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
 	}
+
+	if (is_feat_idte3_supported()) {
+		idte3_init_cached_idregs_per_world(CPU_CONTEXT_REALM);
+	}
 #endif /* ENABLE_RME && IMAGE_BL31 */
 }
 
@@ -862,6 +879,19 @@ void cm_manage_extensions_per_world(void)
 	manage_extensions_nonsecure_per_world();
 	manage_extensions_secure_per_world();
 	manage_extensions_realm_per_world();
+}
+
+void cm_init_percpu_once_regs(void)
+{
+#if IMAGE_BL31
+	if (is_feat_idte3_supported()) {
+		idte3_init_percpu_once_regs(CPU_CONTEXT_NS);
+		idte3_init_percpu_once_regs(CPU_CONTEXT_SECURE);
+#if ENABLE_RME
+		idte3_init_percpu_once_regs(CPU_CONTEXT_REALM);
+#endif /* ENABLE_RME */
+	}
+#endif /* IMAGE_BL31 */
 }
 
 /*******************************************************************************

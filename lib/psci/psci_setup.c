@@ -318,6 +318,9 @@ void psci_arch_setup(void)
 	/* Initialize the cpu_ops pointer. */
 	cpu_data_init_cpu_ops();
 
+	/* Initialize the cached percpu ID register values */
+	cm_init_percpu_once_regs();
+
 	/* Having initialized cpu_ops, we can now print errata status */
 	print_errata_status();
 

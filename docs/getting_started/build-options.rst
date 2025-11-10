@@ -387,6 +387,19 @@ Common build options
    flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_IDTE3``: Numeric value to set SCR_EL3.TID3/TID5 bits which
+   enables trapping of ID register reads by lower ELs to EL3. This allows EL3
+   to control the feature visibility to lower ELs by returning a sanitized value
+   based on current feature enablement status. Hypervisors are expected to
+   cache ID register during their boot stage. This flag can take the
+   values 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
+   Default value is ``0``. This feature is EXPERIMENTAL.
+
+   .. note::
+      This feature traps all lower EL accesses to Group 3 and Group 5
+      ID registers to EL3. This can incur a performance impact and platforms
+      should enable them only if they have a specific need.
+
 - ``ENABLE_FEAT_MOPS``: Numeric value to enable FEAT_MOPS (Standardization
    of memory operations) when INIT_UNUSED_NS_EL2=1.
    This feature is mandatory from v8.8 and enabling of FEAT_MOPS does not

@@ -12,11 +12,22 @@
 #include <bl31/sync_handle.h>
 #include <context.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/extensions/idte3.h>
 
 int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx,
 			u_register_t flags __unused)
 {
 	uint64_t __unused opcode = esr_el3 & ISS_SYSREG_OPCODE_MASK;
+
+#if ENABLE_FEAT_IDTE3
+	/*
+	 * Handle trap for system registers with the following encoding
+	 * op0 == 3, op1 == 0/1, Crn == 0 (Group 3 & Group 5 ID registers)
+	 */
+	if ((esr_el3 & ISS_IDREG_OPCODE_MASK) == ISS_SYSREG_OPCODE_IDREG) {
+		return handle_idreg_trap(esr_el3, ctx, flags);
+	}
+#endif
 
 #if ENABLE_FEAT_RNG_TRAP
 	if ((opcode == ISS_SYSREG_OPCODE_RNDR) || (opcode == ISS_SYSREG_OPCODE_RNDRRS)) {
