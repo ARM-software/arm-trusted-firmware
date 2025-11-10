@@ -139,7 +139,7 @@
 /*----------------------------------------------------------------------------*/
 /* UART related constants. */
 /*----------------------------------------------------------------------------*/
-#define PLAT_QTI_UART_BASE			0xa80000
+#define PLAT_QTI_UART_BASE			0xa88000
 /* BASE ADDRESS OF DIFFERENT REGISTER SPACES IN HW */
 #define GENI4_CFG				0x0
 #define GENI4_IMAGE_REGS			0x100
