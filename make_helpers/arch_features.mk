@@ -269,11 +269,7 @@ ENABLE_SYS_REG_TRACE_FOR_NS		?=	0
 ifeq (${ARCH},aarch64)
        ENABLE_SPE_FOR_NS		?=	2
 else ifeq (${ARCH},aarch32)
-       ifneq ($(or $(ENABLE_SPE_FOR_NS),0),0)
-              $(error ENABLE_SPE_FOR_NS is not supported for AArch32)
-       else
-              ENABLE_SPE_FOR_NS		:=	0
-       endif
+       ENABLE_SPE_FOR_NS		:=	0
 endif
 
 # Enable SVE for non-secure world by default.
@@ -281,11 +277,7 @@ ifeq (${ARCH},aarch64)
        ENABLE_SVE_FOR_NS		?=	2
 # SVE is only supported on AArch64 so disable it on AArch32.
 else ifeq (${ARCH},aarch32)
-       ifneq ($(or $(ENABLE_SVE_FOR_NS),0),0)
-              $(error ENABLE_SVE_FOR_NS is not supported for AArch32)
-       else
-              ENABLE_SVE_FOR_NS 	:=	0
-       endif
+       ENABLE_SVE_FOR_NS		:=	0
 endif
 
 #----
@@ -302,11 +294,7 @@ AMU_RESTRICT_COUNTERS			?=	1
 ifeq (${ARCH},aarch64)
         ENABLE_FEAT_MPAM		?=	2
 else ifeq (${ARCH},aarch32)
-        ifneq ($(or $(ENABLE_FEAT_MPAM),0),0)
-                $(error ENABLE_FEAT_MPAM is not supported for AArch32)
-        else
-                ENABLE_FEAT_MPAM	:=	0
-        endif
+        ENABLE_FEAT_MPAM		:=	0
 endif
 
 # Include nested virtualization control (Armv8.4-NV) registers in cpu context.
