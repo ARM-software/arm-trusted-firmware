@@ -659,6 +659,9 @@ subsections:
           - title: K3
             scope: k3
 
+          - title: K3 Low Power Devices
+            scope: k3low
+
             deprecated:
               - ti-k3
 
