@@ -604,8 +604,8 @@ define shell-map.sh =
 
         for argument in "$$@"; do
                 sanitized=$$(printf '%s' "$${argument}" $\
-                        | sed -e 's/[$$]/$$$$/g; s/,/$$$${comma}/g' $\
-                                -e 's/(/$$$${lparen}/g; s/)/$$$${rparen}/g');
+                        | sed -e 's/[$$]/$$$$/g; s/,/$${comma}/g' $\
+                                -e 's/(/$${lparen}/g; s/)/$${rparen}/g');
 
                 printf '$$(call %s,%s,%s)\n' $\
                         "$${function}" "$${sanitized}" "$${index}";
