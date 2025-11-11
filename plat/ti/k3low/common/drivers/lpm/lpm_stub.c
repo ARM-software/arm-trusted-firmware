@@ -34,6 +34,8 @@
 #define CANUART_WAKE_OFF_MODE				(0x1310U)
 #define CANUART_WAKE_OFF_MODE_STAT1			(0x130CU)
 #define CANUART_WAKE_OFF_MODE_STAT1_ENABLED		(0x1U)
+#define WKUP_CTRL_MMR_WKUP_GPIO0_CLKSEL			(0x8000U)
+#define WKUP_GPIO0_CLKSEL_CLK_32K			2U
 #define PSC_CORE_1_MDSTAT				(0x8A4U)
 #define MDSTAT_STATE_MASK				(0x1FU)
 #define GP_CORE_CTL					0
@@ -131,6 +133,11 @@ bool k3low_lpm_check_can_io_latch(void)
 	return (mmio_read_32(WKUP_CTRL_MMR_SEC_5_BASE +
 			     CANUART_WAKE_OFF_MODE_STAT1) &
 		CANUART_WAKE_OFF_MODE_STAT1_ENABLED);
+}
+
+__wkupsramfunc static void config_gpio_clk_mux(uint32_t clk_src)
+{
+	mmio_write_32((WKUP_CTRL_MMR_SEC_2_BASE + WKUP_CTRL_MMR_WKUP_GPIO0_CLKSEL), clk_src);
 }
 
 /**
@@ -458,6 +465,9 @@ __wkupsramsuspendentry void k3low_lpm_stub_entry(uint32_t mode)
 		} else {
 			lpm_seq_trace(LPM_SEQ_DDR_LPSC_DISABLE);
 		}
+
+		/* configure the gpio clk input to 32K clock */
+		config_gpio_clk_mux(WKUP_GPIO0_CLKSEL_CLK_32K);
 
 		disable_main_pll();
 		lpm_seq_trace(LPM_SEQ_DISABLE_MAIN_PLL);
