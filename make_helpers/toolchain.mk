@@ -290,7 +290,8 @@ ifndef toolchain-mk
 
         toolchain-tool-program-index.map = $(and $\
                 $(call which,$(1)),$\
-                $(call toolchain-guess-tool,$(candidates),$(1)),$\
+                $(call toolchain-guess-tool,$(candidates),$\
+                        $(call shell-quote,$(1))),$\
                 $(2))
 
         #
