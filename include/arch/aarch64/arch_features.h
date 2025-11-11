@@ -212,7 +212,7 @@ static inline bool is_ ## name ## _present(void)				\
  * +----------------------------+
  * |	FEAT_SB			|
  * +----------------------------+
- * |	FEAT_CSV2/CSV3		|
+ * |	FEAT_CSV2_2/CSV2_3	|
  * +----------------------------+
  * |	FEAT_SPE		|
  * +----------------------------+
@@ -739,17 +739,17 @@ CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
 		     ID_AA64PFR1_EL1_SME_MASK, SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-/* FEAT_LS64_ACCDATA: */
+/* FEAT_LS64_ACCDATA: Support for 64-byte EL0 stores with status */
 CREATE_FEATURE_FUNCS(feat_ls64_accdata, id_aa64isar1_el1, ID_AA64ISAR1_LS64_SHIFT,
 		     ID_AA64ISAR1_LS64_MASK, LS64_ACCDATA_IMPLEMENTED,
 		     ENABLE_FEAT_LS64_ACCDATA, FEAT_ENABLE_ALL_WORLDS)
 
-/* FEAT_AIE: */
+/* FEAT_AIE: Memory Attribute Index Enhancement */
 CREATE_FEATURE_FUNCS(feat_aie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_AIE_SHIFT,
 		     ID_AA64MMFR3_EL1_AIE_MASK, 1U, ENABLE_FEAT_AIE,
 		     FEAT_ENABLE_NS)
 
-/* FEAT_PFAR: */
+/* FEAT_PFAR: Physical Fault Address Register Extension */
 CREATE_FEATURE_FUNCS(feat_pfar, id_aa64pfr1_el1, ID_AA64PFR1_EL1_PFAR_SHIFT,
 		     ID_AA64PFR1_EL1_PFAR_MASK, 1U, ENABLE_FEAT_PFAR,
 		     FEAT_ENABLE_NS)
