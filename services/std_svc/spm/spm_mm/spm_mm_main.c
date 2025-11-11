@@ -395,3 +395,25 @@ uint64_t spm_mm_smc_handler(uint32_t smc_fid,
 
 	SMC_RET1(handle, SMC_UNK);
 }
+
+bool is_spm_mm_fid(uint32_t smc_fid)
+{
+	uint32_t fid = smc_fid & MM_FID_MASK;
+
+	if ((fid >= MM_FID_MIN_VALUE) &&
+	    (fid <= MM_FID_MAX_VALUE)) {
+		return true;
+	}
+
+	switch (smc_fid) {
+	case SPM_MM_VERSION_AARCH32:
+	case MM_SP_EVENT_COMPLETE_AARCH64:
+	case MM_SP_MEMORY_ATTRIBUTES_GET_AARCH64:
+	case MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64:
+		return true;
+	default:
+		break;
+	}
+
+	return false;
+}

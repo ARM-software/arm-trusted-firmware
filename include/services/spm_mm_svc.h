@@ -38,18 +38,19 @@
 #define SPM_MM_VERSION_COMPILED	SPM_MM_VERSION_FORM(SPM_MM_VERSION_MAJOR, \
 						    SPM_MM_VERSION_MINOR)
 
-/* These macros are used to identify SPM-MM calls using the SMC function ID */
-#define SPM_MM_FID_MASK			U(0xffff)
-#define SPM_MM_FID_MIN_VALUE		U(0x40)
-#define SPM_MM_FID_MAX_VALUE		U(0x7f)
-#define is_spm_mm_fid(_fid)						 \
-		((((_fid) & SPM_MM_FID_MASK) >= SPM_MM_FID_MIN_VALUE) && \
-		 (((_fid) & SPM_MM_FID_MASK) <= SPM_MM_FID_MAX_VALUE))
-
+/*
+ * These macros are used to identify MM calls using the SMC function ID
+ * See the SMCCC spec's Table 6-4: Reserved Standard Secure Service Call range.
+ */
+#define MM_FID_MASK			U(0xffff)
+#define MM_FID_MIN_VALUE		U(0x40)
+#define MM_FID_MAX_VALUE		U(0x4f)
 /*
  * SMC IDs defined in [1] for accessing MM services from the Non-secure world.
- * These FIDs occupy the range 0x40 - 0x5f.
- * [1] DEN0060A_ARM_MM_Interface_Specification.pdf
+ * These FIDs occupy the range 0x40 - 0x4f.
+ * [1] DEN0028 - SMC Calling Convention.
+ *     Table 6-4: Reserved Standard Secure Service Call range
+ * [2] DEN0060A - Management Mode Interface Specification.
  */
 #define MM_VERSION_AARCH32		U(0x84000040)
 #define MM_COMMUNICATE_AARCH64		U(0xC4000041)
@@ -136,6 +137,8 @@ uint64_t spm_mm_tpm_start_handler(uint32_t smc_fid,
 				  void *cookie,
 				  void *handle,
 				  uint64_t flags);
+
+bool is_spm_mm_fid(uint32_t smc_fid);
 
 #endif /* __ASSEMBLER__ */
 
