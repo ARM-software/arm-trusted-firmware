@@ -780,8 +780,12 @@ static int overlay_apply_node(void *fdt, int target,
 
 		prop = fdt_getprop_by_offset(fdto, property, &name,
 					     &prop_len);
+		if (!prop && prop_len > 0)
+			return -FDT_ERR_INTERNAL;
+
 		if (prop_len == -FDT_ERR_NOTFOUND)
 			return -FDT_ERR_INTERNAL;
+
 		if (prop_len < 0)
 			return prop_len;
 
