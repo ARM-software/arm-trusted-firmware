@@ -151,6 +151,24 @@ associated with the related Secure Partition.
       - 0x0: Other-Secure interrupt is queued
       - 0x1: Other-Secure interrupt is signaled
 
+- sri-interrupts-policy
+
+  - value type: <u32>
+  - Specifies how secure interrupts are handled when the SP is in a waiting
+    state and is targeted by a secure interrupt, or when the SP attempts to
+    return to a waiting state with pending secure interrupts. The value is a
+    bitfield.
+
+      - 0x0: Proactively inject the VI and resume SP when handling a secure
+        interrupt and SP in the waiting state.
+      - 0x1: Only when a secure interrupt is fired while target SP in the
+        waiting state, pend SRI to the NWd and rely on the scheduler to
+        explicitly donate CPU cycles to the SP.
+      - 0x2: Only when the SP attempts to go back to the waiting state while
+        having pending secure interrupts, trigger the SRI to the NWd and rely
+        on the scheduler to explicitly donate CPU cycles to the SP.
+      - 0x3: Enable both actions for values 0x1 and 0x2.
+
 - has-primary-scheduler
    - value type: <empty>
    - Presence of this field indicates that the partition implements the primary
