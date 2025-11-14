@@ -3,6 +3,53 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.26](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.25..refs/tags/lts-v2.10.26) (2025-11-14)
+
+### Code Refactoring
+
+- **Architecture**
+
+  - **CPU feature / ID register handling in general**
+
+    - rework check_feature() ([07a6a7a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/07a6a7a9cf312beb8345a2614a32ba8d733f0657))
+
+### Resolved Issues
+
+- **Services**
+
+  - **SPM**
+
+    - **SPM MM**
+
+      - prevent excessive racing ([abea08e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/abea08e8c56ea4aa7a90a78d6b0f207e90e892c9))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A715 erratum 2376701 ([f70c757](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f70c757d892421bc2f3ea06a784af6ac99e53272))
+    - workaround for Cortex-A715 erratum 2409570 ([f973eca](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f973eca209833f100a357e20b7fd9f96f26fe130))
+    - workaround for Cortex-A715 erratum 3711916 ([bb5add1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bb5add11c9d408ffa6f0e34ab584f5079b9914b3))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - add clrbhb support ([3eaacdf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3eaacdf0c135f24a6c70c53f135e3e39edb9eade))
+    - fix Cortex-A715 CVE-2022-23960 ([d12e9ec](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d12e9ecf246eae0bc5726aa17ef2f177ecb94170))
+    - fix Cortex-X3 CVE-2022-23960 ([f360aa5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f360aa51d8471f49538f26e938c6faac7d02ab7d))
+    - fix Neoverse V2 CVE-2022-23960 ([8ee12c1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8ee12c187904d95643f388b71cfa604d3f609ff2))
+    - fix spectre bhb loop count for Cortex-A720 ([91edc92](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/91edc92e9895523d7707df4a6115265feb63610d))
+    - remove CVE_2022_23960 Cortex-A720 ([a483d67](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a483d67c75caa7f69c4172dc0eb74c7660e16f74))
+    - remove CVE_2022_23960 Cortex-X4 ([d30e468](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d30e468b322a0f5f60b3be83816f8e25ef4eb33b))
+    - remove CVE_2022_23960 Neoverse V3 ([96e666d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/96e666d6b7e5ba540fb1d17da101622afa160d99))
+
+### Build System
+
+- **Dependencies**
+
+  - bump js-yaml in the dev-deps group across 1 directory ([7486be6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7486be6bf58951f5c6dcd697e6577e815845881f))
+
 ## [lts-2.10.25](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.24..refs/tags/lts-v2.10.25) (2025-10-10)
 
 ### Resolved Issues
