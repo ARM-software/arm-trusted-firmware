@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -277,6 +277,14 @@
 	dsb	sy
 	isb
 #endif
+	.endm
+
+	/*
+	 * Clear Branch History instruction, translates to NOP on CPUs
+	 * that don't implement the clrbhb instruction.
+	 */
+	.macro clrbhb
+	hint	#22
 	.endm
 
 	/*

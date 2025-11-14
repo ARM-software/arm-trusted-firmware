@@ -79,8 +79,6 @@ revisions of Cortex-A73 and Cortex-A75 that implements FEAT_CSV2).
 +----------------------+
 | Cortex-A715          |
 +----------------------+
-| Cortex-A720          |
-+----------------------+
 | Neoverse-N1          |
 +----------------------+
 | Neoverse-N2          |
@@ -88,8 +86,6 @@ revisions of Cortex-A73 and Cortex-A75 that implements FEAT_CSV2).
 | Neoverse-V1          |
 +----------------------+
 | Neoverse-V2          |
-+----------------------+
-| Neoverse-V3          |
 +----------------------+
 
 For all other cores impacted by Spectre-BHB, some of which that do not implement
