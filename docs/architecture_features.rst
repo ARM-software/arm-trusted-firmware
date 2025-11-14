@@ -116,7 +116,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +-----------------------+--------+
 | FEAT_RME_GPC3         |  WIP   |
 +-----------------------+--------+
-| FEAT_RME_GDI          |  WIP   |
+| FEAT_RME_GDI          |  OK    |
 +-----------------------+--------+
 | FEAT_SVE2p2           |        |
 +-----------------------+--------+
@@ -154,7 +154,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +-----------------------+--------+
 | FEAT_SRMASK           |        |
 +-----------------------+--------+
-| FEAT_IDTE3            |   WIP  |
+| FEAT_IDTE3            |   OK   |
 +-----------------------+--------+
 | FEAT_UINJ             |   WIP  |
 +-----------------------+--------+
@@ -229,7 +229,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +-------------------+--------+
 | FEAT_ASID2        |   NA   |
 +-------------------+--------+
-| FEAT_RME_GPC2     |   WIP  |
+| FEAT_RME_GPC2     |   OK   |
 +-------------------+--------+
 | FEAT_FGWTE3       |   OK   |
 +-------------------+--------+
