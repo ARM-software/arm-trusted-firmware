@@ -1,4 +1,4 @@
-NUMA-Aware PER-CPU Framework
+NUMA-Aware Per-CPU Framework
 ============================
 
 .. contents::
@@ -6,281 +6,221 @@ NUMA-Aware PER-CPU Framework
    :depth: 2
 
 Introduction
-============
+------------
 
-Modern System designs increasingly adopt multi-node architectures, where the
-system is divided into multiple topological units such as chiplet, socket, or
-any other isolated unit of compute and memory. Each node typically has its own
-local memory, and CPUs within a node can access this memory with lower latency
-compared to memory located on remote nodes. In TF-A's current implementation,
-per-cpu data (such as PSCI context, SPM context, etc.) is stored in a global
-array or contiguous region, usually located in the memory of a single node. This
-approach introduces two key issues in multi-node systems:
+Modern system designs increasingly adopt multi-node architectures, where the
+system is divided into multiple topological units such as chiplets, sockets, or
+other isolated compute and memory units. Each node typically has its own local
+memory, and CPUs within a node can access this memory with lower latency than
+CPUs on remote nodes. In TF-A's current implementation, per-CPU data (for
+example, PSCI or SPM context) is stored in a global array or contiguous region,
+usually located in the memory of a single node. This approach introduces two key
+issues in multi-node systems:
 
 - **Storage Constraints:** As systems scale to include more CPUs and nodes, this
-  centralized allocation becomes a bottleneck.  The memory capacity of a single
-  node may be insufficient to hold per-cpu data for all CPUs. This constraint
+  centralized allocation becomes a bottleneck. The memory capacity of a single
+  node may be insufficient to hold per-CPU data for all CPUs. This constraint
   limits scalability in systems where each node has limited local memory.
 
-  .. figure:: ../resources/diagrams/per_cpu_numa_numa_disabled.png
-     :alt: Storage Problem in Multi-node Systems
-     :align: right
-     :width: 500px
+  .. figure:: ../resources/diagrams/per-cpu-numa-disabled.png
+     :alt: Diagram showing the BL31 binary section layout in TF-A within local
+           memory. From bottom to top: \`.text\`, \`.rodata\`, \`.data\`,
+           \`.stack\`, \`.bss\`, and \`xlat\` sections. The \`.text\`,
+           \`.rodata\`, and \`.data\` segments are \`PROGBITS\` sections, while
+           \`.stack\`, \`.bss\`, and \`xlat\` form the \`NOBITS\` sections at
+           the top. The memory extends from the local memory start address at
+           the bottom to the end address at the top.
 
   *Figure: Typical BL31/BL32 binary storage in local memory*
 
 - **Non-Uniform Memory Access (NUMA) Latency:** In multi-node systems, memory
-  access across nodes incurs additional latency due to interconnect traversal.
-  When per-cpu data is centralized on a single node, CPUs on remote nodes must
-  access their per-cpu data via the interconnect, leading to increased latency
-  for frequent operations like context switching, exception handling, and crash
-  reporting. This violates NUMA design principles, where data locality is
+  access across nodes incurs additional latency because of interconnect
+  traversal. When per-CPU data is centralized on a single node, CPUs on remote
+  nodes must access that data via the interconnect, leading to increased latency
+  for frequent operations such as context switching, exception handling, and
+  crash reporting. This violates NUMA design principles, where data locality is
   critical to achieving performance and scalability.
 
-To address these challenges, the NUMA-Aware per-cpu framework has been
-introduced. This framework optimizes the allocation and access of per-cpu
-objects by allowing platforms to place them in nodes with least access latency.
+To address these challenges, TF-A provides the NUMA-Aware Per-CPU Framework. The
+framework optimizes the allocation and access of per-CPU objects by letting
+platforms place them in the nodes with the lowest access latency.
 
 Design
-======
-
-To address these architectural challenges, TF-A introduces the NUMA-aware per
-cpu framework. This framework is designed to give platforms the opportunity to
-allocate per-cpu data as close to the calling CPU as possible, ideally within
-the same NUMA node, thereby reducing access latency and improving overall memory
-scalability.
+------
 
 The framework provides standardized interfaces and mechanisms for
-**allocating**, **defining**, and **accessing** per-cpu data in a NUMA-aware
+**allocating**, **defining**, and **accessing** per-CPU data in a NUMA-aware
 environment. This ensures portability and maintainability across different
 platforms while optimizing for performance in multi-node systems.
 
-.per_cpu Section
-----------------
+``.per_cpu`` Section
+~~~~~~~~~~~~~~~~~~~~
 
-A dedicated .per_cpu section to **allocate** per-cpu global variables, ensuring
-that these objects are allocated in the local memory of each NUMA node. Figure
-illustrates how per-cpu objects are allocated in the local memory of their
-respective nodes. The necessary linker modifications to support this layout are
-shown in the accompanying snippet.
+The framework dedicates a zero-initialized, cache-aligned ``.per_cpu`` section
+to **allocate** per-CPU global variables and ensure that these objects reside in
+the local memory of each NUMA node. The figure below illustrates how per-CPU
+objects are allocated in the local memory of their respective nodes.
 
-.. figure:: ../resources/diagrams/per_cpu_numa_numa_enabled.png
-   :alt: NUMA-Aware PER-CPU Framework Overview
+.. figure:: ../resources/diagrams/per-cpu-numa-enabled.png
    :align: center
-   :width: 2000px
+   :alt: Diagram comparing the TF-A BL31 memory layout with NUMA disabled versus
+         NUMA enabled. When NUMA is disabled, Node 0 contains a local memory
+         layout with the \`.text\`, \`.rodata\`, \`.data\`, \`.stack\`,
+         \`.bss\`, and \`xlat\` sections stacked vertically. When NUMA is
+         enabled, Node 0 includes an additional \`.per_cpu\` section between
+         \`.bss\` and \`xlat\` to represent per-CPU data allocation, while
+         remote nodes (Node 1 through Node N) each contain their own local
+         per-CPU memory regions.
 
 *Figure: BL31/BL32 binary storage in local memory of per node when per-cpu NUMA
 framework is enabled*
 
-.. code-block:: text
+At link time, TF-A linker scripts carve out this section and publish section
+bounds and per-object stride via internal symbols so that they can be replicated
+and initialized across the non-primary nodes.
 
-	/* The .per_cpu section gets initialised to 0 at runtime. */	\
-	.per_cpu (NOLOAD) : ALIGN(CACHE_WRITEBACK_GRANULE) {		\
-		__PER_CPU_START__ = .;					\
-		__PER_CPU_UNIT_START__ = .;				\
-		*(SORT_BY_ALIGNMENT(.per_cpu*))				\
-		__PER_CPU_UNIT_UNALIGNED_END_UNIT__ = .;		\
-		. = ALIGN(CACHE_WRITEBACK_GRANULE);			\
-		__PER_CPU_UNIT_END__ = .;				\
-		__PER_CPU_UNIT_SECTION_SIZE__ =				\
-		ABSOLUTE(__PER_CPU_UNIT_END__ - __PER_CPU_UNIT_START__);\
-		. = . + (PER_CPU_NODE_CORE_COUNT - 1) *			\
-		__PER_CPU_UNIT_SECTION_SIZE__;				\
-		__PER_CPU_END__ = .;					\
-	}
-
-The newly introduced linker changes also addresses a common performance issue in
-modern multi-cpu systems—**cache thrashing**.
-
-A performance issue known as **cache thrashing** arises when multiple CPUs
-access different addresses that are on the same cache line. Although the
+This linker section also addresses a common performance issue in modern
+multi-CPU systems known as **false sharing**. This issue arises when multiple
+CPUs access different addresses that lie on the same cache line. Although the
 accessed variables may be logically independent, their proximity in memory can
-result in repeated cache invalidations and reloads. This is because cache
-coherency mechanisms operate at the granularity of cache lines (typically 64
-bytes). If two CPUs attempt to write to two different addresses that fall within
-the same cache line, the cache line is bounced back and forth between the cores,
-incurring unnecessary overhead.
+result in repeated cache invalidations and reloads. Cache-coherency mechanisms
+operate at the granularity of cache lines (typically 64 bytes). If two CPUs
+write to different addresses within the same cache line, the line bounces
+between cores and incurs unnecessary overhead.
 
-.. figure:: ../resources/diagrams/per_cpu_numa_cache_thrashing.png
-   :alt: Illustration of Cache Thrashing from Per-CPU Data Collisions
+.. figure:: ../resources/diagrams/per-cpu-false-sharing.png
    :align: center
-   :width: 600px
+   :alt: Diagram showing three CPUs (CPU 1, CPU 2, and CPU 3) each with their
+         own cache, connected through a shared interconnect to main memory. At
+         address 0x1000, CPU 2's cache holds data values D1, D2, D3, and D4
+         representing per-CPU data objects, while CPU 1 and CPU 3 have that
+         cache line marked as invalid. CPU 3 is attempting to read from its own
+         per-CPU data object, triggering a coherence transaction over the
+         interconnect.
 
 *Figure: Two processors modifying different variables placed too closely in
-memory, leading to cache thrashing*
+memory, leading to false sharing*
 
-To eliminate cache thrashing, this framework employs **linker-script-based
-alignment**. It ensures:
+To eliminate false sharing, this framework employs **linker-script-based
+alignment**, which:
 
-- Placing all per-cpu variables into a **dedicated, aligned** section:
-  `.per_cpu`
-- Aligning that section using the cache granularity size
-  (`CACHE_WRITEBACK_GRANULE`)
+- Places all per-CPU variables into a **dedicated, aligned** section
+  (``.per_cpu``).
+- Aligns that section using the cache granularity size
+  (``CACHE_WRITEBACK_GRANULE``).
 
 Definer Interfaces
-------------------
+~~~~~~~~~~~~~~~~~~
 
-The NUMA-Aware PER-CPU framework provides set of macros to define and declare
-per-cpu objects efficiently in multi-node systems.
+The NUMA-Aware Per-CPU Framework provides a set of macros to define and declare
+per-CPU objects efficiently in multi-node systems.
 
-- **PER_CPU_DECLARE**
+- ``PER_CPU_DECLARE(TYPE, NAME)``
 
-  Declares an external per-cpu object.
+  Declares an external per-CPU object so that other translation units can refer
+  to it without allocating storage.
 
-  .. code-block:: c
+- ``PER_CPU_DEFINE(TYPE, NAME)``
 
-      #define PER_CPU_DECLARE(TYPE, NAME) \
-          extern typeof(TYPE) NAME
-
-- **PER_CPU_DEFINE**
-
-  Defines a per-cpu object and places it in the `.per_cpu` section.
-
-  .. code-block:: c
-
-      #define PER_CPU_DEFINE(TYPE, NAME) \
-          typeof(TYPE) NAME \
-          __section(PER_CPU_SECTION_NAME)
+  Defines a per-CPU object and assigns it to ``PER_CPU_SECTION_NAME`` so the
+  linker emits it into the ``.per_cpu`` section that the framework manages.
 
 Accessor Interfaces
--------------------
+~~~~~~~~~~~~~~~~~~~
 
-The NUMA-Aware PER-CPU framework provides set of macros to access per-cpu
-objects efficiently in multi-node systems.
+The NUMA-Aware Per-CPU Framework also provides macros to access per-CPU objects
+efficiently in multi-node systems.
 
-- **PER_CPU_BY_INDEX(NAME, CPU)**
-  Returns a pointer to the per-cpu object `NAME` for the specified CPU.
+- ``PER_CPU_BY_INDEX(NAME, CPU)``
 
-  .. code-block:: c
+  Returns a pointer to the per-CPU object ``NAME`` for the specified CPU by
+  combining the per-node base with the object's offset within ``.per_cpu``.
 
-      #define PER_CPU_BY_INDEX(NAME, CPU)			\
-          ((__typeof__(&NAME))					\
-          (per_cpu_by_index_compute((CPU), (void *)&(NAME))))
+- ``PER_CPU_CUR(NAME)``
 
-- **PER_CPU_CUR(NAME)**
-  Returns a pointer to the per-cpu object `NAME` for the current CPU.
-
-  .. code-block:: c
-
-      #define PER_CPU_CUR(NAME) 			\
-      ((__typeof__(&(NAME)))				\
-      (per_cpu_cur_compute((void *)&(NAME))))
+  Returns a pointer to the per-CPU object ``NAME`` for the current CPU.
 
 For use in assembly routines, a corresponding macro version is provided:
 
-.. code-block:: text
+In assembly routines, the ``per_cpu_cur`` helper macro performs the same
+calculation. It accepts the label of the per-CPU object and optional register
+arguments (destination and clobber) to materialize the per-CPU pointer without
+duplicating addressing logic in assembly files.
 
-   .macro  per_cpu_cur label, dst=x0, clobber=x1
-       /* Safety checks */
-       .ifc \dst,\clobber
-       .error "per_cpu_cur: dst and clobber must be different"
-       .endif
+Platform Responsibilities (NUMA-only)
+-------------------------------------
 
-       /* dst = absolute address of label */
-       adr_l	\dst, \label
-
-       /* clobber = absolute address of __PER_CPU_START__ */
-       	adr_l	\clobber, __PER_CPU_START__
-
-       /* dst = (label - __PER_CPU_START__) */
-       sub     \dst, \dst, \clobber
-
-       /* clobber = per-cpu base (TPIDR_EL3) */
-       mrs     \clobber, tpidr_el3
-
-       /* dst = base + offset */
-       add     \dst, \clobber, \dst
-   .endm
-
-
-The accessor interfaces take advantage of using `tpidr_el3` system register
-(Thread ID Register at EL3). It stores the **base address of the current CPU's
-`.per_cpu` section**. By setting up this register during early CPU
-initialization (e.g., in the el3_entrypoint_common path), TF-A can avoid
-repeated calculations or memory lookups when accessing per-cpu objects.
-
-Instead of computing the per-cpu address dynamically using platform-level
-functions (which could involve node discovery, offset arithmetic, and memory
-dereferencing), TF-A can simply:
-
-- Read `tpidr_el3` to get the base address of the current CPU's per-cpu data.
-- Add the relative offset of the desired object within the `.per_cpu` section.
-- Access the target object directly using this computed address.
-
-This strategy significantly reduces access time by replacing a potentially
-expensive memory access path with a single register read and offset addition. It
-improves performance—particularly in hot paths like PSCI operations and context
-switching taking advantage of fast-access system registers instead of traversing
-interconnects.
-
-Usage Example
-=============
-
-Platform Responsibilities
--------------------------
-
-To integrate the NUMA-Aware PER-CPU Framework into a platform, the following
-steps must be taken:
+When NUMA is enabled, the platform is required to comply with some additional
+requirements in order for the runtime to correctly set up per-CPU sections on
+remote nodes:
 
 1. Enable the Framework
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Set the PLATFORM_NODE_COUNT to greater than 1 (>=2) in the platform
-makefile to enable NUMA-aware per-cpu support:
+Set ``PLATFORM_NODE_COUNT`` to a value greater than 1 (>=2) in the platform
+makefile to enable NUMA-aware per-CPU support:
 
-.. code-block:: text
+.. code-block:: make
 
-    PLATFORM_NODE_COUNT := 1 (>=2 for enabling NUMA-aware per-cpu support)
+   PLATFORM_NODE_COUNT := 2  # >= 2 enables NUMA-aware per-CPU support
 
-Platforms that are not multi-node needn't do anything as
-PLATFORM_NODE_COUNT = 1 (NODE COUNT) by default.
-In the case of 32-bit Images such as BL32 sp_min NUMA framework is not supported.
+Platforms that are not multi-node do not need to modify this value because the
+default ``PLATFORM_NODE_COUNT`` is 1. The NUMA framework is not supported in
+32-bit images such as BL32 SP_MIN.
 
-2. Provide Per-CPU Section Base Address Table
----------------------------------------------
+2. Provide Per-CPU Section Base Address Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Declare and initialize an array holding the base address of the `.per_cpu`
-section for each node:
+Ensure that the platform can supply the base address of the ``.per_cpu`` section
+for each node and CPU when implementing ``plat_per_cpu_node_base`` and
+``plat_per_cpu_base``. The framework does not mandate how this information is
+obtained, only that each hook returns a valid base address. Platforms may:
 
-.. code-block:: c
+- derive the base addresses from platform descriptors or firmware configuration
+  data;
+- read them from device tree nodes or other runtime discovery mechanisms; or
+- encode them in platform-specific tables compiled into the image.
 
-    const uintptr_t per_cpu_nodes_base[] = {
-        /* Base addresses per node (platform-specific) */
-    };
+If a node described in platform data is not populated at runtime, the hooks may
+return ``UINT64_MAX`` to signal that no per-CPU section exists for that node.
 
-This array allows efficient mapping from logical CPU IDs to physical memory
-regions in multi-node systems.  Note: This is one example of how platforms can
-define .per_cpu section base addresses.  Platforms are free to determine and
-provide these addresses using other methods, such as device tree parsing,
-platform-specific tables, or dynamic discovery logic. It is important to note
-that the platform defined regions for holding remote per-cpu section should have
-a page aligned base and size for page table mapping via the xlat library. This
-is simply due to the fact that xlat requires page aligned address and size for
-mapping an entry. per-cpu section by itself requires only CACHE_WRITEBACK_GRANULE
-alignment for its base.
+The platform is free to maintain this mapping however it prefers, and may do so
+at either compile-time or through employing runtime discovery. The only
+requirement is that the ``plat_per_cpu_node_base`` and ``plat_per_cpu_base``
+hooks translate a node or CPU identifier into the base address of the
+corresponding ``.per_cpu`` section.
+
+Platform-defined regions that hold remote per-CPU sections must have
+page-aligned bases and sizes for page table mapping through the xlat library,
+which requires page alignment for mapped entries. The per-CPU section itself
+requires only cache writeback granule alignment for its base.
 
 3. Implement Required Platform Hooks
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provide the following platform-specific functions:
 
-- **`plat_per_cpu_base(int cpu)`**
-  Returns the base address of the `.per_cpu` section for the specified CPU.
+- ``uintptr_t plat_per_cpu_base(uint64_t cpu)``
 
-- **`plat_per_cpu_node_base(void)`**
-  Returns the node base address of the `.per_cpu` section.
+  Returns the base address of the ``.per_cpu`` section for the specified CPU.
 
-- **`plat_per_cpu_dcache_clean(void)`**
-  Cleans the entire per-cpu section from the data cache. This ensures that any
-  modifications made to per-cpu data are written back to memory, making them
-  visible to other CPUs or system components that may access this memory. It is
-  especially important on platforms that do not support hardware managed
-  coherency early in the boot.
+- ``uintptr_t plat_per_cpu_node_base(uint64_t node)``
+
+  Returns the base address of the ``.per_cpu`` section for the specified node.
+
+- ``uintptr_t plat_per_cpu_dcache_clean(void)``
+
+  Cleans the entire per-CPU section from the data cache. This ensures that any
+  modifications made to per-CPU data are written back to memory, making them
+  visible to other CPUs or system components that may access this memory. This
+  step is especially important on platforms that do not support hardware-managed
+  coherency early in the boot process.
 
 References
-==========
+----------
 
-- Original Presentation: https://www.trustedfirmware.org/docs/NUMA-aware-PER-CPU-framework-18Jul24.pdf
+- Original presentation:
+  https://www.trustedfirmware.org/docs/NUMA-aware-PER-CPU-framework-18Jul24.pdf
 
 --------------
 
