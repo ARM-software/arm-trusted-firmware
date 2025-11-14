@@ -28,6 +28,18 @@
 
 cpu_reset_prologue c1_premium
 
+	/* ---------------------------------------------------------------
+	 * CVE-2024-7881 is mitigated for C1-Premium using erratum 3651221
+	 * workaround by disabling the affected prefetcher setting
+	 * CPUACTLR6_EL1[41].
+	 * ---------------------------------------------------------------
+	 */
+workaround_reset_start c1_premium, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+	sysreg_bit_set C1_PREMIUM_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end c1_premium, CVE(2024, 7881)
+
+check_erratum_ls c1_premium, CVE(2024, 7881), CPU_REV(0, 0)
+
 cpu_reset_func_start c1_premium
 	/* Disable speculative loads */
 	msr	SSBS, xzr
