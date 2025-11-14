@@ -3,6 +3,26 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.40](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.39..refs/tags/lts-v2.8.40) (2025-11-14)
+
+### Resolved Issues
+
+- **Services**
+
+  - **SPM**
+
+    - **SPM MM**
+
+      - prevent excessive racing ([af82844](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af828443d45cab0e4a0ac8aaddccf78b9a8419a7))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - remove CVE_2022_23960 Cortex-A720 ([c1c4d7d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c1c4d7d5d076aca92387dbc0862fe29445202de0))
+    - remove CVE_2022_23960 Cortex-X4 ([373b225](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/373b22562c5d903f50787e6eb6a875c90faa2a4e))
+    - remove CVE_2022_23960 Neoverse V3 ([7d68311](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7d6831115fe36f3ca2413eb44959c46a8d1d5487))
+
 ## [lts-2.8.39](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.38..refs/tags/lts-v2.8.39) (2025-10-10)
 
 ### Resolved Issues
