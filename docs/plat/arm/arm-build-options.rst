@@ -46,6 +46,12 @@ Arm Platform Build Options
    MPIDR is set and access the bit-fields in MPIDR accordingly. Default value of
    this flag is 0. Note that this option is not used on FVP platforms.
 
+- ``ARM_PLAT_PROVIDES_BL2_MEM_PARAMS``: This flag can be overriden to 1 in the Arm
+   platform’s ``platform.mk`` to indicate that the platform supplies its own
+   bl2_mem_params_desc.c implementation. When enabled, the common implementation
+   in ``plat/arm/common/`` is omitted, and the platform must add its own
+   bl2_mem_params_desc.c file to ``BL2_SOURCES``.  The default value is 0.
+
 -  ``ARM_RECOM_STATE_ID_ENC``: The PSCI1.0 specification recommends an encoding
    for the construction of composite state-ID in the power-state parameter.
    The existing PSCI clients currently do not support this encoding of
