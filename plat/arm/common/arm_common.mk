@@ -295,12 +295,15 @@ ifeq (${RESET_TO_BL2},1)
 BL2_SOURCES		+=	plat/arm/common/arm_bl2_el3_setup.c
 endif
 
+# The Arm platforms use the default BL2 mem params desc.
+ARM_PLAT_PROVIDES_BL2_MEM_PARAMS	:=  0
+
 # Because BL1/BL2 execute in AArch64 mode but BL32 in AArch32 we need to use
 # the AArch32 descriptors.
 ifeq (${JUNO_AARCH32_EL3_RUNTIME},1)
 BL2_SOURCES		+=	plat/arm/common/aarch32/arm_bl2_mem_params_desc.c
 else
-ifeq ($(filter $(PLAT), corstone1000 rd1ae rdaspen),)
+ifeq ($(ARM_PLAT_PROVIDES_BL2_MEM_PARAMS),0)
 BL2_SOURCES		+=	plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c
 endif
 endif

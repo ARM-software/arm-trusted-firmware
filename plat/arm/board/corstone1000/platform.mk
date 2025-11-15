@@ -16,6 +16,7 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/corstone1000/common/include	\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/css/common/aarch64
 
+override ARM_PLAT_PROVIDES_BL2_MEM_PARAMS	:=	1
 
 CORSTONE1000_FW_NVCTR_VAL	:=	255
 TFW_NVCTR_VAL		:=	${CORSTONE1000_FW_NVCTR_VAL}
