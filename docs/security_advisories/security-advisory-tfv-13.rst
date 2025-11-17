@@ -36,24 +36,30 @@ to fetch the contents of a privileged location (for which it
 does not have read permission) and consume those contents as an address
 that is also dereferenced.
 
-The below table lists all the CPUs impacted by this vulnerability and have
-mitigation in TF-A.
+The following table identifies all affected CPUs and revisions
+for which a mitigation is provided in TF-A.
 
-+----------------------+
-| Core                 |
-+----------------------+
-| Cortex-X3            |
-+----------------------+
-| Cortex-X4            |
-+----------------------+
-| Cortex-X925          |
-+----------------------+
-| Neoverse-V2          |
-+----------------------+
-| Neoverse-V3          |
-+----------------------+
-| Neoverse-V3AE        |
-+----------------------+
++----------------+--------------------+------------------+
+| CPU            | affected versions  | Fix status       |
++----------------+--------------------+------------------+
+| cortex-x3      | all revisions      | open             |
++----------------+--------------------+------------------+
+| cortex-x4      | all revisions      | open             |
++----------------+--------------------+------------------+
+| cortex-x925    | all revisions      | open             |
++----------------+--------------------+------------------+
+| neoverse-v2    | all revisions      | open             |
++----------------+--------------------+------------------+
+| neoverse-v3    | all revisions      | open             |
++----------------+--------------------+------------------+
+| neoverse-v3ae  | all revisions      | open             |
++----------------+--------------------+------------------+
+| c1-premium     | r0p0               | fixed in r1p0    |
++----------------+--------------------+------------------+
+| c1-pro         | r0p0, r1p0         | fixed in r1p1    |
++----------------+--------------------+------------------+
+| c1-ultra       | r0p0               | fixed in r1p0    |
++----------------+--------------------+------------------+
 
 Mitigation and Recommendations
 ------------------------------
@@ -61,8 +67,10 @@ Mitigation and Recommendations
 Arm recommends following the mitigation steps and configuration changes
 described in the official advisory. The mitigation for CVE-2024-7881 is
 implemented at EL3 and addresses vulnerabilities caused by memory-dependant
-speculative prefetching. This issue is avoided by setting CPUACTLR6_EL1[41]
-to 1, this disables the affected prefetcher.
+speculative prefetching. This issue can be avoided by disabling the
+affected prefetcher. For most cores, this is done by
+setting CPUACTLR6_EL1[41] = 1. For C1-Pro, the affected prefetcher is
+instead disabled by setting IMP_CPUECTLR_EL1[49] = 1.
 
 Arm has updated the SMC Calling Convention spec so that privileged normal world
 software can identify when the issue has been mitigated in
