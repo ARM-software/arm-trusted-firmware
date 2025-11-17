@@ -43,7 +43,7 @@ int open_fip(const uintptr_t spec)
 
 	/* See if a Firmware Image Package is available */
 	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
-	if (result == 0) {
+	if (result == 0 && spec != (uintptr_t)NULL) {
 		result = io_open(fip_dev_handle, spec, &local_image_handle);
 		if (result == 0) {
 			VERBOSE("Using FIP\n");
