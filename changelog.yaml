@@ -138,6 +138,20 @@ subsections:
         deprecated:
           - plat/allwinner
 
+      - title: Altera
+        scope: altera
+
+        subsections:
+          - title: Agilex3
+            scope: agilex3
+
+      - title: AMD
+        scope: amd
+
+        subsections:
+          - title: Versal Gen 2
+            scope: versal2
+
       - title: AMLogic
         scope: amlogic
 
@@ -334,6 +348,13 @@ subsections:
 
           - title: MT8196
             scope: mt8196
+
+      - title: Nuvoton
+        scope: nuvoton
+
+        subsections:
+          - title: npcm845x
+            scope: npcm845x
 
       - title: NVIDIA
         scope: nvidia
@@ -693,27 +714,6 @@ subsections:
               - plat/zynqmp
               - plat/xilinx/zynqmp
 
-      - title: AMD
-        scope: amd
-
-        subsections:
-          - title: Versal Gen 2
-            scope: versal2
-
-      - title: Nuvoton
-        scope: nuvoton
-
-        subsections:
-          - title: npcm845x
-            scope: npcm845x
-
-      - title: Altera
-        scope: altera
-
-        subsections:
-          - title: Agilex3
-            scope: agilex3
-
   - title: Bootloader Images
     scope: bl
 
@@ -886,6 +886,9 @@ subsections:
 
       - title: SMCCC
         scope: smccc
+
+        deprecated:
+          - smcc
 
       - title: Translation Tables
         scope: xlat
