@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,6 +35,15 @@
 
 #ifndef __ASSEMBLER__
 long check_erratum_c1_pro_3300099(long cpu_rev);
+
+#if WORKAROUND_CVE_2026_0995
+#include <stdbool.h>
+
+int c1_pro_cve_2026_0995_smc_handler(u_register_t arg, void *handle);
+int c1_pro_cve_2026_0995_init(void);
+bool c1_pro_cve_2026_0995_applies(void);
+long check_erratum_c1_pro_995(long cpu_rev);
+#endif /* WORKAROUND_CVE_2026_0995 */
 #endif /* __ASSEMBLER__ */
 
 #endif /* C1_PRO_H */

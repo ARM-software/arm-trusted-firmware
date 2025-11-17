@@ -18,8 +18,31 @@ Levels below EL3. SMC calls for CPU Monitor Services:
 | 0xC1000000 - 0xC100FFFF   | SMC64: CPU Monitor Service Calls      |
 +---------------------------+---------------------------------------+
 
+CPU monitor services are as follows:
+
++-----------------------------------+-----------------------+-----------------------------------+
+| SMC Function Identifier           | Service Type          | FID's Usage                       |
++===================================+=======================+===================================+
+| 0x81000010 - 0x8100001F (SMC32)   | CVE-2026-0995         | 0 is in use.                      |
++-----------------------------------+ mitigation for        | 1 - 15 are Reserved.              |
+| 0xC1000010 - 0xC100001F (SMC64)   | C1-Pro CPU            |                                   |
++-----------------------------------+-----------------------+-----------------------------------+
+| 0x81000020 - 0x8100FFFF (SMC32)   | Reserved              | Reserved                          |
++-----------------------------------+                       |                                   |
+| 0xC1000020 - 0xC100FFFF (SMC64)   |                       |                                   |
++-----------------------------------+-----------------------+-----------------------------------+
+
 Source definitions for CPU Monitor Service Calls used by TF-A are located in the
 ``cpu_svc.h`` header file.
+
++------------------------+------------------------+----------------------------------+
+| CPU_SVC_VERSION_MAJOR  | CPU_SVC_VERSION_MINOR  | Changes                          |
++========================+========================+==================================+
+|                      1 |                      0 | Added for mitigating for         |
+|                        |                        | CVE-2026-0995 erratum            |
+|                        |                        | for C1-Pro CPU .                 |
++------------------------+------------------------+----------------------------------+
+
 
 *Table 1: Showing different versions of CPU service and changes done with each version*
 
