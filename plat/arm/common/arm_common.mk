@@ -133,10 +133,18 @@ endif
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
+ifneq (${DECRYPTION_SUPPORT},none)
+$(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1,,$(ENCRYPT_BL32)))
+else
 $(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1))
 endif
+endif
 ifneq ($(BL32_EXTRA2),)
+ifneq (${DECRYPTION_SUPPORT},none)
+$(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
+else
 $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
+endif
 endif
 
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
@@ -330,6 +338,11 @@ include lib/transfer_list/transfer_list.mk
 BL1_SOURCES += plat/arm/common/arm_transfer_list.c
 BL2_SOURCES += plat/arm/common/arm_transfer_list.c
 BL31_SOURCES += plat/arm/common/arm_transfer_list.c
+endif
+
+ifneq (${DECRYPTION_SUPPORT},none)
+BL1_SOURCES		+=	drivers/io/io_encrypted.c
+BL2_SOURCES		+=	drivers/io/io_encrypted.c
 endif
 
 ifneq ($(filter 1,${ENABLE_PMF} ${ETHOSN_NPU_DRIVER}),)
