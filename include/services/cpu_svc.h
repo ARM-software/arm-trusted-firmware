@@ -18,7 +18,10 @@
 /*				0x8100ff02 is reserved */
 #define CPU_SVC_VERSION         0x8100ff03
 
-#define CPU_SVC_VERSION_MAJOR	1
-#define CPU_SVC_VERSION_MINOR	0
+#define CPU_SVC_VERSION_MAJOR           1
+#define CPU_SVC_VERSION_MINOR           0
+
+/* Used for mitigating CVE-2026-0995 */
+#define C1_PRO_CPU_SMC_HANDLER_32       0x81000010U
 
 #endif /* CPU_SVC_H */

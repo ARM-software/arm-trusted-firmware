@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <c1_pro.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <services/cpu_svc.h>
@@ -18,6 +19,12 @@ DEFINE_SVC_UUID2(cpu_svc_uid,
 
 static int cpu_svc_setup(void)
 {
+#if WORKAROUND_CVE_2026_0995
+	if (c1_pro_cve_2026_0995_init()) {
+		return 1;
+	}
+#endif /* WORKAROUND_CVE_2026_0995 */
+
 	return 0;
 }
 
@@ -42,6 +49,17 @@ static uintptr_t cpu_svc_handler(unsigned int smc_fid,
 	case CPU_SVC_VERSION:
 		SMC_RET2(handle, CPU_SVC_VERSION_MAJOR, CPU_SVC_VERSION_MINOR);
 		break;
+
+#if WORKAROUND_CVE_2026_0995
+	case C1_PRO_CPU_SMC_HANDLER_32:
+		if (c1_pro_cve_2026_0995_applies()) {
+			return c1_pro_cve_2026_0995_smc_handler(x1, handle);
+		}
+
+		SMC_RET1(handle, SMC_DENIED);
+		break;
+#endif /* WORKAROUND_CVE_2026_0995 */
+
 	default:
 		WARN("Unimplemented CPU Service call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
