@@ -7,18 +7,19 @@
 #ifndef PER_CPU_H
 #define PER_CPU_H
 
+#include <stddef.h>
+
+#include <plat/common/platform.h>
+
 #include <common/bl_common.h>
 #include <lib/per_cpu/per_cpu_defs.h>
-#include <plat/common/platform.h>
 
 /* section where per-cpu objects using per-cpu framework would reside */
 #define PER_CPU_SECTION_NAME	".per_cpu"
 
 /* per cpu section size for a single CPU/PE */
-#define PER_CPU_UNIT_SIZE	((size_t)((const char *)PER_CPU_UNIT_END - \
-					(const char *)PER_CPU_START))
-#define PER_CPU_OFFSET(x)	((const char *)(x) -		\
-					(const char *)PER_CPU_START)
+#define PER_CPU_UNIT_SIZE ((size_t)(PER_CPU_UNIT_END - PER_CPU_START))
+#define PER_CPU_OFFSET(x) ((ptrdiff_t)((uintptr_t)(x) - PER_CPU_START))
 
 /*******************************************************************************
  * per-cpu definer and accessor interfaces
