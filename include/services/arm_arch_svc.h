@@ -234,6 +234,7 @@
 	SCR_NS_BIT		|						\
 	SCR_NSE_BIT		|						\
 	SCR_RES1_BITS		|						\
+	SCR_EEL2_BIT		|						\
 	SCR_PLAT_IGNORED)
 CASSERT((SCR_EL3_FEATS & SCR_EL3_IGNORED) == 0, scr_feat_is_ignored);
 CASSERT((SCR_EL3_FLIPPED & SCR_EL3_FEATS) == SCR_EL3_FLIPPED, scr_flipped_not_a_feat);
