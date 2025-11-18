@@ -31,7 +31,7 @@ int plat_handle_rng_trap(uint64_t esr_el3, cpu_context_t *ctx)
 	/* Emulate RNDR and RNDRRS */
 	gp_regs_t *gpregs = get_gpregs_ctx(ctx);
 
-	write_ctx_reg(gpregs, rt, entropy);
+	gpregs->ctx_regs[rt] = entropy;
 
 	/*
 	 * We successfully handled the trap, continue with the next
