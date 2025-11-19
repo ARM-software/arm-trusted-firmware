@@ -30,9 +30,9 @@ Arm Compiler             6.23
 Arm GNU Compiler         14.3
 Clang/LLVM               18.1.8
 Device Tree Compiler     1.6.1
-GNU make                 3.81
+GNU Make                 4.3
 mbed TLS\ [#f1]_         3.6.5
-Node.js [#f2]_           16
+Node.js [#f2]_           20.11.1
 OpenSSL                  1.0.0
 Poetry                   1.3.2
 QCBOR\ [#f3]_            1.2
@@ -51,8 +51,8 @@ preceding table that target Armv7-A or Armv8-A. For AArch32 and
 AArch64 builds, the respective targets required are ``arm-none-eabi`` and
 ``aarch64-none-elf``.
 
-Testing has been performed with version 14.2.Rel1 (GCC 14.2) of the Arm
-GNU compiler, which can be installed from the `Arm Developer website`_.
+Testing has been performed with the version of the Arm GNU compiler listed in
+the table above. This can be installed from the `Arm Developer website`_.
 
 In addition, a native compiler is required to build supporting tools.
 
