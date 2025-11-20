@@ -27,8 +27,9 @@
 #define NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH	        U(3)
 
 /*******************************************************************************
- * CPU Auxiliary control register 6 specific definitions
+ * CPU Auxiliary control register definitions
  ******************************************************************************/
+#define NEOVERSE_V3_CPUACTLR2_EL1				S3_0_C15_C1_1
 #define NEOVERSE_V3_CPUACTLR6_EL1				S3_0_C15_C8_1
 
 /*******************************************************************************
