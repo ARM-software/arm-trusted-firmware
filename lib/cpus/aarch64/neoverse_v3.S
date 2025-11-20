@@ -41,6 +41,12 @@ workaround_reset_end neoverse_v3, ERRATUM(2970647)
 
 check_erratum_ls neoverse_v3, ERRATUM(2970647), CPU_REV(0, 0)
 
+workaround_reset_start neoverse_v3, ERRATUM(3696307), ERRATA_V3_3696307
+	sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end neoverse_v3, ERRATUM(3696307)
+
+check_erratum_ls neoverse_v3, ERRATUM(3696307), CPU_REV(0, 1)
+
 add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767
 
 check_erratum_ls neoverse_v3, ERRATUM(3701767), CPU_REV(0, 2)
