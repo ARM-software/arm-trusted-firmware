@@ -1,0 +1,28 @@
+@startdot
+digraph handoff_dfd {
+    rankdir=LR
+    compound=true
+
+    edge [minlen=2 color="#8c1b07"]
+    node [fillcolor="#ffb866" style=filled shape=box fixedsize=true width=1.6 height=0.7]
+
+    receiver [label="Receiver"]
+
+    subgraph cluster_trusted {
+        label="Trust Boundary"
+        style=dashed
+        color="#f22430"
+
+        subgraph cluster_producer {
+            label="Producer"
+            style=filled
+            color="#000000"
+            fillcolor="#faf9cd"
+
+            libtl [label="LibTL" fillcolor="#ddffb3"]
+        }
+    }
+
+    libtl -> receiver [label="DF7" ltail=cluster_trusted]
+}
+@enddot

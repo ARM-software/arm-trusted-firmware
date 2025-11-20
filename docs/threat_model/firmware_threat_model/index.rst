@@ -32,6 +32,7 @@ data flow diagram, as well as a list of threats we have identified using the
    threat_model_rse_interface
    threat_model_arm_cca
    threat_model_fw_update_and_recovery
+   threat_model_firmware_handoff
 
 --------------
 
