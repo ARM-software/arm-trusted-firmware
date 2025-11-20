@@ -25,7 +25,15 @@
 /*******************************************************************************
  * CPU Auxiliary control register 6 specific definitions
  ******************************************************************************/
-#define NEOVERSE_V3_CPUACTLR6_EL1                                S3_0_C15_C8_1
+#define NEOVERSE_V3_CPUACTLR6_EL1				S3_0_C15_C8_1
+
+/*******************************************************************************
+ * CPU instruction patching register definitions
+ ******************************************************************************/
+#define NEOVERSE_V3_CPUPSELR_EL3				S3_6_C15_C8_0
+#define NEOVERSE_V3_CPUPCR_EL3					S3_6_C15_C8_1
+#define NEOVERSE_V3_CPUPOR_EL3					S3_6_C15_C8_2
+#define NEOVERSE_V3_CPUPMR_EL3					S3_6_C15_C8_3
 
 #ifndef __ASSEMBLER__
 long check_erratum_neoverse_v3_3701767(long cpu_rev);

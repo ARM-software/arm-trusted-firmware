@@ -51,6 +51,19 @@ add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767
 
 check_erratum_ls neoverse_v3, ERRATUM(3701767), CPU_REV(0, 2)
 
+workaround_reset_start neoverse_v3, ERRATUM(3734562), ERRATA_V3_3734562
+	mov	x0, #2
+	msr	NEOVERSE_V3_CPUPSELR_EL3, x0
+	ldr	x0, =0xD503225F
+	msr	NEOVERSE_V3_CPUPOR_EL3, x0
+	mov	x0, 0xFFFFFFFF
+	msr	NEOVERSE_V3_CPUPMR_EL3, x0
+	ldr	x0, =0x404003FD
+	msr	NEOVERSE_V3_CPUPCR_EL3, x0
+workaround_reset_end neoverse_v3, ERRATUM(3734562)
+
+check_erratum_ls neoverse_v3, ERRATUM(3734562), CPU_REV(0, 1)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
