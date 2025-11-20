@@ -83,6 +83,12 @@ workaround_reset_end neoverse_v3, ERRATUM(3864536)
 
 check_erratum_ls neoverse_v3, ERRATUM(3864536), CPU_REV(0, 2)
 
+workaround_reset_start neoverse_v3, ERRATUM(3878291), ERRATA_V3_3878291
+	sysreg_bit_set NEOVERSE_V3_CPUACTLR4_EL1, BIT(57)
+workaround_reset_end neoverse_v3, ERRATUM(3878291)
+
+check_erratum_ls neoverse_v3, ERRATUM(3878291), CPU_REV(0, 2)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
