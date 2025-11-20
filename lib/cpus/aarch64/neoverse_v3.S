@@ -64,6 +64,19 @@ workaround_reset_end neoverse_v3, ERRATUM(3734562)
 
 check_erratum_ls neoverse_v3, ERRATUM(3734562), CPU_REV(0, 1)
 
+workaround_reset_start neoverse_v3, ERRATUM(3782181), ERRATA_V3_3782181
+        /* Disable retention control for WFI and WFE. */
+        mrs     x0, NEOVERSE_V3_CPUPWRCTLR_EL1
+        bfi     x0, xzr, #NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
+		#NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
+        bfi     x0, xzr, #NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
+		#NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
+        msr     NEOVERSE_V3_CPUPWRCTLR_EL1, x0
+workaround_reset_end neoverse_v3, ERRATUM(3782181)
+
+check_erratum_range neoverse_v3, ERRATUM(3782181), CPU_REV(0, 1), \
+	CPU_REV(0, 1)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)

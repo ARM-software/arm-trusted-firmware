@@ -21,6 +21,10 @@
  ******************************************************************************/
 #define NEOVERSE_V3_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define NEOVERSE_V3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
+#define NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT	        U(4)
+#define NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH	        U(3)
+#define NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT	        U(7)
+#define NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH	        U(3)
 
 /*******************************************************************************
  * CPU Auxiliary control register 6 specific definitions
