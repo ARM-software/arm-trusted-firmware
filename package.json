@@ -18,7 +18,7 @@
     "commitizen": "^4.3.0",
     "conventional-changelog-tf-a": "file:tools/conventional-changelog-tf-a",
     "husky": "^9.0.11",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "standard-version": "^9.5.0"
   }
 }
