@@ -1092,18 +1092,6 @@ int gpt_enable(void)
 }
 
 /*
- * Public API to disable granule protection checks.
- */
-void gpt_disable(void)
-{
-	u_register_t gpccr_el3 = read_gpccr_el3();
-
-	write_gpccr_el3(gpccr_el3 & ~GPCCR_GPC_BIT);
-	dsbsy();
-	isb();
-}
-
-/*
  * Public API that initializes the entire protected space to GPT_GPI_ANY using
  * the L0 tables (block descriptors). Ideally, this function is invoked prior
  * to DDR discovery and initialization. The MMU must be initialized before
