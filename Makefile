@@ -8,7 +8,7 @@
 # Trusted Firmware Version
 #
 VERSION_MAJOR			:= 2
-VERSION_MINOR			:= 13
+VERSION_MINOR			:= 14
 # VERSION_PATCH is only used for LTS releases
 VERSION_PATCH			:= 0
 VERSION				:= ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
