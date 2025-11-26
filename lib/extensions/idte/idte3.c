@@ -99,6 +99,7 @@ void idte3_init_cached_idregs_per_world(size_t security_state)
 	update_feat_fgwte3_idreg_field(security_state);
 	update_feat_cpa2_idreg_field(security_state);
 	update_feat_idte3_idreg_field(security_state);
+	update_feat_uinj_idreg_field(security_state);
 }
 
 int handle_idreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)

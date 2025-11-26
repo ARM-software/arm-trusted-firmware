@@ -270,6 +270,8 @@ static inline bool is_ ## name ## _present(void)				\
  * +----------------------------+
  * |    FEAT_IDTE3              |
  * +----------------------------+
+ * |    FEAT_UINJ               |
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -814,4 +816,8 @@ CREATE_FEATURE_FUNCS(feat_cpa2, id_aa64isar3_el1, ID_AA64ISAR3_EL1_CPA_SHIFT,
 		     ID_AA64ISAR3_EL1_CPA_MASK, CPA2_IMPLEMENTED,
 		     ENABLE_FEAT_CPA2, FEAT_ENABLE_ALL_WORLDS)
 
+/* FEAT_UINJ: Injection of Undefined Instruction exceptions */
+CREATE_FEATURE_FUNCS(feat_uinj, id_aa64pfr2_el1, ID_AA64PFR2_EL1_UINJ_SHIFT,
+		     ID_AA64PFR2_EL1_UINJ_MASK, UINJ_IMPLEMENTED,
+		     ENABLE_FEAT_UINJ, FEAT_ENABLE_ALL_WORLDS)
 #endif /* ARCH_FEATURES_H */

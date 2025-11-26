@@ -111,9 +111,6 @@ static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsign
  * affect the PSTATE.
  *
  * TF-A 2.13 release review
- *
- * Review of version 2025-03 indicates we are missing support for one feature.
- *  - FEAT_UINJ (2024 extension)
  */
 u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 {
@@ -190,6 +187,9 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 	/* NZCV bits are unchanged */
 	new_spsr |= old_spsr & SPSR_NZCV;
 
+	/* UINJ bit is unchanged */
+	new_spsr |= old_spsr & SPSR_UINJ_BIT;
+
 	/* If FEAT_EBEP is present set PM bit */
 	new_spsr |= old_spsr & SPSR_PM_BIT_AARCH64;
 	if (is_feat_ebep_present()) {
@@ -232,13 +232,24 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
  */
 void inject_undef64(cpu_context_t *ctx)
 {
-	u_register_t esr = (EC_UNKNOWN << ESR_EC_SHIFT) | ESR_IL_BIT;
 	el3_state_t *state = get_el3state_ctx(ctx);
-	u_register_t elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
 	u_register_t old_spsr = read_ctx_reg(state, CTX_SPSR_EL3);
-	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
-	u_register_t new_spsr = 0;
-	unsigned int to_el = target_el(GET_EL(old_spsr), scr_el3);
+	u_register_t scr_el3 = 0U;
+	unsigned int to_el = 0U;
+	u_register_t esr = 0U;
+	u_register_t elr_el3 = 0U;
+	u_register_t new_spsr = 0U;
+
+	if (is_feat_uinj_supported()) {
+		new_spsr = old_spsr | SPSR_UINJ_BIT;
+		write_ctx_reg(state, CTX_SPSR_EL3, new_spsr);
+		return;
+	}
+
+	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	to_el = target_el(GET_EL(old_spsr), scr_el3);
+	esr = (EC_UNKNOWN << ESR_EC_SHIFT) | ESR_IL_BIT;
+	elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
 
 	if (to_el == MODE_EL2) {
 		write_elr_el2(elr_el3);
