@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -127,15 +127,6 @@
 	/* Synchronise the CPU context with the completion of the dsb */
 	isb
 	.endm
-
-#if (ARM_ARCH_MAJOR == 7)
-	/* ARMv7 does not support stl instruction */
-	.macro stl _reg, _write_lock
-	dmb
-	str	\_reg, \_write_lock
-	dsb
-	.endm
-#endif
 
 	/*
 	 * Helper macro to generate the best mov/movw/movt combinations

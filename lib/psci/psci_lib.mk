@@ -8,7 +8,6 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 				lib/el3_runtime/${ARCH}/context_mgmt.c	\
 				lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c		\
-				lib/locks/exclusive/${ARCH}/spinlock.S	\
 				lib/psci/psci_off.c			\
 				lib/psci/psci_on.c			\
 				lib/psci/psci_suspend.c			\

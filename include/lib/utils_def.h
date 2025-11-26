@@ -210,14 +210,6 @@
 #endif
 
 /*
- * Test for the current architecture version to be at least the version
- * expected.
- */
-#define ARM_ARCH_AT_LEAST(_maj, _min) \
-	((ARM_ARCH_MAJOR > (_maj)) || \
-	 ((ARM_ARCH_MAJOR == (_maj)) && (ARM_ARCH_MINOR >= (_min))))
-
-/*
  * Import an assembly or linker symbol as a C expression with the specified
  * type
  */

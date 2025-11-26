@@ -322,6 +322,12 @@ static unsigned int read_feat_uinj_id_field(void)
 			 ID_AA64PFR2_EL1_UINJ_MASK);
 }
 
+static unsigned int read_feat_lse_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64isar0_el1(), ID_AA64ISAR0_ATOMIC_SHIFT,
+			     ID_AA64ISAR0_ATOMIC_MASK);
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -369,6 +375,9 @@ void detect_arch_features(unsigned int core_pos)
 	 */
 	tainted |= check_feature(FEAT_STATE_ALWAYS, read_feat_pmuv3_id_field(),
 				 "PMUv3", 1, ID_AA64DFR0_PMUVER_PMUV3P9);
+
+	tainted |= check_feature(USE_SPINLOCK_CAS, read_feat_lse_id_field(),
+				 "LSE", 2, 2);
 
 	/* v8.1 features */
 	tainted |= check_feature(ENABLE_FEAT_PAN, read_feat_pan_id_field(),

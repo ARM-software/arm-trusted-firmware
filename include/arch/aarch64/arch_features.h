@@ -272,6 +272,8 @@ static inline bool is_ ## name ## _present(void)				\
  * +----------------------------+
  * |    FEAT_UINJ               |
  * +----------------------------+
+ * |    FEAT_LSE                |
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -760,6 +762,12 @@ CREATE_FEATURE_FUNCS(feat_pfar, id_aa64pfr1_el1, ID_AA64PFR1_EL1_PFAR_SHIFT,
 CREATE_FEATURE_FUNCS(feat_idte3, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_IDS_SHIFT,
 		     ID_AA64MMFR2_EL1_IDS_MASK, 2U, ENABLE_FEAT_IDTE3,
 		     FEAT_ENABLE_ALL_WORLDS)
+
+/* FEAT_LSE: Atomic instructions */
+CREATE_FEATURE_FUNCS(feat_lse, id_aa64isar0_el1, ID_AA64ISAR0_ATOMIC_SHIFT,
+		     ID_AA64ISAR0_ATOMIC_MASK, 1U, USE_SPINLOCK_CAS,
+		     FEAT_ENABLE_ALL_WORLDS)
+
 
 /*******************************************************************************
  * Function to get hardware granularity support

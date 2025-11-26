@@ -153,6 +153,10 @@ $(eval $(call default_ones, ${sort ${FEAT_LIST}}))
 ################################################################################
 #
 
+# Flag to enable the spinlock implementation variant using the FEAT_LSE
+# compare-and-swap instruction.
+USE_SPINLOCK_CAS		?=	0
+
 #----
 # 8.1
 #----
