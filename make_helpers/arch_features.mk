@@ -121,6 +121,27 @@ armv9-3-a-feats         += ${armv8-8-a-feats} ${armv9-2-a-feats}
 FEAT_LIST               := ${armv9-3-a-feats}
 endif
 
+# Enable the features which are mandatory from ARCH version 9.4 and upwards.
+ifeq "9.4" "$(word 1, $(sort 9.4 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+# 8.9 and 9.3 Compliant
+armv9-4-a-feats         += ${armv8-9-a-feats} ${armv9-3-a-feats}
+FEAT_LIST               := ${armv9-4-a-feats}
+endif
+
+# Enable the features which are mandatory from ARCH version 9.5 and upwards.
+ifeq "9.5" "$(word 1, $(sort 9.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+# 9.4 Compliant
+armv9-5-a-feats         += ${armv9-4-a-feats}
+FEAT_LIST               := ${armv9-5-a-feats}
+endif
+
+# Enable the features which are mandatory from ARCH version 9.6 and upwards.
+ifeq "9.6" "$(word 1, $(sort 9.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+# 9.5 Compliant
+armv9-6-a-feats         += ${armv9-5-a-feats}
+FEAT_LIST               := ${armv9-6-a-feats}
+endif
+
 # Set all FEAT_* in FEAT_LIST to '1' if they are not yet defined or set
 # from build commandline options or platform makefile.
 $(eval $(call default_ones, ${sort ${FEAT_LIST}}))
