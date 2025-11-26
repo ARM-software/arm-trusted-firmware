@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,10 +19,12 @@
 /* In client mode, a part of the DDR memory is reserved for Tag bits.
  * Calculate the usable memory size after subtracting the Tag memory.
  */
+#ifdef TARGET_PLATFORM_SOC
 static inline uint64_t get_mem_client_mode(uint64_t size)
 {
 	return (size - (size / 128ULL));
 }
+#endif
 
 /*******************************************************************************
  * This function inserts Platform information and firmware versions

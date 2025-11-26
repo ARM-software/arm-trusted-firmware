@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,38 +66,38 @@ endfunc plat_arm_calc_core_pos
 	 * -----------------------------------------------------
 	 */
 func plat_reset_handler
-	jump_if_cpu_midr CORTEX_A75_MIDR, A75
-	jump_if_cpu_midr NEOVERSE_N1_MIDR, N1
-	jump_if_cpu_midr NEOVERSE_V1_MIDR, V1
-	jump_if_cpu_midr NEOVERSE_N2_MIDR, N2
+	jump_if_cpu_midr CORTEX_A75_MIDR, jmp_A75
+	jump_if_cpu_midr NEOVERSE_N1_MIDR, jmp_N1
+	jump_if_cpu_midr NEOVERSE_V1_MIDR, jmp_V1
+	jump_if_cpu_midr NEOVERSE_N2_MIDR, jmp_N2
 	ret
 
 	/* -----------------------------------------------------
 	 * Disable CPU power down bit in power control register
 	 * -----------------------------------------------------
 	 */
-A75:
+jmp_A75:
 	mrs	x0, CORTEX_A75_CPUPWRCTLR_EL1
 	bic	x0, x0, #CORTEX_A75_CORE_PWRDN_EN_MASK
 	msr	CORTEX_A75_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 
-N1:
+jmp_N1:
 	mrs	x0, NEOVERSE_N1_CPUPWRCTLR_EL1
 	bic	x0, x0, #NEOVERSE_N1_CORE_PWRDN_EN_MASK
 	msr	NEOVERSE_N1_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 
-V1:
+jmp_V1:
 	mrs	x0, NEOVERSE_V1_CPUPWRCTLR_EL1
 	bic	x0, x0, #NEOVERSE_V1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	msr	NEOVERSE_V1_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 
-N2:
+jmp_N2:
 	mrs	x0, NEOVERSE_N2_CPUPWRCTLR_EL1
 	bic	x0, x0, #NEOVERSE_N2_CORE_PWRDN_EN_BIT
 	msr	NEOVERSE_N2_CPUPWRCTLR_EL1, x0

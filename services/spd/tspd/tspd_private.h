@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -205,11 +205,6 @@ typedef struct tsp_context {
 
 /* TSPD power management handlers */
 extern const spd_pm_ops_t tspd_pm;
-
-/*******************************************************************************
- * Forward declarations
- ******************************************************************************/
-typedef struct tsp_vectors tsp_vectors_t;
 
 /*******************************************************************************
  * Function & Data prototypes
