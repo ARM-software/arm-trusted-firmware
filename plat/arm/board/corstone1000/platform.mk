@@ -9,7 +9,14 @@ ifeq ($(filter ${TARGET_PLATFORM}, fpga fvp),)
         $(error TARGET_PLATFORM must be fpga or fvp)
 endif
 
+ifeq ($(CORSTONE1000_CORTEX_A320), 1)
+CORSTONE1000_CPU_LIBS	+=lib/cpus/aarch64/cortex_a320.S
+$(eval $(call add_define,CORSTONE1000_CORTEX_A320))
+GIC_ENABLE_V4_EXTN		:= 1
+GICV3_SUPPORT_GIC600		:= 1
+else
 CORSTONE1000_CPU_LIBS	+=lib/cpus/aarch64/cortex_a35.S
+endif
 
 PLAT_INCLUDES		:=	-Iplat/arm/board/corstone1000/common/include	\
 				-Iplat/arm/board/corstone1000/include		\
@@ -44,7 +51,11 @@ $(eval $(call add_define,CORSTONE1000_FVP_MULTICORE))
 endif
 endif
 
+ifeq ($(CORSTONE1000_CORTEX_A320), 1)
+USE_GIC_DRIVER			:=	3
+else
 USE_GIC_DRIVER			:=	2
+endif
 
 BL2_SOURCES		+=	plat/arm/board/corstone1000/common/corstone1000_security.c		\
 				plat/arm/board/corstone1000/common/corstone1000_err.c		\
