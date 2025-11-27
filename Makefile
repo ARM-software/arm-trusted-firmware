@@ -141,6 +141,12 @@ else
 	BUILD_TYPE	:=	release
 	# Use LOG_LEVEL_NOTICE by default for release builds
 	LOG_LEVEL	:=	20
+        # Enable link-time optimization (AKA "inter-procedural optimization")
+        ifeq (${ARCH},aarch64)
+                ifeq ($($(ARCH)-ld-id),$($(ARCH)-cc-id))
+                        ENABLE_LTO :=	1
+                endif
+        endif
 endif #(Debug)
 
 # Default build string (git branch and commit)
