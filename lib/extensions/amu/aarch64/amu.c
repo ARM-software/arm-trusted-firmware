@@ -64,28 +64,31 @@ void amu_init_el3(unsigned int core_pos)
 
 	/* Enable all architected counters by default */
 	write_amcntenset0_el0(AMCNTENSET0_EL0_Pn_MASK);
+
+	if (!is_feat_amuv1p1_supported()) {
+		return;
+	}
+
 	if (is_feat_amu_aux_supported()) {
 		/* something went wrong if we're trying to write higher bits */
 		assert((get_amu_aux_enables(core_pos) & ~AMCNTENSET1_EL0_Pn_MASK) == 0);
 		write_amcntenset1_el0(get_amu_aux_enables(core_pos));
 	}
 
-	if (is_feat_amuv1p1_supported()) {
 #if AMU_RESTRICT_COUNTERS
-		/*
-		 * FEAT_AMUv1p1 adds a register field to restrict access to
-		 * group 1 counters at all but the highest implemented EL. This
-		 * is controlled with the `AMU_RESTRICT_COUNTERS` compile time
-		 * flag, when set, system register reads at lower ELs return
-		 * zero. Reads from the memory mapped view are unaffected.
-		 */
-		VERBOSE("AMU group 1 counter access restricted.\n");
-		write_amcr_el0(AMCR_CG1RZ_BIT);
+	/*
+	 * FEAT_AMUv1p1 adds a register field to restrict access to
+	 * group 1 counters at all but the highest implemented EL. This
+	 * is controlled with the `AMU_RESTRICT_COUNTERS` compile time
+	 * flag, when set, system register reads at lower ELs return
+	 * zero. Reads from the memory mapped view are unaffected.
+	 */
+	VERBOSE("AMU group 1 counter access restricted.\n");
+	write_amcr_el0(AMCR_CG1RZ_BIT);
 #else
-		/* HDBG = 0 in both cases */
-		write_amcr_el0(0);
+	/* HDBG = 0 in both cases */
+	write_amcr_el0(0);
 #endif
-	}
 }
 
 void amu_init_el2_unused(void)
