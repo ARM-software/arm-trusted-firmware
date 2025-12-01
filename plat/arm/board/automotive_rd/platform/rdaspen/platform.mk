@@ -10,39 +10,40 @@ RDASPEN_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_a720_ae.S
 
 PLAT_INCLUDES		+=	-I${RDASPEN_BASE}/include/
 
-override ARM_FW_CONFIG_LOAD_ENABLE	:=	1
-override ARM_PLAT_MT			:=	1
-override ARM_RECOM_STATE_ID_ENC		:=	1
-override CSS_LOAD_SCP_IMAGES		:=	0
-override CTX_INCLUDE_AARCH32_REGS	:=	0
-override NEED_BL1			:=	0
-override NEED_BL2U			:=	0
-override PSCI_EXTENDED_STATE_ID		:=	1
+override ARM_FW_CONFIG_LOAD_ENABLE		:=	1
+override ARM_PLAT_MT				:=	1
+override ARM_PLAT_PROVIDES_BL2_MEM_PARAMS	:=	1
+override ARM_RECOM_STATE_ID_ENC			:=	1
+override CSS_LOAD_SCP_IMAGES			:=	0
+override CTX_INCLUDE_AARCH32_REGS		:=	0
+override NEED_BL1				:=	0
+override NEED_BL2U				:=	0
+override PSCI_EXTENDED_STATE_ID			:=	1
 
 # SVE related flags
-override CTX_INCLUDE_FPREGS		:=	1
-override CTX_INCLUDE_SVE_REGS		:=	1
-override ENABLE_SVE_FOR_NS		:=	1
-override ENABLE_SVE_FOR_SWD		:=	1
+override CTX_INCLUDE_FPREGS			:=	1
+override CTX_INCLUDE_SVE_REGS			:=	1
+override ENABLE_SVE_FOR_NS			:=	1
+override ENABLE_SVE_FOR_SWD			:=	1
 
-ARM_ARCH_MAJOR				:=	9
-ARM_ARCH_MINOR				:=	2
-CSS_USE_SCMI_SDS_DRIVER			:=	1
+ARM_ARCH_MAJOR					:=	9
+ARM_ARCH_MINOR					:=	2
+CSS_USE_SCMI_SDS_DRIVER				:=	1
 # Enable runtime feature detection for emulation environments
-ENABLE_FEAT_AMU				:=	2
-ENABLE_FEAT_ECV				:=	2
-ENABLE_FEAT_FGT				:=	2
-ENABLE_FEAT_MTE2			:=	2
-ENABLE_MPAM_FOR_LOWER_ELS		:=	1
-GIC_ENABLE_V4_EXTN			:=	1
-GICV3_SUPPORT_GIC600			:=	1
-HW_ASSISTED_COHERENCY			:=	1
-NEED_BL32				?=	yes
-PLAT_MHU_VERSION			:=	3
-RESET_TO_BL2				:=	1
-SVE_VECTOR_LEN				:=	128
-USE_GIC_DRIVER				:=	3
-USE_COHERENT_MEM			:=	0
+ENABLE_FEAT_AMU					:=	2
+ENABLE_FEAT_ECV					:=	2
+ENABLE_FEAT_FGT					:=	2
+ENABLE_FEAT_MTE2				:=	2
+ENABLE_MPAM_FOR_LOWER_ELS			:=	1
+GIC_ENABLE_V4_EXTN				:=	1
+GICV3_SUPPORT_GIC600				:=	1
+HW_ASSISTED_COHERENCY				:=	1
+NEED_BL32					?=	yes
+PLAT_MHU_VERSION				:=	3
+RESET_TO_BL2					:=	1
+SVE_VECTOR_LEN					:=	128
+USE_GIC_DRIVER					:=	3
+USE_COHERENT_MEM				:=	0
 
 # Enable the DSU driver and save DSU PMU registers on cluster off
 # and restore them on cluster on
