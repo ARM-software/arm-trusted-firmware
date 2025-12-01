@@ -24,6 +24,8 @@
 #define PLAT_ARM_SYS_CNTREAD_BASE		UL(0x40010000)
 /* SI MHU regions 6MB in total */
 #define SI_MHU_REGION_BASE			UL(0x40020000)
+/* AP MHU regions 768KB in total */
+#define RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE	UL(0x40680000)
 
 /* AP access AP_REFLCK generic timers via Peripheral Block */
 #define PLAT_ARM_SYS_TIMCTL_BASE		UL(0x1A810000)
@@ -250,5 +252,45 @@
 
 /* The index of the primary CPU */
 #define RDASPEN_PRIMARY_CPU		0x0
+
+/*
+ * In the current implementation, the RoT Service request that requires the
+ * biggest message buffer is the RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
+ * maximum required buffer size is calculated based on the platform-specific
+ * needs of this request.
+ */
+ #define PLAT_RSE_COMMS_PAYLOAD_MAX_SIZE	UL(0x1000)
+
+/*******************************************************************************
+ * MHUv3 related definitions
+ ******************************************************************************/
+
+/* AP - RSE MHUv3 */
+#define MHU_V3_MBX_FRAME_OFFSET		UL(0x30000)
+
+/* MHUv3 Postbox and Mailbox register frame base */
+#define AP_RSE_SECURE_MHU_V3_PBX	RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE
+#define AP_RSE_SECURE_MHU_V3_MBX	RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE + \
+						MHU_V3_MBX_FRAME_OFFSET
+
+/*
+ * In the current implementation, the RoT Service request that requires the
+ * biggest message buffer is the RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
+ * maximum required buffer size is calculated based on the platform-specific
+ * needs of this request.
+ */
+ #define PLAT_RSE_COMMS_PAYLOAD_MAX_SIZE	UL(0x1000)
+
+/*******************************************************************************
+ * MHUv3 related definitions
+ ******************************************************************************/
+
+/* AP - RSE MHUv3 */
+#define MHU_V3_MBX_FRAME_OFFSET		UL(0x30000)
+
+/* MHUv3 Postbox and Mailbox register frame base */
+#define AP_RSE_SECURE_MHU_V3_PBX	RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE
+#define AP_RSE_SECURE_MHU_V3_MBX	RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE + \
+						MHU_V3_MBX_FRAME_OFFSET
 
 #endif  /* PLATFORM_DEF_H */

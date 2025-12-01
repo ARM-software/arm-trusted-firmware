@@ -32,6 +32,8 @@ The following tasks are executed for each AP BL stage:
    * (Optional step) Find the FIP image in a GPT partition, incase the FIP lies
      within in a GPT image.
    * Copies the FW_CONFIG from Secure Flash to Trusted SRAM.
+   * (Optional step) Computes FW_CONFIG image measurement and invokes extend
+     operation of TF-M Measured Boot secure partition.
    * Completes its dynamic configuration from the FW_CONFIG loaded.
      This includes:
 
@@ -39,10 +41,19 @@ The following tasks are executed for each AP BL stage:
       * Setting up the required system parameters.
 
    * Reads and loads AP BL31 image into the Trusted SRAM.
-   * (If present) Reads and loads AP BL32 (Secure Payload) image into Secure DRAM.
+   * (Optional step) Computes AP BL31 image measurement and invokes extend operation of TF-M
+     Measured Boot secure partition
+   * Copies the HW_CONFIG from Secure Flash to DRAM.
+   * (Optional step) Computes HW_CONFIG (DTB) image measurement and invokes
+     extend operation of TF-M Measured Boot secure partition.
+   * (If present) Reads and loads AP BL32 (Secure Payload) image into Secure DRAM
+   * (Optional step, if present) Computes AP BL32 image measurement and invokes extend
+      operation of TF-M Measured Boot secure partition
    * (If present) Reads and loads the SPMC manifest (for S-EL2 firmware configuration)
      into Trusted SRAM and passes its location to BL31.
    * Copies AP BL33 and Device tree blob from Secure Flash to Normal DRAM.
+   * (Optional step) Computes AP BL33 image measurement and invokes extend operation of TF-M
+     Measured Boot secure partition
    * Transfers the execution to AP BL31.
 
 2. AP BL31:
@@ -81,6 +92,7 @@ Build Procedure (TF-A only)
       BL32=<path to optee binary> \
       ARM_GPT_SUPPORT=1 \
       BL33=<PATH-TO-BL33-BINARY> \
+      MEASURED_BOOT=1 \
 
 .. note::
 
@@ -89,6 +101,9 @@ Build Procedure (TF-A only)
 
    The ``ARM_GPT_SUPPORT`` flag is also optional. It must be enabled when the
    FIP image resides inside a GPT partition on Secure Flash.
+
+   The ``MEASURED_BOOT`` flag is also optional. It must be enabled in order to
+   enable measurement of FW images and data.
 
 --------------
 
