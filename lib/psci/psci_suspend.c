@@ -51,11 +51,13 @@ static void psci_suspend_to_pwrdown_start(unsigned int idx,
 	PUBLISH_EVENT_ARG(psci_suspend_pwrdown_start, &idx);
 
 #if PSCI_OS_INIT_MODE
+	if (psci_suspend_mode == OS_INIT) {
 #ifdef PLAT_MAX_CPU_SUSPEND_PWR_LVL
-	end_pwrlvl = PLAT_MAX_CPU_SUSPEND_PWR_LVL;
+		end_pwrlvl = PLAT_MAX_CPU_SUSPEND_PWR_LVL;
 #else
-	end_pwrlvl = PLAT_MAX_PWR_LVL;
+		end_pwrlvl = PLAT_MAX_PWR_LVL;
 #endif
+	}
 #endif
 
 	/* Save PSCI target power level for the suspend finisher handler */
