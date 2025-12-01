@@ -152,21 +152,21 @@ local z_word_t byte_swap(z_word_t word) {
   Return a(x) multiplied by b(x) modulo p(x), where p(x) is the CRC polynomial,
   reflected. For speed, this requires that a not be zero.
  */
-local z_crc_t multmodp(z_crc_t a, z_crc_t b) {
-    z_crc_t m, p;
+local z_crc_t multmodp(z_crc_t a, z_crc_t b)
+{
+	z_crc_t m = (z_crc_t)1 << 31;
+	z_crc_t p = 0;
 
-    m = (z_crc_t)1 << 31;
-    p = 0;
-    for (;;) {
-        if (a & m) {
-            p ^= b;
-            if ((a & (m - 1)) == 0)
-                break;
-        }
-        m >>= 1;
-        b = b & 1 ? (b >> 1) ^ POLY : b >> 1;
-    }
-    return p;
+	for (; m; m >>= 1) {
+		if (a & m) {
+			p ^= b;
+			if ((a & (m - 1)) == 0)
+				break;
+		}
+		b = (b & 1) ? (b >> 1) ^ POLY : (b >> 1);
+	}
+
+	return p;
 }
 
 /*
