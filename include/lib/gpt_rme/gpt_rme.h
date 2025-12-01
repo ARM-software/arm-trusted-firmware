@@ -285,11 +285,6 @@ int gpt_runtime_init(uintptr_t l1_bitlocks_base, size_t l1_bitlocks_size);
 int gpt_enable(void);
 
 /*
- * Public API to disable granule protection checks.
- */
-void gpt_disable(void);
-
-/*
  * This function is the core of the granule transition service. When a granule
  * transition request occurs it is routed to this function where the request is
  * validated then fulfilled if possible.
