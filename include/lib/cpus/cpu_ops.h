@@ -101,6 +101,8 @@
 #include <lib/cassert.h>
 #include <lib/spinlock.h>
 
+typedef u_register_t(*cpu_ops_pwr_dwn_op_t)(void);
+
 struct cpu_ops {
 	unsigned long midr;
 #ifdef IMAGE_AT_EL3
@@ -110,7 +112,7 @@ struct cpu_ops {
 	void (*e_handler_func)(long es);
 #endif /* __aarch64__ */
 #if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS
-	u_register_t (*pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS])();
+	cpu_ops_pwr_dwn_op_t pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS];
 #endif /* (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS */
 	void *errata_list_start;
 	void *errata_list_end;
