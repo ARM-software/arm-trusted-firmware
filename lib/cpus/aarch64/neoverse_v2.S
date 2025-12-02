@@ -115,7 +115,7 @@ workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 	 */
 	override_vector_table wa_cve_vbar_neoverse_v2
 #endif /* IMAGE_BL31 */
-workaround_reset_end neoverse_v2, CVE(2022,23960)
+workaround_reset_end neoverse_v2, CVE(2022, 23960)
 
 check_erratum_ls neoverse_v2, CVE(2022, 23960), CPU_REV(0, 0)
 
