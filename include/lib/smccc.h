@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,6 +121,10 @@
 #define SMC_ARCH_CALL_NOT_SUPPORTED	-1
 #define SMC_ARCH_CALL_NOT_REQUIRED	-2
 #define SMC_ARCH_CALL_INVAL_PARAM	-3
+
+/* Return codes for SMCCC_ARCH_WORKAROUND_X family of calls */
+#define SMC_WA_DO			0
+#define SMC_WA_DO_NOT			1
 
 /*
  * Various flags passed to SMC handlers

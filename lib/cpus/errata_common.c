@@ -213,7 +213,7 @@ int check_erratum_applies(uint32_t cve, int errata_id)
 	entry = find_erratum_entry(errata_id);
 
 	if (entry == NULL) {
-		return ERRATA_NOT_APPLIES;
+		return ERRATA_MISSING;
 	}
 
 	assert(entry->cve == cve);
