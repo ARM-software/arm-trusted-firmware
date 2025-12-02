@@ -601,6 +601,9 @@ subsections:
               - title: R-Car 4
                 scope: rcar4
 
+              - title: R-Car 5
+                scope: rcar5
+
       - title: Rockchip
         scope: rockchip
 
