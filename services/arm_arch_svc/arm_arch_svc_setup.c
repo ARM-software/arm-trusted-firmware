@@ -104,9 +104,12 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		return 0;
 #endif /* WORKAROUND_CVE_2024_7881 */
 
-#endif /* __aarch64__ */
+#if ARCH_FEATURE_AVAILABILITY
+	case SMCCC_ARCH_FEATURE_AVAILABILITY | (SMC_64 << FUNCID_CC_SHIFT):
+		return SMC_ARCH_CALL_SUCCESS;
+#endif /* ARCH_FEATURE_AVAILABILITY */
 
-	/* Fallthrough */
+#endif /* __aarch64__ */
 
 	default:
 		return SMC_UNK;
