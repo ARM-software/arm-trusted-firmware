@@ -76,14 +76,7 @@ func cortex_a72_disable_ext_debug
 	ret
 endfunc cortex_a72_disable_ext_debug
 
-check_erratum_custom_start cortex_a72, ERRATUM(ARCH_WORKAROUND_3)
-	cpu_check_csv2	x0, 1f
-	mov	x0, #ERRATA_APPLIES
-	ret
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-check_erratum_custom_end cortex_a72, ERRATUM(ARCH_WORKAROUND_3)
+check_erratum_ls cortex_a72, ERRATUM(ARCH_WORKAROUND_3), CPU_REV(1, 0)
 
 /* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_3 */
 add_erratum_entry cortex_a72, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
@@ -105,18 +98,8 @@ workaround_reset_start cortex_a72, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #endif
 workaround_reset_end cortex_a72, CVE(2017, 5715)
 
-check_erratum_custom_start cortex_a72, CVE(2017, 5715)
-	cpu_check_csv2	x0, 1f
-#if WORKAROUND_CVE_2017_5715
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-check_erratum_custom_end cortex_a72, CVE(2017, 5715)
+/* r1p0 implements FEAT_CSV2 */
+check_erratum_ls cortex_a72, CVE(2017, 5715), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a72, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 	sysreg_bit_set CORTEX_A72_CPUACTLR_EL1, CORTEX_A72_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
