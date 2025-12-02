@@ -172,6 +172,12 @@ int psci_cpu_suspend_start(unsigned int idx,
 	if (psci_plat_pm_ops->pwr_domain_validate_suspend != NULL) {
 		rc = psci_plat_pm_ops->pwr_domain_validate_suspend(state_info);
 		if (rc != PSCI_E_SUCCESS) {
+#ifdef PLAT_MAX_CPU_SUSPEND_PWR_LVL
+			unsigned int max_pwrlvl = PLAT_MAX_CPU_SUSPEND_PWR_LVL;
+#else
+			unsigned int max_pwrlvl = PLAT_MAX_PWR_LVL;
+#endif
+			psci_set_pwr_domains_to_run(idx, max_pwrlvl);
 			goto suspend_exit;
 		}
 	}
