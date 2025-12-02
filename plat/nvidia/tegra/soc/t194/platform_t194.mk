@@ -37,7 +37,6 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # enable RAS handling
 HANDLE_EA_EL3_FIRST_NS			:= 1
-ENABLE_FEAT_RAS				:= 1
 
 # platform files
 PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t194 \
@@ -71,7 +70,7 @@ BL31_SOURCES		+=	${TEGRA_DRIVERS}/spe/shared_console.S
 endif
 
 # RAS sources
-ifeq (${ENABLE_FEAT_RAS}-${HANDLE_EA_EL3_FIRST_NS},1-1)
+ifeq (${HANDLE_EA_EL3_FIRST_NS},1)
 BL31_SOURCES		+=	${SOC_DIR}/plat_ras.c
 endif
 
