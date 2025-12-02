@@ -193,12 +193,16 @@
 /* JTAG ID value for Agilex5 */
 #define A590_JTAG_ID							0x9000
 #define A594_JTAG_ID							0x40009000
+/* AGX5 SM4 */
 #define A5C0_JTAG_ID							0xC000
+/* AGX5 SM4 B0 */
 #define A5C4_JTAG_ID							0x4000C000
 #define A5D0_JTAG_ID							0xD000
 #define A5D4_JTAG_ID							0x4000D000
-#define A5F0_JTAG_ID							0xC000
-#define A5F4_JTAG_ID							0x4000C000
+/* AGX5 SM7 */
+#define A5F0_JTAG_ID							0xF000
+/* AGX5 SM7 B0 */
+#define A5F4_JTAG_ID							0x4000F000
 #define A510_JTAG_ID							0x1000
 #define A514_JTAG_ID							0x40001000
 #define A530_JTAG_ID							0x3000
