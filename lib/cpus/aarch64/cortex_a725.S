@@ -50,6 +50,13 @@ workaround_reset_end cortex_a725, ERRATUM(2936490)
 
 check_erratum_ls cortex_a725, ERRATUM(2936490), CPU_REV(0, 0)
 
+workaround_runtime_start cortex_a725, ERRATUM(3456106), ERRATA_A725_3456106
+	speculation_barrier
+workaround_runtime_end cortex_a725, ERRATUM(3456106)
+
+/* Due to the nature of the errata it is applied unconditionally when chosen */
+check_erratum_chosen cortex_a725, ERRATUM(3456106), ERRATA_A725_3456106
+
 add_erratum_entry cortex_a725, ERRATUM(3699564), ERRATA_A725_3699564
 
 check_erratum_ls cortex_a725, ERRATUM(3699564), CPU_REV(0, 1)
@@ -78,6 +85,7 @@ check_erratum_ls cortex_a725, ERRATUM(3711914), CPU_REV(0, 1)
 cpu_reset_func_start cortex_a725
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_a725, ERRATUM(3456106), ERRATA_A725_3456106
 	enable_mpmm
 cpu_reset_func_end cortex_a725
 
