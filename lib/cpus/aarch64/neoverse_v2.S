@@ -76,6 +76,12 @@ workaround_runtime_end neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 
 check_erratum_ls neoverse_v2, ERRATUM(2801372), CPU_REV(0, 1)
 
+workaround_reset_start neoverse_v2, ERRATUM(3442699), ERRATA_V2_3442699
+	sysreg_bit_set NEOVERSE_V2_CPUACTLR_EL1, NEOVERSE_V2_CPUACTLR_EL1_BIT_36
+workaround_reset_end neoverse_v2, ERRATUM(3442699)
+
+check_erratum_ls neoverse_v2, ERRATUM(3442699), CPU_REV(0, 2)
+
 add_erratum_entry neoverse_v2, ERRATUM(3701771), ERRATA_V2_3701771
 
 check_erratum_ls neoverse_v2, ERRATUM(3701771), CPU_REV(0, 2)
