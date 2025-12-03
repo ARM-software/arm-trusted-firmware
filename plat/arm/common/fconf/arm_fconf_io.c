@@ -147,6 +147,13 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		(uintptr_t)&fip_block_spec,
 		open_memmap
 	},
+#if !defined(DECRYPTION_SUPPORT_none)
+	[ENC_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)NULL,
+		open_fip
+	},
+#endif
 	[BL2_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[BL2_IMAGE_ID],
@@ -168,11 +175,36 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		(uintptr_t)&arm_uuid_spec[SCP_BL2_IMAGE_ID],
 		open_fip
 	},
+#if ENCRYPT_BL31 && !defined(DECRYPTION_SUPPORT_none)
+	[BL31_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL31_IMAGE_ID],
+		open_enc_fip
+	},
+#else
 	[BL31_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[BL31_IMAGE_ID],
 		open_fip
 	},
+#endif
+#if ENCRYPT_BL32 && !defined(DECRYPTION_SUPPORT_none)
+	[BL32_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL32_IMAGE_ID],
+		open_enc_fip
+	},
+	[BL32_EXTRA1_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL32_EXTRA1_IMAGE_ID],
+		open_enc_fip
+	},
+	[BL32_EXTRA2_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL32_EXTRA2_IMAGE_ID],
+		open_enc_fip
+	},
+#else
 	[BL32_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[BL32_IMAGE_ID],
@@ -188,6 +220,7 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		(uintptr_t)&arm_uuid_spec[BL32_EXTRA2_IMAGE_ID],
 		open_fip
 	},
+#endif
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[BL33_IMAGE_ID],

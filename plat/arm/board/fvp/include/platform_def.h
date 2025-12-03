@@ -364,7 +364,7 @@ FVP_TRUSTED_SRAM_SIZE == 512
 # define PLATFORM_STACK_SIZE		UL(0x440)
 #endif
 
-#define MAX_IO_DEVICES			3
+#define MAX_IO_DEVICES			4
 #define MAX_IO_HANDLES			4
 
 /* Reserve the last block of flash for PSCI MEM PROTECT flag */

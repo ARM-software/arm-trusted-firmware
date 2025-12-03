@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2025, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <common/debug.h>
 #include <drivers/fwu/fwu_metadata.h>
 #include <drivers/io/io_driver.h>
+#include <drivers/io/io_encrypted.h>
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
@@ -24,6 +25,10 @@ static const io_dev_connector_t *fip_dev_con;
 uintptr_t fip_dev_handle;
 static const io_dev_connector_t *memmap_dev_con;
 uintptr_t memmap_dev_handle;
+#ifndef DECRYPTION_SUPPORT_none
+static const io_dev_connector_t *enc_dev_con;
+uintptr_t enc_dev_handle;
+#endif
 
 #if ARM_GPT_SUPPORT
 /* fip partition names */
@@ -43,7 +48,7 @@ int open_fip(const uintptr_t spec)
 
 	/* See if a Firmware Image Package is available */
 	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
-	if (result == 0) {
+	if (result == 0 && spec != (uintptr_t)NULL) {
 		result = io_open(fip_dev_handle, spec, &local_image_handle);
 		if (result == 0) {
 			VERBOSE("Using FIP\n");
@@ -92,6 +97,23 @@ int arm_io_setup(void)
 
 	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
 				&memmap_dev_handle);
+
+	if (io_result < 0) {
+		return io_result;
+	}
+
+#ifndef DECRYPTION_SUPPORT_none
+	io_result = register_io_dev_enc(&enc_dev_con);
+	if (io_result < 0) {
+		return io_result;
+	}
+
+	io_result = io_dev_open(enc_dev_con, (uintptr_t)NULL,
+			&enc_dev_handle);
+	if (io_result < 0) {
+		return io_result;
+	}
+#endif
 
 	return io_result;
 }
@@ -249,3 +271,22 @@ int plat_fwu_set_metadata_image_source(unsigned int image_id,
 	return result;
 }
 #endif /* PSA_FWU_SUPPORT */
+
+#ifndef DECRYPTION_SUPPORT_none
+int open_enc_fip(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	/* See if an encrypted FIP is available */
+	result = io_dev_init(enc_dev_handle, (uintptr_t)ENC_IMAGE_ID);
+	if (result == 0) {
+		result = io_open(enc_dev_handle, spec, &local_image_handle);
+		if (result == 0) {
+			VERBOSE("Using encrypted FIP\n");
+			io_close(local_image_handle);
+		}
+	}
+	return result;
+}
+#endif
