@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -310,6 +310,7 @@ void gicv3_cpuif_enable(unsigned int proc_num)
 	isb();
 
 	write_icc_sre_el2(read_icc_sre_el2() | icc_sre_el3);
+	isb();
 	write_icc_sre_el1(ICC_SRE_SRE_BIT);
 	isb();
 
