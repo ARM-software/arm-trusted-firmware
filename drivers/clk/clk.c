@@ -48,6 +48,13 @@ int clk_set_rate(unsigned long id, unsigned long rate, unsigned long *orate)
 	return ops->set_rate(id, rate, &lrate);
 }
 
+int clk_get_possible_parents_num(unsigned long id)
+{
+	assert((ops != NULL) && (ops->get_possible_parents_num != NULL));
+
+	return ops->get_possible_parents_num(id);
+}
+
 int clk_get_parent(unsigned long id)
 {
 	assert((ops != NULL) && (ops->get_parent != NULL));
