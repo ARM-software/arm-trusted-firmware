@@ -74,6 +74,17 @@ void amu_enable(bool el2_unused)
 #endif
 }
 
+static void amu_disable_counters(unsigned int core_pos)
+{
+	/* Disable all counters so we can write to them safely later */
+	write_amcntenclr0(AMCNTENCLR0_Pn_MASK);
+	if (is_feat_amu_aux_supported()) {
+		write_amcntenclr1(get_amu_aux_enables(core_pos));
+	}
+
+	isb(); /* Ensure counters have been stopped */
+}
+
 static void *amu_context_save(const void *arg)
 {
 	if (!is_feat_amu_supported()) {
@@ -83,13 +94,8 @@ static void *amu_context_save(const void *arg)
 	unsigned int core_pos = *(unsigned int *)arg;
 	amu_regs_t *ctx = PER_CPU_CUR(amu_ctx);
 
-	/* Disable all counters so we can write to them safely later */
-	write_amcntenclr0(AMCNTENCLR0_Pn_MASK);
-	if (is_feat_amu_aux_supported()) {
-		write_amcntenclr1(get_amu_aux_enables(core_pos));
-	}
-
-	isb(); /* Ensure counters have been stopped */
+	/* disable counters so the save is a static snapshot for all counters */
+	amu_disable_counters(core_pos);
 
 	write_amu_grp0_ctx_reg(ctx, 0, read64_amevcntr00());
 	write_amu_grp0_ctx_reg(ctx, 1, read64_amevcntr01());
@@ -166,6 +172,15 @@ static void *amu_context_restore(const void *arg)
 
 	unsigned int core_pos = *(unsigned int *)arg;
 	amu_regs_t *ctx = PER_CPU_CUR(amu_ctx);
+
+	/*
+	 * Counters must be disabled to write them safely. All counters start
+	 * disabled on an AMU reset but AMU reset doesn't have to happen with PE
+	 * reset. So don't bother disabling them if they already are.
+	 */
+	if (read_amcntenclr0() != 0) {
+		amu_disable_counters(core_pos);
+	}
 
 	write64_amevcntr00(read_amu_grp0_ctx_reg(ctx, 0));
 	write64_amevcntr01(read_amu_grp0_ctx_reg(ctx, 1));
