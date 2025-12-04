@@ -202,6 +202,19 @@ For Cortex-A57, the following errata build flags are defined :
 -  ``ERRATA_A57_1319537``: This applies errata 1319537 workaround to all
    revisions of Cortex-A57 CPU.
 
+For Cortex-A65, the following errata build flags are defined :
+
+-  ``ERRATA_A65_1179935``: This applies errata 1179935 workaround to Cortex-A65
+   CPU. This needs to be enabled only for revision r0p0 of the CPU, and is fixed
+   in r1p0.
+
+-  ``ERRATA_A65_1227419``: This applies errata 1227419 workaround to Cortex-A65
+   CPU. This needs to be enabled only for revision r0p0 and r1p0 of the CPU and
+   is fixed in r1p1.
+
+-  ``ERRATA_A65_1541130``: This applies errata 1541130 workaround to r0p0, r1p0,
+   r1p1, r1p2 revisions of the CPU and is still open.
+
 For Cortex-A72, the following errata build flags are defined :
 
 -  ``ERRATA_A72_859971``: This applies errata 859971 workaround to Cortex-A72
