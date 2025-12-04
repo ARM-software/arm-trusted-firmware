@@ -451,6 +451,17 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	/*
+	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
+	 * AArch64 and next EL is EL2, or if next execution state is AArch32 and
+	 * next mode is Hyp.
+	 */
+	if (((GET_RW(ep->spsr) == MODE_RW_64) && (GET_EL(ep->spsr) == MODE_EL2))
+	    || ((GET_RW(ep->spsr) != MODE_RW_64)
+		&& (GET_M32(ep->spsr) == MODE32_hyp))) {
+		scr_el3 |= SCR_HCE_BIT;
+	}
+
+	/*
 	 * SCR_EL3.ST: Traps Secure EL1 accesses to the Counter-timer Physical
 	 * Secure timer registers to EL3, from AArch64 state only, if specified
 	 * by the entrypoint attributes. If SEL2 is present and enabled, the ST
@@ -512,36 +523,19 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 		scr_el3 |= SCR_PIEN_BIT;
 	}
 
-	/*
-	 * SCR_EL3.GCSEn: Enable GCS registers for AArch64 if present.
-	 */
-	if ((is_feat_gcs_supported()) && (GET_RW(ep->spsr) == MODE_RW_64)) {
+	/* SCR_EL3.GCSEn: Enable GCS registers. */
+	if (is_feat_gcs_supported()) {
 		scr_el3 |= SCR_GCSEn_BIT;
 	}
 
-	/*
-	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
-	 * AArch64 and next EL is EL2, or if next execution state is AArch32 and
-	 * next mode is Hyp.
-	 * SCR_EL3.FGTEn: Enable Fine Grained Virtualization Traps under the
-	 * same conditions as HVC instructions and when the processor supports
-	 * ARMv8.6-FGT.
-	 * SCR_EL3.ECVEn: Enable Enhanced Counter Virtualization (ECV)
-	 * CNTPOFF_EL2 register under the same conditions as HVC instructions
-	 * and when the processor supports ECV.
-	 */
-	if (((GET_RW(ep->spsr) == MODE_RW_64) && (GET_EL(ep->spsr) == MODE_EL2))
-	    || ((GET_RW(ep->spsr) != MODE_RW_64)
-		&& (GET_M32(ep->spsr) == MODE32_hyp))) {
-		scr_el3 |= SCR_HCE_BIT;
+	/* SCR_EL3.FGTEn: Enable Fine Grained Virtualization Traps */
+	if (is_feat_fgt_supported()) {
+		scr_el3 |= SCR_FGTEN_BIT;
+	}
 
-		if (is_feat_fgt_supported()) {
-			scr_el3 |= SCR_FGTEN_BIT;
-		}
-
-		if (is_feat_ecv_supported()) {
-			scr_el3 |= SCR_ECVEN_BIT;
-		}
+	/* SCR_EL3.ECVEn: Do not trap the CNTPOFF_EL2 register */
+	if (is_feat_ecv_supported()) {
+		scr_el3 |= SCR_ECVEN_BIT;
 	}
 
 	/* Enable WFE trap delay in SCR_EL3 if supported and configured */
