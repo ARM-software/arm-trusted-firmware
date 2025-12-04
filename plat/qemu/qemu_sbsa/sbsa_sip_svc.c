@@ -82,7 +82,7 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 			SMC_RET1(handle, SMC_ARCH_CALL_INVAL_PARAM);
 		}
 
-	case SIP_SVC_GET_CPU_TOPOLOGY:
+	case SIP_SVC_GET_CPU_TOPOLOGY: {
 		struct platform_cpu_topology topology;
 
 		topology = sbsa_platform_cpu_topology();
@@ -95,6 +95,7 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 			/* we do not know topology so we report SMC as unknown */
 			SMC_RET1(handle, SMC_UNK);
 		}
+	}
 
 	case SIP_SVC_GET_MEMORY_NODE_COUNT:
 		SMC_RET2(handle, NULL, sbsa_platform_num_memnodes());
