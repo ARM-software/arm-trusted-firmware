@@ -410,7 +410,6 @@ static int is_out_of_sec_range(uint64_t reg_addr)
 	case(0xFA028038):	/* SMMU CB8_PRRR_MIR0 */
 	case(0xFA02803C):	/* SMMU CB8_PRRR_MIR1 */
 	case(0xFA028010):	/* SMMU_CB8)TCR2 */
-	case(0xFFD080A4):	/* SDM SMMU STREAM ID REG */
 	case(0xFA001820):	/* SMMU_CBA2R8 */
 	case(0xFA000074):	/* SMMU_STLBGSTATUS */
 	case(0xFA0287F4):	/* SMMU_CB8_TLBSTATUS */
