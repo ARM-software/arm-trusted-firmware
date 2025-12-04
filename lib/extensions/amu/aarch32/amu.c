@@ -14,10 +14,11 @@
 #include <common/debug.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
+#include <lib/per_cpu/per_cpu.h>
 
 #include <plat/common/platform.h>
 
-amu_regs_t amu_ctx[PLATFORM_CORE_COUNT];
+PER_CPU_DEFINE(amu_regs_t, amu_ctx);
 
 static inline __unused uint32_t read_amcgcr_cg1nc(void)
 {
@@ -80,7 +81,7 @@ static void *amu_context_save(const void *arg)
 	}
 
 	unsigned int core_pos = *(unsigned int *)arg;
-	amu_regs_t *ctx = &amu_ctx[core_pos];
+	amu_regs_t *ctx = PER_CPU_CUR(amu_ctx);
 
 	/* Disable all counters so we can write to them safely later */
 	write_amcntenclr0(AMCNTENCLR0_Pn_MASK);
@@ -164,7 +165,7 @@ static void *amu_context_restore(const void *arg)
 	}
 
 	unsigned int core_pos = *(unsigned int *)arg;
-	amu_regs_t *ctx = &amu_ctx[core_pos];
+	amu_regs_t *ctx = PER_CPU_CUR(amu_ctx);
 
 	write64_amevcntr00(read_amu_grp0_ctx_reg(ctx, 0));
 	write64_amevcntr01(read_amu_grp0_ctx_reg(ctx, 1));
