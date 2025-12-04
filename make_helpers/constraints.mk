@@ -254,13 +254,16 @@ ifeq (${ARCH},aarch32)
                 $(error "ENABLE_SME_FOR_NS cannot be used with ARCH=aarch32")
 	endif
 
-	ifeq (${ENABLE_SVE_FOR_NS},1)
-		# Warning instead of error due to CI dependency on this
+	ifneq (${ENABLE_SVE_FOR_NS},0)
                 $(error "ENABLE_SVE_FOR_NS cannot be used with ARCH=aarch32")
 	endif
 
+	ifneq (${ENABLE_SPE_FOR_NS},0)
+                $(error "ENABLE_SPE_FOR_NS cannot be used with ARCH=aarch32")
+	endif
+
 	# BRBE is not supported in AArch32
-	ifeq (${ENABLE_BRBE_FOR_NS},1)
+	ifneq (${ENABLE_BRBE_FOR_NS},0)
                 $(error "ENABLE_BRBE_FOR_NS cannot be used with ARCH=aarch32")
 	endif
 
@@ -288,6 +291,12 @@ ifeq (${ARCH},aarch32)
 	endif
 	ifneq (${PLATFORM_NODE_COUNT},1)
                 $(error "NUMA AWARE PER CPU is not supported with ARCH=aarch32")
+	endif
+	ifneq (${ENABLE_FEAT_MPAM},0)
+                $(error "ENABLE_FEAT_MPAM cannot be used with ARCH=aarch32")
+	endif
+	ifneq (${ENABLE_FEAT_UINJ},0)
+		$(error "ENABLE_FEAT_UINJ cannot be used with ARCH=aarch32")
 	endif
 endif #(ARCH=aarch32)
 

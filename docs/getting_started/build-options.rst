@@ -529,6 +529,14 @@ Common build options
    This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_UINJ``: Numerical value to enable FEAT_UINJ support which
+   is hardware based injection of undefined instruction exceptions.
+   The objective of this feature is to provide higher privilege software with a
+   future proofed mechanism to inject an Undefined Instruction exception into
+   lower privilege software. It is an optional architectural feature from v9.0
+   and mandatory from v9.6. This flag can take value of 0 to 2,
+   to align with the ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
+
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support. This option is currently only supported for AArch64. On GCC it only
    applies to TF-A proper, and not its libraries. If LTO on libraries (except

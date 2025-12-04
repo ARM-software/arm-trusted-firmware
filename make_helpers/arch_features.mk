@@ -121,6 +121,28 @@ armv9-3-a-feats         += ${armv8-8-a-feats} ${armv9-2-a-feats}
 FEAT_LIST               := ${armv9-3-a-feats}
 endif
 
+# Enable the features which are mandatory from ARCH version 9.4 and upwards.
+ifeq "9.4" "$(word 1, $(sort 9.4 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+# 8.9 and 9.3 Compliant
+armv9-4-a-feats         += ${armv8-9-a-feats} ${armv9-3-a-feats}
+FEAT_LIST               := ${armv9-4-a-feats}
+endif
+
+# Enable the features which are mandatory from ARCH version 9.5 and upwards.
+ifeq "9.5" "$(word 1, $(sort 9.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+# 9.4 Compliant
+armv9-5-a-feats         += ${armv9-4-a-feats}
+FEAT_LIST               := ${armv9-5-a-feats}
+endif
+
+# Enable the features which are mandatory from ARCH version 9.6 and upwards.
+ifeq "9.6" "$(word 1, $(sort 9.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+# 9.5 Compliant
+armv9-6-a-feats         := ENABLE_FEAT_UINJ
+armv9-6-a-feats         += ${armv9-5-a-feats}
+FEAT_LIST               := ${armv9-6-a-feats}
+endif
+
 # Set all FEAT_* in FEAT_LIST to '1' if they are not yet defined or set
 # from build commandline options or platform makefile.
 $(eval $(call default_ones, ${sort ${FEAT_LIST}}))
@@ -269,11 +291,7 @@ ENABLE_SYS_REG_TRACE_FOR_NS		?=	0
 ifeq (${ARCH},aarch64)
        ENABLE_SPE_FOR_NS		?=	2
 else ifeq (${ARCH},aarch32)
-       ifneq ($(or $(ENABLE_SPE_FOR_NS),0),0)
-              $(error ENABLE_SPE_FOR_NS is not supported for AArch32)
-       else
-              ENABLE_SPE_FOR_NS		:=	0
-       endif
+       ENABLE_SPE_FOR_NS		:=	0
 endif
 
 # Enable SVE for non-secure world by default.
@@ -281,11 +299,7 @@ ifeq (${ARCH},aarch64)
        ENABLE_SVE_FOR_NS		?=	2
 # SVE is only supported on AArch64 so disable it on AArch32.
 else ifeq (${ARCH},aarch32)
-       ifneq ($(or $(ENABLE_SVE_FOR_NS),0),0)
-              $(error ENABLE_SVE_FOR_NS is not supported for AArch32)
-       else
-              ENABLE_SVE_FOR_NS 	:=	0
-       endif
+       ENABLE_SVE_FOR_NS		:=	0
 endif
 
 #----
@@ -302,11 +316,7 @@ AMU_RESTRICT_COUNTERS			?=	1
 ifeq (${ARCH},aarch64)
         ENABLE_FEAT_MPAM		?=	2
 else ifeq (${ARCH},aarch32)
-        ifneq ($(or $(ENABLE_FEAT_MPAM),0),0)
-                $(error ENABLE_FEAT_MPAM is not supported for AArch32)
-        else
-                ENABLE_FEAT_MPAM	:=	0
-        endif
+        ENABLE_FEAT_MPAM		:=	0
 endif
 
 # Include nested virtualization control (Armv8.4-NV) registers in cpu context.
@@ -407,6 +417,9 @@ else ifeq (${ARCH},aarch32)
                ENABLE_TRBE_FOR_NS 	:=	0
         endif
 endif
+
+# Flag that enables hardware injection of undefined exceptions
+ENABLE_FEAT_UINJ			?=	0
 
 #----
 # 9.2
