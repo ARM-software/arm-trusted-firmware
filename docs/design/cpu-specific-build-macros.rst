@@ -1157,7 +1157,23 @@ For Cortex-A720_AE, the following errata build flags are defined :
 
 For Cortex-A725, the following errata build flags are defined :
 
+-  ``ERRATA_A725_2874943``: This applies errata 2874943 workaround to
+   Cortex-A725 CPU. This needs to be enabled for revisions r0p0 when
+   FEAT_SPE is enabled. It is fixed in r0p1.
+
+-  ``ERRATA_A725_2936490``: This applies errata 2936490 workaround to
+   Cortex-A725 CPU. This needs to be enabled for revisions r0p0.
+   It is fixed in r0p1.
+
+-  ``ERRATA_A725_3456106``: This applies errata 3456106 workaround to
+   Cortex-A725 CPU. This needs to be enabled for revisions r0p0, r0p1
+   and r0p2. It is still open.
+
 -  ``ERRATA_A725_3699564``: This applies errata 3699564 workaround to
+   Cortex-A725 CPU. This needs to be enabled for revisions r0p0 and r0p1.
+   It is fixed in r0p2.
+
+-  ``ERRATA_A725_3711914``: This applies errata 3711914 workaround to
    Cortex-A725 CPU. This needs to be enabled for revisions r0p0 and r0p1.
    It is fixed in r0p2.
 

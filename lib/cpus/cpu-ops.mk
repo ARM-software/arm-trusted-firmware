@@ -1206,10 +1206,26 @@ CPU_FLAG_LIST += ERRATA_A720_3711910
 # cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A720_AE_3699562
 
+# Flag to apply erratum 2874943 workaround during reset. This erratum applies
+# to revisions r0p0 of the Cortex-A725 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_A725_2874943
+
+# Flag to apply erratum 2936490 workaround during reset. This erratum applies
+# to revisions r0p0 of the Cortex-A725 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_A725_2936490
+
+# Flag to apply erratum 3456106 workaround during runtime. This erratum applies
+# to revisions r0p0, r0p1 and r0p2 of the Cortex-A725 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A725_3456106
+
 # Flag to apply erratum 3699564 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1 of
-# the Cortex-A725 cpu and is fixed in r0p2
+# the Cortex-A725 cpu and is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_A725_3699564
+
+# Flag to apply erratum 3699564 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_A725_3711914
 
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
