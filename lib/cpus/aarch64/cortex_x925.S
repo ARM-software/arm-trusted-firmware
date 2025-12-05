@@ -60,16 +60,17 @@ workaround_reset_end cortex_x925, CVE(2024, 5660)
 
 check_erratum_ls cortex_x925, CVE(2024, 5660), CPU_REV(0, 1)
 
+	/* ----------------------------------------------------------------
+	 * CVE-2024-7881 is mitigated for Cortex-X925 using erratum 3692980
+	 * workaround by disabling the affected prefetcher setting
+	 * CPUACTLR6_EL1[41].
+	 * ----------------------------------------------------------------
+	 */
 workaround_reset_start cortex_x925, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-	/* ---------------------------------
-         * Sets BIT41 of CPUACTLR6_EL1 which
-         * disables L1 Data cache prefetcher
-         * ---------------------------------
-         */
 	sysreg_bit_set CORTEX_X925_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end cortex_x925, CVE(2024, 7881)
 
-check_erratum_chosen cortex_x925, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+check_erratum_ls cortex_x925, CVE(2024, 7881), CPU_REV(0, 1)
 
 cpu_reset_func_start cortex_x925
 	/* Disable speculative loads */
