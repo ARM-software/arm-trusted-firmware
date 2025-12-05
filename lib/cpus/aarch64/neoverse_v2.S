@@ -104,16 +104,17 @@ check_erratum_ls neoverse_v2, CVE(2024, 5660), CPU_REV(0, 2)
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V2_BHB_LOOP_COUNT, neoverse_v2
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+	/* ----------------------------------------------------------------
+	 * CVE-2024-7881 is mitigated for Neoverse-V2 using erratum 3696445
+	 * workaround by disabling the affected prefetcher setting
+	 * CPUACTLR6_EL1[41].
+	 * ----------------------------------------------------------------
+	 */
 workaround_reset_start neoverse_v2, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-       /* ---------------------------------
-        * Sets BIT41 of CPUACTLR6_EL1 which
-        * disables L1 Data cache prefetcher
-        * ---------------------------------
-        */
        sysreg_bit_set NEOVERSE_V2_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end neoverse_v2, CVE(2024, 7881)
 
-check_erratum_chosen neoverse_v2, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+check_erratum_ls neoverse_v2, CVE(2024, 7881), CPU_REV(0, 2)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
