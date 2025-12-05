@@ -41,6 +41,12 @@ workaround_reset_end c1_pro, CVE(2024, 7881)
 
 check_erratum_ls c1_pro, CVE(2024, 7881), CPU_REV(1, 0)
 
+workaround_reset_start c1_pro, ERRATUM(3706576), ERRATA_C1PRO_3706576
+	sysreg_bit_set C1_PRO_IMP_CPUACTLR2_EL1, BIT(37)
+workaround_reset_end c1_pro, ERRATUM(3706576)
+
+check_erratum_ls c1_pro, ERRATUM(3706576), CPU_REV(1, 0)
+
 cpu_reset_func_start c1_pro
 	/* ----------------------------------------------------
 	 * Disable speculative loads

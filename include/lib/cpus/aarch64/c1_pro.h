@@ -12,9 +12,14 @@
 #define C1_PRO_MIDR				        U(0x410FD8B0)
 
 /*******************************************************************************
+ * CPU Generic System Control register specific definitions
+ ******************************************************************************/
+#define C1_PRO_IMP_CPUACTLR2_EL1			S3_0_C15_C1_1
+
+/*******************************************************************************
  * CPU Extended Control register specific definitions
  ******************************************************************************/
-#define C1_PRO_IMP_CPUECTLR_EL1				S3_0_C15_C1_5
+#define C1_PRO_IMP_CPUECTLR_EL1				S3_0_C15_C1_4
 #define C1_PRO_CPUECTLR2_EL1_EXTLLC_BIT			U(10)
 
 /*******************************************************************************
