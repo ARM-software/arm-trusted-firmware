@@ -15,6 +15,10 @@
  * CPU Generic System Control register specific definitions
  ******************************************************************************/
 #define C1_PRO_IMP_CPUACTLR2_EL1			S3_0_C15_C1_1
+#define C1_PRO_IMP_CPUPSELR_EL3				S3_6_C15_C8_0
+#define C1_PRO_IMP_CPUPCR_EL3				S3_6_C15_C8_1
+#define C1_PRO_IMP_CPUPOR_EL3				S3_6_C15_C8_2
+#define C1_PRO_IMP_CPUPMR_EL3				S3_6_C15_C8_3
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions
