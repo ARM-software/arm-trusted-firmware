@@ -25,6 +25,7 @@
  ******************************************************************************/
 #define C1_PRO_IMP_CPUECTLR_EL1				S3_0_C15_C1_4
 #define C1_PRO_CPUECTLR2_EL1_EXTLLC_BIT			U(10)
+#define C1_PRO_IMP_CPUECTLR2_EL1			S3_0_C15_C1_5
 
 /*******************************************************************************
  * CPU Power Control register specific definitions

@@ -41,6 +41,13 @@ workaround_reset_end c1_pro, CVE(2024, 7881)
 
 check_erratum_ls c1_pro, CVE(2024, 7881), CPU_REV(1, 0)
 
+workaround_reset_start c1_pro, ERRATUM(3684268), ERRATA_C1PRO_3684268
+	sysreg_bit_set C1_PRO_IMP_CPUECTLR2_EL1, BIT(49)
+	dsb sy
+workaround_reset_end c1_pro, ERRATUM(3684268)
+
+check_erratum_ls c1_pro, ERRATUM(3684268), CPU_REV(1, 0)
+
 workaround_reset_start c1_pro, ERRATUM(3694158), ERRATA_C1PRO_3694158
 	mov x0, #5
 	msr C1_PRO_IMP_CPUPSELR_EL3, x0
