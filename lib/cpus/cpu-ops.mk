@@ -1303,6 +1303,10 @@ CPU_FLAG_LIST += ERRATA_C1PREMIUM_3926381
 # to revisions r0p0, r1p0 of C1-Premium cpu and is still open.
 CPU_FLAG_LIST += ERRATA_C1PREMIUM_4102704
 
+# Flag to apply erratum 3362007 workaround during reset. This erratum applies
+# to revision r0p0 of the C1-Pro cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_C1PRO_3362007
+
 # Flag to apply erratum 3684268 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0 of the C1-Pro cpu and is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_C1PRO_3684268
