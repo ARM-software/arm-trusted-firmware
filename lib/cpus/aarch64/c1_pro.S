@@ -41,6 +41,12 @@ workaround_reset_end c1_pro, CVE(2024, 7881)
 
 check_erratum_ls c1_pro, CVE(2024, 7881), CPU_REV(1, 0)
 
+workaround_runtime_start c1_pro, ERRATUM(3338470), ERRATA_C1PRO_3338470
+	speculation_barrier
+workaround_runtime_end c1_pro, ERRATUM(3338470)
+
+check_erratum_ls c1_pro, ERRATUM(3338470), CPU_REV(0, 0)
+
 workaround_reset_start c1_pro, ERRATUM(3362007), ERRATA_C1PRO_3362007
 	sysreg_bit_set C1_PRO_IMP_CPUACTLR2_EL1, BIT(27)
 workaround_reset_end c1_pro, ERRATUM(3362007)
@@ -85,6 +91,7 @@ cpu_reset_func_start c1_pro
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	apply_erratum c1_pro, ERRATUM(3338470), ERRATA_C1PRO_3338470
 	/* model bug: not cleared on reset */
 	sysreg_bit_clear 	C1_PRO_IMP_CPUPWRCTLR_EL1, \
 		C1_PRO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
