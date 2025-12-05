@@ -1279,6 +1279,8 @@ GIC Errata Workarounds
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
 .. _CVE-2022-23960: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23960
+.. _CVE-2024-5660: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-5660
+.. _CVE-2024-7881: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-7881
 .. _Cortex-A72 MPCore Software Developers Errata Notice: https://developer.arm.com/documentation/epm012079/latest
 .. _Cortex-A57 Software Optimization Guide: https://developer.arm.com/documentation/uan0015
 .. _Arm DSU Software Developers Errata Notice: https://developer.arm.com/documentation/SDEN854652
