@@ -53,6 +53,12 @@ workaround_reset_end c1_pro, ERRATUM(3362007)
 
 check_erratum_ls c1_pro, ERRATUM(3362007), CPU_REV(0, 0)
 
+workaround_reset_start c1_pro, ERRATUM(3619847), ERRATA_C1PRO_3619847
+	sysreg_bit_set C1_PRO_IMP_CPUACTLR2_EL1, BIT(42)
+workaround_reset_end c1_pro, ERRATUM(3619847)
+
+check_erratum_ls c1_pro, ERRATUM(3619847), CPU_REV(0, 0)
+
 workaround_reset_start c1_pro, ERRATUM(3684268), ERRATA_C1PRO_3684268
 	sysreg_bit_set C1_PRO_IMP_CPUECTLR2_EL1, BIT(49)
 	dsb sy
