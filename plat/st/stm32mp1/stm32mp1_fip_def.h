@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2021-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,8 +26,13 @@
 #endif
 #endif /* STM32MP13 */
 #if STM32MP15
-#define STM32MP_BL2_RO_SIZE		U(0x00011000)	/* 68 KB */
-#define STM32MP_BL2_SIZE		U(0x00016000)	/* 88 KB for BL2 */
+#ifndef AARCH32_SP_OPTEE
+#define STM32MP_BL2_RO_SIZE		U(0x00012000)	/* 72 KB */
+#define STM32MP_BL2_SIZE		U(0x00018000)	/* 96 KB for BL2 */
+#else
+#define STM32MP_BL2_RO_SIZE		U(0x00010000)	/* 64 KB */
+#define STM32MP_BL2_SIZE		U(0x00017000)	/* 92 KB for BL2 */
+#endif
 #endif /* STM32MP15 */
 #endif /* TRUSTED_BOARD_BOOT && !STM32MP_USE_EXTERNAL_HEAP */
 
