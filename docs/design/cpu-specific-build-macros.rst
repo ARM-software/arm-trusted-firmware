@@ -1191,6 +1191,10 @@ For C1-Ultra, the following errata build flags are defined :
    C1-Ultra CPU. This needs to be enabled for revision r0p0 and is
    fixed in r1p0.
 
+-  ``ERRATA_C1ULTRA_3705939``: This applies erratum 3705939 workaround to
+   C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
+   is still open.
+
 DSU Errata Workarounds
 ----------------------
 

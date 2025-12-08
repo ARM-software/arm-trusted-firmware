@@ -1239,6 +1239,10 @@ CPU_FLAG_LIST += ERRATA_C1ULTRA_3651221
 # applies to revision r0p0 of C1-Ultra cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_C1ULTRA_3684152
 
+# Flag to apply erratum 3705939 workaround during reset. This erratum
+# applies to revisions r0p0 and r1p0 of C1-Ultra cpu and is still open.
+CPU_FLAG_LIST += ERRATA_C1ULTRA_3705939
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 CPU_FLAG_LIST += ERRATA_DSU_798953
