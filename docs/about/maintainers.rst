@@ -210,6 +210,13 @@ Arm® Ethos™-N NPU driver
 :|F|: include/plat/arm/common/fconf_ethosn_getter.h
 :|F|: fdts/juno-ethosn.dtsi
 
+Clock Framework
+^^^^^^^^^^^^^^^
+:|M|: Gabriel Fernandez <gabriel.fernandez@st.com>
+:|G|: `Gabriel-Fernandz`_
+:|F|: drivers/clk
+:|F|: include/drivers/clk.h
+
 Console API framework
 ^^^^^^^^^^^^^^^^^^^^^
 :|M|: Julius Werner <jwerner@chromium.org>
@@ -1111,6 +1118,7 @@ Conventional Changelog Extensions
 .. _diego-sueiro: https://github.com/diego-sueiro
 .. _divin-raj: https://github.com/divin-raj
 .. _etienne-lms: https://github.com/etienne-lms
+.. _Gabriel-Fernandz: https://github.com/Gabriel-Fernandz
 .. _glneo: https://github.com/glneo
 .. _govindraj-arm: https://github.com/govindraj-arm
 .. _gprocopciucnxp: https://github.com/gprocopciucnxp
