@@ -52,16 +52,17 @@ workaround_reset_end neoverse_v3, CVE(2024, 5660)
 
 check_erratum_ls neoverse_v3, CVE(2024, 5660), CPU_REV(0, 1)
 
+	/* ----------------------------------------------------------------
+	 * CVE-2024-7881 is mitigated for Neoverse-V3 / Neoverse-V3AE
+	 * using erratum 3696307 workaround by disabling the
+	 * affected prefetcher setting CPUACTLR6_EL1[41].
+	 * ----------------------------------------------------------------
+	 */
 workaround_reset_start neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-       /* ---------------------------------
-        * Sets BIT41 of CPUACTLR6_EL1 which
-        * disables L1 Data cache prefetcher
-        * ---------------------------------
-        */
        sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end neoverse_v3, CVE(2024, 7881)
 
-check_erratum_chosen neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+check_erratum_ls neoverse_v3, CVE(2024, 7881), CPU_REV(0, 1)
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
