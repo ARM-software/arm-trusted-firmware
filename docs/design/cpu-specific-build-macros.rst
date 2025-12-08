@@ -1177,6 +1177,12 @@ For Cortex-A725, the following errata build flags are defined :
    Cortex-A725 CPU. This needs to be enabled for revisions r0p0 and r0p1.
    It is fixed in r0p2.
 
+For C1-Ultra, the following errata build flags are defined :
+
+-  ``ERRATA_C1ULTRA_3502731``: This applies erratum 3502731 workaround to
+   C1-Ultra CPU. This needs to be enabled for revision r0p0 and is
+   fixed in r1p0.
+
 DSU Errata Workarounds
 ----------------------
 

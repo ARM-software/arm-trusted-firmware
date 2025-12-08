@@ -40,6 +40,12 @@ workaround_reset_end c1_ultra, CVE(2024, 7881)
 
 check_erratum_ls c1_ultra, CVE(2024, 7881), CPU_REV(0, 0)
 
+workaround_reset_start c1_ultra, ERRATUM(3502731), ERRATA_C1ULTRA_3502731
+	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR4_EL1, BIT(23)
+workaround_reset_end c1_ultra, ERRATUM(3502731)
+
+check_erratum_ls c1_ultra, ERRATUM(3502731), CPU_REV(0, 0)
+
 cpu_reset_func_start c1_ultra
 	/* ----------------------------------------------------
 	 * Disable speculative loads
