@@ -53,7 +53,12 @@ static inline void amu_enable(bool el2_unused)
 extern uint16_t plat_amu_aux_enables[PLATFORM_CORE_COUNT];
 #endif
 
+#if __aarch64__
+/* lower 2 handled by context management */
+#define CTX_AMU_GRP0_ALL		U(2)
+#else
 #define CTX_AMU_GRP0_ALL		U(4)
+#endif
 #define CTX_AMU_GRP1_ALL		U(16)
 
 typedef struct amu_regs {
