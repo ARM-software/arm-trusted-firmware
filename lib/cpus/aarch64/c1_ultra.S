@@ -71,6 +71,12 @@ workaround_reset_end c1_ultra, ERRATUM(3815514)
 
 check_erratum_ls c1_ultra, ERRATUM(3815514), CPU_REV(1, 0)
 
+workaround_reset_start c1_ultra, ERRATUM(3865171), ERRATA_C1ULTRA_3865171
+	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end c1_ultra, ERRATUM(3865171)
+
+check_erratum_ls c1_ultra, ERRATUM(3865171), CPU_REV(1, 0)
+
 cpu_reset_func_start c1_ultra
 	/* ----------------------------------------------------
 	 * Disable speculative loads
