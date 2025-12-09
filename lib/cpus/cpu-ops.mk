@@ -1231,6 +1231,10 @@ CPU_FLAG_LIST += ERRATA_A725_3711914
 # applies to revision r0p0 of C1-Ultra cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_C1ULTRA_3502731
 
+# Flag to apply erratum 3324333 workaround during reset. This erratum
+# applies to revision r0p0 of C1-Ultra cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_C1ULTRA_3324333
+
 # Flag to apply erratum 3651221 workaround during reset. This erratum
 # applies to revision r0p0 of C1-Ultra cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_C1ULTRA_3651221

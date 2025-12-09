@@ -40,6 +40,12 @@ workaround_reset_end c1_ultra, CVE(2024, 7881)
 
 check_erratum_ls c1_ultra, CVE(2024, 7881), CPU_REV(0, 0)
 
+workaround_runtime_start c1_ultra, ERRATUM(3324333), ERRATA_C1ULTRA_3324333
+	speculation_barrier
+workaround_runtime_end c1_ultra, ERRATUM(3324333)
+
+check_erratum_ls c1_ultra, ERRATUM(3324333), CPU_REV(0, 0)
+
 workaround_reset_start c1_ultra, ERRATUM(3502731), ERRATA_C1ULTRA_3502731
 	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_ultra, ERRATUM(3502731)
@@ -117,6 +123,7 @@ cpu_reset_func_start c1_ultra
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	apply_erratum c1_ultra, ERRATUM(3324333), ERRATA_C1ULTRA_3324333
 	/* model bug: not cleared on reset */
 	sysreg_bit_clear C1_ULTRA_IMP_CPUPWRCTLR_EL1, \
 		C1_ULTRA_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
