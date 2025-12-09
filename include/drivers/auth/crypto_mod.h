@@ -12,6 +12,7 @@
 #define	CRYPTO_AUTH_VERIFY_AND_HASH_CALC	3
 
 #include <stddef.h>
+#include <stdint.h>
 
 /* Return values */
 enum crypto_ret_value {
@@ -120,6 +121,8 @@ int crypto_mod_auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 			 unsigned int data_len,
 			 unsigned char output[CRYPTO_MD_MAX_SIZE]);
+int crypto_mod_tcg_hash(uint32_t alg_id, void *data_ptr, unsigned int data_len,
+			uint8_t *digest);
 #endif /* (CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY) || \
 	  (CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC) */
 

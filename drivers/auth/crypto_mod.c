@@ -5,9 +5,11 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
+#include <drivers/measured_boot/event_log/tcg.h>
 
 /* Variable exported by the crypto library through REGISTER_CRYPTO_LIB() */
 
@@ -138,6 +140,33 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 	assert(output != NULL);
 
 	return crypto_lib_desc.calc_hash(alg, data_ptr, data_len, output);
+}
+
+int crypto_mod_tcg_hash(uint32_t alg_id, void *data_ptr, unsigned int data_len,
+			uint8_t *digest)
+{
+	enum crypto_md_algo crypto_alg_id;
+
+	assert(data_ptr != NULL);
+	assert(data_len != 0U);
+	assert(digest != NULL);
+
+	switch (alg_id) {
+	case TPM_ALG_SHA256:
+		crypto_alg_id = CRYPTO_MD_SHA256;
+		break;
+	case TPM_ALG_SHA384:
+		crypto_alg_id = CRYPTO_MD_SHA384;
+		break;
+	case TPM_ALG_SHA512:
+		crypto_alg_id = CRYPTO_MD_SHA512;
+		break;
+	default:
+		ERROR("Unsupported TCG algorithm ID %u.\n", alg_id);
+		return -1;
+	}
+
+	return crypto_mod_calc_hash(crypto_alg_id, data_ptr, data_len, digest);
 }
 #endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
