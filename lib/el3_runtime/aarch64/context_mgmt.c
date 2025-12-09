@@ -709,10 +709,6 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 		sme_init_el3();
 	}
 
-	if (is_feat_fgwte3_supported()) {
-		write_fgwte3_el3(FGWTE3_EL3_EARLY_INIT_VAL);
-	}
-
 	if (is_feat_mpam_supported()) {
 		mpam_init_el3();
 	}
@@ -722,6 +718,11 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 	}
 
 	pmuv3_init_el3();
+
+	/* NOTE: must be done last, makes the configuration immutable */
+	if (is_feat_fgwte3_supported()) {
+		write_fgwte3_el3(FGWTE3_EL3_EARLY_INIT_VAL);
+	}
 #endif /* IMAGE_BL31 */
 }
 
