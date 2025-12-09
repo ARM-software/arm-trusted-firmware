@@ -32,4 +32,12 @@
 #define C1_ULTRA_IMP_CPUACTLR5_EL1				S3_0_C15_C8_0
 #define C1_ULTRA_IMP_CPUACTLR6_EL1				S3_0_C15_C8_1
 
+/*******************************************************************************
+ * CPU Selected Instruction Private Select register specific definitions
+ ******************************************************************************/
+#define C1_ULTRA_IMP_CPUPSELR_EL3			S3_6_C15_C8_0
+#define C1_ULTRA_IMP_CPUPCR_EL3				S3_6_C15_C8_1
+#define C1_ULTRA_IMP_CPUPOR_EL3				S3_6_C15_C8_2
+#define C1_ULTRA_IMP_CPUPMR_EL3				S3_6_C15_C8_3
+
 #endif /* C1_ULTRA_H */

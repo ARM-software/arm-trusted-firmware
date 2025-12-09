@@ -77,6 +77,30 @@ workaround_reset_end c1_ultra, ERRATUM(3865171)
 
 check_erratum_ls c1_ultra, ERRATUM(3865171), CPU_REV(1, 0)
 
+workaround_reset_start c1_ultra, ERRATUM(3926381), ERRATA_C1ULTRA_3926381
+	/* Convert WFx to NOP */
+	ldr x0,=0x0
+	msr C1_ULTRA_IMP_CPUPSELR_EL3, x0
+	ldr x0,=0xD503205f
+	msr C1_ULTRA_IMP_CPUPOR_EL3, x0
+	ldr x0,=0xFFFFFFDF
+	msr C1_ULTRA_IMP_CPUPMR_EL3, x0
+	ldr x0,=0x1000002043ff
+	msr C1_ULTRA_IMP_CPUPCR_EL3, x0
+	/* Convert WFxT to NOP */
+	ldr x0,=0x1
+	msr C1_ULTRA_IMP_CPUPSELR_EL3, x0
+	ldr x0,=0xD5031000
+	msr C1_ULTRA_IMP_CPUPOR_EL3, x0
+	ldr x0,=0xFFFFFFC0
+	msr C1_ULTRA_IMP_CPUPMR_EL3, x0
+	ldr x0,=0x1000002043ff
+	msr C1_ULTRA_IMP_CPUPCR_EL3, x0
+	isb
+workaround_reset_end c1_ultra, ERRATUM(3926381)
+
+check_erratum_range c1_ultra, ERRATUM(3926381), CPU_REV(1, 0), CPU_REV(1, 0)
+
 workaround_reset_start c1_ultra, ERRATUM(4102704), ERRATA_C1ULTRA_4102704
 	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_ultra, ERRATUM(4102704)
