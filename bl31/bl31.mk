@@ -55,6 +55,7 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				${SPM_SOURCES}
 
 VENDOR_EL3_SRCS		+=	services/el3/ven_el3_svc.c
+CPU_SVC_SRCS		+=	services/cpu/cpu_svc.c
 
 ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c				\
