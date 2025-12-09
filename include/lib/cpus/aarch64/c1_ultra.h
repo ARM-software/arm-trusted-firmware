@@ -40,4 +40,8 @@
 #define C1_ULTRA_IMP_CPUPOR_EL3				S3_6_C15_C8_2
 #define C1_ULTRA_IMP_CPUPMR_EL3				S3_6_C15_C8_3
 
+#ifndef __ASSEMBLER__
+long check_erratum_c1_ultra_3658374(long cpu_rev);
+#endif /* __ASSEMBLER__ */
+
 #endif /* C1_ULTRA_H */

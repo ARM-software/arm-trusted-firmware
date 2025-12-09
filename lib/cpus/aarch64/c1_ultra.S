@@ -52,6 +52,10 @@ workaround_reset_end c1_ultra, ERRATUM(3651221)
 
 check_erratum_ls c1_ultra, ERRATUM(3651221), CPU_REV(0, 0)
 
+.global check_erratum_c1_ultra_3658374
+add_erratum_entry c1_ultra, ERRATUM(3658374), ERRATA_C1ULTRA_3658374
+check_erratum_ls c1_ultra, ERRATUM(3658374), CPU_REV(1, 0)
+
 workaround_reset_start c1_ultra, ERRATUM(3684152), ERRATA_C1ULTRA_3684152
 	sysreg_bitfield_insert C1_ULTRA_IMP_CPUACTLR_EL1, C1_ULTRA_IMP_CPUACTLR_EL1_LOAD_BIT, \
 	C1_ULTRA_IMP_CPUACTLR_EL1_LOAD_SHIFT, C1_ULTRA_IMP_CPUACTLR_EL1_LOAD_WIDTH

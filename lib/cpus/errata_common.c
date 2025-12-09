@@ -22,6 +22,7 @@
 #include <cortex_x3.h>
 #include <cortex_x4.h>
 #include <cortex_x925.h>
+#include <c1_ultra.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
 #include <neoverse_n2.h>
@@ -179,6 +180,13 @@ bool errata_ich_vmcr_el2_applies(void)
 			return true;
 		break;
 #endif /* ERRATA_V3_3701767 */
+
+#if ERRATA_C1ULTRA_3658374
+	case EXTRACT_PARTNUM(C1_ULTRA_MIDR):
+		if (check_erratum_c1_ultra_3658374(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_C1ULTRA_3658374 */
 
 	default:
 		break;
