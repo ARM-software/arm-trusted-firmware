@@ -1275,6 +1275,10 @@ CPU_FLAG_LIST += ERRATA_C1PREMIUM_3502731
 # to revision r0p0 of C1-Premium cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_C1PREMIUM_3651221
 
+# Flag to apply erratum 3684152 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Premium cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_C1PREMIUM_3684152
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 CPU_FLAG_LIST += ERRATA_DSU_798953

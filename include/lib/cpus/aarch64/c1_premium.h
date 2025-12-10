@@ -23,6 +23,10 @@
 /*******************************************************************************
  * CPU Auxiliary control register specific definitions
  ******************************************************************************/
+#define C1_PREMIUM_IMP_CPUACTLR_EL1				S3_0_C15_C1_0
+#define C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_BIT			U(1)
+#define C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_SHIFT			U(58)
+#define C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_WIDTH			U(3)
 #define C1_PREMIUM_IMP_CPUACTLR4_EL1				S3_0_C15_C1_3
 #define C1_PREMIUM_CPUACTLR6_EL1				S3_0_C15_C8_1
 
