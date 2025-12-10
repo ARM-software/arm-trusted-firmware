@@ -1219,6 +1219,12 @@ For C1-Ultra, the following errata build flags are defined :
    C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
    is still open.
 
+For C1-Premium, the following errata build flags are defined :
+
+-  ``ERRATA_C1PREMIUM_3502731``: This applies errata 3502731 workaround to
+   C1-Premium CPU. This needs to be enabled for revision r0p0, and is fixed
+   in r1p0.
+
 DSU Errata Workarounds
 ----------------------
 

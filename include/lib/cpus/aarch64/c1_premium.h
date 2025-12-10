@@ -21,8 +21,9 @@
 #define C1_PREMIUM_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT	U(1)
 
 /*******************************************************************************
- * CPU Auxiliary control register 6 specific definitions
+ * CPU Auxiliary control register specific definitions
  ******************************************************************************/
+#define C1_PREMIUM_IMP_CPUACTLR4_EL1				S3_0_C15_C1_3
 #define C1_PREMIUM_CPUACTLR6_EL1				S3_0_C15_C8_1
 
 #endif /* C1_PREMIUM_H */
