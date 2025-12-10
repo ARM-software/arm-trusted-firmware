@@ -18,7 +18,6 @@ continuous integration strategy.
 
   fvp-support
   fvp-build-options
-  fvp-foundation
   fvp-aemv8-base
   fvp-cortex-a57-a53
   fvp-cortex-a32
@@ -26,6 +25,6 @@ continuous integration strategy.
 
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
 
 .. _model/: https://git.trustedfirmware.org/ci/tf-a-ci-scripts.git/tree/model
