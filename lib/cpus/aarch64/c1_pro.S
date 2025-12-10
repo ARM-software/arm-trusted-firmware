@@ -63,7 +63,7 @@ func c1_pro_core_pwr_dwn
 	 * It will be set on powerdown and cleared on wakeup
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set 	C1_PRO_IMP_CPUPWRCTLR_EL1, \
+	sysreg_bit_toggle C1_PRO_IMP_CPUPWRCTLR_EL1, \
 		C1_PRO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	signal_pabandon_handled
