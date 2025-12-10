@@ -102,6 +102,12 @@ workaround_reset_end c1_premium, ERRATUM(3926381)
 
 check_erratum_range c1_premium, ERRATUM(3926381), CPU_REV(1, 0), CPU_REV(1, 0)
 
+workaround_reset_start c1_premium, ERRATUM(4102704), ERRATA_C1PREMIUM_4102704
+	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR4_EL1, BIT(23)
+workaround_reset_end c1_premium, ERRATUM(4102704)
+
+check_erratum_ls c1_premium, ERRATUM(4102704), CPU_REV(1, 0)
+
 cpu_reset_func_start c1_premium
 	/* Disable speculative loads */
 	msr	SSBS, xzr
