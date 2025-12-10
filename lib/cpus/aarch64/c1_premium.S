@@ -46,6 +46,12 @@ workaround_reset_end c1_premium, ERRATUM(3502731)
 
 check_erratum_ls c1_premium, ERRATUM(3502731), CPU_REV(0, 0)
 
+workaround_reset_start c1_premium, ERRATUM(3651221), ERRATA_C1PREMIUM_3651221
+	sysreg_bit_set C1_PREMIUM_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end c1_premium, ERRATUM(3651221)
+
+check_erratum_ls c1_premium, ERRATUM(3651221), CPU_REV(0, 0)
+
 cpu_reset_func_start c1_premium
 	/* Disable speculative loads */
 	msr	SSBS, xzr
