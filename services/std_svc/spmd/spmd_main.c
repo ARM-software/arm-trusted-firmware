@@ -303,9 +303,25 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 #if (EL3_EXCEPTION_HANDLING == 0)
 /*******************************************************************************
  * spmd_group0_interrupt_handler_nwd
+ *
  * Group0 secure interrupt in the normal world are trapped to EL3. Delegate the
  * handling of the interrupt to the platform handler, and return only upon
  * successfully handling the Group0 interrupt.
+ *
+ * NOTE: the generic handle_interrupt_exception entry calls
+ * plat_ic_get_pending_interrupt_type to perform a first triage and route to
+ * the corresponding interrupt handler based on the interrupt type.
+ * A registered handler must not assume that the HPPI hasn't changed from the
+ * top level handler until reaching to it. The first thing a handler must do is
+ * attempting to acknowledge the interrupt and process it if it's a valid
+ * INTID. Meanwhile, the interrupt might have been acknowledged by another
+ * PE, or another high priority interrupt got asserted, or any other valid
+ * reason for the HPPI to change. The reasoning is the same for an interrupt
+ * delegated by lower EL through the FFA_EL3_INTR_HANDLE interface.
+ * For a G0 interrupt triggered while secure world runs, the first triage is
+ * done by lower EL e.g. S-EL2 and routes it to EL3 for handling. Once there,
+ * the HPPI might have changed so the same rules as above apply.
+ *
  ******************************************************************************/
 static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 						  uint32_t flags,
@@ -321,8 +337,6 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 	assert(handle == cm_get_context(NON_SECURE));
 
 	assert(id == INTR_ID_UNAVAILABLE);
-
-	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
 
 	intr_raw = plat_ic_acknowledge_interrupt();
 	intid = plat_ic_get_interrupt_id(intr_raw);
@@ -345,10 +359,13 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 
 /*******************************************************************************
  * spmd_handle_group0_intr_swd
+ *
  * SPMC delegates handling of Group0 secure interrupt to EL3 firmware using
  * FFA_EL3_INTR_HANDLE SMC call. Further, SPMD delegates the handling of the
  * interrupt to the platform handler, and returns only upon successfully
  * handling the Group0 interrupt.
+ *
+ * NOTE: see spmd_group0_interrupt_handler_nwd note section.
  ******************************************************************************/
 static uint64_t spmd_handle_group0_intr_swd(void *handle)
 {
@@ -356,8 +373,6 @@ static uint64_t spmd_handle_group0_intr_swd(void *handle)
 
 	/* Sanity check the pointer to this cpu's context */
 	assert(handle == cm_get_context(SECURE));
-
-	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
 
 	intr_raw = plat_ic_acknowledge_interrupt();
 	intid = plat_ic_get_interrupt_id(intr_raw);
