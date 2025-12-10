@@ -33,4 +33,8 @@
 #define C1_PRO_IMP_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define C1_PRO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT	U(1)
 
+#ifndef __ASSEMBLER__
+long check_erratum_c1_pro_3300099(long cpu_rev);
+#endif /* __ASSEMBLER__ */
+
 #endif /* C1_PRO_H */

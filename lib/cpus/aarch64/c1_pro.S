@@ -85,6 +85,10 @@ workaround_reset_end c1_pro, ERRATUM(3706576)
 
 check_erratum_ls c1_pro, ERRATUM(3706576), CPU_REV(1, 0)
 
+add_erratum_entry c1_pro, ERRATUM(3300099), ERRATA_C1PRO_3300099
+.global check_erratum_c1_pro_3300099
+check_erratum_ls c1_pro, ERRATUM(3300099), CPU_REV(1, 0)
+
 cpu_reset_func_start c1_pro
 	/* ----------------------------------------------------
 	 * Disable speculative loads
