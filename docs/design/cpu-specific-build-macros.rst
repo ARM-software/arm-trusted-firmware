@@ -1269,6 +1269,10 @@ For C1-Pro, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0 and is fixed in
    r1p1.
 
+-  ``ERRATA_C1PRO_3686597``: This applies errata 3686597 workaround to C1-Pro
+   CPU. This needs to be enabled for revisions r0p0 and r1p0 of the CPU, it
+   is fixed in r1p1.
+
 -  ``ERRATA_C1PRO_3694158``: This applies errata 3694158 workaround to C1-Pro
    CPU. This needs to be enabled for revisions r0p0, r1p0 and r1p1 and is
    fixed in r1p2.

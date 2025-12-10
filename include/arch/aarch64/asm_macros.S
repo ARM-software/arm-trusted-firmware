@@ -364,6 +364,11 @@
 	ands	\reg, \reg, #(ID_AA64MMFR3_EL1_SCTLR2_MASK << ID_AA64MMFR3_EL1_SCTLR2_SHIFT)
 	.endm
 
+	.macro is_feat_sme_present_asm reg:req
+	mrs	\reg, id_aa64pfr1_el1
+	ands	\reg, \reg, #(ID_AA64PFR1_EL1_SME_MASK << ID_AA64PFR1_EL1_SME_SHIFT)
+	.endm
+
 .macro call_reset_handler
 #if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && RESET_TO_BL2)
 	/* ---------------------------------------------------------------------

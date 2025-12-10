@@ -60,6 +60,19 @@ workaround_reset_end c1_pro, ERRATUM(3684268)
 
 check_erratum_ls c1_pro, ERRATUM(3684268), CPU_REV(1, 0)
 
+workaround_runtime_start c1_pro, ERRATUM(3686597), ERRATA_C1PRO_3686597
+	/* check if sme feature supported */
+	is_feat_sme_present_asm x1
+	beq 1f
+
+	sysreg_bit_set C1_PRO_IMP_CPUECTLR_EL1, BIT(57)
+	dsb sy
+
+1:
+workaround_runtime_end c1_pro, ERRATUM(3686597)
+
+check_erratum_ls c1_pro, ERRATUM(3686597), CPU_REV(1, 0)
+
 workaround_reset_start c1_pro, ERRATUM(3694158), ERRATA_C1PRO_3694158
 	mov x0, #5
 	msr C1_PRO_IMP_CPUPSELR_EL3, x0
@@ -112,6 +125,7 @@ func c1_pro_core_pwr_dwn
 	 * It will be set on powerdown and cleared on wakeup
 	 * ---------------------------------------------------
 	 */
+	apply_erratum c1_pro, ERRATUM(3686597), ERRATA_C1PRO_3686597
 	sysreg_bit_toggle C1_PRO_IMP_CPUPWRCTLR_EL1, \
 		C1_PRO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
