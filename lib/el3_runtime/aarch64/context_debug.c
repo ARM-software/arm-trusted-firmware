@@ -61,11 +61,7 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 	size_t total = 0U;
 	size_t per_world_ctx_size = 0U;
 
-#if CTX_INCLUDE_EL2_REGS
-	size_t el2_total = 0U;
-#else
-	size_t el1_total = 0U;
-#endif /* CTX_INCLUDE_EL2_REGS */
+	size_t elx_total = 0U;
 	size_t pauth_total = 0U;
 
 	if (is_ctx_pauth_supported()) {
@@ -92,11 +88,7 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 		size_t size_other = 0U;
 		size_t el3_size = 0U;
 		size_t gp_size = 0U;
-#if CTX_INCLUDE_EL2_REGS
-		size_t el2_size = 0U;
-#else
-		size_t el1_size = 0U;
-#endif /* CTX_INCLUDE_EL2_REGS */
+		size_t elx_size = 0U;
 
 		if (is_ctx_pauth_supported()) {
 			PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
@@ -113,25 +105,20 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 		printf("| %9u | %8luB | %8luB ", i, gp_size, el3_size);
 
 #if CTX_INCLUDE_EL2_REGS
-		el2_size = sizeof(ctx->el2_sysregs_ctx);
-		size_other -= el2_size;
-		el2_total += el2_size;
-		printf("| %8luB ", el2_size);
+		elx_size = sizeof(ctx->el2_sysregs_ctx);
 #else
-		el1_size = sizeof(ctx->el1_sysregs_ctx);
-		size_other -= el1_size;
-		el1_total += el1_size;
-		printf("| %8luB ", el1_size);
+		elx_size = sizeof(ctx->el1_sysregs_ctx);
 #endif /* CTX_INCLUDE_EL2_REGS */
+		size_other -= elx_size;
+		elx_total += elx_size;
+		printf("| %8luB ", elx_size);
 
-#if CTX_INCLUDE_PAUTH_REGS
 		if (is_ctx_pauth_supported()) {
-			size_t pauth_size = sizeof(ctx->pauth_ctx);
+			size_t pauth_size = sizeof(get_pauth_ctx(ctx));
 			size_other -= pauth_size;
 			pauth_total += pauth_size;
 			printf("| %8luB ", pauth_size);
 		}
-#endif
 		printf("| %8luB | %8luB |\n", size_other, core_total);
 
 		gp_total += gp_size;
@@ -154,11 +141,7 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 
 	printf("|    All    | %8luB | %8luB ", gp_total, el3_total);
 
-#if CTX_INCLUDE_EL2_REGS
-	printf("| %8luB ", el2_total);
-#else
-	printf("| %8luB ", el1_total);
-#endif /* CTX_INCLUDE_EL2_REGS */
+	printf("| %8luB ", elx_total);
 
 	if (is_ctx_pauth_supported()) {
 		printf("| %8luB ", pauth_total);
