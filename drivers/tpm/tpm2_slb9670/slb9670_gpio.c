@@ -19,15 +19,13 @@
  * References: https://pinout.xyz/pinout/spi
  * - docs/design_documents/measured_boot_dtpm_poc.rst
  */
-const struct gpio_spi_data tpm_rpi3_gpio_data = {
-	.cs_gpio = 7,
-	.sclk_gpio = 11,
-	.mosi_gpio = 10,
-	.miso_gpio = 9,
-	.reset_gpio = 24,
-	.spi_delay_us = 0,
-	.spi_mode = 0
-};
+const struct gpio_spi_config tpm_rpi3_gpio_data = { .cs_gpio = 7,
+						    .sclk_gpio = 11,
+						    .mosi_gpio = 10,
+						    .miso_gpio = 9,
+						    .reset_gpio = 24,
+						    .spi_mode = 0,
+						    .spi_max_clock = 1000000 };
 
 /*
  * When RST is asserted at certain points in time, then this
@@ -38,7 +36,7 @@ const struct gpio_spi_data tpm_rpi3_gpio_data = {
  * In most cases this is not needed since RST is only being asserted
  * once, ie for TPM initialization at the beginning of TFA.
  */
-void tpm2_slb9670_reset_chip(struct gpio_spi_data *tpm_gpio_data)
+void tpm2_slb9670_reset_chip(const struct gpio_spi_config *tpm_gpio_data)
 {
 	/*
 	 * since we don't know the value of the pin before it was init to 1
@@ -57,19 +55,13 @@ void tpm2_slb9670_reset_chip(struct gpio_spi_data *tpm_gpio_data)
 /*
  * init GPIO pins for the Infineon slb9670 TPM
  */
-void tpm2_slb9670_gpio_init(struct gpio_spi_data *tpm_gpio_data)
+void tpm2_slb9670_gpio_init(const struct gpio_spi_config *tpm_gpio_data)
 {
-	gpio_set_value(tpm_gpio_data->cs_gpio, 1);
-	gpio_set_direction(tpm_gpio_data->cs_gpio, GPIO_DIR_OUT);
-
-	gpio_set_value(tpm_gpio_data->sclk_gpio, 0);
-	gpio_set_direction(tpm_gpio_data->sclk_gpio, GPIO_DIR_OUT);
-
-	gpio_set_value(tpm_gpio_data->mosi_gpio, 1);
-	gpio_set_direction(tpm_gpio_data->mosi_gpio, GPIO_DIR_OUT);
-
-	gpio_set_direction(tpm_gpio_data->miso_gpio, GPIO_DIR_IN);
-
 	gpio_set_value(tpm_gpio_data->reset_gpio, 1);
 	gpio_set_direction(tpm_gpio_data->reset_gpio, GPIO_DIR_OUT);
+}
+
+const struct gpio_spi_config *tpm2_slb9670_get_config(void)
+{
+	return &tpm_rpi3_gpio_data;
 }

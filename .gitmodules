@@ -6,3 +6,7 @@
 	path = contrib/libeventlog
 	url = https://review.trustedfirmware.org/shared/libEventLog
 	shallow = true
+[submodule "contrib/libtpm"]
+	path = contrib/libtpm
+	url = https://review.trustedfirmware.org/shared/libTPM
+	shallow = true

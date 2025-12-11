@@ -13,53 +13,64 @@
 #include <drivers/gpio_spi.h>
 #include <platform_def.h>
 
+static struct gpio_spi_config config;
+
 static struct spi_plat gpio_spidev;
 
-static void gpio_spi_delay_us(void)
+static uint32_t gpio_spi_get_delay_us(void)
 {
-	udelay(gpio_spidev.gpio_data.spi_delay_us);
+	/* Delay used twice per clock cycle,
+	 * high and low.
+	 */
+	return 500000 / config.spi_max_clock;
 }
 
 static int gpio_spi_miso(void)
 {
-	return gpio_get_value(gpio_spidev.gpio_data.miso_gpio);
+	return gpio_get_value(config.miso_gpio);
 }
 
 static void gpio_spi_sclk(int bit)
 {
-	gpio_set_value(gpio_spidev.gpio_data.sclk_gpio, bit);
+	gpio_set_value(config.sclk_gpio, bit);
 }
 
 static void gpio_spi_mosi(int bit)
 {
-	gpio_set_value(gpio_spidev.gpio_data.mosi_gpio, bit);
+	gpio_set_value(config.mosi_gpio, bit);
 }
 
 static void gpio_spi_cs(int bit)
 {
-	gpio_set_value(gpio_spidev.gpio_data.cs_gpio, bit);
+	gpio_set_value(config.cs_gpio, bit);
 }
 
-static void gpio_spi_start(void)
+static void gpio_spi_start(struct spi_priv *context)
 {
 	gpio_spi_cs(1);
 	gpio_spi_sclk(0);
 	gpio_spi_cs(0);
 }
 
-static void gpio_spi_stop(void)
+static void gpio_spi_stop(struct spi_priv *context)
 {
 	gpio_spi_cs(1);
 }
 
 /* set sclk to a known state (0) before performing any further action */
-static void gpio_spi_get_access(void)
+static int gpio_spi_get_access(struct spi_priv *context)
 {
 	gpio_spi_sclk(0);
+	return 0;
 }
 
+static void gpio_spi_release_access(struct spi_priv *context)
+{
+	/* No locking in this driver */
+}
 static void xfer(unsigned int bytes, const void *out, void *in, int cpol, int cpha)
 {
+	uint32_t delay_us = gpio_spi_get_delay_us();
 	for (unsigned int j = 0U; j < bytes; j++) {
 		unsigned char in_byte  = 0U;
 		unsigned char out_byte = (out != NULL) ? *(const uint8_t *)out++ : 0xFF;
@@ -71,9 +82,9 @@ static void xfer(unsigned int bytes, const void *out, void *in, int cpol, int cp
 
 			gpio_spi_mosi(!!(out_byte & (1 << i)));
 
-			gpio_spi_delay_us();
+			udelay(delay_us);
 			gpio_spi_sclk(cpha ? cpol : !cpol);
-			gpio_spi_delay_us();
+			udelay(delay_us);
 
 			in_byte |= gpio_spi_miso() << i;
 
@@ -88,13 +99,14 @@ static void xfer(unsigned int bytes, const void *out, void *in, int cpol, int cp
 	}
 }
 
-static int gpio_spi_xfer(unsigned int bytes, const void *out, void *in)
+static int gpio_spi_xfer(struct spi_priv *context, unsigned int bytes,
+			 const void *out, void *in)
 {
 	if ((out == NULL) && (in == NULL)) {
 		return -1;
 	}
 
-	switch (gpio_spidev.gpio_data.spi_mode) {
+	switch (config.spi_mode) {
 	case 0:
 		xfer(bytes, out, in, 0, 0);
 		break;
@@ -115,16 +127,29 @@ static int gpio_spi_xfer(unsigned int bytes, const void *out, void *in)
 }
 
 struct spi_ops gpio_spidev_ops = {
-	.get_access	= gpio_spi_get_access,
-	.start		= gpio_spi_start,
-	.stop		= gpio_spi_stop,
-	.xfer		= gpio_spi_xfer,
+	.get_access = gpio_spi_get_access,
+	.release_access = gpio_spi_release_access,
+	.start = gpio_spi_start,
+	.stop = gpio_spi_stop,
+	.xfer = gpio_spi_xfer,
 };
 
-struct spi_plat *gpio_spi_init(struct gpio_spi_data *gpio_spi_data)
+struct spi_plat *gpio_spi_init(const struct gpio_spi_config *gpio_spi_data)
 {
-	gpio_spidev.gpio_data = *gpio_spi_data;
+	gpio_spidev.priv = NULL; // No context, only one device supported
+	config = *gpio_spi_data;
 	gpio_spidev.ops = &gpio_spidev_ops;
+
+	gpio_set_value(gpio_spi_data->cs_gpio, 1);
+	gpio_set_direction(gpio_spi_data->cs_gpio, GPIO_DIR_OUT);
+
+	gpio_set_value(gpio_spi_data->sclk_gpio, 0);
+	gpio_set_direction(gpio_spi_data->sclk_gpio, GPIO_DIR_OUT);
+
+	gpio_set_value(gpio_spi_data->mosi_gpio, 1);
+	gpio_set_direction(gpio_spi_data->mosi_gpio, GPIO_DIR_OUT);
+
+	gpio_set_direction(gpio_spi_data->miso_gpio, GPIO_DIR_IN);
 
 	return &gpio_spidev;
 }

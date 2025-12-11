@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,5 +68,8 @@
 #define RPI3_INTC_MBOX_CONTROL_SLOT3_FIQ	ULL(0x00000080)
 #define RPI3_INTC_PENDING_FIQ_OFFSET		ULL(0x00000070)
 #define RPI3_INTC_PENDING_FIQ_MBOX3		ULL(0x00000080)
+
+/* Clock speed typical on Pi 3 */
+#define RPI3_SPI_CORE_CLK_HZ			UL(250000000)
 
 #endif /* RPI_HW_H */
