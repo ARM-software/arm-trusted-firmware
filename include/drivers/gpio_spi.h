@@ -9,24 +9,28 @@
 
 #include <stdint.h>
 
-struct gpio_spi_data {
+struct gpio_spi_config {
 	uint8_t cs_gpio, sclk_gpio, mosi_gpio, miso_gpio, reset_gpio;
-	uint32_t spi_delay_us;
 	unsigned int spi_mode;
+	uint32_t spi_max_clock;
 };
 
+struct spi_priv;
+
 struct spi_ops {
-	void (*get_access)(void);
-	void (*start)(void);
-	void (*stop)(void);
-	int (*xfer)(unsigned int bitlen, const void *dout, void *din);
+	int (*get_access)(struct spi_priv *context);
+	void (*release_access)(struct spi_priv *context);
+	void (*start)(struct spi_priv *context);
+	void (*stop)(struct spi_priv *context);
+	int (*xfer)(struct spi_priv *context, unsigned int bytes,
+		    const void *dout, void *din);
 };
 
 struct spi_plat {
-	struct gpio_spi_data gpio_data;
+	struct spi_priv *priv;
 	const struct spi_ops *ops;
 };
 
-struct spi_plat *gpio_spi_init(struct gpio_spi_data *gpio_spi_data);
+struct spi_plat *gpio_spi_init(const struct gpio_spi_config *gpio_spi_config);
 
 #endif /* GPIO_SPI_H */

@@ -12,13 +12,15 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
+#include <tpm2.h>
+#include <tpm2_chip.h>
+
 #include <common/desc_image_load.h>
 #include <common/ep_info.h>
 #include <drivers/auth/crypto_mod.h>
+#include <drivers/delay_timer.h>
 #include <drivers/gpio_spi.h>
 #include <drivers/measured_boot/metadata.h>
-#include <drivers/tpm/tpm2.h>
-#include <drivers/tpm/tpm2_chip.h>
 #include <drivers/tpm/tpm2_slb9670/slb9670_gpio.h>
 #include <event_measure.h>
 #include <event_print.h>
@@ -44,18 +46,33 @@ const event_log_metadata_t rpi3_event_log_metadata[] = {
 #if DISCRETE_TPM
 extern struct tpm_chip_data tpm_chip_data;
 #if (TPM_INTERFACE == FIFO_SPI)
-extern struct gpio_spi_data tpm_rpi3_gpio_data;
-struct spi_plat *spidev;
+
 #endif
 
 static void rpi3_bl1_tpm_early_interface_setup(void)
 {
-#if (TPM_INTERFACE == FIFO_SPI)
-	tpm2_slb9670_gpio_init(&tpm_rpi3_gpio_data);
+#if TPM_INTERFACE_FIFO_SPI
+	int rc;
+	struct spi_plat *spidev;
+	const struct tpm_timeout_ops timeout_ops = {
+		.timeout_init_us = timeout_init_us,
+		.timeout_elapsed = timeout_elapsed
+	};
+	const struct gpio_spi_config *tpm_rpi3_gpio_data =
+		tpm2_slb9670_get_config();
 
-	tpm2_slb9670_reset_chip(&tpm_rpi3_gpio_data);
+	tpm2_slb9670_gpio_init(tpm_rpi3_gpio_data);
 
-	spidev = gpio_spi_init(&tpm_rpi3_gpio_data);
+	tpm2_slb9670_reset_chip(tpm_rpi3_gpio_data);
+
+	spidev = gpio_spi_init(tpm_rpi3_gpio_data);
+
+	rc = tpm_interface_init(spidev, &timeout_ops, &tpm_chip_data, 0);
+	if (rc != 0) {
+		ERROR("BL1: TPM interface init failed\n");
+		panic();
+	}
+
 #endif
 }
 #endif
@@ -66,11 +83,6 @@ void bl1_plat_mboot_init(void)
 	int rc;
 
 	rpi3_bl1_tpm_early_interface_setup();
-	rc = tpm_interface_init(&tpm_chip_data, 0);
-	if (rc != 0) {
-		ERROR("BL1: TPM interface init failed\n");
-		panic();
-	}
 	rc = tpm_startup(&tpm_chip_data, TPM_SU_CLEAR);
 	if (rc != 0) {
 		ERROR("BL1: TPM Startup failed\n");
