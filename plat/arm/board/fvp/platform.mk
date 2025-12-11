@@ -117,6 +117,10 @@ $(eval $(call add_define,FVP_GICR_REGION_PROTECTION))
 # Pass FVP_TRUSTED_SRAM_SIZE to the build system.
 $(eval $(call add_define,FVP_TRUSTED_SRAM_SIZE))
 
+ifeq (${DRTM_SUPPORT},1)
+MBOOT_EL_HASH_ALG	:=	sha256
+endif
+
 # Sanity check the cluster count and if FVP_CLUSTER_COUNT <= 2,
 # choose the CCI driver , else the CCN driver
 ifeq ($(FVP_CLUSTER_COUNT), 0)
@@ -533,11 +537,13 @@ include plat/arm/common/arm_common.mk
 ifeq (${MEASURED_BOOT},1)
 BL1_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl1_measured_boot.c	\
-				lib/psa/measured_boot.c
+				lib/psa/measured_boot.c	\
+				common/measured_boot_helpers.c
 
 BL2_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl2_measured_boot.c	\
-				lib/psa/measured_boot.c
+				lib/psa/measured_boot.c	\
+				common/measured_boot_helpers.c
 endif
 
 ifeq (${DRTM_SUPPORT}, 1)

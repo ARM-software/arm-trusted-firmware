@@ -486,13 +486,13 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
 
-    ifeq (${MEASURED_BOOT},1)
         BL1_LIBS += $(LIBEVLOG_LIBS)
         BL1_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 
         BL2_LIBS += $(LIBEVLOG_LIBS)
         BL2_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 
+    ifeq (${MEASURED_BOOT},1)
          ifeq (${SPD_tspd},1)
             BL32_LIBS += $(LIBEVLOG_LIBS)
             BL32_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)

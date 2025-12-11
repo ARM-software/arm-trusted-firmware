@@ -22,11 +22,6 @@
 
 /* Event Log buffer */
 static uint8_t drtm_event_log[PLAT_DRTM_EVENT_LOG_MAX_SIZE];
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
 
 /*
  * Calculate and write hash of various payloads as per DRTM specification
@@ -47,23 +42,25 @@ static int drtm_event_log_measure_and_record(uintptr_t data_base,
 					     unsigned int pcr)
 {
 	int rc;
-	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
-	event_log_metadata_t metadata = {0};
-
-	metadata.name = event_name;
-	metadata.pcr = pcr;
+	unsigned char hash_data[MAX_TPML_BUFFER_SIZE];
+	size_t event_data_size =
+		(event_name != NULL) ? (strlen(event_name) + 1U) : 0U;
 
 	/*
 	 * Measure the payloads requested by D-CRTM and DCE components
 	 * Hash algorithm decided by the Event Log driver at build-time
 	 */
-	rc = event_log_measure(data_base, data_size, hash_data);
+	rc = event_log_measure(data_base, data_size, hash_data,
+			       sizeof(hash_data));
 	if (rc != 0) {
 		return rc;
 	}
 
-	/* Record the mesasurement in the EventLog buffer */
-	rc = event_log_record(hash_data, event_type, &metadata);
+	/* Record the measurement in the EventLog buffer */
+	rc = event_log_write_pcr_event2(pcr, event_type,
+					(const tpml_digest_values *)hash_data,
+					(const uint8_t *)event_name,
+					event_data_size);
 	if (rc != 0) {
 		return rc;
 	}
@@ -83,16 +80,23 @@ static int drtm_event_log_measure_and_record(uintptr_t data_base,
 static void drtm_event_log_init(uint8_t *event_log_start,
 				uint8_t *event_log_finish)
 {
-	int rc = event_log_init_and_reg(event_log_start, event_log_finish,
-					&crypto_hash_info);
+	int rc;
+	tpm_alg_id algorithms[] = {
+		TPM_ALG_ID,
+	};
+
+	rc = event_log_init_and_reg(
+		drtm_event_log, drtm_event_log + PLAT_DRTM_EVENT_LOG_MAX_SIZE,
+		0U, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
 	}
 
-	rc = event_log_write_specid_event();
+	rc = event_log_write_header(algorithms, ARRAY_SIZE(algorithms), 0, NULL,
+				    0);
 	if (rc < 0) {
-		ERROR("Failed to write Specification ID Event (%d).\n", rc);
+		ERROR("Failed to write event log header (%d).\n", rc);
 		panic();
 	}
 }

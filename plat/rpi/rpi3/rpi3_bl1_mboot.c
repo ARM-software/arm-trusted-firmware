@@ -28,11 +28,6 @@
 
 /* Event Log data */
 uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
 
 /* RPI3 table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t rpi3_event_log_metadata[] = {
@@ -79,8 +74,22 @@ static void rpi3_bl1_tpm_early_interface_setup(void)
 
 void bl1_plat_mboot_init(void)
 {
-#if DISCRETE_TPM
+	tpm_alg_id algorithms[] = {
+#ifdef TPM_ALG_ID
+		TPM_ALG_ID
+#else
+		/*
+		 * TODO: with MEASURED_BOOT=1 several algorithms now compiled into Mbed-TLS,
+		 * we ought to query the backend to figure out what algorithms to use.
+		 */
+		TPM_ALG_SHA256,
+		TPM_ALG_SHA384,
+		TPM_ALG_SHA512,
+#endif
+	};
 	int rc;
+
+#if DISCRETE_TPM
 
 	rpi3_bl1_tpm_early_interface_setup();
 	rc = tpm_startup(&tpm_chip_data, TPM_SU_CLEAR);
@@ -91,13 +100,14 @@ void bl1_plat_mboot_init(void)
 #endif
 
 	rc = event_log_init_and_reg(event_log, event_log + sizeof(event_log),
-				    &crypto_hash_info);
+				    0U, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
 	}
 
-	rc = event_log_write_header();
+	rc = event_log_write_header(algorithms, ARRAY_SIZE(algorithms), 0, NULL,
+				    0);
 	if (rc < 0) {
 		ERROR("Failed to write event log header (%d).\n", rc);
 		panic();
@@ -129,37 +139,7 @@ void bl1_plat_mboot_finish(void)
 		panic();
 	}
 #endif
-}
-
-int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
-{
-	int rc = 0;
-	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
-	const event_log_metadata_t *metadata_ptr = rpi3_event_log_metadata;
-
-	rc = event_log_measure(image_data->image_base, image_data->image_size, hash_data);
-	if (rc != 0) {
-		return rc;
-	}
-
-#if DISCRETE_TPM
-	rc = tpm_pcr_extend(&tpm_chip_data, 0, TPM_ALG_ID, hash_data, TCG_DIGEST_SIZE);
-	if (rc != 0) {
-		ERROR("BL1: TPM PCR-0 extend failed\n");
-		panic();
-	}
-#endif
-
-	while ((metadata_ptr->id != EVLOG_INVALID_ID) &&
-		(metadata_ptr->id != image_id)) {
-		metadata_ptr++;
-	}
-	assert(metadata_ptr->id != EVLOG_INVALID_ID);
-
-	event_log_record(hash_data, EV_POST_CODE, metadata_ptr);
 
 	/* Dump Event Log for user view */
 	event_log_dump((uint8_t *)event_log, event_log_get_cur_size(event_log));
-
-	return rc;
 }

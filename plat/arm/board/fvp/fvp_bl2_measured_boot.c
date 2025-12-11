@@ -10,6 +10,7 @@
 #if TRANSFER_LIST
 #include <tpm_event_log.h>
 #endif
+#include <common/measured_boot.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/measured_boot/metadata.h>
 #include <event_measure.h>
@@ -30,13 +31,7 @@ CASSERT(ARM_EVENT_LOG_DRAM1_SIZE >= PLAT_ARM_EVENT_LOG_MAX_SIZE, \
 #endif /* defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd) */
 
 /* Event Log data */
-static uint64_t event_log_base;
-
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
+static const uint8_t *event_log_base;
 
 /* FVP table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t fvp_event_log_metadata[] = {
@@ -70,21 +65,32 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 
 void bl2_plat_mboot_init(void)
 {
-	uint8_t *event_log_start;
+	uint8_t *event_log_start __unused;
 	uint8_t *event_log_finish;
 	size_t bl1_event_log_size __unused = 0;
 	size_t event_log_max_size __unused = 0;
+	struct transfer_list_entry *te __unused;
 	int rc __unused;
 
 #if TRANSFER_LIST
 	event_log_start = transfer_list_event_log_extend(
 		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE);
-	event_log_finish = event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE;
 
-	event_log_base = (uintptr_t)event_log_start;
+	/*
+	 * Retrieve the extend event log entry from the transfer list, the API above
+	 * returns a cursor position rather than the base address - we need both to
+	 * init the library.
+	 */
+	te = transfer_list_find(secure_tl, TL_TAG_TPM_EVLOG);
+
+	event_log_base =
+		transfer_list_entry_data(te) + EVENT_LOG_RESERVED_BYTES;
+	event_log_finish = transfer_list_entry_data(te) + te->data_size;
+
+	bl1_event_log_size = event_log_start - event_log_base;
 #else
-	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size,
-				&event_log_max_size);
+	rc = arm_get_tb_fw_info((uint64_t *)&event_log_base,
+				&bl1_event_log_size, &event_log_max_size);
 	if (rc != 0) {
 		ERROR("%s(): Unable to get Event Log info from TB_FW_CONFIG\n",
 		      __func__);
@@ -100,14 +106,12 @@ void bl2_plat_mboot_init(void)
 	 * BL1 and BL2 share the same Event Log buffer and that BL2 will
 	 * append its measurements after BL1's
 	 */
-	event_log_start =
-		(uint8_t *)((uintptr_t)event_log_base + bl1_event_log_size);
 	event_log_finish =
 		(uint8_t *)((uintptr_t)event_log_base + event_log_max_size);
 #endif
 
-	rc = event_log_init_and_reg(event_log_start, event_log_finish,
-				    &crypto_hash_info);
+	rc = event_log_init_and_reg((uint8_t *)event_log_base, event_log_finish,
+				    bl1_event_log_size, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
@@ -117,6 +121,9 @@ void bl2_plat_mboot_init(void)
 int plat_mboot_measure_critical_data(unsigned int critical_data_id,
 				     const void *base, size_t size)
 {
+	const event_log_metadata_t *metadata_ptr;
+	int err;
+
 	/*
 	 * It is very unlikely that the critical data size would be
 	 * bigger than 2^32 bytes
@@ -124,10 +131,16 @@ int plat_mboot_measure_critical_data(unsigned int critical_data_id,
 	assert(size < UINT32_MAX);
 	assert(base != NULL);
 
+	metadata_ptr = mboot_find_event_log_metadata(fvp_event_log_metadata,
+						     critical_data_id);
+	if (metadata_ptr == NULL) {
+		return 0;
+	}
+
 	/* Calculate image hash and record data in Event Log */
-	int err = event_log_measure_and_record((uintptr_t)base, (uint32_t)size,
-					       critical_data_id,
-					       fvp_event_log_metadata);
+	err = event_log_measure_and_record(metadata_ptr->pcr, (uintptr_t)base,
+					   size, metadata_ptr->name,
+					   strlen(metadata_ptr->name) + 1U);
 	if (err != 0) {
 		ERROR("%s%s critical data (%i)\n",
 		      "Failed to ", "record",  err);
@@ -203,7 +216,7 @@ void bl2_plat_mboot_finish(void)
 	 * Re-size the event log for the next stage and update the size to include
 	 * the entire event log (i.e., not just what this stage has added.)
 	 */
-	event_log_base = (uintptr_t)transfer_list_event_log_finish(
+	event_log_base = transfer_list_event_log_finish(
 		secure_tl, (uintptr_t)event_log_base + event_log_cur_size);
 
 	/* Ensure changes are visible to the next stage. */

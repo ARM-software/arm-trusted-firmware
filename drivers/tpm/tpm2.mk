@@ -28,6 +28,11 @@ else
     $(error "The selected MBOOT_TPM_HASH_ALG is invalid.")
 endif #MBOOT_TPM_HASH_ALG
 
+$(eval $(call add_defines,\
+    $(sort \
+        TCG_DIGEST_SIZE \
+)))
+
 ifeq (${TPM_INTERFACE}, FIFO_SPI)
     $(eval $(call add_define,TPM_INTERFACE_FIFO_SPI))
 else

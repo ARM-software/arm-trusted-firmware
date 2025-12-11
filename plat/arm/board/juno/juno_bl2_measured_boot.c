@@ -26,12 +26,6 @@
 /* Event Log data */
 static uint8_t *event_log_base;
 
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
-
 /* table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t juno_event_log_metadata[] = {
 	{ BL31_IMAGE_ID, MBOOT_BL31_IMAGE_STRING, PCR_0 },
@@ -52,16 +46,28 @@ void bl2_plat_mboot_init(void)
 #if TRANSFER_LIST
 	uint8_t *event_log_start;
 	uint8_t *event_log_finish;
+	size_t bl1_event_log_size;
+	struct transfer_list_entry *te;
 	int rc;
 
 	event_log_start = transfer_list_event_log_extend(
 		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE);
 
-	event_log_base = event_log_start;
-	event_log_finish = event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE;
+	/*
+	 * Retrieve the extend event log entry from the transfer list, the API above
+	 * returns a cursor position rather than the base address - we need both to
+	 * init the library.
+	 */
+	te = transfer_list_find(secure_tl, TL_TAG_TPM_EVLOG);
 
-	rc = event_log_init_and_reg(event_log_start, event_log_finish,
-				    &crypto_hash_info);
+	event_log_base =
+		transfer_list_entry_data(te) + EVENT_LOG_RESERVED_BYTES;
+	event_log_finish = transfer_list_entry_data(te) + te->data_size;
+
+	bl1_event_log_size = event_log_start - event_log_base;
+
+	rc = event_log_init_and_reg((uint8_t *)event_log_base, event_log_finish,
+				    bl1_event_log_size, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();

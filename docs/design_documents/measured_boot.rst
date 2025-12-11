@@ -235,6 +235,32 @@ Responsibilities of these platform interfaces are -
      of the given key and forward this hash to |RSE| alongside the measurement
      of the image which the key signs.
 
+#. **Function : crypto_mod_tcg_hash()**
+
+   .. code-block:: c
+
+      int crypto_mod_tcg_hash(uint32_t tpm_alg_id, void *data,
+                              unsigned int len, uint8_t *digest);
+
+   - Provided by the common crypto module, this helper translates TPM/TCG
+     algorithm identifiers (``tpm_alg_id``) to the crypto backend so that
+     Event Log measurements use the same digest implementation as the platform
+     PCR backend (software crypto, hardware accelerator or a discrete TPM).
+   - The helper hashes the ``len`` bytes pointed to by ``data`` with the
+     algorithm requested by ``tpm_alg_id`` and writes the resulting digest to
+     ``digest``. The buffer is sized according to the Event Log SpecID header,
+     so the caller only needs to fill in the bytes.
+   - This function returns 0 on success. It returns a signed errno-style error
+     code (for example ``-EOPNOTSUPP`` for an unsupported algorithm or
+     ``-EINVAL`` for invalid arguments) if hashing fails. Generic measured boot
+     code propagates failures to the caller.
+   - Register the shim by passing ``crypto_mod_tcg_hash`` as the
+     ``evlog_hash_func_t`` argument to ``event_log_init_and_reg()`` (or the
+     platform helper that wraps it) so that the common Event Log driver
+     automatically invokes the common hashing backend whenever it needs a
+     digest. Platforms with special hardware requirements may still provide a
+     custom implementation if needed.
+
 --------------
 
 *Copyright (c) 2023-2025, Arm Limited. All rights reserved.*

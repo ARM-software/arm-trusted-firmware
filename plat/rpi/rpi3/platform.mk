@@ -37,7 +37,8 @@ MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
 $(info Including ${MEASURED_BOOT_MK})
 include ${MEASURED_BOOT_MK}
 
-PLAT_BL_COMMON_SOURCES	+=	$(TPM2_SOURCES)
+PLAT_BL_COMMON_SOURCES	+=	$(TPM2_SOURCES)	\
+				common/measured_boot_helpers.c
 
 BL1_LIBS += $(LIBEVLOG_LIBS)
 BL1_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
@@ -51,8 +52,11 @@ BL31_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 BL32_LIBS += $(LIBEVLOG_LIBS)
 BL32_INCLUDE_DIRS += $(LIBEVLOG_INCLUDE_DIRS)
 
-BL1_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl1_mboot.c
+BL1_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl1_mboot.c \
+				plat/rpi/rpi3/rpi3_common_mboot.c
+
 BL2_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl2_mboot.c		\
+				plat/rpi/rpi3/rpi3_common_mboot.c	\
 				plat/rpi/rpi3/rpi3_dyn_cfg_helpers.c	\
 				common/fdt_wrappers.c			\
 				common/fdt_fixup.c

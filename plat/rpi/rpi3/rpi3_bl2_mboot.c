@@ -35,12 +35,6 @@ const event_log_metadata_t rpi3_event_log_metadata[] = {
 	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
-static const struct event_log_hash_info crypto_hash_info = {
-	.func = crypto_mod_calc_hash,
-	.ids = (const uint32_t[]){ CRYPTO_MD_ID },
-	.count = 1U,
-};
-
 #if DISCRETE_TPM
 extern struct tpm_chip_data tpm_chip_data;
 
@@ -76,19 +70,16 @@ static size_t event_log_size;
 
 void bl2_plat_mboot_init(void)
 {
-	uint8_t *bl2_event_log_start;
-	uint8_t *bl2_event_log_finish;
 	int rc;
 #if DISCRETE_TPM
 	rpi3_bl2_tpm_early_interface_setup();
 #endif
 
 	rpi3_mboot_fetch_eventlog_info(&event_log_start, &event_log_size);
-	bl2_event_log_start = event_log_start + event_log_size;
-	bl2_event_log_finish = event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE;
 
-	rc = event_log_init_and_reg(bl2_event_log_start, bl2_event_log_finish,
-				    &crypto_hash_info);
+	rc = event_log_init_and_reg(
+		event_log_start, event_log_start + PLAT_ARM_EVENT_LOG_MAX_SIZE,
+		event_log_size, crypto_mod_tcg_hash);
 	if (rc < 0) {
 		ERROR("Failed to initialize event log (%d).\n", rc);
 		panic();
@@ -138,36 +129,4 @@ void bl2_plat_mboot_finish(void)
 		panic();
 	}
 #endif
-}
-
-int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
-{
-	int rc = 0;
-
-	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
-	const event_log_metadata_t *metadata_ptr = rpi3_event_log_metadata;
-
-	/* Measure the payload with algorithm selected by EventLog driver */
-	rc = event_log_measure(image_data->image_base, image_data->image_size, hash_data);
-	if (rc != 0) {
-		return rc;
-	}
-
-#if DISCRETE_TPM
-	rc = tpm_pcr_extend(&tpm_chip_data, 0, TPM_ALG_ID, hash_data, TCG_DIGEST_SIZE);
-	if (rc != 0) {
-		ERROR("BL2: TPM PCR-0 extend failed\n");
-		panic();
-	}
-#endif
-
-	while ((metadata_ptr->id != EVLOG_INVALID_ID) &&
-		(metadata_ptr->id != image_id)) {
-		metadata_ptr++;
-	}
-	assert(metadata_ptr->id != EVLOG_INVALID_ID);
-
-	event_log_record(hash_data, EV_POST_CODE, metadata_ptr);
-
-	return rc;
 }
