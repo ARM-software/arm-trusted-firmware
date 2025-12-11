@@ -354,6 +354,8 @@ extern per_world_context_t per_world_context[CPU_CONTEXT_NUM];
 
 #if CTX_INCLUDE_PAUTH_REGS
 # define get_pauth_ctx(h)	(&((cpu_context_t *) h)->pauth_ctx)
+#else
+# define get_pauth_ctx(h)	NULL
 #endif
 
 /*
