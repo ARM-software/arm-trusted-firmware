@@ -26,6 +26,12 @@
 #define LOG_LEVEL_WARNING		U(30)
 #define LOG_LEVEL_INFO			U(40)
 #define LOG_LEVEL_VERBOSE		U(50)
+/*
+ * LOG_DEBUG is another file level build flag. This build flag can be used to
+ * hide module internal detail debug logs.These detail logs may not be required
+ * even when LOG_LEVEL is VERBOSE. In such case, hide detail logs under this
+ * file level build flag and enable it when module debugging is required.
+ */
 
 #ifndef __ASSEMBLER__
 

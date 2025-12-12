@@ -833,6 +833,12 @@ Common build options
    All log output up to and including the selected log level is compiled into
    the build. The default value is 40 in debug builds and 20 in release builds.
 
+   ``LOG_DEBUG``: Boolean option to enable support for module level internal
+   logs. There can be situation where a module has detail internal debugging
+   logs, these debugging logs may not be required to print even when log level
+   is VERBOSE. Such logs can be put under this flag. This is a file
+   level build flag. By default this should be disabled (``0``) in each file.
+
 -  ``MEASURED_BOOT``: Boolean flag to include support for the Measured Boot
    feature. This flag can be enabled with ``TRUSTED_BOARD_BOOT`` in order to
    provide trust that the code taking the measurements and recording them has
