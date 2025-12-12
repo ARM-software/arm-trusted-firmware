@@ -554,6 +554,8 @@ FVP_TRUSTED_SRAM_SIZE == 512
  * Also, account for OP-TEE running with maximum number of SPs.
  */
 #define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x1000)
+#elif ENABLE_RME
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x800)
 #elif defined(IMAGE_BL1) && TRANSFER_LIST
 #define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x200)
 #else
