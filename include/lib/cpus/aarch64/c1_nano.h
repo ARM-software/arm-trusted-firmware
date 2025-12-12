@@ -19,6 +19,12 @@
  ******************************************************************************/
 #define C1_NANO_IMP_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define C1_NANO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT	U(1)
+#define C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT	U(7)
+#define C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH	U(3)
+#define C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_BIT	U(0)
+#define C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT	U(4)
+#define C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH	U(3)
+#define C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_BIT	U(0)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions

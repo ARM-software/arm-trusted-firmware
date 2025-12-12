@@ -90,6 +90,20 @@ workaround_reset_end c1_nano, ERRATUM(3616450)
 
 check_erratum_ls c1_nano, ERRATUM(3616450), CPU_REV(0, 0)
 
+workaround_reset_start c1_nano, ERRATUM(3630925), ERRATA_C1NANO_3630925
+	sysreg_bitfield_insert C1_NANO_IMP_CPUPWRCTLR_EL1, \
+	C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_BIT, \
+	C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
+	C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
+
+	sysreg_bitfield_insert C1_NANO_IMP_CPUPWRCTLR_EL1, \
+	C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_BIT, \
+	C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
+	C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
+workaround_reset_end c1_nano, ERRATUM(3630925)
+
+check_erratum_ls c1_nano, ERRATUM(3630925), CPU_REV(0, 0)
+
 cpu_reset_func_start c1_nano
 	/* ----------------------------------------------------
 	 * Disable speculative loads
