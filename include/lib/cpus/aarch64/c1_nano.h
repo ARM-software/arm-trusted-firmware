@@ -26,4 +26,12 @@
 #define C1_NANO_IMP_CPUACTLR_EL1			S3_0_C15_C1_0
 #define C1_NANO_IMP_CPUACTLR3_EL1			S3_0_C15_C1_2
 
+/*******************************************************************************
+ * CPU Instruction Private register specific definitions
+ ******************************************************************************/
+#define C1_NANO_IMP_CPUPSELR_EL3			S3_6_C15_C8_0
+#define C1_NANO_IMP_CPUPCR_EL3				S3_6_C15_C8_1
+#define C1_NANO_IMP_CPUPOR_EL3				S3_6_C15_C8_2
+#define C1_NANO_IMP_CPUPMR_EL3				S3_6_C15_C8_3
+
 #endif /* C1_NANO_H */
