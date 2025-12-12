@@ -34,6 +34,12 @@ workaround_reset_end c1_nano, ERRATUM(3392149)
 
 check_erratum_ls c1_nano, ERRATUM(3392149), CPU_REV(0, 0)
 
+workaround_reset_start c1_nano, ERRATUM(3437202), ERRATA_C1NANO_3437202
+	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(26)
+workaround_reset_end c1_nano, ERRATUM(3437202)
+
+check_erratum_ls c1_nano, ERRATUM(3437202), CPU_REV(0, 0)
+
 cpu_reset_func_start c1_nano
 	/* ----------------------------------------------------
 	 * Disable speculative loads

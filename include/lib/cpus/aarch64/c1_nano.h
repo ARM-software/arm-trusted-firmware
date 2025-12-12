@@ -23,6 +23,7 @@
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions
  ******************************************************************************/
+#define C1_NANO_IMP_CPUACTLR_EL1			S3_0_C15_C1_0
 #define C1_NANO_IMP_CPUACTLR3_EL1			S3_0_C15_C1_2
 
 #endif /* C1_NANO_H */
