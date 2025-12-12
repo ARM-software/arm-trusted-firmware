@@ -60,7 +60,7 @@ static void print_reset_reason(void)
 		return;
 	}
 
-	INFO("Reset reason (0x%x):\n", rstsr);
+	NOTICE("Reset reason (0x%x):\n", rstsr);
 
 	if ((rstsr & RCC_MP_RSTSCLRR_PADRSTF) == 0U) {
 		if ((rstsr & RCC_MP_RSTSCLRR_STDBYRSTF) != 0U) {
