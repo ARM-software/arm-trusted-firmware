@@ -20,4 +20,9 @@
 #define C1_NANO_IMP_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define C1_NANO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT	U(1)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions
+ ******************************************************************************/
+#define C1_NANO_IMP_CPUACTLR3_EL1			S3_0_C15_C1_2
+
 #endif /* C1_NANO_H */
