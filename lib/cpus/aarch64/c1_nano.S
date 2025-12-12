@@ -75,6 +75,21 @@ workaround_reset_end c1_nano, ERRATUM(3516455)
 
 check_erratum_ls c1_nano, ERRATUM(3516455), CPU_REV(0, 0)
 
+workaround_reset_start c1_nano, ERRATUM(3616450), ERRATA_C1NANO_3616450
+#if ENABLE_SME_FOR_NS
+#if ENABLE_SME_FOR_NS == 2
+	is_feat_sme_present_asm x1
+	beq 1f
+#endif
+
+	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(29)
+
+	1:
+#endif
+workaround_reset_end c1_nano, ERRATUM(3616450)
+
+check_erratum_ls c1_nano, ERRATUM(3616450), CPU_REV(0, 0)
+
 cpu_reset_func_start c1_nano
 	/* ----------------------------------------------------
 	 * Disable speculative loads

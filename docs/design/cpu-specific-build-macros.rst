@@ -1336,6 +1336,10 @@ For C1-Nano, the following errata build flags are defined :
    C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
    in r0p1.
 
+-  ``ERRATA_C1NANO_3616450``: This applies errata 3616450 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
 DSU Errata Workarounds
 ----------------------
 
