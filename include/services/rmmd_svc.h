@@ -15,6 +15,9 @@
 #define RMI_FNUM_MIN_VALUE	U(0x150)
 #define RMI_FNUM_MAX_VALUE	U(0x18F)
 
+#define RMI_FNUM1_MIN_VALUE	U(0x1D0)
+#define RMI_FNUM1_MAX_VALUE	U(0x2CF)
+
 /* Construct RMI fastcall std FID from offset */
 #define SMC64_RMI_FID(_offset)					  \
 	((SMC_TYPE_FAST << FUNCID_TYPE_SHIFT)			| \
@@ -25,12 +28,14 @@
 
 #define is_rmi_fid(fid) __extension__ ({		\
 	__typeof__(fid) _fid = (fid);			\
-	((GET_SMC_NUM(_fid) >= RMI_FNUM_MIN_VALUE) &&	\
-	 (GET_SMC_NUM(_fid) <= RMI_FNUM_MAX_VALUE) &&	\
-	 (GET_SMC_TYPE(_fid) == SMC_TYPE_FAST)	   &&	\
-	 (GET_SMC_CC(_fid) == SMC_64)              &&	\
-	 (GET_SMC_OEN(_fid) == OEN_STD_START)      &&	\
-	 ((_fid & 0x00FE0000) == 0U)); })
+	((((GET_SMC_NUM(_fid) >= RMI_FNUM_MIN_VALUE) &&	\
+	(GET_SMC_NUM(_fid) <= RMI_FNUM_MAX_VALUE)) ||	\
+	((GET_SMC_NUM(_fid) >= RMI_FNUM1_MIN_VALUE) &&	\
+	(GET_SMC_NUM(_fid) <= RMI_FNUM1_MAX_VALUE))) &&	\
+	(GET_SMC_TYPE(_fid) == SMC_TYPE_FAST) &&	\
+	(GET_SMC_CC(_fid) == SMC_64) &&			\
+	(GET_SMC_OEN(_fid) == OEN_STD_START) &&		\
+	((_fid & 0x00FE0000) == 0U)); })
 
 /*
  * RMI_FNUM_REQ_COMPLETE is the only function in the RMI range that originates
