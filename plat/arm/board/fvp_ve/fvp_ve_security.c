@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,9 +10,7 @@
 void plat_arm_security_setup(void)
 {
 	/*
-	 * The Base FVP has a TrustZone address space controller, the Foundation
-	 * FVP does not. Trying to program the device on the foundation FVP will
-	 * cause an abort.
+	 * The Base FVP has a TrustZone address space controller.
 	 *
 	 * If the platform had additional peripheral specific security
 	 * configurations, those would be configured here.

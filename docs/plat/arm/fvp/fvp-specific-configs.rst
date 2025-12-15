@@ -38,7 +38,6 @@ using the following model parameters:
 ::
 
     --data cluster0.cpu0=mailbox.dat@0x04000000   [Base FVPs]
-    --data=mailbox.dat@0x04000000                 [Foundation FVP]
 
 To provide the model with the EL3 payload image, the following methods may be
 used:
@@ -51,9 +50,6 @@ used:
    ::
 
        -C bp.flashloader1.fname="<path-to>/<el3-payload>"
-
-   On Foundation FVP, there is no flash loader component and the EL3 payload
-   may be programmed anywhere in flash using method 3 below.
 
 #. When using the ``SPIN_ON_BL1_EXIT=1`` loading method, the following DS-5
    command may be used to load the EL3 payload ELF image over JTAG:
@@ -68,7 +64,6 @@ used:
    ::
 
        --data cluster0.cpu0="<path-to>/el3-payload>"@address   [Base FVPs]
-       --data="<path-to>/<el3-payload>"@address                [Foundation FVP]
 
    The address provided to the FVP must match the ``EL3_PAYLOAD_BASE`` address
    used when building TF-A.
@@ -194,10 +189,7 @@ Obtaining the Flattened Device Trees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Depending on the FVP configuration and Linux configuration used, different
-FDT files are required. FDT source files for the Foundation and Base FVPs can
-be found in the TF-A source directory under ``fdts/``. The Foundation FVP has
-a subset of the Base FVP components. For example, the Foundation FVP lacks
-CLCD and MMC support, and has only one CPU cluster.
+FDT files are required.
 
 .. note::
    It is not recommended to use the FDTs built along the kernel because not
@@ -231,15 +223,6 @@ or ``FVP_HW_CONFIG_DTS`` build options (refer to
    For use with models as the Cortex-A55-A75 Base FVPs with shifted affinities,
    single cluster, single threaded CPUs, Base memory map configuration and Linux
    GICv3 support.
-
--  ``fvp-foundation-gicv2-psci.dts``
-
-   For use with Foundation FVP with Base memory map configuration.
-
--  ``fvp-foundation-gicv3-psci.dts``
-
-   (Default) For use with Foundation FVP with Base memory map configuration
-   and Linux GICv3 support.
 
 GICv5 Support
 ^^^^^^^^^^^^^
