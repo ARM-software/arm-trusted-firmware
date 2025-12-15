@@ -110,6 +110,12 @@ workaround_reset_end c1_nano, ERRATUM(3630925)
 
 check_erratum_ls c1_nano, ERRATUM(3630925), CPU_REV(0, 0)
 
+workaround_runtime_start c1_nano, ERRATUM(3754876), ERRATA_C1NANO_3754876
+	tsb csync
+workaround_runtime_end c1_nano, ERRATUM(3754876)
+
+check_erratum_ls c1_nano, ERRATUM(3754876), CPU_REV(0, 1)
+
 cpu_reset_func_start c1_nano
 	/* ----------------------------------------------------
 	 * Disable speculative loads
