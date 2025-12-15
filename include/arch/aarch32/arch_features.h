@@ -208,5 +208,7 @@ __attribute__((always_inline))
 static inline bool is_feat_bti_supported(void) { return false; }
 __attribute__((always_inline))
 static inline bool is_feat_pauth_supported(void) { return false; }
+__attribute__((always_inline))
+static inline bool is_feat_lse_supported(void) { return false; }
 
 #endif /* ARCH_FEATURES_H */

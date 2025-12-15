@@ -1325,6 +1325,15 @@ Common build options
   ``ENABLE_FEAT`` mechanism. The default is 0 and it is automatically
   disabled when the target architecture is AArch32.
 
+- ``USE_SPINLOCK_CAS``: Numeric value to use FEAT_LSE atomics instead of
+  load/store exclusive instructions with spinlocks. FEAT_LSE is a mandatory
+  feature from v8.1, however it is only architecturally guaranteed to work on
+  "conventional memory" which may not apply to tightly coupled memory (eg. SRAM,
+  TF-A's usual place). Platforms must check if TF-A's memory can be targetted
+  by atomics before enabling this feature. Expected to increase performance on
+  systems with many cores. This flag can take the values 0 to 2, to align with
+  the ``ENABLE_FEAT`` mechanism. The default is 0.
+
 - ``ENABLE_SYS_REG_TRACE_FOR_NS``: Numeric value to enable trace system
   registers access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented
   but unused). This feature is available if trace unit such as ETMv4.x, and

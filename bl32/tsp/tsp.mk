@@ -21,7 +21,6 @@ BL32_SOURCES		+=	bl32/tsp/aarch64/tsp_entrypoint.S	\
 				bl32/tsp/tsp_common.c			\
 				bl32/tsp/tsp_context.c			\
 				common/aarch64/early_exceptions.S	\
-				lib/locks/exclusive/aarch64/spinlock.S
 
 BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/tsp/tsp.ld.S
 

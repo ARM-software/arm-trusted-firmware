@@ -193,6 +193,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
 				lib/extensions/pmuv3/${ARCH}/pmuv3.c	\
+				lib/locks/exclusive/${ARCH}/spinlock.c	\
 				plat/common/plat_bl_common.c		\
 				plat/common/plat_log_common.c		\
 				plat/common/${ARCH}/plat_common.c	\
@@ -344,6 +345,10 @@ ifeq (${ENABLE_RME},1)
 
 	ifneq ($(ENABLE_FEAT_MPAM), 0)
 		CTX_INCLUDE_MPAM_REGS := 1
+	endif
+	# bitlocks are only useful with atomics
+	ifneq ($(RME_GPT_BITLOCK_BLOCK), 0)
+		USE_SPINLOCK_CAS := 1
 	endif
 
 	# RME enables CSV2_2 extension by default.
@@ -630,7 +635,6 @@ $(eval $(call assert_booleans,\
 	RESET_TO_BL2 \
 	BL2_IN_XIP_MEM \
 	BL2_INV_DCACHE \
-	USE_SPINLOCK_CAS \
 	ENCRYPT_BL31 \
 	ENCRYPT_BL32 \
 	ERRATA_SPECULATIVE_AT \
@@ -726,6 +730,7 @@ $(eval $(call assert_numerics,\
 	TWED_DELAY \
 	ENABLE_FEAT_TWED \
 	SVE_VECTOR_LEN \
+	USE_SPINLOCK_CAS \
 	IMPDEF_SYSREG_TRAP \
 	W \
 )))
