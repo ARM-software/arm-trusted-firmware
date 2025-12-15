@@ -30,6 +30,9 @@
  * CPU Auxiliary Control register specific definitions
  ******************************************************************************/
 #define C1_NANO_IMP_CPUACTLR_EL1			S3_0_C15_C1_0
+#define C1_NANO_IMP_CPUACTLR_EL1_MTE_DIS_BIT		U(1)
+#define C1_NANO_IMP_CPUACTLR_EL1_MTE_DIS_SHIFT		U(27)
+#define C1_NANO_IMP_CPUACTLR_EL1_MTE_DIS_WIDTH		U(1)
 #define C1_NANO_IMP_CPUACTLR3_EL1			S3_0_C15_C1_2
 
 /*******************************************************************************

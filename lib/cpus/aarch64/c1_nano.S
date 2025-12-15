@@ -34,6 +34,12 @@ workaround_reset_end c1_nano, ERRATUM(3392149)
 
 check_erratum_ls c1_nano, ERRATUM(3392149), CPU_REV(0, 0)
 
+workaround_reset_start c1_nano, ERRATUM(3419531), ERRATA_C1NANO_3419531
+	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(27)
+workaround_reset_end c1_nano, ERRATUM(3419531)
+
+check_erratum_ls c1_nano, ERRATUM(3419531), CPU_REV(0, 0)
+
 workaround_reset_start c1_nano, ERRATUM(3437202), ERRATA_C1NANO_3437202
 	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(26)
 workaround_reset_end c1_nano, ERRATUM(3437202)
@@ -124,6 +130,7 @@ func c1_nano_core_pwr_dwn
 	sysreg_bit_toggle C1_NANO_IMP_CPUPWRCTLR_EL1, \
 		C1_NANO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
+	apply_erratum c1_nano, ERRATUM(3754876), ERRATA_C1NANO_3754876
 	signal_pabandon_handled
 	ret
 endfunc c1_nano_core_pwr_dwn

@@ -1328,6 +1328,10 @@ For C1-Nano, the following errata build flags are defined :
    C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
    in r0p1.
 
+-  ``ERRATA_C1NANO_3419531``: This applies errata 3419531 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
 -  ``ERRATA_C1NANO_3437202``: This applies errata 3437202 workaround to
    C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
    in r0p1.
