@@ -19,20 +19,6 @@ ifeq (${PLATFORM_TEST},rse-nv-counters)
     PLAT_INCLUDES	+=	-Iinclude/lib/psa
 
     $(eval $(call add_define,PLATFORM_TEST_NV_COUNTERS))
-else ifeq (${PLATFORM_TEST},rse-rotpk)
-    include drivers/arm/rse/rse_comms.mk
-
-    # Test code.
-    BL31_SOURCES	+=	plat/arm/board/tc/rotpk_test.c \
-				plat/arm/board/tc/tc_rse_comms.c
-
-    # Code under testing.
-    BL31_SOURCES	+=	lib/psa/rse_platform.c \
-				${RSE_COMMS_SOURCES}
-
-    PLAT_INCLUDES	+=	-Iinclude/lib/psa
-
-    $(eval $(call add_define,PLATFORM_TEST_ROTPK))
 else ifeq (${PLATFORM_TEST},tfm-testsuite)
     include drivers/arm/rse/rse_comms.mk
     include drivers/measured_boot/rse/qcbor.mk

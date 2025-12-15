@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,22 +13,6 @@
 
 /* Value identifying random number generating API */
 #define RSE_CRYPTO_GENERATE_RANDOM_SID		(uint16_t)(0x100)
-
-/*
- * Value identifying export public key function API, used to dispatch the request
- * to the corresponding API implementation in the Crypto service backend.
- *
- */
-#define RSE_CRYPTO_EXPORT_PUBLIC_KEY_SID	(uint16_t)(0x206)
-
-/*
- * The persistent key identifiers for RSE builtin keys.
- */
-enum rse_key_id_builtin_t {
-	RSE_BUILTIN_KEY_ID_HOST_S_ROTPK = 0x7FFF816Cu,
-	RSE_BUILTIN_KEY_ID_HOST_NS_ROTPK,
-	RSE_BUILTIN_KEY_ID_HOST_CCA_ROTPK,
-};
 
 /*
  * This type is used to overcome a limitation within RSE firmware in the number of maximum
