@@ -548,16 +548,18 @@ FVP_TRUSTED_SRAM_SIZE == 512
  * TODO: calculate maximum EventLog size using the calculation:
  * Maximum size of Event Log * Number of images
  */
-#if (defined(SPD_spmd)) || (ENABLE_RME && (defined(SPD_tspd) || defined(SPD_opteed)))
+#if defined(IMAGE_BL1) && TRANSFER_LIST
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_512
+#elif (defined(SPD_spmd)) || (ENABLE_RME && (defined(SPD_tspd) || defined(SPD_opteed)))
 /*
  * Account for additional measurements of secure partitions and SPM.
  * Also, account for OP-TEE running with maximum number of SPs.
  */
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x1000)
-#elif defined(IMAGE_BL1) && TRANSFER_LIST
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x200)
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_4K
+#elif ENABLE_RME
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_2K
 #else
-#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		SZ_1K
 #endif
 
 /*
