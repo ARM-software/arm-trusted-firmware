@@ -36,6 +36,11 @@ workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
         msr     NEOVERSE_V2_CPUPWRCTLR_EL1, x0
 workaround_reset_end neoverse_v2, ERRATUM(2618597)
 
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_3 */
+add_erratum_entry neoverse_v2, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
+
+check_erratum_ls neoverse_v2, ERRATUM(ARCH_WORKAROUND_3), CPU_REV(0, 0)
+
 check_erratum_ls neoverse_v2, ERRATUM(2618597), CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v2, ERRATUM(2662553), ERRATA_V2_2662553
