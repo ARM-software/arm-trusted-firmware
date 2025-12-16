@@ -766,27 +766,6 @@ counters used on an Arm CCA platform:
 - ``Non-volatile counter for secure firmware.``
 - ``Non-volatile counter for non-secure firmware.``
 
-Public Key API
-^^^^^^^^^^^^^^
-
-AP/RSE interface for reading the ROTPK is as follows.
-
-Defined here:
-
-- ``include/lib/psa/rse_platform_api.h``
-
-.. code-block:: c
-
-    psa_status_t rse_platform_key_read(enum rse_key_id_builtin_t key,
-            uint8_t *data, size_t data_size, size_t *data_length)
-
-Through this service, we can read any of the 3 ROTPKs used on an
-Arm CCA platform:
-
-- ``ROTPK for CCA firmware (BL2, BL31, RMM).``
-- ``ROTPK for secure firmware.``
-- ``ROTPK for non-secure firmware.``
-
 Get entropy API
 ^^^^^^^^^^^^^^^
 
