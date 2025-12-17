@@ -872,6 +872,10 @@ CPU_FLAG_LIST += ERRATA_X2_2768515
 # to revisions r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_X2_2778471
 
+# Flag to apply erratum 3324338 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X2_3324338
+
 # Flag to apply erratum 3701772 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r1p0, r2p0 and r2p1
 # of the Cortex-X2 cpu and is still open.
