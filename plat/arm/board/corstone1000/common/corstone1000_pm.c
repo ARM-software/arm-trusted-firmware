@@ -8,7 +8,11 @@
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 #include <plat/common/platform.h>
+#ifdef CORSTONE1000_CORTEX_A320
+#include <drivers/arm/gicv3.h>
+#else
 #include <drivers/arm/gicv2.h>
+#endif
 /*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
@@ -24,7 +28,11 @@ static void corstone1000_system_reset(void)
 	 * Disable GIC CPU interface to prevent pending interrupt
 	 * from waking up the AP from WFI.
 	 */
+#ifdef CORSTONE1000_CORTEX_A320
+	gicv3_cpuif_disable(plat_my_core_pos());
+#else
 	gicv2_cpuif_disable();
+#endif
 
 	/* Flush and invalidate data cache */
 	dcsw_op_all(DCCISW);

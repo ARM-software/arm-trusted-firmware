@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025 Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,40 @@
 	.globl	plat_get_my_entrypoint
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_arm_calc_core_pos
+
+#ifdef CORSTONE1000_CORTEX_A320
+	.globl	plat_my_core_pos
+
+func plat_my_core_pos
+	mrs	x0, mpidr_el1
+	b	plat_arm_calc_core_pos
+endfunc plat_my_core_pos
+
+func plat_arm_calc_core_pos
+	/*
+	 * Aff0 is always 0 for Cortex-A320 MPIDR format:
+	 * https://developer.arm.com/documentation/109551/0001/AArch64-registers/AArch64-Identification-registers-summary/MPIDR-EL1--Multiprocessor-Affinity-Register?lang=en
+	 */
+	/* Extract Aff1 (core ID) */
+	ubfx    x1, x0, #MPIDR_AFF1_SHIFT, #MPIDR_AFFINITY_BITS
+
+	/* Extract Aff2 (cluster lower bits) */
+	ubfx    x2, x0, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
+
+	/* Extract Aff3 (cluster upper bits) */
+	ubfx    x3, x0, #MPIDR_AFF3_SHIFT, #MPIDR_AFFINITY_BITS
+
+	/* cluster_id = (Aff3 << 8) | Aff2 */
+	lsl     x3, x3, #MPIDR_AFFINITY_BITS
+	orr     x3, x3, x2
+
+	/* core_pos = core_id + (cluster_id * FVP_MAX_CPUS_PER_CLUSTER) */
+	mov	x4, #CORSTONE1000_MAX_CPUS_PER_CLUSTER
+	madd	x0, x3, x4, x1
+
+	ret
+endfunc plat_arm_calc_core_pos
+#endif
 
 	/* --------------------------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
