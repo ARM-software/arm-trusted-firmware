@@ -1177,6 +1177,48 @@ For Cortex-A725, the following errata build flags are defined :
    Cortex-A725 CPU. This needs to be enabled for revisions r0p0 and r0p1.
    It is fixed in r0p2.
 
+For C1-Ultra, the following errata build flags are defined :
+
+-  ``ERRATA_C1ULTRA_3324333``: This applies erratum 3324333 workaround to
+   C1-Ultra CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r1p0.
+
+-  ``ERRATA_C1ULTRA_3502731``: This applies erratum 3502731 workaround to
+   C1-Ultra CPU. This needs to be enabled for revision r0p0 and is
+   fixed in r1p0.
+
+-  ``ERRATA_C1ULTRA_3651221``: This applies erratum 3651221 workaround to
+   C1-Ultra CPU. This needs to be enabled for revision r0p0 and is
+   fixed in r1p0.
+
+-  ``ERRATA_C1ULTRA_3658374``: This applies erratum 3658374 workaround to
+   C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
+   is still open.
+
+-  ``ERRATA_C1ULTRA_3684152``: This applies erratum 3684152 workaround to
+   C1-Ultra CPU. This needs to be enabled for revision r0p0 and is
+   fixed in r1p0.
+
+-  ``ERRATA_C1ULTRA_3705939``: This applies erratum 3705939 workaround to
+   C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
+   is still open.
+
+-  ``ERRATA_C1ULTRA_3815514``: This applies erratum 3815514 workaround to
+   C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
+   is still open.
+
+-  ``ERRATA_C1ULTRA_3865171``: This applies erratum 3865171 workaround to
+   C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
+   is still open.
+
+-  ``ERRATA_C1ULTRA_3926381``: This applies erratum 3926381 workaround to
+   C1-Ultra CPU. This needs to be enabled for revision r1p0 and is still
+   open.
+
+-  ``ERRATA_C1ULTRA_4102704``: This applies erratum 4102704 workaround to
+   C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
+   is still open.
+
 DSU Errata Workarounds
 ----------------------
 
