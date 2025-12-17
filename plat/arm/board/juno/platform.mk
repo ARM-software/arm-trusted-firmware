@@ -125,6 +125,9 @@ ifeq (${TRUSTED_BOARD_BOOT}, 1)
 endif
 
 ifeq (${MEASURED_BOOT},1)
+MBEDTLS_CONFIG_FILE	?=	"<plat_juno_mbedtls_config.h>"
+MBOOT_TPM_HASH_ALG	?=	${HASH_ALG}
+
 PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 BL1_SOURCES		+=	plat/arm/board/juno/juno_common_measured_boot.c	\
