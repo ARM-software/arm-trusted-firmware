@@ -694,6 +694,10 @@ For Cortex-A710, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
    CPU and is still open.
 
+-  ``ERRATA_A710_3324338``: This applies errata 3324338 workaround to
+   Cortex-A710 CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and
+   r2p1 of the CPU and is still open.
+
 - ``ERRATA_A710_3701772``: This applies errata 3701772 workaround to Cortex-A710
   CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0, r2p1 of the
   CPU and is still open.

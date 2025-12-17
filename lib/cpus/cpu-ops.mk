@@ -686,6 +686,11 @@ CPU_FLAG_LIST += ERRATA_A710_2768515
 # open.
 CPU_FLAG_LIST += ERRATA_A710_2778471
 
+# Flag to apply erratum 3324338 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r2p0, r2p1 of the Cortex-A710 cpu and is still
+# open.
+CPU_FLAG_LIST += ERRATA_A710_3324338
+
 # Flag to apply erratum  3701772 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r1p0, r2p0, r2p1
 # of the Cortex-A710 cpu and is still open.

@@ -248,6 +248,12 @@ workaround_reset_end cortex_a710, ERRATUM(2778471)
 
 check_erratum_ls cortex_a710, ERRATUM(2778471), CPU_REV(2, 1)
 
+workaround_runtime_start cortex_a710, ERRATUM(3324338), ERRATA_A710_3324338
+	speculation_barrier
+workaround_runtime_end cortex_a710, ERRATUM(3324338)
+
+check_erratum_ls cortex_a710, ERRATUM(3324338), CPU_REV(2, 1)
+
 add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
 
 check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
@@ -292,6 +298,8 @@ endfunc cortex_a710_core_pwr_dwn
 cpu_reset_func_start cortex_a710
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_a710, ERRATUM(3324338), ERRATA_A710_3324338
+
 	enable_mpmm
 cpu_reset_func_end cortex_a710
 
