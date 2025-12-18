@@ -219,6 +219,12 @@ workaround_reset_end neoverse_n2, ERRATUM(2779511)
 
 check_erratum_ls neoverse_n2, ERRATUM(2779511), CPU_REV(0, 2)
 
+workaround_runtime_start neoverse_n2, ERRATUM(3324339), ERRATA_N2_3324339
+	speculation_barrier
+workaround_runtime_end neoverse_n2, ERRATUM(3324339)
+
+check_erratum_ls neoverse_n2, ERRATUM(3324339), CPU_REV(0, 3)
+
 add_erratum_entry neoverse_n2, ERRATUM(3701773), ERRATA_N2_3701773
 
 check_erratum_ls neoverse_n2, ERRATUM(3701773), CPU_REV(0, 3)
@@ -255,6 +261,8 @@ cpu_reset_func_start neoverse_n2
 
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum neoverse_n2, ERRATUM(3324339), ERRATA_N2_3324339
+
 1:
 	/* Force all cacheable atomic instructions to be near */
 	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_2

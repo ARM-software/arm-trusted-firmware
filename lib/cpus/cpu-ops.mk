@@ -777,6 +777,10 @@ CPU_FLAG_LIST += ERRATA_N2_2743089
 # to r0p0, r0p1, r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
 CPU_FLAG_LIST += ERRATA_N2_2779511
 
+# Flag to apply erratum 3324339 workaround during reset. This erratum applies
+# to r0p0, r0p1, r0p2 and r0p3 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_3324339
+
 # Flag to apply erratum 3701773 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1, r0p2 and r0p3
 # of the Neoverse N2 cpu and is still open.
