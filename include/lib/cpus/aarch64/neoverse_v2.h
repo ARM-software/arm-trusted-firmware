@@ -65,6 +65,12 @@
  ******************************************************************************/
 #define NEOVERSE_V2_CPUACTLR6_EL1			S3_0_C15_C8_1
 
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define NEOVERSE_V2_CPUACTLR_EL1			S3_0_C15_C1_0
+#define NEOVERSE_V2_CPUACTLR_EL1_BIT_36			(ULL(1) << 36)
+
 #ifndef __ASSEMBLER__
 long check_erratum_neoverse_v2_3701771(long cpu_rev);
 #endif /* __ASSEMBLER__ */
