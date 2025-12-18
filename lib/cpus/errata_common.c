@@ -29,6 +29,7 @@
 #include <neoverse_n3.h>
 #include <neoverse_v2.h>
 #include <neoverse_v3.h>
+#include <c1_pro.h>
 
 struct erratum_entry *find_erratum_entry(uint32_t errata_id)
 {
@@ -187,6 +188,13 @@ bool errata_ich_vmcr_el2_applies(void)
 			return true;
 		break;
 #endif /* ERRATA_C1ULTRA_3658374 */
+
+#if ERRATA_C1PRO_3300099
+	case EXTRACT_PARTNUM(C1_PRO_MIDR):
+		if (check_erratum_c1_pro_3300099(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_C1PRO_3300099 */
 
 	default:
 		break;
