@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #ifndef DEBUGFS_H
 #define DEBUGFS_H
 
-#define NAMELEN   13 /* Maximum length of a file name */
+#define NAMELEN   14 /* Maximum length of a file name */
 #define PATHLEN   41 /* Maximum length of a path */
 #define STATLEN   41 /* Size of static part of dir format */
 #define ROOTLEN   (2 + 4) /* Size needed to encode root string */
