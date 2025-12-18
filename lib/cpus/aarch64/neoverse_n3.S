@@ -25,6 +25,12 @@ cpu_reset_prologue neoverse_n3
 
 .global check_erratum_neoverse_n3_3699563
 
+workaround_runtime_start neoverse_n3, ERRATUM(3456111), ERRATA_N3_3456111
+	speculation_barrier
+workaround_runtime_end neoverse_n3, ERRATUM(3456111)
+
+check_erratum_ls neoverse_n3, ERRATUM(3456111), CPU_REV(0, 1)
+
 add_erratum_entry neoverse_n3, ERRATUM(3699563), ERRATA_N3_3699563
 
 check_erratum_ls neoverse_n3, ERRATUM(3699563), CPU_REV(0, 0)
@@ -32,6 +38,7 @@ check_erratum_ls neoverse_n3, ERRATUM(3699563), CPU_REV(0, 0)
 cpu_reset_func_start neoverse_n3
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum neoverse_n3, ERRATUM(3456111), ERRATA_N3_3456111
 
 #if !NEOVERSE_Nx_EXTERNAL_LLC
 	/* -------------------------------------------------------------

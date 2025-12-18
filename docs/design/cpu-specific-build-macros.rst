@@ -784,6 +784,9 @@ For Neoverse N2, the following errata build flags are defined :
 
 For Neoverse N3, the following errata build flags are defined :
 
+-  ``ERRATA_N3_3456111``: This applies errata 3456111 workaround to Neoverse-N3
+   CPU. This needs to be enabled for revisions r0p0 and r0p1 and is still open.
+
 -  ``ERRATA_N3_3699563``: This applies errata 3699563 workaround to Neoverse-N3
    CPU. This needs to be enabled for revisions r0p0 and is still open.
 
