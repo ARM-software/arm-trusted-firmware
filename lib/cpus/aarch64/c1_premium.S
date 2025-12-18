@@ -40,9 +40,84 @@ workaround_reset_end c1_premium, CVE(2024, 7881)
 
 check_erratum_ls c1_premium, CVE(2024, 7881), CPU_REV(0, 0)
 
+workaround_runtime_start c1_premium, ERRATUM(3324333), ERRATA_C1PREMIUM_3324333
+	speculation_barrier
+workaround_runtime_end c1_premium, ERRATUM(3324333)
+
+check_erratum_ls c1_premium, ERRATUM(3324333), CPU_REV(0, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3502731), ERRATA_C1PREMIUM_3502731
+	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR4_EL1, BIT(23)
+workaround_reset_end c1_premium, ERRATUM(3502731)
+
+check_erratum_ls c1_premium, ERRATUM(3502731), CPU_REV(0, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3651221), ERRATA_C1PREMIUM_3651221
+	sysreg_bit_set C1_PREMIUM_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end c1_premium, ERRATUM(3651221)
+
+check_erratum_ls c1_premium, ERRATUM(3651221), CPU_REV(0, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3684152), ERRATA_C1PREMIUM_3684152
+	sysreg_bitfield_insert C1_PREMIUM_IMP_CPUACTLR_EL1, C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_BIT, \
+	C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_SHIFT, C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_WIDTH
+workaround_reset_end c1_premium, ERRATUM(3684152)
+
+check_erratum_ls c1_premium, ERRATUM(3684152), CPU_REV(0, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3705939), ERRATA_C1PREMIUM_3705939
+	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR_EL1, BIT(48)
+workaround_reset_end c1_premium, ERRATUM(3705939)
+
+check_erratum_ls c1_premium, ERRATUM(3705939), CPU_REV(1, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3815514), ERRATA_C1PREMIUM_3815514
+	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR5_EL1, BIT(13)
+workaround_reset_end c1_premium, ERRATUM(3815514)
+
+check_erratum_ls c1_premium, ERRATUM(3815514), CPU_REV(1, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3865171), ERRATA_C1PREMIUM_3865171
+	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end c1_premium, ERRATUM(3865171)
+
+check_erratum_ls c1_premium, ERRATUM(3865171), CPU_REV(1, 0)
+
+workaround_reset_start c1_premium, ERRATUM(3926381), ERRATA_C1PREMIUM_3926381
+	/* Convert WFx to NOP */
+	ldr x0,=0x0
+	msr C1_PREMIUM_IMP_CPUPSELR_EL3, x0
+	ldr x0,=0xD503205f
+	msr C1_PREMIUM_IMP_CPUPOR_EL3, x0
+	ldr x0,=0xFFFFFFDF
+	msr C1_PREMIUM_IMP_CPUPMR_EL3, x0
+	ldr x0,=0x1000002043ff
+	msr C1_PREMIUM_IMP_CPUPCR_EL3, x0
+
+	/* Convert WFxT to NOP */
+	ldr x0,=0x1
+	msr C1_PREMIUM_IMP_CPUPSELR_EL3, x0
+	ldr x0,=0xD5031000
+	msr C1_PREMIUM_IMP_CPUPOR_EL3, x0
+	ldr x0,=0xFFFFFFC0
+	msr C1_PREMIUM_IMP_CPUPMR_EL3, x0
+	ldr x0,=0x1000002043ff
+	msr C1_PREMIUM_IMP_CPUPCR_EL3, x0
+	isb
+workaround_reset_end c1_premium, ERRATUM(3926381)
+
+check_erratum_range c1_premium, ERRATUM(3926381), CPU_REV(1, 0), CPU_REV(1, 0)
+
+workaround_reset_start c1_premium, ERRATUM(4102704), ERRATA_C1PREMIUM_4102704
+	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR4_EL1, BIT(23)
+workaround_reset_end c1_premium, ERRATUM(4102704)
+
+check_erratum_ls c1_premium, ERRATUM(4102704), CPU_REV(1, 0)
+
 cpu_reset_func_start c1_premium
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum c1_premium, ERRATUM(3324333), ERRATA_C1PREMIUM_3324333
 	enable_mpmm
 cpu_reset_func_end c1_premium
 

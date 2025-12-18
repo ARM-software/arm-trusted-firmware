@@ -1219,6 +1219,44 @@ For C1-Ultra, the following errata build flags are defined :
    C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
    is still open.
 
+For C1-Premium, the following errata build flags are defined :
+
+-  ``ERRATA_C1ULTRA_3324333``: This applies errata 3324333 workaround to
+   C1-Premium CPU. This needs to be enabled for revision r0p0, and is
+   fixed in r1p0.
+
+-  ``ERRATA_C1PREMIUM_3502731``: This applies errata 3502731 workaround to
+   C1-Premium CPU. This needs to be enabled for revision r0p0, and is fixed
+   in r1p0.
+
+-  ``ERRATA_C1PREMIUM_3651221``: This applies errata 3651221 workaround to
+   C1-Premium CPU. This needs to be enabled for revision r0p0, and is fixed
+   in r1p0.
+
+-  ``ERRATA_C1PREMIUM_3684152``: This applies errata 3684152 workaround to
+   C1-Premium CPU. This needs to be enabled for revision r0p0, and is fixed
+   in r1p0.
+
+-  ``ERRATA_C1PREMIUM_3705939``: This applies errata 3705939 workaround to
+   C1-Premium CPU. This needs to be enabled for revisions r0p0, r1p0 and
+   is still open.
+
+-  ``ERRATA_C1PREMIUM_3815514``: This applies errata 3815514 workaround to
+   C1-Premium CPU. This needs to be enabled for revisions r0p0, r1p0 and
+   is still open.
+
+-  ``ERRATA_C1PREMIUM_3865171``: This applies errata 3865171 workaround to
+   C1-Premium CPU. This needs to be enabled for revisions r0p0, r1p0 and
+   is still open.
+
+-  ``ERRATA_C1PREMIUM_3926381``: This applies errata 3926381 workaround to
+   C1-Premium CPU. This needs to be enabled for revision r1p0 and is
+   still open.
+
+-  ``ERRATA_C1PREMIUM_4102704``: This applies errata 4102704 workaround to
+   C1-Premium CPU. This needs to be enabled for revisions r0p0, r1p0 and
+   is still open.
+
 DSU Errata Workarounds
 ----------------------
 
