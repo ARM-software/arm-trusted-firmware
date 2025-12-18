@@ -25,6 +25,12 @@ cpu_reset_prologue cortex_a720_ae
 
 .global check_erratum_cortex_a720_ae_3699562
 
+workaround_runtime_start cortex_a720_ae, ERRATUM(3456103), ERRATA_A720_AE_3456103
+	speculation_barrier
+workaround_runtime_end cortex_a720_ae, ERRATUM(3456103)
+
+check_erratum_ls cortex_a720_ae, ERRATUM(3456103), CPU_REV(0, 1)
+
 add_erratum_entry cortex_a720_ae, ERRATUM(3699562), ERRATA_A720_AE_3699562
 
 check_erratum_ls cortex_a720_ae, ERRATUM(3699562), CPU_REV(0, 0)
@@ -32,6 +38,8 @@ check_erratum_ls cortex_a720_ae, ERRATUM(3699562), CPU_REV(0, 0)
 cpu_reset_func_start cortex_a720_ae
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_a720_ae, ERRATUM(3456103), ERRATA_A720_AE_3456103
+
 	enable_mpmm
 cpu_reset_func_end cortex_a720_ae
 

@@ -223,6 +223,12 @@ workaround_reset_end cortex_x2, ERRATUM(2778471)
 
 check_erratum_ls cortex_x2, ERRATUM(2778471), CPU_REV(2, 1)
 
+workaround_runtime_start cortex_x2, ERRATUM(3324338), ERRATA_X2_3324338
+	speculation_barrier
+workaround_runtime_end cortex_x2, ERRATUM(3324338)
+
+check_erratum_ls cortex_x2, ERRATUM(3324338), CPU_REV(2, 1)
+
 add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772
 
 check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
@@ -267,6 +273,8 @@ endfunc cortex_x2_core_pwr_dwn
 cpu_reset_func_start cortex_x2
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_x2, ERRATUM(3324338), ERRATA_X2_3324338
+
 	enable_mpmm
 cpu_reset_func_end cortex_x2
 

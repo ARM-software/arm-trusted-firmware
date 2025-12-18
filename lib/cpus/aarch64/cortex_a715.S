@@ -150,6 +150,12 @@ workaround_reset_end cortex_a715, ERRATUM(2804830)
 
 check_erratum_ls cortex_a715, ERRATUM(2804830), CPU_REV(1, 2)
 
+workaround_runtime_start cortex_a715, ERRATUM(3456084), ERRATA_A715_3456084
+	speculation_barrier
+workaround_runtime_end cortex_a715, ERRATUM(3456084)
+
+check_erratum_ls cortex_a715, ERRATUM(3456084), CPU_REV(1, 3)
+
 add_erratum_entry cortex_a715, ERRATUM(3699560), ERRATA_A715_3699560
 
 check_erratum_ls cortex_a715, ERRATUM(3699560), CPU_REV(1, 3)
@@ -182,6 +188,8 @@ check_erratum_ls cortex_a715, CVE(2022, 23960), CPU_REV(1, 0)
 cpu_reset_func_start cortex_a715
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_a715, ERRATUM(3456084), ERRATA_A715_3456084
+
 	enable_mpmm
 cpu_reset_func_end cortex_a715
 
