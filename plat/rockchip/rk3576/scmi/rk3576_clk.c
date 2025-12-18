@@ -1099,12 +1099,12 @@ RK3576_SCMI_CLOCK(ACLK_CCI_ROOT, scmi_aclk_cci, &clk_scmi_cci_ops, rk3576_cpul_r
 RK3576_SCMI_CLOCK(ARMCLK_B, scmi_armclkb, &clk_scmi_cpub_ops, rk3576_cpub_rates, ARRAY_SIZE(rk3576_cpub_rates), false);
 RK3576_SCMI_CLOCK(CLK_GPU, scmi_clk_gpu, &clk_scmi_gpu_ops, rk3576_gpu_rates, ARRAY_SIZE(rk3576_gpu_rates), false);
 RK3576_SCMI_CLOCK(CLK_RKNN_DSU0, scmi_clk_npu, &clk_scmi_npu_ops, rk3576_npu_rates, ARRAY_SIZE(rk3576_npu_rates), false);
-RK3576_SCMI_CLOCK_COM(CLK_STIMER0_ROOT, clk_stimer0_root, p_100m_24m, clk_stimer0_root_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
-RK3576_SCMI_CLOCK_COM(CLK_STIMER1_ROOT, clk_stimer1_root, p_100m_24m, clk_stimer1_root_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
+RK3576_SCMI_CLOCK_COM(CLK_STIMER0_ROOT, clk_stimer0_rt, p_100m_24m, clk_stimer0_root_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
+RK3576_SCMI_CLOCK_COM(CLK_STIMER1_ROOT, clk_stimer1_rt, p_100m_24m, clk_stimer1_root_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
 RK3576_SCMI_CLOCK_COM(PCLK_SECURE_S, pclk_secure_s, p_116m_58m_24m, pclk_secure_s_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
 RK3576_SCMI_CLOCK_COM(HCLK_SECURE_S, hclk_secure_s, p_175m_116m_58m_24m, hclk_secure_s_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
 RK3576_SCMI_CLOCK_COM(ACLK_SECURE_S, aclk_secure_s, p_350m_175m_116m_24m, aclk_secure_s_info, &clk_scmi_ops_com_critical, rk3576_aclk_secure_s_rates, false, false);
-RK3576_SCMI_CLOCK_COM(CLK_PKA_CRYPTO_S, clk_pka_crypto_s, p_350m_175m_116m_24m, clk_pka_crypto_s_info, &clk_scmi_ops_com, rk3576_common_rates, false, true);
+RK3576_SCMI_CLOCK_COM(CLK_PKA_CRYPTO_S, clk_pka_crypt_s, p_350m_175m_116m_24m, clk_pka_crypto_s_info, &clk_scmi_ops_com, rk3576_common_rates, false, true);
 RK3576_SCMI_CLOCK_COM(HCLK_VO1_S, hclk_vo1_s, p_175m_116m_58m_24m, hclk_vo1_s_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
 RK3576_SCMI_CLOCK_COM(PCLK_VO1_S, pclk_vo1_s, p_116m_58m_24m, pclk_vo1_s_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
 RK3576_SCMI_CLOCK_COM(HCLK_VO0_S, hclk_vo0_s, p_175m_116m_58m_24m, hclk_vo0_s_info, &clk_scmi_ops_com_critical, rk3576_common_rates, false, true);
@@ -1131,12 +1131,12 @@ rk_scmi_clock_t *clock_table[] = {
 	[ARMCLK_B]		= &scmi_armclkb,
 	[CLK_GPU]		= &scmi_clk_gpu,
 	[CLK_RKNN_DSU0]		= &scmi_clk_npu,
-	[CLK_STIMER0_ROOT]	= &clk_stimer0_root,
-	[CLK_STIMER1_ROOT]	= &clk_stimer1_root,
+	[CLK_STIMER0_ROOT]	= &clk_stimer0_rt,
+	[CLK_STIMER1_ROOT]	= &clk_stimer1_rt,
 	[PCLK_SECURE_S]		= &pclk_secure_s,
 	[HCLK_SECURE_S]		= &hclk_secure_s,
 	[ACLK_SECURE_S]		= &aclk_secure_s,
-	[CLK_PKA_CRYPTO_S]	= &clk_pka_crypto_s,
+	[CLK_PKA_CRYPTO_S]	= &clk_pka_crypt_s,
 	[HCLK_VO1_S]		= &hclk_vo1_s,
 	[PCLK_VO1_S]		= &pclk_vo1_s,
 	[HCLK_VO0_S]		= &hclk_vo0_s,
