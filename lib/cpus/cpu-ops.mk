@@ -518,6 +518,10 @@ CPU_FLAG_LIST += ERRATA_N1_1946160
 # applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_N1_2743102
 
+# Flag to apply erratum 3324349 workaround during reset. This erratum
+# applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N1_3324349
+
 # Flag to apply erratum 1618635 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse V1 cpu and was fixed in the revision r1p0.
 CPU_FLAG_LIST += ERRATA_V1_1618635
@@ -773,10 +777,18 @@ CPU_FLAG_LIST += ERRATA_N2_2743089
 # to r0p0, r0p1, r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
 CPU_FLAG_LIST += ERRATA_N2_2779511
 
+# Flag to apply erratum 3324339 workaround during reset. This erratum applies
+# to r0p0, r0p1, r0p2 and r0p3 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_3324339
+
 # Flag to apply erratum 3701773 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1, r0p2 and r0p3
 # of the Neoverse N2 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_N2_3701773
+
+# Flag to apply erratum 3456111 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Neoverse N3 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N3_3456111
 
 # Flag to apply erratum 3699563 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revision r0p0 of the Neoverse N3

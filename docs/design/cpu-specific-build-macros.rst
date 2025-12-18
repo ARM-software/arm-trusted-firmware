@@ -491,6 +491,10 @@ For Neoverse N1, the following errata build flags are defined :
    CPU. This needs to be enabled for all revisions <= r4p1 of the CPU and is
    still open.
 
+-  ``ERRATA_N1_3324349``: This applies errata 3324349 workaround to Neoverse-N1
+   CPU. This needs to be enabled for all revisions <= r4p1 of the CPU and is
+   still open.
+
 For Neoverse V1, the following errata build flags are defined :
 
 -  ``ERRATA_V1_1618635``: This applies errata 1618635 workaround to Neoverse-V1
@@ -773,11 +777,18 @@ For Neoverse N2, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2. It is fixed
    in r0p3.
 
+-  ``ERRATA_N2_3324339``: This applies errata 3324339 workaround to Neoverse-N2
+   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3 and is
+   still open.
+
 -  ``ERRATA_N2_3701773``: This applies errata 3701773 workaround to Neoverse-N2
    CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3 and is
    still open.
 
 For Neoverse N3, the following errata build flags are defined :
+
+-  ``ERRATA_N3_3456111``: This applies errata 3456111 workaround to Neoverse-N3
+   CPU. This needs to be enabled for revisions r0p0 and r0p1 and is still open.
 
 -  ``ERRATA_N3_3699563``: This applies errata 3699563 workaround to Neoverse-N3
    CPU. This needs to be enabled for revisions r0p0 and is still open.
