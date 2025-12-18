@@ -41,6 +41,12 @@ workaround_reset_end neoverse_v3, ERRATUM(2970647)
 
 check_erratum_ls neoverse_v3, ERRATUM(2970647), CPU_REV(0, 0)
 
+workaround_runtime_start neoverse_v3, ERRATUM(3312417), ERRATA_V3_3312417
+	speculation_barrier
+workaround_runtime_end neoverse_v3, ERRATUM(3312417)
+
+check_erratum_ls neoverse_v3, ERRATUM(3312417), CPU_REV(0, 1)
+
 workaround_reset_start neoverse_v3, ERRATUM(3696307), ERRATA_V3_3696307
 	sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end neoverse_v3, ERRATUM(3696307)
@@ -127,6 +133,7 @@ endfunc neoverse_v3_core_pwr_dwn
 cpu_reset_func_start neoverse_v3
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum neoverse_v3, ERRATUM(3312417), ERRATA_V3_3312417
 cpu_reset_func_end neoverse_v3
 
 	/* ---------------------------------------------
