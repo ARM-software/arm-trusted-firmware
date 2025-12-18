@@ -92,9 +92,13 @@ plat_params_from_bl2_t *bl31_get_plat_params(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
+	int32_t ret;
+#if !RESET_TO_BL31
+	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
+	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
+#else
 	struct tegra_bl31_params *arg_from_bl2 = plat_get_bl31_params();
 	plat_params_from_bl2_t *plat_params = plat_get_bl31_plat_params();
-	int32_t ret;
 
 	/*
 	 * Tegra platforms will receive boot parameters through custom
@@ -102,6 +106,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 */
 	(void)arg0;
 	(void)arg1;
+#endif
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
