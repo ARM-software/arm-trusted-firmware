@@ -174,6 +174,12 @@ workaround_runtime_end neoverse_n1, ERRATUM(2743102)
 
 check_erratum_ls neoverse_n1, ERRATUM(2743102), CPU_REV(4, 1)
 
+workaround_runtime_start  neoverse_n1, ERRATUM(3324349), ERRATA_N1_3324349
+	speculation_barrier
+workaround_runtime_end neoverse_n1, ERRATUM(3324349)
+
+check_erratum_ls neoverse_n1, ERRATUM(3324349), CPU_REV(4, 1)
+
 workaround_reset_start neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -201,6 +207,7 @@ func neoverse_n1_disable_speculative_loads
 
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum neoverse_n1, ERRATUM(3324349), ERRATA_N1_3324349
 
 1:
 	ret
