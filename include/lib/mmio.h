@@ -73,4 +73,9 @@ static inline void mmio_clrsetbits_32(uintptr_t addr,
 	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
 }
 
+static inline void mmio_setbits_64(uintptr_t addr, uint64_t set)
+{
+	mmio_write_64(addr, mmio_read_64(addr) | set);
+}
+
 #endif /* MMIO_H */
