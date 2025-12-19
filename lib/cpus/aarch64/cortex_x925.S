@@ -72,6 +72,12 @@ workaround_reset_end cortex_x925, ERRATUM(2963999)
 
 check_erratum_ls cortex_x925, ERRATUM(2963999), CPU_REV(0, 0)
 
+workaround_runtime_start cortex_x925, ERRATUM(3324334), ERRATA_X925_3324334
+	speculation_barrier
+workaround_runtime_end cortex_x925, ERRATUM(3324334)
+
+check_erratum_ls cortex_x925, ERRATUM(3324334), CPU_REV(0, 1)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
@@ -94,6 +100,7 @@ check_erratum_ls cortex_x925, CVE(2024, 7881), CPU_REV(0, 1)
 cpu_reset_func_start cortex_x925
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_x925, ERRATUM(3324334), ERRATA_X925_3324334
 	enable_mpmm
 cpu_reset_func_end cortex_x925
 
