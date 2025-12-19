@@ -1007,6 +1007,10 @@ CPU_FLAG_LIST += ERRATA_X4_3887999
 # to revision r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_X925_2921199
 
+# Flag to apply erratum 2922378 workaround during reset. This erratum applies
+# to revision r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_X925_2922378
+
 # Flag to apply erratum 2963999 workaround during reset. This erratum applies
 # to revisions r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_X925_2963999
