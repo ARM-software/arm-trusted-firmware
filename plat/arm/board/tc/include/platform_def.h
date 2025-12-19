@@ -272,28 +272,98 @@
 #define PLAT_ARM_NSRAM_SIZE		0x00008000	/* 64KB */
 #endif /* TARGET_FLAVOUR_FPGA */
 
-#if TC_FPGA_FS_IMG_IN_RAM
-/* 10GB reserved for system+userdata+vendor images */
-#define SYSTEM_IMAGE_SIZE		0xC0000000	/* 3GB */
-#define USERDATA_IMAGE_SIZE		0x140000000	/* 5GB */
-#define VENDOR_IMAGE_SIZE		0x20000000 	/* 512MB */
-#define RESERVE_IMAGE_SIZE		0x60000000      /* 1.5GB */
-#define ANDROID_FS_SIZE			(SYSTEM_IMAGE_SIZE + \
-					 USERDATA_IMAGE_SIZE + \
-					 VENDOR_IMAGE_SIZE + RESERVE_IMAGE_SIZE)
+/*
+ *  Memory Layout "Android Loaded into MMC Card" with MTE carveout
+ *
+ *  0x8_8000_0000  ------------------   PLAT_ARM_DRAM2_BASE
+ *                 |                |
+ *                 |  TC_NS_DRAM2   |
+ *                 |    (13.5GB)    |
+ *                 |                |
+ *                 |                |
+ *                 |                |
+ *                 |                |
+ *  0xB_E000_0000  ------------------   PLAT_ARM_DRAM2_END
+ *                 |      MTE       |
+ *                 |   TAGS SPACE   |
+ *                 |    (512MB)     |
+ *  0xC_0000_0000  ------------------
+ *
+ *  ********************************************************
+ *
+ *  Memory Layout "Android Loaded into MMC Card" without MTE carveout
+ *
+ *  0x8_8000_0000  ------------------   PLAT_ARM_DRAM2_BASE
+ *                 |                |
+ *                 |  TC_NS_DRAM2   |
+ *                 |    (14GB)      |
+ *                 |                |
+ *                 |                |
+ *                 |                |
+ *                 |                |
+ *  0xC_0000_0000  ------------------   PLAT_ARM_DRAM2_END
+ *
+ *  ********************************************************
+ *
+ *  Memory Layout "Android In RAM" with MTE carveout
+ *
+ *  0x8_8000_0000  ------------------   ANDROID_FS_BASE
+ *                 |                |
+ *                 |                |
+ *                 |  ANDROID_IMG   |
+ *                 |    (8.5GB)     |
+ *                 |                |
+ *                 |                |
+ *  0xA_A000_0000  ------------------   PLAT_ARM_DRAM2_BASE
+ *                 |                |
+ *                 |  TC_NS_DRAM2   |
+ *                 |     (5GB)      |
+ *                 |                |
+ *  0xB_E000_0000  ------------------   PLAT_ARM_DRAM2_END
+ *                 |      MTE       |
+ *                 |   TAGS SPACE   |
+ *                 |    (512MB)     |
+ *  0xC_0000_0000  ------------------
+ */
 
-#define PLAT_ARM_DRAM2_BASE		ULL(0x880000000) + ANDROID_FS_SIZE
-#define PLAT_ARM_DRAM2_SIZE		ULL(0x380000000) - ANDROID_FS_SIZE
+#define TC_DRAM2_BASE			ULL(0x880000000)
+#define TC_TOTAL_DRAM2_SIZE		ULL(0x380000000)
+
+#if TC_FPGA_FS_IMG_IN_RAM
+/* 8.5GB reserved for system+userdata+vendor images */
+#define SYSTEM_IMAGE_SIZE		ULL(0xC0000000)		/* 3GB */
+#define USERDATA_IMAGE_SIZE		ULL(0x140000000)	/* 5GB */
+#define VENDOR_IMAGE_SIZE		ULL(0x20000000)		/* 512MB */
+#define ANDROID_FS_SIZE			(SYSTEM_IMAGE_SIZE + \
+					USERDATA_IMAGE_SIZE + \
+					VENDOR_IMAGE_SIZE)
 #else
-#define PLAT_ARM_DRAM2_BASE             ULL(0x880000000)
-#define PLAT_ARM_DRAM2_SIZE             ULL(0x180000000)
+#define ANDROID_FS_SIZE			ULL(0)
 #endif /* TC_FPGA_FS_IMG_IN_RAM */
 
-#define PLAT_ARM_DRAM2_END		(PLAT_ARM_DRAM2_BASE + PLAT_ARM_DRAM2_SIZE - 1ULL)
+#if defined(TARGET_FLAVOUR_FPGA) && (TARGET_PLATFORM == 4)
+/* To make optimal use of memory, set this to the address equivalent to the top
+ * 3.125% of the available downstream size.
+ * Note that this assumes total memory of 16GiB split across 8 MCN nodes.
+ */
+#define TC_MTU_TAG_ADDR_BASE		ULL(0x7C000000)
 
-#define TC_NS_MTE_SIZE			(256 * SZ_1M)
-/* the SCP puts the carveout at the end of DRAM2 */
-#define TC_NS_DRAM2_SIZE		(PLAT_ARM_DRAM2_SIZE - TC_NS_MTE_SIZE)
+/* Calculate total amount of RAM given over to MTE carveout based on the carveout
+ * address
+ */
+#define TC_TOTAL_DRAM_AVAILABLE		(TC_TOTAL_DRAM2_SIZE + ARM_DRAM1_SIZE)
+#define TC_DRAM_SIZE_PER_MCN_INST	((TC_TOTAL_DRAM_AVAILABLE) / (MCN_INSTANCES))
+#define TC_MTE_SIZE_PER_MCN_INST	(TC_DRAM_SIZE_PER_MCN_INST - TC_MTU_TAG_ADDR_BASE)
+#define TC_MTE_SIZE_TOTAL		((TC_MTE_SIZE_PER_MCN_INST) * (MCN_INSTANCES))
+#else
+#define TC_MTE_SIZE_TOTAL		ULL(0)
+#endif /* defined(TARGET_FLAVOUR_FPGA) && (TARGET_PLATFORM == 4) */
+
+#define PLAT_ARM_DRAM2_BASE		((TC_DRAM2_BASE) + (ANDROID_FS_SIZE))
+#define PLAT_ARM_DRAM2_SIZE				\
+	((TC_TOTAL_DRAM2_SIZE) - (ANDROID_FS_SIZE) - (TC_MTE_SIZE_TOTAL))
+
+#define PLAT_ARM_DRAM2_END		(PLAT_ARM_DRAM2_BASE + PLAT_ARM_DRAM2_SIZE)
 
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_INT_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp),	\
@@ -482,6 +552,18 @@
 #define MCN_CONFIG_OFFSET		0x204
 #define MCN_CONFIG_ADDR(n)			(MCN_BASE_ADDR(n) + MCN_CONFIG_OFFSET)
 #define MCN_CONFIG_SLC_PRESENT_BIT	3
+
+#define MCN_MTU_OFFSET			0x44000
+#define MCN_MTU_BASE_ADDR(n)		(MCN_BASE_ADDR(n) + MCN_MTU_OFFSET)
+#define MTU_TAG_ADDR_BASE_OFFSET	0x0
+
+#define	MCN_CRP_OFFSET			0x24000
+#define	MCN_CRP_BASE_ADDR(n)		(MCN_BASE_ADDR(n) + MCN_CRP_OFFSET)
+#define	MCN_CRP_ARCH_STATE_REQ_OFFSET	0
+#define	MCN_CRP_ARCH_STATE_CUR_OFFSET	8
+
+#define	MCN_CONFIG_STATE		0
+#define	MCN_RUN_STATE			1
 
 /*
  * TC3 CPUs have the same definitions for:

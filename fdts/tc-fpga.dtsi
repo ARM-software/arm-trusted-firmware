@@ -27,12 +27,13 @@
 
 #if TC_FPGA_FS_IMG_IN_RAM
 	reserved-memory {
-		phram@0x880000000 {
+		phram {
 			/*
-			 * starting from 0x8_8000_0000 reserve some memory
+			 * starting from base of DRAM2 reserve some memory
 			 * android image will be side loaded to this location
 			 */
-			reg = <0x8 0x80000000  HI(ANDROID_FS_SIZE) LO(ANDROID_FS_SIZE)>
+			reg = <HI(TC_DRAM2_BASE) LO(TC_DRAM2_BASE)
+			       HI(ANDROID_FS_SIZE) LO(ANDROID_FS_SIZE)>;
 			no-map;
 		};
 	};
