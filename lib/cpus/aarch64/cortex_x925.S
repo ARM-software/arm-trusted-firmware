@@ -51,6 +51,12 @@ workaround_reset_end cortex_x925, ERRATUM(2922378)
 
 check_erratum_ls cortex_x925, ERRATUM(2922378), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x925, ERRATUM(2933290), ERRATA_X925_2933290
+	sysreg_bit_set CORTEX_X925_CPUACTLR5_EL1, BIT(42)
+workaround_reset_end cortex_x925, ERRATUM(2933290)
+
+check_erratum_ls cortex_x925, ERRATUM(2933290), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x925, ERRATUM(2963999), ERRATA_X925_2963999
 	/* Add ISB before MRS reads of MPIDR_EL1/MIDR_EL1 */
 	ldr x0, =0x0

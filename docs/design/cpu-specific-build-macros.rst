@@ -997,6 +997,9 @@ For Cortex-X925, the following errata build flags are defined :
 - ``ERRATA_X925_2922378``: This applies errata 2922378 workaround to Cortex-X925
   CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
 
+- ``ERRATA_X925_2933290``: This applies errata 2933290 workaround to Cortex-X925
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
 - ``ERRATA_X925_2963999``: This applies errata 2963999 workaround to Cortex-X925
   CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
 
