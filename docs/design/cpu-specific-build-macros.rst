@@ -1346,6 +1346,36 @@ For C1-Pro, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0 and r1p0 of the CPU, it
    is fixed in r1p1.
 
+For C1-Nano, the following errata build flags are defined :
+
+-  ``ERRATA_C1NANO_3392149``: This applies errata 3392149 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
+-  ``ERRATA_C1NANO_3419531``: This applies errata 3419531 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
+-  ``ERRATA_C1NANO_3437202``: This applies errata 3437202 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
+-  ``ERRATA_C1NANO_3516455``: This applies errata 3516455 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
+-  ``ERRATA_C1NANO_3616450``: This applies errata 3616450 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
+-  ``ERRATA_C1NANO_3630925``: This applies errata 3630925 workaround to
+   C1-Nano CPU. This needs to be enabled for revision r0p0 and is fixed
+   in r0p1.
+
+-  ``ERRATA_C1NANO_3754876``: This applies errata 3754876 workaround to
+   C1-Nano CPU. This needs to be enabled for revisions r0p0 and r0p1, and
+   is fixed in r0p2.
+
 DSU Errata Workarounds
 ----------------------
 

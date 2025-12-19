@@ -1396,6 +1396,34 @@ CPU_FLAG_LIST += ERRATA_C1PRO_3706576
 # to revisions r0p0 and r1p0 of the C1-Pro cpu and is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_C1PRO_3300099
 
+# Flag to apply erratum 3392149 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Nano cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_C1NANO_3392149
+
+# Flag to apply erratum 3419531 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Nano cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_C1NANO_3419531
+
+# Flag to apply erratum 3437202 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Nano cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_C1NANO_3437202
+
+# Flag to apply erratum 3516455 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Nano cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_C1NANO_3516455
+
+# Flag to apply erratum 3616450 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Nano cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_C1NANO_3616450
+
+# Flag to apply erratum 3630925 workaround during reset. This erratum applies
+# to revision r0p0 of C1-Nano cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_C1NANO_3630925
+
+# Flag to apply erratum 3754876 workaround during runtime. This erratum applies
+# to revision r0p0 and r0p1 of C1-Nano cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_C1NANO_3754876
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 CPU_FLAG_LIST += ERRATA_DSU_798953
