@@ -610,8 +610,32 @@ For Neoverse V3, the following errata build flags are defined :
 - ``ERRATA_V3_2970647``: This applies errata 2970647 workaround to Neoverse-V3
   CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
 
+- ``ERRATA_V3_3312417``: This applies errata 3312417 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revisions r0p0 and r0p1 of the CPU and is
+  fixed in r0p2.
+
+- ``ERRATA_V3_3696307``: This applies errata 3696307 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in
+  r0p2.
+
 - ``ERRATA_V3_3701767``: This applies errata 3701767 workaround to Neoverse-V3
   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 of the CPU and
+  is still open.
+
+- ``ERRATA_V3_3734562``: This applies errata 3734562 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revisions r0p0 and r0p1 of the CPU and
+  is fixed in r0p2.
+
+- ``ERRATA_V3_3782181``: This applies errata 3782181 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revision r0p1 of the CPU and is fixed in
+  r0p2.
+
+- ``ERRATA_V3_3864536``: This applies errata 3864536 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2 of the CPU and
+  is still open.
+
+- ``ERRATA_V3_3878291``: This applies errata 3878291 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2 of the CPU and
   is still open.
 
 For Cortex-A710, the following errata build flags are defined :
