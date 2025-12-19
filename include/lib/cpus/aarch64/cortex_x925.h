@@ -24,6 +24,10 @@
 /*******************************************************************************
  * CPU Auxiliary control register specific definitions
  ******************************************************************************/
+#define CORTEX_X925_CPUACTLR_EL1				S3_0_C15_C1_0
+#define CORTEX_X925_CPUACTLR_EL1_LOAD_BIT			U(1)
+#define CORTEX_X925_CPUACTLR_EL1_LOAD_SHIFT			U(58)
+#define CORTEX_X925_CPUACTLR_EL1_LOAD_WIDTH			U(3)
 #define CORTEX_X925_CPUACTLR4_EL1				S3_0_C15_C1_3
 #define CORTEX_X925_CPUACTLR4_EL1_BHB_BIT			U(3)
 #define CORTEX_X925_CPUACTLR4_EL1_BHB_SHIFT			U(10)

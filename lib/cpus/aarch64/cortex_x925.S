@@ -84,6 +84,13 @@ workaround_reset_end cortex_x925, ERRATUM(3692980)
 
 check_erratum_ls cortex_x925, ERRATUM(3692980), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x925, ERRATUM(3730893), ERRATA_X925_3730893
+	sysreg_bitfield_insert CORTEX_X925_CPUACTLR_EL1, CORTEX_X925_CPUACTLR_EL1_LOAD_BIT, \
+	CORTEX_X925_CPUACTLR_EL1_LOAD_SHIFT, CORTEX_X925_CPUACTLR_EL1_LOAD_WIDTH
+workaround_reset_end cortex_x925, ERRATUM(3730893)
+
+check_erratum_ls cortex_x925, ERRATUM(3730893), CPU_REV(0, 1)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
