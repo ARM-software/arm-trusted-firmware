@@ -26,6 +26,7 @@ void spin_unlock(spinlock_t *lock);
 void bit_lock(bitlock_t *lock, uint8_t mask);
 void bit_unlock(bitlock_t *lock, uint8_t mask);
 
+/* non-blocking spin_lock(). Returns whether the lock was acquired. */
 bool spin_trylock(spinlock_t *lock);
 
 #else
