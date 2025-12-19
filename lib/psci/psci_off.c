@@ -157,10 +157,10 @@ off_exit:
 		 * update to the affinity info state prior to cache line
 		 * invalidation.
 		 */
-		psci_flush_cpu_data(psci_svc_cpu_data.aff_info_state);
+		psci_flush_cpu_data(psci_svc_cpu_data);
 		psci_set_aff_info_state(AFF_STATE_OFF);
 		psci_dsbish();
-		psci_inv_cpu_data(psci_svc_cpu_data.aff_info_state);
+		psci_inv_cpu_data(psci_svc_cpu_data);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 		/*

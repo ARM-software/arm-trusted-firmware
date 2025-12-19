@@ -308,7 +308,15 @@ typedef struct psci_cpu_data {
 
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;
-} psci_cpu_data_t;
+/* This should not straddle cache lines so align to closest power of 2. */
+} psci_cpu_data_t __aligned(16);
+
+/*
+ * Sanity check that the struct will fit within a cache line. Otherwise CMOs
+ * might affect other memory and have unexpected consequences.
+ */
+CASSERT(sizeof(psci_cpu_data_t) <= CACHE_WRITEBACK_GRANULE,
+	psci_cpu_data_bigger_than_cache_line);
 
 /*******************************************************************************
  * Structure populated by platform specific code to export routines which

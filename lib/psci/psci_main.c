@@ -272,8 +272,7 @@ int psci_affinity_info(u_register_t target_affinity,
 	 * target CPUs shutdown was not seen by the current CPU's cluster. And
 	 * so the cache may contain stale data for the target CPU.
 	 */
-	flush_cpu_data_by_index(target_idx,
-				psci_svc_cpu_data.aff_info_state);
+	flush_cpu_data_by_index(target_idx, psci_svc_cpu_data);
 
 	return (int)psci_get_aff_info_state_by_idx(target_idx);
 }

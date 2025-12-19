@@ -492,7 +492,7 @@ void psci_set_target_local_pwr_states(unsigned int cpu_idx, unsigned int end_pwr
 	 * Need to flush as local_state might be accessed with Data Cache
 	 * disabled during power on
 	 */
-	psci_flush_cpu_data(psci_svc_cpu_data.local_state);
+	psci_flush_cpu_data(psci_svc_cpu_data);
 
 	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 

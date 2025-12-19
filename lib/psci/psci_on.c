@@ -92,8 +92,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	 * target CPUs shutdown was not seen by the current CPU's cluster. And
 	 * so the cache may contain stale data for the target CPU.
 	 */
-	flush_cpu_data_by_index(target_idx,
-				psci_svc_cpu_data.aff_info_state);
+	flush_cpu_data_by_index(target_idx, psci_svc_cpu_data);
 	rc = cpu_on_validate_state(psci_get_aff_info_state_by_idx(target_idx));
 	if (rc != PSCI_E_SUCCESS) {
 		goto on_exit;
@@ -114,8 +113,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	 * turned OFF.
 	 */
 	psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_ON_PENDING);
-	flush_cpu_data_by_index(target_idx,
-				psci_svc_cpu_data.aff_info_state);
+	flush_cpu_data_by_index(target_idx, psci_svc_cpu_data);
 
 	/*
 	 * The cache line invalidation by the target CPU after setting the
@@ -127,8 +125,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	if (target_aff_state != AFF_STATE_ON_PENDING) {
 		assert(target_aff_state == AFF_STATE_OFF);
 		psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_ON_PENDING);
-		flush_cpu_data_by_index(target_idx,
-					psci_svc_cpu_data.aff_info_state);
+		flush_cpu_data_by_index(target_idx, psci_svc_cpu_data);
 
 		assert(psci_get_aff_info_state_by_idx(target_idx) ==
 		       AFF_STATE_ON_PENDING);
@@ -148,8 +145,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	if (rc != PSCI_E_SUCCESS) {
 		/* Restore the state on error. */
 		psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_OFF);
-		flush_cpu_data_by_index(target_idx,
-					psci_svc_cpu_data.aff_info_state);
+		flush_cpu_data_by_index(target_idx, psci_svc_cpu_data);
 	}
 
 on_exit:
