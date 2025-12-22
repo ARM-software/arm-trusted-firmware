@@ -205,6 +205,19 @@ For Cortex-A57, the following errata build flags are defined :
 -  ``ERRATA_A57_1319537``: This applies errata 1319537 workaround to all
    revisions of Cortex-A57 CPU.
 
+For Cortex-A65, the following errata build flags are defined :
+
+-  ``ERRATA_A65_1179935``: This applies errata 1179935 workaround to Cortex-A65
+   CPU. This needs to be enabled only for revision r0p0 of the CPU, and is fixed
+   in r1p0.
+
+-  ``ERRATA_A65_1227419``: This applies errata 1227419 workaround to Cortex-A65
+   CPU. This needs to be enabled only for revision r0p0 and r1p0 of the CPU and
+   is fixed in r1p1.
+
+-  ``ERRATA_A65_1541130``: This applies errata 1541130 workaround to r0p0, r1p0,
+   r1p1, r1p2 revisions of the CPU and is still open.
+
 For Cortex-A72, the following errata build flags are defined :
 
 -  ``ERRATA_A72_859971``: This applies errata 859971 workaround to Cortex-A72
@@ -268,6 +281,24 @@ For Cortex-A76, the following errata build flags are defined :
 
 -  ``ERRATA_A76_2743102``: This applies errata 2743102 workaround to Cortex-A76
    CPU. This needs to be enabled for all revisions <= r4p1 of the CPU and is
+   still open.
+
+For Cortex-A76AE, the following errata build flags are defined :
+
+-  ``ERRATA_A76AE_1931427``: This applies errata 1931427 workaround to Cortex-A76AE
+   CPU. This needs to be enabled for revision r0p0 and r1p0 of the CPU and it is
+   fixed in r1p1.
+
+-  ``ERRATA_A76AE_1931435``: This applies errata 1931435 workaround to Cortex-A76AE
+   CPU. This needs to be enabled for revision r0p0 and r1p0 of the CPU and it is
+   fixed in r1p1.
+
+-  ``ERRATA_A76AE_1969401``: This applies errata 1969401 workaround to Cortex-A76AE
+   CPU. This needs to be enabled for revision r0p0 and r1p0 of the CPU and it is
+   fixed in r1p1.
+
+-  ``ERRATA_A76AE_2371140``: This applies errata 2371140 workaround to Cortex-A76AE
+   CPU. This needs to be enabled for all revisions <= r1p1 of the CPU and is
    still open.
 
 For Cortex-A77, the following errata build flags are defined :
@@ -1031,6 +1062,16 @@ For Cortex-A715, the following errata build flags are defined :
    Cortex-A715 CPU. This needs to be enabled for revisions r0p0 and r1p0. It is
    fixed in r1p1.
 
+-  ``ERRATA_A715_2376701``: This applies errata 2376701 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revisions r0p0 and r1p0. It is
+   fixed in r1p1.
+
+-  ``ERRATA_A715_2409570``: This applies errata 2409570 workaround to
+   Cortex-A715 CPU. This needs to be enabled only for revision r1p0.
+   It is fixed in r1p1. This errata also applies to r0p0 but that revision has a
+   different workaround, and since r0p0 is not used in production hardware it is
+   not implemented.
+
 -  ``ERRATA_A715_2413290``: This applies errata 2413290 workaround to
    Cortex-A715 CPU. This needs to be enabled only for revision r1p0 and
    when SPE(Statistical profiling extension)=True. The errata is fixed
@@ -1059,6 +1100,10 @@ For Cortex-A715, the following errata build flags are defined :
 -  ``ERRATA_A715_3699560``: This applies errata 3699560 workaround to
    Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0,
    r1p2 and r1p3. It is still open.
+
+-  ``ERRATA_A715_3711916``: This applies errata 3711916 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0,
+   r1p1, r1p2 and r1p3. It is still open.
 
 For Cortex-A720, the following errata build flags are defined :
 
@@ -1192,6 +1237,8 @@ GIC Errata Workarounds
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
 .. _CVE-2022-23960: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23960
+.. _CVE-2024-5660: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-5660
+.. _CVE-2024-7881: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-7881
 .. _Cortex-A53 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/index.html
 .. _Cortex-A57 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm049219/index.html
 .. _Cortex-A72 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm012079/index.html

@@ -1120,6 +1120,7 @@ $(eval $(call assert_numerics,\
         ENABLE_PAUTH \
         ENABLE_FEAT_AMUv1 \
         ENABLE_FEAT_AMUv1p1 \
+        ENABLE_FEAT_CLRBHB \
         ENABLE_FEAT_CSV2_2 \
         ENABLE_FEAT_DIT \
         ENABLE_FEAT_ECV \
@@ -1261,6 +1262,7 @@ $(eval $(call add_defines,\
         ENABLE_FEAT_AMUv1p1 \
         ENABLE_FEAT_SEL2 \
         ENABLE_FEAT_VHE \
+        ENABLE_FEAT_CLRBHB \
         ENABLE_FEAT_CSV2_2 \
         ENABLE_FEAT_PAN \
         FEATURE_DETECTION \

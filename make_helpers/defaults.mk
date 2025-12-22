@@ -173,6 +173,9 @@ ENABLE_FEAT_SEL2		:= 0
 # Flag to enable Virtualization Host Extensions
 ENABLE_FEAT_VHE 		:= 0
 
+# Flag to enable Clear Branch History (FEAT_CLRBHB)
+ENABLE_FEAT_CLRBHB		:= 0
+
 # Flag to enable delayed trapping of WFE instruction (FEAT_TWED)
 ENABLE_FEAT_TWED		:= 0
 

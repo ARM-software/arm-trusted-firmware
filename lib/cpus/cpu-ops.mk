@@ -190,6 +190,18 @@ CPU_FLAG_LIST += ERRATA_A57_859972
 # to all revisions of Cortex A57 cpu.
 CPU_FLAG_LIST += ERRATA_A57_1319537
 
+# Flag to apply erratum 1179935 workaround during reset. This erratum applies
+# to only r0p0 of the Cortex A65 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_A65_1179935
+
+# Flag to apply erratum 1227419 workaround during reset. This erratum applies
+# to r0p0, r1p0 of the Cortex A65 cpu and is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A65_1227419
+
+# Flag to apply erratum 1179935 workaround during reset. This erratum applies
+# to r0p0, r1p0, r1p1, r1p2 revisions of the CPU and is still open.
+CPU_FLAG_LIST += ERRATA_A65_1541130
+
 # Flag to apply erratum 855971 workaround during reset. This erratum applies
 # only to revision <= r0p3 of the Cortex A72 cpu.
 CPU_FLAG_LIST += ERRATA_A72_859971
@@ -265,6 +277,25 @@ CPU_FLAG_LIST += ERRATA_A76_1946160
 # Flag to apply erratum 2743102 workaround during powerdown. This erratum
 # applies to all revisions <= r4p1 of the Cortex A76 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A76_2743102
+
+# Flag to apply erratum 1931427 workaround during reset. This erratum
+# applies to revision r0p0 and r1p0 of the Cortex A76AE cpu and is fixed
+# in r1p1.
+CPU_FLAG_LIST += ERRATA_A76AE_1931427
+
+# Flag to apply erratum 1931435 workaround during reset. This erratum
+# applies to revision r0p0 and r1p0 of the Cortex A76AE cpu and is fixed
+# in r1p1.
+CPU_FLAG_LIST += ERRATA_A76AE_1931435
+
+# Flag to apply erratum 1969401 workaround during reset. This erratum
+# applies to revision r0p0 and r1p0 of the Cortex A76AE cpu and is fixed
+# in r1p1.
+CPU_FLAG_LIST += ERRATA_A76AE_1969401
+
+# Flag to apply erratum 2371140 workaround during powerdown. This erratum
+# applies to all revisions <= r1p1 of the Cortex A76AE cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A76AE_2371140
 
 # Flag to apply erratum 1508412 workaround during reset. This erratum applies
 # only to revision <= r1p0 of the Cortex A77 cpu.
@@ -1081,6 +1112,15 @@ CPU_FLAG_LIST += ERRATA_A715_2331818
 # to revisions r0p0, and r1p0. It is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_A715_2344187
 
+# Flag to apply erratum 2376701 workaround during reset. This erratum applies
+# to revisions r0p0, and r1p0. It is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A715_2376701
+
+# Flag to apply erratum 2409570 workaround during reset. This erratum applies to
+# revisions r0p0 and r1p0 and is fixed in r1p1. The fix as implemented in TF-A
+# only applies to r1p0.
+CPU_FLAG_LIST += ERRATA_A715_2409570
+
 # Flag to apply erratum 2413290 workaround during reset. This erratum applies
 # only to revision r1p0. It is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_A715_2413290
@@ -1109,6 +1149,10 @@ CPU_FLAG_LIST += ERRATA_A715_2804830
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r1p0, r1p2, r1p3
 # of the Cortex-A715 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A715_3699560
+
+# Flag to apply erratum 3711916 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, r1p2 and r1p3 and is still open.
+CPU_FLAG_LIST += ERRATA_A715_3711916
 
 # Flag to apply erratum 2729604 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1. It is fixed in r0p2.
