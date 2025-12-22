@@ -6,9 +6,11 @@
 
 LOCAL_DIR := $(call GET_LOCAL_DIR)
 
-MODULE := armv${CONFIG_MTK_PM_ARCH}
+MODULE := mtk_booker
 
-LOCAL_SRCS-y := ${LOCAL_DIR}/pwr_ctrl.c
+LOCAL_SRCS-y := ${LOCAL_DIR}/booker.c
+
+PLAT_INCLUDES += -I${LOCAL_DIR}
+PLAT_INCLUDES += -I${LOCAL_DIR}/$(MTK_SOC)
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
-$(eval $(call add_defined_option,CONFIG_MTK_BOOKER))
