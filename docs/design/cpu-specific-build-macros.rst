@@ -697,6 +697,10 @@ For Cortex-A710, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
    CPU and is still open.
 
+-  ``ERRATA_A710_3324338``: This applies errata 3324338 workaround to
+   Cortex-A710 CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and
+   r2p1 of the CPU and is still open.
+
 - ``ERRATA_A710_3701772``: This applies errata 3701772 workaround to Cortex-A710
   CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0, r2p1 of the
   CPU and is still open.
@@ -852,6 +856,10 @@ For Cortex-X2, the following errata build flags are defined :
    CPU and is still open.
 
 -  ``ERRATA_X2_2778471``: This applies errata 2778471 workaround to Cortex-X2
+   CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
+   CPU and is still open.
+
+-  ``ERRATA_X2_3324338``: This applies errata 3324338 workaround to Cortex-X2
    CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
    CPU and is still open.
 
@@ -1097,6 +1105,10 @@ For Cortex-A715, the following errata build flags are defined :
    Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0,
    r1p1 and r1p2. It is fixed in r1p3.
 
+-  ``ERRATA_A715_3456084``: This applies errata 3456084 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0,
+   r1p1, r1p2 and r1p3. It is still open.
+
 -  ``ERRATA_A715_3699560``: This applies errata 3699560 workaround to
    Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0,
    r1p2 and r1p3. It is still open.
@@ -1126,6 +1138,10 @@ For Cortex-A720, the following errata build flags are defined :
 -  ``ERRATA_A720_2940794``: This applies errata 2940794 workaround to
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0 and r0p1.
    It is fixed in r0p2.
+
+-  ``ERRATA_A720_3456091``: This applies errata 3456091 workaround to
+   Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
+   and r0p2. It is still open.
 
 -  ``ERRATA_A720_3699561``: This applies errata 3699561 workaround to
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
