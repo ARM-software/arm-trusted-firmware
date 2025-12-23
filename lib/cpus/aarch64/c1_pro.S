@@ -28,19 +28,6 @@
 
 cpu_reset_prologue c1_pro
 
-	/* -----------------------------------------------------------
-	 * CVE-2024-7881 is mitigated for C1-Pro using erratum 3684268
-	 * workaround by disabling the affected prefetcher
-	 * via IMP_CPUECTLR_EL1[49].
-	 * -----------------------------------------------------------
-	 */
-workaround_reset_start c1_pro, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-	sysreg_bit_set C1_PRO_IMP_CPUECTLR_EL1, BIT(49)
-	dsb	sy
-workaround_reset_end c1_pro, CVE(2024, 7881)
-
-check_erratum_ls c1_pro, CVE(2024, 7881), CPU_REV(1, 0)
-
 workaround_runtime_start c1_pro, ERRATUM(3338470), ERRATA_C1PRO_3338470
 	speculation_barrier
 workaround_runtime_end c1_pro, ERRATUM(3338470)
@@ -110,6 +97,19 @@ check_erratum_ls c1_pro, ERRATUM(3706576), CPU_REV(1, 0)
 add_erratum_entry c1_pro, ERRATUM(3300099), ERRATA_C1PRO_3300099
 .global check_erratum_c1_pro_3300099
 check_erratum_ls c1_pro, ERRATUM(3300099), CPU_REV(1, 0)
+
+	/* -----------------------------------------------------------
+	 * CVE-2024-7881 is mitigated for C1-Pro using erratum 3684268
+	 * workaround by disabling the affected prefetcher
+	 * via IMP_CPUECTLR_EL1[49].
+	 * -----------------------------------------------------------
+	 */
+workaround_reset_start c1_pro, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+	sysreg_bit_set C1_PRO_IMP_CPUECTLR_EL1, BIT(49)
+	dsb	sy
+workaround_reset_end c1_pro, CVE(2024, 7881)
+
+check_erratum_ls c1_pro, CVE(2024, 7881), CPU_REV(1, 0)
 
 cpu_reset_func_start c1_pro
 	/* ----------------------------------------------------
