@@ -67,14 +67,17 @@ workaround_reset_end c1_pro, ERRATUM(3684268)
 check_erratum_ls c1_pro, ERRATUM(3684268), CPU_REV(1, 0)
 
 workaround_runtime_start c1_pro, ERRATUM(3686597), ERRATA_C1PRO_3686597
-	/* check if sme feature supported */
+#if ENABLE_SME_FOR_NS
+#if ENABLE_SME_FOR_NS == 2
 	is_feat_sme_present_asm x1
 	beq 1f
+#endif
 
 	sysreg_bit_set C1_PRO_IMP_CPUECTLR_EL1, BIT(57)
 	dsb sy
 
 1:
+#endif
 workaround_runtime_end c1_pro, ERRATUM(3686597)
 
 check_erratum_ls c1_pro, ERRATUM(3686597), CPU_REV(1, 0)
