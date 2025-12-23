@@ -78,6 +78,12 @@ workaround_reset_end cortex_a76ae, ERRATUM(2371140)
 
 check_erratum_ls cortex_a76ae, ERRATUM(2371140), CPU_REV(1, 1)
 
+workaround_runtime_start cortex_a76ae, ERRATUM(2753838), ERRATA_A76AE_2753838
+	dsb sy
+workaround_runtime_end cortex_a76ae, ERRATUM(2753838)
+
+check_erratum_ls cortex_a76ae, ERRATUM(2753838), CPU_REV(1, 1)
+
 workaround_reset_start cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -98,6 +104,7 @@ cpu_reset_func_end cortex_a76ae
 	 */
 func cortex_a76ae_core_pwr_dwn
 	sysreg_bit_set CORTEX_A76AE_CPUPWRCTLR_EL1, CORTEX_A76AE_CORE_PWRDN_EN_MASK
+	apply_erratum cortex_a76ae, ERRATUM(2753838), ERRATA_A76AE_2753838
 	isb
 	ret
 endfunc cortex_a76ae_core_pwr_dwn
