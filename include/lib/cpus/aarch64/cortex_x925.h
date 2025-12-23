@@ -22,9 +22,19 @@
 #define CORTEX_X925_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
 
 /*******************************************************************************
- * CPU Auxiliary control register 6 specific definitions
+ * CPU Auxiliary control register specific definitions
  ******************************************************************************/
-#define CORTEX_X925_CPUACTLR6_EL1                                S3_0_C15_C8_1
+#define CORTEX_X925_CPUACTLR_EL1				S3_0_C15_C1_0
+#define CORTEX_X925_CPUACTLR_EL1_LOAD_BIT			U(1)
+#define CORTEX_X925_CPUACTLR_EL1_LOAD_SHIFT			U(58)
+#define CORTEX_X925_CPUACTLR_EL1_LOAD_WIDTH			U(3)
+#define CORTEX_X925_CPUACTLR2_EL1				S3_0_C15_C1_1
+#define CORTEX_X925_CPUACTLR4_EL1				S3_0_C15_C1_3
+#define CORTEX_X925_CPUACTLR4_EL1_BHB_BIT			U(3)
+#define CORTEX_X925_CPUACTLR4_EL1_BHB_SHIFT			U(10)
+#define CORTEX_X925_CPUACTLR4_EL1_BHB_WIDTH			U(2)
+#define CORTEX_X925_CPUACTLR5_EL1				S3_0_C15_C8_0
+#define CORTEX_X925_CPUACTLR6_EL1				S3_0_C15_C8_1
 
 #ifndef __ASSEMBLER__
 long check_erratum_cortex_x925_3701747(long cpu_rev);

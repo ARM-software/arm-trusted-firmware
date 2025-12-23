@@ -38,6 +38,25 @@ add_erratum_entry cortex_x925, ERRATUM(3701747), ERRATA_X925_3701747
 .global check_erratum_cortex_x925_3701747
 check_erratum_ls cortex_x925, ERRATUM(3701747), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x925, ERRATUM(2921199), ERRATA_X925_2921199
+	sysreg_bit_set CORTEX_X925_CPUACTLR5_EL1, BIT(14)
+workaround_reset_end cortex_x925, ERRATUM(2921199)
+
+check_erratum_ls cortex_x925, ERRATUM(2921199), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x925, ERRATUM(2922378), ERRATA_X925_2922378
+	sysreg_bitfield_insert CORTEX_X925_CPUACTLR4_EL1, CORTEX_X925_CPUACTLR4_EL1_BHB_BIT, \
+	CORTEX_X925_CPUACTLR4_EL1_BHB_SHIFT, CORTEX_X925_CPUACTLR4_EL1_BHB_WIDTH
+workaround_reset_end cortex_x925, ERRATUM(2922378)
+
+check_erratum_ls cortex_x925, ERRATUM(2922378), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x925, ERRATUM(2933290), ERRATA_X925_2933290
+	sysreg_bit_set CORTEX_X925_CPUACTLR5_EL1, BIT(42)
+workaround_reset_end cortex_x925, ERRATUM(2933290)
+
+check_erratum_ls cortex_x925, ERRATUM(2933290), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x925, ERRATUM(2963999), ERRATA_X925_2963999
 	/* Add ISB before MRS reads of MPIDR_EL1/MIDR_EL1 */
 	ldr x0, =0x0
@@ -52,6 +71,31 @@ workaround_reset_start cortex_x925, ERRATUM(2963999), ERRATA_X925_2963999
 workaround_reset_end cortex_x925, ERRATUM(2963999)
 
 check_erratum_ls cortex_x925, ERRATUM(2963999), CPU_REV(0, 0)
+
+workaround_runtime_start cortex_x925, ERRATUM(3324334), ERRATA_X925_3324334
+	speculation_barrier
+workaround_runtime_end cortex_x925, ERRATUM(3324334)
+
+check_erratum_ls cortex_x925, ERRATUM(3324334), CPU_REV(0, 1)
+
+workaround_reset_start cortex_x925, ERRATUM(3692980), ERRATA_X925_3692980
+	sysreg_bit_set CORTEX_X925_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x925, ERRATUM(3692980)
+
+check_erratum_ls cortex_x925, ERRATUM(3692980), CPU_REV(0, 1)
+
+workaround_reset_start cortex_x925, ERRATUM(3730893), ERRATA_X925_3730893
+	sysreg_bitfield_insert CORTEX_X925_CPUACTLR_EL1, CORTEX_X925_CPUACTLR_EL1_LOAD_BIT, \
+	CORTEX_X925_CPUACTLR_EL1_LOAD_SHIFT, CORTEX_X925_CPUACTLR_EL1_LOAD_WIDTH
+workaround_reset_end cortex_x925, ERRATUM(3730893)
+
+check_erratum_ls cortex_x925, ERRATUM(3730893), CPU_REV(0, 1)
+
+workaround_reset_start cortex_x925, ERRATUM(3865185), ERRATA_X925_3865185
+	sysreg_bit_set CORTEX_X925_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_x925, ERRATUM(3865185)
+
+check_erratum_ls cortex_x925, ERRATUM(3865185), CPU_REV(0, 1)
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
@@ -75,6 +119,7 @@ check_erratum_ls cortex_x925, CVE(2024, 7881), CPU_REV(0, 1)
 cpu_reset_func_start cortex_x925
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	apply_erratum cortex_x925, ERRATUM(3324334), ERRATA_X925_3324334
 	enable_mpmm
 cpu_reset_func_end cortex_x925
 

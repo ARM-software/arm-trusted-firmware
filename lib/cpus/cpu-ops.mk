@@ -1027,9 +1027,37 @@ CPU_FLAG_LIST += ERRATA_X4_3701758
 # revisions r0p0, r0p1, r0p2 and r0p3 of the Cortex-X4 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_X4_3887999
 
+# Flag to apply erratum 2921199 workaround during reset. This erratum applies
+# to revision r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_X925_2921199
+
+# Flag to apply erratum 2922378 workaround during reset. This erratum applies
+# to revision r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_X925_2922378
+
+# Flag to apply erratum 2933290 workaround during reset. This erratum applies
+# to revision r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_X925_2933290
+
 # Flag to apply erratum 2963999 workaround during reset. This erratum applies
 # to revisions r0p0 of the Cortex-X925 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_X925_2963999
+
+# Flag to apply erratum 3324334 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Cortex-X925 cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X925_3324334
+
+# Flag to apply erratum 3692980 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Cortex-X925 cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X925_3692980
+
+# Flag to apply erratum 3865185 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Cortex-X925 cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X925_3865185
+
+# Flag to apply erratum 3730893 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Cortex-X925 cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X925_3730893
 
 # Flag to apply erratum 3701747 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1 of the

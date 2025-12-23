@@ -1015,8 +1015,29 @@ For Cortex-X4, the following errata build flags are defined :
 
 For Cortex-X925, the following errata build flags are defined :
 
+- ``ERRATA_X925_2921199``: This applies errata 2921199 workaround to Cortex-X925
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
+- ``ERRATA_X925_2922378``: This applies errata 2922378 workaround to Cortex-X925
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
+- ``ERRATA_X925_2933290``: This applies errata 2933290 workaround to Cortex-X925
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
 - ``ERRATA_X925_2963999``: This applies errata 2963999 workaround to Cortex-X925
   CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
+- ``ERRATA_X925_3324334``: This applies errata 3324334 workaround to Cortex-X925
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
+
+- ``ERRATA_X925_3692980``: This applies errata 3692980 workaround to Cortex-X925
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
+
+- ``ERRATA_X925_3730893``: This applies errata 3730893 workaround to Cortex-X925
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
+
+- ``ERRATA_X925_3865185``: This applies errata 3865185 workaround to Cortex-X925
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
 
 - ``ERRATA_X925_3701747``: This applies errata 3701747 workaround to Cortex-X925
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is still open.
