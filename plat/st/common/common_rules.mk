@@ -57,9 +57,9 @@ $(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},$(STM32_LD_FILE),bl2))
 tf-a-%.elf: $(PLAT)-%.o ${STM32_TF_LINKERFILE}
 	$(s)echo "  LDS     $<"
 ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	$(q)$($(ARCH)-ld) -o $@ $(subst --,-Wl$(comma)--,${STM32_TF_ELF_LDFLAGS}) -nostartfiles -no-pie -Wl,-Map=$(@:.elf=.map) -Wl,-dT ${STM32_TF_LINKERFILE} $<
+	$(q)$($(ARCH)-ld) -o $@ $(subst --,-Wl$(comma)--,${STM32_TF_ELF_LDFLAGS}) -nostartfiles -static -Wl,--build-id=none -Wl,-Map=$(@:.elf=.map) -Wl,-dT ${STM32_TF_LINKERFILE} $<
 else
-	$(q)$($(ARCH)-ld) -o $@ ${STM32_TF_ELF_LDFLAGS} -no-pie -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} $<
+	$(q)$($(ARCH)-ld) -o $@ ${STM32_TF_ELF_LDFLAGS} -static --build-id=none -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} $<
 endif
 
 tf-a-%.bin: tf-a-%.elf
