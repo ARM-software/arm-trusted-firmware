@@ -239,6 +239,12 @@ workaround_reset_end cortex_x2, ERRATUM(3888122)
 
 check_erratum_ls cortex_x2, ERRATUM(3888122), CPU_REV(2, 1)
 
+workaround_reset_start cortex_x2, ERRATUM(4302969), ERRATA_X2_4302969
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_x2, ERRATUM(4302969)
+
+check_erratum_ls cortex_x2, ERRATUM(4302969), CPU_REV(2, 1)
+
 workaround_reset_start cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
