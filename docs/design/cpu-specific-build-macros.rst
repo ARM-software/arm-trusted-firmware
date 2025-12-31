@@ -785,6 +785,10 @@ For Neoverse N2, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3 and is
    still open.
 
+-  ``ERRATA_N2_3888123``: This applies errata 3888123 workaround to Neoverse-N2
+   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3 and is
+   still open.
+
 For Neoverse N3, the following errata build flags are defined :
 
 -  ``ERRATA_N3_3456111``: This applies errata 3456111 workaround to Neoverse-N3
@@ -1419,7 +1423,7 @@ GIC Errata Workarounds
 
 --------------
 
-*Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -228,6 +228,12 @@ check_erratum_ls neoverse_n2, ERRATUM(3324339), CPU_REV(0, 3)
 add_erratum_entry neoverse_n2, ERRATUM(3701773), ERRATA_N2_3701773
 
 check_erratum_ls neoverse_n2, ERRATUM(3701773), CPU_REV(0, 3)
+
+workaround_reset_start neoverse_n2, ERRATUM(3888123), ERRATA_N2_3888123
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_n2, ERRATUM(3888123)
+
+check_erratum_ls neoverse_n2, ERRATUM(3888123), CPU_REV(0, 3)
 
 workaround_reset_start neoverse_n2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
