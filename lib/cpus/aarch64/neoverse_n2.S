@@ -79,6 +79,12 @@ workaround_reset_end neoverse_n2, ERRATUM(2067956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2067956), CPU_REV(0, 0)
 
+workaround_runtime_start neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, BIT(29)
+workaround_runtime_end neoverse_n2, ERRATUM(2138953)
+
+check_erratum_ls neoverse_n2, ERRATUM(2138953), CPU_REV(0, 3)
+
 workaround_reset_start neoverse_n2, ERRATUM(2138956), ERRATA_N2_2138956
 	/* Apply instruction patching sequence */
 	ldr	x0,=0x3
@@ -100,7 +106,6 @@ workaround_reset_start neoverse_n2, ERRATUM(2138956), ERRATA_N2_2138956
 workaround_reset_end neoverse_n2, ERRATUM(2138956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2138956), CPU_REV(0, 0)
-
 
 workaround_reset_start neoverse_n2, ERRATUM(2138958), ERRATA_N2_2138958
 	/* Apply instruction patching sequence */
@@ -293,6 +298,7 @@ cpu_reset_func_start neoverse_n2
 #endif
 #if NEOVERSE_N2_PREFETCHER_DISABLE
 	/* Disable region prefetcher for L2 cache perf measurement */
+	apply_erratum neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
 	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, NEOVERSE_N2_CPUECTLR_EL1_PFDIS_BIT
 #endif
 cpu_reset_func_end neoverse_n2
