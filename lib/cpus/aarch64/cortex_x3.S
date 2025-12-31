@@ -124,6 +124,12 @@ workaround_reset_end cortex_x3, ERRATUM(3888125)
 
 check_erratum_ls cortex_x3, ERRATUM(3888125), CPU_REV(1, 2)
 
+workaround_reset_start cortex_x3, ERRATUM(4302966), ERRATA_X3_4302966
+	sysreg_bit_set	CORTEX_X3_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_x3, ERRATUM(4302966)
+
+check_erratum_ls cortex_x3, ERRATUM(4302966), CPU_REV(1, 2)
+
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	override_vector_table wa_cve_vbar_cortex_x3

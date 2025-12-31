@@ -946,6 +946,10 @@ For Cortex-X3, the following errata build flags are defined :
   CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2
   of the CPU. It is still open.
 
+- ``ERRATA_X3_4302966``: This applies errata 4302966 workaround to Cortex-X3
+  CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2
+  of the CPU. It is still open.
+
 For Cortex-X4, the following errata build flags are defined :
 
 - ``ERRATA_X4_2701112``: This applies erratum 2701112 workaround to Cortex-X4
