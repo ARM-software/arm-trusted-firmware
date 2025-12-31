@@ -92,6 +92,12 @@ workaround_reset_end neoverse_v2, ERRATUM(3841324)
 
 check_erratum_ls neoverse_v2, ERRATUM(3841324), CPU_REV(0, 1)
 
+workaround_reset_start neoverse_v2, ERRATUM(3888126), ERRATA_V2_3888126
+	sysreg_bit_set  NEOVERSE_V2_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_v2, ERRATUM(3888126)
+
+check_erratum_ls neoverse_v2, ERRATUM(3888126), CPU_REV(0, 2)
+
 workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
