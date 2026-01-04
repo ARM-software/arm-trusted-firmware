@@ -133,3 +133,19 @@ void bl31_platform_setup(void)
 	rcar_boot_mpidr = read_mpidr_el1() & 0x0000ffffU;
 	rcar_pwrc_all_disable_interrupt_wakeup();
 }
+
+static int32_t rcar_svc_migrate_info(u_register_t *resident_cpu)
+{
+	*resident_cpu = rcar_boot_mpidr;
+
+	return PSCI_TOS_NOT_UP_MIG_CAP;
+}
+
+const spd_pm_ops_t rcar_pm = {
+	.svc_migrate_info = rcar_svc_migrate_info,
+};
+
+void bl31_plat_runtime_setup(void)
+{
+	psci_register_spd_pm_hook(&rcar_pm);
+}
