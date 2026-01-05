@@ -144,7 +144,7 @@ int disable_unused_ddrc(struct ddr_info *priv,
 		priv->spd_addr = &priv->spd_addr[priv->dimm_on_ctlr];
 		priv->ddr[0] = priv->ddr[1];
 		priv->ddr[1] = NULL;
-		priv->phy[0] = priv->phy[0];
+		priv->phy[0] = priv->phy[1];
 		priv->phy[1] = NULL;
 		debug("Disable first DDR controller\n");
 		break;
