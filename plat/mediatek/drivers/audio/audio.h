@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <lib/mmio.h>
 
+#define MODULE_TAG "[AUDIO_DOMAIN]"
+
 enum mtk_audio_smc_call_op {
 	MTK_AUDIO_SMC_OP_INIT = 0,
 	MTK_AUDIO_SMC_OP_DRAM_REQUEST,

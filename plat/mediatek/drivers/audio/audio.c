@@ -13,8 +13,6 @@
 
 #include <mtk_sip_svc.h>
 
-#define MODULE_TAG "[AUDIO]"
-
 static u_register_t audio_smc_handler(u_register_t x1, u_register_t x2,
 				      u_register_t x3, u_register_t x4,
 				      void *handle, struct smccc_res *smccc_ret)
