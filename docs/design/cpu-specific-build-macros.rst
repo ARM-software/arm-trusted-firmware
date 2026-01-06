@@ -986,6 +986,14 @@ For Cortex-X3, the following errata build flags are defined :
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of
   the CPU. It is fixed in r1p2.
 
+- ``ERRATA_X3_3888125``: This applies errata 3888125 workaround to Cortex-X3
+  CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2
+  of the CPU. It is still open.
+
+- ``ERRATA_X3_4302966``: This applies errata 4302966 workaround to Cortex-X3
+  CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2
+  of the CPU. It is still open.
+
 For Cortex-X4, the following errata build flags are defined :
 
 - ``ERRATA_X4_2701112``: This applies erratum 2701112 workaround to Cortex-X4
@@ -1514,7 +1522,7 @@ GIC Errata Workarounds
 
 --------------
 
-*Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
