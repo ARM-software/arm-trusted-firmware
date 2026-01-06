@@ -173,34 +173,26 @@ Realm Management Extension (RME)
 Drivers, Libraries and Framework Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Console API framework
-^^^^^^^^^^^^^^^^^^^^^
-:|M|: Julius Werner <jwerner@chromium.org>
-:|G|: `jwerner-chromium`_
-:|F|: drivers/console/
-:|F|: include/drivers/console.h
-:|F|: plat/common/aarch64/crash_console_helpers.S
+Activity Monitors Unit (AMU) extensions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
+:|G|: `AlexeiFedorov`_
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: lib/extensions/amu/
 
-coreboot support libraries
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Julius Werner <jwerner@chromium.org>
-:|G|: `jwerner-chromium`_
-:|F|: drivers/coreboot/
-:|F|: include/drivers/coreboot/
-:|F|: include/lib/coreboot.h
-:|F|: lib/coreboot/
-
-eMMC/UFS drivers
-^^^^^^^^^^^^^^^^
-:|M|: Haojian Zhuang <haojian.zhuang@linaro.org>
-:|G|: `hzhuang1`_
-:|F|: drivers/partition/
-:|F|: drivers/synopsys/emmc/
-:|F|: drivers/synopsys/ufs/
-:|F|: drivers/ufs/
-:|F|: include/drivers/dw_ufs.h
-:|F|: include/drivers/ufs.h
-:|F|: include/drivers/synopsys/dw_mmc.h
+Arm CPU libraries
+^^^^^^^^^^^^^^^^^
+:|M|: Bipin Ravi <bipin.ravi@arm.com>
+:|G|: `bipinravi-arm`_
+:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:|G|: `laurenw-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: lib/cpus/
+:|F|: include/lib/cpus/
 
 Arm® Ethos™-N NPU driver
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -218,29 +210,45 @@ Arm® Ethos™-N NPU driver
 :|F|: include/plat/arm/common/fconf_ethosn_getter.h
 :|F|: fdts/juno-ethosn.dtsi
 
-JTAG DCC console driver
-^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Michal Simek <michal.simek@amd.com>
-:|G|: `michalsimek`_
-:|M|: Akshay Belsare <akshay.belsare@amd.com>
-:|G|: `Akshay-Belsare`_
-:|M|: Maheedhar Sai Bollapalli <maheedharsai.bollapalli@amd.com>
-:|G|: `maheedhar-bollapalli`_
-:|F|: drivers/arm/dcc/
-:|F|: include/drivers/arm/dcc.h
+Clock Framework
+^^^^^^^^^^^^^^^
+:|M|: Gabriel Fernandez <gabriel.fernandez@st.com>
+:|G|: `Gabriel-Fernandz`_
+:|F|: drivers/clk
+:|F|: include/drivers/clk.h
 
-Power State Coordination Interface (PSCI)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Console API framework
+^^^^^^^^^^^^^^^^^^^^^
+:|M|: Julius Werner <jwerner@chromium.org>
+:|G|: `jwerner-chromium`_
+:|F|: drivers/console/
+:|F|: include/drivers/console.h
+:|F|: plat/common/aarch64/crash_console_helpers.S
+
+Context Management
+^^^^^^^^^^^^^^^^^^
+:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
+:|G|: `jayanthchidanand-arm`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :|G|: `madhukar-Arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|G|: `loosper-arm`_
-:|F|: lib/psci/
-:|F|: include/lib/psci/
+:|F|: bl1/aarch32/bl1_context_mgmt.c
+:|F|: bl1/aarch64/bl1_context_mgmt.c
+:|F|: bl31/bl31_context_mgmt.c
+:|F|: lib/el3_runtime/
+:|F|: include/lib/el3_runtime/
+
+coreboot support libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Julius Werner <jwerner@chromium.org>
+:|G|: `jwerner-chromium`_
+:|F|: drivers/coreboot/
+:|F|: include/drivers/coreboot/
+:|F|: include/lib/coreboot.h
+:|F|: lib/coreboot/
 
 DebugFS
 ^^^^^^^
@@ -248,6 +256,35 @@ DebugFS
 :|G|: `odeprez`_
 :|F|: lib/debugfs/
 :|F|: include/lib/debugfs.h
+
+DRTM
+^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|F|: services/std_svc/drtm
+:|F|: include/plat/common/plat_drtm.h
+:|F|: include/services/drtm_svc.h
+
+eMMC/UFS drivers
+^^^^^^^^^^^^^^^^
+:|M|: Haojian Zhuang <haojian.zhuang@linaro.org>
+:|G|: `hzhuang1`_
+:|F|: drivers/partition/
+:|F|: drivers/synopsys/emmc/
+:|F|: drivers/synopsys/ufs/
+:|F|: drivers/ufs/
+:|F|: include/drivers/dw_ufs.h
+:|F|: include/drivers/ufs.h
+:|F|: include/drivers/synopsys/dw_mmc.h
+
+Errata Management
+^^^^^^^^^^^^^^^^^
+:|M|: Bipin Ravi <bipin.ravi@arm.com>
+:|G|: `bipinravi-arm`_
+:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:|G|: `laurenw-arm`_
 
 Firmware Configuration Framework (FCONF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,103 +300,22 @@ Firmware Configuration Framework (FCONF)
 :|F|: include/plat/arm/common/arm_fconf\_\*
 :|F|: include/plat/arm/common/fconf\_\*
 
-Performance Measurement Framework (PMF)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
-:|F|: lib/pmf/
+Firmware Encryption Framework
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Sumit Garg <sumit.garg@kernel.org>
+:|G|: `b49020`_
+:|F|: drivers/io/io_encrypted.c
+:|F|: include/drivers/io/io_encrypted.h
+:|F|: include/tools_share/firmware_encrypted.h
 
-Errata Management
-^^^^^^^^^^^^^^^^^
-:|M|: Bipin Ravi <bipin.ravi@arm.com>
-:|G|: `bipinravi-arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
-
-Arm CPU libraries
-^^^^^^^^^^^^^^^^^
-:|M|: Bipin Ravi <bipin.ravi@arm.com>
-:|G|: `bipinravi-arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|G|: `loosper-arm`_
-:|F|: lib/cpus/
-:|F|: include/lib/cpus/
-
-Reliability Availability Serviceabilty (RAS) framework
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|G|: `odeprez`_
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|G|: `loosper-arm`_
-:|F|: lib/extensions/ras/
-
-Activity Monitors Unit (AMU) extensions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|G|: `AlexeiFedorov`_
-:|M|: Chris Kay <chris.kay@arm.com>
-:|G|: `CJKay`_
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|G|: `loosper-arm`_
-:|F|: lib/extensions/amu/
-
-Memory Partitioning And Monitoring (MPAM) extensions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|G|: `loosper-arm`_
-:|F|: lib/extensions/mpam/
-
-Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|G|: `AlexeiFedorov`_
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|G|: `loosper-arm`_
-:|F|: lib/extensions/pauth/
-
-Statistical Profiling Extension (SPE)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|G|: `loosper-arm`_
-:|F|: lib/extensions/spe/
-
-Standard C library
-^^^^^^^^^^^^^^^^^^
-:|M|: Chris Kay <chris.kay@arm.com>
-:|G|: `CJKay`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
-:|F|: lib/libc/
-
-Library At ROM (ROMlib)
-^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
-:|F|: lib/romlib/
-
-Translation tables (``xlat_tables``) library
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|G|: `ManishVB-Arm`_
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
-:|F|: lib/xlat\_tables_\*/
-
-IO abstraction layer
-^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|G|: `odeprez`_
-:|F|: drivers/io/
+Firmware Handoff Library (Transfer List)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Raymond Mao <raymond.mao@linaro.org>
+:|G|: `raymo200915`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
+:|F|: lib/transfer_list
+:|F|: include/lib/transfer_list.h
 
 GIC driver
 ^^^^^^^^^^
@@ -383,19 +339,33 @@ GICv5 driver
 :|F|: plat/common/plat_gicv5.c
 :|F|: plat/arm/board/fvp/gicv5_config.yaml
 
-Message Handling Unit (MHU) driver
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: David Vincze <david.vincze@arm.com>
-:|G|: `davidvincze`_
-:|F|: include/drivers/arm/mhu.h
-:|F|: drivers/arm/mhu
+Granule Protection Tables Library (GPT-RME)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Soby Mathew <soby.mathew@arm.com>
+:|G|: `soby-mathew`_
+:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
+:|G|: `javieralso-arm`_
+:|F|: lib/gpt_rme
+:|F|: include/lib/gpt_rme
 
-Runtime Security Engine (RSE) comms driver
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: David Vincze <david.vincze@arm.com>
-:|G|: `davidvincze`_
-:|F|: include/drivers/arm/rse_comms.h
-:|F|: drivers/arm/rse
+IO abstraction layer
+^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Olivier Deprez <olivier.deprez@arm.com>
+:|G|: `odeprez`_
+:|F|: drivers/io/
+
+JTAG DCC console driver
+^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Michal Simek <michal.simek@amd.com>
+:|G|: `michalsimek`_
+:|M|: Akshay Belsare <akshay.belsare@amd.com>
+:|G|: `Akshay-Belsare`_
+:|M|: Maheedhar Sai Bollapalli <maheedharsai.bollapalli@amd.com>
+:|G|: `maheedhar-bollapalli`_
+:|F|: drivers/arm/dcc/
+:|F|: include/drivers/arm/dcc.h
 
 Libfdt wrappers
 ^^^^^^^^^^^^^^^
@@ -405,13 +375,25 @@ Libfdt wrappers
 :|G|: `ManishVB-Arm`_
 :|F|: common/fdt_wrappers.c
 
-Firmware Encryption Framework
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Sumit Garg <sumit.garg@kernel.org>
-:|G|: `b49020`_
-:|F|: drivers/io/io_encrypted.c
-:|F|: include/drivers/io/io_encrypted.h
-:|F|: include/tools_share/firmware_encrypted.h
+Library At ROM (ROMlib)
+^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: lib/romlib/
+
+Live Firmware Activation Service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|F|: services/std_svc/lfa
+:|F|: include/plat/common/plat_lfa.h
+:|F|: include/services/lfa_svc.h
+
+Max Power Mitigation Mechanism (MPMM)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|F|: include/lib/cpus/aarch64/cpu_macros.S
 
 Measured Boot
 ^^^^^^^^^^^^^
@@ -426,102 +408,20 @@ Measured Boot
 :|F|: docs/components/measured_boot
 :|F|: plat/arm/board/fvp/fvp\*_measured_boot.c
 
-DRTM
-^^^^
-:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|G|: `ManishVB-Arm`_
+Memory Partitioning And Monitoring (MPAM) extensions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|F|: services/std_svc/drtm
-:|F|: include/plat/common/plat_drtm.h
-:|F|: include/services/drtm_svc.h
-
-PSA Firmware Update
-^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|G|: `ManishVB-Arm`_
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
-:|G|: `sandrine-bailleux-arm`_
-:|F|: drivers/fwu
-:|F|: include/drivers/fwu
-
-Platform Security Architecture (PSA) APIs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
-:|G|: `sandrine-bailleux-arm`_
-:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|G|: `ManishVB-Arm`_
-:|F|: include/lib/psa
-:|F|: lib/psa
-
-System Control and Management Interface (SCMI) Server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Etienne Carriere <etienne.carriere@st.com>
-:|G|: `etienne-lms`_
-:|M|: Peng Fan <peng.fan@nxp.com>
-:|G|: `MrVan`_
-:|F|: drivers/scmi-msg
-:|F|: include/drivers/scmi\*
-
-Max Power Mitigation Mechanism (MPMM)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Chris Kay <chris.kay@arm.com>
-:|G|: `CJKay`_
-:|F|: include/lib/cpus/aarch64/cpu_macros.S
-
-Granule Protection Tables Library (GPT-RME)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Soby Mathew <soby.mathew@arm.com>
-:|G|: `soby-mathew`_
-:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
-:|G|: `javieralso-arm`_
-:|F|: lib/gpt_rme
-:|F|: include/lib/gpt_rme
-
-Firmware Handoff Library (Transfer List)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Raymond Mao <raymond.mao@linaro.org>
-:|G|: `raymo200915`_
-:|M|: Harrison Mutai <harrison.mutai@arm.com>
-:|G|: `harrisonmutai-arm`_
-:|F|: lib/transfer_list
-:|F|: include/lib/transfer_list.h
-
-Context Management
-^^^^^^^^^^^^^^^^^^
-:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
-:|G|: `jayanthchidanand-arm`_
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|G|: `loosper-arm`_
-:|F|: bl1/aarch32/bl1_context_mgmt.c
-:|F|: bl1/aarch64/bl1_context_mgmt.c
-:|F|: bl31/bl31_context_mgmt.c
-:|F|: lib/el3_runtime/
-:|F|: include/lib/el3_runtime/
+:|F|: lib/extensions/mpam/
 
-Runtime Services
-^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
-:|F|: services/std_svc/std_svc_setup.c
-:|F|: common/runtime_svc.c
-:|F|: include/common/runtime_svc.h
-:|F|: include/services/arm_arch_svc.h
-:|F|: include/services/std_svc.h
-
-Live Firmware Activation Service
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|G|: `ManishVB-Arm`_
-:|F|: services/std_svc/lfa
-:|F|: include/plat/common/plat_lfa.h
-:|F|: include/services/lfa_svc.h
+Message Handling Unit (MHU) driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: David Vincze <david.vincze@arm.com>
+:|G|: `davidvincze`_
+:|F|: include/drivers/arm/mhu.h
+:|F|: drivers/arm/mhu
 
 Per-CPU Framework
 ^^^^^^^^^^^^^^^^^
@@ -536,6 +436,113 @@ Per-CPU Framework
 :|F|: include/lib/per_cpu
 :|F|: lib/per_cpu
 :|F|: docs/components/numa-per-cpu.rst
+
+Performance Measurement Framework (PMF)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Joao Alves <Joao.Alves@arm.com>
+:|G|: `J-Alves`_
+:|F|: lib/pmf/
+
+Platform Security Architecture (PSA) APIs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|G|: `sandrine-bailleux-arm`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|F|: include/lib/psa
+:|F|: lib/psa
+
+Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
+:|G|: `AlexeiFedorov`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: lib/extensions/pauth/
+
+Power State Coordination Interface (PSCI)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:|G|: `laurenw-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: lib/psci/
+:|F|: include/lib/psci/
+
+PSA Firmware Update
+^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|G|: `sandrine-bailleux-arm`_
+:|F|: drivers/fwu
+:|F|: include/drivers/fwu
+
+Reliability Availability Serviceabilty (RAS) framework
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Olivier Deprez <olivier.deprez@arm.com>
+:|G|: `odeprez`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: lib/extensions/ras/
+
+Runtime Security Engine (RSE) comms driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: David Vincze <david.vincze@arm.com>
+:|G|: `davidvincze`_
+:|F|: include/drivers/arm/rse_comms.h
+:|F|: drivers/arm/rse
+
+Runtime Services
+^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: services/std_svc/std_svc_setup.c
+:|F|: common/runtime_svc.c
+:|F|: include/common/runtime_svc.h
+:|F|: include/services/arm_arch_svc.h
+:|F|: include/services/std_svc.h
+
+Standard C library
+^^^^^^^^^^^^^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: lib/libc/
+
+Statistical Profiling Extension (SPE)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
+:|F|: lib/extensions/spe/
+
+System Control and Management Interface (SCMI) Server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Etienne Carriere <etienne.carriere@st.com>
+:|G|: `etienne-lms`_
+:|M|: Peng Fan <peng.fan@nxp.com>
+:|G|: `MrVan`_
+:|F|: drivers/scmi-msg
+:|F|: include/drivers/scmi\*
+
+Translation tables (``xlat_tables``) library
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|M|: Joao Alves <Joao.Alves@arm.com>
+:|G|: `J-Alves`_
+:|F|: lib/xlat\_tables_\*/
 
 Platform Ports
 ~~~~~~~~~~~~~~
@@ -1111,6 +1118,7 @@ Conventional Changelog Extensions
 .. _diego-sueiro: https://github.com/diego-sueiro
 .. _divin-raj: https://github.com/divin-raj
 .. _etienne-lms: https://github.com/etienne-lms
+.. _Gabriel-Fernandz: https://github.com/Gabriel-Fernandz
 .. _glneo: https://github.com/glneo
 .. _govindraj-arm: https://github.com/govindraj-arm
 .. _gprocopciucnxp: https://github.com/gprocopciucnxp
