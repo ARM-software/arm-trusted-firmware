@@ -19,6 +19,13 @@ current status of the code from a security standpoint.
       features within the project, we have not reached that point yet. We expect
       to gradually fill these gaps over time.
 
+      Also, when a non-trivial feature gets introduced into the code base, it is
+      often tagged as experimental for some period of time. Such experimental
+      features typically may not be formally threat-modelled until their design
+      and implementation stabilize. Therefore, these features are considered out
+      of scope of TF-A's threat model. See :ref:`Experimental features
+      definition` and :ref:`build_options_experimental` for more details.
+
 Each of these documents give a description of the target of evaluation using a
 data flow diagram, as well as a list of threats we have identified using the
 `STRIDE threat modeling technique`_ and corresponding mitigations.

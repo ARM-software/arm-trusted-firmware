@@ -108,6 +108,8 @@ Current features
 
 -  Position-Independent Executable (PIE) support.
 
+.. _Experimental features definition:
+
 Experimental features
 ---------------------
 
