@@ -140,8 +140,13 @@ vector_entry SErrorA32
 end_vector_entry SErrorA32
 
 
-func smc_handler64
+func unexpected_sync_exception
+	mov	x0, #SYNC_EXCEPTION_AARCH64
+	bl	plat_report_exception
+	no_ret	plat_panic_handler
+endfunc unexpected_sync_exception
 
+func smc_handler64
 	/* ----------------------------------------------
 	 * Detect if this is a RUN_IMAGE or other SMC.
 	 * ----------------------------------------------
@@ -203,75 +208,19 @@ debug_loop:
 	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
 	ldp	x0, x1, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x0)]
 	exception_return
-endfunc smc_handler64
 
-unexpected_sync_exception:
-	mov	x0, #SYNC_EXCEPTION_AARCH64
-	bl	plat_report_exception
-	no_ret	plat_panic_handler
-
-	/* -----------------------------------------------------
-	 * Save Secure/Normal world context and jump to
-	 * BL1 SMC handler.
-	 * -----------------------------------------------------
-	 */
 smc_handler:
-	/* -----------------------------------------------------
-	 * Save x0-x29 and ARMv8.3-PAuth (if enabled) registers.
-	 * Save PMCR_EL0 and disable Cycle Counter.
-	 * TODO: Revisit to store only SMCCC specified registers.
-	 * -----------------------------------------------------
-	 */
 	bl	prepare_el3_entry
-
-	/* -----------------------------------------------------
-	 * Populate the parameters for the SMC handler. We
-	 * already have x0-x4 in place. x5 will point to a
-	 * cookie (not used now). x6 will point to the context
-	 * structure (SP_EL3) and x7 will contain flags we need
-	 * to pass to the handler.
-	 * -----------------------------------------------------
-	 */
-	mov	x5, xzr
-	mov	x6, sp
-
-	/* -----------------------------------------------------
-	 * Restore the saved C runtime stack value which will
-	 * become the new SP_EL0 i.e. EL3 runtime stack. It was
-	 * saved in the 'cpu_context' structure prior to the last
-	 * ERET from EL3.
-	 * -----------------------------------------------------
-	 */
-	ldr	x12, [x6, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
-
-	/* ---------------------------------------------
-	 * Switch back to SP_EL0 for the C runtime stack.
-	 * ---------------------------------------------
-	 */
-	msr	spsel, #MODE_SP_EL0
-	mov	sp, x12
-
-	/* -----------------------------------------------------
-	 * Save the SPSR_EL3, ELR_EL3 in case there
-	 * is a world switch during SMC handling.
-	 * -----------------------------------------------------
-	 */
-	mrs	x16, spsr_el3
-	mrs	x17, elr_el3
-	stp	x16, x17, [x6, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-
-	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
-	mrs	x18, scr_el3
-	bfi	x7, x18, #0, #1
 
 	/* -----------------------------------------------------
 	 * Go to BL1 SMC handler.
 	 * -----------------------------------------------------
 	 */
-	bl	bl1_smc_handler
+	bl	bl1_smc_wrapper_aarch64
 
 	/* -----------------------------------------------------
 	 * Do the transition to next BL image.
 	 * -----------------------------------------------------
 	 */
 	b	el3_exit
+endfunc smc_handler64

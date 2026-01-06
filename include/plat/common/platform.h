@@ -241,6 +241,8 @@ void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *co
 		void *handle, uint64_t flags);
 void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags);
+void plat_handle_double_fault(uint32_t ea_reason, u_register_t esr_el3);
+void plat_handle_uncontainable_ea(void);
 
 /*
  * The following function is mandatory when the

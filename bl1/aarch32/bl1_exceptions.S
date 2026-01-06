@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -138,7 +138,7 @@ skip_mmu_on:
 	mov	r1, #0				/* cookie */
 	mov	r2, r6				/* handle */
 	mov	r3, r7				/* flags */
-	bl	bl1_smc_wrapper
+	bl	bl1_smc_wrapper_aarch32
 
 	/* Get the smc_context for next BL image */
 	bl	smc_get_next_ctx

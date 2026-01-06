@@ -273,6 +273,7 @@
 	 */
 	.macro speculation_barrier
 #if ENABLE_FEAT_SB
+	// todo feat state
 	sb_barrier_insn
 #else
 	dsb	sy

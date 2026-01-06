@@ -430,7 +430,8 @@ no_pauth_\@:
  * Then set any of the PSTATE bits that are not set by hardware
  * according to the Aarch64.TakeException pseudocode in the Arm
  * Architecture Reference Manual to a default value for EL3.
- * clobbers: x17
+ * clobbers: all registers. Will save lower EL's register contents.
+ * returns: a pointer to the current context structure (from sp_el3)
  * -----------------------------------------------------------------
  */
 func prepare_el3_entry
@@ -448,6 +449,26 @@ func prepare_el3_entry
 	isb
 	save_gp_pmcr_pauth_regs
 	setup_el3_execution_context
+
+	/* x0 will point to the context structure (SP_EL3) */
+	mov	x0, sp
+
+	/* Save the SPSR_EL3 and ELR_EL3 so that el3_exit works */
+	mrs	x28, spsr_el3
+	mrs	x29, elr_el3
+	stp	x28, x29, [x0, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
+	/*
+	 * Restore the saved C runtime stack value which will become the new
+	 * SP_EL0 i.e. EL3 runtime stack. It was saved in the 'cpu_context'
+	 * structure prior to the last ERET from EL3.
+	 */
+	ldr	x27, [x0, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+
+	/* Switch to SP_EL0 */
+	msr	spsel, #MODE_SP_EL0
+	mov	sp, x27
+
 	ret
 endfunc prepare_el3_entry
 
