@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,6 +79,12 @@ workaround_reset_end neoverse_n2, ERRATUM(2067956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2067956), CPU_REV(0, 0)
 
+workaround_runtime_start neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, BIT(29)
+workaround_runtime_end neoverse_n2, ERRATUM(2138953)
+
+check_erratum_ls neoverse_n2, ERRATUM(2138953), CPU_REV(0, 3)
+
 workaround_reset_start neoverse_n2, ERRATUM(2138956), ERRATA_N2_2138956
 	/* Apply instruction patching sequence */
 	ldr	x0,=0x3
@@ -100,7 +106,6 @@ workaround_reset_start neoverse_n2, ERRATUM(2138956), ERRATA_N2_2138956
 workaround_reset_end neoverse_n2, ERRATUM(2138956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2138956), CPU_REV(0, 0)
-
 
 workaround_reset_start neoverse_n2, ERRATUM(2138958), ERRATA_N2_2138958
 	/* Apply instruction patching sequence */
@@ -229,6 +234,18 @@ add_erratum_entry neoverse_n2, ERRATUM(3701773), ERRATA_N2_3701773
 
 check_erratum_ls neoverse_n2, ERRATUM(3701773), CPU_REV(0, 3)
 
+workaround_reset_start neoverse_n2, ERRATUM(3888123), ERRATA_N2_3888123
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_n2, ERRATUM(3888123)
+
+check_erratum_ls neoverse_n2, ERRATUM(3888123), CPU_REV(0, 3)
+
+workaround_reset_start neoverse_n2, ERRATUM(4302970), ERRATA_N2_4302970
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end neoverse_n2, ERRATUM(4302970)
+
+check_erratum_ls neoverse_n2, ERRATUM(4302970), CPU_REV(0, 3)
+
 workaround_reset_start neoverse_n2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -281,6 +298,7 @@ cpu_reset_func_start neoverse_n2
 #endif
 #if NEOVERSE_N2_PREFETCHER_DISABLE
 	/* Disable region prefetcher for L2 cache perf measurement */
+	apply_erratum neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
 	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, NEOVERSE_N2_CPUECTLR_EL1_PFDIS_BIT
 #endif
 cpu_reset_func_end neoverse_n2
