@@ -101,7 +101,6 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			plat/renesas/common/bl2_plat_mem_params_desc.c	\
 			plat/renesas/common/plat_image_load.c		\
 			plat/renesas/common/bl2_cpg_init.c		\
-			drivers/renesas/common/console/rcar_printf.c	\
 			drivers/renesas/common/scif/scif-common.c	\
 			drivers/renesas/common/scif/scif.c		\
 			drivers/renesas/common/scif/scif_helpers.S	\
