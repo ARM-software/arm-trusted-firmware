@@ -45,6 +45,7 @@ static int32_t smccc_arch_features(u_register_t arg1)
 	case SMCCC_ARCH_WORKAROUND_1:
 		return smccc_check_for_wa_1();
 
+	/* see note for WA_3 */
 	case SMCCC_ARCH_WORKAROUND_2: {
 #if WORKAROUND_CVE_2018_3639
 #if DYNAMIC_WORKAROUND_CVE_2018_3639
@@ -72,6 +73,15 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		return SMC_ARCH_CALL_NOT_SUPPORTED;
 	}
 
+	/*
+	 * NOTE: this uses the ARCH_WORKAROUND_3 pseudo-erratum instead of the
+	 * one registered for CVE_2022_23960 on purpose. This is because not all
+	 * cores affected by the CVE need the SMC workaround. For newer cores,
+	 * it is assumed that lower EL software is capable of working around the
+	 * problem itself and so no firmware involvement is needed. Select cores
+	 * that do not have such software can register for the WA_3 SMC
+	 * explicitly.
+	 */
 	case SMCCC_ARCH_WORKAROUND_3:
 #if WORKAROUND_CVE_2022_23960
 		switch (check_erratum_applies(ERRATUM(ARCH_WORKAROUND_3))) {
