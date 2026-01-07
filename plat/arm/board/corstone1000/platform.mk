@@ -18,6 +18,9 @@ else
 CORSTONE1000_CPU_LIBS	+=lib/cpus/aarch64/cortex_a35.S
 endif
 
+# FEAT_CRC32 is impelemented in the armv8.0 core
+ARM_ARCH_FEATURE	:=	crc
+
 PLAT_INCLUDES		:=	-Iplat/arm/board/corstone1000/common/include	\
 				-Iplat/arm/board/corstone1000/include		\
 				-Iinclude/plat/arm/common			\

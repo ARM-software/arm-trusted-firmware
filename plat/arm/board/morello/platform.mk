@@ -18,6 +18,8 @@ MORELLO_CPU_SOURCES	:=	lib/cpus/aarch64/rainier.S
 # GIC-600 configuration
 USE_GIC_DRIVER		:=	3
 GICV3_SUPPORT_GIC600	:=	1
+# FEAT_CRC32 is impelemented in the armv8.0 core
+ARM_ARCH_FEATURE	:=	crc
 
 PLAT_BL_COMMON_SOURCES	:=	${MORELLO_BASE}/morello_plat.c		\
 				${MORELLO_BASE}/aarch64/morello_helper.S
