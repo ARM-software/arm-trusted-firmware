@@ -94,21 +94,33 @@ static bool spin_trylock_atomic(volatile uint32_t *dst)
 static bool spin_trylock_excl(volatile uint32_t *dst)
 {
 	uint32_t src = 1;
-	uint32_t tmp;
-	bool out;
+	uint32_t ret;
 
-	__asm__ volatile (
-	"ldaxr	%w[tmp], [%[dst]]\n"
-	"cbnz	%w[tmp], 1f\n"
-	"stxr	%w[tmp], %w[src], [%[dst]]\n"
-	"cbnz	%w[tmp], 1f\n"
-	"mov	%w[out], #1\n"
-	"1:\n" /* fail */
-	"mov	%w[out], #0\n"
-	: "+m" (*dst), [tmp] "=&r" (tmp), [out] "=r" (out)
-	:  [src] "r" (src), [dst] "r" (dst));
+	/*
+	 * Loop until we either get the lock or are certain that we don't have
+	 * it. The exclusive store can fail due to racing and not because we
+	 * don't hold the lock.
+	 */
+	while (1) {
+		__asm__ volatile (
+		"ldaxr	%w[ret], [%[dst]]\n"
+		: [ret] "=r" (ret)
+		: "m" (*dst), [dst] "r" (dst));
 
-	return out;
+		/* 1 means lock is held */
+		if (ret != 0) {
+			return false;
+		}
+
+		__asm__ volatile (
+		"stxr	%w[ret], %w[src], [%[dst]]\n"
+		: "+m" (*dst), [ret] "=r" (ret)
+		: [src] "r" (src), [dst] "r" (dst));
+
+		if (ret == 0) {
+			return true;
+		}
+	}
 }
 
 /*
