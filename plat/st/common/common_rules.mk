@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
+# Copyright (c) 2023-2026, STMicroelectronics - All Rights Reserved
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -56,11 +56,7 @@ $(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},$(STM32_LD_FILE),bl2))
 
 tf-a-%.elf: $(PLAT)-%.o ${STM32_TF_LINKERFILE}
 	$(s)echo "  LDS     $<"
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	$(q)$($(ARCH)-ld) -o $@ $(subst --,-Wl$(comma)--,${STM32_TF_ELF_LDFLAGS}) -nostartfiles -static -Wl,--build-id=none -Wl,-Map=$(@:.elf=.map) -Wl,-dT ${STM32_TF_LINKERFILE} $<
-else
-	$(q)$($(ARCH)-ld) -o $@ ${STM32_TF_ELF_LDFLAGS} -static --build-id=none -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} $<
-endif
+	$(q)$($(ARCH)-ld) -o $@ ${STM32_TF_ELF_LDFLAGS} $(TF_LDFLAGS) $(call ld_prefix,-Map=$(@:.elf=.map)) $<
 
 tf-a-%.bin: tf-a-%.elf
 	$(q)$($(ARCH)-oc) -O binary $< $@

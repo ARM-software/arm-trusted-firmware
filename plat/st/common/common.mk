@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
+# Copyright (c) 2023-2026, STMicroelectronics - All Rights Reserved
 # Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -73,8 +73,11 @@ DTC_FLAGS			+=	-Wno-interrupt_provider
 endif
 
 # Macros and rules to build TF binary
-STM32_TF_ELF_LDFLAGS		:=	--hash-style=gnu --as-needed
 STM32_TF_LINKERFILE		:=	${BUILD_PLAT}/${PLAT}.ld
+STM32_TF_ELF_LDFLAGS		:=	$(call ld_prefix,--hash-style=gnu)
+STM32_TF_ELF_LDFLAGS		+=	$(call ld_prefix,--as-needed)
+STM32_TF_ELF_LDFLAGS		+=	$(call ld_prefix,--script ${STM32_TF_LINKERFILE})
+STM32_TF_ELF_LDFLAGS		+=	-static
 
 ASFLAGS				+=	-DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\"
 
