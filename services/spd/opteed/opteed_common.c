@@ -40,19 +40,22 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 
 	/* initialise an entrypoint to set up the CPU context */
 	ep_attr = SECURE | EP_ST_ENABLE;
-	if (read_sctlr_el3() & SCTLR_EE_BIT)
+	if ((read_sctlr_el3() & SCTLR_EE_BIT) != 0U) {
 		ep_attr |= EP_EE_BIG;
+	}
 	SET_PARAM_HEAD(optee_entry_point, PARAM_EP, VERSION_1, ep_attr);
 	optee_entry_point->pc = pc;
-	if (rw == OPTEE_AARCH64)
+	if (rw == OPTEE_AARCH64) {
 		optee_entry_point->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
 						  DISABLE_ALL_EXCEPTIONS);
-	else
+	} else {
 		optee_entry_point->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
 						      SPSR_E_LITTLE,
 						      DAIF_FIQ_BIT |
 							DAIF_IRQ_BIT |
 							DAIF_ABT_BIT);
+	}
+
 	zeromem(&optee_entry_point->args, sizeof(optee_entry_point->args));
 	optee_entry_point->args.arg0 = arg0;
 	optee_entry_point->args.arg1 = arg1;

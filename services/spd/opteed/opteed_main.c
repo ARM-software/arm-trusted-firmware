@@ -64,18 +64,17 @@ DEFINE_SVC_UUID2(optee_image_load_uuid,
 	0xb1eafba3, 0x5d31, 0x4612, 0xb9, 0x06,
 	0xc4, 0xc7, 0xa4, 0xbe, 0x3c, 0xc0);
 
+static uint64_t dual32to64(uint32_t high, uint32_t low)
+{
+	return ((uint64_t)high << 32) | low;
+}
+
 #define OPTEED_FDT_SIZE 1024
 static uint8_t fdt_buf[OPTEED_FDT_SIZE] __aligned(CACHE_WRITEBACK_GRANULE);
 
 #else
 static int32_t opteed_init(void);
 #endif
-
-uint64_t dual32to64(uint32_t high, uint32_t low)
-{
-	return ((uint64_t)high << 32) | low;
-}
-
 /*******************************************************************************
  * This function is the handler registered for S-EL1 interrupts by the
  * OPTEED. It validates the interrupt and upon success arranges entry into
@@ -177,7 +176,7 @@ static int32_t opteed_setup(void)
 	 * conditionally include the SPD service
 	 */
 	optee_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	if (!optee_ep_info) {
+	if (optee_ep_info == NULL) {
 		WARN("No OPTEE provided by BL2 boot loader, Booting device"
 			" without OPTEE initialization. SMC`s destined for OPTEE"
 			" will return SMC_UNK\n");
@@ -189,8 +188,9 @@ static int32_t opteed_setup(void)
 	 * signalling failure initializing the service. We bail out without
 	 * registering any handlers
 	 */
-	if (!optee_ep_info->pc)
+	if (optee_ep_info->pc == 0U) {
 		return 1;
+	}
 
 #if TRANSFER_LIST
 	tl = (void *)optee_ep_info->args.arg3;
@@ -741,7 +741,7 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		assert(optee_vector_table == NULL);
 		optee_vector_table = (optee_vectors_t *) x1;
 
-		if (optee_vector_table) {
+		if (optee_vector_table != NULL) {
 			set_optee_pstate(optee_ctx->state, OPTEE_PSTATE_ON);
 
 			/*

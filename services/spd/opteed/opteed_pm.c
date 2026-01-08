@@ -105,7 +105,7 @@ void opteed_cpu_on_finish_handler(u_register_t unused)
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
-	entry_point_info_t optee_on_entrypoint;
+	entry_point_info_t optee_on_entrypoint = {};
 
 	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_OFF ||
