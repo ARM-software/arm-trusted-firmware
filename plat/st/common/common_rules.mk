@@ -67,7 +67,7 @@ tf-a-%.bin: tf-a-%.elf
 tf-a-%.stm32: tf-a-%.bin ${STM32_DEPS}
 	$(s)echo
 	$(s)echo "Generate $@"
-ifeq ($($(ARCH)-ld-id),llvm-lld)
+ifneq ($(filter $($(ARCH)-ld-id),llvm-clang llvm-lld),)
 	$(eval LOADADDR = 0x$(shell cat $(@:.stm32=.map) | grep '\.data$$' | awk '{print $$1}'))
 	$(eval ENTRY = 0x$(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
 else
