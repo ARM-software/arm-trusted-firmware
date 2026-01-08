@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -258,7 +258,7 @@ void handler_sync_exception(cpu_context_t *ctx)
 		return;
 	/* If FFH Support then try to handle lower EL EA exceptions. */
 	} else if ((exc_class == EC_IABORT_LOWER_EL || exc_class == EC_DABORT_LOWER_EL)
-		    && (read_ctx_reg(state, CTX_SCR_EL3) | SCR_EA_BIT)) {
+		    && ((read_ctx_reg(state, CTX_SCR_EL3) & SCR_EA_BIT) != 0UL)) {
 #if FFH_SUPPORT
 		/*
 		 * Check for Uncontainable error type. If so, route to the
