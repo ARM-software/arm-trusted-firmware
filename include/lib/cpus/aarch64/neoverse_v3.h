@@ -11,9 +11,6 @@
 #define NEOVERSE_V3_VNAE_MIDR				U(0x410FD830)
 #define NEOVERSE_V3_MIDR				U(0x410FD840)
 
-/* Neoverse V3 loop count for CVE-2022-23960 mitigation */
-#define NEOVERSE_V3_BHB_LOOP_COUNT			U(132)
-
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/

@@ -8,7 +8,7 @@
 #define FEAT_DETECT_H
 
 /* Function Prototypes */
-void detect_arch_features(void);
+void detect_arch_features(unsigned int core_pos);
 
 /* Macro Definitions */
 #define FEAT_STATE_DISABLED		0
