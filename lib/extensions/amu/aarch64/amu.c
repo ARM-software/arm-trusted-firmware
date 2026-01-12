@@ -59,11 +59,14 @@ void amu_enable_per_world(per_world_context_t *per_world_ctx)
 
 void amu_init_el3(unsigned int core_pos)
 {
-	/* architecture is currently pinned to 4 */
-	assert((read_amcgcr_el0() & AMCGCR_EL0_CG0NC_MASK) == CTX_AMU_GRP0_ALL);
-
-	/* Enable all architected counters by default */
-	write_amcntenset0_el0(AMCNTENSET0_EL0_Pn_MASK);
+	/*
+	 * Enable all architected counters by default. Currently, only the
+	 * bottom 4 are defined and enabled. Higher bits are allocated but
+	 * RAZ/WI in the latest (AMUv1p1) revision. Future revisions should
+	 * consider whether the new counters need to be enabled and/or context
+	 * switched.
+	 */
+	write_amcntenset0_el0(AMCNTENSET0_EL0_Pn_ALWAYS_ON);
 
 	if (!is_feat_amuv1p1_supported()) {
 		return;
@@ -105,6 +108,17 @@ void amu_init_el2_unused(void)
 	}
 }
 
+static void amu_disable_counters(unsigned int core_pos)
+{
+	write_amcntenclr0_el0(AMCNTENCLR0_EL0_Pn_ALL);
+
+	if (is_feat_amu_aux_supported()) {
+		write_amcntenclr1_el0(get_amu_aux_enables(core_pos));
+	}
+
+	isb(); /* wait for the disable to take effect */
+}
+
 static void *amu_context_save(const void *arg)
 {
 	if (!is_feat_amu_supported()) {
@@ -114,18 +128,14 @@ static void *amu_context_save(const void *arg)
 	unsigned int core_pos = *(unsigned int *)arg;
 	amu_regs_t *ctx = PER_CPU_CUR(amu_ctx);
 
-	/* disable all counters so we can write them safely later */
-	write_amcntenclr0_el0(AMCNTENCLR0_EL0_Pn_MASK);
-	if (is_feat_amu_aux_supported()) {
-		write_amcntenclr1_el0(get_amu_aux_enables(core_pos));
-	}
-
-	isb();
+	/* disable counters so the save is a static snapshot for all counters */
+	amu_disable_counters(core_pos);
 
 	write_amu_grp0_ctx_reg(ctx, 0, read_amevcntr00_el0());
 	write_amu_grp0_ctx_reg(ctx, 1, read_amevcntr01_el0());
-	write_amu_grp0_ctx_reg(ctx, 2, read_amevcntr02_el0());
-	write_amu_grp0_ctx_reg(ctx, 3, read_amevcntr03_el0());
+	/* update the NS copy of counters 2 and 3 since that will be picked up
+	 * by ctx management when the core wakes up */
+	cm_sysregs_context_save_amu(NON_SECURE);
 
 	if (is_feat_amu_aux_supported()) {
 		uint8_t num_counters = read_amcgcr_el0_cg1nc();
@@ -198,10 +208,18 @@ static void *amu_context_restore(const void *arg)
 	unsigned int core_pos = *(unsigned int *)arg;
 	amu_regs_t *ctx = PER_CPU_CUR(amu_ctx);
 
+	/*
+	 * Counters must be disabled to write them safely. All counters start
+	 * disabled on an AMU reset but AMU reset doesn't have to happen with PE
+	 * reset. So don't bother disabling them if they already are.
+	 */
+	if (read_amcntenclr0_el0() != 0) {
+		amu_disable_counters(core_pos);
+	}
+
+	/* context management will pick up counters 2 and 3 later */
 	write_amevcntr00_el0(read_amu_grp0_ctx_reg(ctx, 0));
 	write_amevcntr01_el0(read_amu_grp0_ctx_reg(ctx, 1));
-	write_amevcntr02_el0(read_amu_grp0_ctx_reg(ctx, 2));
-	write_amevcntr03_el0(read_amu_grp0_ctx_reg(ctx, 3));
 
 	if (is_feat_amu_aux_supported()) {
 		uint8_t num_counters = read_amcgcr_el0_cg1nc();
@@ -264,7 +282,7 @@ static void *amu_context_restore(const void *arg)
 
 
 	/* now enable them again */
-	write_amcntenset0_el0(AMCNTENSET0_EL0_Pn_MASK);
+	write_amcntenset0_el0(AMCNTENSET0_EL0_Pn_ALWAYS_ON);
 	if (is_feat_amu_aux_supported()) {
 		write_amcntenset1_el0(get_amu_aux_enables(core_pos));
 	}

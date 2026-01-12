@@ -38,6 +38,8 @@ void cm_prepare_el3_exit_ns(void);
 void cm_manage_extensions_el3(unsigned int my_idx);
 void cm_manage_extensions_per_world(void);
 void cm_init_percpu_once_regs(void);
+void cm_sysregs_context_save_amu(unsigned int security_state);
+void cm_sysregs_context_restore_amu(unsigned int security_state);
 
 #if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
 void cm_el2_sysregs_context_save(uint32_t security_state);

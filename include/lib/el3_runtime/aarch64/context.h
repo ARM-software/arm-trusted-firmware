@@ -269,6 +269,11 @@ typedef struct perworld_idreg {
 } perworld_idregs_t;
 #endif
 
+typedef struct world_amu_regs {
+	uint64_t amevcntr02_el0;
+	uint64_t amevcntr03_el0;
+} world_amu_regs_t;
+
 /*
  * Top-level context structure which is used by EL3 firmware to preserve
  * the state of a core at the next lower EL in a given security state and

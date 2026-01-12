@@ -457,8 +457,8 @@ via ``el3_exit``.
 
 .. code:: c
 
-	.macro save_gp_pmcr_pauth_regs
-	func restore_gp_pmcr_pauth_regs
+	.macro save_el3_runtime_regs
+	func restore_el3_runtime_regs
 
 Feature Enablement for Individual Worlds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -581,7 +581,7 @@ EL3.
 EL3 execution context needs to setup at both boot time (cold and warm boot)
 entrypaths and at all the possible exception handlers routing to EL3 at runtime.
 
-*Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.*
 
 .. |Context Memory Allocation| image:: ../resources/diagrams/context_memory_allocation.png
 .. |CPU Context Memory Configuration| image:: ../resources/diagrams/cpu_data_config_context_memory.png

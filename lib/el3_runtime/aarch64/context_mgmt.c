@@ -49,6 +49,7 @@ CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 #endif /* ENABLE_FEAT_TWED */
 
 per_world_context_t per_world_context[CPU_CONTEXT_NUM];
+PER_CPU_DEFINE(world_amu_regs_t, world_amu_ctx[CPU_CONTEXT_NUM]);
 
 static void manage_extensions_nonsecure(cpu_context_t *ctx);
 static void manage_extensions_secure(cpu_context_t *ctx);
@@ -1222,6 +1223,23 @@ void cm_prepare_el3_exit(size_t security_state)
 	cm_set_next_eret_context(security_state);
 }
 
+/* Assumes prepare_el3_entry() has disabled counters 2 and 3 */
+void cm_sysregs_context_save_amu(unsigned int security_state)
+{
+	world_amu_regs_t *ctx = PER_CPU_CUR(world_amu_ctx[get_cpu_context_index(security_state)]);
+
+	ctx->amevcntr02_el0 = read_amevcntr02_el0();
+	ctx->amevcntr03_el0 = read_amevcntr03_el0();
+}
+
+void cm_sysregs_context_restore_amu(unsigned int security_state)
+{
+	world_amu_regs_t *ctx = PER_CPU_CUR(world_amu_ctx[get_cpu_context_index(security_state)]);
+
+	write_amevcntr02_el0(ctx->amevcntr02_el0);
+	write_amevcntr03_el0(ctx->amevcntr03_el0);
+}
+
 #if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
 
 static void el2_sysregs_context_save_fgt(el2_sysregs_t *ctx)
@@ -1603,6 +1621,10 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	if (is_feat_sctlr2_supported()) {
 		write_el2_ctx_sctlr2(el2_sysregs_ctx, sctlr2_el2, read_sctlr2_el2());
 	}
+
+	if (is_feat_amu_supported()) {
+		cm_sysregs_context_save_amu(security_state);
+	}
 }
 
 /*******************************************************************************
@@ -1698,6 +1720,10 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	if (is_feat_brbe_supported()) {
 		write_brbcr_el2(read_el2_ctx_brbe(el2_sysregs_ctx, brbcr_el2));
 	}
+
+	if (is_feat_amu_supported()) {
+		cm_sysregs_context_restore_amu(security_state);
+	}
 }
 #endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
 
@@ -1726,6 +1752,10 @@ void cm_prepare_el3_exit_ns(void)
 #else
 	cm_prepare_el3_exit(NON_SECURE);
 #endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
+
+	if (is_feat_amu_supported()) {
+		cm_sysregs_context_restore_amu(NON_SECURE);
+	}
 }
 
 #if ((IMAGE_BL1) || (IMAGE_BL31 && (!CTX_INCLUDE_EL2_REGS)))
@@ -1966,6 +1996,10 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 	el1_sysregs_context_save(get_el1_sysregs_ctx(ctx));
 
 #if IMAGE_BL31
+	if (is_feat_amu_supported()) {
+		cm_sysregs_context_save_amu(security_state);
+	}
+
 	if (security_state == SECURE) {
 		PUBLISH_EVENT(cm_exited_secure_world);
 	} else {
@@ -1984,6 +2018,10 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 	el1_sysregs_context_restore(get_el1_sysregs_ctx(ctx));
 
 #if IMAGE_BL31
+	if (is_feat_amu_supported()) {
+		cm_sysregs_context_restore_amu(security_state);
+	}
+
 	if (security_state == SECURE) {
 		PUBLISH_EVENT(cm_entering_secure_world);
 	} else {

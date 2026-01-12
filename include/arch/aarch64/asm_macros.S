@@ -370,6 +370,11 @@
 	ands	\reg, \reg, #(ID_AA64PFR1_EL1_SME_MASK << ID_AA64PFR1_EL1_SME_SHIFT)
 	.endm
 
+	.macro is_feat_amu_present_asm reg:req
+	mrs	\reg, ID_AA64PFR0_EL1
+	ands	\reg, \reg, #(ID_AA64PFR0_AMU_MASK << ID_AA64PFR0_AMU_SHIFT)
+	.endm
+
 .macro call_reset_handler
 #if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && RESET_TO_BL2)
 	/* ---------------------------------------------------------------------
