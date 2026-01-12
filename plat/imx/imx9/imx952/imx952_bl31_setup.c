@@ -14,5 +14,5 @@ const mmap_region_t imx_mmap[] = {
 };
 
 const uintptr_t gpio_base[GPIO_NUM] = {
-	GPIO2_BASE, GPIO3_BASE, GPIO4_BASE, GPIO5_BASE
+	GPIO3_BASE, GPIO4_BASE, GPIO5_BASE
 };

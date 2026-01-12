@@ -85,8 +85,20 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
+	unsigned int gpio_num;
+
+#if defined(PLAT_imx952)
+	/*
+	 * GPIO2 configuration should be skipped at this stage
+	 * for i.MX952.
+	 */
+	gpio_num = GPIO_NUM - 1U;
+#else
+	gpio_num = GPIO_NUM;
+#endif
+
 	/* Assign all the GPIO pins to non-secure world by default */
-	for (unsigned int i = 0U; i < GPIO_NUM; i++) {
+	for (unsigned int i = 0U; i < gpio_num; i++) {
 		mmio_write_32(gpio_base[i] + 0x10, 0xffffffff);
 		mmio_write_32(gpio_base[i] + 0x14, 0x3);
 		mmio_write_32(gpio_base[i] + 0x18, 0xffffffff);

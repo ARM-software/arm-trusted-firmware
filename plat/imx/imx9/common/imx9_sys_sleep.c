@@ -32,6 +32,9 @@ bool has_netc_irq;
 static uint32_t wakeup_mark_count;
 static bool gpio_wakeup;
 bool keep_wakeupmix_on;
+#if defined(PLAT_imx952)
+bool gpio2_owned = true;
+#endif
 
 #if HAS_XSPI_SUPPORT && !IMX_CRRM
 static uint32_t xspi_mto[2];
@@ -243,6 +246,11 @@ void imx9_sys_sleep_prepare(uint32_t core_id)
 
 	/* Save contex of gpios in wakeupmix */
 	for (uint32_t i = 0U; i < GPIO_NUM; i++) {
+#if defined(PLAT_imx952)
+		if (gpios[i].base == GPIO2_BASE && !gpio2_owned) {
+			continue;
+		}
+#endif
 		gpio_save(&gpios[i]);
 	}
 
@@ -274,6 +282,11 @@ void imx9_sys_sleep_unprepare(uint32_t core_id)
 #endif
 	/* Restore contex of gpios in wakeupmix */
 	for (uint32_t i = 0U; i < GPIO_NUM; i++) {
+#if defined(PLAT_imx952)
+		if (gpios[i].base == GPIO2_BASE && !gpio2_owned) {
+			continue;
+		}
+#endif
 		gpio_restore(&gpios[i]);
 	}
 

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
+#include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <scmi_imx9.h>
 
@@ -11,6 +13,8 @@
 #include <imx9_sys_sleep.h>
 #include <imx_scmi_client.h>
 #include <plat_imx8.h>
+
+extern bool gpio2_owned;
 
 uint32_t mask_all[IMR_NUM] = {
 	0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
@@ -80,6 +84,7 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
 	uint32_t mask = DEBUG_WAKEUP_MASK | EVENT_WAKEUP_MASK;
+	int ret;
 
 	/* sec_entrypoint is used for warm reset */
 	secure_entrypoint = sec_entrypoint;
@@ -144,6 +149,27 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			      1U, per_lpm);
 
 	*psci_ops = &imx_plat_psci_ops;
+
+	/*
+	 * Serve as GPIO2 permission check by setting
+	 * CPU_PER_LPI_IDX_GPIO2
+	 */
+	struct scmi_per_lpm_config gpio2_lpm = {
+		.perId = CPU_PER_LPI_IDX_GPIO2,
+		.lpmSetting = SCMI_CPU_PD_LPM_ON_RUN_WAIT_STOP,
+	};
+
+	ret = scmi_per_lpm_mode_set(imx9_scmi_handle, IMX9_SCMI_CPU_A55P,
+				    1U, &gpio2_lpm);
+	if (ret) {
+		gpio2_owned = false;
+		WARN("GPIO2 not owned by AP side\n");
+	} else {
+		mmio_write_32(GPIO2_BASE + 0x10, 0xffffffff);
+		mmio_write_32(GPIO2_BASE + 0x14, 0x3);
+		mmio_write_32(GPIO2_BASE + 0x18, 0xffffffff);
+		mmio_write_32(GPIO2_BASE + 0x1c, 0x3);
+	}
 
 	return 0;
 }
