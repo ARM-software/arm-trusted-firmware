@@ -218,7 +218,7 @@ void bl31_plat_arch_setup(void)
 	INFO("SOCFPGA: Invalidate Data cache\n");
 	invalidate_dcache_all();
 	/* Invalidate for NS EL2 and EL1 */
-	invalidate_cache_low_el();
+	invalidate_tlb_low_el();
 
 	NOTICE("SOCFPGA: Setting CLUSTERECTRL_EL1\n");
 	setup_clusterectlr_el1();
