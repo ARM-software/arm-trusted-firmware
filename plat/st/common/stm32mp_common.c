@@ -601,7 +601,7 @@ int stm32_get_and_dec_fwu_trial_boot_cnt(uint32_t *cnt)
 
 	assert(try_cnt <= FWU_MAX_TRIAL_REBOOT);
 
-	if (try_cnt != 0U) {
+	if (try_cnt > 1U) {
 		ret = stm32_nvmem_cell_clrset(&fwu_info_cell, FWU_INFO_CNT_MSK,
 					      (try_cnt - 1U) << FWU_INFO_CNT_OFF);
 		if (ret != 0) {
