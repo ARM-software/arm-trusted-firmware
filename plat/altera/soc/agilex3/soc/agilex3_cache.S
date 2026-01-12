@@ -9,21 +9,54 @@
 #include <plat_macros.S>
 
 	.globl invalidate_dcache_all
-	.globl invalidate_cache_low_el
-	/* --------------------------------------------------------
-	 * Invalidate for NS EL2 and EL1
-	 * --------------------------------------------------------
-	 */
-func invalidate_cache_low_el
-	mrs	x0,SCR_EL3
-	orr	x1,x0,#SCR_NS_BIT
-	msr	SCR_EL3, x1
+	.globl invalidate_tlb_low_el
+	.globl invalidate_l1_i_cache
+	.globl invalidate_all_tlbs
+
+/* --------------------------------------------------------
+ * Invalidates all TLB entries at EL2 and EL1 from EL3.
+ * --------------------------------------------------------
+ */
+func invalidate_tlb_low_el
+	/* Read SCR_EL3 and save it */
+	mrs  x0, SCR_EL3
+	mov  x2, x0
+
+	orr  x1, x0, #SCR_NS_BIT
+	msr  SCR_EL3, x1
 	isb
-	tlbi	ALLE2
-	dsb	sy
-	tlbi	ALLE1
-	dsb	sy
-endfunc invalidate_cache_low_el
+	tlbi ALLE2
+	dsb  sy
+	tlbi ALLE1
+	dsb  sy
+
+	/* Restore to original SCR_EL3 */
+	msr  SCR_EL3, x2
+	isb
+	ret
+endfunc invalidate_tlb_low_el
+
+/* --------------------------------------------------------
+ * Invalidates all TLB entries, from EL3 to EL1.
+ * --------------------------------------------------------
+ */
+func invalidate_all_tlbs
+	tlbi alle3
+	dsb  sy
+	b    invalidate_tlb_low_el
+endfunc invalidate_all_tlbs
+
+/* --------------------------------------------------------
+ * Explicit L1 I-cache invalidation:
+ * Required to ensure no stale instructions remain after MMU/cache disable.
+ * --------------------------------------------------------
+ */
+func invalidate_l1_i_cache
+	ic  iallu
+	dsb sy
+	isb
+	ret
+endfunc invalidate_l1_i_cache
 
 .pushsection .text.asm_dcache_level, "ax"
 func asm_dcache_level
