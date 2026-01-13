@@ -13,7 +13,7 @@
 
 void
 #if IMAGE_BL31
-	__attribute__ ((section(".system_ram")))
+	__attribute__ ((section(".system_ram"), no_stack_protector))
 #endif
 	rcar_micro_delay(uint64_t micro_sec)
 {

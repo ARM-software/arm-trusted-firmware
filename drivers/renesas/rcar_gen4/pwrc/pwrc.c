@@ -312,7 +312,8 @@ uint32_t rcar_pwrc_cpu_on_check(u_register_t mpidr)
 	return count;
 }
 
-static void __section(".system_ram") rcar_pwrc_set_self_refresh(void)
+static void __attribute__ ((section(".system_ram"), no_stack_protector))
+	rcar_pwrc_set_self_refresh(void)
 {
 	uint64_t base_count, freq, get_count, wait_time;
 	uint32_t reg;
@@ -410,7 +411,7 @@ static void __section(".system_ram") rcar_pwrc_set_self_refresh(void)
 	mmio_write_32(DBSC4_REG_DBSYSCNT0, DBSC4_SET_DBSYSCNT0_WRITE_DISABLE);
 }
 
-static void __section(".system_ram") __attribute__ ((noinline))
+static void __attribute__ ((section(".system_ram"), no_stack_protector))
 		rcar_pwrc_go_suspend_to_ram(void)
 {
 	rcar_pwrc_set_self_refresh();

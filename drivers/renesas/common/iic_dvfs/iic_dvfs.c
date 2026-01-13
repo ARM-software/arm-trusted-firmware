@@ -79,11 +79,11 @@ enum dvfs_state_t {
 
 #if IMAGE_BL31
 #define IIC_DVFS_FUNC(__name, ...)					\
-static int32_t	__attribute__ ((section(".system_ram")))		\
+static int32_t	__attribute__ ((section(".system_ram"), no_stack_protector)) \
 dvfs_ ##__name(__VA_ARGS__)
 
 #define RCAR_DVFS_API(__name, ...)					\
-int32_t __attribute__ ((section(".system_ram")))			\
+int32_t __attribute__ ((section(".system_ram"), no_stack_protector))	\
 rcar_iic_dvfs_ ##__name(__VA_ARGS__)
 
 #else
