@@ -22,8 +22,10 @@
 
 #include "xlat_tables_private.h"
 
-#if LOG_LEVEL < LOG_LEVEL_VERBOSE
+/* Uncomment, when xlat mmap details prints required*/
+//#define LOG_DEBUG
 
+#ifndef LOG_DEBUG
 void xlat_mmap_print(__unused const mmap_region_t *mmap)
 {
 	/* Empty */
@@ -34,7 +36,7 @@ void xlat_tables_print(__unused xlat_ctx_t *ctx)
 	/* Empty */
 }
 
-#else /* if LOG_LEVEL >= LOG_LEVEL_VERBOSE */
+#else /* ifndef LOG_DEBUG */
 
 void xlat_mmap_print(const mmap_region_t *mmap)
 {
@@ -261,7 +263,7 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 				   ctx->base_table_entries, ctx->base_level);
 }
 
-#endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
+#endif /* ifndef LOG_DEBUG */
 
 /*
  * Do a translation table walk to find the block or page descriptor that maps
@@ -388,11 +390,11 @@ static int xlat_get_mem_attributes_internal(const xlat_ctx_t *ctx,
 
 	desc = *entry;
 
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+#ifdef LOG_DEBUG
 	VERBOSE("Attributes: ");
 	xlat_desc_print(ctx, desc);
 	printf("\n");
-#endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
+#endif
 
 	assert(attributes != NULL);
 	*attributes = 0U;
