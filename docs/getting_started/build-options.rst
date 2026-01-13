@@ -1293,7 +1293,7 @@ Common build options
       implement this workaround due to the behaviour of the errata mentioned
       in new SDEN document which will get published soon.
 
-- ``ERRATA_SME_POWER_DOWN``: Boolean option to disable SME (PSTATE.{ZA,SM}=0)
+- ``ERRATA_SME_POWER_DOWN``: Boolean option to disconnect the SME unit (PSTATE.{ZA,SM}=0)
   before power down and downgrade a suspend to power down request to a normal
   suspend request. This is necessary when software running at lower ELs requests
   power down without first clearing these bits. On affected cores, the CME
@@ -1624,7 +1624,7 @@ Firmware update options
 
 --------------
 
-*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2026, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/latest/
