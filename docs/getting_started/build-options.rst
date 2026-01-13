@@ -647,6 +647,13 @@ Common build options
    they should be explicitly enabled depending on each platform's needs. Not
    recommended for release builds. This option is default set to 0.
 
+-  ``ENABLE_FEAT_MORELLO`` : Numeric option to enable the Morello capability aware
+   firmware. This flag can take the values 0 to 2, to align with the
+   ``ENABLE_FEAT`` mechanism. This option is experimental and supported only with
+   LLVM CLANG toolchain and not with GCC toolchain. Capability awareness is
+   currently enabled only in BL31 firmware and not in other firmware types of
+   trusted firmware. Enabling this on regular AARCH64 system might not work.
+
 -  ``ENCRYPT_BL31``: Binary flag to enable encryption of BL31 firmware. This
    flag depends on ``DECRYPTION_SUPPORT`` build flag.
 

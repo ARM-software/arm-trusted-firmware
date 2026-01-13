@@ -107,6 +107,23 @@ feat_sctlr2_not_supported\@:
 	mov_imm x0, CPTR_EL3_RESET_VAL
 	msr	cptr_el3, x0
 
+#if ENABLE_FEAT_MORELLO
+#if ENABLE_FEAT_MORELLO == 2
+	is_feat_morello_present_asm	x10
+	beq 2f
+#endif /* ENABLE_FEAT_MORELLO == 2 */
+	/*
+	 * SETTAG: disable privileged tag-setting operations
+	 */
+	mov	x0, CSCR_EL3_SETTAG
+	msr	cscr_el3, x0
+
+	/*
+	 * Disable PCC/DCC base offset
+	 */
+	msr	cctlr_el3, xzr
+2:
+#endif /* ENABLE_FEAT_MORELLO */
 	.endm
 
 /* -----------------------------------------------------------------------------
@@ -228,12 +245,18 @@ feat_sctlr2_not_supported\@:
 #endif /* ENABLE_PIE */
 	.endif /* _pie_fixup_size */
 
-	/* ---------------------------------------------------------------------
+	/* ---------------------------------------------------------------------------
 	 * Set the exception vectors.
-	 * ---------------------------------------------------------------------
+	 * cptr_el3 write needs to be done before the first capability register access
+	 * ---------------------------------------------------------------------------
 	 */
+#if ENABLE_FEAT_MORELLO
+	mrs	x0, cptr_el3
+	orr	x0, x0, #EC_BIT
+	msr	cptr_el3, x0
+#endif /* ENABLE_FEAT_MORELLO */
 	adr	x0, \_exception_vectors
-	msr	vbar_el3, x0
+	msr_wide_reg	vbar_el3, 0
 	isb
 
 	call_reset_handler
@@ -512,6 +535,8 @@ feat_sctlr2_not_supported\@:
 	 *
 	 * CPTR_EL3.EZ: Set to one so that accesses to ZCR_EL3 do not trap
 	 * CPTR_EL3.ESM: Set to one so that SME related registers don't trap
+	 * CPTR_EL3.EC: Set to one when Morello is enabled so that access to morello
+	 *  architecture and registers are not trapped
 	 *
 	 * PSTATE.DIT: Set to one to enable the Data Independent Timing (DIT)
 	 *  functionality, if implemented in EL3.
@@ -536,6 +561,9 @@ feat_sctlr2_not_supported\@:
 		mrs	x15, cptr_el3
 		orr	x15, x15, #CPTR_EZ_BIT
 		orr	x15, x15, #ESM_BIT
+#if ENABLE_FEAT_MORELLO
+		orr	x15, x15, #EC_BIT
+#endif /* ENABLE_FEAT_MORELLO */
 		msr	cptr_el3, x15
 
 #if ENABLE_FEAT_DIT

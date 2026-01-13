@@ -687,7 +687,7 @@ func el3_exit
 	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 	ldr	x19, [sp, #CTX_EL3STATE_OFFSET + CTX_MDCR_EL3]
 	msr	spsr_el3, x16
-	msr	elr_el3, x17
+	msr_wide_reg	elr_el3, 17
 	msr	scr_el3, x18
 	msr	mdcr_el3, x19
 

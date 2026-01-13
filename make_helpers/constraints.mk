@@ -431,6 +431,13 @@ ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
         endif
 endif
 
+ifneq ($(ENABLE_FEAT_MORELLO),0)
+        ifneq ($($(ARCH)-cc-id),llvm-clang)
+                $(error ENABLE_FEAT_MORELLO requires Clang toolchain)
+        endif
+        $(warning Morello capability is an experimental feature)
+endif
+
 # Handle all deprecated build options.
 ifeq (${ERROR_DEPRECATED}, 1)
     ifneq (${NS_TIMER_SWITCH},0)

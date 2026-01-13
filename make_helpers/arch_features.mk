@@ -397,6 +397,11 @@ ENABLE_FEAT_AIE				?=	0
 # PFAR extension using the PFAR system registers
 ENABLE_FEAT_PFAR			?=	0
 
+#-------------------------------------------------------------
+# Non-standard feature
+#-------------------------------------------------------------
+ENABLE_FEAT_MORELLO			?=	0
+
 #----
 # 9.0
 #----

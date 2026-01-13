@@ -304,6 +304,17 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 		tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);
 	}
 
+	if (is_feat_morello_supported()) {
+		/* Enable capability loads and stores
+		 * TCR_HWU59_BIT -> CDBM
+		 * TCR_HWU60_BIT -> SC
+		 * TCR_HWU61_BIT -> LC[0]
+		 * TCR_HWU62_BIT -> LC[1]
+		 */
+		tcr |= (TCR_HPD_BIT | TCR_HWU59_BIT | TCR_HWU60_BIT |
+			TCR_HWU61_BIT | TCR_HWU62_BIT);
+	}
+
 	/* Set TTBR bits as well */
 	ttbr0 = (uint64_t) base_table;
 

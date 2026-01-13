@@ -538,6 +538,12 @@
 #define ID_AA64PFR1_EL1_PFAR_SHIFT	U(60)
 #define ID_AA64PFR1_EL1_PFAR_MASK	ULL(0xf)
 
+/* ID_AA64PFR1_EL1.CE field: Morello architecture presence (bits [23:20]) */
+#define ID_AA64PFR1_EL1_CE_SHIFT	U(20)
+#define ID_AA64PFR1_EL1_CE_MASK		ULL(0xf)
+/* 0b0000 means Morello arch is not present, 0b0001 means it is present */
+#define MORELLO_EXTENSION_IMPLEMENTED	ULL(0x1)
+#define CSCR_EL3_SETTAG			ULL(0x1)
 
 /* ID_AA64PFR2_EL1 definitions */
 #define ID_AA64PFR2_EL1				S3_0_C0_C4_2
@@ -886,9 +892,21 @@
 #define ESM_BIT			(U(1) << 12)
 #define TFP_BIT			(U(1) << 10)
 #define CPTR_EZ_BIT		(U(1) << 8)
+
+#if ENABLE_FEAT_MORELLO
+#define EC_BIT			(U(1) << 9)
+/*
+ * Even though the morello spec doesnot have TAM_BIT defined it is included
+ * to keep the definition as close to other hardware as possible. Since bit 30
+ * is reserved in Morello it should not have any effect anyways.
+ */
+#define CPTR_EL3_RESET_VAL	((TAM_BIT | TTA_BIT | EC_BIT) & \
+				~(CPTR_EZ_BIT | ESM_BIT | TFP_BIT | TCPAC_BIT))
+#else
 /* TCPAC is always set by default as the register is always present */
 #define CPTR_EL3_RESET_VAL	((TAM_BIT | TTA_BIT) & \
 				~(CPTR_EZ_BIT | ESM_BIT | TFP_BIT | TCPAC_BIT))
+#endif
 
 /* CPTR_EL2 definitions */
 #define CPTR_EL2_RES1		((U(1) << 13) | (U(1) << 12) | (U(0x3ff)))
@@ -1062,6 +1080,12 @@
 #define TCR_TG0_4K		(ULL(0) << TCR_TG0_SHIFT)
 #define TCR_TG0_64K		(ULL(1) << TCR_TG0_SHIFT)
 #define TCR_TG0_16K		(ULL(2) << TCR_TG0_SHIFT)
+
+#define TCR_HPD_BIT		(ULL(1) << 24)
+#define TCR_HWU59_BIT		(ULL(1) << 25)
+#define TCR_HWU60_BIT		(ULL(1) << 26)
+#define TCR_HWU61_BIT		(ULL(1) << 27)
+#define TCR_HWU62_BIT		(ULL(1) << 28)
 
 #define TCR_TG1_SHIFT		U(30)
 #define TCR_TG1_MASK		ULL(3)
