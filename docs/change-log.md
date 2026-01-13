@@ -3,6 +3,38 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.27](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.26..refs/tags/lts-v2.10.27) (2026-01-13)
+
+### Build System
+
+- **Dependencies**
+
+  - **Node Package Manager (NPM)**
+
+    - adhere to Husky deprecation notice ([fb0ca7c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fb0ca7ca10ae9a489f05fd64127943e929ecce4d))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A65 erratum 1179935 ([659e466](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/659e46683e3dc916a5cab9eb10b886c9e48709c2))
+    - workaround for Cortex-A65 erratum 1227419 ([909b295](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/909b2956859362f0a7e2920434275bd1cbfce332))
+    - workaround for Cortex-A65 erratum 1541130 ([4277703](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/42777038eed6d439e5e13ce98de27f995f587f07))
+    - workaround for Cortex-A725 erratum 2874943 ([948f017](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/948f017ea790af1412e1fbbcdb63b4bd8422fd58))
+    - workaround for Cortex-A725 erratum 2936490 ([5ff5922](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5ff59225e2dda34490232b1374cddd11711ebf14))
+    - workaround for Cortex-A725 erratum 3456106 ([d0d0d02](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d0d0d0285a63387d727eaa1591de86e5bfa44ec1))
+    - workaround for Cortex-A725 erratum 3711914 ([d2ab008](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d2ab008e2596cd35eebfdabdc47100b42d9ccc06))
+    - workaround for Cortex-A76AE erratum 1931427 ([17a8aec](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/17a8aec4915874d6c50ebe33146922e7e7294beb))
+    - workaround for Cortex-A76AE erratum 1931435 ([fc5e6ee](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fc5e6eeee5b5f6c56e58da6d87669bc6dd505637))
+    - workaround for Cortex-A76AE erratum 1969401 ([918cb25](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/918cb2542d34ed067d03f0c61db9db5dcd6f096d))
+    - workaround for Cortex-A76AE erratum 2371140 ([6f78d7d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6f78d7d2957eb96ef3f81a2fdffbe4459c09e006))
+
+- **Build System**
+
+  - set ERRATA_SPECULATIVE_AT after platform.mk ([d5424f6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d5424f6d824674dddd8ec33bfb6b15ded7799505))
+
 ## [lts-2.10.26](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.25..refs/tags/lts-v2.10.26) (2025-11-14)
 
 ### Code Refactoring
