@@ -173,6 +173,17 @@
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
 /*******************************************************************************
+ * Registers related to Morello.
+ ******************************************************************************/
+#define CTX_DDC_OFFSET	(CTX_PAUTH_REGS_OFFSET + CTX_PAUTH_REGS_END)
+#if ENABLE_FEAT_MORELLO
+#define CTX_DDC_EL0	U(0x0)
+#define CTX_DDC_END	U(0x10) /* Align to the next 16 byte boundary */
+#else
+#define CTX_DDC_END	U(0)
+#endif /* ENABLE_FEAT_MORELLO */
+
+/*******************************************************************************
  * Registers initialised in a per-world context.
  ******************************************************************************/
 #define CTX_CPTR_EL3			U(0x0)
@@ -215,6 +226,8 @@
 # define CTX_PAUTH_REGS_ALL	(CTX_PAUTH_REGS_END >> DWORD_SHIFT)
 #endif
 
+#define CTX_DDC_ALL (CTX_DDC_END >> DWORD_SHIFT)
+
 /*
  * AArch64 general purpose register context structure. Usually x0-x18,
  * lr are saved as the compiler is expected to preserve the remaining
@@ -242,6 +255,9 @@ DEFINE_REG_STRUCT(errata_speculative_at, CTX_ERRATA_SPEC_AT_ALL);
 #if CTX_INCLUDE_PAUTH_REGS
 DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
 #endif
+
+/* Registers associated with Morello */
+typedef void *__capability ddc_cap_t;
 
 /*
  * Macros to access members of any of the above structures using their
@@ -295,6 +311,8 @@ typedef struct cpu_context {
 #if CTX_INCLUDE_PAUTH_REGS
 	pauth_t pauth_ctx;
 #endif
+
+	ddc_cap_t ddc_el0;
 
 #if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
 	el2_sysregs_t el2_sysregs_ctx;
