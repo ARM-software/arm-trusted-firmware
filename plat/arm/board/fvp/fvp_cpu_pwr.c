@@ -20,8 +20,8 @@
 
 bool check_cpupwrctrl_el1_is_available(void)
 {
-	/* Poupulate list of CPU midr that doesn't support CPUPWRCTL_EL1 */
-	const unsigned int midr_no_cpupwrctl[] = {
+	/* Populate list of CPU midr that doesn't support CPUPWRCTL_EL1 */
+	static const unsigned int midr_no_cpupwrctl[] = {
 		BASE_AEM_MIDR,
 		CORTEX_A35_MIDR,
 		CORTEX_A53_MIDR,
