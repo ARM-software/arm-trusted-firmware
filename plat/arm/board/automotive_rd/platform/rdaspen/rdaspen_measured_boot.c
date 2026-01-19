@@ -1,18 +1,16 @@
 /*
- * Copyright (c) 2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <drivers/arm/mhu.h>
-#include <drivers/arm/rse_comms.h>
 #include <drivers/measured_boot/metadata.h>
 #include <drivers/measured_boot/rse/rse_measured_boot.h>
 #include <plat/arm/common/plat_arm.h>
 #include <tools_share/tbbr_oid.h>
 #include <tools_share/zero_oid.h>
 
-static int plat_rse_comms_init(void);
+#include "rdaspen_rse_comms.h"
 
 /*
  * Platform specific table with image IDs and metadata. Intentionally not a
@@ -99,16 +97,4 @@ int plat_mboot_measure_key(const void *pk_oid, const void *pk_ptr,
 {
 	return rse_mboot_set_signer_id(rdaspen_rse_mboot_metadata, pk_oid, pk_ptr,
 				       pk_len);
-}
-
-static int plat_rse_comms_init(void)
-{
-	struct mhu_addr mhu_addresses;
-
-	/* Get sender and receiver frames for AP-RSE communication */
-	mhu_addresses.sender_base = AP_RSE_SECURE_MHU_V3_PBX;
-	mhu_addresses.receiver_base = AP_RSE_SECURE_MHU_V3_MBX;
-
-	/* Initialize the communication channel between AP and RSE */
-	return rse_mbx_init(&mhu_addresses);
 }

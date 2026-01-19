@@ -1,4 +1,4 @@
-# Copyright (c) 2025, Arm Limited. All rights reserved.
+# Copyright (c) 2025-2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,8 @@ RDASPEN_BASE		 =	plat/arm/board/automotive_rd/platform/rdaspen
 RDASPEN_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_a720_ae.S
 
 PLAT_INCLUDES		+=	-I${RDASPEN_BASE}/include/ 	\
-				-I${RDASPEN_BASE}/ras/include/
+				-I${RDASPEN_BASE}/ras/include/	\
+				-Idrivers/arm/mhu
 
 override ARM_FW_CONFIG_LOAD_ENABLE		:=	1
 override ARM_PLAT_MT				:=	1
@@ -45,6 +46,12 @@ RESET_TO_BL2					:=	1
 SVE_VECTOR_LEN					:=	128
 USE_GIC_DRIVER					:=	3
 USE_COHERENT_MEM				:=	0
+# Enable RSE communication support in BL2. This is required by measured boot,
+# and may also be enabled independently when BL2 needs to communicate with RSE.
+RDASPEN_ENABLE_RSE_COMMS_BL2			?=	0
+
+PLAT_MHU 					:= 	MHUv3
+RSE_COMMS_BOOT_MK				:= 	drivers/arm/rse/rse_comms.mk
 
 # Enable the DSU driver and save DSU PMU registers on cluster off
 # and restore them on cluster on
@@ -60,6 +67,8 @@ FAULT_INJECTION_SUPPORT			?=	1
 
 # ERRATA
 ERRATA_A720_AE_3699562			:=	1
+
+include ${RSE_COMMS_BOOT_MK}
 
 PLAT_BL_COMMON_SOURCES	+=	${RDASPEN_BASE}/rdaspen_plat.c	\
 				${RDASPEN_BASE}/include/rdaspen_helpers.S
@@ -80,6 +89,13 @@ BL31_SOURCES	+=	${RDASPEN_CPU_SOURCES}	\
 			lib/utils/mem_region.c	\
 			plat/arm/common/arm_nor_psci_mem_protect.c \
 			drivers/arm/dsu/dsu.c
+
+ifeq ($(PLAT_MHU),MHUv3)
+BL31_SOURCES	+=	$(addprefix drivers/arm/mhu/,		\
+				    mhu_v3_x.c			\
+				    mhu_wrapper_v3_x.c		\
+				)
+endif
 
 ifeq ($(ENABLE_FEAT_RAS),1)
 ifeq ($(HANDLE_EA_EL3_FIRST_NS),1)
@@ -136,11 +152,13 @@ PLAT_BL_COMMON_SOURCES	:= $(filter-out						\
 ifeq (${MEASURED_BOOT},1)
 	MEASURED_BOOT_MK	:= drivers/measured_boot/rse/rse_measured_boot.mk
 	include ${MEASURED_BOOT_MK}
-	PLAT_MHU		:= MHUv3
-	RSE_COMMS_BOOT_MK	:= drivers/arm/rse/rse_comms.mk
-	include ${RSE_COMMS_BOOT_MK}
 	MEASURED_BOOT_SOURCES	+= lib/psa/measured_boot.c
-	MEASURED_BOOT_SOURCES	+= ${RSE_COMMS_SOURCES}
+	RDASPEN_ENABLE_RSE_COMMS_BL2	:= 1
 	BL2_SOURCES		+= ${MEASURED_BOOT_SOURCES}
 	PLAT_BL_COMMON_SOURCES	+= ${RDASPEN_BASE}/rdaspen_measured_boot.c
+endif
+
+ifeq ($(RDASPEN_ENABLE_RSE_COMMS_BL2),1)
+BL2_SOURCES	+=	${RDASPEN_BASE}/rdaspen_rse_comms.c	\
+			${RSE_COMMS_SOURCES}
 endif
