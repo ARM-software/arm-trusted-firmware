@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,16 +16,6 @@ struct cpuamu_ctx {
 };
 
 static struct cpuamu_ctx cpuamu_ctxs[PLATFORM_CORE_COUNT];
-
-int midr_match(unsigned int cpu_midr)
-{
-	unsigned int midr, midr_mask;
-
-	midr = (unsigned int)read_midr();
-	midr_mask = (MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) |
-		(MIDR_PN_MASK << MIDR_PN_SHIFT);
-	return ((midr & midr_mask) == (cpu_midr & midr_mask));
-}
 
 void cpuamu_context_save(unsigned int nr_counters)
 {
