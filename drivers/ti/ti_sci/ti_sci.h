@@ -268,6 +268,7 @@ int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode);
 
 #define TI_K3_SLEEP_MODE_DEEP_SLEEP 0x0
 #define TI_K3_SLEEP_MODE_RTC_PLUS_DDR 0x6
+#define TI_K3_SLEEP_MODE_RTC_ONLY 0x7
 
 /**
  * Boot Notification
