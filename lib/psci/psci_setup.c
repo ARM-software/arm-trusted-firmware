@@ -167,6 +167,14 @@ static unsigned int __init populate_power_domain_tree(const unsigned char
 						  parent_node_index - 1U,
 						  (unsigned char)level);
 			}
+#if PSCI_OS_INIT_MODE
+			if (parent_node_index > 0U) {
+				psci_non_cpu_pd_nodes[parent_node_index - 1U]
+					.first_child_idx = node_index;
+				psci_non_cpu_pd_nodes[parent_node_index - 1U]
+					.num_children = num_children;
+			}
+#endif
 			node_index = j;
 			num_nodes_at_next_lvl += num_children;
 			parent_node_index++;

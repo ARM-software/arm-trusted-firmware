@@ -629,6 +629,83 @@ void psci_do_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
 }
 
 #if PSCI_OS_INIT_MODE
+/*******************************************************************************
+ * Helper function to validate if node current state is atleast as deep as the
+ * target requested state
+ ******************************************************************************/
+static bool psci_validate_subtree_state(unsigned int node_idx, unsigned int lvl,
+					plat_local_state_t target_state)
+{
+	if (lvl == PSCI_CPU_PWR_LVL) {
+		plat_local_state_t core_state =
+			psci_get_cpu_local_state_by_idx(node_idx);
+		return core_state >= target_state;
+	}
+
+	return get_non_cpu_pd_node_local_state(node_idx) >= target_state;
+}
+
+/*******************************************************************************
+ * This function validates hierarchical power state consistency for a suspend
+ * request by walking up the power domain tree from the requesting CPU.
+ *
+ * For each level in the hierarchy up to 'end_pwrlvl', this function checks
+ * that all "sibling" power domains are already in a power state that is at
+ * least as deep as the state being requested for their common parent. It
+ * identifies siblings by iterating through the children of a parent node and
+ * skipping the node that is in the direct ancestry of the requesting CPU.
+ *
+ * This validation prevents a parent domain from being powered down while one
+ * of its inactive child domains is still powered on. It returns
+ * PSCI_E_SUCCESS if the states are consistent, or PSCI_E_DENIED otherwise.
+ ******************************************************************************/
+static int psci_validate_hierarchical_state_consistency(
+	unsigned int cpu_idx, unsigned int end_pwrlvl,
+	const psci_power_state_t *state_info)
+{
+	plat_local_state_t parent_req_state;
+	unsigned int path_node_idx = cpu_idx;
+	unsigned int parent_node_idx =
+		PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
+
+	/*
+	 * Iterate from the first level that can be a parent of CPU domains
+	 * up to the highest level requested for suspend.
+	 */
+	for (unsigned int lvl = (PSCI_CPU_PWR_LVL + 1U); lvl <= end_pwrlvl;
+	     lvl++) {
+		parent_req_state = state_info->pwr_domain_state[lvl];
+
+		unsigned int first_child_idx =
+			psci_non_cpu_pd_nodes[parent_node_idx].first_child_idx;
+		unsigned int num_children =
+			psci_non_cpu_pd_nodes[parent_node_idx].num_children;
+
+		for (unsigned int node = first_child_idx;
+		     node < (first_child_idx + num_children); node++) {
+			/* Skip the check for the node that is on our direct power-down path. */
+			if (node == path_node_idx) {
+				continue;
+			}
+
+			/*
+			 * For all other sibling domains, verify their current state is at
+			 * least as deep as the parent's requested state.
+			 */
+			if (!psci_validate_subtree_state(node, lvl - 1U,
+							 parent_req_state)) {
+				return PSCI_E_DENIED;
+			}
+		}
+
+		/* Move up the active path for the next iteration. */
+		path_node_idx = parent_node_idx;
+		parent_node_idx = psci_non_cpu_pd_nodes[path_node_idx].parent_node;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
 /******************************************************************************
  * This function is used in OS-initiated mode.
  *
@@ -639,10 +716,8 @@ void psci_do_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
  * information.
  *
  * Then, for each level (apart from the CPU level) until the 'end_pwrlvl', it
- * retrieves the states requested by all the cpus of which the power domain at
- * that level is an ancestor. It passes this information to the platform to
- * coordinate and return the target power state. If the requested state does
- * not match the target state, the request is denied.
+ * validates hierarchical power state consistency for a suspend
+ * request by walking up the power domain tree.
  *
  * The 'state_info' is not modified.
  *
@@ -653,14 +728,10 @@ int psci_validate_state_coordination(unsigned int cpu_idx, unsigned int end_pwrl
 				     psci_power_state_t *state_info)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned int lvl, parent_idx;
-	unsigned int start_idx;
-	unsigned int ncpus;
-	plat_local_state_t target_state, *req_states;
+	unsigned int lvl;
 	plat_local_state_t prev[PLAT_MAX_PWR_LVL];
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
-	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	/*
 	 * Save a copy of the previous requested local power states and update
@@ -668,34 +739,11 @@ int psci_validate_state_coordination(unsigned int cpu_idx, unsigned int end_pwrl
 	 */
 	psci_update_req_local_pwr_states(end_pwrlvl, cpu_idx, state_info, prev);
 
-	for (lvl = PSCI_CPU_PWR_LVL + 1U; lvl <= end_pwrlvl; lvl++) {
-		/* Get the requested power states for this power level */
-		start_idx = psci_non_cpu_pd_nodes[parent_idx].cpu_start_idx;
-		req_states = psci_get_req_local_pwr_states(lvl, start_idx);
+	rc = psci_validate_hierarchical_state_consistency(cpu_idx, end_pwrlvl,
+							  state_info);
 
-		/*
-		 * Let the platform coordinate amongst the requested states at
-		 * this power level and return the target local power state.
-		 */
-		ncpus = psci_non_cpu_pd_nodes[parent_idx].ncpus;
-		target_state = plat_get_target_pwr_state(lvl,
-							 req_states,
-							 ncpus);
-
-		/*
-		 * Verify that the requested power state matches the target
-		 * local power state.
-		 */
-		if (state_info->pwr_domain_state[lvl] != target_state) {
-			if (target_state == PSCI_LOCAL_STATE_RUN) {
-				rc = PSCI_E_DENIED;
-			} else {
-				rc = PSCI_E_INVALID_PARAMS;
-			}
-			goto exit;
-		}
-
-		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
+	if (rc != PSCI_E_SUCCESS) {
+		goto exit;
 	}
 
 	/*
@@ -703,15 +751,16 @@ int psci_validate_state_coordination(unsigned int cpu_idx, unsigned int end_pwrl
 	 * specified power level.
 	 */
 	lvl = state_info->last_at_pwrlvl;
-	if (!psci_is_last_cpu_to_idle_at_pwrlvl(cpu_idx, lvl)) {
-		rc = PSCI_E_DENIED;
+	if (lvl > end_pwrlvl) {
+		if (!psci_is_last_cpu_to_idle_at_pwrlvl(cpu_idx, lvl)) {
+			rc = PSCI_E_DENIED;
+		}
 	}
 
 exit:
 	if (rc != PSCI_E_SUCCESS) {
 		/* Restore the previous requested local power states. */
 		psci_restore_req_local_pwr_states(cpu_idx, prev);
-		return rc;
 	}
 
 	return rc;
