@@ -275,4 +275,49 @@ int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode);
  */
 int ti_sci_boot_notification(void);
 
+/**
+ * Firewall operations
+ *
+ * - ti_sci_set_fwl_region - Request for configuring a firewall region
+ *		@n_permission_regs: Number of permission registers to set
+ *		@control: Contents of the firewall CONTROL register to set
+ *		@permissions: Contents of the firewall PERMISSION register to set
+ *		@start_address: Contents of the firewall START_ADDRESS register to set
+ *		@end_address: Contents of the firewall END_ADDRESS register to set
+ * - ti_sci_get_fwl_region - Request for getting a firewall region configuration
+ *		@n_permission_regs: Number of permission registers retrieved
+ *		@control: Contents of the firewall CONTROL register
+ *		@permissions: Contents of the firewall PERMISSION register
+ *		@start_address: Contents of the firewall START_ADDRESS register
+ *		@end_address: Contents of the firewall END_ADDRESS register
+ * - ti_sci_change_fwl_owner - Request for changing a firewall owner
+ *		@owner_index: New owner index to transfer ownership to
+ *		@owner_privid: New owner priv-ID returned by DMSC/TIFS. This field is
+ *			       currently initialized to zero by DMSC/TIFS.
+ *		@owner_permission_bits: New owner permission bits returned by DMSC/TIFS. This
+ *				        field is currently initialized to zero by DMSC/TIFS.
+ *
+ * NOTE: for all these functions, the following are generic in nature:
+ * @fwl_id:	Firewall ID in question. fwl_id is defined in the TRM.
+ * @region:	Region or channel number to set config info. This field
+ *		is unused in case of a simple firewall and must be
+ *		initialized to zero. In case of a region based
+ *		firewall, this field indicates the region in question
+ *		(index starting from 0). In case of a channel based
+ *		firewall, this field indicates the channel in question
+ *		(index starting from 0).
+ * Returns 0 for successful request, else returns corresponding error message.
+ */
+int ti_sci_set_fwl_region(uint16_t fwl_id, uint16_t region,
+			  uint32_t n_permission_regs, uint32_t control,
+			  const uint32_t *permissions,
+			  uint64_t start_address, uint64_t end_address);
+int ti_sci_get_fwl_region(uint16_t fwl_id, uint16_t region,
+			  uint32_t n_permission_regs, uint32_t *control,
+			  uint32_t *permissions,
+			  uint64_t *start_address, uint64_t *end_address);
+int ti_sci_change_fwl_owner(uint16_t fwl_id, uint16_t region,
+			    uint8_t owner_index, uint8_t *owner_privid,
+			    uint16_t *owner_permission_bits);
+
 #endif /* TI_SCI_H */

@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -1809,6 +1810,178 @@ int ti_sci_boot_notification(void)
 		return -EINVAL;
 	}
 	VERBOSE("%s: boot notification received from TIFS\n", __func__);
+
+	return 0;
+}
+
+/**
+ * ti_sci_set_fwl_region - Request for configuring a firewall region
+ *
+ * @fwl_id:             Firewall ID in question. fwl_id is defined in the TRM.
+ * @region:             Region or channel number to set config info. This field
+ *                      is unused in case of a simple firewall and must be
+ *                      initialized to zero. In case of a region based
+ *                      firewall, this field indicates the region in question
+ *                      (index starting from 0). In case of a channel based
+ *                      firewall, this field indicates the channel in question
+ *                      (index starting from 0).
+ * @n_permission_regs:  Number of permission registers to set
+ * @control:            Contents of the firewall CONTROL register to set
+ * @permissions:        Contents of the firewall PERMISSION register to set
+ * @start_address:      Contents of the firewall START_ADDRESS register to set
+ * @end_address:        Contents of the firewall END_ADDRESS register to set
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_set_fwl_region(uint16_t fwl_id, uint16_t region,
+			  uint32_t n_permission_regs, uint32_t control,
+			  const uint32_t *permissions,
+			  uint64_t start_address, uint64_t end_address)
+{
+	struct ti_sci_msg_req_fwl_set_firewall_region req = { };
+	struct ti_sci_msg_resp_fwl_set_firewall_region resp = { };
+	struct ti_sci_xfer xfer = { };
+	unsigned int i;
+	int ret;
+
+	assert(n_permission_regs <= FWL_MAX_PRIVID_SLOTS);
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_FWL_SET, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret != 0U) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.fwl_id = fwl_id;
+	req.region = region;
+	req.n_permission_regs = n_permission_regs;
+	req.control = control;
+	for (i = 0; i < n_permission_regs; i++)
+		req.permissions[i] = permissions[i];
+	req.start_address = start_address;
+	req.end_address = end_address;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0U) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+/**
+ * ti_sci_get_fwl_region - Request for getting a firewall region
+ *
+ * @fwl_id:             Firewall ID in question. fwl_id is defined in the TRM.
+ * @region:             Region or channel number to set config info. This field
+ *                      is unused in case of a simple firewall and must be
+ *                      initialized to zero. In case of a region based
+ *                      firewall, this field indicates the region in question
+ *                      (index starting from 0). In case of a channel based
+ *                      firewall, this field indicates the channel in question
+ *                      (index starting from 0).
+ * @n_permission_regs:  Number of permission registers to retrieve
+ * @control:            Contents of the firewall CONTROL register
+ * @permissions:        Contents of the firewall PERMISSION register
+ * @start_address:      Contents of the firewall START_ADDRESS register
+ * @end_address:        Contents of the firewall END_ADDRESS register
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_get_fwl_region(uint16_t fwl_id, uint16_t region,
+			  uint32_t n_permission_regs, uint32_t *control,
+			  uint32_t *permissions,
+			  uint64_t *start_address, uint64_t *end_address)
+{
+	struct ti_sci_msg_req_fwl_get_firewall_region req = { };
+	struct ti_sci_msg_resp_fwl_get_firewall_region resp = { };
+	struct ti_sci_xfer xfer = { };
+	unsigned int i;
+	int ret;
+
+	assert(n_permission_regs <= FWL_MAX_PRIVID_SLOTS);
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_FWL_GET, 0,
+				&req, sizeof(req),
+				&resp, sizeof(resp),
+				&xfer);
+	if (ret != 0U) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.fwl_id = fwl_id;
+	req.region = region;
+	req.n_permission_regs = n_permission_regs;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0U) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	*control = resp.control;
+	for (i = 0; i < n_permission_regs; i++)
+		permissions[i] = resp.permissions[i];
+	*start_address = resp.start_address;
+	*end_address = resp.end_address;
+
+	return 0;
+}
+
+/**
+ * ti_sci_change_fwl_owner() - Request for changing a firewall owner
+ *
+ * @fwl_id:             Firewall ID in question. fwl_id is defined in the TRM.
+ * @region:             Region or channel number to set config info. This field
+ *                      is unused in case of a simple firewall and must be
+ *                      initialized to zero. In case of a region based
+ *                      firewall, this field indicates the region in question
+ *                      (index starting from 0). In case of a channel based
+ *                      firewall, this field indicates the channel in question
+ *                      (index starting from 0).
+ * @owner_index:        New owner index to transfer ownership to
+ * @owner_privid:       New owner priv-ID returned by DMSC/TIFS. This field is
+ *                      currently initialized to zero by DMSC/TIFS.
+ * @owner_permission_bits: New owner permission bits returned by DMSC/TIFS. This
+ *                         field is currently initialized to zero by DMSC/TIFS.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_change_fwl_owner(uint16_t fwl_id, uint16_t region,
+			    uint8_t owner_index, uint8_t *owner_privid,
+			    uint16_t *owner_permission_bits)
+{
+	struct ti_sci_msg_req_fwl_change_owner_info req = { };
+	struct ti_sci_msg_resp_fwl_change_owner_info resp = { };
+	struct ti_sci_xfer xfer = { };
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_FWL_CHANGE_OWNER, 0,
+				&req, sizeof(req),
+				&resp, sizeof(resp),
+				&xfer);
+	if (ret != 0U) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.fwl_id = fwl_id;
+	req.region = region;
+	req.owner_index = owner_index;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0U) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	*owner_privid = resp.owner_privid;
+	*owner_permission_bits = resp.owner_permission_bits;
 
 	return 0;
 }
