@@ -252,6 +252,10 @@ CPU_FLAG_LIST += ERRATA_A76_1073348
 # only to revision <= r2p0 of the Cortex A76 cpu.
 CPU_FLAG_LIST += ERRATA_A76_1130799
 
+# Flag to apply erratum 1165347 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r2p0 of the Cortex A76 cpu. It is fixed in r3p0.
+CPU_FLAG_LIST += ERRATA_A76_1165347
+
 # Flag to apply erratum 1220197 workaround during reset. This erratum applies
 # only to revision <= r2p0 of the Cortex A76 cpu.
 CPU_FLAG_LIST += ERRATA_A76_1220197

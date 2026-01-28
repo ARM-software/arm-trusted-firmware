@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -336,6 +336,13 @@ workaround_reset_start cortex_a76, ERRATUM(1130799), ERRATA_A76_1130799
 workaround_reset_end cortex_a76, ERRATUM(1130799)
 
 check_erratum_ls cortex_a76, ERRATUM(1130799), CPU_REV(2, 0)
+
+workaround_reset_start cortex_a76, ERRATUM(1165347), ERRATA_A76_1165347
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, BIT(0)
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, BIT(15)
+workaround_reset_end cortex_a76, ERRATUM(1165347)
+
+check_erratum_ls cortex_a76, ERRATUM(1165347), CPU_REV(2, 0)
 
 /* --------------------------------------------------------------
  * Errata Workaround for Cortex A76 Errata #1165522.
