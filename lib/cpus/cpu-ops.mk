@@ -297,7 +297,8 @@ CPU_FLAG_LIST += ERRATA_A76_1165522
 CPU_FLAG_LIST += ERRATA_A76_1868343
 
 # Flag to apply erratum 1946160 workaround during reset. This erratum applies
-# only to revisions r3p0 - r4p1 of the Cortex A76 cpu.
+# to revisions r0p0, r1p0, r2p0, r3p0, r3p1, r4p0, and r4p1 of the Cortex A76 cpu.
+# It is still open.
 CPU_FLAG_LIST += ERRATA_A76_1946160
 
 # Flag to apply erratum 2743102 workaround during powerdown. This erratum

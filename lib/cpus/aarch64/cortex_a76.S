@@ -450,7 +450,7 @@ workaround_reset_start cortex_a76, ERRATUM(1946160), ERRATA_A76_1946160
 	msr	S3_6_C15_C8_1, x0
 workaround_reset_end cortex_a76, ERRATUM(1946160)
 
-check_erratum_range cortex_a76, ERRATUM(1946160), CPU_REV(3, 0), CPU_REV(4, 1)
+check_erratum_chosen cortex_a76, ERRATUM(1946160), ERRATA_A76_1946160
 
 workaround_runtime_start cortex_a76, ERRATUM(2743102), ERRATA_A76_2743102
 	/* dsb before isb of power down sequence */
