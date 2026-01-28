@@ -362,6 +362,12 @@ check_erratum_custom_end cortex_a76, ERRATUM(1165522)
 
 add_erratum_entry cortex_a76, ERRATUM(1165522), ERRATA_A76_1165522
 
+workaround_reset_start cortex_a76, ERRATUM(1207823), ERRATA_A76_1207823
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, BIT(11)
+workaround_reset_end cortex_a76, ERRATUM(1207823)
+
+check_erratum_ls cortex_a76, ERRATUM(1207823), CPU_REV(2, 0)
+
 workaround_reset_start cortex_a76, ERRATUM(1220197), ERRATA_A76_1220197
 	sysreg_bit_set CORTEX_A76_CPUECTLR_EL1, CORTEX_A76_CPUECTLR_EL1_WS_THR_L2
 workaround_reset_end cortex_a76, ERRATUM(1220197)
