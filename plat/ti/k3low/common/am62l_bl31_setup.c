@@ -14,6 +14,7 @@
 #include <ti_clk_handler.h>
 
 #include <board_def.h>
+#include <firewall.h>
 #include <plat_private.h>
 
 /* Table of regions to map using the MMU */
@@ -55,6 +56,9 @@ int ti_soc_init(void)
 	       version.abi_major, version.abi_minor,
 	       version.firmware_revision,
 	       version.firmware_description);
+
+	/* Update firewall configurations */
+	update_fwl_configs();
 
 	ret = ti_sci_proc_request(PLAT_PROC_START_ID);
 	if (ret != 0) {
