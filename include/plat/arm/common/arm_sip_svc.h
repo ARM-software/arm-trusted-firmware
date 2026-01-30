@@ -64,4 +64,15 @@ uintptr_t plat_arm_sip_handler(uint32_t smc_fid,
 				void *handle,
 				u_register_t flags);
 
+/* SiP handler implementations declared here for use by dispatcher and validation files. */
+
+#if PLAT_TEST_SPM
+uintptr_t arm_sip_set_interrupt_pending_handler(void *handle, bool secure_origin);
+#endif
+
+#if SPMD_SPM_AT_SEL2
+uintptr_t arm_sip_protect_mem_handler(void *handle, bool protect,
+				      bool secure_origin);
+#endif
+
 #endif /* ARM_SIP_SVC_H */
