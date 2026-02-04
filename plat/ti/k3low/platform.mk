@@ -58,6 +58,7 @@ PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/common/drivers/k3-ddrss	\
 				-I${PLAT_PATH}/common/drivers/k3-ddrss/common	\
 				-I${PLAT_PATH}/common/drivers/k3-ddrss/16bit	\
+				-I${PLAT_PATH}/common/drivers/lpm		\
 				-Ilib/libfdt	\
 
 K3_LPDDR4_SOURCES	+= 	\
@@ -101,10 +102,22 @@ K3_PSCI_SOURCES		+=	\
 K3_TI_SCI_TRANSPORT	:=	\
 				drivers/ti/ipc/mailbox.c		\
 
+K3_LPM_SOURCES		:=	\
+				${PLAT_PATH}/common/drivers/lpm/call_sram.S	\
+				${PLAT_PATH}/common/drivers/lpm/ddr.c		\
+				${PLAT_PATH}/common/drivers/lpm/gtc.c		\
+				${PLAT_PATH}/common/drivers/lpm/k3_lpm_timeout.c	\
+				${PLAT_PATH}/common/drivers/lpm/lpm_stub.c		\
+				${PLAT_PATH}/common/drivers/lpm/lpm_trace.c	\
+				${PLAT_PATH}/common/drivers/lpm/pll_16fft_raw.c	\
+				${PLAT_PATH}/common/drivers/lpm/psc_raw.c		\
+				${PLAT_PATH}/common/drivers/lpm/rtc.c
+
 BL31_SOURCES		+=	\
 				drivers/clk/clk.c				\
 				${K3_PSCI_SOURCES}				\
 				${K3_TI_SCI_TRANSPORT}				\
+				${K3_LPM_SOURCES}				\
 				${PLAT_PATH}/common/am62l_bl31_setup.c		\
 				${PLAT_PATH}/common/am62l_topology.c		\
 				${PLAT_PATH}/common/drivers/firewall/firewall_config.c	\
