@@ -25,6 +25,9 @@ endif
 CONFIG_CLK_PLL_16FFT_FRACF_CALIBRATION	:=	1
 $(eval $(call add_define,CONFIG_CLK_PLL_16FFT_FRACF_CALIBRATION))
 
+# Add support for platform supplied linker script for BL31 build
+PLAT_EXTRA_LD_SCRIPT	:=	1
+
 K3_SPL_IMG_OFFSET       :=      0x80000
 $(eval $(call add_define,K3_SPL_IMG_OFFSET))
 

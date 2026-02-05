@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2025-2026 Texas Instruments Incorporated - http://www.ti.com/
  * k3low SoC specific bl31_setup
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/debug.h>
+#include <lpm_stub.h>
 #include <plat_private.h>
 #include <plat_scmi_def.h>
 #include <ti_sci.h>
@@ -28,6 +29,7 @@ const mmap_region_t plat_k3_mmap[] = {
 	K3_MAP_REGION_FLAT(K3LOW_DEVCTRL_BASE,  K3LOW_DEVCTRL_SIZE,  MT_DEVICE | MT_RW | MT_SECURE),
 	K3_MAP_REGION_FLAT(MAILBOX_SHMEM_REGION_BASE, MAILBOX_SHMEM_REGION_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	K3_MAP_REGION_FLAT(EMIF_CTLCFG_BASE, EMIF_CTLCFG_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	K3_MAP_REGION_FLAT(DEVICE_WKUP_SRAM_BASE, DEVICE_WKUP_SRAM_SIZE, MT_MEMORY | MT_RW | MT_SECURE),
 	K3_MAP_REGION_FLAT(K3_FUSE_WRITEBUFF_BASE, K3_FUSE_WRITEBUFF_SIZE, MT_MEMORY | MT_RW | MT_NS),
 	{ /* sentinel */ }
 };
@@ -76,6 +78,12 @@ int ti_soc_init(void)
 	}
 
         ti_clk_handler_init();
+
+	if (k3low_lpm_stub_copy_to_sram()) {
+		ERROR("A53 stub copy failed!\n");
+	} else {
+		INFO("A53 stub copy passed\n");
+	}
 
 	return 0;
 }
