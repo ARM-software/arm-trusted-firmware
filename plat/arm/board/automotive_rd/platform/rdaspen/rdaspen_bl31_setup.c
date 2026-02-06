@@ -16,6 +16,10 @@
 
 #include <rdaspen_ras.h>
 
+#if PFDI_SUPPORT
+void rdaspen_pfdi_setup(void);
+#endif
+
 static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
@@ -98,6 +102,9 @@ const dsu_driver_data_t plat_dsu_data = {
 void bl31_platform_setup(void)
 {
 	arm_bl31_platform_setup();
+#if PFDI_SUPPORT
+	rdaspen_pfdi_setup();
+#endif
 	rdaspen_ras_init_per_cpu();
 }
 
