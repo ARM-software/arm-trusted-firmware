@@ -777,6 +777,9 @@ ENABLE_SME_FOR_SWD			?=	0
 # if FEAT_BRBE is implemented.
 ENABLE_BRBE_FOR_NS			?=	0
 
+# Flag to enable Branch Recording at EL3
+ENABLE_FEAT_BRBEV1P1			?=	0
+
 # Flag to enable Floating point exception Mode Register Feature (FEAT_FPMR)
 ENABLE_FEAT_FPMR			?=	0
 

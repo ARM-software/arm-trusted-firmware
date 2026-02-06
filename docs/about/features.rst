@@ -132,6 +132,7 @@ in a platform:
 -  RSE comms driver ``drivers/arm/rse``
 -  GICv5 driver ``drivers/arm/gicv5`` via ``USE_GIC_DRIVER=5``
 -  FEAT_IDTE3 ``lib/extensions/idte/`` via ``ENABLE_FEAT_IDTE3``
+-  FEAT_BRBEV1P1 ``lib/extensions/brbe/`` via ``ENABLE_FEAT_BRBEV1P1``
 
 Still to come
 -------------
@@ -154,4 +155,4 @@ Still to come
 
 --------------
 
-*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2026, Arm Limited. All rights reserved.*
