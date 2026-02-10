@@ -28,6 +28,9 @@ BUILD_PLAT := $(abspath ${BUILD_BASE})/${PLAT}/${TARGET_BOARD}/${BUILD_TYPE}
 K3_PSCI_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_psci.c		\
 
+K3_PSCI_SOURCES		+=	\
+				plat/common/plat_psci_common.c		\
+
 K3_TI_SCI_TRANSPORT	:=	\
 				drivers/ti/ipc/sec_proxy.c		\
 
