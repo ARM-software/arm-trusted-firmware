@@ -19,6 +19,7 @@ include ${PLAT_PATH}/../common/scmi/ti_scmi.mk
 include drivers/ti/clk/ti_clk.mk
 include drivers/ti/pd/ti_pd.mk
 include ${PLAT_PATH}/board/am62lx/pm/soc_pm.mk
+include ${PLAT_PATH}/board/am62lx/lpm/lpm.mk
 
 BL31_SOURCES		+=	\
 				plat/ti/common/k3_svc.c		\
