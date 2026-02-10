@@ -38,8 +38,8 @@
 					PLATFORM_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
 #define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL2
-#define PLAT_MAX_OFF_STATE		U(2)
-#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_OFF_STATE		U(4)
+#define PLAT_MAX_RET_STATE		U(3)
 
 /*******************************************************************************
  * Memory layout constants
