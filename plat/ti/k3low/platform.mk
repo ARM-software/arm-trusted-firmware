@@ -15,6 +15,8 @@ include ${PLAT_PATH}/board/${TARGET_BOARD}/board.mk
 
 USE_COHERENT_MEM	:=	0
 
+PSCI_OS_INIT_MODE	:=  1
+
 ifeq (${IMAGE_BL1}, 1)
 override ENABLE_PIE := 0
 endif
