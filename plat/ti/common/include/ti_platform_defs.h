@@ -89,7 +89,7 @@
 #if USE_COHERENT_MEM
 #define MAX_MMAP_REGIONS	11
 #else
-#define MAX_MMAP_REGIONS	11 // AM62L
+#define MAX_MMAP_REGIONS	12 // AM62L
 #endif
 
 /*
