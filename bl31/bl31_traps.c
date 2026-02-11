@@ -107,36 +107,6 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 	return TRAP_RET_UNHANDLED;
 }
 
-static bool is_tge_enabled(void)
-{
-	u_register_t hcr_el2 = read_hcr_el2();
-
-	return ((is_feat_vhe_present()) && ((hcr_el2 & HCR_TGE_BIT) != 0U));
-}
-
-/*
- * This function is to ensure that undef injection does not happen into
- * non-existent S-EL2. This could happen when trap happens from S-EL{1,0}
- * and non-secure world is running with TGE bit set, considering EL3 does
- * not save/restore EL2 registers if only one world has EL2 enabled.
- * So reading hcr_el2.TGE would give NS world value.
- */
-static bool is_secure_trap_without_sel2(u_register_t scr)
-{
-	return ((scr & (SCR_NS_BIT | SCR_EEL2_BIT)) == 0);
-}
-
-static unsigned int target_el(unsigned int from_el, u_register_t scr)
-{
-	if (from_el > MODE_EL1) {
-		return from_el;
-	} else if (is_tge_enabled() && !is_secure_trap_without_sel2(scr)) {
-		return MODE_EL2;
-	} else {
-		return MODE_EL1;
-	}
-}
-
 static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsigned int target_el)
 {
 	unsigned int outgoing_el = GET_EL(spsr_el3);
@@ -181,10 +151,42 @@ static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsign
  ******************************************************************************/
 
 /*
+ * Return the effective value of HCR_EL2.TGE.
+ *
+ * NOTE: this has a dependency on EL2Enabled() having succeeded. That is omitted
+ * since it is checked many times and it's expected to have been done by the
+ * caller.
+ *
+ * Based on shared.functions.system.EffectiveTGE.
+ */
+static bool is_tge_enabled(void)
+{
+	return (read_hcr_el2() & HCR_TGE_BIT) != 0U;
+}
+
+/*
+ * Check if EL2 is enabled in the current security state.
+ * Based on shared.functions.system.EL2Enabled.
+ */
+static bool el2_enabled(u_register_t scr_el3)
+{
+	bool enabled = false;
+
+	if (el_implemented(2) != EL_IMPL_NONE) {
+		enabled |= (scr_el3 & SCR_NS_BIT) != 0;
+		if (is_feat_sel2_supported()) {
+			enabled |= (scr_el3 & SCR_EEL2_BIT) != 0;
+		}
+	}
+
+	return enabled;
+}
+
+/*
  * Explicitly create all bits of SPSR to get PSTATE at exception return. Based
  * on aarch64.exceptions.takeexception.AArch64_TakeException.
  */
-u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
+u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el, u_register_t scr_el3)
 {
 	u_register_t new_spsr = 0;
 	u_register_t sctlr;
@@ -235,8 +237,10 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 
 	/* Update PSTATE.PAN bit */
 	new_spsr |= old_spsr & SPSR_PAN_BIT;
+	/* FEAT_VHE being present is assumed to mean HCR_EL2.E2H == 1 */
 	if (is_feat_pan_present() &&
-	    ((target_el == MODE_EL1) || ((target_el == MODE_EL2) && is_tge_enabled())) &&
+	    ((target_el == MODE_EL1) || ((target_el == MODE_EL2) &&
+	     el2_enabled(scr_el3) && is_feat_vhe_supported() && is_tge_enabled())) &&
 	    ((sctlr & SCTLR_SPAN_BIT) == 0U)) {
 	    new_spsr |= SPSR_PAN_BIT;
 	}
@@ -295,6 +299,18 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 	return new_spsr;
 }
 
+/* based on aarch64.exceptions.traps.AArch64_Undefined */
+static unsigned int get_undef_target_el(u_register_t scr_el3, unsigned int from_el, u_register_t scr)
+{
+	if (from_el > MODE_EL1) {
+		return from_el;
+	} else if (from_el == MODE_EL0 && el2_enabled(scr_el3) && is_tge_enabled()) {
+		return MODE_EL2;
+	} else {
+		return MODE_EL1;
+	}
+}
+
 /*******************************************************************************
  * END OF HARDWARE PSEUDOCODE
  ******************************************************************************/
@@ -323,7 +339,7 @@ void inject_undef64(cpu_context_t *ctx)
 	}
 
 	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
-	to_el = target_el(GET_EL(old_spsr), scr_el3);
+	to_el = get_undef_target_el(scr_el3, GET_EL(old_spsr), scr_el3);
 	esr = (EC_UNKNOWN << ESR_EC_SHIFT) | ESR_IL_BIT;
 	elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
 
@@ -339,7 +355,7 @@ void inject_undef64(cpu_context_t *ctx)
 		write_spsr_el1(old_spsr);
 	}
 
-	new_spsr = create_spsr(old_spsr, to_el);
+	new_spsr = create_spsr(old_spsr, to_el, scr_el3);
 
 	write_ctx_reg(state, CTX_SPSR_EL3, new_spsr);
 	write_ctx_reg(state, CTX_ELR_EL3, elr_el3);
