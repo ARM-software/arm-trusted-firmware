@@ -107,30 +107,6 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 	return TRAP_RET_UNHANDLED;
 }
 
-static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsigned int target_el)
-{
-	unsigned int outgoing_el = GET_EL(spsr_el3);
-	u_register_t elr_el3 = 0;
-
-	if (outgoing_el == target_el) {
-		/*
-		 * Target EL is either EL1 or EL2, lsb can tell us the SPsel
-		 *  Thread mode  : 0
-		 *  Handler mode : 1
-		 */
-		if ((spsr_el3 & (MODE_SP_MASK << MODE_SP_SHIFT)) == MODE_SP_ELX) {
-			elr_el3 = vbar + CURRENT_EL_SPX;
-		} else {
-			elr_el3 = vbar + CURRENT_EL_SP0;
-		}
-	} else {
-		/* Vector address for Lower EL using Aarch64 */
-		elr_el3 = vbar + LOWER_EL_AARCH64;
-	}
-
-	return elr_el3;
-}
-
 /*******************************************************************************
  * HARDWARE PSEUDOCODE
  *
@@ -315,6 +291,63 @@ static unsigned int get_undef_target_el(u_register_t scr_el3, unsigned int from_
  * END OF HARDWARE PSEUDOCODE
  ******************************************************************************/
 
+static u_register_t get_elr_el3(u_register_t spsr_el3, unsigned int target_el)
+{
+	unsigned int outgoing_el = GET_EL(spsr_el3);
+	u_register_t elr_el3 = 0;
+	u_register_t vbar;
+
+	if (target_el == MODE_EL2) {
+		vbar = read_vbar_el2();
+	} else {
+		vbar = read_vbar_el1();
+	}
+
+	if (outgoing_el == target_el) {
+		/*
+		 * Target EL is either EL1 or EL2, lsb can tell us the SPsel
+		 *  Thread mode  : 0
+		 *  Handler mode : 1
+		 */
+		if ((spsr_el3 & (MODE_SP_MASK << MODE_SP_SHIFT)) == MODE_SP_ELX) {
+			elr_el3 = vbar + CURRENT_EL_SPX;
+		} else {
+			elr_el3 = vbar + CURRENT_EL_SP0;
+		}
+	} else {
+		/* Vector address for Lower EL using Aarch64 */
+		elr_el3 = vbar + LOWER_EL_AARCH64;
+	}
+
+	return elr_el3;
+}
+
+/*
+ * Generic function to inject an exception into a lower EL. Callers are
+ * responsible for computing the details, this just does the writes.
+ */
+static void inject_exception(el3_state_t *state, u_register_t new_esr, unsigned int to_el)
+{
+	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	u_register_t elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
+	u_register_t spsr_el3 = read_ctx_reg(state, CTX_SPSR_EL3);
+
+	/* set the lower EL exception */
+	if (to_el == MODE_EL2) {
+		write_esr_el2(new_esr);
+		write_elr_el2(elr_el3);
+		write_spsr_el2(spsr_el3);
+	} else {
+		write_esr_el1(new_esr);
+		write_elr_el1(elr_el3);
+		write_spsr_el1(spsr_el3);
+	}
+
+	/* set our eret context for el3_exit */
+	write_ctx_reg(state, CTX_ELR_EL3, get_elr_el3(spsr_el3, to_el));
+	write_ctx_reg(state, CTX_SPSR_EL3, create_spsr(spsr_el3, to_el, scr_el3));
+}
+
 /*
  * Handler for injecting Undefined exception to lower EL which is caused by
  * lower EL accessing system registers of which (old)EL3 firmware is unaware.
@@ -329,34 +362,15 @@ void inject_undef64(cpu_context_t *ctx)
 	u_register_t scr_el3 = 0U;
 	unsigned int to_el = 0U;
 	u_register_t esr = 0U;
-	u_register_t elr_el3 = 0U;
-	u_register_t new_spsr = 0U;
 
 	if (is_feat_uinj_supported()) {
-		new_spsr = old_spsr | SPSR_UINJ_BIT;
-		write_ctx_reg(state, CTX_SPSR_EL3, new_spsr);
+		write_ctx_reg(state, CTX_SPSR_EL3, old_spsr | SPSR_UINJ_BIT);
 		return;
 	}
 
 	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
 	to_el = get_undef_target_el(scr_el3, GET_EL(old_spsr), scr_el3);
 	esr = (EC_UNKNOWN << ESR_EC_SHIFT) | ESR_IL_BIT;
-	elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
 
-	if (to_el == MODE_EL2) {
-		write_elr_el2(elr_el3);
-		elr_el3 = get_elr_el3(old_spsr, read_vbar_el2(), to_el);
-		write_esr_el2(esr);
-		write_spsr_el2(old_spsr);
-	} else {
-		write_elr_el1(elr_el3);
-		elr_el3 = get_elr_el3(old_spsr, read_vbar_el1(), to_el);
-		write_esr_el1(esr);
-		write_spsr_el1(old_spsr);
-	}
-
-	new_spsr = create_spsr(old_spsr, to_el, scr_el3);
-
-	write_ctx_reg(state, CTX_SPSR_EL3, new_spsr);
-	write_ctx_reg(state, CTX_ELR_EL3, elr_el3);
+	inject_exception(state, esr, to_el);
 }
