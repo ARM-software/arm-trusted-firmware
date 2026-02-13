@@ -271,8 +271,10 @@ check_erratum_ls neoverse_n2, CVE(2024, 5660), CPU_REV(0, 3)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start neoverse_n2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+#if IMAGE_BL31
 	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
 	bl	wa_cve_2025_0647_instruction_patch
+#endif /* IMAGE_BL31 */
 workaround_reset_end neoverse_n2, CVE(2025, 647)
 
 check_erratum_chosen neoverse_n2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
@@ -363,7 +365,7 @@ func neoverse_n2_cpu_reg_dump
 	ret
 endfunc neoverse_n2_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647
+#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
 declare_cpu_ops_eh neoverse_n2, NEOVERSE_N2_MIDR, \
 	neoverse_n2_reset_func, \
 	neoverse_n2_impl_defined_el3_handler, \
