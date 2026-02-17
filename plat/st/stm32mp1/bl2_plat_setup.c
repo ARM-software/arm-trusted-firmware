@@ -51,9 +51,12 @@ static const char debug_msg[] = {
 };
 #endif
 
+static bool cold_boot;
+
 static void print_reset_reason(void)
 {
-	uint32_t rstsr = mmio_read_32(stm32mp_rcc_base() + RCC_MP_RSTSCLRR);
+	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t rstsr = mmio_read_32(rcc_base + RCC_MP_RSTSCLRR);
 
 	if (rstsr == 0U) {
 		WARN("Reset reason unknown\n");
@@ -61,6 +64,10 @@ static void print_reset_reason(void)
 	}
 
 	NOTICE("Reset reason (0x%x):\n", rstsr);
+
+	if (cold_boot) {
+		INFO("Cold boot detected\n");
+	}
 
 	if ((rstsr & RCC_MP_RSTSCLRR_PADRSTF) == 0U) {
 		if ((rstsr & RCC_MP_RSTSCLRR_STDBYRSTF) != 0U) {
@@ -221,6 +228,8 @@ static void reset_backup_domain(void)
 
 	/* Reset backup domain on cold boot cases */
 	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCCKEN) == 0U) {
+		cold_boot = true;
+
 		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 
 		while ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_VSWRST) == 0U) {
