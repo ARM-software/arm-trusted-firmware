@@ -320,4 +320,17 @@ int ti_sci_change_fwl_owner(uint16_t fwl_id, uint16_t region,
 			    uint8_t owner_index, uint8_t *owner_privid,
 			    uint16_t *owner_permission_bits);
 
+/**
+ * Keywriter Lite Operations
+ *
+ * - ti_sci_keywriter_lite - Command to program efuses using a
+ *                           structured buffer in memory.
+ *		@addr: The starting memory address of the buffer
+ *			containing the structured fuse programming data.
+ *
+ * NOTE: for all these functions, the following are generic in nature:
+ * Returns 0 for successful request, else returns corresponding error message.
+ */
+int ti_sci_keywriter_lite(unsigned long addr);
+
 #endif /* TI_SCI_H */
