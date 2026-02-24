@@ -23,6 +23,7 @@ include ${PLAT_PATH}/board/am62lx/lpm/lpm.mk
 
 BL31_SOURCES		+=	\
 				plat/ti/common/k3_svc.c		\
+				plat/ti/common/k3_sip_handler.c	\
 				drivers/scmi-msg/base.c		\
 				drivers/scmi-msg/entry.c	\
 				drivers/scmi-msg/smt.c		\
