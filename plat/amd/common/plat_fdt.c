@@ -293,7 +293,7 @@ uintptr_t plat_retrieve_dt_addr(void)
 {
 	void *dtb = NULL;
 
-	dtb = transfer_list_retrieve_dt_address();
+	dtb = transfer_list_retrieve_dt_address(TL_TAG_FDT);
 	if (dtb == NULL) {
 		WARN("TL header or DT entry is invalid\n");
 	}

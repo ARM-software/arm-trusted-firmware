@@ -70,8 +70,10 @@ static inline void bl31_set_default_config(void)
 #endif
 
 #if defined(SPD_spmd)
+#if (TRANSFER_LIST == 0)
 	bl32_image_ep_info.args.arg2 = XILINX_OF_BOARD_DTB_ADDR;
 	bl32_image_ep_info.args.arg0 = SPMC_MANIFEST_DTB_ADDR;
+#endif
 #endif
 
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();

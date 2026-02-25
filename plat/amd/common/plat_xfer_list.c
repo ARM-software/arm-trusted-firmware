@@ -14,6 +14,7 @@
 #include <plat_arm.h>
 
 #include <plat_fdt.h>
+#include <plat_xfer_list.h>
 #include <platform_def.h>
 
 static struct transfer_list_header *tl_hdr;
@@ -242,6 +243,7 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 	struct transfer_list_entry *te = NULL;
 	struct entry_point_info *ep = NULL;
 	int32_t ret = tl_ops_holder;
+	void __unused *tldtb = NULL;
 
 	if (secure_tl_region.is_mapped && ((tl_ops_holder == TL_OPS_ALL) ||
 				(tl_ops_holder == TL_OPS_RO))) {
@@ -266,7 +268,22 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 					if (transfer_list_set_handoff_args(tl_hdr, bl32) == NULL) {
 						ERROR("Invalid transfer list\n");
 					}
-#endif /* SPD_opteed */
+#elif defined(SPD_spmd)
+					/* Check if manifest blob is packaged into transfer list */
+					tldtb = transfer_list_retrieve_dt_address(
+							TL_TAG_DT_SPMC_MANIFEST);
+					if (tldtb != NULL) {
+						/*
+						 * BL32 arguments for SPMD:
+						 *   - arg0: Physical address of SPMC manifest DTB.
+						 *   - arg3: Transfer List header address.
+						 */
+						bl32->args.arg3 = (uintptr_t)tl_hdr;
+						bl32->args.arg0 = (uintptr_t)tldtb;
+					} else {
+						WARN("Failed to retrieve SPMC manifest from transfer list\n");
+					}
+#endif /* SPD_opteed || SPD_spmd */
 					break;
 				default:
 					ERROR("Unrecognized Image Security State %lu\n",
@@ -288,19 +305,25 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 	return ret;
 }
 
-void *transfer_list_retrieve_dt_address(void)
+void *transfer_list_retrieve_dt_address(uint32_t tag_id)
 {
 	void *dtb = NULL;
 	struct transfer_list_entry *te = NULL;
 
+	if ((tag_id != TL_TAG_FDT) && (tag_id != TL_TAG_DT_SPMC_MANIFEST)) {
+		WARN("Invalid tag id is passed: %u\n", tag_id);
+		goto exit_on_failure;
+	}
+
 	if (secure_tl_region.is_mapped && ((tl_ops_holder == TL_OPS_ALL) ||
 				(tl_ops_holder == TL_OPS_RO))) {
-		te = transfer_list_find(tl_hdr, TL_TAG_FDT);
+		te = transfer_list_find(tl_hdr, tag_id);
 		if (te != NULL) {
 			dtb = transfer_list_entry_data(te);
 		}
 	}
 
+exit_on_failure:
 	return dtb;
 }
 

@@ -16,7 +16,7 @@
 int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 				       entry_point_info_t *bl33);
 
-void *transfer_list_retrieve_dt_address(void);
+void *transfer_list_retrieve_dt_address(uint32_t tag_id);
 bool init_transfer_list_from_fdt_or_static(void);
 int32_t tl_init_ns_transfer_list(entry_point_info_t *bl33_image);
 int32_t tl_populate_ns_transfer_list(void);
