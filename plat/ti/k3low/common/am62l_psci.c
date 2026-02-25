@@ -317,7 +317,7 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 		 *	Thus the target power state for the cluster is the minimum of the power states
 		 *	requested by all the cores that is not RUN.
 		 */
-		if ((temp < target) && (temp != PSCI_LOCAL_STATE_RUN))
+		if (temp < target)
 			target = temp;
 		n--;
 	} while (n > 0U);
