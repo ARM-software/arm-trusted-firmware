@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <string.h>
 
 #include <platform_def.h>
@@ -30,6 +31,7 @@ io_type_t device_type_block(void);
 static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		      io_entity_t *entity);
 static int block_seek(io_entity_t *entity, int mode, signed long long offset);
+static int block_len(io_entity_t *entity, size_t *length);
 static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		      size_t *length_read);
 static int block_write(io_entity_t *entity, const uintptr_t buffer,
@@ -46,7 +48,7 @@ static const io_dev_funcs_t block_dev_funcs = {
 	.type		= device_type_block,
 	.open		= block_open,
 	.seek		= block_seek,
-	.size		= NULL,
+	.size		= block_len,
 	.read		= block_read,
 	.write		= block_write,
 	.close		= block_close,
@@ -136,8 +138,15 @@ static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 
 	region = (io_block_spec_t *)spec;
 	cur = (block_dev_state_t *)dev_info->info;
-	assert(((region->offset % cur->dev_spec->block_size) == 0) &&
-	       ((region->length % cur->dev_spec->block_size) == 0));
+	if ((region->length == 0U) ||
+	    ((region->offset % cur->dev_spec->block_size) != 0U) ||
+	    ((region->length % cur->dev_spec->block_size) != 0U)) {
+		return -EINVAL;
+	}
+	if (check_u64_overflow((uint64_t)region->offset,
+			       (uint64_t)region->length)) {
+		return -EINVAL;
+	}
 
 	cur->base = region->offset;
 	cur->size = region->length;
@@ -151,23 +160,48 @@ static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 static int block_seek(io_entity_t *entity, int mode, signed long long offset)
 {
 	block_dev_state_t *cur;
+	unsigned long long new_pos;
 
 	assert(entity->info != (uintptr_t)NULL);
 
 	cur = (block_dev_state_t *)entity->info;
-	assert((offset >= 0) && ((unsigned long long)offset < cur->size));
+	if ((offset < 0) || (cur->file_pos > cur->size)) {
+		return -EINVAL;
+	}
 
 	switch (mode) {
 	case IO_SEEK_SET:
+		if ((unsigned long long)offset > cur->size) {
+			return -EINVAL;
+		}
 		cur->file_pos = (unsigned long long)offset;
 		break;
 	case IO_SEEK_CUR:
-		cur->file_pos += (unsigned long long)offset;
+		new_pos = cur->file_pos + (unsigned long long)offset;
+		if ((new_pos < cur->file_pos) || (new_pos > cur->size)) {
+			return -EINVAL;
+		}
+		cur->file_pos = new_pos;
 		break;
 	default:
 		return -EINVAL;
 	}
-	assert(cur->file_pos < cur->size);
+	return 0;
+}
+
+static int block_len(io_entity_t *entity, size_t *length)
+{
+	block_dev_state_t *cur;
+
+	assert(entity->info != (uintptr_t)NULL);
+	assert(length != NULL);
+
+	cur = (block_dev_state_t *)entity->info;
+	if (cur->size > (unsigned long long)SIZE_MAX) {
+		return -EINVAL;
+	}
+
+	*length = (size_t)cur->size;
 	return 0;
 }
 
@@ -252,6 +286,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	size_t nbytes;  /* number of bytes read in one iteration */
 	size_t request; /* number of requested bytes in one iteration */
 	size_t count;   /* number of bytes already read */
+	unsigned long long abs_pos;
 	/*
 	 * number of leading bytes from start of the block
 	 * to the first byte to be read
@@ -269,9 +304,17 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	ops = &(cur->dev_spec->ops);
 	buf = &(cur->dev_spec->buffer);
 	block_size = cur->dev_spec->block_size;
-	assert((length <= cur->size) &&
-	       (length > 0U) &&
-	       (ops->read != NULL));
+	if ((ops->read == NULL) || (block_size == 0U)) {
+		return -EINVAL;
+	}
+	if (length == 0U) {
+		*length_read = 0U;
+		return 0;
+	}
+	if ((cur->file_pos > cur->size) ||
+	    (length > (cur->size - cur->file_pos))) {
+		return -EINVAL;
+	}
 
 	/*
 	 * We don't know the number of bytes that we are going
@@ -294,7 +337,14 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		 * Calculate the block number containing file_pos
 		 * - e.g. block 3.
 		 */
-		lba = (cur->file_pos + cur->base) / block_size;
+		if (add_overflow(cur->file_pos,
+				 (unsigned long long)cur->base, &abs_pos)) {
+			return -EINVAL;
+		}
+		if ((abs_pos / block_size) > (unsigned long long)INT_MAX) {
+			return -EINVAL;
+		}
+		lba = (int)(abs_pos / block_size);
 
 		if ((skip + left) > buf->length) {
 			/*
@@ -364,6 +414,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	size_t nbytes;  /* number of bytes read in one iteration */
 	size_t request; /* number of requested bytes in one iteration */
 	size_t count;   /* number of bytes already read */
+	unsigned long long abs_pos;
 	/*
 	 * number of leading bytes from start of the block
 	 * to the first byte to be read
@@ -381,10 +432,17 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	ops = &(cur->dev_spec->ops);
 	buf = &(cur->dev_spec->buffer);
 	block_size = cur->dev_spec->block_size;
-	assert((length <= cur->size) &&
-	       (length > 0U) &&
-	       (ops->read != NULL) &&
-	       (ops->write != NULL));
+	if ((ops->read == NULL) || (ops->write == NULL) || (block_size == 0U)) {
+		return -EINVAL;
+	}
+	if (length == 0U) {
+		*length_written = 0U;
+		return 0;
+	}
+	if ((cur->file_pos > cur->size) ||
+	    (length > (cur->size - cur->file_pos))) {
+		return -EINVAL;
+	}
 
 	/*
 	 * We don't know the number of bytes that we are going
@@ -407,7 +465,14 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		 * Calculate the block number containing file_pos
 		 * - e.g. block 3.
 		 */
-		lba = (cur->file_pos + cur->base) / block_size;
+		if (add_overflow(cur->file_pos,
+				 (unsigned long long)cur->base, &abs_pos)) {
+			return -EINVAL;
+		}
+		if ((abs_pos / block_size) > (unsigned long long)INT_MAX) {
+			return -EINVAL;
+		}
+		lba = (int)(abs_pos / block_size);
 
 		if ((skip + left) > buf->length) {
 			/*
@@ -515,10 +580,14 @@ static int block_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info)
 	cur->dev_spec = (io_block_dev_spec_t *)dev_spec;
 	buffer = &(cur->dev_spec->buffer);
 	block_size = cur->dev_spec->block_size;
-	assert((block_size > 0U) &&
-	       (is_power_of_2(block_size) != 0U) &&
-	       ((buffer->offset % block_size) == 0U) &&
-	       ((buffer->length % block_size) == 0U));
+	if ((block_size == 0U) ||
+	    (is_power_of_2(block_size) == 0U) ||
+	    (buffer->length == 0U) ||
+	    ((buffer->offset % block_size) != 0U) ||
+	    ((buffer->length % block_size) != 0U)) {
+		(void)free_dev_info(info);
+		return -EINVAL;
+	}
 
 	*dev_info = info;	/* cast away const */
 	(void)block_size;
