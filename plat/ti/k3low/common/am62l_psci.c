@@ -10,6 +10,8 @@
 #include <arch_helpers.h>
 #include <ti_clk.h>
 #include <common/debug.h>
+#include <drivers/arm/gicv3.h>
+#include "../drivers/arm/gic/v3/gicv3_private.h"
 #include <drivers/delay_timer.h>
 #include <firewall.h>
 #include <gtc.h>
@@ -25,6 +27,7 @@
 #include <plat/common/platform.h>
 #include <ti_sci.h>
 #include <ti_sci_protocol.h>
+#include <lib/utils_def.h>
 
 #include <k3_gicv3.h>
 #include <platform_def.h>
@@ -32,6 +35,9 @@
 
 volatile unsigned int val_mdctl;
 volatile unsigned int val_mdstat;
+volatile uint32_t am62l_lpm_state = 0xDEAD;
+/* Sync helper for core 0 to check if core 1 hit wfi. 0xDEEDFF indicates WFI. */
+volatile int core_1_wfi_status = 0x0;
 
 #define CORE_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL0])
 #define CLUSTER_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL1])
@@ -40,6 +46,11 @@ volatile unsigned int val_mdstat;
 #define PWR_LVL_STATE(state, lvl) ((state) >> (4 * (lvl)) & 0xfU)
 
 #define PMCTRL_SYS					(0x80)
+
+/* LPM state identifiers passed from kernel via PSCI cpu_suspend */
+#define LPM_PSTATE_DEEPSLEEP			0x2012235U  /* Shallow, more wakeup sources */
+#define LPM_PSTATE_RTC_DDR			0x2012234U  /* Deep, RTC wakeup only */
+#define LPM_PSTATE_SECONDARY_CPU_SUSPEND	0x0012233U  /* Non-primary CPU suspend marker */
 
 uintptr_t am62l_sec_entrypoint;
 uintptr_t am62l_sec_entrypoint_glob;
@@ -177,6 +188,7 @@ static int am62l_validate_power_state(unsigned int power_state,
 {
 	unsigned int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
 	unsigned int pstate = psci_get_pstate_type(power_state);
+	unsigned int core = plat_my_core_pos();
 	int i;
 
 	if (pwr_lvl > PLAT_MAX_PWR_LVL)
@@ -189,6 +201,15 @@ static int am62l_validate_power_state(unsigned int power_state,
 	} else if (pstate == PSTATE_TYPE_POWERDOWN) {
 		for (i = MPIDR_AFFLVL0; i <= pwr_lvl; i++)
 			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+		if (power_state == LPM_PSTATE_DEEPSLEEP) {
+			INFO("%s: (core %d): Deep Sleep: 0x%x\n", __func__, core, power_state);
+			am62l_lpm_state = TI_K3_SLEEP_MODE_DEEP_SLEEP;
+		} else if (power_state == LPM_PSTATE_RTC_DDR) {
+			INFO("%s: (core %d): RTC+DDR: 0x%x\n", __func__, core, power_state);
+			am62l_lpm_state = TI_K3_SLEEP_MODE_RTC_PLUS_DDR;
+		} else if (power_state == LPM_PSTATE_SECONDARY_CPU_SUSPEND) {
+			INFO("%s: (core %d): Secondary CPU validate: 0x%x\n", __func__, core, power_state);
+		}
 	}
 #if PSCI_OS_INIT_MODE
 	req_state->last_at_pwrlvl = pwr_lvl;
@@ -210,6 +231,37 @@ static void am62l_pwr_domain_suspend(const psci_power_state_t *target_state)
 		uint32_t cluster_pwr_state = CLUSTER_PWR_STATE(target_state);
 		am62l_enter_standby(core, cluster_pwr_state);
 		return;
+	} else if(CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE){
+		if (core != 0) {
+			INFO("\n%s: A53 CORE: %d suspend\n", __func__, core);
+			/* Signal that secondary core has entered suspend */
+			core_1_wfi_status = 0xDEEDFF;
+			k3_gic_cpuif_disable();
+			return;
+		}
+
+		/* wait 1000uS for the other core to finish sequence and hit wfi */
+		uint32_t timeout_core_wfi = 1000;
+		while((core_1_wfi_status != 0xDEEDFF) && (timeout_core_wfi != 0)) {
+			timeout_core_wfi--;
+			udelay(10);
+		}
+
+		mode = am62l_lpm_state;
+
+		/*
+		 * mode=6 for RTC only + DDR and mode=0 for deepsleep
+		 */
+		if (mode != 0xDEAD && timeout_core_wfi != 0) {
+			INFO ("%s: mode = %d", __func__, mode);
+			/* power off the other core as it should be in WFI by now. */
+			am62l_core_pwr_domain_off(1);
+		} else if (timeout_core_wfi == 0) {
+			ERROR("%s: timeout waiting for core 1", __func__);
+		} else {
+			ERROR("INVALID MODE, core = %d!!\n", core);
+			return;
+		}
 	}
 
 	proc_id = PLAT_PROC_START_ID + core;
@@ -243,6 +295,71 @@ static void am62l_pwr_domain_suspend_finish(const psci_power_state_t *target_sta
 		am62l_exit_standby(core, cluster_pwr_state);
 		return;
 	}
+	if (core == 1) {
+		/*
+		 * Secondary core (core 1) resume synchronization:
+		 *
+		 * Problem: During s2idle resume, if core 1 returns
+		 * to the kernel before core 0 has fully completed
+		 * its resume sequence, the kernel may incorrectly
+		 * put core 1 back to sleep, causing a deadlock.
+		 *
+		 * Solution: Core 1 waits here in EL3 via WFI until
+		 * an IPI (SGI) arrives from the kernel, signaling
+		 * that core 0's resume is complete.
+		 *
+		 * The kernel IPI is SGI 1 (interrupt ID 1), which
+		 * is a Group 1 Non-Secure interrupt. Two things are
+		 * needed for WFI to wake on this interrupt:
+		 *
+		 * 1. Enable Group 1 NS at the CPU interface.
+		 *    gicv3_cpuif_enable() only enables Group 0 and
+		 *    Group 1 Secure (via ICC_IGRPEN1_EL3 bit 1).
+		 *    After a power cycle ICC_IGRPEN1_EL3 resets to
+		 *    0, so G1NS (bit 0) remains disabled. Without
+		 *    this, HPPIR returns 0x3FF (spurious) and the
+		 *    interrupt is never signaled to the core.
+		 *
+		 * 2. Route IRQ/FIQ to EL3 via SCR_EL3.
+		 *    At EL3, WFI only wakes on interrupts that are
+		 *    physically signaled. With SCR_EL3.IRQ=0 and
+		 *    SCR_EL3.FIQ=0, Group 1 NS interrupts are not
+		 *    routed to EL3 and cannot wake WFI.
+		 */
+		u_register_t scr;
+
+		/* Restore per-CPU GIC redistributor and CPU interface */
+		gicv3_cpuif_enable(core);
+
+		/*
+		 * Enable Group 1 NS interrupts at the CPU interface.
+		 * This is the key fix: gicv3_cpuif_enable() does not
+		 * enable G1NS, so the pending NS SGI would be masked.
+		 */
+		write_icc_igrpen1_el3(read_icc_igrpen1_el3() |
+				IGRPEN1_EL3_ENABLE_G1NS_BIT);
+		isb();
+
+		/*
+		 * Route IRQ and FIQ to EL3 so the pending NS SGI
+		 * generates a physical WFI wake-up event.
+		 */
+		scr = read_scr_el3();
+		write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
+		isb();
+		dsb();
+
+		/* Wait for IPI from kernel */
+		wfi();
+
+		/* Restore SCR_EL3 to original value */
+		write_scr_el3(scr);
+		isb();
+
+		INFO("Core 1 resumed");
+
+		return;
+	}
 
 	/* Update firewall configurations */
 	update_fwl_configs();
@@ -256,6 +373,22 @@ static void am62l_pwr_domain_suspend_finish(const psci_power_state_t *target_sta
 	ti_init_scmi_server();
 	k3low_lpm_stub_copy_to_sram();
 	ti_clks_resume();
+
+	/* 60 irqn = RTC */
+	gicv3_set_spi_routing(60, GICV3_IRM_ANY, 0);
+	gicv3_enable_interrupt(60, 0);
+	gicv3_set_interrupt_pending(60, 0);
+	plat_ic_raise_ns_sgi(60, 0);
+
+	am62l_core_pwr_domain_on(1);
+
+	/*
+	 * Reset synchronization variables for next suspend cycle.
+	 * This must be done after resume is complete to ensure
+	 * proper synchronization on subsequent suspend attempts.
+	 */
+	core_1_wfi_status = 0x0;
+	am62l_lpm_state = 0xDEAD;
 }
 
 static void am62l_get_sys_suspend_power_state(psci_power_state_t *req_state)
@@ -266,6 +399,10 @@ static void am62l_get_sys_suspend_power_state(psci_power_state_t *req_state)
 	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++) {
 		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 	}
+
+	#if PSCI_OS_INIT_MODE
+		req_state->last_at_pwrlvl = PLAT_MAX_PWR_LVL;
+	#endif
 }
 
 static plat_psci_ops_t am62l_plat_psci_ops = {
