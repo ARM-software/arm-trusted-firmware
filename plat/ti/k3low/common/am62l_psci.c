@@ -118,7 +118,7 @@ static void am62l_pwr_down_domain(const psci_power_state_t *target_state)
 	core = plat_my_core_pos();
 
 	/* If our cluster is not going down we stop here */
-	if (CLUSTER_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE) {
+	if (SYSTEM_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE) {
 		VERBOSE("%s: A53 CORE: %d OFF\n", __func__, core);
 		set_main_psc_state(PD_MPU_CLST_CORE_0 + core, LPSC_MAIN_MPU_CLST_CORE_0 + core,
 				   PSC_PD_OFF, PSC_SYNCRESETDISABLE);
@@ -317,7 +317,7 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 		 *	Thus the target power state for the cluster is the minimum of the power states
 		 *	requested by all the cores that is not RUN.
 		 */
-		if (temp < target)
+		if ((temp < target) && ((temp != PSCI_LOCAL_STATE_RUN) || (lvl != MPIDR_AFFLVL1)))
 			target = temp;
 		n--;
 	} while (n > 0U);
