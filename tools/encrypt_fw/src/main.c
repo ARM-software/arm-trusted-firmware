@@ -16,6 +16,7 @@
 
 #include <openssl/conf.h>
 
+#include "aes_ccm.h"
 #include "aes_gcm.h"
 #include "cmd_opt.h"
 #include "debug.h"
@@ -33,6 +34,7 @@ static const char build_msg[] = "Built : " __TIME__ ", " __DATE__;
 
 static char *key_algs_str[] = {
 	[KEY_ALG_GCM] = "gcm",
+	[KEY_ALG_CCM] = "ccm",
 };
 
 static void print_help(const char *cmd, const struct option *long_opt)
@@ -109,6 +111,9 @@ static int encrypt_file(unsigned short fw_enc_status, int enc_alg,
 	case KEY_ALG_GCM:
 		return gcm_encrypt(fw_enc_status, key_string, nonce_string, ip_name,
 				op_name);
+	case KEY_ALG_CCM:
+		return ccm_encrypt(fw_enc_status, key_string, nonce_string, ip_name,
+				op_name);
 	default:
 		return -1;
 	}
@@ -126,7 +131,7 @@ static const cmd_opt_t common_cmd_opt[] = {
 	},
 	{
 		{ "key-alg", required_argument, NULL, 'a' },
-		"Encryption key algorithm: 'gcm' (default)"
+		"Encryption key algorithm: 'gcm' (default) or 'ccm'."
 	},
 	{
 		{ "key", required_argument, NULL, 'k' },

@@ -17,6 +17,7 @@ include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
 ENCTOOL_SOURCES :=	src/aes_gcm.c \
+			src/aes_ccm.c \
 			src/cmd_opt.c \
 			src/main.c
 
@@ -25,6 +26,9 @@ ENCTOOL_CFLAGS := -Wall -std=c99
 # Select OpenSSL version flag according to the OpenSSL build selected
 # from setting the OPENSSL_DIR path.
 $(eval $(call SELECT_OPENSSL_API_VERSION))
+
+# Make _POSIX_C_SOURCE be set appropriately so we can have the `fileno()` function
+ENCTOOL_DEFINES := _XOPEN_SOURCE=700
 
 ifeq (${DEBUG},1)
   ENCTOOL_CFLAGS += -g -O0

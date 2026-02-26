@@ -11,7 +11,8 @@
 
 /* Supported key algorithms */
 enum {
-	KEY_ALG_GCM			/* AES-GCM (default) */
+	KEY_ALG_GCM,		/* AES-GCM (default) */
+	KEY_ALG_CCM		/* AES-CCM */
 };
 
 #endif /* ENCRYPT_H */
