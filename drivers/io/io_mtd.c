@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <string.h>
 
 #include <common/debug.h>
@@ -28,6 +29,7 @@ io_type_t device_type_mtd(void);
 static int mtd_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		    io_entity_t *entity);
 static int mtd_seek(io_entity_t *entity, int mode, signed long long offset);
+static int mtd_len(io_entity_t *entity, size_t *length);
 static int mtd_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		    size_t *length_read);
 static int mtd_close(io_entity_t *entity);
@@ -42,6 +44,7 @@ static const io_dev_funcs_t mtd_dev_funcs = {
 	.type		= device_type_mtd,
 	.open		= mtd_open,
 	.seek		= mtd_seek,
+	.size		= mtd_len,
 	.read		= mtd_read,
 	.close		= mtd_close,
 	.dev_close	= mtd_dev_close,
@@ -197,6 +200,22 @@ static int mtd_seek(io_entity_t *entity, int mode, signed long long offset)
 
 	cur->extra_offset = extra_offset;
 
+	return 0;
+}
+
+static int mtd_len(io_entity_t *entity, size_t *length)
+{
+	mtd_dev_state_t *cur;
+
+	assert(entity->info != (uintptr_t)NULL);
+	assert(length != NULL);
+
+	cur = (mtd_dev_state_t *)entity->info;
+	if (cur->size > (unsigned long long)SIZE_MAX) {
+		return -EINVAL;
+	}
+
+	*length = (size_t)cur->size;
 	return 0;
 }
 
