@@ -60,39 +60,31 @@ static void am62l_cpu_standby(plat_local_state_t cpu_state)
 	write_scr_el3(scr);
 }
 
-static int am62l_pwr_domain_on(u_register_t mpidr)
-{
-	int32_t core, ret;
-	uint8_t proc_id;
+static int __maybe_unused am62l_core_pwr_domain_on(int core) {
+	int proc_id = PLAT_PROC_START_ID + core;	// should be 0x21
+	int ret;
 
-	core = plat_core_pos_by_mpidr(mpidr);
-	if (core < 0) {
-		ERROR("Could not get target core id: %d\n", core);
-		return PSCI_E_INTERN_FAIL;
-	}
-
-	proc_id = (uint8_t)(PLAT_PROC_START_ID + (uint32_t)core);
+	INFO("loc_pwr proc_id = 0x%x\n", proc_id);
 
 	ret = ti_sci_proc_request(proc_id);
-	if (ret != 0) {
-		ERROR("Request for processor ID 0x%x failed: %d\n",
-				proc_id, ret);
+	if (ret) {
+		ERROR("Request for processor failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
 	ret = ti_sci_proc_set_boot_cfg(proc_id, am62l_sec_entrypoint, 0, 0);
-	if (ret != 0) {
+	if (ret) {
 		ERROR("Request to set core boot address failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
 	/* sanity check these are off before starting a core */
 	ret = ti_sci_proc_set_boot_ctrl(proc_id,
-			0, PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ |
-			PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS |
-			PROC_BOOT_CTRL_FLAG_ARMV8_ACINACTM);
-	if (ret != 0) {
-		ERROR("Request to clear boot config failed: %d\n", ret);
+					0, PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ |
+					PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS |
+					PROC_BOOT_CTRL_FLAG_ARMV8_ACINACTM);
+	if (ret) {
+		ERROR("Request to clear boot configuration failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
@@ -100,6 +92,25 @@ static int am62l_pwr_domain_on(u_register_t mpidr)
 			   PSC_PD_ON, PSC_ENABLE);
 
 	return PSCI_E_SUCCESS;
+
+}
+
+static void am62l_core_pwr_domain_off(int core) {
+	set_main_psc_state(PD_MPU_CLST_CORE_0 + core, LPSC_MAIN_MPU_CLST_CORE_0 + core,
+			PSC_PD_OFF, PSC_SYNCRESETDISABLE);
+}
+
+static int am62l_pwr_domain_on(u_register_t mpidr)
+{
+	int32_t core;
+
+	core = plat_core_pos_by_mpidr(mpidr);
+	if (core < 0) {
+		ERROR("Could not get target core id: %d\n", core);
+		return PSCI_E_INTERN_FAIL;
+	}
+
+	return am62l_core_pwr_domain_on(core);
 }
 
 static void am62l_pwr_domain_off(const psci_power_state_t *target_state)
@@ -120,8 +131,7 @@ static void am62l_pwr_down_domain(const psci_power_state_t *target_state)
 	/* If our cluster is not going down we stop here */
 	if (SYSTEM_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE) {
 		VERBOSE("%s: A53 CORE: %d OFF\n", __func__, core);
-		set_main_psc_state(PD_MPU_CLST_CORE_0 + core, LPSC_MAIN_MPU_CLST_CORE_0 + core,
-				   PSC_PD_OFF, PSC_SYNCRESETDISABLE);
+		am62l_core_pwr_domain_off(core);
 	}
 }
 
