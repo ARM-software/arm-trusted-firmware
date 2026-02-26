@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,10 +60,12 @@ static const io_block_spec_t gpt_spec = {
  * are last 32 blocks starts at LBA-33, On runtime update these
  * before device usage. Update offset to beginning LBA-33 and
  * length to LBA-33.
+ * Each LBA holds 4 GPT entries (128B), and the +1 LBA accounts
+ * for the backup GPT header at LBA-1.
  */
 static io_block_spec_t bkup_gpt_spec = {
 	.offset         = PLAT_ARM_FLASH_IMAGE_BASE,
-	.length         = 0,
+	.length         = LBA(PLAT_PARTITION_MAX_ENTRIES / 4 + 1),
 };
 #endif /* ARM_GPT_SUPPORT */
 
