@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -111,6 +111,9 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	if (current_memmap_file.in_use == 0) {
 		assert(block_spec != NULL);
 		assert(entity != NULL);
+		if (block_spec->length == 0U) {
+			return -EINVAL;
+		}
 
 		current_memmap_file.in_use = 1;
 		current_memmap_file.base = block_spec->offset;
@@ -141,8 +144,10 @@ static int memmap_block_seek(io_entity_t *entity, int mode,
 		fp = (memmap_file_state_t *) entity->info;
 
 		/* Assert that new file position is valid */
-		assert((offset >= 0) &&
-		       ((unsigned long long)offset < fp->size));
+		if ((offset < 0) ||
+		    ((unsigned long long)offset > fp->size)) {
+			return -EINVAL;
+		}
 
 		/* Reset file position */
 		fp->file_pos = (unsigned long long)offset;
@@ -179,7 +184,9 @@ static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 
 	/* Assert that file position is valid for this read operation */
 	pos_after = fp->file_pos + length;
-	assert((pos_after >= fp->file_pos) && (pos_after <= fp->size));
+	if ((pos_after < fp->file_pos) || (pos_after > fp->size)) {
+		return -EINVAL;
+	}
 
 	memcpy((void *)buffer,
 	       (void *)((uintptr_t)(fp->base + fp->file_pos)), length);
@@ -207,7 +214,9 @@ static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 
 	/* Assert that file position is valid for this write operation */
 	pos_after = fp->file_pos + length;
-	assert((pos_after >= fp->file_pos) && (pos_after <= fp->size));
+	if ((pos_after < fp->file_pos) || (pos_after > fp->size)) {
+		return -EINVAL;
+	}
 
 	memcpy((void *)((uintptr_t)(fp->base + fp->file_pos)),
 	       (void *)buffer, length);
