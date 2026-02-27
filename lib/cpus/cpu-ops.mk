@@ -678,6 +678,10 @@ CPU_FLAG_LIST += ERRATA_V3_3864536
 # to revisions r0p0, r0p1 and r0p2 of the Neoverse V3 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_V3_3878291
 
+# Flag to apply erratum 1785648 workaround during reset. This erratum applies to
+# revision r0p0 of the Cortex-A710 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_A710_1785648
+
 # Flag to apply erratum 1901946 workaround during reset. This erratum applies
 # to revision r1p0 and is fixed in r2p0.
 CPU_FLAG_LIST += ERRATA_A710_1901946
