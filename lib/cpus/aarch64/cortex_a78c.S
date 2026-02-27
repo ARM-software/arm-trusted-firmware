@@ -43,6 +43,37 @@ workaround_reset_end cortex_a78c, ERRATUM(1941499)
 
 check_erratum_ls cortex_a78c, ERRATUM(1941499), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a78c, ERRATUM(1951501), ERRATA_A78C_1951501
+	ldr x0,=0x0
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x10e3900002
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x10fff00083
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x2001003ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0,=0x1
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x10e3800082
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x10fff00083
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x2001003ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0, =0x2
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x10e3800200
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x10fff003e0
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x2001003ff
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_a78c, ERRATUM(1951501)
+
+check_erratum_ls cortex_a78c, ERRATUM(1951501), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a78c, ERRATUM(2242638), ERRATA_A78C_2242638
 	ldr	x0, =0x5
 	msr	CORTEX_A78C_IMP_CPUPSELR_EL3, x0
