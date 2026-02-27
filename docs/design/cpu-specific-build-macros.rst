@@ -520,6 +520,10 @@ For Neoverse N1, the following errata build flags are defined :
 
 For Neoverse V1, the following errata build flags are defined :
 
+- ``ERRATA_V1_1542436``: This applies erratum 1542436 workaround to Neoverse V1
+   CPU. This needs to be enabled for revision r0p0 of the CPU. It is fixed
+   in r1p0.
+
 -  ``ERRATA_V1_1618635``: This applies errata 1618635 workaround to Neoverse-V1
    CPU. This needs to be enabled for revision r0p0 of the CPU, it is fixed in
    r1p0.
