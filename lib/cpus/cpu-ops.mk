@@ -323,6 +323,10 @@ CPU_FLAG_LIST += ERRATA_A76AE_2371140
 # applies to all revisions <= r1p1 of the Cortex A76AE cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A76AE_2753838
 
+# Flag to apply erratum 3888014 workaround during reset. This erratum applies to
+# revisions r0p0, r1p0, r1p1 of the Cortex-A76AE cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A76AE_3888014
+
 # Flag to apply erratum 1508412 workaround during reset. This erratum applies
 # only to revision <= r1p0 of the Cortex A77 cpu.
 CPU_FLAG_LIST += ERRATA_A77_1508412
