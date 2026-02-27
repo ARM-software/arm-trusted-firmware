@@ -152,6 +152,31 @@ workaround_reset_end cortex_x1, ERRATUM(1951500)
 
 check_erratum_range cortex_x1, ERRATUM(1951500), CPU_REV(1, 0), CPU_REV(1, 1)
 
+workaround_reset_start cortex_x1, ERRATUM(1952683), ERRATA_X1_1952683
+	ldr x0, =0x5
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xeee10a10
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xffef0fff
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x0010f000
+	msr s3_6_c15_c8_4, x0
+	ldr x0, =0x0010f000
+	msr s3_6_c15_c8_5, x0
+	ldr x0, =0x40000080023ff
+	msr s3_6_c15_c8_1, x0
+	ldr x0, =0x6
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xee640f34
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xffef0fff
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x40000080023ff
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_x1, ERRATUM(1952683)
+
+check_erratum_ls cortex_x1, ERRATUM(1952683), CPU_REV(0, 0)
+
 check_erratum_chosen cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
