@@ -295,7 +295,7 @@ workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_x2, CVE(2024, 5660)
 
-check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
+check_erratum_chosen cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 /*
  * Instruction patch sequence to trap 'cpp rctx' instructions to EL3.
