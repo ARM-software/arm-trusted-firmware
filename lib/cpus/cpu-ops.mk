@@ -637,6 +637,10 @@ CPU_FLAG_LIST += ERRATA_X1_1827429
 # revisions r0p0, r1p0, r1p1 of the Cortex-X1 cpu and is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_X1_1941498
 
+# Flag to apply erratum 1951500 workaround during reset. This erratum applies to
+# revisions r0p0, r1p0, r1p1 of the Cortex-X1 cpu and is fixed in r1p2.
+CPU_FLAG_LIST += ERRATA_X1_1951500
+
 # Flag to apply erratum 925373 workaround during reset. This erratum applies to
 # revision r0p0 of the Neoverse N1 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_N1_925373
