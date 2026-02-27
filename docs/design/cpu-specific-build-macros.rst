@@ -815,6 +815,10 @@ For Cortex-A710, the following errata build flags are defined :
   CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0, r2p1 of the
   CPU and is still open.
 
+- ``ERRATA_A710_3888122``: This applies erratum 3888122 workaround to
+   Cortex-A710 CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0, r2p1
+   of the CPU. It is still open.
+
 For Neoverse N2, the following errata build flags are defined :
 
 -  ``ERRATA_N2_2002655``: This applies errata 2002655 workaround to Neoverse-N2
