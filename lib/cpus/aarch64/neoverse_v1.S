@@ -259,6 +259,11 @@ workaround_reset_end neoverse_v1, ERRATUM(2779461)
 
 check_erratum_ls neoverse_v1, ERRATUM(2779461), CPU_REV(1, 2)
 
+workaround_reset_start neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
+	sysreg_bit_set NEOVERSE_V1_ACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_v1, ERRATUM(3888016)
+
+check_erratum_chosen neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
 
 workaround_reset_start neoverse_v1, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
