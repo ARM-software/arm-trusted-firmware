@@ -58,6 +58,12 @@ workaround_reset_end cortex_a510, ERRATUM(1952872)
 
 check_erratum_ls cortex_a510, ERRATUM(1952872), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a510, ERRATUM(1966377), ERRATA_A510_1966377
+	sysreg_bit_set CORTEX_A510_CPUACTLR2_EL1, BIT(29)
+workaround_reset_end cortex_a510, ERRATUM(1966377)
+
+check_erratum_ls cortex_a510, ERRATUM(1966377), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 	/* Stash ERRSELR_EL1 in x2 */
 	mrs	x2, ERRSELR_EL1
