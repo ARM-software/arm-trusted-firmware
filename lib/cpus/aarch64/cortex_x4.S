@@ -60,6 +60,15 @@ workaround_reset_end cortex_x4, ERRATUM(2631888)
 
 check_erratum_ls cortex_x4, ERRATUM(2631888), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x4, ERRATUM(2646977), ERRATA_X4_2646977
+	sysreg_bitfield_insert CORTEX_X4_CPUACTLR5_EL1, \
+	CORTEX_X4_CPUACTLR5_EL1_BIT_55, \
+	CORTEX_X4_CPUACTLR5_EL1_BIT_55_SHIFT, \
+	CORTEX_X4_CPUACTLR5_EL1_BIT_55_WIDTH
+workaround_reset_end cortex_x4, ERRATUM(2646977)
+
+check_erratum_ls cortex_x4, ERRATUM(2646977), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
 	dsb	sy
