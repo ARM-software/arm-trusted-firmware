@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -83,6 +83,12 @@ workaround_runtime_start cortex_a76ae, ERRATUM(2753838), ERRATA_A76AE_2753838
 workaround_runtime_end cortex_a76ae, ERRATUM(2753838)
 
 check_erratum_ls cortex_a76ae, ERRATUM(2753838), CPU_REV(1, 1)
+
+workaround_reset_start cortex_a76ae, ERRATUM(3888014), ERRATA_A76AE_3888014
+	sysreg_bit_set CORTEX_A76AE_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a76ae, ERRATUM(3888014)
+
+check_erratum_chosen cortex_a76ae, ERRATUM(3888014), ERRATA_A76AE_3888014
 
 workaround_reset_start cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
