@@ -54,6 +54,12 @@ workaround_reset_end cortex_x4, ERRATUM(2620954)
 
 check_erratum_ls cortex_x4, ERRATUM(2620954), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x4, ERRATUM(2631888), ERRATA_X4_2631888
+	sysreg_bit_set CORTEX_X4_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x4, ERRATUM(2631888)
+
+check_erratum_ls cortex_x4, ERRATUM(2631888), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
 	dsb	sy
