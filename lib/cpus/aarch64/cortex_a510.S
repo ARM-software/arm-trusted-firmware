@@ -73,6 +73,16 @@ workaround_reset_end cortex_a510, ERRATUM(1975068)
 
 check_erratum_ls cortex_a510, ERRATUM(1975068), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a510, ERRATUM(1976290), ERRATA_A510_1976290
+	is_feat_mte_present_asm x1
+	cmp x1, #1	/* if the value is 0b01, BROADCASTMTE is low */
+	beq 1f
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(4)
+1:
+workaround_reset_end cortex_a510, ERRATUM(1976290)
+
+check_erratum_ls cortex_a510, ERRATUM(1976290), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 	/* Stash ERRSELR_EL1 in x2 */
 	mrs	x2, ERRSELR_EL1
