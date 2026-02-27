@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,7 @@
 #define CORTEX_A715_CPUACTLR_EL1				S3_0_C15_C1_0
 #define CORTEX_A715_CPUACTLR2_EL1				S3_0_C15_C1_1
 #define CORTEX_A715_CPUACTLR3_EL1				S3_0_C15_C1_2
+#define CORTEX_A715_CPUACTLR4_EL1				S3_0_C15_C1_3
 #define CORTEX_A715_CPUECTLR_EL1				S3_0_C15_C1_4
 #define CORTEX_A715_CPUECTLR2_EL1				S3_0_C15_C1_5
 #define CORTEX_A715_CPUPSELR_EL3				S3_6_C15_C8_0
