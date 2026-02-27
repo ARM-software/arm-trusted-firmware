@@ -53,6 +53,12 @@ workaround_reset_end cortex_a77, ERRATUM(1253791)
 
 check_erratum_ls cortex_a77, ERRATUM(1253791), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a77, ERRATUM(1273521), ERRATA_A77_1273521
+	sysreg_bit_set CORTEX_A77_CPUACTLR_EL1, BIT(13)
+workaround_reset_end cortex_a77, ERRATUM(1273521)
+
+check_erratum_ls cortex_a77, ERRATUM(1273521), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a77, ERRATUM(1508412), ERRATA_A77_1508412
 	/* move cpu revision in again and compare against r0p0 */
 	mov	x0, x7
