@@ -587,6 +587,10 @@ For Cortex-A78C, the following errata build flags are defined :
    Cortex-A78C CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 of the
    CPU. It is still open.
 
+- ``ERRATA_A78C_4302974``: This applies erratum 4302974 workaround to
+   Cortex-A78C CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 of the
+   CPU. It is still open.
+
 For Cortex-X1 CPU, the following errata build flags are defined:
 
 - ``ERRATA_X1_1821534`` : This applies errata 1821534 workaround to Cortex-X1
