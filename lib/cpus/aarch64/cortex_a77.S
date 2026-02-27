@@ -185,7 +185,7 @@ workaround_reset_start cortex_a77, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_a77, CVE(2024, 5660)
 
-check_erratum_ls cortex_a77, CVE(2024, 5660), CPU_REV(1, 1)
+check_erratum_chosen cortex_a77, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77. Must follow AAPCS.
