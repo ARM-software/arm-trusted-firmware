@@ -131,6 +131,12 @@ workaround_reset_end neoverse_n1, ERRATUM(1542419)
 
 check_erratum_range neoverse_n1, ERRATUM(1542419), CPU_REV(3, 0), CPU_REV(4, 0)
 
+workaround_reset_start neoverse_n1, ERRATUM(1791580), ERRATA_N1_1791580
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, BIT(2)
+workaround_reset_end neoverse_n1, ERRATUM(1791580)
+
+check_erratum_ls neoverse_n1, ERRATUM(1791580), CPU_REV(4, 0)
+
 workaround_reset_start neoverse_n1, ERRATUM(1868343), ERRATA_N1_1868343
 	sysreg_bit_set NEOVERSE_N1_CPUACTLR_EL1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 workaround_reset_end neoverse_n1, ERRATUM(1868343)
