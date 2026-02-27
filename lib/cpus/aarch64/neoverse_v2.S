@@ -29,6 +29,12 @@
 
 cpu_reset_prologue neoverse_v2
 
+workaround_reset_start neoverse_v2, ERRATUM(2394277), ERRATA_V2_2394277
+	sysreg_bit_set NEOVERSE_V2_CPUACTLR2_EL1, BIT(40)
+workaround_reset_end neoverse_v2, ERRATUM(2394277)
+
+check_erratum_ls neoverse_v2, ERRATUM(2394277), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
         /* Disable retention control for WFI and WFE. */
         mrs     x0, NEOVERSE_V2_CPUPWRCTLR_EL1
