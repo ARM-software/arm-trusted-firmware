@@ -111,6 +111,20 @@ workaround_reset_end cortex_a78c, ERRATUM(2395411)
 
 check_erratum_range cortex_a78c, ERRATUM(2395411), CPU_REV(0, 1), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(2478780), ERRATA_A78C_2478780
+	ldr x0, =0x3
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xee010f10
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xff1f0ffe
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x100000004003ff
+	msr s3_6_c15_c8_1, x0
+	isb
+workaround_reset_end cortex_a78c, ERRATUM(2478780)
+
+check_erratum_chosen cortex_a78c, ERRATUM(2478780), ERRATA_A78C_2478780
+
 workaround_reset_start cortex_a78c, ERRATUM(2683027), ERRATA_A78C_2683027
 	ldr	x0, =0x3
 	msr	CORTEX_A78C_IMP_CPUPSELR_EL3, x0
