@@ -87,6 +87,12 @@ workaround_reset_end cortex_a78c, ERRATUM(2242638)
 
 check_erratum_range cortex_a78c, ERRATUM(2242638), CPU_REV(0, 1), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(2376746), ERRATA_A78C_2376746
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, BIT(0)
+workaround_reset_end cortex_a78c, ERRATUM(2376746)
+
+check_erratum_chosen cortex_a78c, ERRATUM(2376746), ERRATA_A78C_2376746
+
 workaround_reset_start cortex_a78c, ERRATUM(2376749), ERRATA_A78C_2376749
 	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, CORTEX_A78C_CPUACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a78c, ERRATUM(2376749)
