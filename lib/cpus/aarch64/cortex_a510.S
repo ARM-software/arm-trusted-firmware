@@ -103,6 +103,12 @@ workaround_reset_end cortex_a510, ERRATUM(2027318)
 
 check_erratum_ls cortex_a510, ERRATUM(2027318), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a510, ERRATUM(2028010), ERRATA_A510_2028010
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(38)
+workaround_reset_end cortex_a510, ERRATUM(2028010)
+
+check_erratum_ls cortex_a510, ERRATUM(2028010), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a510, ERRATUM(2041909), ERRATA_A510_2041909
 	/* Apply workaround */
 	mov	x0, xzr
