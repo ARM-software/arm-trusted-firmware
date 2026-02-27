@@ -25,6 +25,19 @@
 
 cpu_reset_prologue cortex_x1
 
+workaround_reset_start cortex_x1, ERRATUM(1467580), ERRATA_X1_1467580
+	ldr x0, =0x7
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xf3d08000
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xfff0f0ff
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x80000002003ff
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_x1, ERRATUM(1467580)
+
+check_erratum_ls cortex_x1, ERRATUM(1467580), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
 	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(1)
 workaround_reset_end cortex_x1, ERRATUM(1688305)
