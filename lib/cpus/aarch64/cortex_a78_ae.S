@@ -112,6 +112,20 @@ workaround_reset_end cortex_a78_ae, ERRATUM(2395408)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(2395408), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a78_ae, ERRATUM(2466780), ERRATA_A78_AE_2466780
+	ldr x0,=0x3
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0xee010f10
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0xff1f0ffe
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x100000004003ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78_ae, ERRATUM(2466780)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(2466780), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
