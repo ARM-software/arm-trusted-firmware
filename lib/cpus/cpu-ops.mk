@@ -1423,6 +1423,10 @@ CPU_FLAG_LIST += ERRATA_V2_4302968
 # revision r0p0 of the Cortex-A715 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_A715_2239006
 
+# Flag to apply erratum 2275754 workaround during reset. This erratum applies to
+# revision r0p0 of the Cortex-A715 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_A715_2275754
+
 # Flag to apply erratum 2284544 workaround during reset. This erratum applies to
 # revision r0p0 of the Cortex-A715 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_A715_2284544
