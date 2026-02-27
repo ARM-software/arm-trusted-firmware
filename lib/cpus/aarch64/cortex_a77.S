@@ -98,6 +98,12 @@ workaround_reset_end cortex_a77, ERRATUM(1508412)
 
 check_erratum_ls cortex_a77, ERRATUM(1508412), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a77, ERRATUM(1515815), ERRATA_A77_1515815
+	sysreg_bit_set CORTEX_A77_CPUACTLR_EL1, BIT(11)
+workaround_reset_end cortex_a77, ERRATUM(1515815)
+
+check_erratum_ls cortex_a77, ERRATUM(1515815), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a77, ERRATUM(1791578), ERRATA_A77_1791578
 	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, CORTEX_A77_ACTLR2_EL1_BIT_2
 workaround_reset_end cortex_a77, ERRATUM(1791578)
