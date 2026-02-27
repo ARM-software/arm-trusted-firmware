@@ -44,6 +44,55 @@ workaround_reset_end cortex_x1, ERRATUM(1492189)
 
 check_erratum_ls cortex_x1, ERRATUM(1492189), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x1, ERRATUM(1503072), ERRATA_X1_1503072
+	ldr x0, =0x0
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xee070f14
+	msr s3_6_c15_c8_2,x0
+	ldr x0, =0xffff0fff
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x4005027ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0, =0x1
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x00e8400000
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x00fff00000
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x4001027ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0, =0x2
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x00e8c00040
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x00fff00040
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x4001027ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0, =0x3
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x00e8400000
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x00fff00000
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x4004027ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0, =0x4
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x00e8c00040
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x00fff00040
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x4004027ff
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_x1, ERRATUM(1503072)
+
+check_erratum_ls cortex_x1, ERRATUM(1503072), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
 	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(1)
 workaround_reset_end cortex_x1, ERRATUM(1688305)
