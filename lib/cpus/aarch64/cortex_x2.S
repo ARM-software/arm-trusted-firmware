@@ -34,6 +34,12 @@
 
 cpu_reset_prologue cortex_x2
 
+workaround_reset_start cortex_x2, ERRATUM(1785648), ERRATA_X2_1785648
+	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, BIT(2)
+workaround_reset_end cortex_x2, ERRATUM(1785648)
+
+check_erratum_ls cortex_x2, ERRATUM(1785648), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(1901946), ERRATA_X2_1901946
 	sysreg_bit_set CORTEX_X2_CPUACTLR4_EL1, BIT(15)
 workaround_reset_end cortex_x2, ERRATUM(1901946)
