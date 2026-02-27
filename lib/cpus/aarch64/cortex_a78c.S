@@ -165,6 +165,12 @@ workaround_reset_end cortex_a78c, ERRATUM(2779484)
 
 check_erratum_range cortex_a78c, ERRATUM(2779484), CPU_REV(0, 1), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(3888019), ERRATA_A78C_3888019
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a78c, ERRATUM(3888019)
+
+check_erratum_chosen cortex_a78c, ERRATUM(3888019), ERRATA_A78C_3888019
+
 check_erratum_chosen cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960

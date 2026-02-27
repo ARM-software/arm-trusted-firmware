@@ -597,6 +597,10 @@ CPU_FLAG_LIST += ERRATA_A78C_2779483
 # applies to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
 CPU_FLAG_LIST += ERRATA_A78C_2779484
 
+# Flag to apply erratum 3888019 workaround during reset. This erratum applies to
+# revisions r0p0, r0p1, r0p2 of the Cortex-A78C cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A78C_3888019
+
 # Flag to apply erratum 1821534 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_X1_1821534
