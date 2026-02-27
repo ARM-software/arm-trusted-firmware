@@ -182,7 +182,7 @@ workaround_reset_start cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_a78c, CVE(2024, 5660)
 
-check_erratum_ls cortex_a78c, CVE(2024, 5660), CPU_REV(0, 2)
+check_erratum_chosen cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 cpu_reset_func_start cortex_a78c
 cpu_reset_func_end cortex_a78c
