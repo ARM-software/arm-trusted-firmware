@@ -504,6 +504,10 @@ CPU_FLAG_LIST += ERRATA_A78_AE_2743229
 # revisions r0p0, r0p1, r0p2 of the Cortex-A78AE cpu and is fixed in r0p3.
 CPU_FLAG_LIST += ERRATA_A78_AE_2779481
 
+# Flag to apply erratum 3888018 workaround during reset. This erratum applies to
+# revisions r0p0, r0p1, r0p2, r0p3 of the Cortex-A78AE cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A78_AE_3888018
+
 # Flag to apply erratum 2242638 workaround during reset. This erratum applies
 # to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
 CPU_FLAG_LIST += ERRATA_A78C_2242638

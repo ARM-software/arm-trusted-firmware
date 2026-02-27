@@ -138,6 +138,12 @@ workaround_reset_end cortex_a78_ae, ERRATUM(2779481)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(2779481), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78_ae, ERRATUM(3888018), ERRATA_A78_AE_3888018
+	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a78_ae, ERRATUM(3888018)
+
+check_erratum_chosen cortex_a78_ae, ERRATUM(3888018), ERRATA_A78_AE_3888018
+
 workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
