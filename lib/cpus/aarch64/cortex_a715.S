@@ -30,6 +30,12 @@
 
 cpu_reset_prologue cortex_a715
 
+workaround_reset_start cortex_a715, ERRATUM(2238661), ERRATA_A715_2238661
+	sysreg_bit_set CORTEX_A715_CPUACTLR_EL1, BIT(0)
+workaround_reset_end cortex_a715, ERRATUM(2238661)
+
+check_erratum_ls cortex_a715, ERRATUM(2238661), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a715, ERRATUM(2239006), ERRATA_A715_2239006
 	sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(9)
 workaround_reset_end cortex_a715, ERRATUM(2239006)
