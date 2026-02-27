@@ -1058,6 +1058,9 @@ For Cortex-X3, the following errata build flags are defined :
 
 For Cortex-X4, the following errata build flags are defined :
 
+- ``ERRATA_X4_2302507``: This applies erratum 2302507 workaround to Cortex-X4
+   CPU. This needs to be enabled for revision r0p0 of the CPU. It is fixed in r0p1.
+
 - ``ERRATA_X4_2701112``: This applies erratum 2701112 workaround to Cortex-X4
   CPU and affects system configurations that do not use an Arm interconnect IP.
   This needs to be enabled for revisions r0p0 and is fixed in r0p1.
