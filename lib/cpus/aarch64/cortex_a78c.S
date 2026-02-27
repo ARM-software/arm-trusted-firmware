@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,6 +36,12 @@ workaround_reset_start cortex_a78c, ERRATUM(1827440), ERRATA_A78C_1827440
 workaround_reset_end cortex_a78c, ERRATUM(1827440)
 
 check_erratum_ls cortex_a78c, ERRATUM(1827440), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78c, ERRATUM(1941499), ERRATA_A78C_1941499
+	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(8)
+workaround_reset_end cortex_a78c, ERRATUM(1941499)
+
+check_erratum_ls cortex_a78c, ERRATUM(1941499), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a78c, ERRATUM(2242638), ERRATA_A78C_2242638
 	ldr	x0, =0x5
