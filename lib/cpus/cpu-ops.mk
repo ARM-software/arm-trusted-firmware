@@ -993,6 +993,10 @@ CPU_FLAG_LIST += ERRATA_X3_2138930
 # revision r0p0 of the Cortex-X3 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_X3_2147714
 
+# Flag to apply erratum 2184829 workaround during reset. This erratum applies to
+# revision r0p0 of the Cortex-X3 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_X3_2184829
+
 # Flag to apply erratum 2266875 workaround during reset. This erratum applies
 # to revisions r0p0 and r1p0 of the Cortex-X3 cpu, it is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_X3_2266875
