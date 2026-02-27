@@ -202,6 +202,12 @@ workaround_reset_end cortex_x1, ERRATUM(2779479)
 
 check_erratum_chosen cortex_x1, ERRATUM(2779479), ERRATA_X1_2779479
 
+workaround_reset_start cortex_x1, ERRATUM(3888017), ERRATA_X1_3888017
+	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_x1, ERRATUM(3888017)
+
+check_erratum_chosen cortex_x1, ERRATUM(3888017), ERRATA_X1_3888017
+
 check_erratum_chosen cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
