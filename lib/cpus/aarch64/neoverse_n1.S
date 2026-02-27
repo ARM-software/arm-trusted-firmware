@@ -30,6 +30,13 @@
 
 cpu_reset_prologue neoverse_n1
 
+workaround_reset_start neoverse_n1, ERRATUM(925373), ERRATA_N1_925373
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(33)
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(34)
+workaround_reset_end neoverse_n1, ERRATUM(925373)
+
+check_erratum_ls neoverse_n1, ERRATUM(925373), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_n1, ERRATUM(936184), ERRATA_DSU_936184
 	errata_dsu_936184_wa_impl
 workaround_reset_end neoverse_n1, ERRATUM(936184)
