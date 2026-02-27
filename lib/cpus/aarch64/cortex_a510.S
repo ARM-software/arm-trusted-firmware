@@ -64,6 +64,15 @@ workaround_reset_end cortex_a510, ERRATUM(1966377)
 
 check_erratum_ls cortex_a510, ERRATUM(1966377), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a510, ERRATUM(1975068), ERRATA_A510_1975068
+	sysreg_bitfield_insert CORTEX_A510_CMPXECTLR_EL1, \
+		CORTEX_A510_CMPXECTLR_EL1_FPDFTH_BIT, \
+		CORTEX_A510_CMPXECTLR_EL1_FPDFTH_SHIFT, \
+		CORTEX_A510_CMPXECTLR_EL1_FPDFTH_WIDTH
+workaround_reset_end cortex_a510, ERRATUM(1975068)
+
+check_erratum_ls cortex_a510, ERRATUM(1975068), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 	/* Stash ERRSELR_EL1 in x2 */
 	mrs	x2, ERRSELR_EL1
