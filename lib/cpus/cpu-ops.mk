@@ -792,6 +792,10 @@ CPU_FLAG_LIST += ERRATA_A710_3324338
 # of the Cortex-A710 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A710_3701772
 
+# Flag to apply erratum 3888122 workaround during reset. This erratum applies to
+# revisions r0p0, r1p0, r2p0, r2p1 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_3888122
+
 # Flag to apply erratum 2002655 workaround during reset. This erratum applies
 # to revisions r0p0 of the Neoverse-N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2002655

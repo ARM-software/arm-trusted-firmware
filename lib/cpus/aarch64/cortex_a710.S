@@ -281,6 +281,12 @@ workaround_runtime_end cortex_a710, ERRATUM(3324338)
 
 check_erratum_ls cortex_a710, ERRATUM(3324338), CPU_REV(2, 1)
 
+workaround_reset_start cortex_a710, ERRATUM(3888122), ERRATA_A710_3888122
+	sysreg_bit_set CORTEX_A710_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a710, ERRATUM(3888122)
+
+check_erratum_chosen cortex_a710, ERRATUM(3888122), ERRATA_A710_3888122
+
 add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
 
 check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
