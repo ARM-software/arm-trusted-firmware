@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,13 @@ cpu_reset_prologue cortex_a77
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A77_BHB_LOOP_COUNT, cortex_a77
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_reset_start cortex_a77, ERRATUM(1160841), ERRATA_A77_1160841
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, BIT(0)
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, BIT(15)
+workaround_reset_end cortex_a77, ERRATUM(1160841)
+
+check_erratum_ls cortex_a77, ERRATUM(1160841), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a77, ERRATUM(1508412), ERRATA_A77_1508412
 	/* move cpu revision in again and compare against r0p0 */
