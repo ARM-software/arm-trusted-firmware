@@ -524,6 +524,10 @@ CPU_FLAG_LIST += ERRATA_X1_1688305
 # to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_X1_1827429
 
+# Flag to apply erratum 925373 workaround during reset. This erratum applies to
+# revision r0p0 of the Neoverse N1 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_N1_925373
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 CPU_FLAG_LIST += ERRATA_N1_1043202
