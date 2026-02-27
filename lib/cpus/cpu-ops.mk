@@ -195,6 +195,11 @@ CPU_FLAG_LIST += ERRATA_A57_829520
 # only to revision <= r1p2 of the Cortex A57 cpu.
 CPU_FLAG_LIST += ERRATA_A57_833471
 
+# Flag to apply erratum 836019 workaround during reset. This erratum applies to
+# revisions r0p0, r0p1, r1p0, r1p1, r1p2, r1p3 of the Cortex-A57 cpu and is still
+# open.
+CPU_FLAG_LIST += ERRATA_A57_836019
+
 # Flag to apply erratum 855972 workaround during reset. This erratum applies
 # only to revision <= r1p3 of the Cortex A57 cpu.
 CPU_FLAG_LIST += ERRATA_A57_859972
