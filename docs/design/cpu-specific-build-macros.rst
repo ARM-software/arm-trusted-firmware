@@ -1480,6 +1480,10 @@ For Cortex-A520, the following errata build flags are defined :
    Cortex-A520 CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3,
    r0p4 of the CPU. It is still open.
 
+- ``ERRATA_A520_3685825``: This applies erratum 3685825 workaround to
+   Cortex-A520 CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3,
+   r0p4 of the CPU. It is still open.
+
 For Cortex-A715, the following errata build flags are defined :
 
 - ``ERRATA_A715_2238661``: This applies erratum 2238661 workaround to
