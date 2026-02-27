@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,18 @@
 #endif
 
 cpu_reset_prologue cortex_a510
+
+workaround_reset_start cortex_a510, ERRATUM(1910738), ERRATA_A510_1910738
+	is_feat_mte_present_asm x1
+	cmp x1, #1	/* if the value is 0b01, BROADCASTMTE is low */
+	beq 1f
+	sysreg_bit_set CORTEX_A510_CPUECTLR_EL1, BIT(19)
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(4)
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(26)
+1:
+workaround_reset_end cortex_a510, ERRATUM(1910738)
+
+check_erratum_ls cortex_a510, ERRATUM(1910738), CPU_REV(0, 0)
 
 workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 	/* Stash ERRSELR_EL1 in x2 */

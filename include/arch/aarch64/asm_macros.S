@@ -252,6 +252,11 @@
 #endif
 	.endm
 
+	.macro is_feat_mte_present_asm reg:req
+	mrs	\reg, id_aa64pfr1_el1
+	ubfx	\reg, \reg, #ID_AA64PFR1_EL1_MTE_SHIFT, #ID_AA64PFR1_EL1_MTE_WIDTH
+	.endm
+
 .macro call_reset_handler
 #if !(defined(IMAGE_BL2) && ENABLE_RME)
 	/* ---------------------------------------------------------------------

@@ -375,6 +375,10 @@
 #define ID_AA64PFR1_EL1_RNG_TRAP_SUPPORTED	ULL(0x1)
 #define ID_AA64PFR1_EL1_RNG_TRAP_NOT_SUPPORTED	ULL(0x0)
 
+/* ID_AA64PFR1_EL1.MTE field: MTE architecture presence (bits [11:8]) */
+#define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
+#define ID_AA64PFR1_EL1_MTE_WIDTH	U(4)
+
 /* Memory Tagging Extension is not implemented */
 #define MTE_UNIMPLEMENTED	U(0)
 /* FEAT_MTE: MTE instructions accessible at EL0 are implemented */
