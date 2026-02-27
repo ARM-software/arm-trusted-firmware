@@ -153,6 +153,12 @@ add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
 
 check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 
+workaround_reset_start cortex_x4, ERRATUM(3841338), ERRATA_X4_3841338
+	sysreg_bit_set CORTEX_X4_CPUACTLR_EL1, BIT(1)
+workaround_reset_end cortex_x4, ERRATUM(3841338)
+
+check_erratum_ls cortex_x4, ERRATUM(3841338), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x4, ERRATUM(3887999), ERRATA_X4_3887999
 	sysreg_bit_set CORTEX_X4_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end cortex_x4, ERRATUM(3887999)
