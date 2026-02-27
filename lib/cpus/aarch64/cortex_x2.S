@@ -58,6 +58,12 @@ workaround_reset_end cortex_x2, ERRATUM(1887102)
 
 check_erratum_ls cortex_x2, ERRATUM(1887102), CPU_REV(1, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(1887413), ERRATA_X2_1887413
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(10)
+workaround_reset_end cortex_x2, ERRATUM(1887413)
+
+check_erratum_ls cortex_x2, ERRATUM(1887413), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(1901946), ERRATA_X2_1901946
 	sysreg_bit_set CORTEX_X2_CPUACTLR4_EL1, BIT(15)
 workaround_reset_end cortex_x2, ERRATUM(1901946)
