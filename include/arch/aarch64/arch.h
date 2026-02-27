@@ -537,6 +537,10 @@
 #define ID_AA64PFR1_EL1_PFAR_MASK	ULL(0xf)
 
 
+/* ID_AA64PFR1_EL1.MTE field: MTE architecture presence (bits [11:8]) */
+#define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
+#define ID_AA64PFR1_EL1_MTE_WIDTH	U(4)
+
 /* ID_AA64PFR2_EL1 definitions */
 #define ID_AA64PFR2_EL1				S3_0_C0_C4_2
 
