@@ -95,6 +95,12 @@ workaround_reset_end neoverse_v1, ERRATUM(1618635)
 
 check_erratum_ls neoverse_v1, ERRATUM(1618635), CPU_REV(0, 0)
 
+workaround_reset_start neoverse_v1, ERRATUM(1618636), ERRATA_V1_1618636
+	sysreg_bit_set NEOVERSE_V1_ACTLR5_EL1, BIT(8)
+workaround_reset_end neoverse_v1, ERRATUM(1618636)
+
+check_erratum_ls neoverse_v1, ERRATUM(1618636), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_v1, ERRATUM(1774420), ERRATA_V1_1774420
 	/* Set bit 53 in CPUECTLR_EL1 */
 	sysreg_bit_set NEOVERSE_V1_CPUECTLR_EL1, NEOVERSE_V1_CPUECTLR_EL1_BIT_53
