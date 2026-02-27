@@ -72,6 +72,20 @@ workaround_reset_end cortex_a78_ae, ERRATUM(1951502)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(1951502), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a78_ae, ERRATUM(2242639), ERRATA_A78_AE_2242639
+	ldr x0,=0x5
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0x10f600e000
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0x10ff80e000
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x80000000003ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78_ae, ERRATUM(2242639)
+
+check_erratum_range cortex_a78_ae, ERRATUM(2242639), CPU_REV(0, 1), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a78_ae, ERRATUM(2376748), ERRATA_A78_AE_2376748
 	/* -------------------------------------------------------
 	 * Set CPUACTLR2_EL1[0] to 1 to force PLDW/PFRM ST to
