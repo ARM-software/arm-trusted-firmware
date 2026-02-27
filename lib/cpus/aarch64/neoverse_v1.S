@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,12 @@ cpu_reset_prologue neoverse_v1
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V1_BHB_LOOP_COUNT, neoverse_v1
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_reset_start neoverse_v1, ERRATUM(1542436), ERRATA_V1_1542436
+	sysreg_bit_set NEOVERSE_V1_CPUACTLR4_EL1, BIT(14)
+workaround_reset_end neoverse_v1, ERRATUM(1542436)
+
+check_erratum_ls neoverse_v1, ERRATUM(1542436), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_v1, ERRATUM(1618635), ERRATA_V1_1618635
 	/* Inserts a DMB SY before and after MRS PAR_EL1 */
