@@ -97,6 +97,12 @@ workaround_runtime_end cortex_a510, ERRATUM(2008766), NO_ISB
 
 check_erratum_ls cortex_a510, ERRATUM(2008766), CPU_REV(1, 3)
 
+workaround_reset_start cortex_a510, ERRATUM(2027318), ERRATA_A510_2027318
+	sysreg_bit_set CORTEX_A510_CMPXACTLR_EL1, BIT(11)
+workaround_reset_end cortex_a510, ERRATUM(2027318)
+
+check_erratum_ls cortex_a510, ERRATUM(2027318), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a510, ERRATUM(2041909), ERRATA_A510_2041909
 	/* Apply workaround */
 	mov	x0, xzr
