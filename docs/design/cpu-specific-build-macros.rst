@@ -706,6 +706,10 @@ For Neoverse V3, the following errata build flags are defined :
 
 For Cortex-A710, the following errata build flags are defined :
 
+- ``ERRATA_A710_1785648``: This applies erratum 1785648 workaround to
+   Cortex-A710 CPU. This needs to be enabled for revision r0p0 of the CPU. It is
+   fixed in r1p0.
+
 -  ``ERRATA_A710_1901946``: This applies errata 1901946 workaround to
    Cortex-A710 CPU. This needs to be enabled only for revision r1p0. It has
    been fixed in r2p0.
