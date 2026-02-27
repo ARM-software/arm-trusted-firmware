@@ -41,6 +41,19 @@ workaround_reset_end cortex_x4, ERRATUM(2302507)
 
 check_erratum_ls cortex_x4, ERRATUM(2302507), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x4, ERRATUM(2620954), ERRATA_X4_2620954
+	ldr x0, =0x0
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xD5030020
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xFFFFCFA0
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x40000004003FF
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_x4, ERRATUM(2620954)
+
+check_erratum_ls cortex_x4, ERRATUM(2620954), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
 	dsb	sy
