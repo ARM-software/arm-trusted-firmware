@@ -1063,6 +1063,10 @@ CPU_FLAG_LIST += ERRATA_X4_2620954
 # revision r0p0 of the Cortex-X4 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_X4_2631888
 
+# Flag to apply erratum 2646977 workaround during reset. This erratum applies to
+# revision r0p0 of the Cortex-X4 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_X4_2646977
+
 # Flag to apply erratum 2701112 workaround for platforms that do not use an
 # Arm interconnect IP. This erratum applies to revisions r0p0 of the Cortex-X4
 # cpu and is fixed in r0p1.
