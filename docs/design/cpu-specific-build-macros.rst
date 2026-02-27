@@ -642,6 +642,10 @@ For Cortex-X1 CPU, the following errata build flags are defined:
    CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1, r1p2 of the CPU.
    It is still open.
 
+- ``ERRATA_X1_3888017``: This applies erratum 3888017 workaround to Cortex-X1
+   CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1, r1p2 of the CPU.
+   It is still open.
+
 For Neoverse N1, the following errata build flags are defined :
 
 - ``ERRATA_N1_925373``: This applies erratum 925373 workaround to Neoverse N1
