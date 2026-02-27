@@ -617,6 +617,10 @@ CPU_FLAG_LIST += ERRATA_X1_1492189
 # revision r0p0 of the Cortex-X1 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_X1_1503072
 
+# Flag to apply erratum 1515634 workaround during reset. This erratum applies to
+# revision r0p0 of the Cortex-X1 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_X1_1515634
+
 # Flag to apply erratum 1821534 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_X1_1821534
