@@ -179,7 +179,7 @@ workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X3_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_x3, CVE(2024, 5660)
 
-check_erratum_ls cortex_x3, CVE(2024, 5660), CPU_REV(1, 2)
+check_erratum_chosen cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 	/* --------------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for Cortex-X3 using erratum 3692984
