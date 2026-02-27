@@ -1357,6 +1357,10 @@ For Cortex-A715, the following errata build flags are defined :
    Cortex-A715 CPU. This needs to be enabled for revision r0p0 of the CPU. It is
    fixed in r1p0.
 
+- ``ERRATA_A715_2285473``: This applies erratum 2285473 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revision r0p0 of the CPU. It is
+   fixed in r1p0.
+
 - ``ERRATA_A715_2292761``: This applies erratum 2292761 workaround to
    Cortex-A715 CPU. This needs to be enabled for revision r0p0 of the CPU. It is
    fixed in r1p0.
