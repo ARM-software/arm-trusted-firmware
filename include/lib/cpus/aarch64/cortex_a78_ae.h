@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -27,5 +27,6 @@
 #define CORTEX_A78_AE_ACTLR2_EL1			CORTEX_A78_ACTLR2_EL1
 #define CORTEX_A78_AE_ACTLR2_EL1_BIT_0			CORTEX_A78_ACTLR2_EL1_BIT_0
 #define CORTEX_A78_AE_ACTLR2_EL1_BIT_40			CORTEX_A78_ACTLR2_EL1_BIT_40
+#define CORTEX_A78_AE_CPUACTLR5_EL1			S3_0_C15_C9_0
 
 #endif /* CORTEX_A78_AE_H */
