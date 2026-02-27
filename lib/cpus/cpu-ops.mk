@@ -341,6 +341,10 @@ CPU_FLAG_LIST += ERRATA_A76AE_3888014
 # revision r0p0 of the Cortex-A77 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_A77_1160841
 
+# Flag to apply erratum 1204882 workaround during reset. This erratum applies to
+# revision r0p0 of the Cortex-A77 cpu and is fixed in r1p0.
+CPU_FLAG_LIST += ERRATA_A77_1204882
+
 # Flag to apply erratum 1508412 workaround during reset. This erratum applies
 # only to revision <= r1p0 of the Cortex A77 cpu.
 CPU_FLAG_LIST += ERRATA_A77_1508412
