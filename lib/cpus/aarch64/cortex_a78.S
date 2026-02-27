@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,20 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue cortex_a78
+
+workaround_reset_start cortex_a78, ERRATUM(1467580), ERRATA_A78_1467580
+	ldr x0,=0x7
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0xf3d08000
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0xfff0f0ff
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x80000002003ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78, ERRATUM(1467580)
+
+check_erratum_ls cortex_a78, ERRATUM(1467580), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
 	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1
