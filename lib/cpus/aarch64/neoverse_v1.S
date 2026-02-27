@@ -34,6 +34,12 @@ workaround_reset_end neoverse_v1, ERRATUM(1542436)
 
 check_erratum_ls neoverse_v1, ERRATUM(1542436), CPU_REV(0, 0)
 
+workaround_reset_start neoverse_v1, ERRATUM(1618634), ERRATA_V1_1618634
+	sysreg_bit_set NEOVERSE_V1_CPUACTLR_EL1, BIT(13)
+workaround_reset_end neoverse_v1, ERRATUM(1618634)
+
+check_erratum_ls neoverse_v1, ERRATUM(1618634), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_v1, ERRATUM(1618635), ERRATA_V1_1618635
 	/* Inserts a DMB SY before and after MRS PAR_EL1 */
 	ldr	x0, =0x0
