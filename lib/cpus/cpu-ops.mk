@@ -487,6 +487,10 @@ CPU_FLAG_LIST += ERRATA_A78C_1827430
 # to revision r0p0 of the A78C cpu. It is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_A78C_1827440
 
+# Flag to apply erratum 2466780 workaround during reset. This erratum applies to
+# revisions r0p0, r0p1 of the Cortex-A78AE cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_A78_AE_2466780
+
 # Flag to apply erratum 2712574 workaround for non-arm interconnect ip. This
 # erratum applies to revisions r0p0, r0p1 and r0p2 of the A78 AE cpu.
 # It is still open.
