@@ -594,6 +594,11 @@ CPU_FLAG_LIST += ERRATA_N1_2743102
 # applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_N1_3324349
 
+# Flag to apply erratum 3888013 workaround during reset. This erratum applies to
+# revisions r0p0, r1p0, r2p0, r3p0, r3p1, r4p0, r4p1 of the Neoverse N1 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_N1_3888013
+
 # Flag to apply erratum 1542436 workaround during reset. This erratum applies to
 # revision r0p0 of the Neoverse V1 cpu and is fixed in r1p0.
 CPU_FLAG_LIST += ERRATA_V1_1542436
