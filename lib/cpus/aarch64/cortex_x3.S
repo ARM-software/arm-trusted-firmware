@@ -39,6 +39,12 @@ workaround_reset_end cortex_x3, ERRATUM(2138930)
 
 check_erratum_ls cortex_x3, ERRATUM(2138930), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x3, ERRATUM(2147714), ERRATA_X3_2147714
+	sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
+workaround_reset_end cortex_x3, ERRATUM(2147714)
+
+check_erratum_ls cortex_x3, ERRATUM(2147714), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x3, ERRATUM(2266875), ERRATA_X3_2266875
         sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
 workaround_reset_end cortex_x3, ERRATUM(2266875)
