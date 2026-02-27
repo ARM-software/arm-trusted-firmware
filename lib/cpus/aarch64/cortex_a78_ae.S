@@ -30,6 +30,12 @@ workaround_reset_end cortex_a78_ae, ERRATUM(1827431)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(1827431), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a78_ae, ERRATUM(1827433), ERRATA_A78_AE_1827433
+	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, BIT(2)
+workaround_reset_end cortex_a78_ae, ERRATUM(1827433)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(1827433), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a78_ae, ERRATUM(1941500), ERRATA_A78_AE_1941500
 	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
 workaround_reset_end cortex_a78_ae, ERRATUM(1941500)
