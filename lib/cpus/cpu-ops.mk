@@ -389,6 +389,10 @@ CPU_FLAG_LIST += ERRATA_A78_1515634
 # to revisions r0p0 - r1p0 of the A78 cpu.
 CPU_FLAG_LIST += ERRATA_A78_1688305
 
+# Flag to apply erratum 1827429 workaround during reset. This erratum applies to
+# revisions r0p0, r1p0 of the Cortex-A78 cpu and is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A78_1827429
+
 # Flag to apply erratum 1941498 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r1p1 of the A78 cpu.
 CPU_FLAG_LIST += ERRATA_A78_1941498
