@@ -215,7 +215,7 @@ endif
 
 # Include mbedtls if it can be located
 MBEDTLS_DIR ?= mbedtls
-MBEDTLS_CHECK := $(shell find ${MBEDTLS_DIR}/include -name '$(notdir ${MBEDTLS_DIR})')
+MBEDTLS_CHECK := $(shell test -d "${MBEDTLS_DIR}" && echo "1")
 
 ifneq (${MBEDTLS_CHECK},)
 $(info Found mbedTLS at ${MBEDTLS_DIR})
