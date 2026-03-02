@@ -38,6 +38,11 @@ volatile unsigned int val_mdstat;
 volatile uint32_t am62l_lpm_state = 0xDEAD;
 /* Sync helper for core 0 to check if core 1 hit wfi. 0xDEEDFF indicates WFI. */
 volatile int core_1_wfi_status = 0x0;
+/*
+ * CPU Hot plug(CPU HP) status flag, used to differentiate if it's regular
+ * deep or s2idle mem_sleep from the OS
+ */
+volatile int core_1_hp_status = 0x0;
 
 #define CORE_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL0])
 #define CLUSTER_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL1])
@@ -120,7 +125,8 @@ static int am62l_pwr_domain_on(u_register_t mpidr)
 		ERROR("Could not get target core id: %d\n", core);
 		return PSCI_E_INTERN_FAIL;
 	}
-
+	core_1_hp_status = 1;
+	dsb();
 	return am62l_core_pwr_domain_on(core);
 }
 
@@ -129,6 +135,8 @@ static void am62l_pwr_domain_off(const psci_power_state_t *target_state)
 	/* At very least the local core should be powering down */
 	assert(((target_state)->pwr_domain_state[MPIDR_AFFLVL0]) == PLAT_MAX_OFF_STATE);
 
+	core_1_hp_status = 0;
+	dsb();
 	/* Prevent interrupts from spuriously waking up this cpu */
 	k3_gic_cpuif_disable();
 }
@@ -231,7 +239,7 @@ static void am62l_pwr_domain_suspend(const psci_power_state_t *target_state)
 		uint32_t cluster_pwr_state = CLUSTER_PWR_STATE(target_state);
 		am62l_enter_standby(core, cluster_pwr_state);
 		return;
-	} else if(CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE){
+	} else if(CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE && (core_1_hp_status == 1)){
 		if (core != 0) {
 			INFO("\n%s: A53 CORE: %d suspend\n", __func__, core);
 			/* Signal that secondary core has entered suspend */
@@ -374,13 +382,17 @@ static void am62l_pwr_domain_suspend_finish(const psci_power_state_t *target_sta
 	k3low_lpm_stub_copy_to_sram();
 	ti_clks_resume();
 
-	/* 60 irqn = RTC */
-	gicv3_set_spi_routing(60, GICV3_IRM_ANY, 0);
-	gicv3_enable_interrupt(60, 0);
-	gicv3_set_interrupt_pending(60, 0);
-	plat_ic_raise_ns_sgi(60, 0);
+	if (core_1_hp_status == 1) {
+		/* 60 irqn = RTC */
+		gicv3_set_spi_routing(60, GICV3_IRM_ANY, 0);
+		gicv3_enable_interrupt(60, 0);
+		gicv3_set_interrupt_pending(60, 0);
+		plat_ic_raise_ns_sgi(60, 0);
 
-	am62l_core_pwr_domain_on(1);
+		am62l_core_pwr_domain_on(1);
+	} else {
+		return;
+	}
 
 	/*
 	 * Reset synchronization variables for next suspend cycle.
