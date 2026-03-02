@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <lib/spinlock.h>
+#include <lib/gpt_rme/gpc_fault.h>
 
 /******************************************************************************/
 /* GPT helper macros and definitions                                          */

@@ -1369,6 +1369,11 @@
 #define ISS_SYSREG_OPCODE_ERXMISC3_EL1	SYSREG_ESR(3, 0, 5, 5, 3)
 #define ISS_SYSREG_OPCODE_ERXGSR_EL1	SYSREG_ESR(3, 0, 5, 3, 2)
 
+/* Data Fault Status code, not all error codes listed */
+#define ISS_DFSC_SHIFT 			U(0)
+#define ISS_DFSC_WIDTH			U(5)
+#define ISS_DFSC_MASK			GENMASK(ISS_DFSC_WIDTH, ISS_DFSC_SHIFT)
+#define DFSC_GPF_DABORT			U(0x28)
 
 /*
  * External Abort bit in Instruction and Data Aborts synchronous exception

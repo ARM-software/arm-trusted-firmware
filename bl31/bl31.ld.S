@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,6 +69,10 @@ SECTIONS {
 #   endif /* PLAT_EXTRA_RODATA_INCLUDES */
 
         RODATA_COMMON
+
+        __GPC_GPF_TRAPS_START__ = .;
+        KEEP(*(SORT_BY_NAME(.el3_gpf_traps*)))
+        __GPC_GPF_TRAPS_END__ = .;
 
         . = ALIGN(8);
 
