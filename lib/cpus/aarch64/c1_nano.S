@@ -22,10 +22,6 @@
 #error "Arm C1-Nano supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if ERRATA_SME_POWER_DOWN == 0
-#error "Arm C1-Nano needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
-#endif
-
 cpu_reset_prologue c1_nano
 
 workaround_reset_start c1_nano, ERRATUM(3392149), ERRATA_C1NANO_3392149
@@ -129,6 +125,16 @@ cpu_reset_func_start c1_nano
 cpu_reset_func_end c1_nano
 
 func c1_nano_core_pwr_dwn
+	/*
+	 * When software running at lower ELs requests power down without first
+	 * disabling SME, the CME connected to it will reject its power down
+	 * request. Skip setting the PWRDN_EN bit, downgrading the powerdown
+	 * request to a simple WFI wait, to get a minimal amount of power saving
+	 * rather than an instant pabandon.
+	 */
+	mrs	x0, SVCR
+	cbnz	x0, c1_nano_skip_pwr_dwn
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
@@ -137,6 +143,7 @@ func c1_nano_core_pwr_dwn
 		C1_NANO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	apply_erratum c1_nano, ERRATUM(3754876), ERRATA_C1NANO_3754876
+c1_nano_skip_pwr_dwn:
 	signal_pabandon_handled
 	ret
 endfunc c1_nano_core_pwr_dwn

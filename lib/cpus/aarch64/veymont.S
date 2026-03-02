@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,10 +21,6 @@
 #error "Veymont supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if ERRATA_SME_POWER_DOWN == 0
-#error "Veymont needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
-#endif
-
 cpu_reset_prologue veymont
 
 cpu_reset_func_start veymont
@@ -37,6 +33,16 @@ cpu_reset_func_start veymont
 cpu_reset_func_end veymont
 
 func veymont_core_pwr_dwn
+	/*
+	 * When software running at lower ELs requests power down without first
+	 * disabling SME, the CME connected to it will reject its power down
+	 * request. Skip setting the PWRDN_EN bit, downgrading the powerdown
+	 * request to a simple WFI wait, to get a minimal amount of power saving
+	 * rather than an instant pabandon.
+	 */
+	mrs	x0, SVCR
+	cbnz	x0, veymont_skip_pwr_dwn
+
 	/* ---------------------------------------------------
 	 * Flip CPU power down bit in power control register.
 	 * It will be set on powerdown and cleared on wakeup
@@ -45,6 +51,7 @@ func veymont_core_pwr_dwn
 	sysreg_bit_toggle VEYMONT_IMP_CPUPWRCTLR_EL1, \
 		VEYMONT_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
+veymont_skip_pwr_dwn:
 	signal_pabandon_handled
 	ret
 endfunc veymont_core_pwr_dwn

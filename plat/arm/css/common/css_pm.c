@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,6 +148,18 @@ void css_pwr_domain_off(const psci_power_state_t *target_state)
 	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 	css_power_down_common(target_state);
 	css_scp_off(target_state);
+
+	/*
+	 * force SME off to not get power down rejected on some cores. Getting
+	 * here is terminal so we don't care if we lose context because of
+	 * another wakeup.
+	 */
+#if CSS_ERRATA_SME_POWER_DOWN
+	if (is_feat_sme_supported()) {
+		write_svcr(0);
+		isb();
+	}
+#endif
 }
 
 /*******************************************************************************
