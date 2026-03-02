@@ -128,7 +128,6 @@ bool ti_device_clk_get_sw_gated(struct ti_device *dev, dev_clk_idx_t clk_idx)
 	return dev_clkp && (dev_clkp->flags & DEV_CLK_FLAG_DISABLE);
 }
 
-
 void ti_device_clk_set_freq_change(struct ti_device *dev, dev_clk_idx_t clk_idx,
 				bool allow)
 {
@@ -301,6 +300,14 @@ dev_clk_idx_t ti_device_clk_get_num_parents(struct ti_device *dev,
 		}
 	} else {
 		ret = (dev_clk_idx_t) clock_data->idx;
+		/*
+		 * Encode both total parents and reserved count:
+		 * Bits 0-7: total parent count (including reserved)
+		 * Bits 8-15: reserved parent count
+		 */
+		ret = (dev_clk_idx_t) ((clock_data->n_reserved_parents << 8) | clock_data->idx);
+		VERBOSE("%s total=%d reserved=%d encoded=0x%x\n", __func__,
+			clock_data->idx, clock_data->n_reserved_parents, ret);
 	}
 
 	return ret;

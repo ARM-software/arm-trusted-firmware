@@ -145,13 +145,22 @@ int32_t plat_scmi_clock_get_possible_parents(unsigned int agent_id,
 					     uint32_t skip_parents)
 {
 	VERBOSE("scmi_clock_get_possible_parents agent_id = %d, scmi_id = %d\n", agent_id, scmi_id);
-	int n_parents;
+	int encoded_parents;
+	uint32_t mux_dev_id;
+	size_t total_parents, reserved_parents, non_reserved_parents;
+	size_t parent_idx = 0;
+	size_t reserved_found = 0;
 
 	if (scmi_id >= ARRAY_SIZE(clock_table))
 		return SCMI_NOT_FOUND;
 
-	n_parents = clk_get_possible_parents_num(scmi_id);
-	*nb_elts = (n_parents > 0) ? (size_t)n_parents : 0;
+	/* Get encoded parent info: bits 0-7=total, bits 8-15=reserved */
+	encoded_parents = clk_get_possible_parents_num(scmi_id);
+	total_parents = (size_t)(encoded_parents & 0xFF);
+	reserved_parents = (size_t)((encoded_parents >> 8) & 0xFF);
+	non_reserved_parents = total_parents - reserved_parents;
+
+	*nb_elts = (total_parents > 1) ? total_parents : 0;
 
 	if (plat_possible_parents) {
 		/*
@@ -159,10 +168,36 @@ int32_t plat_scmi_clock_get_possible_parents(unsigned int agent_id,
 		 * so check for minimum 2
 		 */
 		if (*nb_elts > 1) {
-			for (size_t i = 0; i < *nb_elts; i++) {
-				plat_possible_parents[i] = scmi_id - *nb_elts + i;
-				VERBOSE("%s: plat_possible_parents[x] = %d\n", __func__,
-					plat_possible_parents[i]);
+			mux_dev_id = clock_table[scmi_id].dev_id;
+
+			/*
+			 * Get non-reserved parents from contiguous entries
+			 * before the MUX clock.
+			 */
+			for (size_t i = 0; i < non_reserved_parents; i++) {
+				plat_possible_parents[parent_idx] =
+					scmi_id - non_reserved_parents + i;
+				VERBOSE("%s: non-reserved parent[%zu] = %u\n",
+					__func__, parent_idx, plat_possible_parents[parent_idx]);
+				parent_idx++;
+			}
+
+			/*
+			 * Get reserved parents from bottom of clock_table.
+			 */
+			if (reserved_parents > 0) {
+				for (int i = ARRAY_SIZE(clock_table) - 1;
+				     i >= scmi_id && reserved_found < reserved_parents; i--) {
+					if (clock_table[i].dev_id == mux_dev_id &&
+					    (unsigned int)i != scmi_id) {
+						plat_possible_parents[parent_idx] = i;
+						VERBOSE("%s: reserved parent[%zu] = %d (dev=%u)\n",
+							__func__, parent_idx, i,
+							clock_table[i].dev_id);
+						parent_idx++;
+						reserved_found++;
+					}
+				}
 			}
 		} else {
 			*nb_elts = 0;	// make it 0 for even a single parent
@@ -170,16 +205,16 @@ int32_t plat_scmi_clock_get_possible_parents(unsigned int agent_id,
 		}
 	} else {
 		*nb_elts = (*nb_elts > 1) ? *nb_elts : 0; // make it 0 for just a single parent
-		VERBOSE("%s: plat_possible_parents is NULL, *nb_elts = %d\n", __func__,
-			(uint32_t)*nb_elts);
+		VERBOSE("%s: plat_possible_parents is NULL, *nb_elts = %zu\n", __func__, *nb_elts);
 	}
-	VERBOSE("num_parents %d\n", (uint32_t)*nb_elts);
+	VERBOSE("num_parents %zu (non-reserved=%zu, reserved=%zu)\n",
+		*nb_elts, non_reserved_parents, reserved_parents);
 	return SCMI_SUCCESS;
 }
 
 int32_t plat_scmi_clock_get_parent(unsigned int agent_id,
 				   unsigned int scmi_id,
-                                   unsigned int *parent_id)
+				   unsigned int *parent_id)
 {
 	int parent_scmi_id;
 
