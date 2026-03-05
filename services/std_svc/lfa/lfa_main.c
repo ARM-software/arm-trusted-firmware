@@ -31,6 +31,7 @@ static volatile bool activation_in_progress;
 static volatile bool activation_skip_cpu_rendezvous;
 static volatile uint32_t activation_users;
 static volatile bool activation_failed;
+static volatile bool activation_cancel_locked;
 
 /*
  * Spinlock to serialize LFA operations (PRIME, ACTIVATE).
@@ -49,6 +50,7 @@ void lfa_reset_activation(void)
 	activation_skip_cpu_rendezvous = false;
 	activation_users = 0U;
 	activation_failed = false;
+	activation_cancel_locked = false;
 }
 
 static int convert_to_lfa_error(int ret)
@@ -112,6 +114,14 @@ static int lfa_cancel(uint32_t component_id)
 		return LFA_INVALID_PARAMETERS;
 	}
 
+	/*
+	 * Deny cancellation once the activation round is no longer cancellable.
+	 */
+	if (activation_in_progress &&
+	    (activation_cancel_locked || activation_skip_cpu_rendezvous)) {
+		return LFA_BUSY;
+	}
+
 	activator = lfa_components[component_id].activator;
 	if (activator->cancel != NULL) {
 		ret = activator->cancel(&current_activation);
@@ -122,6 +132,10 @@ static int lfa_cancel(uint32_t component_id)
 
 	ret = plat_lfa_cancel(component_id);
 	if (ret != LFA_SUCCESS) {
+		/*
+		 * Cancellation can fail when activation cannot be stopped
+		 * (e.g. activation requested with skip_cpu_rendezvous=1).
+		 */
 		return LFA_BUSY;
 	}
 
@@ -271,6 +285,7 @@ static int lfa_activate_prepare(uint32_t component_id, uint64_t flags,
 				(*activator)->cpu_rendezvous_required;
 		}
 		activation_skip_cpu_rendezvous = false;
+		activation_cancel_locked = false;
 	}
 	/*
 	 * Pass skip_cpu_rendezvous (flag[0]) only if flag[0]==1
@@ -310,6 +325,9 @@ static int lfa_activate_prepare(uint32_t component_id, uint64_t flags,
 
 	/* Track how many CPUs have entered LFA_ACTIVATE for this round. */
 	activation_users += 1U;
+	if (activation_users >= psci_num_cpus_running_on_safe(plat_my_core_pos())) {
+	    activation_cancel_locked = true;
+	}
 
 	return LFA_SUCCESS;
 }
@@ -328,6 +346,7 @@ static void lfa_activate_finish(uint32_t component_id, bool activation_complete)
 	if (activation_users == 0U) {
 		activation_in_progress = false;
 		activation_skip_cpu_rendezvous = false;
+		activation_cancel_locked = false;
 		if (!activation_failed) {
 			lfa_components[component_id].activation_pending = false;
 		}
@@ -524,7 +543,14 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 		break;
 
 	case LFA_CANCEL:
+		if (!spin_trylock(&lfa_lock)) {
+			SMC_RET1(handle, LFA_BUSY);
+		}
+
 		ret = lfa_cancel(x1);
+
+		spin_unlock(&lfa_lock);
+
 		SMC_RET1(handle, ret);
 		break;
 
