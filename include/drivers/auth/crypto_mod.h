@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,7 +29,8 @@ enum crypto_ret_value {
 
 /* Decryption algorithm */
 enum crypto_dec_algo {
-	CRYPTO_GCM_DECRYPT = 0
+	CRYPTO_GCM_DECRYPT = 0,
+	CRYPTO_CCM_DECRYPT
 };
 
 /* Message digest algorithm */

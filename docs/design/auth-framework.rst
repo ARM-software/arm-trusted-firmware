@@ -296,7 +296,7 @@ authenticated decryption, providing guarantees on the authenticity
 of encrypted data. This function is used when the optional encrypted
 firmware feature is enabled, that is when ``ENCRYPT_BL31`` or
 ``ENCRYPT_BL32`` are set to ``1`` and ``DECRYPTION_SUPPORT`` is
-set to ``aes_gcm``.
+set to ``aes_ccm`` or ``aes_gcm``.
 
 Optionally, a platform function can be provided to convert public key
 (_convert_pk). It is only used if the platform saves a hash of the ROTPK.
