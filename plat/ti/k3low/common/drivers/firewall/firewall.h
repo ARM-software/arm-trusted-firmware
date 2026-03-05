@@ -29,8 +29,6 @@
 
 /* Firewall Regions to configure */
 #define DDR_BG_REGION		0U
-#define DDR_BL31_REGION		1U
-#define DDR_BL32_REGION		2U
 
 /* Firewall Control Register Values */
 #define FWL_CTRL_EN		0xA
@@ -38,7 +36,6 @@
 
 /* Firewall permission values */
 #define FWL_PERM_ALL_RW		0xC3BBBB /* RW access to ALL hosts */
-#define FWL_PERM_SEC_RW		0x400BB
 
 struct fwl_data {
 	uint16_t fwl_id;

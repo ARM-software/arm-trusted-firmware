@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <common/bl_common.h>
 #include <common/debug.h>
 #include <ti_sci.h>
 #include <ti_sci_protocol.h>
@@ -59,12 +58,5 @@ void update_fwl_configs(void)
 	permissions[0] = permissions[1] = permissions[2] = FWL_PERM_ALL_RW;
 	add_fwl_configs(DDR_FWL_ID, DDR_BG_REGION, 3, FWL_CTRL_EN_BG,
 			permissions, DDR_BASE, DDR_BASE + DDR_SIZE);
-
-	/* Configure foreground firewall for TF-A and OP-TEE */
-	permissions[0] = permissions[1] = permissions[2] = FWL_PERM_SEC_RW;
-	add_fwl_configs(DDR_FWL_ID, DDR_BL31_REGION, 3, FWL_CTRL_EN, permissions,
-			BL31_START, BL31_END);
-	add_fwl_configs(DDR_FWL_ID, DDR_BL32_REGION, 3, FWL_CTRL_EN, permissions,
-			BL32_BASE, BL32_BASE + BL32_SIZE - 1);
 
 }
