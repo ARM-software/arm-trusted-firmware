@@ -263,7 +263,7 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 	}
 
 	if ((image_src == 0U) || (block_size == 0U) ||
-	    check_uptr_overflow(image_src, block_size - 1)) {
+	    check_uptr_overflow(image_src, block_size)) {
 		WARN("BL1-FWU: Copy not allowed due to invalid image source"
 			" or block size\n");
 		return -ENOMEM;
@@ -413,7 +413,7 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		total_size = desc->image_info.image_size;
 	} else {
 		if ((image_src == 0U) || (image_size == 0U) ||
-		    check_uptr_overflow(image_src, image_size - 1)) {
+		    check_uptr_overflow(image_src, image_size)) {
 			WARN("BL1-FWU: Auth not allowed due to invalid"
 				" image source/size\n");
 			return -ENOMEM;
