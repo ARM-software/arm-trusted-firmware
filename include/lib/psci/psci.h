@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -296,7 +296,7 @@ typedef struct psci_power_state {
  * It is populated in the per-cpu data array. In return we get a guarantee that
  * this information will not reside on a cache line shared with another cpu.
  ******************************************************************************/
-typedef struct psci_cpu_data {
+struct __packed __aligned(CACHE_WRITEBACK_GRANULE) psci_cpu_data {
 	/* State as seen by PSCI Affinity Info API */
 	aff_info_state_t aff_info_state;
 
@@ -308,14 +308,17 @@ typedef struct psci_cpu_data {
 
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;
-/* This should not straddle cache lines so align to closest power of 2. */
-} psci_cpu_data_t __aligned(16);
+	/* pad up to a cache line */
+	uint8_t _padding[CACHE_WRITEBACK_GRANULE -
+			 (sizeof(aff_info_state_t) + sizeof(unsigned int) +
+			  sizeof(plat_local_state_t))];
+};
 
 /*
- * Sanity check that the struct will fit within a cache line. Otherwise CMOs
- * might affect other memory and have unexpected consequences.
+ * Sanity check that the struct will fit alone within a cache line. Otherwise
+ * CMOs might affect other memory and have unexpected consequences.
  */
-CASSERT(sizeof(psci_cpu_data_t) <= CACHE_WRITEBACK_GRANULE,
+CASSERT(sizeof(struct psci_cpu_data) == CACHE_WRITEBACK_GRANULE,
 	psci_cpu_data_bigger_than_cache_line);
 
 /*******************************************************************************

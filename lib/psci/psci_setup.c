@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,7 +55,7 @@ static void __init psci_init_pwr_domain_node(uint16_t node_idx,
 		psci_non_cpu_pd_nodes[node_idx].local_state =
 							 PLAT_MAX_OFF_STATE;
 	} else {
-		psci_cpu_data_t *svc_cpu_data;
+		struct psci_cpu_data *svc_cpu_data;
 
 		assert(node_idx < PLATFORM_CORE_COUNT);
 
