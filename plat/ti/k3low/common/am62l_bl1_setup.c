@@ -168,7 +168,7 @@ static void __dead2 k3_bl1_handoff(void)
 		a53_tifs_msg_obj.req.hdr.host = 0xA;
 		a53_tifs_msg_obj.req.hdr.seq = 0x12;
 		a53_tifs_msg_obj.req.hdr.type = 0x0308;
-		a53_tifs_msg_obj.req.ctx_lo = 0x80A00000U;
+		a53_tifs_msg_obj.req.ctx_lo = TIFS_LPM_SAVE_CTX;
 		a53_tifs_msg_obj.req.ctx_hi = 0x00000000U;
 
 		ti_sci_boot_notification();

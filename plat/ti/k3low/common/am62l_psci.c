@@ -230,7 +230,7 @@ static void am62l_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t core, proc_id;
 	uint32_t mode = 0;
 	core = plat_my_core_pos();
-	uint64_t context_save_addr = 0x80A00000;
+	uint64_t context_save_addr = TIFS_LPM_SAVE_CTX;
 
 	assert(core < 2U);
 
