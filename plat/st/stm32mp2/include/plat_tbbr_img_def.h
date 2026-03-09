@@ -40,15 +40,35 @@
 #define STM32MP_CONFIG_CERT_ID		U(24)
 #define GPT_IMAGE_ID			U(25)
 
-#if STM32MP_DDR_FIP_IO_STORAGE
-#define DDR_FW_ID			U(26)
-/* Increase the MAX_NUMBER_IDS to match the authentication pool required */
-#define MAX_NUMBER_IDS			U(27)
-
-#else
 /* Increase the MAX_NUMBER_IDS to match the authentication pool required */
 #define MAX_NUMBER_IDS			U(26)
 
+/* Image IDs reserved by optional features:
+ * - DDR firmware uses ID 26
+ * - PSA FWU AB uses the next two available IDs
+ * - MAX_NUMBER_IDS is set to match the required authentication pool size
+ */
+
+#if STM32MP_DDR_FIP_IO_STORAGE
+/* DDR firmware image ID */
+#define DDR_FW_ID			U(26)
+#undef  MAX_NUMBER_IDS
+#define MAX_NUMBER_IDS			U(27)
+#endif
+
+#if STM32MP_PSA_FWU_AB_SUPPORT
+/* PSA FWU AB image IDs */
+#if STM32MP_DDR_FIP_IO_STORAGE
+#define FWU_BOOTFS_ID			U(27)
+#define FWU_ROOTFS_ID			U(28)
+#undef  MAX_NUMBER_IDS
+#define MAX_NUMBER_IDS			U(29)
+#else
+#define FWU_BOOTFS_ID			U(26)
+#define FWU_ROOTFS_ID			U(27)
+#undef  MAX_NUMBER_IDS
+#define MAX_NUMBER_IDS			U(28)
+#endif
 #endif
 
 #endif /* PLAT_TBBR_IMG_DEF_H */

@@ -8,6 +8,11 @@
 # metadata (2) and the FIP partitions (default is 2).
 STM32_EXTRA_PARTS	:=	4
 
+ifeq (${STM32MP_PSA_FWU_AB_SUPPORT},1)
+# u-boot-env, bootfs-a, bootfs-b, vendorfs, rootfs-a and rootfs-b
+STM32_EXTRA_PARTS		:= $(shell expr $(STM32_EXTRA_PARTS) + 6)
+endif
+
 include plat/st/common/common.mk
 
 ARM_CORTEX_A7		:=	yes
