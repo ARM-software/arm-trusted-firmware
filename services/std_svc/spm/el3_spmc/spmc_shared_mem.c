@@ -334,17 +334,43 @@ overlapping_memory_regions(struct ffa_comp_mrd *region1,
 	for (size_t i = 0; i < region1->address_range_count; i++) {
 
 		region1_start = region1->address_range_array[i].address;
+
+		/*
+		 * Ensure page_count * PAGE_SIZE_4KB is computed without
+		 * overflowing before deriving the region end address.
+		 */
+		if (region1->address_range_array[i].page_count >
+		    (UINT64_MAX / PAGE_SIZE_4KB)) {
+			return true;
+		}
+
 		region1_size =
-			region1->address_range_array[i].page_count *
+			(uint64_t)region1->address_range_array[i].page_count *
 			PAGE_SIZE_4KB;
+
+		if (check_u64_overflow(region1_start, region1_size)) {
+			return true;
+		}
+
 		region1_end = region1_start + region1_size;
 
 		for (size_t j = 0; j < region2->address_range_count; j++) {
 
 			region2_start = region2->address_range_array[j].address;
+
+			if (region2->address_range_array[j].page_count >
+			    (UINT64_MAX / PAGE_SIZE_4KB)) {
+				return true;
+			}
+
 			region2_size =
-				region2->address_range_array[j].page_count *
+				(uint64_t)region2->address_range_array[j].page_count *
 				PAGE_SIZE_4KB;
+
+			if (check_u64_overflow(region2_start, region2_size)) {
+				return true;
+			}
+
 			region2_end = region2_start + region2_size;
 
 			/* Check if regions are not overlapping. */
