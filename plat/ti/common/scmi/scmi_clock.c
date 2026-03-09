@@ -216,21 +216,19 @@ int32_t plat_scmi_clock_get_parent(unsigned int agent_id,
 				   unsigned int scmi_id,
 				   unsigned int *parent_id)
 {
-	int parent_scmi_id;
-
 	VERBOSE("scmi_clock_get_parent agent_id = %d, scmi_id = %d\n", agent_id, scmi_id);
 
 	if (scmi_id >= ARRAY_SIZE(clock_table))
 		return SCMI_NOT_FOUND;
 
-	parent_scmi_id = clk_get_parent(scmi_id);
-	if (parent_scmi_id < 0) {
+	*parent_id = clk_get_parent(scmi_id);
+	if (*parent_id < 0) {
 		ERROR("Failed to get clock parent for scmi_id %d\n", scmi_id);
 		return SCMI_GENERIC_ERROR;
 	}
 
-	VERBOSE("scmi_clock_get_parent parent_id = %d\n", parent_scmi_id);
-	return parent_scmi_id;
+	VERBOSE("scmi_clock_get_parent parent_id = %d\n", *parent_id);
+	return SCMI_SUCCESS;
 }
 
 int32_t plat_scmi_clock_set_parent(unsigned int agent_id,
