@@ -49,6 +49,10 @@ ifeq (${ENABLE_RMM},1)
     FIRME_SUPPORT_IDE_KM	:= 1
 endif
 
+ifeq (${FIRME_SUPPORT},1)
+    FIRME_SUPPORT_ATTESTATION	:= 1
+endif
+
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
@@ -264,12 +268,15 @@ ifeq (${COT_DESC_IN_DTB},1)
 BL2_SOURCES		+=	plat/arm/common/fconf/fconf_nv_cntr_getter.c
 endif
 
+ifneq ($(filter 1,$(ENABLE_RMM) $(FIRME_SUPPORT)),)
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c
+endif
+
 ifeq (${ENABLE_RMM},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_cpu_pwr.c
 
-BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
-				plat/arm/board/fvp/fvp_realm_attest_key.c	\
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_realm_attest_key.c	\
 				plat/arm/board/fvp/fvp_el3_token_sign.c		\
 				plat/arm/common/plat_rmm_mem_carveout.c
 

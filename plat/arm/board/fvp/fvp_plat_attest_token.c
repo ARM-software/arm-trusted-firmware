@@ -1,14 +1,18 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2024, Linaro Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <errno.h>
+#include <stdint.h>
 #include <string.h>
 
+#include <lib/gpt_rme/gpc_fault.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/common/platform.h>
+#include <services/firme/firme_attestation.h>
 
 /*
  * This is the CBOR serialization of the CCA platform token described at
@@ -208,6 +212,32 @@ static const uint8_t sample_platform_token[] = {
 };
 static uint64_t platform_token_offset;
 
+int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len, uintptr_t hash,
+				   size_t hash_size, uint64_t *remaining_len)
+{
+	int rc;
+
+	if ((len == NULL) || (remaining_len == NULL)) {
+		return -EINVAL;
+	}
+
+	rc = firme_attest_plat_get_token(FIRME_REALM, buf, *len, hash,
+					 hash_size, len, remaining_len);
+
+	switch (rc) {
+	case FIRME_BUSY:
+		rc = -EAGAIN;
+		break;
+	case FIRME_INVALID_PARAMETERS:
+		rc = -EINVAL;
+		break;
+	default:
+		rc = 0U;
+	}
+
+	return rc;
+}
+
 /*
  * Get the hardcoded platform attestation token as FVP does not support
  * RSE.
@@ -217,23 +247,27 @@ static uint64_t platform_token_offset;
  * since the shared buffer size is known, the implementation can be more
  * optimized.
  */
-int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
-				   uintptr_t hash, size_t hash_size,
-				   size_t *remaining_len)
+int32_t firme_attest_plat_get_token(firme_instance_e instance,
+				    uintptr_t shared_buf, size_t shared_buf_sz,
+				    uintptr_t challenge, size_t challenge_size,
+				    size_t *write_size, size_t *remaining_size)
 {
-	(void)hash;
-	(void)hash_size;
 	size_t platform_token_size = sizeof(sample_platform_token);
 	size_t local_hunk_len;
 	size_t local_remaining_len;
+	(void)challenge;
 
-	if (hash_size != 0) {
-		platform_token_offset = 0;
-	} else if (platform_token_offset == 0) {
-		return -EINVAL;
+	if ((write_size == NULL) || (remaining_size == NULL)) {
+		return FIRME_INVALID_PARAMETERS;
 	}
 
-	local_hunk_len = *len;
+	if (challenge_size != 0U) {
+		platform_token_offset = 0U;
+	} else if (platform_token_offset == 0U) {
+		return FIRME_INVALID_PARAMETERS;
+	}
+
+	local_hunk_len = shared_buf_sz;
 	local_remaining_len = platform_token_size - platform_token_offset;
 
 	/*
@@ -246,14 +280,50 @@ int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
 	/* Update remaining bytes according to hunk size */
 	local_remaining_len -= local_hunk_len;
 
-	(void)memcpy((void *)buf,
-			(const void *)sample_platform_token
-				+ platform_token_offset,
-			local_hunk_len);
+#if ENABLE_FEAT_RME
+	if (rme_gpf_safe_write((void *)shared_buf,
+			       (const void *)sample_platform_token +
+				       platform_token_offset,
+			       local_hunk_len) != local_hunk_len) {
+		platform_token_offset = 0U;
+		*write_size = 0U;
+		*remaining_size = 0U;
+		return FIRME_INVALID_PARAMETERS;
+	}
+#else
+	(void)memcpy((void *)shared_buf,
+		     (const void *)sample_platform_token +
+			     platform_token_offset,
+		     local_hunk_len);
+#endif
 
 	platform_token_offset += local_hunk_len;
-	*len = local_hunk_len;
-	*remaining_len = local_remaining_len;
+	*write_size = local_hunk_len;
+	*remaining_size = local_remaining_len;
 
-	return 0;
+	if (local_remaining_len == 0U) {
+		platform_token_offset = 0U;
+	}
+
+	return (local_remaining_len == 0U) ? FIRME_SUCCESS : FIRME_INCOMPLETE;
+}
+
+uintptr_t firme_plat_shared_buf_addr(firme_instance_e instance,
+				     size_t *shared_buf_pg_cnt)
+{
+	uintptr_t shared_buf = 0U;
+
+	if (shared_buf_pg_cnt == NULL) {
+		return 0U;
+	}
+
+	*shared_buf_pg_cnt = 0U;
+
+#if ENABLE_RMM
+	if (instance == FIRME_REALM) {
+		*shared_buf_pg_cnt = (size_t)(RMM_SHARED_SIZE / PAGE_SIZE);
+		shared_buf = RMM_SHARED_BASE;
+	}
+#endif
+	return shared_buf;
 }
