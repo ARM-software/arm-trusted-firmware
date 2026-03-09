@@ -305,29 +305,88 @@ static int ti_clk_get_parent(unsigned long scmi_id)
 	int32_t status;
 	int32_t n_parents;
 	ti_scmi_clock_t *parent;
+	uint32_t total_parents;
+	uint32_t n_reserved;
+	uint32_t non_reserved;
+
+	VERBOSE("GET_PARENT: scmi_id=%lu\n", scmi_id);
+
+	if (scmi_id >= clock_table_size) {
+		ERROR("GET_PARENT: Invalid scmi_id=%lu (table_size=%lu)\n",
+		      scmi_id, clock_table_size);
+		return -EINVAL;
+	}
 
 	if (clock == NULL) {
+		ERROR("GET_PARENT: Clock lookup failed for scmi_id=%lu\n", scmi_id);
 		return -EINVAL;
 	}
 
 	status = get_clock_parent_handler(clock->dev_id, clock->clock_id, &parent_id);
 	if (status != 0) {
+		ERROR("GET_PARENT: get_clock_parent_handler failed for dev=%u clk=%u status=%d\n",
+		      clock->dev_id, clock->clock_id, status);
 		return -EINVAL;
 	}
 
 	n_parents = get_num_clock_parents_handler(clock->dev_id, clock->clock_id);
-	if (n_parents > 1) {
-		/* Loop through the parents to identify the parent that matches the returned ID */
-		for (unsigned int i = 1; i <= (unsigned int)n_parents; i++) {
-			if (scmi_id >= i) {
-				parent = scmi_id_to_clock(scmi_id - i);
-				if (parent != NULL && parent->clock_id == parent_id) {
-					return scmi_id - i;
+	if (n_parents <= 0) {
+		ERROR("GET_PARENT: Invalid n_parents=%d for dev=%u clk=%u\n",
+		      n_parents, clock->dev_id, clock->clock_id);
+		return -EINVAL;
+	}
+
+	if (n_parents == 1) {
+		VERBOSE("GET_PARENT: Not a MUX clock (n_parents=1)\n");
+		return -EINVAL;
+	}
+
+	/* Decode parent count: bits 0-7 = total, bits 8-15 = reserved */
+	total_parents = n_parents & 0xFF;
+	n_reserved = (n_parents >> 8) & 0xFF;
+
+	if (total_parents == 0 || n_reserved > total_parents) {
+		ERROR("GET_PARENT: Invalid parent counts total=%u reserved=%u\n",
+		      total_parents, n_reserved);
+		return -EINVAL;
+	}
+
+	non_reserved = total_parents - n_reserved;
+
+	/* First, search through non-reserved parents (immediately before MUX) */
+	for (unsigned int i = 1; i <= non_reserved && i <= scmi_id; i++) {
+		parent = scmi_id_to_clock(scmi_id - i);
+		if (parent != NULL && parent->clock_id == parent_id) {
+			VERBOSE("GET_PARENT: Found non-reserved parent at scmi_id=%lu\n",
+				scmi_id - i);
+			return scmi_id - i;
+		}
+	}
+
+	/* If not found, search through reserved parents at end of clock table */
+	if (n_reserved > 0 && clock_table_size > 0) {
+		/* Reserved parents for all MUXes are at the end of the clock table.
+		 * Search backwards from the end, matching both dev_id and clock_id.
+		 * Stop early once we've checked n_reserved parents for this device.
+		 */
+		uint32_t checked = 0;
+
+		for (long i = (long)clock_table_size - 1; i >= 0 && checked < n_reserved; i--) {
+			parent = scmi_id_to_clock((unsigned long)i);
+			if (parent != NULL && parent->dev_id == clock->dev_id) {
+				checked++;
+				VERBOSE("Check reserved parent[%u/%u] at scmi_id=%ld clk_id=%u\n",
+					checked, n_reserved, i, parent->clock_id);
+				if (parent->clock_id == parent_id) {
+					VERBOSE("Found reserved parent at scmi_id=%ld\n", i);
+					return (int)i;
 				}
 			}
 		}
 	}
 
+	ERROR("GET_PARENT: Parent not found for dev=%u clk=%u parent_id=%u\n",
+	      clock->dev_id, clock->clock_id, parent_id);
 	return -EINVAL;
 }
 
