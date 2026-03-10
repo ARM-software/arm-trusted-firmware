@@ -4,6 +4,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -60,6 +61,15 @@
 #define	FUNCID_OEN_NUM_MASK	((FUNCID_OEN_MASK << FUNCID_OEN_SHIFT)\
 				|(FUNCID_NUM_MASK << FUNCID_NUM_SHIFT))
 
+struct qti_mmap_params {
+	qti_accesscontrol_mem_t mem[QTI_VM_MAX_LIST_SIZE];
+	u_register_t mem_cnt;
+	qti_accesscontrol_perm_t dst[QTI_VM_LAST];
+	u_register_t dst_cnt;
+	uint32_t src[QTI_VM_LAST];
+	u_register_t src_cnt;
+};
+
 enum {
 	QTI_SIP_SUCCESS = 0,
 	QTI_SIP_NOT_SUPPORTED = -1,
@@ -106,45 +116,48 @@ static bool qti_check_syscall_availability(u_register_t smc_fid,
 	}
 }
 
-bool qti_mem_assign_validate_param(memprot_info_t *mem_info,
-				   u_register_t u_num_mappings,
-				   uint32_t *source_vm_list,
-				   u_register_t src_vm_list_cnt,
-				   memprot_dst_vm_perm_info_t *dest_vm_list,
-				   u_register_t dst_vm_list_cnt)
+static bool qti_mem_assign_validate_param(qti_accesscontrol_mem_t *mem_info,
+					  u_register_t u_num_mappings,
+					  uint32_t *src_vm_list,
+					  u_register_t src_vm_list_cnt,
+					  qti_accesscontrol_perm_t *dst_vm_list,
+					  u_register_t dst_vm_list_cnt)
 {
+	u_register_t end;
 	int i;
 
-	if (!source_vm_list || !dest_vm_list || !mem_info
-	    || (src_vm_list_cnt == 0)
+	if ((src_vm_list == NULL) || (dst_vm_list == NULL)
+	    || (mem_info == NULL) || (src_vm_list_cnt == 0)
 	    || (src_vm_list_cnt >= QTI_VM_LAST) || (dst_vm_list_cnt == 0)
 	    || (dst_vm_list_cnt >= QTI_VM_LAST) || (u_num_mappings == 0)
 	    || u_num_mappings > QTI_VM_MAX_LIST_SIZE) {
 		ERROR("vm count is 0 or more then QTI_VM_LAST or empty list\n");
-		ERROR("source_vm_list %p dest_vm_list %p mem_info %p src_vm_list_cnt %u dst_vm_list_cnt %u u_num_mappings %u\n",
-		     source_vm_list, dest_vm_list, mem_info,
+		ERROR("src_vm_list %p dst_vm_list %p mem_info %p src_vm_list_cnt %u dst_vm_list_cnt %u u_num_mappings %u\n",
+		     src_vm_list, dst_vm_list, mem_info,
 		     (unsigned int)src_vm_list_cnt,
 		     (unsigned int)dst_vm_list_cnt,
 		     (unsigned int)u_num_mappings);
 		return false;
 	}
+
 	for (i = 0; i < u_num_mappings; i++) {
-		if ((mem_info[i].mem_addr & (SIZE4K - 1))
+		if (((mem_info[i].mem_addr & (SIZE4K - 1)) != 0)
 		    || (mem_info[i].mem_size == 0)
-		    || (mem_info[i].mem_size & (SIZE4K - 1))) {
+		    || ((mem_info[i].mem_size & (SIZE4K - 1)) != 0)) {
 			ERROR("mem_info passed buffer 0x%x or size 0x%x is not 4k aligned\n",
 			     (unsigned int)mem_info[i].mem_addr,
 			     (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
 
-		if ((mem_info[i].mem_addr + mem_info[i].mem_size) <
-		    mem_info[i].mem_addr) {
+		if (add_overflow(mem_info[i].mem_addr, mem_info[i].mem_size,
+				 &end) != 0) {
 			ERROR("overflow in mem_addr 0x%x add mem_size 0x%x\n",
 			      (unsigned int)mem_info[i].mem_addr,
 			      (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
+
 #if COREBOOT == 1
 		coreboot_memory_t mem_type = coreboot_get_memory_type(
 						mem_info[i].mem_addr,
@@ -158,147 +171,197 @@ bool qti_mem_assign_validate_param(memprot_info_t *mem_info,
 #endif
 	}
 	for (i = 0; i < src_vm_list_cnt; i++) {
-		if (source_vm_list[i] >= QTI_VM_LAST) {
-			ERROR("source_vm_list[%d] 0x%x is more then QTI_VM_LAST\n",
-			      i, (unsigned int)source_vm_list[i]);
+		if (src_vm_list[i] >= QTI_VM_LAST) {
+			ERROR("src_vm_list[%d] 0x%x is more then QTI_VM_LAST\n",
+			      i, (unsigned int)src_vm_list[i]);
 			return false;
 		}
 	}
 	for (i = 0; i < dst_vm_list_cnt; i++) {
-		if (dest_vm_list[i].dst_vm >= QTI_VM_LAST) {
-			ERROR("dest_vm_list[%d] 0x%x is more then QTI_VM_LAST\n",
-			      i, (unsigned int)dest_vm_list[i].dst_vm);
+		if (dst_vm_list[i].dst_vm >= QTI_VM_LAST) {
+			ERROR("dst_vm_list[%d] 0x%x is more then QTI_VM_LAST\n",
+			      i, (unsigned int)dst_vm_list[i].dst_vm);
 			return false;
 		}
 	}
 	return true;
 }
 
+static int get_indirect_args(uint32_t smccc, u_register_t *x5, u_register_t *x6,
+			     u_register_t *x7)
+{
+	const uintptr_t addr = (uintptr_t)*x5;
+	int ret = -EPERM;
+	size_t len = 0;
+
+	if (smccc == SMC_32) {
+		len = sizeof(uint32_t) * 4;
+	} else {
+		len = sizeof(uint64_t) * 4;
+	}
+
+	ret = qti_mmap_add_dynamic_region(addr, len, MT_NS | MT_RO_DATA);
+	if (ret != 0) {
+		ERROR("map failed for params NS Buffer 0x%lx 0x%lx\n",
+		      (unsigned long)addr, (unsigned long)len);
+		return ret;
+	}
+
+	if (smccc == SMC_32) {
+		const uint32_t *args = (const uint32_t *)addr;
+
+		*x5 = args[0];
+		*x6 = args[1];
+		*x7 = args[2];
+	} else {
+		const uint64_t *args = (const uint64_t *)addr;
+
+		*x5 = args[0];
+		*x6 = args[1];
+		*x7 = args[2];
+	}
+
+	ret = qti_mmap_remove_dynamic_region(addr, len);
+	if (ret != 0) {
+		ERROR("unmap failed for params NS Buffer 0x%lx 0x%lx\n",
+		      (unsigned long)addr, (unsigned long)len);
+	}
+
+	return ret;
+}
+
+static int get_mem_params(struct qti_mmap_params *params,
+			  u_register_t x2, u_register_t x3, u_register_t x4,
+			  u_register_t x5, u_register_t x6, u_register_t x7)
+{
+	u_register_t e2, e4, e6;
+	u_register_t start = 0;
+	u_register_t end = 0;
+	u_register_t len = 0;
+	bool rc = false;
+	int ret = -EINVAL;
+	int ret1 = -EINVAL;
+
+	/* Overflow check:
+	 *   args 2,4,6 contain buffer addresses
+	 *   args 3,5,7 contain buffer sizes
+	 */
+	if (x2 == 0 || x4 == 0 || x6 == 0) {
+		return -EINVAL;
+	}
+
+	if (add_overflow(x2, x3, &e2) != 0 ||
+	    add_overflow(x4, x5, &e4) != 0 ||
+	    add_overflow(x6, x7, &e6) != 0) {
+		ERROR("map failed for params NS Buffer2, invalid params\n");
+		return -EINVAL;
+	}
+
+	start = MIN(x2, x4);
+	start = MIN(start, x6);
+	end = MAX(e2, e4);
+	end = MAX(end, e6);
+	len = end - start;
+
+	ret = qti_mmap_add_dynamic_region((uintptr_t)start, (size_t)len,
+					  (MT_NS | MT_RO_DATA));
+	if (ret != 0) {
+		ERROR("map failed for params NS Buffer2 0x%lx 0x%lx\n",
+		      (unsigned long)start, (unsigned long)len);
+		return ret;
+	}
+
+	/* Parameter validation */
+	ret = -EINVAL;
+
+	if ((x3 % sizeof(qti_accesscontrol_mem_t)) != 0U ||
+	    (x5 % sizeof(uint32_t)) != 0U ||
+	    (x7 % sizeof(qti_accesscontrol_perm_t)) != 0U) {
+		ERROR("invalid parameter buffer sizes\n");
+		goto error;
+	}
+
+	params->mem_cnt = x3 / sizeof(params->mem[0]);
+	if (params->mem_cnt > ARRAY_SIZE(params->mem)) {
+		ERROR("Param validation failed\n");
+		goto error;
+	}
+	memcpy(params->mem, (void *)(uintptr_t)x2,
+	       params->mem_cnt * sizeof(params->mem[0]));
+
+	params->src_cnt = x5 / sizeof(params->src[0]);
+	if (params->src_cnt >= ARRAY_SIZE(params->src)) {
+		ERROR("Param validation failed\n");
+		goto error;
+	}
+	memcpy(params->src, (void *)(uintptr_t)x4,
+	       params->src_cnt * sizeof(params->src[0]));
+
+	params->dst_cnt = x7 / sizeof(params->dst[0]);
+	if (params->dst_cnt >= ARRAY_SIZE(params->dst)) {
+		ERROR("Param validation failed\n");
+		goto error;
+	}
+	memcpy(params->dst, (void *)(uintptr_t)x6,
+	       params->dst_cnt * sizeof(params->dst[0]));
+
+	rc = qti_mem_assign_validate_param(params->mem, params->mem_cnt,
+					   params->src, params->src_cnt,
+					   params->dst, params->dst_cnt);
+	if (rc != true) {
+		ERROR("Param validation failed\n");
+	}
+
+	ret = rc == true ? 0 : -EINVAL;
+error:
+	ret1 = qti_mmap_remove_dynamic_region((uintptr_t)start, (size_t)len);
+	if (ret1 != 0) {
+		ERROR("unmap failed for params NS Buffer 0x%lx 0x%lx\n",
+		      (unsigned long)start, (unsigned long)len);
+	}
+
+	return ret ? ret : ret1;
+}
+
+
 static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 				    u_register_t x1,
 				    u_register_t x2,
 				    u_register_t x3, u_register_t x4)
 {
-	uintptr_t dyn_map_start = 0, dyn_map_end = 0;
-	size_t dyn_map_size = 0;
-	u_register_t x6, x7;
+	struct qti_mmap_params params = { 0 };
 	int ret = QTI_SIP_NOT_SUPPORTED;
-	u_register_t x5 = read_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X5);
+	u_register_t x5, x6, x7;
+
+	if (x1 != QTI_SIP_SVC_MEM_ASSIGN_PARAM_ID) {
+		ERROR("invalid mem_assign param id\n");
+		goto out;
+	}
+
+	x5 = read_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X5);
+	if (x5 == 0x0) {
+		ERROR("no mem_assign mapping info\n");
+		goto out;
+	}
 
 	if (smc_cc == SMC_32) {
-		x5 = (uint32_t) x5;
-	}
-	/* Validate input arg count & retrieve arg3-6 from NS Buffer. */
-	if ((x1 != QTI_SIP_SVC_MEM_ASSIGN_PARAM_ID) || (x5 == 0x0)) {
-		ERROR("invalid mem_assign param id or no mapping info\n");
-		goto unmap_return;
+		x5 = (uint32_t)x5;
 	}
 
-	/* Map NS Buffer. */
-	dyn_map_start = x5;
-	dyn_map_size =
-		(smc_cc ==
-		 SMC_32) ? (sizeof(uint32_t) * 4) : (sizeof(uint64_t) * 4);
-	if (qti_mmap_add_dynamic_region(dyn_map_start, dyn_map_size,
-				(MT_NS | MT_RO_DATA)) != 0) {
-		ERROR("map failed for params NS Buffer %x %x\n",
-		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
-		goto unmap_return;
-	}
-	/* Retrieve indirect args. */
-	if (smc_cc == SMC_32) {
-		x6 = *((uint32_t *) x5 + 1);
-		x7 = *((uint32_t *) x5 + 2);
-		x5 = *(uint32_t *) x5;
-	} else {
-		x6 = *((uint64_t *) x5 + 1);
-		x7 = *((uint64_t *) x5 + 2);
-		x5 = *(uint64_t *) x5;
-	}
-	/* Un-Map NS Buffer. */
-	if (qti_mmap_remove_dynamic_region(dyn_map_start, dyn_map_size) != 0) {
-		ERROR("unmap failed for params NS Buffer %x %x\n",
-		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
-		goto unmap_return;
-	}
+	ret = get_indirect_args(smc_cc, &x5, &x6, &x7);
+	if (ret != 0)
+		goto out;
 
-	/*
-	 * Map NS Buffers.
-	 * arg0,2,4 points to buffers & arg1,3,5 hold sizes.
-	 * MAP api's fail to map if it's already mapped. Let's
-	 * find lowest start & highest end address, then map once.
-	 */
-	dyn_map_start = MIN(x2, x4);
-	dyn_map_start = MIN(dyn_map_start, x6);
-	dyn_map_end = MAX((x2 + x3), (x4 + x5));
-	dyn_map_end = MAX(dyn_map_end, (x6 + x7));
-	dyn_map_size = dyn_map_end - dyn_map_start;
+	ret = get_mem_params(&params, x2, x3, x4, x5, x6, x7);
+	if (ret != 0)
+		goto out;
 
-	if (qti_mmap_add_dynamic_region(dyn_map_start, dyn_map_size,
-					(MT_NS | MT_RO_DATA)) != 0) {
-		ERROR("map failed for params NS Buffer2 %x %x\n",
-		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
-		goto unmap_return;
-	}
-	memprot_info_t *mem_info_p = (memprot_info_t *) x2;
-	uint32_t u_num_mappings = x3 / sizeof(memprot_info_t);
-	uint32_t *source_vm_list_p = (uint32_t *) x4;
-	uint32_t src_vm_list_cnt = x5 / sizeof(uint32_t);
-	memprot_dst_vm_perm_info_t *dest_vm_list_p =
-		(memprot_dst_vm_perm_info_t *) x6;
-	uint32_t dst_vm_list_cnt =
-		x7 / sizeof(memprot_dst_vm_perm_info_t);
-	if (qti_mem_assign_validate_param(mem_info_p, u_num_mappings,
-				source_vm_list_p, src_vm_list_cnt,
-				dest_vm_list_p,
-				dst_vm_list_cnt) != true) {
-		ERROR("Param validation failed\n");
-		goto unmap_return;
-	}
-
-	memprot_info_t mem_info[QTI_VM_MAX_LIST_SIZE];
-	/* Populating the arguments */
-	for (int i = 0; i < u_num_mappings; i++) {
-		mem_info[i].mem_addr = mem_info_p[i].mem_addr;
-		mem_info[i].mem_size = mem_info_p[i].mem_size;
-	}
-
-	memprot_dst_vm_perm_info_t dest_vm_list[QTI_VM_LAST];
-
-	for (int i = 0; i < dst_vm_list_cnt; i++) {
-		dest_vm_list[i].dst_vm = dest_vm_list_p[i].dst_vm;
-		dest_vm_list[i].dst_vm_perm = dest_vm_list_p[i].dst_vm_perm;
-		dest_vm_list[i].ctx = dest_vm_list_p[i].ctx;
-		dest_vm_list[i].ctx_size = dest_vm_list_p[i].ctx_size;
-	}
-
-	uint32_t source_vm_list[QTI_VM_LAST];
-
-	for (int i = 0; i < src_vm_list_cnt; i++) {
-		source_vm_list[i] = source_vm_list_p[i];
-	}
-	/* Un-Map NS Buffers. */
-	if (qti_mmap_remove_dynamic_region(dyn_map_start,
-				dyn_map_size) != 0) {
-		ERROR("unmap failed for params NS Buffer %x %x\n",
-		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
-		goto unmap_return;
-	}
-	/* Invoke API lib api. */
-	ret = qtiseclib_mem_assign(mem_info, u_num_mappings,
-			source_vm_list, src_vm_list_cnt,
-			dest_vm_list, dst_vm_list_cnt);
-
-	if (ret == 0) {
-		SMC_RET2(handle, QTI_SIP_SUCCESS, ret);
-	}
-unmap_return:
-	/* Un-Map NS Buffers if mapped */
-	if (dyn_map_start && dyn_map_size) {
-		qti_mmap_remove_dynamic_region(dyn_map_start, dyn_map_size);
-	}
-
-	SMC_RET2(handle, QTI_SIP_INVALID_PARAM, ret);
+	ret = qti_accesscontrol_mem_assign(params.mem, params.mem_cnt,
+					   params.src, params.src_cnt,
+					   params.dst, params.dst_cnt);
+out:
+	SMC_RET2(handle, ret == 0 ? QTI_SIP_SUCCESS : QTI_SIP_INVALID_PARAM,
+		 ret);
 }
 
 /*
