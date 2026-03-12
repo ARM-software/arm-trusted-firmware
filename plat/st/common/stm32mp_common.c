@@ -177,7 +177,7 @@ int stm32_get_otp_value(const char *otp_name, uint32_t *otp_val)
 
 int stm32_get_otp_value_from_idx(const uint32_t otp_idx, uint32_t *otp_val)
 {
-	uint32_t ret = BSEC_NOT_SUPPORTED;
+	uint32_t ret;
 
 	assert(otp_val != NULL);
 
