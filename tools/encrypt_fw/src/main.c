@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019, Linaro Limited. All rights reserved.
  * Author: Sumit Garg <sumit.garg@linaro.org>
  *
@@ -16,6 +16,7 @@
 
 #include <openssl/conf.h>
 
+#include "aes_gcm.h"
 #include "cmd_opt.h"
 #include "debug.h"
 #include "encrypt.h"
@@ -98,6 +99,19 @@ static void parse_fw_enc_status_flag(const char *arg,
 	}
 
 	*fw_enc_status = flag & FW_ENC_STATUS_FLAG_MASK;
+}
+
+static int encrypt_file(unsigned short fw_enc_status, int enc_alg,
+		const char *key_string, const char *nonce_string, const char *ip_name,
+		const char *op_name)
+{
+	switch (enc_alg) {
+	case KEY_ALG_GCM:
+		return gcm_encrypt(fw_enc_status, key_string, nonce_string, ip_name,
+				op_name);
+	default:
+		return -1;
+	}
 }
 
 /* Common command line options */

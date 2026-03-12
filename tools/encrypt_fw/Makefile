@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024-2025, Arm Limited. All rights reserved.
+# Copyright (c) 2024-2026, Arm Limited. All rights reserved.
 # Copyright (c) 2019-2022, Linaro Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -16,7 +16,7 @@ include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-ENCTOOL_SOURCES :=	src/encrypt.c \
+ENCTOOL_SOURCES :=	src/aes_gcm.c \
 			src/cmd_opt.c \
 			src/main.c
 
