@@ -18,16 +18,11 @@
  * AMB Configuration
  *****************************************************************************
  */
-struct addr_map_win *amb_memory_map;
-
 int marvell_get_amb_memory_map(struct addr_map_win **win, uint32_t *size,
 			       uintptr_t base)
 {
-	*win = amb_memory_map;
-	if (*win == NULL)
-		*size = 0;
-	else
-		*size = ARRAY_SIZE(amb_memory_map);
+	*win = NULL;
+	*size = 0;
 
 	return 0;
 }
