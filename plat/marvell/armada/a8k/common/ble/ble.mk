@@ -3,6 +3,8 @@
 # SPDX-License-Identifier:     BSD-3-Clause
 # https://spdx.org/licenses
 
+MV_DDR_CROSS_COMPILE	:=	$(or $(CROSS_COMPILE),aarch64-none-elf-)
+
 MV_DDR_LIB		=	$(BUILD_PLAT)/ble/mv_ddr_lib.a
 LIBC_LIB		=	$(BUILD_PLAT)/lib/libc.a
 BLE_LIBS		=	$(MV_DDR_LIB) $(LIBC_LIB)
@@ -31,4 +33,6 @@ $(MV_DDR_LIB): FORCE
 #	Do not remove! Following checks are required to ensure correct TF-A builds, removing these checks leads to broken TF-A builds
 	$(if $(value MV_DDR_PATH),,$(error "Platform '$(PLAT)' for BLE requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	$(if $(wildcard $(value MV_DDR_PATH)/*),,$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' directory does not exist"))
-	$(q)+make -C $(MV_DDR_PATH) --no-print-directory PLAT_INCLUDES="$(MV_DDR_INCLUDES)" PLATFORM=$(PLAT) ARCH=AARCH64 OBJ_DIR=$(BUILD_PLAT)/ble EXTRA_CFLAGS="-DSILENT_LIB"
+	$(q)+make -C $(call shell-quote,$(MV_DDR_PATH)) --no-print-directory CROSS_COMPILE=$(call shell-quote,$(MV_DDR_CROSS_COMPILE)) \
+		PLAT_INCLUDES="$(MV_DDR_INCLUDES)" PLATFORM=$(PLAT) ARCH=AARCH64 OBJ_DIR=$(BUILD_PLAT)/ble \
+		EXTRA_CFLAGS="-DSILENT_LIB"
