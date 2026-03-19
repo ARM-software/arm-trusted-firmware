@@ -67,10 +67,10 @@ Source files
 Build time config options
 -------------------------
 
-- ``MBOOT_TPM_HASH_ALG``: The hash algorithm to be used by the TPM, currently
-  the only supported algorithm is ``sha256``. As additional Discrete TPMs are
-  tested and integrated in TF-A, support for more algorithms will become
-  available.
+- ``MBOOT_TPM_HASH_ALG``: The hash algorithm to be used by the TPM. The
+  supported algorithms are ``sha256`` and ``sha384``. As additional Discrete
+  TPMs are tested and integrated in TF-A, support for more algorithms will
+  become available.
 - ``DISCRETE_TPM``: Boolean flag to enable Discrete TPM support. Depending
   on the selected TPM interface, the appropriate drivers will be built and
   packaged into firmware.
@@ -112,7 +112,7 @@ An example of ``pcr_extend`` that is used during rpi3 measured boot can be found
  in ``plat/rpi/rpi3/rpi3_bl1_mboot.c`` and ``plat/rpi/rpi3/rpi3_bl2_mboot.c``.
 
 
-*Copyright (c) 2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2025-2026, Arm Limited. All rights reserved.*
 
 .. |rpi3 dtpm driver stack| image::
    ../resources/diagrams/rpi3_dtpm_driver.png
