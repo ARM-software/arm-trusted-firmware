@@ -50,6 +50,12 @@ static PER_CPU_DEFINE(spmd_spm_core_context_t, spm_core_context);
 static spmc_manifest_attribute_t spmc_attrs;
 
 /*******************************************************************************
+ * Set by spmd_setup() when the SPM Core manifest address was extracted from a
+ * valid transfer list entry (whose memory is already mapped).
+ ******************************************************************************/
+bool spmc_manifest_from_tl;
+
+/*******************************************************************************
  * FFA version used by nonsecure endpoint.
  ******************************************************************************/
 static uint32_t nonsecure_ffa_version;
@@ -775,6 +781,36 @@ int spmd_setup(void)
 		spmc_ep_info->args.arg0 = (uintptr_t)spmc_manifest;
 	} else {
 		spmc_ep_info->args.arg3 = (uintptr_t)spmc_manifest;
+	}
+#elif TRANSFER_LIST && RESET_TO_BL31
+	/*
+	 * With RESET_TO_BL31, TRANSFER_LIST does not guarantee a secure
+	 * transfer list for the SPMC. Dynamically check the handoff registers
+	 * and fall back gracefully.
+	 */
+	tl = (struct transfer_list_header *)spmc_ep_info->args.arg3;
+	if (transfer_list_check_header(tl) != TL_OPS_NON) {
+		te = transfer_list_find(tl, TL_TAG_DT_SPMC_MANIFEST);
+		if (te == NULL) {
+			WARN("SPM Core manifest absent in TRANSFER_LIST.\n");
+			return -ENOENT;
+		}
+
+		spmc_manifest = (void *)transfer_list_entry_data(te);
+		spmc_manifest_from_tl = true;
+
+		/* Change the DT in the handoff */
+		if (sizeof(spmc_ep_info->args.arg0) == sizeof(uint64_t)) {
+			spmc_ep_info->args.arg0 = (uintptr_t)spmc_manifest;
+		} else {
+			spmc_ep_info->args.arg3 = (uintptr_t)spmc_manifest;
+		}
+	} else {
+		/*
+		 * Check if BL32 ep_info has a reference to 'tos_fw_config'. This will
+		 * be used as a manifest for the SPM Core at the next lower EL/mode.
+		 */
+		spmc_manifest = (void *)spmc_ep_info->args.arg0;
 	}
 #else
 	/*
