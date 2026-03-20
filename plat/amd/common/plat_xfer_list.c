@@ -477,3 +477,31 @@ unmap_tl:
 
 	return ret;
 }
+
+int32_t tl_add_dt_overlay(void *fdt, size_t fdtsize)
+{
+	struct transfer_list_entry *te = NULL;
+	int32_t ret = 0;
+
+	if ((fdt == NULL) || (fdtsize == 0U)) {
+		ret = -1;
+		goto exit_on;
+	}
+
+	if (secure_tl_region.is_mapped && (tl_ops_holder == TL_OPS_ALL)) {
+		te = transfer_list_add(tl_hdr, TL_TAG_FDT_OVRLY, fdtsize, fdt);
+		if (te == NULL) {
+			ret = -1;
+			WARN("Failed to add overlay entry to secure TL\n");
+		} else {
+			flush_dcache_range((uintptr_t)tl_hdr, tl_hdr->size);
+		}
+	} else {
+		WARN("Failed due to no-mapping or wrong ops holder\n");
+		ret = -1;
+	}
+
+exit_on:
+	return ret;
+}
+
