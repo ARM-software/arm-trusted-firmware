@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,5 +62,12 @@ void cluster_on_dsu_pmu_context_restore(void);
 void cluster_off_dsu_pmu_context_save(void);
 
 void dsu_driver_init(const dsu_driver_data_t *data);
+
+#if DSU_PDL2_SUPPORT
+void dsu_configure_core_l2pd_power_required(bool power_required);
+void dsu_configure_core_wfi_logicret_ctrl(unsigned int logicret_ctrl);
+void dsu_configure_core_wfi_fullret_ctrl(unsigned int fullret_ctrl);
+#endif /* DSU_PDL2_SUPPORT */
+
 #endif
 #endif /* DSU_H */
