@@ -151,9 +151,9 @@ In particular, if the custom image parser implementation wraps a 32-bit integer
 in an ASN.1 ``INTEGER``, it is not affected.
 
 .. _CVE-2022-47630: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-47630
-.. _fd37982a19a4a291: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=fd37982a19a4a291
-.. _72460f50e2437a85: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=72460f50e2437a85
-.. _f5c51855d36e399e: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=f5c51855d36e399e
-.. _abb8f936fd0ad085: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=abb8f936fd0ad085
+.. _fd37982a19a4a291: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/fd37982a19a4a291
+.. _72460f50e2437a85: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/72460f50e2437a85
+.. _f5c51855d36e399e: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/f5c51855d36e399e
+.. _abb8f936fd0ad085: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/abb8f936fd0ad085
 .. _RFC 5280: https://www.ietf.org/rfc/rfc5280.txt
 .. _ITU-T X.690: https://www.itu.int/ITU-T/studygroups/com10/languages/X.690_1297.pdf
