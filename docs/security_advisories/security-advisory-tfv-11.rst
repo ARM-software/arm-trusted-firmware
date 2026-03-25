@@ -79,7 +79,7 @@ that the parameter is invalid.
               return SDEI_EINVAL;
 
 .. _CVE-2023-49100: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-49100
-.. _a7eff3477: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=a7eff3477dcf3624c74f5217419b1a27b7ebd2aa
+.. _a7eff3477: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/a7eff3477dcf3624c74f5217419b1a27b7ebd2aa
 .. _IT Security Infrastructures Lab: https://www.cs1.tf.fau.de/
 .. _SDEI Specification: https://developer.arm.com/documentation/den0054/latest/
 .. _@_chli_: https://twitter.com/_chli_
