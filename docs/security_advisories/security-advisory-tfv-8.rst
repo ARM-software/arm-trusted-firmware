@@ -9,7 +9,7 @@ Advisory TFV-8 (CVE-2018-19440)
 +----------------+-------------------------------------------------------------+
 | Date           | 27 Nov 2018                                                 |
 +----------------+-------------------------------------------------------------+
-| Versions       | All                                                         |
+| Versions       | All, up to and including v2.0                               |
 | Affected       |                                                             |
 +----------------+-------------------------------------------------------------+
 | Configurations | Multiple normal world SMC clients calling into AArch64 BL31 |
@@ -18,7 +18,9 @@ Advisory TFV-8 (CVE-2018-19440)
 | Impact         | Leakage of SMC return values from one normal world SMC      |
 |                | client to another                                           |
 +----------------+-------------------------------------------------------------+
-| Fix Version    | `Pull Request #1710`_                                       |
+| Fix Version    | `Pull Request #1710`_ (merged on 6 December 2018)           |
+|                |                                                             |
+|                | `Commit 01fc1c24b9`_                                        |
 +----------------+-------------------------------------------------------------+
 | Credit         | Secmation                                                   |
 +----------------+-------------------------------------------------------------+
@@ -99,5 +101,6 @@ line 19 (referring to the version of the code as of `commit c385955`_):
 
 .. _CVE-2018-19440: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-19440
 .. _commit c385955: https://github.com/ARM-software/arm-trusted-firmware/commit/c385955
+.. _Commit 01fc1c24b9: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/01fc1c24b9a03c519efae4d006a71c350c0529fa
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _Pull Request #1710: https://github.com/ARM-software/arm-trusted-firmware/pull/1710
