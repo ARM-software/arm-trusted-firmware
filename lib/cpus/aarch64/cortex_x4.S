@@ -149,8 +149,10 @@ check_erratum_ls cortex_x4, CVE(2024, 7881), CPU_REV(0, 2)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start cortex_x4, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+#if IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
+#endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x4, CVE(2025, 647)
 
 check_erratum_chosen cortex_x4, CVE(2025, 647), WORKAROUND_CVE_2025_0647
@@ -209,7 +211,7 @@ func cortex_x4_cpu_reg_dump
 	ret
 endfunc cortex_x4_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647
+#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
 declare_cpu_ops_eh cortex_x4, CORTEX_X4_MIDR, \
 	cortex_x4_reset_func, \
 	cortex_x4_impl_defined_el3_handler, \
