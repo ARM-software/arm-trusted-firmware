@@ -354,15 +354,10 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	scr_el3 |= SCR_EA_BIT;
 #endif
 
-#if RAS_TRAP_NS_ERR_REC_ACCESS
-	/*
-	 * SCR_EL3.TERR: Trap Error record accesses. Accesses to the RAS ERR
-	 * and RAS ERX registers from EL1 and EL2(from any security state)
-	 * are trapped to EL3.
-	 * Set here to trap only for NS EL1/EL2
-	 */
-	scr_el3 |= SCR_TERR_BIT;
-#endif
+	if (is_feat_ras_supported() && RAS_TRAP_NS_ERR_REC_ACCESS) {
+		/* Trap Error record accesses. */
+		scr_el3 |= SCR_TERR_BIT;
+	}
 
 	/* CSV2 version 2 and above */
 	if (is_feat_csv2_2_supported()) {
@@ -550,10 +545,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 		scr_el3 |= SCR_TRNDR_BIT;
 	}
 
-#if FAULT_INJECTION_SUPPORT
-	/* Enable fault injection from lower ELs */
-	scr_el3 |= SCR_FIEN_BIT;
-#endif
+	if (is_feat_ras_supported() && FAULT_INJECTION_SUPPORT) {
+		/* Disable trapping of fault injection registers */
+		scr_el3 |= SCR_FIEN_BIT;
+	}
 
 	/*
 	 * Enable Pointer Authentication globally for all the worlds.
