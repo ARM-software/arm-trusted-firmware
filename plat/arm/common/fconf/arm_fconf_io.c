@@ -223,11 +223,19 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		open_fip
 	},
 #endif
+#if ENCRYPT_BL33 && !defined(DECRYPTION_SUPPORT_none)
+	[BL33_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL33_IMAGE_ID],
+		open_enc_fip
+	},
+#else
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[BL33_IMAGE_ID],
 		open_fip
 	},
+#endif
 	[RMM_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[RMM_IMAGE_ID],

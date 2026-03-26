@@ -246,6 +246,13 @@ Common build options
 -  ``ENCRYPT_BL32``: Binary flag to enable encryption of Secure BL32 payload.
    This flag depends on ``DECRYPTION_SUPPORT`` build flag.
 
+-  ``ENCRYPT_BL33``: Binary flag to enable encryption of BL33 non-trusted
+   firmware. This flag depends on the ``DECRYPTION_SUPPORT`` build flag. Note
+   that BL33 encryption offers confidentiality against offline firmware
+   extraction or cloning. However, since BL33 eventually executes in the Normal
+   World, its decrypted contents can be generally accessible after decryption
+   and handoff.
+
 -  ``ENC_KEY``: A 32-byte (256-bit) symmetric key in hex string format. It could
    either be SSK or BSSK depending on ``FW_ENC_STATUS`` flag. This value depends
    on ``DECRYPTION_SUPPORT`` build flag.
