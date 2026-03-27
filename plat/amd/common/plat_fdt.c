@@ -50,12 +50,6 @@ int32_t is_valid_dtb(void *fdt)
 		goto error;
 	}
 
-	ret = fdt_open_into(fdt, fdt, XILINX_OF_BOARD_DTB_MAX_SIZE);
-	if (ret < 0) {
-		ERROR("Invalid Device Tree at %p: error %d\n", fdt, ret);
-		goto error;
-	}
-
 	if (is_fit_image(fdt)) {
 		WARN("FIT image detected, TF-A will not update DTB for DDR address space\n");
 		ret = -FDT_ERR_NOTFOUND;
