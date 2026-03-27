@@ -38,6 +38,12 @@ int32_t is_valid_dtb(void *fdt)
 {
 	int32_t ret = 0;
 
+	if (fdt == NULL) {
+		ERROR("Invalid DT address\n");
+		ret = -FDT_ERR_NOTFOUND;
+		goto error;
+	}
+
 	ret = fdt_check_header(fdt);
 	if (ret != 0) {
 		ERROR("Can't read DT at %p\n", fdt);
