@@ -40,8 +40,15 @@ func veymont_core_pwr_dwn
 	 * request to a simple WFI wait, to get a minimal amount of power saving
 	 * rather than an instant pabandon.
 	 */
+#if ENABLE_SME_FOR_NS
+#if ENABLE_SME_FOR_NS == 2
+	is_feat_sme_present_asm x1
+	beq 1f
+#endif
 	mrs	x0, SVCR
 	cbnz	x0, veymont_skip_pwr_dwn
+1:
+#endif
 
 	/* ---------------------------------------------------
 	 * Flip CPU power down bit in power control register.
