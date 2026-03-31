@@ -136,8 +136,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	default:
 		panic();
 	}
+
 #if (TRANSFER_LIST == 1)
-	tl_status = populate_data_from_xfer_list();
+	tl_status = init_transfer_list_from_fdt_or_static();
 	if (tl_status != true) {
 		WARN("Invalid transfer list\n");
 	}
