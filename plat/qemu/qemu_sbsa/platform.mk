@@ -47,6 +47,8 @@ endif
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
+BL2_SOURCES		+=	common/uuid.c
+
 QEMU_GIC_SOURCES	:=	${GICV3_SOURCES}				\
 				plat/common/plat_gicv3.c
 
