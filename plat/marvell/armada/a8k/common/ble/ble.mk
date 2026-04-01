@@ -33,5 +33,5 @@ $(MV_DDR_LIB): FORCE
 #	Do not remove! Following checks are required to ensure correct TF-A builds, removing these checks leads to broken TF-A builds
 	$(if $(value MV_DDR_PATH),,$(error "Platform '$(PLAT)' for BLE requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	$(if $(wildcard $(value MV_DDR_PATH)/*),,$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' directory does not exist"))
-	@+make -C $(MV_DDR_PATH) --no-print-directory CROSS_COMPILE=$(MV_DDR_CROSS_COMPILE) \
+	${Q}+make -C $(MV_DDR_PATH) --no-print-directory CROSS_COMPILE=$(MV_DDR_CROSS_COMPILE) \
 		PLAT_INCLUDES="$(MV_DDR_INCLUDES)" PLATFORM=$(PLAT) ARCH=AARCH64 OBJ_DIR=$(BUILD_PLAT)/ble
