@@ -233,6 +233,16 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	secure_entrypoint = sec_entrypoint;
 	plat_hold_pen_init((struct hold_slot *)PLAT_QEMU_HOLD_BASE,
 		      PLATFORM_CORE_COUNT);
+
+	/*
+	 * Now bring the secondary cores out of the hold pen from bl1.
+	 */
+	for (unsigned int pos = 0; pos < PLATFORM_CORE_COUNT; pos++) {
+		plat_hold_pen_signal((struct hold_slot *)PLAT_QEMU_HOLD_BASE,
+				     pos,
+				     (uintptr_t)plat_secondary_cold_boot_setup);
+	}
+
 	*psci_ops = &plat_qemu_psci_pm_ops;
 
 	return 0;
