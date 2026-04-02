@@ -751,6 +751,10 @@ int psci_validate_state_coordination(unsigned int cpu_idx, unsigned int end_pwrl
 	 * specified power level.
 	 */
 	lvl = state_info->last_at_pwrlvl;
+	if (lvl > PLAT_MAX_PWR_LVL) {
+		return PSCI_E_INVALID_PARAMS;
+	}
+
 	if (lvl > end_pwrlvl) {
 		if (!psci_is_last_cpu_to_idle_at_pwrlvl(cpu_idx, lvl)) {
 			rc = PSCI_E_DENIED;
