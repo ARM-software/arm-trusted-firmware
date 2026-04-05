@@ -510,6 +510,7 @@ static int32_t rcar_dev_init(io_dev_info_t *dev_info, const uintptr_t name)
 	if ((name == FLASH_DEV_ID) &&
 	    (mmio_read_32(MFISBTSTSR) & MFISBTSTSR_BOOT_PARTITION)) {
 		rcar_image_offset = 0x800000;
+		offset += rcar_image_offset;
 	}
 #endif
 
