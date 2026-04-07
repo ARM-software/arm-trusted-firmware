@@ -284,6 +284,8 @@ int stpmic2_regulator_get_voltage(struct pmic_handle_s *pmic,
 		return RET_ERROR_GENERIC;
 	}
 
+	assert(regul->volt_table != NULL);
+
 	mask = regul->volt_table_size - 1U;
 	if (mask != 0U) {
 		if (stpmic2_register_read(pmic, regul->volt_cr, &value) != 0) {
@@ -307,7 +309,7 @@ static size_t voltage_to_index(const struct regul_struct *regul,
 {
 	unsigned int i;
 
-	assert(regul->volt_table);
+	assert(regul->volt_table != NULL);
 	for (i = 0U; i < regul->volt_table_size; i++) {
 		if (regul->volt_table[i] == millivolts) {
 			return i;
@@ -324,7 +326,7 @@ int stpmic2_regulator_set_voltage(struct pmic_handle_s *pmic,
 	size_t index;
 	uint8_t mask;
 
-	if (!regul->volt_table_size) {
+	if (regul->volt_table_size == 0U) {
 		return RET_SUCCESS;
 	}
 
