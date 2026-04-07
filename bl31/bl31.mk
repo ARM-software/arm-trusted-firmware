@@ -175,7 +175,7 @@ endif
 
 # RAS sources
 ifneq (${ENABLE_FEAT_RAS},0)
-ifeq (${HANDLE_EA_EL3_FIRST_NS},1)
+ifeq (${FFH_SUPPORT},1)
 BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
 				lib/extensions/ras/ras_common.c
 endif

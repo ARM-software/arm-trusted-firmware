@@ -348,7 +348,7 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 	}
 
-#if HANDLE_EA_EL3_FIRST_NS
+#if FFH_SUPPORT
 	/* SCR_EL3.EA: Route External Abort and SError Interrupt to EL3. */
 	scr_el3 |= SCR_EA_BIT;
 #endif
