@@ -268,6 +268,12 @@ ifeq (${FIRME_SUPPORT_IDE_KM}, 1)
     endif
 endif
 
+ifeq (${FIRME_SUPPORT_ATTESTATION}, 1)
+    ifeq (${FIRME_SUPPORT}, 0)
+        $(error "FIRME_SUPPORT_ATTESTATION requires FIRME_SUPPORT")
+    endif
+endif
+
 ifeq ($(FIRME_SUPPORT),1)
         $(info FIRME_SUPPORT is an experimental feature)
 endif #(FIRME_SUPPORT)

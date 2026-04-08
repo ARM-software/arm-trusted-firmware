@@ -7,6 +7,8 @@
 #ifndef FIRME_SVC_H
 #define FIRME_SVC_H
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include <common/sha_common_macros.h>
@@ -52,8 +54,15 @@ typedef enum {
 #define FIRME_BASE_FEATURES_BIT				BIT(1)
 #define FIRME_BASE_MIN_SH_BUF_SZ_SHIFT			U(0)
 #define FIRME_BASE_MIN_SH_BUF_SZ_MASK			U(0x3)
+#define FIRME_BASE_MIN_SH_BUF_SZ_4KB			U(0)
+#define FIRME_BASE_MIN_SH_BUF_SZ_64KB			U(1)
+#define FIRME_BASE_MIN_SH_BUF_SZ_16KB			U(2)
 #define FIRME_BASE_MAX_SH_BUF_PG_CNT_SHIFT		U(2)
 #define FIRME_BASE_MAX_SH_BUF_PG_CNT_MASK		U(0x3FFF)
+/* Count-minus-one value advertised in FIRME base feature register 1. */
+#ifndef FIRME_BASE_MAX_SH_BUF_PG_CNT
+#define FIRME_BASE_MAX_SH_BUF_PG_CNT			U(0)
+#endif
 #define FIRME_BASE_SERVICE_LIST_SHIFT			U(16)
 #define FIRME_BASE_SERVICE_LIST_MASK			U(0xFFFF)
 #define FIRME_BASE_SERVICE_BIT(_id)			BIT((_id) + \
@@ -61,6 +70,8 @@ typedef enum {
 #define FIRME_BASE_SERVICE_GRANULE_MGMT_BIT		FIRME_BASE_SERVICE_BIT(0)
 #define FIRME_BASE_SERVICE_IDE_KM_BIT			FIRME_BASE_SERVICE_BIT(1)
 #define FIRME_BASE_SERVICE_MECID_BIT			FIRME_BASE_SERVICE_BIT(2)
+#define FIRME_BASE_SERVICE_ATTESTATION_BIT		FIRME_BASE_SERVICE_BIT(3)
+#define FIRME_BASE_SERVICE_ID_BIT			FIRME_BASE_SERVICE_BIT(4)
 
 /*
  * FIRME_SERVICE_VERSION
@@ -116,4 +127,7 @@ int plat_firme_get_supported_svcs(uint16_t *svc_mask);
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
 
+bool firme_is_valid_shared_buffer(firme_instance_e instance,
+				  uintptr_t shared_buf_addr,
+				  size_t buf_page_count);
 #endif /* FIRME_SVC_H */

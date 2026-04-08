@@ -26,6 +26,9 @@ static const struct firme_service *firme_services[FIRME_SERVICE_ID_MAX] = {
 	[FIRME_BASE_ID] = &firme_base_service,
 	[FIRME_GRANULE_MGMT_ID] = &firme_granule_mgmt_service,
 	[FIRME_MECID_MGMT_ID] = &firme_mecid_service,
+#if FIRME_SUPPORT_ATTESTATION
+	[FIRME_ATTESTATION_ID] = &firme_attestation_service,
+#endif
 #if FIRME_SUPPORT_IDE_KM
 	[FIRME_IDE_KEY_MGMT_ID] = &firme_ide_km_service,
 #endif

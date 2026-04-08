@@ -223,6 +223,10 @@ BL31_SOURCES		+=	services/std_svc/firme/firme_svc.c \
 				services/std_svc/firme/firme_granule_management_service.c \
 				services/std_svc/firme/firme_mecid.c
 
+ifeq (${FIRME_SUPPORT_ATTESTATION},1)
+BL31_SOURCES		+=	services/std_svc/firme/firme_attestation.c
+endif
+
 ifeq (${FIRME_SUPPORT_IDE_KM},1)
 BL31_SOURCES		+=	services/std_svc/firme/firme_ide_km_service.c
 endif
