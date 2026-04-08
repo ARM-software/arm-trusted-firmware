@@ -41,14 +41,8 @@ CPU_FLAG_LIST += WORKAROUND_CVE_2024_7881
 WORKAROUND_CVE_2024_5660		?=1
 CPU_FLAG_LIST += WORKAROUND_CVE_2024_5660
 
-# Flag to enable the CVE-2025-0647 workaround for CPP RCTX instructions. This
-# workaround requires Arm arch v8.5 or greater, so only enable by default for
-# v8.5+.
-ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-ifeq (${ARCH},aarch64)
-        WORKAROUND_CVE_2025_0647		?=1
-endif
-endif
+# Flag to enable the CVE-2025-0647 workaround for CPP RCTX instructions.
+WORKAROUND_CVE_2025_0647		?=1
 CPU_FLAG_LIST += WORKAROUND_CVE_2025_0647
 
 # Flags to indicate internal or external Last level cache
