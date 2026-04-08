@@ -20,6 +20,10 @@ BL1_SOURCES		+=	bl1/${ARCH}/bl1_arch_setup.c		\
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/el3_runtime/aarch64/context.S	\
 				lib/cpus/errata_common.c
+
+ifeq (${WORKAROUND_CVE_2025_0647},1)
+BL1_SOURCES		+=	lib/cpus/aarch64/wa_cve_2025_0647_cpprctx.S
+endif
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
@@ -28,10 +32,6 @@ endif
 
 ifeq (${ENABLE_PMF},1)
 BL1_SOURCES		+=	lib/pmf/pmf_main.c
-endif
-
-ifeq (${WORKAROUND_CVE_2025_0647},1)
-BL1_SOURCES		+=	lib/cpus/aarch64/wa_cve_2025_0647_cpprctx.S
 endif
 
 BL1_DEFAULT_LINKER_SCRIPT_SOURCE := bl1/bl1.ld.S
