@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -175,7 +175,7 @@ workaround_runtime_end neoverse_n1, ERRATUM(2743102)
 check_erratum_ls neoverse_n1, ERRATUM(2743102), CPU_REV(4, 1)
 
 workaround_runtime_start  neoverse_n1, ERRATUM(3324349), ERRATA_N1_3324349
-	speculation_barrier
+	isb
 workaround_runtime_end neoverse_n1, ERRATUM(3324349)
 
 check_erratum_ls neoverse_n1, ERRATUM(3324349), CPU_REV(4, 1)
