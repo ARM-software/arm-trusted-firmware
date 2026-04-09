@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -43,6 +44,7 @@ void scmi_get_channel(scmi_channel_t *ch)
 void scmi_send_sync_command(scmi_channel_t *ch)
 {
 	mailbox_mem_t *mbx_mem = (mailbox_mem_t *)(ch->info->scmi_mbx_mem);
+	uint64_t timeout;
 
 	SCMI_MARK_CHANNEL_BUSY(mbx_mem->status);
 
@@ -61,9 +63,27 @@ void scmi_send_sync_command(scmi_channel_t *ch)
 	dmbsy();
 
 	/* Wait for channel to be free */
-	while (!SCMI_IS_CHANNEL_FREE(mbx_mem->status)) {
-		if (ch->info->delay != 0)
-			udelay(ch->info->delay);
+	if (ch->info->timeout != 0U) {
+		timeout = timeout_init_us(ch->info->timeout);
+		while (!SCMI_IS_CHANNEL_FREE(mbx_mem->status) &&
+		       !timeout_elapsed(timeout)) {
+			if (ch->info->delay != 0) {
+				udelay(ch->info->delay);
+			}
+		}
+
+		/* Ensure command completed within timeout */
+		if (!SCMI_IS_CHANNEL_FREE(mbx_mem->status)) {
+			ERROR("SCMI channel timed out (%" PRIu32 " us)\n",
+			      ch->info->timeout);
+			panic();
+		}
+	} else {
+		while (!SCMI_IS_CHANNEL_FREE(mbx_mem->status)) {
+			if (ch->info->delay != 0) {
+				udelay(ch->info->delay);
+			}
+		}
 	}
 
 	/*
