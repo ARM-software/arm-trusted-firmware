@@ -141,6 +141,22 @@ static inline bool is_valid_mode(uint64_t mode)
 	return ((mode == PFDI_ONL_MODE) || (mode == PFDI_OOR_MODE));
 }
 
+static inline bool is_valid_force_error_id(int64_t error_id)
+{
+	switch (error_id) {
+	case PFDI_SMCC_RET_NOT_SUPPORTED:
+	case PFDI_RET_INVALID_PARAMETERS:
+	case PFDI_RET_FAULT_FOUND:
+	case PFDI_RET_ERROR:
+	case PFDI_RET_NOT_RUN:
+	case PFDI_RET_UNKNOWN:
+	case PFDI_RET_TEST_COUNT_ZERO:
+		return true;
+	default:
+		return false;
+	}
+}
+
 /**
  * Platform Fault Detection Interface Function descriptor.
  */
@@ -263,6 +279,47 @@ pfdi_status_t pfdi_pe_test_run_validate(int64_t start, int64_t end,
 	uint64_t mode);
 
 /**
+ * Check supported features.
+ *
+ * @param[in] fid		Function identifier to check.
+ *
+ * @return			0 on success or an error code on failure.
+ */
+pfdi_status_t pfdi_pe_features(uint32_t fid);
+
+/**
+ * Force error on request.
+ *
+ * @param[in] fid		Targeted smc function id.
+ * @param[in] error_id		Targeted PFDI error id. Must be negative.
+ *
+ * @return			0 on success or an error code on failure.
+ */
+pfdi_status_t pfdi_pe_force_error(uint32_t fid, int64_t error_id);
+
+/**
+ * Consume a pending forced error for a PFDI ABI function.
+ *
+ * @param[in] fid		Targeted SMC function id.
+ *
+ * @return			The injected error if one is pending for this
+ *				PE/function, otherwise
+ *				`PFDI_SMCC_RESERVED_ERROR_ID`.
+ */
+int64_t pfdi_consume_force_error(uint32_t fid);
+
+/**
+ * Validate whether a FORCE_ERROR request is well-formed.
+ *
+ * @param[in] fid		Targeted smc function id.
+ * @param[in] error_id		Targeted PFDI error id. Must be negative.
+ *
+ * @return			0 when the request is valid, otherwise the
+ *				an error code to report.
+ */
+pfdi_status_t pfdi_pe_force_error_validate(uint32_t fid, int64_t error_id);
+
+/**
  * Macro to register a callback with pfdi library.
  *
  * This macro defines and registers a PFDI function descriptor.
@@ -284,5 +341,72 @@ pfdi_status_t pfdi_pe_test_run_validate(int64_t start, int64_t end,
  * Declaration for a registered PFDI handlers
  */
 extern const pfdi_func_desc_t pfdi_func_desc;
+
+/**
+ * Platform PFDI function descriptor (optional).
+ */
+struct plat_pfdi_func_desc {
+	/**
+	 * Name of the Platform PFDI function.
+	 */
+	const char *name;
+
+	/**
+	 * Optional function handler to force platform specific error.
+	 *
+	 * @param fid           Function Id to inject error.
+	 * @param error_id      ERROR Id to force error.
+	 *
+	 * @return              0 on success or an error code on failure.
+	 */
+	int64_t (*force_plat_err)(uint32_t fid, int64_t error_id);
+
+	/**
+	 * Optional function handler to check platform specific errors.
+	 *
+	 * @param fid           Function Id to check error status.
+	 * @param error_id      ERROR Id to be expected.
+	 *
+	 * @return              return the validated error id. The PFDI service
+	 *			always reports the original injected ABI error in
+	 *			x0, so platform hooks must not rely on rewriting it.
+	 */
+	int64_t (*check_plat_err)(uint32_t fid, int64_t error_id);
+
+	/**
+	 * Post-run PFDI operations for a specific CPU.
+	 *
+	 * @param[in] status            Whether the last run succeeded or failed.
+	 * @param[in] start             The start test case number.
+	 * @param[in] end               The end test case number.
+	 * @param[in] mode              PFDI operation mode (online/out of reset)
+	 * @param[out] ft_id            The failed test case id.
+	 *
+	 * @return                      Void
+	 */
+	void (*post_run)(pfdi_status_t status, uint64_t start, uint64_t end,
+			 uint64_t mode, uint64_t *ft_id);
+};
+
+/**
+ * Register the optional platform PFDI callback descriptor.
+ *
+ * Platforms that implement platform-specific hooks must call this during
+ * platform setup before `pfdi_init()` is reached.
+ *
+ * @param desc	Pointer to the platform callback descriptor.
+ */
+void pfdi_register_plat_func_desc(const struct plat_pfdi_func_desc *desc);
+
+/**
+ * Get the registered platform PFDI callback descriptor.
+ *
+ * The PFDI service always returns a valid descriptor. When the platform does
+ * not register any callbacks, all function pointers in the returned
+ * descriptor are `NULL`.
+ *
+ * @return			Pointer to the active platform callback descriptor.
+ */
+const struct plat_pfdi_func_desc *pfdi_get_plat_func_desc(void);
 
 #endif /* PFDI_H */

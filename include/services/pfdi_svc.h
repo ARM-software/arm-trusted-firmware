@@ -43,6 +43,16 @@
 #define PFDI_FID_MIN			PFDI_VERSION
 #define PFDI_FID_MAX			PFDI_FID(U(0x2DF))
 
+#define IS_FEATURE_SUPPORTED(smc_fid)			\
+	((smc_fid) == PFDI_VERSION ||			\
+	 (smc_fid) == PFDI_FEATURES ||			\
+	 (smc_fid) == PFDI_PE_TEST_ID ||		\
+	 (smc_fid) == PFDI_PE_TEST_PART_COUNT ||	\
+	 (smc_fid) == PFDI_PE_TEST_RUN ||		\
+	 (smc_fid) == PFDI_PE_TEST_RESULT ||		\
+	 (smc_fid) == PFDI_FW_CHECK ||			\
+	 (smc_fid) == PFDI_FORCE_ERROR)
+
 /*
  * The macros below are used to identify (Platform Fault Detection Interface)
  * PFDI calls from the SMC function ID
