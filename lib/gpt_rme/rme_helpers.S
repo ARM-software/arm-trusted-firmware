@@ -8,6 +8,75 @@
 #include <lib/gpt_rme/gpc_fault.h>
 
 	.globl	get_el3_gpf_resume_pc
+	.globl	rme_gpf_safe_read
+	.globl	rme_gpf_safe_write
+
+RME_GPF_TRAP_ENTRY(read_fault_ldr, rme_gpf_safe_return)
+RME_GPF_TRAP_ENTRY(write_fault_str, rme_gpf_safe_return)
+
+/*
+ * Copy data from a lower EL buffer into Root memory.
+ * The function returns the number of bytes copied.
+ * If the access to the lower EL generates a GPF, the exception handler
+ * returns to rme_gpf_safe_return and the number of bytes copied before the GPF
+ * is returned to the caller. In case of failure, partial data may have been
+ * written to the destination buffer.
+ *
+ * x0 - The address of buffer in Root memory to write into
+ * x1 - The address of buffer in lower EL memory to read from.
+ * x2 - The number of bytes to read in bytes.
+ * All arguments must be aligned to 8 bytes.
+ */
+func rme_gpf_safe_read
+	cbz	x2, 2f
+	mov	x3, #0
+
+1:
+read_fault_ldr:
+	ldr	x4, [x1], #8
+	str	x4, [x0], #8
+	add	x3, x3, #8
+	cmp	x3, x2
+	bne	read_fault_ldr
+
+2:
+	mov	x0, x2
+	ret
+endfunc rme_gpf_safe_read
+
+/*
+ * Copy data from Root into lower EL memory.
+ * The function returns the number of bytes copied.
+ * If the access to the lower EL generates a GPF, the exception handler
+ * returns to rme_gpf_safe_return and the number of bytes copied before the GPF
+ * is returned to the caller. In case of failure, partial data may have been
+ * written to the destination buffer.
+ *
+ * x0 - The address of buffer in lower EL to write into
+ * x1 - The address of buffer in Root memory to read from.
+ * x2 - The number of bytes to write.
+ * All arguments must be aligned to 8 bytes.
+ */
+func rme_gpf_safe_write
+	cbz	x2, 2f
+	mov	x3, #0
+1:
+	ldr	x4, [x1], #8
+write_fault_str:
+	str	x4, [x0], #8
+	add	x3, x3, #8
+	cmp	x3, x2
+	bne	1b
+2:
+	mov	x0, x2
+	ret
+endfunc rme_gpf_safe_write
+
+func rme_gpf_safe_return
+	mov	x0, x3
+	ret
+endfunc rme_gpf_safe_return
+
 
 /*
  * Find the safe resume PC for the current EL3 exception if it is a
