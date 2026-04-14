@@ -1559,6 +1559,9 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	struct ffa_mtd *resp;
 	const struct ffa_mtd *req;
 	struct spmc_shmem_obj *obj = NULL;
+	struct spmc_shmem_obj *req_snapshot = NULL;
+	uint64_t mem_handle;
+	bool req_has_emads;
 	struct mailbox *mbox = spmc_get_mbox_desc(secure_origin);
 	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
 	struct secure_partition_desc *sp_ctx = spmc_get_current_sp_ctx();
@@ -1571,7 +1574,6 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 
 	spin_lock(&mbox->lock);
 
-	req = mbox->tx_buffer;
 	resp = mbox->rx_buffer;
 	buf_size = mbox->rxtx_page_count * FFA_PAGE_SIZE;
 
@@ -1594,21 +1596,6 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		goto err_unlock_mailbox;
 	}
 
-	/*
-	 * Validate emad_count based on caller origin:
-	 *
-	 * - Hypervisor retrieve requests do not include endpoint memory
-	 *   access descriptors.
-	 * - Secure partition retrieve requests must include them.
-	 */
-	if ((secure_origin && req->emad_count == 0U) ||
-	    (!secure_origin && req->emad_count != 0U)) {
-		WARN("%s: unsupported attribute desc count %u.\n",
-		     __func__, req->emad_count);
-		ret = FFA_ERROR_INVALID_PARAMETER;
-		goto err_unlock_mailbox;
-	}
-
 	/* Determine the appropriate minimum descriptor size. */
 	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
 		min_desc_size = sizeof(struct ffa_mtd_v1_0);
@@ -1621,8 +1608,43 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_unlock_mailbox;
 	}
+	if (total_length > buf_size) {
+		WARN("%s: invalid length %u > tx buffer size %zu\n", __func__,
+		     total_length, buf_size);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_mailbox;
+	}
 
 	spin_lock(&spmc_shmem_obj_state.lock);
+
+	/*
+	 * Snapshot the request before validation so later reads don't depend on
+	 * mutable caller-owned TX buffer contents using memory from the shmem
+	 * datastore.
+	 */
+	req_snapshot = spmc_shmem_obj_alloc(&spmc_shmem_obj_state,
+					    round_up(total_length, 16));
+	if (req_snapshot == NULL) {
+		ret = FFA_ERROR_NO_MEMORY;
+		goto err_unlock_all;
+	}
+	memcpy(&req_snapshot->desc, mbox->tx_buffer, total_length);
+	req = &req_snapshot->desc;
+
+	/*
+	 * Validate emad_count based on caller origin:
+	 *
+	 * - Hypervisor retrieve requests do not include endpoint memory
+	 *   access descriptors.
+	 * - Secure partition retrieve requests must include them.
+	 */
+	if ((secure_origin && req->emad_count == 0U) ||
+	    (!secure_origin && req->emad_count != 0U)) {
+		WARN("%s: unsupported attribute desc count %u.\n",
+		     __func__, req->emad_count);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
+	}
 
 	obj = spmc_shmem_obj_lookup(&spmc_shmem_obj_state, req->handle);
 	if (obj == NULL) {
@@ -1740,13 +1762,12 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		struct ffa_emad_v1_0 *emad;
 		struct ffa_emad_v1_0 *other_emad;
 
-		emad = spmc_shmem_obj_get_emad(req, i, ffa_version,
-					       &emad_size);
+		emad = spmc_shmem_obj_get_emad(req, i, ffa_version, &emad_size);
 
 		for (size_t j = 0; j < obj->desc.emad_count; j++) {
-			other_emad = spmc_shmem_obj_get_emad(
-					&obj->desc, j, MAKE_FFA_VERSION(1, 1),
-					&emad_size);
+			other_emad = spmc_shmem_obj_get_emad(&obj->desc, j,
+							     MAKE_FFA_VERSION(1, 1),
+							     &emad_size);
 
 			if (req->emad_count &&
 			    emad->mapd.endpoint_id ==
@@ -1764,17 +1785,30 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		}
 	}
 
-	mbox->state = MAILBOX_STATE_FULL;
-
-	if (req->emad_count != 0U) {
-		obj->in_use++;
+	/*
+	 * The request has now been fully validated and only its handle and whether
+	 * it contains EMADs are needed below. Release the snapshot before building
+	 * the response so it does not overlap with any temporary descriptor needed
+	 * for FF-A version conversion.
+	 *
+	 * Freeing an object can move every later object in the datastore, so look
+	 * the transaction object up again before using it.
+	 */
+	mem_handle = req->handle;
+	req_has_emads = req->emad_count != 0U;
+	spmc_shmem_obj_free(&spmc_shmem_obj_state, req_snapshot);
+	req_snapshot = NULL;
+	obj = spmc_shmem_obj_lookup(&spmc_shmem_obj_state, mem_handle);
+	if (obj == NULL) {
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
 	}
 
 	/*
 	 * If the caller is v1.0 convert the descriptor, otherwise copy
 	 * directly.
 	 */
-	if (req->emad_count == 0U) {
+	if (!req_has_emads) {
 		/*
 		 * We should only get here from the hypervisor per
 		 * the checks above, but verify once again to be sure.
@@ -1809,6 +1843,21 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	/* Update the NS bit in the response if applicable. */
 	spmc_ffa_mem_retrieve_update_ns_bit(resp, sp_ctx, secure_origin);
 
+	/*
+	 * Response conversion may allocate and free a temporary object, which can
+	 * invalidate datastore pointers. Reacquire the transaction object before
+	 * committing its state, and only commit after response generation succeeds.
+	 */
+	obj = spmc_shmem_obj_lookup(&spmc_shmem_obj_state, mem_handle);
+	if (obj == NULL) {
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
+	}
+	if (req_has_emads) {
+		obj->in_use++;
+	}
+	mbox->state = MAILBOX_STATE_FULL;
+
 	spin_unlock(&spmc_shmem_obj_state.lock);
 	spin_unlock(&mbox->lock);
 
@@ -1816,6 +1865,9 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		 copy_size, 0, 0, 0, 0, 0);
 
 err_unlock_all:
+	if (req_snapshot != NULL) {
+		spmc_shmem_obj_free(&spmc_shmem_obj_state, req_snapshot);
+	}
 	spin_unlock(&spmc_shmem_obj_state.lock);
 err_unlock_mailbox:
 	spin_unlock(&mbox->lock);
