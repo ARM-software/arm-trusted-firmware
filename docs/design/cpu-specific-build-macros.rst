@@ -257,6 +257,19 @@ For Cortex-A76, the following errata build flags are defined :
 -  ``ERRATA_A76_1130799``: This applies errata 1130799 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
 
+-  ``ERRATA_A76_1165347``: This applies errata 1165347 workaround to Cortex-A76
+   CPU. This needs to be enabled for revisions r0p0, r1p0, and r2p0 of the CPU.
+   It is fixed in r3p0.
+
+-  ``ERRATA_A76_1165522``: This applies errata 1165522 workaround to all
+   revisions of Cortex-A76 CPU. This errata is fixed in r3p0 but due to
+   limitation of errata framework this errata is applied to all revisions
+   of Cortex-A76 CPU.
+
+-  ``ERRATA_A76_1207823``: This applies errata 1207823 workaround to Cortex-A76
+   CPU. This needs to be enabled for revisions r0p0, r1p0, and r2p0 of the CPU.
+   It is fixed in r3p0.
+
 -  ``ERRATA_A76_1220197``: This applies errata 1220197 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
 
@@ -275,16 +288,12 @@ For Cortex-A76, the following errata build flags are defined :
 -  ``ERRATA_A76_1791580``: This applies errata 1791580 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r4p0 of the CPU.
 
--  ``ERRATA_A76_1165522``: This applies errata 1165522 workaround to all
-   revisions of Cortex-A76 CPU. This errata is fixed in r3p0 but due to
-   limitation of errata framework this errata is applied to all revisions
-   of Cortex-A76 CPU.
-
 -  ``ERRATA_A76_1868343``: This applies errata 1868343 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r4p0 of the CPU.
 
 -  ``ERRATA_A76_1946160``: This applies errata 1946160 workaround to Cortex-A76
-   CPU. This needs to be enabled only for revisions r3p0 - r4p1 of the CPU.
+   CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0, r3p0, r3p1, r4p0,
+   and r4p1 of the CPU. It is still open.
 
 -  ``ERRATA_A76_2743102``: This applies errata 2743102 workaround to Cortex-A76
    CPU. This needs to be enabled for all revisions <= r4p1 of the CPU and is

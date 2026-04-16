@@ -285,8 +285,10 @@ check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start cortex_a710, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+#if IMAGE_BL31
 	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
 	bl	wa_cve_2025_0647_instruction_patch
+#endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a710, CVE(2025, 647)
 
 check_erratum_chosen cortex_a710, CVE(2025, 647), WORKAROUND_CVE_2025_0647
@@ -348,7 +350,7 @@ func cortex_a710_cpu_reg_dump
 	ret
 endfunc cortex_a710_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647
+#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
 declare_cpu_ops_eh cortex_a710, CORTEX_A710_MIDR, \
 	cortex_a710_reset_func, \
 	cortex_a710_impl_defined_el3_handler, \

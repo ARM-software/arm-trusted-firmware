@@ -114,8 +114,10 @@ check_erratum_ls c1_premium, CVE(2024, 7881), CPU_REV(0, 0)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start c1_premium, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+#if IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
+#endif /* IMAGE_BL31 */
 workaround_reset_end c1_premium, CVE(2025, 647)
 
 check_erratum_chosen c1_premium, CVE(2025, 647), WORKAROUND_CVE_2025_0647
@@ -162,7 +164,7 @@ func c1_premium_cpu_reg_dump
 	ret
 endfunc c1_premium_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647
+#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
 declare_cpu_ops_eh c1_premium, C1_PREMIUM_MIDR, \
 	c1_premium_reset_func, \
 	c1_premium_impl_defined_el3_handler, \

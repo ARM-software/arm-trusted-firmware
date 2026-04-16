@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -111,7 +111,7 @@ workaround_reset_end c1_nano, ERRATUM(3630925)
 check_erratum_ls c1_nano, ERRATUM(3630925), CPU_REV(0, 0)
 
 workaround_runtime_start c1_nano, ERRATUM(3754876), ERRATA_C1NANO_3754876
-	tsb csync
+	tsb_csync
 workaround_runtime_end c1_nano, ERRATUM(3754876)
 
 check_erratum_ls c1_nano, ERRATUM(3754876), CPU_REV(0, 1)
