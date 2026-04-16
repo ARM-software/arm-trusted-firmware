@@ -43,8 +43,8 @@
 #define EFI_ARM_PROC_ERROR_INFO_PHYS_ADDR_VALID		(1U << 4)
 
 /* Processor error types */
-#define ARM_ERROR_TYPE_CACHE				U(0)
-#define ARM_ERROR_TYPE_TLB				U(1)
+#define ARM_ERROR_TYPE_CACHE				U(2)
+#define ARM_ERROR_TYPE_TLB				U(4)
 
 /* Cache error encoding */
 #define ARM_CACHE_ERR_TX_INSTR				U(0)
@@ -239,6 +239,7 @@ struct __packed EFI_ARM_PROCESSOR_CONTEXT_INFORMATION {
 		struct EFI_ARM_AARCH64_CONTEXT_GPR Type4Gpr;
 		struct EFI_ARM_AARCH64_EL1_CONTEXT_SYSTEM_REGISTERS Type5SysRegs;
 	} RegisterArray;
+	uint8_t Pad[8];
 };
 
 struct __packed EFI_ARM_PROCESSOR_ERROR_RECORD_DATA {
