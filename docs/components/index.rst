@@ -33,3 +33,4 @@ Components
    numa-per-cpu
    cpu-service
    bl31-lfa
+   pfdi
