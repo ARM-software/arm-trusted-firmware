@@ -405,6 +405,57 @@
 .endm
 
 /*
+ * Lazy read-modify-write helpers for system registers.
+ *
+ * When multiple bit operations target the same register, these macros collapse
+ * them into a single mrs at start and a single msr at commit, with pure
+ * register-form operations in between.  This avoids the redundant reads and
+ * writes that would result from calling sysreg_bit_set / sysreg_bit_clear /
+ * sysreg_bitfield_insert once per bit.
+ *
+ * Usage:
+ *   sysreg_lazy_start  _reg
+ *   sysreg_lazy_set    _bit
+ *   sysreg_lazy_clear  _bit
+ *   sysreg_lazy_insert _src, _lsb, _width
+ *   sysreg_lazy_commit _reg
+ *
+ * _reg must be the same identifier in sysreg_lazy_start and
+ * sysreg_lazy_commit.  Any combination of sysreg_lazy_set,
+ * sysreg_lazy_clear, and sysreg_lazy_insert may appear between them.
+ *
+ * Clobbers: x0 (scratch), x1 (holds register value between start and commit)
+ */
+
+/* Read _reg into x1 to begin a lazy sequence. */
+.macro sysreg_lazy_start _reg:req
+	mrs	x1, \_reg
+.endm
+
+/* ORR _bit into x1.  _bit may be any 64-bit mask. */
+.macro sysreg_lazy_set _bit:req
+	mov_imm	x0, (\_bit)
+	orr	x1, x1, x0
+.endm
+
+/* BIC _bit from x1.  _bit may be any 64-bit mask. */
+.macro sysreg_lazy_clear _bit:req
+	mov_imm	x0, (\_bit)
+	bic	x1, x1, x0
+.endm
+
+/* BFI _src into x1 at position _lsb for _width bits. */
+.macro sysreg_lazy_insert _src:req, _lsb:req, _width:req
+	mov_imm	x0, (\_src)
+	bfi	x1, x0, #\_lsb, #\_width
+.endm
+
+/* Write x1 back to _reg to end a lazy sequence. */
+.macro sysreg_lazy_commit _reg:req
+	msr	\_reg, x1
+.endm
+
+/*
  * Extract CPU revision and variant, and combine them into a single numeric for
  * easier comparison.
  *
