@@ -362,6 +362,13 @@
 			 | (ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) \
 			 | (ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT))
 	tst	\reg, \clobber
+	/* Found, skip more checks */
+	beq	1f
+	mrs	\reg, ID_AA64ISAR2_EL1
+	mov_imm	\clobber, ((ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_SHIFT) \
+			 | (ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT))
+	tst	\reg, \clobber
+	1:
 	.endm
 
 	.macro is_feat_sctlr2_present_asm reg:req
