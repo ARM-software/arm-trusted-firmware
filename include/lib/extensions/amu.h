@@ -26,16 +26,19 @@ void amu_enable(bool el2_unused);
 
 #else
 #if __aarch64__
-void amu_enable(cpu_context_t *ctx)
+static inline void amu_enable(cpu_context_t *ctx)
 {
 }
-void amu_init_el3(unsigned int core_pos)
+
+static inline void amu_init_el3(unsigned int core_pos)
 {
 }
-void amu_init_el2_unused(void)
+
+static inline void amu_init_el2_unused(void)
 {
 }
-void amu_enable_per_world(per_world_context_t *per_world_ctx)
+
+static inline void amu_enable_per_world(per_world_context_t *per_world_ctx)
 {
 }
 #else
