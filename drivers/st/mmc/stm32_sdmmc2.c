@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -129,7 +129,7 @@
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
 #endif
 
-#ifdef STM32MP1X
+#if STM32MP1X
 #define SDMMC_FIFO_SIZE			64U
 #else
 #define SDMMC_FIFO_SIZE			1024U

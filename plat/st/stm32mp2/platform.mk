@@ -35,11 +35,16 @@ ENABLE_SVE_FOR_NS		:=	0
 # Default Device tree
 DTB_FILE_NAME			?=	stm32mp257f-ev1.dtb
 
-TF_CFLAGS			+=	-DSTM32MP2X
-
 STM32MP21			?=	0
 STM32MP23			?=	0
 STM32MP25			?=	0
+
+STM32MP2X			:=	1
+
+# Disable STM32MP1 flags
+STM32MP13			:=	0
+STM32MP15			:=	0
+STM32MP1X			:=	0
 
 ifneq ($(findstring stm32mp21,$(DTB_FILE_NAME)),)
 STM32MP21			:=	1
@@ -156,9 +161,13 @@ $(eval $(call assert_booleans,\
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
+		STM32MP13 \
+		STM32MP15 \
+		STM32MP1X \
 		STM32MP21 \
 		STM32MP23 \
 		STM32MP25 \
+		STM32MP2X \
 		STM32MP_BL33_EL1 \
 )))
 
@@ -187,9 +196,13 @@ $(eval $(call add_defines,\
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
+		STM32MP13 \
+		STM32MP15 \
+		STM32MP1X \
 		STM32MP21 \
 		STM32MP23 \
 		STM32MP25 \
+		STM32MP2X \
 		STM32MP_BL33_EL1 \
 )))
 

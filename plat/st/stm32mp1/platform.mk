@@ -22,10 +22,16 @@ USE_COHERENT_MEM	:=	0
 # Default Device tree
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 
-TF_CFLAGS 		+=	-DSTM32MP1X
-
 STM32MP13		?=	0
 STM32MP15		?=	0
+
+STM32MP1X		:=	1
+
+# Disable STM32MP2 flags
+STM32MP21		:=	0
+STM32MP23		:=	0
+STM32MP25		:=	0
+STM32MP2X		:=	0
 
 ifeq ($(STM32MP13),1)
 ifeq ($(STM32MP15),1)
@@ -164,6 +170,11 @@ $(eval $(call assert_booleans,\
 		STM32MP_USE_EXTERNAL_HEAP \
 		STM32MP13 \
 		STM32MP15 \
+		STM32MP1X \
+		STM32MP21 \
+		STM32MP23 \
+		STM32MP25 \
+		STM32MP2X \
 )))
 
 $(eval $(call assert_numerics,\
@@ -195,6 +206,11 @@ $(eval $(call add_defines,\
 		STM32MP_USE_EXTERNAL_HEAP \
 		STM32MP13 \
 		STM32MP15 \
+		STM32MP1X \
+		STM32MP21 \
+		STM32MP23 \
+		STM32MP25 \
+		STM32MP2X \
 )))
 
 # Include paths and source files
