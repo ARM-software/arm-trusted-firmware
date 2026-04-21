@@ -33,7 +33,7 @@ bool initialize_pmic_i2c(void);
  */
 void initialize_pmic(void);
 
-#if DEBUG
+#if DEBUG && !STM32MP_STPMIC1L
 void print_pmic_info_and_debug(void);
 #else
 static inline void print_pmic_info_and_debug(void)
@@ -46,7 +46,14 @@ static inline void print_pmic_info_and_debug(void)
  *
  * Returns 0 on success, and negative values on errors
  */
+#if STM32MP_STPMIC1L
+static inline int pmic_voltages_init(void)
+{
+	return 0;
+}
+#else
 int pmic_voltages_init(void);
+#endif
 
 /*
  * pmic_switch_off - switch off the platform with PMIC

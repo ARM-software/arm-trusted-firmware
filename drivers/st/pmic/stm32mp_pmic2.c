@@ -198,11 +198,6 @@ void pmic_switch_off(void)
 	panic();
 }
 
-int pmic_voltages_init(void)
-{
-	return 0;
-}
-
 static int pmic2_set_state(const struct regul_description *desc, bool enable)
 {
 	struct regul_handle_s *regul = (struct regul_handle_s *)desc->driver_data;
