@@ -48,6 +48,7 @@
 #define IRQ_AARCH32			U(0xd)
 #define FIQ_AARCH32			U(0xe)
 #define SERROR_AARCH32			U(0xf)
+#define IMPL_DEF			U(0x10)
 
 /*
  * Mapping to connect linker symbols from .ld.S with their counterparts

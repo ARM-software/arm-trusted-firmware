@@ -16,7 +16,8 @@
 	.weak	plat_panic_handler
 	.weak	bl31_plat_enable_mmu
 	.weak	bl32_plat_enable_mmu
-
+	.weak	plat_report_unhandled_exception
+	.weak	plat_report_unhandled_interrupt
 	.weak	plat_handle_uncontainable_ea
 	.weak	plat_handle_double_fault
 	.weak	plat_handle_el3_ea
@@ -90,6 +91,25 @@ func bl32_plat_enable_mmu
 	b	enable_mmu_direct_el1
 endfunc bl32_plat_enable_mmu
 
+	/* -----------------------------------------------------
+	 * Unified platform handler for unhandled exceptions.
+	 * Default implementation.
+	 * -----------------------------------------------------
+	 */
+func plat_report_unhandled_exception
+	mrs	x0, TPIDRRO_EL0
+	b	report_unhandled_exception
+endfunc plat_report_unhandled_exception
+
+	/* -----------------------------------------------------
+	 * Unified platform handler for unhandled interrupts.
+	 * Default implementation.
+	 * -----------------------------------------------------
+	 */
+func plat_report_unhandled_interrupt
+	mrs	x0, TPIDRRO_EL0
+	b	report_unhandled_interrupt
+endfunc plat_report_unhandled_interrupt
 
 	/* -----------------------------------------------------
 	 * Platform handler for Uncontainable External Abort.
@@ -114,9 +134,12 @@ func plat_handle_double_fault
 endfunc plat_handle_double_fault
 
 	/* -----------------------------------------------------
-	 * Platform handler for EL3 External Abort.
+	 * Platform handler for EL3 External Abort (SError).
+	 *
+	 * x0: EA reason code (e.g. SERROR_SP_EL0, SERROR_SP_ELX)
+	 * TPIDRRO_EL0: original x0 at point of exception
 	 * -----------------------------------------------------
 	 */
 func plat_handle_el3_ea
-	b	report_unhandled_exception
+	b	plat_report_unhandled_exception
 endfunc plat_handle_el3_ea
