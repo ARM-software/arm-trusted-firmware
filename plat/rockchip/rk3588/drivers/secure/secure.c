@@ -9,8 +9,19 @@
 
 #include <platform_def.h>
 
+#include <plat_private.h>
 #include <secure.h>
 #include <soc.h>
+
+/*
+ * Return the top of physical DRAM in MiB, as derived from the /memory nodes
+ * in the FDT passed by the bootloader (barebox).  This equals the start of
+ * the DDR controller alias window.  Returns 0 if no FDT was received.
+ */
+static uint32_t rk3588_dram_top_mb(void)
+{
+	return (uint32_t)(rockchip_get_dram_size() >> 20);
+}
 
 static void secure_fw_master_init(void)
 {
@@ -90,6 +101,34 @@ static void ddr_fw_rgn_config(uint64_t base_mb, uint64_t top_mb, int rgn_id)
 			BIT(rgn_id));
 }
 
+/*
+ * Protect the DDR alias window above physical SDRAM in both the DDR firewall
+ * and the CPU-cluster firewall.
+ *
+ * The RK3588 DDR controller uses power-of-2 address decoding: bus addresses
+ * beyond the physical end of SDRAM alias back into physical DRAM.  Because
+ * the firewalls have no default-deny mode, only explicitly configured regions
+ * are enforced.  Without alias-window regions, a non-secure master can read or
+ * write physical DRAM—including secure regions—through alias addresses that
+ * bypass every configured firewall region.
+ */
+static void ddr_alias_rgn_protect(int rgn_id)
+{
+	uint32_t total_mb;
+
+	total_mb = rk3588_dram_top_mb();
+	if (total_mb == 0) {
+		WARN("rk3588: no DRAM size from FDT; alias window left unprotected\n");
+		return;
+	}
+
+	if (total_mb >= PLAT_MAX_DDR_CAPACITY_MB)
+		return;
+
+	ddr_fw_rgn_config(total_mb, PLAT_MAX_DDR_CAPACITY_MB, rgn_id);
+	dsu_fw_rgn_config(total_mb, PLAT_MAX_DDR_CAPACITY_MB, rgn_id);
+}
+
 /* Unit: Kb */
 static void sram_fw_rgn_config(uint64_t base_kb, uint64_t top_kb, int rgn_id)
 {
@@ -120,6 +159,12 @@ static void secure_region_init(void)
 	/* Use FW_DDR_RGN0_REG to config 0~1M space to secure */
 	dsu_fw_rgn_config(0, 1, 0);
 	ddr_fw_rgn_config(0, 1, 0);
+
+	/*
+	 * Protect the DDR alias window above physical SDRAM. Use region 2 as
+	 * OP-TEE uses region 1 to configure its TZDRAM range.
+	 */
+	ddr_alias_rgn_protect(2);
 
 	/* Use FIREWALL_SYSMEM_RGN0 to config SRAM_ENTRY code(0~4k of sram) to secure */
 	sram_fw_rgn_config(0, 4, 0);

@@ -37,12 +37,64 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
 static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
 static uint32_t rk_uart_clock = PLAT_RK_UART_CLOCK;
+static uint64_t rk_dram_size;
 #define FDT_BUFFER_SIZE 0x60000
 static uint64_t fdt_buffer[FDT_BUFFER_SIZE / 8];
 
 void *plat_get_fdt(void)
 {
 	return &fdt_buffer[0];
+}
+
+uint64_t rockchip_get_dram_size(void)
+{
+	return rk_dram_size;
+}
+
+/*
+ * Walk every /memory node in the FDT and record the highest (base + size)
+ * address seen.  This gives the top of physical DRAM in the CPU address
+ * space, which equals the start of the DDR controller alias window and is
+ * therefore the lower bound for firewall alias-window protection.
+ *
+ * The memory nodes deliberately exclude the CPU MMIO hole at
+ * 0xf0000000–0xffffffff, so for a board with exactly 4 GiB the highest
+ * address seen will be slightly below 4 GiB.  This results in the alias
+ * window starting slightly early, which is conservative and harmless.
+ */
+static void plat_rockchip_dt_process_fdt_dram(void *fdt)
+{
+	uint64_t max_addr = 0U;
+	int node;
+
+	fdt_for_each_subnode(node, fdt, 0) {
+		const fdt32_t *reg;
+		const char *type;
+		int len, i;
+
+		type = fdt_getprop(fdt, node, "device_type", NULL);
+		if ((type == NULL) || (strcmp(type, "memory") != 0))
+			continue;
+
+		reg = fdt_getprop(fdt, node, "reg", &len);
+		if (reg == NULL)
+			continue;
+
+		/* reg entries: base_hi base_lo size_hi size_lo (each u32) */
+		for (i = 0; i + 4 <= len / (int)sizeof(fdt32_t); i += 4) {
+			uint64_t base, size, top;
+
+			base = ((uint64_t)fdt32_to_cpu(reg[i])     << 32) |
+				(uint64_t)fdt32_to_cpu(reg[i + 1]);
+			size = ((uint64_t)fdt32_to_cpu(reg[i + 2]) << 32) |
+				(uint64_t)fdt32_to_cpu(reg[i + 3]);
+			top = base + size;
+			if (top > max_addr)
+				max_addr = top;
+		}
+	}
+
+	rk_dram_size = max_addr;
 }
 
 static void plat_rockchip_dt_process_fdt_uart(void *fdt)
@@ -142,6 +194,7 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 		return ret;
 
 	plat_rockchip_dt_process_fdt_uart(fdt);
+	plat_rockchip_dt_process_fdt_dram(fdt);
 
 	return 0;
 }
