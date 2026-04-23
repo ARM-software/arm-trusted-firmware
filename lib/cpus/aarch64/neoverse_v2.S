@@ -81,8 +81,10 @@ workaround_reset_end neoverse_v2, ERRATUM(2719105)
 check_erratum_ls neoverse_v2, ERRATUM(2719105), CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v2, ERRATUM(2743011), ERRATA_V2_2743011
-	sysreg_bit_set NEOVERSE_V2_CPUACTLR5_EL1, NEOVERSE_V2_CPUACTLR5_EL1_BIT_55
-	sysreg_bit_clear NEOVERSE_V2_CPUACTLR5_EL1, NEOVERSE_V2_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_start NEOVERSE_V2_CPUACTLR5_EL1
+	sysreg_lazy_set NEOVERSE_V2_CPUACTLR5_EL1_BIT_55
+	sysreg_lazy_clear NEOVERSE_V2_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_commit NEOVERSE_V2_CPUACTLR5_EL1
 workaround_reset_end neoverse_v2, ERRATUM(2743011)
 
 check_erratum_ls neoverse_v2, ERRATUM(2743011), CPU_REV(0, 1)

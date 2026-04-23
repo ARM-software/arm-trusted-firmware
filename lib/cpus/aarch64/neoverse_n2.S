@@ -220,8 +220,10 @@ check_erratum_custom_end neoverse_n2, ERRATUM(2728475)
 
 workaround_reset_start neoverse_n2, ERRATUM(2743014), ERRATA_N2_2743014
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
-	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_55
-	sysreg_bit_clear NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_start NEOVERSE_N2_CPUACTLR5_EL1
+	sysreg_lazy_set NEOVERSE_N2_CPUACTLR5_EL1_BIT_55
+	sysreg_lazy_clear NEOVERSE_N2_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_commit NEOVERSE_N2_CPUACTLR5_EL1
 workaround_reset_end neoverse_n2, ERRATUM(2743014)
 
 check_erratum_ls neoverse_n2, ERRATUM(2743014), CPU_REV(0, 2)

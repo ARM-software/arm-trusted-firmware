@@ -127,8 +127,10 @@ check_erratum_custom_end cortex_x3, ERRATUM(2701951)
 
 workaround_reset_start cortex_x3, ERRATUM(2742421), ERRATA_X3_2742421
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
-	sysreg_bit_set CORTEX_X3_CPUACTLR5_EL1, CORTEX_X3_CPUACTLR5_EL1_BIT_55
-	sysreg_bit_clear CORTEX_X3_CPUACTLR5_EL1, CORTEX_X3_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_start CORTEX_X3_CPUACTLR5_EL1
+	sysreg_lazy_set CORTEX_X3_CPUACTLR5_EL1_BIT_55
+	sysreg_lazy_clear CORTEX_X3_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_commit CORTEX_X3_CPUACTLR5_EL1
 workaround_reset_end cortex_x3, ERRATUM(2742421)
 
 check_erratum_ls cortex_x3, ERRATUM(2742421), CPU_REV(1, 1)

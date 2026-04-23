@@ -155,8 +155,10 @@ check_erratum_custom_end cortex_a78c, ERRATUM(2712575)
 
 workaround_reset_start cortex_a78c, ERRATUM(2743232), ERRATA_A78C_2743232
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
-	sysreg_bit_set CORTEX_A78C_ACTLR5_EL1, BIT(55)
-	sysreg_bit_clear CORTEX_A78C_ACTLR5_EL1, BIT(56)
+	sysreg_lazy_start CORTEX_A78C_ACTLR5_EL1
+	sysreg_lazy_set BIT(55)
+	sysreg_lazy_clear BIT(56)
+	sysreg_lazy_commit CORTEX_A78C_ACTLR5_EL1
 workaround_reset_end cortex_a78c, ERRATUM(2743232)
 
 check_erratum_range cortex_a78c, ERRATUM(2743232), CPU_REV(0, 1), CPU_REV(0, 2)

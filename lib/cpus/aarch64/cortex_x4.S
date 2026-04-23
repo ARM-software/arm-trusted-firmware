@@ -148,8 +148,10 @@ add_erratum_entry cortex_x4, ERRATUM(2959655), ERRATUM_ALWAYS_CHOSEN
 check_erratum_chosen cortex_x4, ERRATUM(2959655), ERRATUM_ALWAYS_CHOSEN
 
 workaround_reset_start cortex_x4, ERRATUM(3076789), ERRATA_X4_3076789
-	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(14)
-	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(13)
+	sysreg_lazy_start CORTEX_X4_CPUACTLR3_EL1
+	sysreg_lazy_set BIT(14)
+	sysreg_lazy_set BIT(13)
+	sysreg_lazy_commit CORTEX_X4_CPUACTLR3_EL1
 	sysreg_bit_set CORTEX_X4_CPUACTLR_EL1, BIT(52)
 workaround_reset_end cortex_x4, ERRATUM(3076789)
 
