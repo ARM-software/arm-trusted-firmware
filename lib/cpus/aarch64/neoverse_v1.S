@@ -272,8 +272,10 @@ workaround_runtime_end neoverse_v1, ERRATUM(2743093)
 check_erratum_ls neoverse_v1, ERRATUM(2743093), CPU_REV(1, 2)
 
 workaround_reset_start neoverse_v1, ERRATUM(2743233), ERRATA_V1_2743233
-	sysreg_bit_clear NEOVERSE_V1_ACTLR5_EL1, NEOVERSE_V1_ACTLR5_EL1_BIT_56
-	sysreg_bit_set NEOVERSE_V1_ACTLR5_EL1, NEOVERSE_V1_ACTLR5_EL1_BIT_55
+	sysreg_lazy_start NEOVERSE_V1_ACTLR5_EL1
+	sysreg_lazy_clear NEOVERSE_V1_ACTLR5_EL1_BIT_56
+	sysreg_lazy_set NEOVERSE_V1_ACTLR5_EL1_BIT_55
+	sysreg_lazy_commit NEOVERSE_V1_ACTLR5_EL1
 workaround_reset_end neoverse_v1, ERRATUM(2743233)
 
 check_erratum_ls neoverse_v1, ERRATUM(2743233), CPU_REV(1, 2)
