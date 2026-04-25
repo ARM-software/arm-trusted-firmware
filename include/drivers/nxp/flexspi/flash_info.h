@@ -104,6 +104,29 @@
 #endif
 
 /* End of #elif Micron MT25QU01GBBB, GigaDevice GD55LB01GF, Macronix MX66U1G45G, Winbond W25Q01NW */
+
+/* Start of #elif GigaDevice GD55LB02GF (2Gbit/256 MiB) */
+#elif defined(CONFIG_GD55LB02GF)
+
+/*
+ * GigaDevice GD55LB02GF: 2 Gbit uniform-sector xSPI NOR.
+ *   JEDEC RDID : C8 60 1C  (mfg GigaDevice, memtype 0x60 = xSPI NOR,
+ *                            capacity 0x1C = 2 Gbit/256 MB)
+ *   page  : 256B  (PP opcode 0x02)
+ *   erase : 4KB (0x20), 32KB (0x52), 64KB (0xD8)
+ *   total : 256MiB
+ */
+#define F_SECTOR_64K			0x10000U
+#define F_PAGE_256			0x100U
+#define F_SECTOR_4K			0x1000U
+#define F_FLASH_SIZE_BYTES		0x10000000U  /* 256 MiB */
+#ifdef CONFIG_FSPI_4K_ERASE
+#define F_SECTOR_ERASE_SZ		F_SECTOR_4K
+#else
+#define F_SECTOR_ERASE_SZ		F_SECTOR_64K
+#endif
+
+/* End of #elif GigaDevice GD55LB02GF */
 #endif
 
 #endif /* FLASH_INFO_H */
