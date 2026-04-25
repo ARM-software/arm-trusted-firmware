@@ -13,6 +13,14 @@ PLAT_XSPI_INCLUDES	+= -I$(FLEXSPI_DRIVERS_PATH)
 
 XSPI_BOOT_SOURCES	+= $(FLEXSPI_DRIVERS_PATH)/flexspi_nor.c	\
 			   ${FLEXSPI_DRIVERS_PATH}/fspi.c
+
+# xspi_nor_diag uses the JEDEC RDID/SFDP/SR1 from fspi.c
+# Enabled on demand: make PLAT=lx2160ardb NXP_XSPI_DIAG=1 ...
+ifeq ($(NXP_XSPI_DIAG),1)
+XSPI_BOOT_SOURCES	+= ${FLEXSPI_DRIVERS_PATH}/xspi_nor_diag.c
+$(eval $(call add_define,NXP_XSPI_DIAG))
+endif
+
 ifeq ($(DEBUG),1)
 XSPI_BOOT_SOURCES	+= ${FLEXSPI_DRIVERS_PATH}/test_fspi.c
 endif
