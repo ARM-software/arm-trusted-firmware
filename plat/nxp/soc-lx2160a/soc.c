@@ -345,6 +345,17 @@ enum boot_device get_boot_dev(void)
 	uint32_t porsr1;
 	uint32_t rcw_src;
 
+#ifdef SEMIHOSTING_BOOT
+	/*
+	 * Build was configured for BOOT_MODE=semihosting: a debugger loads
+	 * BL2 into OCRAM and the FIP files are served over the probe, so
+	 * the physical RCW_SRC straps are irrelevant. Force the semihosting
+	 * path unconditionally.
+	 */
+	INFO("BOOT SRC is SEMIHOSTING (build-time override)\n");
+	return BOOT_DEVICE_SEMIHOSTING;
+#endif
+
 	porsr1 = read_reg_porsr1();
 
 	rcw_src = (porsr1 & PORSR1_RCW_MASK) >> PORSR1_RCW_SHIFT;
