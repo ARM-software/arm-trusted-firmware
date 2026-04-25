@@ -307,6 +307,27 @@ int io_write(uintptr_t handle,
 }
 
 
+/*
+ * Erase a region of an IO entity
+ */
+int io_erase(uintptr_t handle, size_t length)
+{
+	int result = -ENODEV;
+
+	assert(is_valid_entity(handle));
+
+	io_entity_t *entity = (io_entity_t *)handle;
+
+	io_dev_info_t *dev = entity->dev_handle;
+
+	if (dev->funcs->erase != NULL) {
+		result = dev->funcs->erase(entity, length);
+	}
+
+	return result;
+}
+
+
 /* Close an IO entity */
 int io_close(uintptr_t handle)
 {

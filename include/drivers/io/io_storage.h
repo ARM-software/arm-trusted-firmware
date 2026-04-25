@@ -96,6 +96,16 @@ int io_read(uintptr_t handle, uintptr_t buffer, size_t length,
 int io_write(uintptr_t handle, const uintptr_t buffer, size_t length,
 		size_t *length_written);
 
+/*
+ * Erase a region of the entity starting at the current seek
+ * offset. Required for NOR backends because of the 1->0
+ * write constraint: a sector must be set to all-ones before any
+ * byte in it can be rewritten. Returns -ENODEV when the backend
+ * does not implement erase, which is the case for RAM, FIP, MMC,
+ * and the semihosting backends; their dispatch slot stays NULL.
+ */
+int io_erase(uintptr_t handle, size_t length);
+
 int io_close(uintptr_t handle);
 
 

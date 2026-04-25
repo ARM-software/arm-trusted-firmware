@@ -45,6 +45,7 @@ typedef struct io_dev_funcs {
 			size_t *length_read);
 	int (*write)(io_entity_t *entity, const uintptr_t buffer,
 			size_t length, size_t *length_written);
+	int (*erase)(io_entity_t *entity, size_t length);
 	int (*close)(io_entity_t *entity);
 	int (*dev_init)(io_dev_info_t *dev_info, const uintptr_t init_params);
 	int (*dev_close)(io_dev_info_t *dev_info);
