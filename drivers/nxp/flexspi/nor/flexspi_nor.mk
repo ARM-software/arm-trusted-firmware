@@ -21,6 +21,12 @@ XSPI_BOOT_SOURCES	+= ${FLEXSPI_DRIVERS_PATH}/xspi_nor_diag.c
 $(eval $(call add_define,NXP_XSPI_DIAG))
 endif
 
+# Vendor-specific helpers (opcode sets, lock-register models). Linked
+# in only when the corresponding CONFIG_<CHIP> is set in the
+# platform's FLASH_TYPE selection (see flash_info.h).
+ifeq (${FLASH_TYPE},GD55LB02GF)
+XSPI_BOOT_SOURCES	+= ${FLEXSPI_DRIVERS_PATH}/flash_vendor_gigadevice.c
+endif
 ifeq ($(DEBUG),1)
 XSPI_BOOT_SOURCES	+= ${FLEXSPI_DRIVERS_PATH}/test_fspi.c
 endif
