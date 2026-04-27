@@ -407,8 +407,8 @@ static enum usb_status usb_dwc2_ep0_out_start(void *handle)
  * len: Number of bytes to write.
  * return: USB status.
  */
-static enum usb_status usb_dwc2_write_packet(void *handle, uint8_t *src,
-					  uint8_t ch_ep_num, uint16_t len)
+static enum usb_status usb_dwc2_write_packet(const void *handle, uint8_t *src,
+					     uint8_t ch_ep_num, uint16_t len)
 {
 	uint32_t reg_offset;
 	uint32_t count32b = (len + 3U) / 4U;
@@ -440,7 +440,7 @@ static enum usb_status usb_dwc2_write_packet(void *handle, uint8_t *src,
  * len: Number of bytes to read.
  * return: Pointer to destination buffer.
  */
-static void *usb_dwc2_read_packet(void *handle, uint8_t *dest, uint16_t len)
+static void *usb_dwc2_read_packet(const void *handle, uint8_t *dest, uint16_t len)
 {
 	uint32_t reg_offset;
 	uint32_t count32b = (len + 3U) / 4U;
@@ -718,7 +718,7 @@ static enum usb_status usb_dwc2_stop_device(void *handle)
  *         This parameter can be a value from 0 to 255.
  * return: USB status.
  */
-static enum usb_status usb_dwc2_set_address(void *handle, uint8_t address)
+static enum usb_status usb_dwc2_set_address(const void *handle, uint8_t address)
 {
 	uintptr_t usb_base_addr = (uintptr_t)handle;
 
@@ -739,7 +739,7 @@ static enum usb_status usb_dwc2_set_address(void *handle, uint8_t address)
  * xfer_buff: Buffer pointer.
  * return: USB status.
  */
-static enum usb_status usb_dwc2_write_empty_tx_fifo(void *handle,
+static enum usb_status usb_dwc2_write_empty_tx_fifo(const void *handle,
 						    uint32_t epnum,
 						    uint32_t xfer_len,
 						    uint32_t *xfer_count,

@@ -222,18 +222,19 @@ struct usb_driver {
 	enum usb_status (*ep0_out_start)(void *handle);
 	enum usb_status (*ep_start_xfer)(void *handle, struct usbd_ep *ep);
 	enum usb_status (*ep0_start_xfer)(void *handle, struct usbd_ep *ep);
-	enum usb_status (*write_packet)(void *handle, uint8_t *src,
-				     uint8_t ch_ep_num, uint16_t len);
-	void *(*read_packet)(void *handle, uint8_t *dest, uint16_t len);
+	enum usb_status (*write_packet)(const void *handle, uint8_t *src,
+					uint8_t ch_ep_num, uint16_t len);
+	void *(*read_packet)(const void *handle, uint8_t *dest, uint16_t len);
 	enum usb_status (*ep_set_stall)(void *handle, struct usbd_ep *ep);
 	enum usb_status (*start_device)(void *handle);
 	enum usb_status (*stop_device)(void *handle);
-	enum usb_status (*set_address)(void *handle, uint8_t address);
-	enum usb_status (*write_empty_tx_fifo)(void *handle,
-					    uint32_t epnum, uint32_t xfer_len,
-					    uint32_t *xfer_count,
-					    uint32_t maxpacket,
-					    uint8_t **xfer_buff);
+	enum usb_status (*set_address)(const void *handle, uint8_t address);
+	enum usb_status (*write_empty_tx_fifo)(const void *handle,
+					       uint32_t epnum,
+					       uint32_t xfer_len,
+					       uint32_t *xfer_count,
+					       uint32_t maxpacket,
+					       uint8_t **xfer_buff);
 	enum usb_action (*it_handler)(void *handle, uint32_t *param);
 };
 

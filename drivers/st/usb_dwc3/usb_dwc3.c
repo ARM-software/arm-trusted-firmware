@@ -515,33 +515,33 @@ typedef struct {
 	uint32_t  param0;
 } dwc3_epcmd_params_t;
 
-static uint32_t DWC3_regread(void *base, uint32_t offset)
+static uint32_t DWC3_regread(const void *base, uint32_t offset)
 {
 	return mmio_read_32((uintptr_t)base + offset);
 }
 
-static void DWC3_regwrite(void *base, uint32_t offset, uint32_t value)
+static void DWC3_regwrite(const void *base, uint32_t offset, uint32_t value)
 {
 	mmio_write_32((uintptr_t)base + offset, value);
 }
 
-static void DWC3_regupdateset(void *base, uint32_t offset, uint32_t set_mask)
+static void DWC3_regupdateset(const void *base, uint32_t offset, uint32_t set_mask)
 {
 	mmio_setbits_32((uintptr_t)base + offset, set_mask);
 }
 
-static void DWC3_regupdateclr(void *base, uint32_t offset, uint32_t clr_mask)
+static void DWC3_regupdateclr(const void *base, uint32_t offset, uint32_t clr_mask)
 {
 	mmio_clrbits_32((uintptr_t)base + offset, clr_mask);
 }
 
-static void usb_dwc3_enable_eventint(dwc3_handle_t *handle, uint8_t intr_num)
+static void usb_dwc3_enable_eventint(const dwc3_handle_t *handle, uint8_t intr_num)
 {
 	DWC3_regupdateclr(handle->usb_global, DWC3_GEVNTSIZ(intr_num),
 			  USB3_GEVNTSIZ_EVNTINTRPTMASK_MSK);
 }
 
-static void usb_dwc3_disable_eventint(dwc3_handle_t *handle, uint8_t intr_num)
+static void usb_dwc3_disable_eventint(const dwc3_handle_t *handle, uint8_t intr_num)
 {
 	DWC3_regupdateset(handle->usb_global, DWC3_GEVNTSIZ(intr_num),
 			  USB3_GEVNTSIZ_EVNTINTRPTMASK_MSK);
@@ -566,7 +566,7 @@ static void api_unmapdmaaddr(uintptr_t dma_addr, uint32_t size,
 	(void)to_device;
 }
 
-static uintptr_t api_getdmaaddr(uint8_t buf[], uint32_t size, uint8_t to_device)
+static uintptr_t api_getdmaaddr(const uint8_t buf[], uint32_t size, uint8_t to_device)
 {
 	(void)size;
 	(void)to_device;
@@ -665,8 +665,8 @@ static inline const char *dwc3_get_ep_cmd_str(uint32_t cmd)
 	return ret;
 }
 
-static enum usb_status dwc3_execute_dep_cmd(dwc3_handle_t *dwc3_handle, uint8_t phy_epnum,
-					    dwc3_epcmd_t cmd, dwc3_epcmd_params_t *params)
+static enum usb_status dwc3_execute_dep_cmd(const dwc3_handle_t *dwc3_handle, uint8_t phy_epnum,
+					    dwc3_epcmd_t cmd, const dwc3_epcmd_params_t *params)
 {
 	uint32_t reg;
 	uint64_t timeout;
@@ -706,7 +706,7 @@ static enum usb_status dwc3_execute_dep_cmd(dwc3_handle_t *dwc3_handle, uint8_t 
 	return USBD_OK;
 }
 
-static bool dwc3_is_ep_enabled(dwc3_handle_t *dwc3_handle, uint8_t phy_epnum)
+static bool dwc3_is_ep_enabled(const dwc3_handle_t *dwc3_handle, uint8_t phy_epnum)
 {
 	if ((DWC3_regread(dwc3_handle->usb_device,
 			  DWC3_DALEPENA) & DWC3_DALEPENA_EP(phy_epnum)) != 0U) {
@@ -716,7 +716,7 @@ static bool dwc3_is_ep_enabled(dwc3_handle_t *dwc3_handle, uint8_t phy_epnum)
 	return false;
 }
 
-static enum usb_status dwc3_ep_start_xfer(dwc3_handle_t *dwc3_handle, struct usbd_ep *ep)
+static enum usb_status dwc3_ep_start_xfer(dwc3_handle_t *dwc3_handle, const struct usbd_ep *ep)
 {
 	enum usb_status ret;
 	dwc3_epcmd_t cmd;
@@ -894,13 +894,13 @@ static enum usb_status usb_dwc3_start_device(void *handle)
 	return USBD_OK;
 }
 
-static inline void dwc3_ack_evt_count(dwc3_handle_t *dwc3_handle, uint8_t intr_num,
+static inline void dwc3_ack_evt_count(const dwc3_handle_t *dwc3_handle, uint8_t intr_num,
 				      uint32_t evt_count)
 {
 	DWC3_regwrite(dwc3_handle->usb_global, DWC3_GEVNTCOUNT(intr_num), evt_count);
 }
 
-static inline uint32_t dwc3_read_intr_count(dwc3_handle_t *dwc3_handle, uint8_t intr_num)
+static inline uint32_t dwc3_read_intr_count(const dwc3_handle_t *dwc3_handle, uint8_t intr_num)
 {
 	return DWC3_regread(dwc3_handle->usb_global, DWC3_GEVNTCOUNT(intr_num)) &
 	       DWC3_GEVNTCOUNT_MASK;
@@ -1022,7 +1022,7 @@ static enum usb_status usb_dwc3_stop_device(void *handle)
 	return USBD_OK;
 }
 
-static enum usb_status usb_dwc3_set_address(void *handle, uint8_t address)
+static enum usb_status usb_dwc3_set_address(const void *handle, uint8_t address)
 {
 	dwc3_handle_t *dwc3_handle = (dwc3_handle_t *)handle;
 
@@ -1154,12 +1154,12 @@ static enum usb_status dwc3_epaddr_set_stall(dwc3_handle_t *dwc3_handle, uint8_t
 	return ret;
 }
 
-static uint32_t dwc3_get_ep_trblen(usb_dwc3_endpoint_t *ep)
+static uint32_t dwc3_get_ep_trblen(const usb_dwc3_endpoint_t *ep)
 {
 	return DWC3_TRB_SIZE_LENGTH(ep->trb_addr->size);
 }
 
-static uint32_t dwc3_get_ep_trbstatus(usb_dwc3_endpoint_t *ep)
+static uint32_t dwc3_get_ep_trbstatus(const usb_dwc3_endpoint_t *ep)
 {
 	return DWC3_TRB_SIZE_TRBSTS(ep->trb_addr->size);
 }
@@ -1524,8 +1524,8 @@ static uint8_t dwc3_read_dev_evt_type(uint32_t event)
 	return ret;
 }
 
-#if (USB_DWC3_NUM_IN_EP > 1) || (USB_DWC3_NUM_OUT_EP > 1)
-static enum usb_status dwc3_ep_clear_stall(dwc3_handle_t *dwc3_handle, usb_dwc3_endpoint_t *dwc3_ep)
+static enum usb_status dwc3_ep_clear_stall(const dwc3_handle_t *dwc3_handle,
+					   const usb_dwc3_endpoint_t *dwc3_ep)
 {
 	dwc3_epcmd_params_t params;
 
@@ -1536,7 +1536,7 @@ static enum usb_status dwc3_ep_clear_stall(dwc3_handle_t *dwc3_handle, usb_dwc3_
 }
 #endif
 
-static uint8_t dwc3_get_dev_speed(dwc3_handle_t *dwc3_handle)
+static uint8_t dwc3_get_dev_speed(const dwc3_handle_t *dwc3_handle)
 {
 	uint32_t reg;
 	uint8_t ret;
@@ -1670,7 +1670,7 @@ static inline const char *dwc3_get_linkstate_str(uint8_t state)
 }
 
 static enum usb_action dwc3_handle_dev_event(dwc3_handle_t *dwc3_handle, uint32_t event,
-					     uint32_t *param)
+					     const uint32_t *param)
 {
 	enum usb_action action = USB_NOTHING;
 	uint8_t type = dwc3_read_dev_evt_type(event);
@@ -1941,7 +1941,7 @@ static enum usb_action usb_dwc3_it_handler(void *handle, uint32_t *param)
 	return action;
 }
 
-static enum usb_status usb_dwc3_write_packet(void *handle, uint8_t *src,
+static enum usb_status usb_dwc3_write_packet(const void *handle, uint8_t *src,
 					     uint8_t ch_ep_num, uint16_t len)
 {
 	(void)handle;
@@ -1952,7 +1952,7 @@ static enum usb_status usb_dwc3_write_packet(void *handle, uint8_t *src,
 	return USBD_OK;
 }
 
-static void *usb_dwc3_read_packet(void *handle, uint8_t *dest, uint16_t len)
+static void *usb_dwc3_read_packet(const void *handle, uint8_t *dest, uint16_t len)
 {
 	(void)handle;
 	(void)dest;
@@ -1961,7 +1961,7 @@ static void *usb_dwc3_read_packet(void *handle, uint8_t *dest, uint16_t len)
 	return NULL;
 }
 
-static enum usb_status usb_dwc3_write_empty_tx_fifo(void *handle, uint32_t epnum,
+static enum usb_status usb_dwc3_write_empty_tx_fifo(const void *handle, uint32_t epnum,
 						    uint32_t xfer_len,
 						    uint32_t *xfer_count,
 						    uint32_t maxpacket,
@@ -2001,7 +2001,7 @@ static const struct usb_driver usb_dwc3driver = {
 #define USBPHY_EMBEDDED_USB3	128U
 #define USB3PHY_MASK	(15U << 4)
 
-static enum usb_status dwc3_soft_reset(dwc3_handle_t *dwc3_handle)
+static enum usb_status dwc3_soft_reset(const dwc3_handle_t *dwc3_handle)
 {
 	uint64_t timeout;
 
@@ -2117,7 +2117,8 @@ typedef enum {
 	USB_DWC3_INVALID_MODE = 0xFU
 } USB_DWC3_modetypedef;
 
-static enum usb_status dwc3_set_current_mode(dwc3_handle_t *dwc3_handle, USB_DWC3_modetypedef mode)
+static enum usb_status dwc3_set_current_mode(const dwc3_handle_t *dwc3_handle,
+					     USB_DWC3_modetypedef mode)
 {
 	uint32_t reg;
 	enum usb_status ret = USBD_OK;
@@ -2145,7 +2146,7 @@ static enum usb_status dwc3_set_current_mode(dwc3_handle_t *dwc3_handle, USB_DWC
 	return ret;
 }
 
-static enum usb_status dwc3_set_dev_speed(dwc3_handle_t *dwc3_handle, uint8_t speed)
+static enum usb_status dwc3_set_dev_speed(const dwc3_handle_t *dwc3_handle, uint8_t speed)
 {
 	uint32_t reg;
 	enum usb_status ret = USBD_OK;
