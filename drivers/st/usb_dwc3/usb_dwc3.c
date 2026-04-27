@@ -1977,20 +1977,6 @@ static enum usb_status usb_dwc3_write_empty_tx_fifo(const void *handle, uint32_t
 	return USBD_OK;
 }
 
-static const struct usb_driver usb_dwc3driver = {
-	.ep0_out_start = usb_dwc3_ep0_out_start,
-	.ep_start_xfer = usb_dwc3_ep_start_xfer,
-	.ep0_start_xfer = usb_dwc3_ep0_start_xfer,
-	.write_packet = usb_dwc3_write_packet,
-	.read_packet = usb_dwc3_read_packet,
-	.ep_set_stall = usb_dwc3_ep_set_stall,
-	.start_device = usb_dwc3_start_device,
-	.stop_device = usb_dwc3_stop_device,
-	.set_address = usb_dwc3_set_address,
-	.write_empty_tx_fifo = usb_dwc3_write_empty_tx_fifo,
-	.it_handler = usb_dwc3_it_handler
-};
-
 /* USB2 PHY Mask 0xf */
 #define USBPHY_ULPI	1U
 #define USBPHY_UTMI	2U
@@ -2320,6 +2306,19 @@ void usb_dwc3_init_driver(struct usb_handle *usb_core_handle, struct pcd_handle 
 {
 	uint32_t i = 0;
 	enum usb_status ret;
+	static const struct usb_driver usb_dwc3driver = {
+		.ep0_out_start = usb_dwc3_ep0_out_start,
+		.ep_start_xfer = usb_dwc3_ep_start_xfer,
+		.ep0_start_xfer = usb_dwc3_ep0_start_xfer,
+		.write_packet = usb_dwc3_write_packet,
+		.read_packet = usb_dwc3_read_packet,
+		.ep_set_stall = usb_dwc3_ep_set_stall,
+		.start_device = usb_dwc3_start_device,
+		.stop_device = usb_dwc3_stop_device,
+		.set_address = usb_dwc3_set_address,
+		.write_empty_tx_fifo = usb_dwc3_write_empty_tx_fifo,
+		.it_handler = usb_dwc3_it_handler
+	};
 
 	dwc3_handle->usb_global = (usb_dwc3_global_t *)
 					(base + USB_DWC3_GLOBAL_BASE);
