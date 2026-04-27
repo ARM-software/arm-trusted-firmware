@@ -691,7 +691,7 @@ static enum usb_status dwc3_execute_dep_cmd(const dwc3_handle_t *dwc3_handle, ui
 			if (DWC3_DEPCMD_STATUS(reg) != 0U) {
 				return USBD_FAIL;
 			}
-			return USBD_OK;
+			goto end;
 		}
 
 		/* Can be called from interrupt context hence cannot wait for Tick */
@@ -703,6 +703,7 @@ static enum usb_status dwc3_execute_dep_cmd(const dwc3_handle_t *dwc3_handle, ui
 		}
 	} while (true);
 
+end:
 	return USBD_OK;
 }
 
