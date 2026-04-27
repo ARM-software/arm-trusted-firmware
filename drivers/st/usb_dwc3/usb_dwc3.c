@@ -558,19 +558,20 @@ static uintptr_t api_mapdmaaddr(uint8_t buf[], uint32_t size, uint8_t to_device)
 	return (uintptr_t)buf;
 }
 
-static void api_unmapdmaaddr(uintptr_t dma_addr __unused, uint32_t size __unused,
-			     uint8_t to_device __unused)
+static void api_unmapdmaaddr(uintptr_t dma_addr, uint32_t size,
+			     uint8_t to_device)
 {
+	(void)dma_addr;
+	(void)size;
+	(void)to_device;
 }
 
-static uintptr_t api_getdmaaddr(uint8_t buf[], uint32_t size __unused, uint8_t to_device __unused)
+static uintptr_t api_getdmaaddr(uint8_t buf[], uint32_t size, uint8_t to_device)
 {
+	(void)size;
+	(void)to_device;
+
 	return (uintptr_t)buf;
-}
-
-__unused static void api_putdmaaddr(uintptr_t dma_addr __unused, uint32_t size __unused,
-				    uint8_t to_device __unused)
-{
 }
 
 static void api_memcpy(void *dest, const void *src, uint32_t n)
@@ -1940,24 +1941,39 @@ static enum usb_action usb_dwc3_it_handler(void *handle, uint32_t *param)
 	return action;
 }
 
-static enum usb_status usb_dwc3_write_packet(void *handle __unused, uint8_t *src __unused,
-					     uint8_t ch_ep_num __unused, uint16_t len __unused)
+static enum usb_status usb_dwc3_write_packet(void *handle, uint8_t *src,
+					     uint8_t ch_ep_num, uint16_t len)
 {
+	(void)handle;
+	(void)src;
+	(void)ch_ep_num;
+	(void)len;
+
 	return USBD_OK;
 }
 
-static void *usb_dwc3_read_packet(void *handle __unused, uint8_t *dest __unused,
-				  uint16_t len __unused)
+static void *usb_dwc3_read_packet(void *handle, uint8_t *dest, uint16_t len)
 {
+	(void)handle;
+	(void)dest;
+	(void)len;
+
 	return NULL;
 }
 
-static enum usb_status usb_dwc3_write_empty_tx_fifo(void *handle __unused, uint32_t epnum,
-						    uint32_t xfer_len __unused,
-						    uint32_t *xfer_count __unused,
-						    uint32_t maxpacket __unused,
-						    uint8_t **xfer_buff __unused)
+static enum usb_status usb_dwc3_write_empty_tx_fifo(void *handle, uint32_t epnum,
+						    uint32_t xfer_len,
+						    uint32_t *xfer_count,
+						    uint32_t maxpacket,
+						    uint8_t **xfer_buff)
 {
+	(void)handle;
+	(void)epnum;
+	(void)xfer_len;
+	(void)xfer_count;
+	(void)maxpacket;
+	(void)xfer_buff;
+
 	return USBD_OK;
 }
 
