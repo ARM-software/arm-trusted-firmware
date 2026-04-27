@@ -14,6 +14,7 @@
 
 /* Define for EP address */
 #define EP_DIR_MASK	BIT(7)
+#define EP_DIR_SHIFT	U(7)
 #define EP_DIR_IN	BIT(7)
 #define EP_NUM_MASK	GENMASK(3, 0)
 

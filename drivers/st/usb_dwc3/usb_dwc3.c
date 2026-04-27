@@ -498,7 +498,7 @@
 						intbuffers.evtbufferpos[intr]])
 
 #define __HAL_PCD_EPADDR_TO_PHYEPNUM(ep_addr)	((2U * ((ep_addr) & ADDRESS_MASK)) + \
-						((((ep_addr) & EP_DIR_MASK) != 0U) ? 1U : 0U))
+						(((ep_addr) & EP_DIR_MASK) >> EP_DIR_SHIFT))
 #define __HAL_PCD_PHYEPNUM_TO_EPADDR(phy_epnum)	(((phy_epnum) / 2U) | \
 						((((phy_epnum) & 0x1U) != 0U) ? EP_DIR_IN : 0U))
 
