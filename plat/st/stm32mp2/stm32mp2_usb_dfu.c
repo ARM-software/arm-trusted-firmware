@@ -36,9 +36,6 @@
 
 #define USB_DFU_CONFIG_DESC_SIZ USB_DFU_DESC_SIZ(USB_DFU_ITF_NUM)
 
-/* DFU devices */
-static struct usb_dfu_handle usb_dfu_handle;
-
 /* USB Standard Device Descriptor */
 static const uint8_t usb_stm32mp2_desc[USB_LEN_DEV_DESC] = {
 	USB_LEN_DEV_DESC, /* bLength */
@@ -308,52 +305,52 @@ static uint8_t *stm32mp2_get_usr_desc(uint8_t index, uint16_t *length)
 	return usb_str_dec;
 }
 
-static const struct usb_desc dfu_desc = {
-	.get_device_desc = stm32mp2_device_desc,
-	.get_lang_id_desc = stm32mp2_lang_id_desc,
-	.get_manufacturer_desc = stm32mp2_manufacturer_desc,
-	.get_product_desc = stm32mp2_product_desc,
-	.get_configuration_desc = stm32mp2_config_desc,
-	.get_serial_desc = stm32mp2_serial_desc,
-	.get_interface_desc = stm32mp2_interface_desc,
-	.get_usr_desc = stm32mp2_get_usr_desc,
-	.get_config_desc = stm32mp2_get_config_desc,
-	.get_device_qualifier_desc = stm32mp2_get_qualifier_desc,
-	/* only HS is supported, as ROM code */
-	.get_other_speed_config_desc = NULL,
-};
-
-static struct usb_handle usb_core_handle;
-static struct pcd_handle pcd_handle;
-#if !STM32MP21
-static dwc3_handle_t dwc3_handle;
-#endif /* !STM32MP21 */
-
 struct usb_handle *usb_dfu_plat_init(void)
 {
+	static struct usb_dfu_handle usb_dfu_h;
+	static const struct usb_desc dfu_desc = {
+		.get_device_desc = stm32mp2_device_desc,
+		.get_lang_id_desc = stm32mp2_lang_id_desc,
+		.get_manufacturer_desc = stm32mp2_manufacturer_desc,
+		.get_product_desc = stm32mp2_product_desc,
+		.get_configuration_desc = stm32mp2_config_desc,
+		.get_serial_desc = stm32mp2_serial_desc,
+		.get_interface_desc = stm32mp2_interface_desc,
+		.get_usr_desc = stm32mp2_get_usr_desc,
+		.get_config_desc = stm32mp2_get_config_desc,
+		.get_device_qualifier_desc = stm32mp2_get_qualifier_desc,
+		/* only HS is supported, as ROM code */
+		.get_other_speed_config_desc = NULL,
+	};
+	static struct usb_handle usb_core_h;
+	static struct pcd_handle pcd_h;
+#if !STM32MP21
+	static dwc3_handle_t dwc3_h;
+#endif /* !STM32MP21 */
+
 	/* prepare USB Driver */
-	pcd_handle.in_ep[0].maxpacket = USB_MAX_EP0_SIZE;
-	pcd_handle.out_ep[0].maxpacket = USB_MAX_EP0_SIZE;
+	pcd_h.in_ep[0].maxpacket = USB_MAX_EP0_SIZE;
+	pcd_h.out_ep[0].maxpacket = USB_MAX_EP0_SIZE;
 #if STM32MP21
-	stm32mp1_usb_init_driver(&usb_core_handle, &pcd_handle, (uint32_t *)USB_OTG_BASE);
+	stm32mp1_usb_init_driver(&usb_core_h, &pcd_h, (uint32_t *)USB_OTG_BASE);
 #else /* STM32MP21 */
-	usb_dwc3_init_driver(&usb_core_handle, &pcd_handle, &dwc3_handle, USB_DWC3_BASE);
+	usb_dwc3_init_driver(&usb_core_h, &pcd_h, &dwc3_h, USB_DWC3_BASE);
 #endif /* STM32MP21 */
 
 	/* keep the configuration from ROM code */
-	usb_core_handle.ep0_state = USBD_EP0_DATA_IN;
-	usb_core_handle.dev_state = USBD_STATE_CONFIGURED;
+	usb_core_h.ep0_state = USBD_EP0_DATA_IN;
+	usb_core_h.dev_state = USBD_STATE_CONFIGURED;
 
 	/* Update the serial number string descriptor from the unique ID */
 	update_serial_num_string();
 
 	/* Prepare USB DFU stack */
-	usb_dfu_register(&usb_core_handle, &usb_dfu_handle);
+	usb_dfu_register(&usb_core_h, &usb_dfu_h);
 
 	/* Register DFU descriptor in USB stack */
-	register_platform(&usb_core_handle, &dfu_desc);
+	register_platform(&usb_core_h, &dfu_desc);
 
-	return &usb_core_handle;
+	return &usb_core_h;
 }
 
 /* Link between USB alternate and STM32CubeProgramer phase */
