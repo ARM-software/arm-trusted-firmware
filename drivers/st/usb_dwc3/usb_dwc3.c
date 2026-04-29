@@ -2408,19 +2408,14 @@ void usb_dwc3_init_driver(struct usb_handle *usb_core_handle, struct pcd_handle 
 
 	dwc3_handle->setup_dma_addr = (uintptr_t)api_getdmaaddr((void *)SETUP_AREA,
 								USB_SETUP_PACKET_SIZE, 1);
-	assert(dwc3_handle->setup_dma_addr != 0U);
-
 	dwc3_handle->setup_addr = SETUP_AREA;
-	assert(dwc3_handle->setup_addr != NULL);
 
 	/* Map DMA and Coherent address for event buffers k = USB_DWC3_INT_INUSE */
 	for (i = 0; i < USB_DWC3_INT_INUSE; i++) {
 		dwc3_handle->intbuffers.evtbuffer_dma_addr[i] =
 			api_getdmaaddr((void *)EVTBUF_AREA, USB_DWC3_EVENT_BUFFER_SIZE, 1);
-		assert(dwc3_handle->intbuffers.evtbuffer_dma_addr[i] != 0U);
 
 		dwc3_handle->intbuffers.evtbuffer_addr[i] = EVTBUF_AREA;
-		assert(dwc3_handle->intbuffers.evtbuffer_addr[i] != NULL);
 
 		dwc3_handle->intbuffers.evtbufferpos[i] = 0;
 
@@ -2433,18 +2428,13 @@ void usb_dwc3_init_driver(struct usb_handle *usb_core_handle, struct pcd_handle 
 	/* MAP TRB Coherent and DMA address for EP0IN and EP0OUT */
 	dwc3_handle->IN_ep[0].trb_dma_addr = (uint32_t)api_getdmaaddr((void *)TRB_IN_AREA,
 								      sizeof(usb_dwc3_trb_t), 1);
-	assert(dwc3_handle->IN_ep[0].trb_dma_addr != 0U);
 
 	dwc3_handle->IN_ep[0].trb_addr = (usb_dwc3_trb_t *)TRB_IN_AREA;
-	assert(dwc3_handle->IN_ep[0].trb_addr != NULL);
 
 	dwc3_handle->OUT_ep[0].trb_dma_addr = (uint32_t)api_getdmaaddr((void *)TRB_OUT_AREA,
 								       sizeof(usb_dwc3_trb_t),
 								       1);
-	assert(dwc3_handle->OUT_ep[0].trb_dma_addr != 0U);
-
 	dwc3_handle->OUT_ep[0].trb_addr = (usb_dwc3_trb_t *)TRB_OUT_AREA;
-	assert(dwc3_handle->OUT_ep[0].trb_addr != NULL);
 
 	/* Init Device */
 	dwc3_handle->EP0_State = HAL_PCD_EP0_SETUP_QUEUED;
