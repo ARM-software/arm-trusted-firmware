@@ -449,6 +449,8 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 | FEAT_PMUv3p7        |   OK   |
 +---------------------+--------+
 
+.. _enable_feat_mechanism:
+
 The ``ENABLE_FEAT`` mechanism
 -----------------------------
 
