@@ -350,6 +350,23 @@
 	*
 	* Clobbers: reg
 	*/
+	.macro is_feat_dit_present_asm reg:req
+	mrs	\reg, ID_AA64PFR0_EL1
+	ands	\reg, \reg, #MASK(ID_AA64PFR0_DIT)
+	.endm
+
+	.macro is_feat_mpam_present_asm reg:req, clobber:req
+	/* Get MPAM major version */
+	mrs	\reg, ID_AA64PFR0_EL1
+	ubfx	\reg, \reg, #ID_AA64PFR0_MPAM_SHIFT, #ID_AA64PFR0_MPAM_WIDTH
+	/* Get MPAM minor version */
+	mrs	\clobber, ID_AA64PFR1_EL1
+	ubfx	\clobber, \clobber, #ID_AA64PFR1_MPAM_FRAC_SHIFT, #ID_AA64PFR1_MPAM_FRAC_WIDTH
+	/* output as MAJOR.MINOR so that a 0 comparison works */
+	lsr	\clobber, \clobber, #ID_AA64PFR0_MPAM_WIDTH
+	orr	\reg, \reg, \clobber
+	.endm
+
 	.macro is_feat_sysreg128_present_asm reg:req
 	mrs	\reg, ID_AA64ISAR2_EL1
 	ands	\reg, \reg, #(ID_AA64ISAR2_SYSREG128_MASK << ID_AA64ISAR2_SYSREG128_SHIFT)

@@ -564,9 +564,8 @@ feat_sctlr2_not_supported\@:
 		msr	cptr_el3, x15
 
 #if ENABLE_FEAT_DIT
-#if ENABLE_FEAT_DIT > 1
-		mrs	x15, id_aa64pfr0_el1
-		ubfx	x15, x15, #ID_AA64PFR0_DIT_SHIFT, #ID_AA64PFR0_DIT_LENGTH
+#if ENABLE_FEAT_DIT == 2
+		is_feat_dit_present_asm x15
 		cbz	x15, 1f
 #endif
 		mov	x15, #DIT_BIT

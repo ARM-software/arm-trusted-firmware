@@ -286,9 +286,8 @@ endfunc sve_context_restore
 	 * always enable DIT in EL3
 	 */
 #if ENABLE_FEAT_DIT
-#if ENABLE_FEAT_DIT >= 2
-	mrs	x8, id_aa64pfr0_el1
-	and	x8, x8, #(ID_AA64PFR0_DIT_MASK << ID_AA64PFR0_DIT_SHIFT)
+#if ENABLE_FEAT_DIT == 2
+	is_feat_dit_present_asm, x8
 	cbz	x8, 1f
 #endif
 	mov	x8, #DIT_BIT
@@ -296,44 +295,6 @@ endfunc sve_context_restore
 1:
 #endif /* ENABLE_FEAT_DIT */
 	.endm /* set_unset_pstate_bits */
-
-/*-------------------------------------------------------------------------
- * This macro checks the ENABLE_FEAT_MPAM state, performs ID register
- * check to see if the platform supports MPAM extension and restores MPAM3
- * register value if it is FEAT_STATE_ENABLED/FEAT_STATE_CHECKED.
- *
- * This is particularly more complicated because we can't check
- * if the platform supports MPAM  by looking for status of a particular bit
- * in the MDCR_EL3 or CPTR_EL3 register like other extensions.
- * ------------------------------------------------------------------------
- */
-
-	.macro	restore_mpam3_el3
-#if ENABLE_FEAT_MPAM
-#if ENABLE_FEAT_MPAM >= 2
-	mrs x8, id_aa64pfr0_el1
-	lsr x8, x8, #(ID_AA64PFR0_MPAM_SHIFT)
-	and x8, x8, #(ID_AA64PFR0_MPAM_MASK)
-	mrs x7, id_aa64pfr1_el1
-	lsr x7, x7, #(ID_AA64PFR1_MPAM_FRAC_SHIFT)
-	and x7, x7, #(ID_AA64PFR1_MPAM_FRAC_MASK)
-	orr x7, x7, x8
-	cbz x7, no_mpam
-#endif
-	/* -----------------------------------------------------------
-	 * Restore MPAM3_EL3 register as per context state
-	 * Currently we only enable MPAM for NS world and trap to EL3
-	 * for MPAM access in lower ELs of Secure and Realm world
-	 * x9 holds address of the per_world context
-	 * -----------------------------------------------------------
-	 */
-
-	ldr	x17, [x9, #CTX_MPAM3_EL3]
-	msr	S3_6_C10_C5_0, x17 /* mpam3_el3 */
-
-no_mpam:
-#endif
-	.endm /* restore_mpam3_el3 */
 
 /* ------------------------------------------------------------------
  * The following macro is used to save all the general purpose
@@ -684,10 +645,15 @@ func el3_exit
 	ldp	x19, x20, [x9, #CTX_CPTR_EL3]
 	msr	cptr_el3, x19
 
-#if IMAGE_BL31
-	restore_mpam3_el3
-
-#endif /* IMAGE_BL31 */
+#if ENABLE_FEAT_MPAM && IMAGE_BL31
+#if ENABLE_FEAT_MPAM == 2
+	is_feat_mpam_present_asm x7, x8
+	cbz x7, no_mpam
+#endif
+	ldr	x17, [x9, #CTX_MPAM3_EL3]
+	msr	MPAM3_EL3, x17
+no_mpam:
+#endif
 
 #if IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639
 	/* ----------------------------------------------------------
