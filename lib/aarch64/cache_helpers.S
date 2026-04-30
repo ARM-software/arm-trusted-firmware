@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -170,7 +170,7 @@ endfunc	flush_dcache_to_popa_range_mte2
 func do_dcsw_op
 	cbz	x3, exit
 	mrs	x12, ID_AA64MMFR2_EL1	// stash FEAT_CCIDX identifier in x12
-	ubfx	x12, x12, #ID_AA64MMFR2_EL1_CCIDX_SHIFT, #ID_AA64MMFR2_EL1_CCIDX_LENGTH
+	ubfx	x12, x12, #ID_AA64MMFR2_EL1_CCIDX_SHIFT, #ID_AA64MMFR2_EL1_CCIDX_WIDTH
 	adr	x14, dcsw_loop_table	// compute inner loop address
 	add	x14, x14, x0, lsl #5	// inner loop is 8x32-bit instructions
 #if ENABLE_BTI

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,7 +33,7 @@ cpu_reset_prologue rainier
 func rainier_disable_speculative_loads
 	/* Check if the PE implements SSBS */
 	mrs	x0, id_aa64pfr1_el1
-	tst	x0, #(ID_AA64PFR1_EL1_SSBS_MASK << ID_AA64PFR1_EL1_SSBS_SHIFT)
+	tst	x0, #MASK(ID_AA64PFR1_EL1_SSBS)
 	b.eq	1f
 
 	/* Disable speculative loads */

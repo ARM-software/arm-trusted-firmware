@@ -80,7 +80,7 @@ feat_sctlr2_not_supported\@:
 	mov_imm	x0, SCR_RESET_VAL
 #if IMAGE_BL31 && defined(SPD_spmd) && SPMD_SPM_AT_SEL2
 	mrs	x1, id_aa64pfr0_el1
-	and	x1, x1, #(ID_AA64PFR0_SEL2_MASK << ID_AA64PFR0_SEL2_SHIFT)
+	and	x1, x1, #MASK(ID_AA64PFR0_SEL2)
 	cbz	x1, 1f
 	orr	x0, x0, #SCR_EEL2_BIT
 #endif

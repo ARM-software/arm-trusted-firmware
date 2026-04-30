@@ -12,74 +12,48 @@
 #include <arch_helpers.h>
 #include <common/feat_detect.h>
 
-#define ISOLATE_FIELD(reg, feat, mask)						\
-	((unsigned int)(((reg) >> (feat)) & mask))
+#define CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
+_CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)
 
-#define CREATE_FEATURE_SUPPORTED(name, read_func, guard)			\
-__attribute__((always_inline))							\
-static inline bool is_ ## name ## _supported(void)				\
-{										\
-	if ((guard) == FEAT_STATE_DISABLED) {					\
-		return false;							\
-	}									\
-	if ((guard) == FEAT_STATE_ALWAYS) {					\
-		return true;							\
-	}									\
-	return read_func();							\
-}
-
-#define CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
-__attribute__((always_inline))							\
-static inline bool is_ ## name ## _present(void)				\
-{										\
-	return (ISOLATE_FIELD(read_ ## idreg(), idfield, mask) >= idval) 	\
-		? true : false;							\
-}
-
-#define CREATE_FEATURE_FUNCS(name, idreg, idfield, mask, idval, guard)		\
-CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)			\
+#define CREATE_FEATURE_FUNCS(name, idreg, idfield, idval, guard)		\
+CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)				\
 CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
-
 
 __attribute__((always_inline))
 static inline bool is_armv7_gentimer_present(void)
 {
-	return ISOLATE_FIELD(read_id_pfr1(), ID_PFR1_GENTIMER_SHIFT,
-			    ID_PFR1_GENTIMER_MASK) != 0U;
+	return EXTRACT(ID_PFR1_GENTIMER, read_id_pfr1()) != 0U;
 }
 
-CREATE_FEATURE_PRESENT(feat_ttcnp, id_mmfr4, ID_MMFR4_CNP_SHIFT,
-		      ID_MMFR4_CNP_MASK, 1U)
+CREATE_FEATURE_PRESENT(feat_ttcnp, id_mmfr4, ID_MMFR4_CNP, 1U)
 
-CREATE_FEATURE_FUNCS(feat_amu, id_pfr0, ID_PFR0_AMU_SHIFT,
-		    ID_PFR0_AMU_MASK, ID_PFR0_AMU_V1, ENABLE_FEAT_AMU)
+CREATE_FEATURE_FUNCS(feat_amu, id_pfr0, ID_PFR0_AMU,
+		    ID_PFR0_AMU_V1, ENABLE_FEAT_AMU)
 
-CREATE_FEATURE_FUNCS(feat_amu_aux, amcfgr, AMCFGR_NCG_SHIFT,
-		    AMCFGR_NCG_MASK, 1U, ENABLE_AMU_AUXILIARY_COUNTERS)
+CREATE_FEATURE_FUNCS(feat_amu_aux, amcfgr, AMCFGR_NCG,
+		    1U, ENABLE_AMU_AUXILIARY_COUNTERS)
 
-CREATE_FEATURE_FUNCS(feat_amuv1p1, id_pfr0, ID_PFR0_AMU_SHIFT,
-		    ID_PFR0_AMU_MASK, ID_PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1)
+CREATE_FEATURE_FUNCS(feat_amuv1p1, id_pfr0, ID_PFR0_AMU,
+		    ID_PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1)
 
-CREATE_FEATURE_FUNCS(feat_trf, id_dfr0, ID_DFR0_TRACEFILT_SHIFT,
-		    ID_DFR0_TRACEFILT_MASK, 1U, ENABLE_TRF_FOR_NS)
+CREATE_FEATURE_FUNCS(feat_trf, id_dfr0, ID_DFR0_TRACEFILT,
+		    1U, ENABLE_TRF_FOR_NS)
 
-CREATE_FEATURE_FUNCS(feat_sys_reg_trace, id_dfr0, ID_DFR0_COPTRC_SHIFT,
-		    ID_DFR0_COPTRC_MASK, 1U, ENABLE_SYS_REG_TRACE_FOR_NS)
+CREATE_FEATURE_FUNCS(feat_sys_reg_trace, id_dfr0, ID_DFR0_COPTRC,
+		    1U, ENABLE_SYS_REG_TRACE_FOR_NS)
 
-CREATE_FEATURE_FUNCS(feat_dit, id_pfr0, ID_PFR0_DIT_SHIFT,
-		    ID_PFR0_DIT_MASK, 1U, ENABLE_FEAT_DIT)
+CREATE_FEATURE_FUNCS(feat_dit, id_pfr0, ID_PFR0_DIT,
+		    1U, ENABLE_FEAT_DIT)
 
-CREATE_FEATURE_FUNCS(feat_pan, id_mmfr3, ID_MMFR3_PAN_SHIFT,
-		    ID_MMFR3_PAN_MASK, 1U, ENABLE_FEAT_PAN)
+CREATE_FEATURE_FUNCS(feat_pan, id_mmfr3, ID_MMFR3_PAN,
+		    1U, ENABLE_FEAT_PAN)
 
-CREATE_FEATURE_PRESENT(feat_ssbs, id_pfr2, ID_PFR2_SSBS_SHIFT,
-		      ID_PFR2_SSBS_MASK, 1U)
+CREATE_FEATURE_PRESENT(feat_ssbs, id_pfr2, ID_PFR2_SSBS, 1U)
 
-CREATE_FEATURE_PRESENT(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON_SHIFT,
-		      ID_DFR0_PERFMON_MASK, 3U)
+CREATE_FEATURE_PRESENT(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON, 3U)
 
-CREATE_FEATURE_FUNCS(feat_mtpmu, id_dfr1, ID_DFR1_MTPMU_SHIFT,
-		    ID_DFR1_MTPMU_MASK, 1U, DISABLE_MTPMU)
+CREATE_FEATURE_FUNCS(feat_mtpmu, id_dfr1, ID_DFR1_MTPMU,
+		    1U, DISABLE_MTPMU)
 
 /*
  * These features are only used by AArch64 code, so just disable these features

@@ -31,25 +31,9 @@
 #define FEAT_ENABLE_SECURE		(1 << CPU_CONTEXT_SECURE)
 #define FEAT_ENABLE_NS			(1 << CPU_CONTEXT_NS)
 
-#define ISOLATE_FIELD(reg, feat, mask)						\
-	((unsigned int)(((reg) >> (feat)) & mask))
-
 #define SHOULD_ID_FIELD_DISABLE(guard, enabled_worlds, world)		\
 	 (((guard) == 0U) || ((((enabled_worlds) >> (world)) & 1U) == 0U))
 
-
-#define CREATE_FEATURE_SUPPORTED(name, read_func, guard)			\
-__attribute__((always_inline))							\
-static inline bool is_ ## name ## _supported(void)				\
-{										\
-	if ((guard) == FEAT_STATE_DISABLED) {					\
-		return false;							\
-	}									\
-	if ((guard) == FEAT_STATE_ALWAYS) {					\
-		return true;							\
-	}									\
-	return read_func();							\
-}
 
 /*
  * CREATE_IDREG_UPDATE and CREATE_PERCPU_IDREG_UPDATE are two macros that
@@ -79,16 +63,15 @@ static inline bool is_ ## name ## _supported(void)				\
  *				&per_world_context[security_state];
  *		perworld_idregs_t *perworld_idregs = &(per_world_ctx->idregs);
  *
- *		perworld_idregs->idreg &=
- *			~((u_register_t)mask << idfield);
+ *		perworld_idregs->idreg &= ~((u_register_t)MASK(idfield));
  *		perworld_idregs->idreg |=
- *		(((u_register_t)<unimplemented state value> & mask) << idfield);
+ *		((u_register_t)<unimplemented state value> << idfield##_SHIFT);
  *	}
  * }
  */
 
 #if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
-#define CREATE_IDREG_UPDATE(name, idreg, idfield, mask, guard, enabled_worlds)	\
+#define CREATE_IDREG_UPDATE(name, idreg, idfield, guard, enabled_worlds)	\
 	__attribute__((always_inline))						\
 static inline void update_ ## name ## _idreg_field(size_t security_state)	\
 {										\
@@ -96,10 +79,10 @@ static inline void update_ ## name ## _idreg_field(size_t security_state)	\
 		per_world_context_t *per_world_ctx =				\
 				&per_world_context[security_state];		\
 		perworld_idregs_t *perworld_idregs = &(per_world_ctx->idregs);	\
-		perworld_idregs->idreg &= ~((u_register_t)mask << idfield);	\
+		perworld_idregs->idreg &= ~((u_register_t)MASK(idfield));	\
 	}									\
 }
-#define CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, mask, guard,		\
+#define CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, guard,		\
 					enabled_worlds)				\
 	__attribute__((always_inline))						\
 static inline void update_ ## name ## _idreg_field(size_t security_state)	\
@@ -107,43 +90,47 @@ static inline void update_ ## name ## _idreg_field(size_t security_state)	\
 	if (SHOULD_ID_FIELD_DISABLE(guard, enabled_worlds, security_state)) {	\
 		percpu_idregs_t *percpu_idregs =				\
 					&(get_cpu_data(idregs[security_state]));\
-		percpu_idregs->idreg &= ~((u_register_t)mask << idfield);	\
+		percpu_idregs->idreg &= ~((u_register_t)MASK(idfield));	\
 	}									\
 }
 #else
-#define CREATE_IDREG_UPDATE(name, idreg, idfield, mask, guard, enabled_worlds)
-#define CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, mask, guard,		\
+#define CREATE_IDREG_UPDATE(name, idreg, idfield, guard, enabled_worlds)
+#define CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, guard,		\
 					enabled_worlds)
 #endif
 
-#define _CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
+#define _CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
+__attribute__((always_inline))							\
+static inline unsigned int read_ ## name ## _id_field(void)			\
+{										\
+	return (unsigned int)EXTRACT(idfield, read_ ## idreg());		\
+}										\
 __attribute__((always_inline))							\
 static inline bool is_ ## name ## _present(void)				\
 {										\
-	return (ISOLATE_FIELD(read_ ## idreg(), idfield, mask) >= idval) 	\
-		? true : false; 						\
+	return (read_ ## name ## _id_field() >= idval) ? true : false; 		\
 }
 
-#define CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval,		\
+#define CREATE_FEATURE_PRESENT(name, idreg, idfield, idval,			\
 				enabled_worlds)					\
-	_CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
-	CREATE_IDREG_UPDATE(name, idreg, idfield, mask, 1U, enabled_worlds)
+	_CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
+	CREATE_IDREG_UPDATE(name, idreg, idfield, 1U, enabled_worlds)
 
-#define CREATE_PERCPU_FEATURE_PRESENT(name, idreg, idfield, mask, idval,	\
+#define CREATE_PERCPU_FEATURE_PRESENT(name, idreg, idfield, idval,		\
 					enabled_worlds)				\
-	_CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
-	CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, mask, 1U,		\
+	_CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
+	CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, 1U,			\
 					enabled_worlds)
 
-#define CREATE_FEATURE_FUNCS(name, idreg, idfield, mask, idval, guard,		\
+#define CREATE_FEATURE_FUNCS(name, idreg, idfield, idval, guard,		\
 			     enabled_worlds)					\
-	CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval,		\
+	CREATE_FEATURE_PRESENT(name, idreg, idfield, idval,			\
 				enabled_worlds)					\
 	CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
 
-#define CREATE_PERCPU_FEATURE_FUNCS(name, idreg, idfield, mask, idval, guard,	\
+#define CREATE_PERCPU_FEATURE_FUNCS(name, idreg, idfield, idval, guard,	\
 				enabled_worlds)					\
-	CREATE_PERCPU_FEATURE_PRESENT(name, idreg, idfield, mask, idval,	\
+	CREATE_PERCPU_FEATURE_PRESENT(name, idreg, idfield, idval,		\
 				enabled_worlds)					\
 	CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
 
@@ -154,20 +141,20 @@ static inline bool is_armv7_gentimer_present(void)
 	return true;
 }
 
-CREATE_FEATURE_FUNCS(feat_pan, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_PAN_SHIFT,
-		     ID_AA64MMFR1_EL1_PAN_MASK, 1U, ENABLE_FEAT_PAN,
+CREATE_FEATURE_FUNCS(feat_pan, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_PAN,
+		     1U, ENABLE_FEAT_PAN,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_vhe, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_VHE_SHIFT,
-		     ID_AA64MMFR1_EL1_VHE_MASK, 1U, ENABLE_FEAT_VHE,
+CREATE_FEATURE_FUNCS(feat_vhe, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_VHE,
+		     1U, ENABLE_FEAT_VHE,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_PRESENT(feat_ttcnp, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_CNP_SHIFT,
-			ID_AA64MMFR2_EL1_CNP_MASK, 1U,
+CREATE_FEATURE_PRESENT(feat_ttcnp, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_CNP,
+			1U,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_PRESENT(feat_uao, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_UAO_SHIFT,
-			ID_AA64MMFR2_EL1_UAO_MASK, 1U,
+CREATE_FEATURE_PRESENT(feat_uao, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_UAO,
+			1U,
 			FEAT_ENABLE_ALL_WORLDS)
 
 __attribute__((always_inline))
@@ -183,10 +170,10 @@ __attribute__((always_inline))
 static inline bool is_feat_pauth_present(void)
 {
 	uint64_t mask_id_aa64isar1 =
-		(ID_AA64ISAR1_GPI_MASK << ID_AA64ISAR1_GPI_SHIFT) |
-		(ID_AA64ISAR1_GPA_MASK << ID_AA64ISAR1_GPA_SHIFT) |
-		(ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) |
-		(ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT);
+		MASK(ID_AA64ISAR1_GPI) |
+		MASK(ID_AA64ISAR1_GPA) |
+		MASK(ID_AA64ISAR1_API) |
+		MASK(ID_AA64ISAR1_APA);
 
 	/*
 	 * If any of the fields is not zero or QARMA3 is present,
@@ -202,9 +189,9 @@ __attribute__((always_inline))
 static inline bool is_feat_crypto_present(void)
 {
 	uint64_t mask_id_aa64isar0 =
-		(ID_AA64ISAR0_AES_MASK << ID_AA64ISAR0_AES_SHIFT) |
-		(ID_AA64ISAR0_SHA1_MASK << ID_AA64ISAR0_SHA1_SHIFT) |
-		(ID_AA64ISAR0_SHA2_MASK << ID_AA64ISAR0_SHA2_SHIFT);
+		MASK(ID_AA64ISAR0_AES) |
+		MASK(ID_AA64ISAR0_SHA1) |
+		MASK(ID_AA64ISAR0_SHA2);
 
 	/*
 	 * Check if AES, SHA1, SHA2 extension presents.
@@ -218,15 +205,15 @@ __attribute__((always_inline))
 static inline void update_feat_pauth_idreg_field(size_t security_state)
 {
 	uint64_t mask_id_aa64isar1 =
-		(ID_AA64ISAR1_GPI_MASK << ID_AA64ISAR1_GPI_SHIFT) |
-		(ID_AA64ISAR1_GPA_MASK << ID_AA64ISAR1_GPA_SHIFT) |
-		(ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) |
-		(ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT);
+		MASK(ID_AA64ISAR1_GPI) |
+		MASK(ID_AA64ISAR1_GPA) |
+		MASK(ID_AA64ISAR1_API) |
+		MASK(ID_AA64ISAR1_APA);
 
 	/* FEAT_PACQARMA3 */
 	uint64_t mask_id_aa64isar2 =
-		(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_MASK) |
-		(ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_MASK);
+		MASK(ID_AA64ISAR2_APA3) |
+		MASK(ID_AA64ISAR2_GPA3);
 
 	per_world_context_t *per_world_ctx = &per_world_context[security_state];
 	perworld_idregs_t *perworld_idregs =
@@ -258,88 +245,88 @@ static inline bool is_feat_pauth_lr_present(void)
 	 *   2) id_aa64isr1_el1.apa
 	 *   3) id_aa64isr2_el1.apa3
 	 */
-	if (ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_API_SHIFT, ID_AA64ISAR1_API_MASK) == 0b0110) {
+	if (EXTRACT(ID_AA64ISAR1_API, read_id_aa64isar1_el1()) == 0b0110) {
 		return true;
 	}
-	if (ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_APA_SHIFT, ID_AA64ISAR1_APA_MASK) == 0b0110) {
+	if (EXTRACT(ID_AA64ISAR1_APA, read_id_aa64isar1_el1()) == 0b0110) {
 		return true;
 	}
-	if (ISOLATE_FIELD(read_id_aa64isar2_el1(), ID_AA64ISAR2_APA3_SHIFT, ID_AA64ISAR2_APA3_MASK) == 0b0110) {
+	if (EXTRACT(ID_AA64ISAR2_APA3, read_id_aa64isar2_el1()) == 0b0110) {
 		return true;
 	}
 	return false;
 }
 CREATE_FEATURE_SUPPORTED(feat_pauth_lr, is_feat_pauth_lr_present, ENABLE_FEAT_PAUTH_LR)
 
-CREATE_FEATURE_PRESENT(feat_ttst, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_ST_SHIFT,
-			ID_AA64MMFR2_EL1_ST_MASK, 1U,
+CREATE_FEATURE_PRESENT(feat_ttst, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_ST,
+			1U,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_bti, id_aa64pfr1_el1, ID_AA64PFR1_EL1_BT_SHIFT,
-			ID_AA64PFR1_EL1_BT_MASK, BTI_IMPLEMENTED, ENABLE_BTI,
+CREATE_FEATURE_FUNCS(feat_bti, id_aa64pfr1_el1, ID_AA64PFR1_EL1_BT,
+			BTI_IMPLEMENTED, ENABLE_BTI,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_mte2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE_SHIFT,
-		     ID_AA64PFR1_EL1_MTE_MASK, MTE_IMPLEMENTED_ELX, ENABLE_FEAT_MTE2,
+CREATE_FEATURE_FUNCS(feat_mte2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE,
+		     MTE_IMPLEMENTED_ELX, ENABLE_FEAT_MTE2,
 		     FEAT_ENABLE_SECURE | FEAT_ENABLE_NS)
 
-CREATE_FEATURE_PRESENT(feat_ssbs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SSBS_SHIFT,
-			ID_AA64PFR1_EL1_SSBS_MASK, 1U,
+CREATE_FEATURE_PRESENT(feat_ssbs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SSBS,
+			1U,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_PRESENT(feat_nmi, id_aa64pfr1_el1, ID_AA64PFR1_EL1_NMI_SHIFT,
-			ID_AA64PFR1_EL1_NMI_MASK, NMI_IMPLEMENTED,
+CREATE_FEATURE_PRESENT(feat_nmi, id_aa64pfr1_el1, ID_AA64PFR1_EL1_NMI,
+			NMI_IMPLEMENTED,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_PERCPU_FEATURE_FUNCS(feat_ebep, id_aa64dfr1_el1, ID_AA64DFR1_EBEP_SHIFT,
-		     ID_AA64DFR1_EBEP_MASK, 1U,  ENABLE_FEAT_EBEP,
+CREATE_PERCPU_FEATURE_FUNCS(feat_ebep, id_aa64dfr1_el1, ID_AA64DFR1_EBEP,
+		     1U,  ENABLE_FEAT_EBEP,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_PERCPU_FEATURE_PRESENT(feat_sebep, id_aa64dfr0_el1, ID_AA64DFR0_SEBEP_SHIFT,
-			ID_AA64DFR0_SEBEP_MASK, SEBEP_IMPLEMENTED,
+CREATE_PERCPU_FEATURE_PRESENT(feat_sebep, id_aa64dfr0_el1, ID_AA64DFR0_SEBEP,
+			SEBEP_IMPLEMENTED,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2_SHIFT,
-		     ID_AA64PFR0_SEL2_MASK, 1U, ENABLE_FEAT_SEL2,
+CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2,
+		     1U, ENABLE_FEAT_SEL2,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED_SHIFT,
-		     ID_AA64MMFR1_EL1_TWED_MASK, 1U, ENABLE_FEAT_TWED,
+CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED,
+		     1U, ENABLE_FEAT_TWED,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
-		     ID_AA64MMFR0_EL1_FGT_MASK, 1U, ENABLE_FEAT_FGT,
+CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT,
+		     1U, ENABLE_FEAT_FGT,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_fgt2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
-		     ID_AA64MMFR0_EL1_FGT_MASK, FGT2_IMPLEMENTED, ENABLE_FEAT_FGT2,
+CREATE_FEATURE_FUNCS(feat_fgt2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT,
+		     FGT2_IMPLEMENTED, ENABLE_FEAT_FGT2,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_fgwte3, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_FGWTE3_SHIFT,
-		     ID_AA64MMFR4_EL1_FGWTE3_MASK, FGWTE3_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_fgwte3, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_FGWTE3,
+		     FGWTE3_IMPLEMENTED,
 		     ENABLE_FEAT_FGWTE3, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
-		     ID_AA64MMFR0_EL1_ECV_MASK, 1U, ENABLE_FEAT_ECV,
+CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV,
+		     1U, ENABLE_FEAT_ECV,
 		     FEAT_ENABLE_ALL_WORLDS)
-CREATE_FEATURE_FUNCS(feat_ecv_v2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
-		     ID_AA64MMFR0_EL1_ECV_MASK, ID_AA64MMFR0_EL1_ECV_SELF_SYNCH,
+CREATE_FEATURE_FUNCS(feat_ecv_v2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV,
+		     ID_AA64MMFR0_EL1_ECV_SELF_SYNCH,
 		     ENABLE_FEAT_ECV, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_rng, id_aa64isar0_el1, ID_AA64ISAR0_RNDR_SHIFT,
-		     ID_AA64ISAR0_RNDR_MASK, 1U, ENABLE_FEAT_RNG,
+CREATE_FEATURE_FUNCS(feat_rng, id_aa64isar0_el1, ID_AA64ISAR0_RNDR,
+		     1U, ENABLE_FEAT_RNG,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_tcr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_TCRX_SHIFT,
-		     ID_AA64MMFR3_EL1_TCRX_MASK, 1U, ENABLE_FEAT_TCR2,
+CREATE_FEATURE_FUNCS(feat_tcr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_TCRX,
+		     1U, ENABLE_FEAT_TCR2,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_s2poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2POE_SHIFT,
-		     ID_AA64MMFR3_EL1_S2POE_MASK, 1U, ENABLE_FEAT_S2POE,
+CREATE_FEATURE_FUNCS(feat_s2poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2POE,
+		     1U, ENABLE_FEAT_S2POE,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_s1poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1POE_SHIFT,
-		     ID_AA64MMFR3_EL1_S1POE_MASK, 1U, ENABLE_FEAT_S1POE,
+CREATE_FEATURE_FUNCS(feat_s1poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1POE,
+		     1U, ENABLE_FEAT_S1POE,
 		     FEAT_ENABLE_ALL_WORLDS)
 
 __attribute__((always_inline))
@@ -348,42 +335,42 @@ static inline bool is_feat_sxpoe_supported(void)
 	return is_feat_s1poe_supported() || is_feat_s2poe_supported();
 }
 
-CREATE_FEATURE_FUNCS(feat_s2pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2PIE_SHIFT,
-		     ID_AA64MMFR3_EL1_S2PIE_MASK, 1U, ENABLE_FEAT_S2PIE,
+CREATE_FEATURE_FUNCS(feat_s2pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2PIE,
+		     1U, ENABLE_FEAT_S2PIE,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE_SHIFT,
-		     ID_AA64MMFR3_EL1_S1PIE_MASK, 1U, ENABLE_FEAT_S1PIE,
+CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE,
+		     1U, ENABLE_FEAT_S1PIE,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_the, id_aa64pfr1_el1, ID_AA64PFR1_EL1_THE_SHIFT,
-		     ID_AA64PFR1_EL1_THE_MASK, THE_IMPLEMENTED, ENABLE_FEAT_THE,
+CREATE_FEATURE_FUNCS(feat_the, id_aa64pfr1_el1, ID_AA64PFR1_EL1_THE,
+		     THE_IMPLEMENTED, ENABLE_FEAT_THE,
 		     FEAT_ENABLE_NS)
 
-CREATE_FEATURE_FUNCS(feat_sctlr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_SCTLR2_SHIFT,
-		     ID_AA64MMFR3_EL1_SCTLR2_MASK, SCTLR2_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_sctlr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_SCTLR2,
+		     SCTLR2_IMPLEMENTED,
 		     ENABLE_FEAT_SCTLR2,
 		     FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
 
-CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128_SHIFT,
-		     ID_AA64MMFR3_EL1_D128_MASK, D128_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128,
+		     D128_IMPLEMENTED,
 		     ENABLE_FEAT_D128, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
 
 _CREATE_FEATURE_PRESENT(feat_rme_gpc2, id_aa64pfr0_el1,
-		       ID_AA64PFR0_FEAT_RME_SHIFT, ID_AA64PFR0_FEAT_RME_MASK,
+		       ID_AA64PFR0_FEAT_RME,
 		       RME_GPC2_IMPLEMENTED)
 
 CREATE_FEATURE_FUNCS(feat_rme_gdi, id_aa64mmfr4_el1,
-		     ID_AA64MMFR4_EL1_RME_GDI_SHIFT,
-		     ID_AA64MMFR4_EL1_RME_GDI_MASK, RME_GDI_IMPLEMENTED,
+		     ID_AA64MMFR4_EL1_RME_GDI,
+		     RME_GDI_IMPLEMENTED,
 		     ENABLE_FEAT_RME_GDI, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_fpmr, id_aa64pfr2_el1, ID_AA64PFR2_EL1_FPMR_SHIFT,
-		     ID_AA64PFR2_EL1_FPMR_MASK, FPMR_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_fpmr, id_aa64pfr2_el1, ID_AA64PFR2_EL1_FPMR,
+		     FPMR_IMPLEMENTED,
 		     ENABLE_FEAT_FPMR, FEAT_ENABLE_NS)
 
-CREATE_FEATURE_FUNCS(feat_mops, id_aa64isar2_el1, ID_AA64ISAR2_EL1_MOPS_SHIFT,
-		     ID_AA64ISAR2_EL1_MOPS_MASK, MOPS_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_mops, id_aa64isar2_el1, ID_AA64ISAR2_EL1_MOPS,
+		     MOPS_IMPLEMENTED,
 		     ENABLE_FEAT_MOPS, FEAT_ENABLE_ALL_WORLDS)
 
 __attribute__((always_inline))
@@ -392,22 +379,22 @@ static inline bool is_feat_sxpie_supported(void)
 	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
 }
 
-CREATE_FEATURE_FUNCS(feat_gcs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_GCS_SHIFT,
-		     ID_AA64PFR1_EL1_GCS_MASK, 1U, ENABLE_FEAT_GCS,
+CREATE_FEATURE_FUNCS(feat_gcs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_GCS,
+		     1U, ENABLE_FEAT_GCS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_amu, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
-		     ID_AA64PFR0_AMU_MASK, 1U, ENABLE_FEAT_AMU,
+CREATE_FEATURE_FUNCS(feat_amu, id_aa64pfr0_el1, ID_AA64PFR0_AMU,
+		     1U, ENABLE_FEAT_AMU,
 		     FEAT_ENABLE_NS)
 
 _CREATE_FEATURE_PRESENT(feat_amu_aux, amcfgr_el0,
-		       AMCFGR_EL0_NCG_SHIFT, AMCFGR_EL0_NCG_MASK, 1U)
+		       AMCFGR_EL0_NCG, 1U)
 
 CREATE_FEATURE_SUPPORTED(feat_amu_aux, is_feat_amu_aux_present,
 			 ENABLE_AMU_AUXILIARY_COUNTERS)
 
-CREATE_FEATURE_FUNCS(feat_amuv1p1, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
-		     ID_AA64PFR0_AMU_MASK, ID_AA64PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1,
+CREATE_FEATURE_FUNCS(feat_amuv1p1, id_aa64pfr0_el1, ID_AA64PFR0_AMU,
+		     ID_AA64PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1,
 		     FEAT_ENABLE_NS)
 
 /*
@@ -417,13 +404,16 @@ CREATE_FEATURE_FUNCS(feat_amuv1p1, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
  * 0x11: v1.1 Armv8.4 or later
  */
 __attribute__((always_inline))
+static inline unsigned int read_feat_mpam_id_field(void)
+{
+	return (EXTRACT(ID_AA64PFR0_MPAM, read_id_aa64pfr0_el1()) << 4) |
+	       EXTRACT(ID_AA64PFR1_MPAM_FRAC, read_id_aa64pfr1_el1());
+}
+
+__attribute__((always_inline))
 static inline bool is_feat_mpam_present(void)
 {
-	unsigned int ret = (unsigned int)((((read_id_aa64pfr0_el1() >>
-		ID_AA64PFR0_MPAM_SHIFT) & ID_AA64PFR0_MPAM_MASK) << 4) |
-		((read_id_aa64pfr1_el1() >> ID_AA64PFR1_MPAM_FRAC_SHIFT)
-			& ID_AA64PFR1_MPAM_FRAC_MASK));
-	return ret;
+	return read_feat_mpam_id_field();
 }
 
 CREATE_FEATURE_SUPPORTED(feat_mpam, is_feat_mpam_present, ENABLE_FEAT_MPAM)
@@ -441,12 +431,10 @@ static inline void update_feat_mpam_idreg_field(size_t security_state)
 			&(per_world_ctx->idregs);
 
 		perworld_idregs->id_aa64pfr0_el1 &=
-			~((u_register_t)ID_AA64PFR0_MPAM_MASK
-					<< ID_AA64PFR0_MPAM_SHIFT);
+			~((u_register_t)MASK(ID_AA64PFR0_MPAM));
 
 		perworld_idregs->id_aa64pfr1_el1 &=
-			~((u_register_t)ID_AA64PFR1_MPAM_FRAC_MASK
-					<< ID_AA64PFR1_MPAM_FRAC_SHIFT);
+			~((u_register_t)MASK(ID_AA64PFR1_MPAM_FRAC));
 	}
 }
 #endif
@@ -465,29 +453,28 @@ CREATE_FEATURE_SUPPORTED(feat_mpam_pe_bw_ctrl, is_feat_mpam_pe_bw_ctrl_present,
 		ENABLE_FEAT_MPAM_PE_BW_CTRL)
 
 CREATE_PERCPU_FEATURE_FUNCS(feat_debugv8p9, id_aa64dfr0_el1,
-		ID_AA64DFR0_DEBUGVER_SHIFT, ID_AA64DFR0_DEBUGVER_MASK,
-		DEBUGVER_V8P9_IMPLEMENTED, ENABLE_FEAT_DEBUGV8P9,
+		ID_AA64DFR0_DEBUGVER, DEBUGVER_V8P9_IMPLEMENTED, ENABLE_FEAT_DEBUGV8P9,
 		FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
 
-CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX_SHIFT,
-		     ID_AA64MMFR1_EL1_HCX_MASK, 1U, ENABLE_FEAT_HCX,
+CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX,
+		     1U, ENABLE_FEAT_HCX,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_rng_trap, id_aa64pfr1_el1, ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT,
-		      ID_AA64PFR1_EL1_RNDR_TRAP_MASK, RNG_TRAP_IMPLEMENTED, ENABLE_FEAT_RNG_TRAP,
+CREATE_FEATURE_FUNCS(feat_rng_trap, id_aa64pfr1_el1, ID_AA64PFR1_EL1_RNDR_TRAP,
+		      RNG_TRAP_IMPLEMENTED, ENABLE_FEAT_RNG_TRAP,
 		      FEAT_ENABLE_ALL_WORLDS)
 
 _CREATE_FEATURE_PRESENT(feat_rme, id_aa64pfr0_el1,
-		      ID_AA64PFR0_FEAT_RME_SHIFT, ID_AA64PFR0_FEAT_RME_MASK, 1U)
+		      ID_AA64PFR0_FEAT_RME, 1U)
 
 CREATE_FEATURE_SUPPORTED(feat_rme, is_feat_rme_present, ENABLE_FEAT_RME)
 
-CREATE_FEATURE_PRESENT(feat_sb, id_aa64isar1_el1, ID_AA64ISAR1_SB_SHIFT,
-		       ID_AA64ISAR1_SB_MASK, 1U,
+CREATE_FEATURE_PRESENT(feat_sb, id_aa64isar1_el1, ID_AA64ISAR1_SB,
+		       1U,
 		       FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_mec, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_MEC_SHIFT,
-		ID_AA64MMFR3_EL1_MEC_MASK, 1U, ENABLE_FEAT_MEC,
+CREATE_FEATURE_FUNCS(feat_mec, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_MEC,
+		1U, ENABLE_FEAT_MEC,
 		FEAT_ENABLE_ALL_WORLDS)
 
 /*
@@ -498,141 +485,148 @@ CREATE_FEATURE_FUNCS(feat_mec, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_MEC_SHIFT,
  *          implemented.
  * 0b0011 - Feature FEAT_CSV2_3 is implemented.
  */
-CREATE_FEATURE_FUNCS(feat_csv2_2, id_aa64pfr0_el1, ID_AA64PFR0_CSV2_SHIFT,
-		     ID_AA64PFR0_CSV2_MASK, CSV2_2_IMPLEMENTED, ENABLE_FEAT_CSV2_2,
+CREATE_FEATURE_FUNCS(feat_csv2_2, id_aa64pfr0_el1, ID_AA64PFR0_CSV2,
+		     CSV2_2_IMPLEMENTED, ENABLE_FEAT_CSV2_2,
 		     FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
-CREATE_FEATURE_FUNCS(feat_csv2_3, id_aa64pfr0_el1, ID_AA64PFR0_CSV2_SHIFT,
-		     ID_AA64PFR0_CSV2_MASK, CSV2_3_IMPLEMENTED, ENABLE_FEAT_CSV2_3,
+CREATE_FEATURE_FUNCS(feat_csv2_3, id_aa64pfr0_el1, ID_AA64PFR0_CSV2,
+		     CSV2_3_IMPLEMENTED, ENABLE_FEAT_CSV2_3,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_PERCPU_FEATURE_FUNCS(feat_spe, id_aa64dfr0_el1, ID_AA64DFR0_PMS_SHIFT,
-		     ID_AA64DFR0_PMS_MASK, 1U, ENABLE_SPE_FOR_NS,
+CREATE_FEATURE_FUNCS(feat_clrbhb, id_aa64isar2_el1, ID_AA64ISAR2_CLRBHB,
+		     1U, ENABLE_FEAT_CLRBHB,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_sve, id_aa64pfr0_el1, ID_AA64PFR0_SVE_SHIFT,
-		     ID_AA64PFR0_SVE_MASK, 1U, ENABLE_SVE_FOR_NS,
+CREATE_PERCPU_FEATURE_FUNCS(feat_spe, id_aa64dfr0_el1, ID_AA64DFR0_PMS,
+		     1U, ENABLE_SPE_FOR_NS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_ras, id_aa64pfr0_el1, ID_AA64PFR0_RAS_SHIFT,
-		     ID_AA64PFR0_RAS_MASK, 1U, ENABLE_FEAT_RAS,
+CREATE_FEATURE_FUNCS(feat_sve, id_aa64pfr0_el1, ID_AA64PFR0_SVE,
+		     1U, ENABLE_SVE_FOR_NS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_dit, id_aa64pfr0_el1, ID_AA64PFR0_DIT_SHIFT,
-		     ID_AA64PFR0_DIT_MASK, 1U, ENABLE_FEAT_DIT,
+__attribute__((always_inline))
+static inline unsigned int read_feat_iesb_id_field(void)
+{
+	return (unsigned int)EXTRACT(ID_AA64MMFR2_EL1_IESB,
+				read_id_aa64mmfr2_el1());
+}
+
+CREATE_FEATURE_FUNCS(feat_ras, id_aa64pfr0_el1, ID_AA64PFR0_RAS,
+		     1U, ENABLE_FEAT_RAS,
+		     FEAT_ENABLE_ALL_WORLDS)
+
+CREATE_FEATURE_FUNCS(feat_dit, id_aa64pfr0_el1, ID_AA64PFR0_DIT,
+		     1U, ENABLE_FEAT_DIT,
 		     FEAT_ENABLE_ALL_WORLDS)
 
 CREATE_PERCPU_FEATURE_FUNCS(feat_sys_reg_trace, id_aa64dfr0_el1,
-			ID_AA64DFR0_TRACEVER_SHIFT, ID_AA64DFR0_TRACEVER_MASK,
-			1U, ENABLE_SYS_REG_TRACE_FOR_NS,
+			ID_AA64DFR0_TRACEVER, 1U, ENABLE_SYS_REG_TRACE_FOR_NS,
 			FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_PERCPU_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT_SHIFT,
-		     ID_AA64DFR0_TRACEFILT_MASK, 1U, ENABLE_TRF_FOR_NS,
+CREATE_PERCPU_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT,
+		     1U, ENABLE_TRF_FOR_NS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_nv2, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT,
-		     ID_AA64MMFR2_EL1_NV_MASK, NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS,
+CREATE_FEATURE_FUNCS(feat_nv2, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV,
+		     NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_PERCPU_FEATURE_FUNCS(feat_brbe, id_aa64dfr0_el1, ID_AA64DFR0_BRBE_SHIFT,
-		     ID_AA64DFR0_BRBE_MASK, 1U, ENABLE_BRBE_FOR_NS,
+CREATE_PERCPU_FEATURE_FUNCS(feat_brbe, id_aa64dfr0_el1, ID_AA64DFR0_BRBE,
+		     1U, ENABLE_BRBE_FOR_NS,
 		     FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
 
-_CREATE_FEATURE_PRESENT(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER_SHIFT,
-		       ID_AA64DFR0_TRACEBUFFER_MASK, 1U)
+_CREATE_FEATURE_PRESENT(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER, 1U)
 
 CREATE_FEATURE_SUPPORTED(feat_trbe, is_feat_trbe_present, ENABLE_TRBE_FOR_NS)
 
-CREATE_PERCPU_IDREG_UPDATE(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER_SHIFT,
-			ID_AA64DFR0_TRACEBUFFER_MASK,
+CREATE_PERCPU_IDREG_UPDATE(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER,
 			ENABLE_TRBE_FOR_NS && !check_if_trbe_disable_affected_core(),
 			FEAT_ENABLE_NS)
 
-CREATE_FEATURE_PRESENT(feat_sme_fa64, id_aa64smfr0_el1, ID_AA64SMFR0_EL1_SME_FA64_SHIFT,
-		    ID_AA64SMFR0_EL1_SME_FA64_MASK, 1U,
+CREATE_FEATURE_PRESENT(feat_sme_fa64, id_aa64smfr0_el1, ID_AA64SMFR0_EL1_SME_FA64,
+		    1U,
 		    FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_sme, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
-		     ID_AA64PFR1_EL1_SME_MASK, 1U, ENABLE_SME_FOR_NS,
+CREATE_FEATURE_FUNCS(feat_sme, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME,
+		     1U, ENABLE_SME_FOR_NS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
-		     ID_AA64PFR1_EL1_SME_MASK, SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS,
+CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME,
+		     SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_ls64_accdata, id_aa64isar1_el1, ID_AA64ISAR1_LS64_SHIFT,
-		     ID_AA64ISAR1_LS64_MASK, LS64_ACCDATA_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_ls64_accdata, id_aa64isar1_el1, ID_AA64ISAR1_LS64,
+		     LS64_ACCDATA_IMPLEMENTED,
 		     ENABLE_FEAT_LS64_ACCDATA, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_aie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_AIE_SHIFT,
-		     ID_AA64MMFR3_EL1_AIE_MASK, 1U, ENABLE_FEAT_AIE,
+CREATE_FEATURE_FUNCS(feat_aie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_AIE,
+		     1U, ENABLE_FEAT_AIE,
 		     FEAT_ENABLE_NS)
 
-CREATE_FEATURE_FUNCS(feat_pfar, id_aa64pfr1_el1, ID_AA64PFR1_EL1_PFAR_SHIFT,
-		     ID_AA64PFR1_EL1_PFAR_MASK, 1U, ENABLE_FEAT_PFAR,
+CREATE_FEATURE_FUNCS(feat_pfar, id_aa64pfr1_el1, ID_AA64PFR1_EL1_PFAR,
+		     1U, ENABLE_FEAT_PFAR,
 		     FEAT_ENABLE_NS)
 
-CREATE_FEATURE_FUNCS(feat_idte3, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_IDS_SHIFT,
-		     ID_AA64MMFR2_EL1_IDS_MASK, 2U, ENABLE_FEAT_IDTE3,
+CREATE_FEATURE_FUNCS(feat_idte3, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_IDS,
+		     2U, ENABLE_FEAT_IDTE3,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_lse, id_aa64isar0_el1, ID_AA64ISAR0_ATOMIC_SHIFT,
-		     ID_AA64ISAR0_ATOMIC_MASK, 1U, USE_SPINLOCK_CAS,
+CREATE_FEATURE_FUNCS(feat_lse, id_aa64isar0_el1, ID_AA64ISAR0_ATOMIC,
+		     1U, USE_SPINLOCK_CAS,
 		     FEAT_ENABLE_ALL_WORLDS)
 
 __attribute__((always_inline))
 static inline bool is_feat_tgran4K_present(void)
 {
-	unsigned int tgranx = ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN4_SHIFT, ID_REG_FIELD_MASK);
+	unsigned int tgranx = (unsigned int)EXTRACT(ID_AA64MMFR0_EL1_TGRAN4,
+						    read_id_aa64mmfr0_el1());
 	return (tgranx < 8U);
 }
 
-CREATE_FEATURE_PRESENT(feat_tgran16K, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_TGRAN16_SHIFT,
-		       ID_AA64MMFR0_EL1_TGRAN16_MASK, TGRAN16_IMPLEMENTED,
+CREATE_FEATURE_PRESENT(feat_tgran16K, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_TGRAN16,
+		       TGRAN16_IMPLEMENTED,
 		       FEAT_ENABLE_ALL_WORLDS)
 
 __attribute__((always_inline))
 static inline bool is_feat_tgran64K_present(void)
 {
-	unsigned int tgranx = ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN64_SHIFT, ID_REG_FIELD_MASK);
+	unsigned int tgranx = (unsigned int)EXTRACT(ID_AA64MMFR0_EL1_TGRAN64,
+						    read_id_aa64mmfr0_el1());
 	return (tgranx < 8U);
 }
 
-_CREATE_FEATURE_PRESENT(feat_pmuv3, id_aa64dfr0_el1, ID_AA64DFR0_PMUVER_SHIFT,
-		      ID_AA64DFR0_PMUVER_MASK, 1U)
+_CREATE_FEATURE_PRESENT(feat_pmuv3, id_aa64dfr0_el1, ID_AA64DFR0_PMUVER, 1U)
 
-CREATE_PERCPU_FEATURE_FUNCS(feat_mtpmu, id_aa64dfr0_el1, ID_AA64DFR0_MTPMU_SHIFT,
-			   ID_AA64DFR0_MTPMU_MASK, MTPMU_IMPLEMENTED, DISABLE_MTPMU,
+CREATE_PERCPU_FEATURE_FUNCS(feat_mtpmu, id_aa64dfr0_el1, ID_AA64DFR0_MTPMU,
+			   MTPMU_IMPLEMENTED, DISABLE_MTPMU,
 			   FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_gcie, id_aa64pfr2_el1, ID_AA64PFR2_EL1_GCIE_SHIFT,
-		     ID_AA64PFR2_EL1_GCIE_MASK, 1U, ENABLE_FEAT_GCIE,
+CREATE_FEATURE_FUNCS(feat_gcie, id_aa64pfr2_el1, ID_AA64PFR2_EL1_GCIE,
+		     1U, ENABLE_FEAT_GCIE,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_cpa2, id_aa64isar3_el1, ID_AA64ISAR3_EL1_CPA_SHIFT,
-		     ID_AA64ISAR3_EL1_CPA_MASK, CPA2_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_cpa2, id_aa64isar3_el1, ID_AA64ISAR3_EL1_CPA,
+		     CPA2_IMPLEMENTED,
 		     ENABLE_FEAT_CPA2, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_uinj, id_aa64pfr2_el1, ID_AA64PFR2_EL1_UINJ_SHIFT,
-		     ID_AA64PFR2_EL1_UINJ_MASK, UINJ_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_uinj, id_aa64pfr2_el1, ID_AA64PFR2_EL1_UINJ,
+		     UINJ_IMPLEMENTED,
 		     ENABLE_FEAT_UINJ, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_morello, id_aa64pfr1_el1, ID_AA64PFR1_EL1_CE_SHIFT,
-		     ID_AA64PFR1_EL1_CE_MASK, MORELLO_EXTENSION_IMPLEMENTED,
-			 ENABLE_FEAT_MORELLO, FEAT_ENABLE_ALL_WORLDS)
+CREATE_FEATURE_FUNCS(feat_morello, id_aa64pfr1_el1, ID_AA64PFR1_EL1_CE,
+		     MORELLO_EXTENSION_IMPLEMENTED,
+		     ENABLE_FEAT_MORELLO, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_step2, id_aa64dfr2_el1, ID_AA64DFR2_STEP_SHIFT,
-		     ID_AA64DFR2_STEP_MASK, 1U, ENABLE_FEAT_STEP2,
+CREATE_FEATURE_FUNCS(feat_step2, id_aa64dfr2_el1, ID_AA64DFR2_STEP,
+		     1U, ENABLE_FEAT_STEP2,
 		     FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_hdbss, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HAFDBS_SHIFT,
-		     ID_AA64MMFR1_EL1_HAFDBS_MASK, HDBSS_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_hdbss, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HAFDBS,
+		     HDBSS_IMPLEMENTED,
 		     ENABLE_FEAT_HDBSS, FEAT_ENABLE_NS)
 
-CREATE_FEATURE_FUNCS(feat_hacdbs, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_HACDBS_SHIFT,
-		     ID_AA64MMFR4_EL1_HACDBS_MASK, HACDBS_IMPLEMENTED,
+CREATE_FEATURE_FUNCS(feat_hacdbs, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_HACDBS,
+		     HACDBS_IMPLEMENTED,
 		     ENABLE_FEAT_HACDBS, FEAT_ENABLE_NS)
 
 #endif /* ARCH_FEATURES_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -202,8 +202,7 @@ void cm_prepare_el3_exit(size_t security_state)
 
 			write_scr(read_scr() & ~SCR_NS_BIT);
 			isb();
-		} else if ((read_id_pfr1() &
-			(ID_PFR1_VIRTEXT_MASK << ID_PFR1_VIRTEXT_SHIFT)) != 0U) {
+		} else if (GET_VIRT_EXT(read_id_pfr1()) != 0U) {
 			el2_unused = true;
 
 			/*
