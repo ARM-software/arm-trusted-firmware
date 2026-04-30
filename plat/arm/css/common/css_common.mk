@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -95,3 +95,9 @@ $(eval $(call add_define,CSS_NON_SECURE_UART))
 # sequence in which only the CPUs are power cycled.
 CSS_SYSTEM_GRACEFUL_RESET	:= 0
 $(eval $(call add_define,CSS_SYSTEM_GRACEFUL_RESET))
+
+# Process CSS_ERRATA_SME_POWER_DOWN flag
+# This build option should be used when a core that cannot power down without
+# first disconnecting its CME unit is in use
+CSS_ERRATA_SME_POWER_DOWN	:= 0
+$(eval $(call add_define,CSS_ERRATA_SME_POWER_DOWN))

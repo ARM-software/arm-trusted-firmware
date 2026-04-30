@@ -246,28 +246,6 @@ void __no_pauth bl31_warmboot(void)
 	detect_arch_features(core_pos);
 #endif /* FEATURE_DETECTION */
 
-	/*
-	 * We're about to enable MMU and participate in PSCI state coordination.
-	 *
-	 * The PSCI implementation invokes platform routines that enable CPUs to
-	 * participate in coherency. On a system where CPUs are not
-	 * cache-coherent without appropriate platform specific programming,
-	 * having caches enabled until such time might lead to coherency issues
-	 * (resulting from stale data getting speculatively fetched, among
-	 * others). Therefore we keep data caches disabled even after enabling
-	 * the MMU for such platforms.
-	 *
-	 * On systems with hardware-assisted coherency, or on single cluster
-	 * platforms, such platform specific programming is not required to
-	 * enter coherency (as CPUs already are); and there's no reason to have
-	 * caches disabled either.
-	 */
-#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
-	bl31_plat_enable_mmu(0);
-#else
-	bl31_plat_enable_mmu(DISABLE_DCACHE);
-#endif
-
 	/* Init registers that never change for the lifetime of the core. */
 	cm_manage_extensions_el3(core_pos);
 

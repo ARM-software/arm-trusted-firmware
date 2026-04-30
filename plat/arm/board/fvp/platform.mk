@@ -249,7 +249,6 @@ endif
 
 #Build AArch64-only CPUs with no FVP model yet.
 ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
-	ERRATA_SME_POWER_DOWN := 1
 	FVP_CPU_LIBS    +=	lib/cpus/aarch64/c1_pro.S		\
 				lib/cpus/aarch64/c1_nano.S		\
 				lib/cpus/aarch64/c1_ultra.S		\

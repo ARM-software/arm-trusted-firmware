@@ -128,7 +128,7 @@ endif
 ifeq (${TARGET_PLATFORM}, 4)
 
 # prevent CME related wakups
-ERRATA_SME_POWER_DOWN := 1
+CSS_ERRATA_SME_POWER_DOWN := 1
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/c1_pro.S \
 			lib/cpus/aarch64/c1_nano.S \
 			lib/cpus/aarch64/c1_ultra.S

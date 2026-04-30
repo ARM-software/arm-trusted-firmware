@@ -133,6 +133,12 @@ Arm CSS Platform-Specific Build Options
    require all the CPUs to execute the CPU specific power down sequence to
    complete a warm reboot sequence in which only the CPUs are power cycled.
 
+- ``CSS_ERRATA_SME_POWER_DOWN``: Boolean option to disconnect the SME unit
+   (PSTATE.{ZA,SM}=0) before power down and downgrade a suspend to power down
+   request to a normal suspend request. This is necessary when software running
+   at lower ELs requests power down without first clearing these bits. On
+   affected cores, the CME connected to it will reject its power down request.
+
 Arm FVP Build Options
 ---------------------
 
@@ -167,4 +173,4 @@ Arm Neoverse RD Platform Build Options
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png
 
-*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2026, Arm Limited. All rights reserved.*

@@ -23,10 +23,6 @@
 #error "Arm C1-Ultra supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if ERRATA_SME_POWER_DOWN == 0
-#error "Arm C1-Ultra needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
-#endif
-
 cpu_reset_prologue c1_ultra
 
 workaround_runtime_start c1_ultra, ERRATUM(3324333), ERRATA_C1ULTRA_3324333
@@ -151,6 +147,16 @@ cpu_reset_func_start c1_ultra
 cpu_reset_func_end c1_ultra
 
 func c1_ultra_core_pwr_dwn
+	/*
+	 * When software running at lower ELs requests power down without first
+	 * disabling SME, the CME connected to it will reject its power down
+	 * request. Skip setting the PWRDN_EN bit, downgrading the powerdown
+	 * request to a simple WFI wait, to get a minimal amount of power saving
+	 * rather than an instant pabandon.
+	 */
+	mrs	x0, SVCR
+	cbnz	x0, c1_ultra_skip_pwr_dwn
+
 	/* ---------------------------------------------------
 	 * Flip CPU power down bit in power control register.
 	 * It will be set on powerdown and cleared on wakeup
@@ -159,6 +165,7 @@ func c1_ultra_core_pwr_dwn
 	sysreg_bit_toggle C1_ULTRA_IMP_CPUPWRCTLR_EL1, \
 		C1_ULTRA_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
+c1_ultra_skip_pwr_dwn:
 	signal_pabandon_handled
 	ret
 endfunc c1_ultra_core_pwr_dwn
