@@ -599,18 +599,8 @@ static inline bool is_feat_tgran64K_present(void)
 _CREATE_FEATURE_PRESENT(feat_pmuv3, id_aa64dfr0_el1, ID_AA64DFR0_PMUVER_SHIFT,
 		      ID_AA64DFR0_PMUVER_MASK, 1U)
 
-__attribute__((always_inline))
-static inline bool is_feat_mtpmu_present(void)
-{
-	unsigned int mtpmu = ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU_SHIFT,
-					   ID_AA64DFR0_MTPMU_MASK);
-	return (mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED);
-}
-
-CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
-
-CREATE_PERCPU_IDREG_UPDATE(feat_mtpmu, id_aa64dfr0_el1, ID_AA64DFR0_MTPMU_SHIFT,
-			   ID_AA64DFR0_MTPMU_MASK, DISABLE_MTPMU,
+CREATE_PERCPU_FEATURE_FUNCS(feat_mtpmu, id_aa64dfr0_el1, ID_AA64DFR0_MTPMU_SHIFT,
+			   ID_AA64DFR0_MTPMU_MASK, MTPMU_IMPLEMENTED, DISABLE_MTPMU,
 			   FEAT_ENABLE_ALL_WORLDS)
 
 CREATE_FEATURE_FUNCS(feat_gcie, id_aa64pfr2_el1, ID_AA64PFR2_EL1_GCIE_SHIFT,

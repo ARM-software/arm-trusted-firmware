@@ -78,14 +78,8 @@ CREATE_FEATURE_PRESENT(feat_ssbs, id_pfr2, ID_PFR2_SSBS_SHIFT,
 CREATE_FEATURE_PRESENT(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON_SHIFT,
 		      ID_DFR0_PERFMON_MASK, 3U)
 
-__attribute__((always_inline))
-static inline bool is_feat_mtpmu_present(void)
-{
-	unsigned int mtpmu = ISOLATE_FIELD(read_id_dfr1(), ID_DFR1_MTPMU_SHIFT,
-			    ID_DFR1_MTPMU_MASK);
-	return (mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED);
-}
-CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
+CREATE_FEATURE_FUNCS(feat_mtpmu, id_dfr1, ID_DFR1_MTPMU_SHIFT,
+		    ID_DFR1_MTPMU_MASK, 1U, DISABLE_MTPMU)
 
 /*
  * These features are only used by AArch64 code, so just disable these features
