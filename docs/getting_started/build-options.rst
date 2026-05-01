@@ -1314,6 +1314,12 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
    The default is 2 but is automatically disabled when the target architecture
    is AArch32.
 
+-  ``ENABLE_FEAT_SPEV1P5``: Numeric value to enable ``FEAT_SPEv1p5`` related
+   Features (``FEAT_SPE_EXC`` and ``FEAT_SPE_nVM``) support and requires
+   ``ENABLE_SPE_FOR_NS`` to be enabled. This is an optional architectural feature
+   for AArch64. This flag can take the values 0 to 2, to align with the
+   ``ENABLE_FEAT`` mechanism. The default is ``0``.
+
 -  ``ENABLE_SVE_FOR_NS``: Enables Scalable Vector Extension
    (SVE) for the Non-secure world only. SVE is an optional architectural feature
    for AArch64. At this time, this build option cannot be used on systems that

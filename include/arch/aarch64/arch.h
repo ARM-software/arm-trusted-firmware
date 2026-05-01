@@ -328,6 +328,10 @@
 /* ID_AA64DFR2_EL1 definitions */
 #define ID_AA64DFR2_STEP_SHIFT		U(0)
 #define ID_AA64DFR2_STEP_WIDTH		U(4)
+#define ID_AA64DFR2_SPE_EXC_SHIFT	U(16)
+#define ID_AA64DFR2_SPE_EXC_WIDTH	U(4)
+#define ID_AA64DFR2_SPE_NVM_SHIFT	U(20)
+#define ID_AA64DFR2_SPE_NVM_WIDTH	U(4)
 
 #define ID_AA64ZFR0_EL1			S3_0_C0_C4_4
 #define ID_AA64FPFR0_EL1		S3_0_C0_C4_7
@@ -793,6 +797,9 @@
 #define SCR_RESET_VAL		SCR_RES1_BITS
 
 /* MDCR_EL3 definitions */
+#define MDCR_EnPMS4_BIT		(ULL(1) << 55)
+#define MDCR_PMSEE_EL3_BIT	(ULL(1) << 52)
+#define MDCR_PMSEE_EN_BIT	(ULL(1) << 51)
 #define MDCR_EnSTEPOP_BIT	(ULL(1) << 50)
 #define MDCR_EBWE_BIT		(ULL(1) << 43)
 #define MDCR_EnPMS3_BIT		(ULL(1) << 42)

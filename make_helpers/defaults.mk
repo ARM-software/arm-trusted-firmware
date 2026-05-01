@@ -821,6 +821,9 @@ ENABLE_FEAT_HDBSS			?=	0
 # Flag to enable Hardening Address and Context Debug Banked State (FEAT_HACDBS).
 ENABLE_FEAT_HACDBS			?=	0
 
+# Flag to enable SPEv1p5 support (FEAT_SPE_EXC and FEAT_SPE_nVM)
+ENABLE_FEAT_SPEV1P5			?=	0
+
 #----
 #9.6
 #----

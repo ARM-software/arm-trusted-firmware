@@ -241,6 +241,13 @@ void detect_arch_features(unsigned int core_pos)
 	tainted |= check_feature(ENABLE_FEAT_HACDBS, read_feat_hacdbs_id_field(),
 				 "HACDBS", 1, 1);
 
+	/* v9.5 features */
+	/* FEAT_SPEv1p5 is a shorthand for FEAT_SPE_EXC and FEAT_SPE_nVM */
+	tainted |= check_feature(ENABLE_FEAT_SPEV1P5, read_feat_spe_exc_id_field(),
+				 "SPE_EXC", 1, 1);
+	tainted |= check_feature(ENABLE_FEAT_SPEV1P5, read_feat_spe_nvm_id_field(),
+				 "SPE_nVM", 1, 1);
+
 	/* Morello Arch feature */
 	tainted |= check_feature(ENABLE_FEAT_MORELLO, read_feat_morello_id_field(),
 				 "MORELLO_ARCH", 1, 1);

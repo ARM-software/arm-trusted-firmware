@@ -92,11 +92,11 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +=======================+========+
 | FEAT_PMUv3_EXTPMN     |   NA   |
 +-----------------------+--------+
-| FEAT_SPEv1p5          |   NA   |
+| FEAT_SPEv1p5          |   OK   |
 +-----------------------+--------+
-| FEAT_SPE_EXC          |        |
+| FEAT_SPE_EXC          |   OK   |
 +-----------------------+--------+
-| FEAT_SPE_nVM          |        |
+| FEAT_SPE_nVM          |   OK   |
 +-----------------------+--------+
 | FEAT_TRBEv1p1         |   NA   |
 +-----------------------+--------+

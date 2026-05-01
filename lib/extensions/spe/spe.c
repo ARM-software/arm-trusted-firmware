@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,6 +44,11 @@
  */
 
 /*
+ * MDCR_EL3.EnPMS4 (FEAT_SPE_nVM): Delegate PMBMAR_EL1 accesses to lower ELs.
+ *
+ * MDCR_EL3.PMSEE (FEAT_SPE_EXC): Delegate SPE profiling exception control to
+ * lower ELs.
+ *
  * MDCR_EL3.EnPMSN (ARM v8.7) and MDCR_EL3.EnPMS3: Do not trap access to
  * PMSNEVFR_EL1 or PMSDSFR_EL1 register at NS-EL1 or NS-EL2 to EL3 if
  * FEAT_SPEv1p2 or FEAT_SPE_FDS are implemented. Setting these bits to 1 doesn't
@@ -57,10 +62,23 @@ void spe_enable_ns(cpu_context_t *ctx)
 	mdcr_el3_val |= MDCR_NSPB_EN_BIT | MDCR_NSPB_SS_BIT | MDCR_EnPMSN_BIT | MDCR_EnPMS3_BIT;
 	mdcr_el3_val &= ~(MDCR_NSPBE_BIT);
 
+	if (is_feat_spe_nvm_supported()) {
+		mdcr_el3_val |= MDCR_EnPMS4_BIT;
+	}
+
+	if (is_feat_spe_exc_supported()) {
+		mdcr_el3_val |= MDCR_PMSEE_EN_BIT;
+		mdcr_el3_val &= ~MDCR_PMSEE_EL3_BIT;
+	}
+
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
 /*
+ * MDCR_EL3.PMSEE (FEAT_SPE_EXC): Disable SPE profiling exceptions everywhere.
+ *
+ * MDCR_EL3.EnPMS4 (FEAT_SPE_nVM): Delegate PMBMAR_EL1 accesses to lower ELs.
+ *
  * MDCR_EL3.EnPMSN (ARM v8.7) and MDCR_EL3.EnPMS3: Clear the bits to trap access
  * of PMSNEVFR_EL1 and PMSDSFR_EL1 from EL2/EL1 to EL3.
  */
@@ -72,6 +90,16 @@ static void spe_disable_others(cpu_context_t *ctx)
 	mdcr_el3_val |= MDCR_NSPB_SS_BIT;
 	mdcr_el3_val &= ~(MDCR_NSPB_EN_BIT | MDCR_NSPBE_BIT | MDCR_EnPMSN_BIT |
 			  MDCR_EnPMS3_BIT);
+
+	if (is_feat_spe_nvm_supported()) {
+		mdcr_el3_val &= ~MDCR_EnPMS4_BIT;
+	}
+
+	if (is_feat_spe_exc_supported()) {
+		mdcr_el3_val &= ~MDCR_PMSEE_EN_BIT;
+		mdcr_el3_val &= ~MDCR_PMSEE_EL3_BIT;
+	}
+
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 

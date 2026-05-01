@@ -77,6 +77,7 @@ endif
       ENABLE_FEAT_STEP2			:= 2
       ENABLE_FEAT_HDBSS			:= 2
       ENABLE_FEAT_HACDBS		:= 2
+      ENABLE_FEAT_SPEV1P5		:= 2
 endif
 
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
