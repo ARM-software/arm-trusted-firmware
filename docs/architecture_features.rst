@@ -496,7 +496,8 @@ c) EL3 wants to hide a feature from lower ELs (eg. with ``FEAT_IDTE3``)
 The following is a checklist with guidance on what to do to add a new feature,
 in this case a fictional ``FEAT_ABC``. This is not an exhaustive list on how to
 do this, so please consult with previous such patches and/or maintainers. Please
-consult the Arm ARM on any specifics about the feature itself.
+consult the Arm ARM on any specifics about the feature itself. You can speed
+this process up by using the ``new-cpu-feature`` agent skill.
 
 - Add a feature flag to the build system.
 

@@ -1601,3 +1601,6 @@ subsections:
 
       - title: zlib
         scope: zlib
+
+  - title: LLM assistant tools
+    scope: llm
