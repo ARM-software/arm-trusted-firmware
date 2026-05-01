@@ -3,6 +3,76 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.1..refs/tags/lts-v2.14.2) (2026-05-01)
+
+### ⚠ BREAKING CHANGES
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - make ERRATA_SME_POWER_DOWN work with the recommended state ID
+
+      **See:** make ERRATA_SME_POWER_DOWN work with the recommended state ID ([f9ffe73](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9ffe7376b52949d00b873fdb1b5fe195909c578))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Marvell**
+
+    - provide a default compile target ([9b826e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9b826e32ec2c542edd8f3589a5d729bb4a215cc5))
+
+    - **Armada**
+
+      - **A8K**
+
+        - declare amb_memory_map as an array ([0aa0ce2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0aa0ce254657c344d9582b148414823db9184493))
+        - mv_ddr path may not be a git repo ([066df9b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/066df9b9f33e6bc626f49aa5d7856c6b349ae3d0))
+
+- **Bootloader Images**
+
+  - **BL31**
+
+    - don't enable D-cache inside a function call ([6fae5e0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6fae5e0d8f6391746ab0c53db6298682d0ec1997))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - correct comments for Cortex-A720 erratum 3711910 ([28c3ea6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/28c3ea689568d4bba0cf219cc488877b99953846))
+    - make ERRATA_SME_POWER_DOWN work with the recommended state ID ([f9ffe73](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9ffe7376b52949d00b873fdb1b5fe195909c578))
+    - only turn off CME when it is present ([0d738b1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0d738b1c42162d89c6245437bcca01cc602a83c0))
+    - reorder docs for Cortex-A76 erratum 1165522 ([43955a7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/43955a721951f152b9d4a31644e9e19564649d63))
+    - update revisions for Cortex-A76 erratum 1946160 ([64d88b6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/64d88b6e27dac4495c79a49436217ad028f9bfc3))
+    - use correct workaround for erratum N1 3324349 ([0951a6b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0951a6b1b78e7429b6b6780ce4fa88d62aed878d))
+    - use hint instruction instead of the psb mnemonic ([ae42269](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ae42269b98803948d8a9da041dc0bf74fac540bf))
+    - workaround for Cortex-A76 erratum 1165347 ([b91506b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b91506b4fbbdedc20f316616df68ab5c5b277b9d))
+    - workaround for Cortex-A76 erratum 1207823 ([ea33aca](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ea33aca150495d9fb5e7b3e8bf5ebb0e78dbb4a1))
+
+  - **PSCI**
+
+    - get the cpu_ops before exiting coherency ([0b29e2c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0b29e2c4fccd3fa2c57eb2bebe913d2ecde3365c))
+    - make sure CMOs on `struct psci_cpu_data` do not affect other data ([81844f5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81844f5a8ec1c4c526e64c5f63d5d2cef78b31eb))
+
+- **Drivers**
+
+  - **Renesas**
+
+    - **R-Car3**
+
+      - load B-copy SA6 certificate from correct offset ([3f76fba](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3f76fba3155cd9470cbeea07d0e873334ce71f1a))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - avoid CVE_2025_0647 for bl2 build ([e3de7b0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e3de7b0ea248516a473547d7e755e05bb5905431))
+
+- **Documentation**
+
+  - use publicly accessible links for CVE-2023-49100 Advisory ([f0bf37e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f0bf37eabd56e980bc9e50ae5b174cf35c06f8ed))
+
 ## [lts-2.14.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.0..refs/tags/lts-v2.14.1) (2026-02-06)
 
 ### Resolved Issues
