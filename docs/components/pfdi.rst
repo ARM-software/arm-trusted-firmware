@@ -170,7 +170,10 @@ To enable PFDI on a platform:
 4. Provide one ``REGISTER_PFDI_FUNC()`` instance with working ``run()``,
    ``count()`` and ``result()`` callbacks.
 5. If OoR tests must run when a secondary PE is powered on through a
-   platform-specific path, implement ``pfdi_enable()``.
+   platform-specific path, implement ``pfdi_enable()`` and
+   ``plat_pfdi_mpidr_by_core_pos()``. The latter maps the linear core position
+   to the MPIDR expected by the platform's PSCI ``pwr_domain_on()`` callback,
+   and returns ``INVALID_MPID`` for an invalid position.
 6. Optionally provide ``struct plat_pfdi_func_desc`` when platform-specific
    error injection, validation, or post-run processing is needed.
 

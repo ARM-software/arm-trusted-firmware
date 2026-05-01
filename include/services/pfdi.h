@@ -320,6 +320,19 @@ int64_t pfdi_consume_force_error(uint32_t fid);
 pfdi_status_t pfdi_pe_force_error_validate(uint32_t fid, int64_t error_id);
 
 /**
+ * Return the MPIDR corresponding to a linear core position.
+ *
+ * Platforms that run PFDI OoR tests on secondary PEs must implement this
+ * mapping according to their power-domain topology.
+ *
+ * @param[in] core_pos		Linear core position.
+ *
+ * @return			The corresponding MPIDR, or `INVALID_MPID` if the
+ *				core position is invalid.
+ */
+u_register_t plat_pfdi_mpidr_by_core_pos(unsigned int core_pos);
+
+/**
  * Macro to register a callback with pfdi library.
  *
  * This macro defines and registers a PFDI function descriptor.
