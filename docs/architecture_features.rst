@@ -552,8 +552,14 @@ consult the Arm ARM on any specifics about the feature itself.
    ``test_smccc_arch_feature_availability`` test in TFTF, otherwise CI will
    fail.
 
- - If the feature comes with registers, those should be context switched if
-   enabling the feature for multiple worlds.
+ - If the feature comes with lower EL registers:
+
+   - those should be context switched if enabling the feature for multiple worlds.
+
+   - if these are EL2 control registers, consider their fields' reset values. If
+     they can reset to a value that would make a field active (like enabling a
+     trap), a safe inactive reset value should be added to
+     ``setup_el2_context()`` in ``lib/el3_runtime/aarch64/context_mgmt.c``.
 
  - Consider whether the feature introduces any potential side channels and how
    to close them.
