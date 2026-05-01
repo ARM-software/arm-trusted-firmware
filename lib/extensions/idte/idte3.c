@@ -60,7 +60,6 @@ void idte3_init_cached_idregs_per_world(size_t security_state)
 	update_feat_vhe_idreg_field(security_state);
 	update_feat_ttcnp_idreg_field(security_state);
 	update_feat_uao_idreg_field(security_state);
-	update_feat_pacqarma3_idreg_field(security_state);
 	update_feat_pauth_idreg_field(security_state);
 	update_feat_ttst_idreg_field(security_state);
 	update_feat_bti_idreg_field(security_state);

@@ -170,11 +170,14 @@ CREATE_FEATURE_PRESENT(feat_uao, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_UAO_SHIFT,
 			ID_AA64MMFR2_EL1_UAO_MASK, 1U,
 			FEAT_ENABLE_ALL_WORLDS)
 
-/* If any of the fields is not zero, QARMA3 algorithm is present */
-CREATE_FEATURE_PRESENT(feat_pacqarma3, id_aa64isar2_el1, 0,
-			((ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_SHIFT) |
-			(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT)), 1U,
-			FEAT_ENABLE_ALL_WORLDS)
+__attribute__((always_inline))
+static inline bool is_feat_pacqarma3_present(void)
+{
+	u_register_t isar2 = read_id_aa64isar2_el1();
+
+	return (EXTRACT(ID_AA64ISAR2_GPA3, isar2) |
+		EXTRACT(ID_AA64ISAR2_APA3, isar2)) != 0;
+}
 
 __attribute__((always_inline))
 static inline bool is_feat_pauth_present(void)
@@ -220,6 +223,7 @@ static inline void update_feat_pauth_idreg_field(size_t security_state)
 		(ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) |
 		(ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT);
 
+	/* FEAT_PACQARMA3 */
 	uint64_t mask_id_aa64isar2 =
 		(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_MASK) |
 		(ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_MASK);
