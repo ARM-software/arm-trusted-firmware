@@ -17,6 +17,12 @@ BL2_HDR_SRC_OFFSET ?= 0x5000
 bl2_hdr_loc=$(shell echo $$(( $(BL2_HDR_SRC_OFFSET) / 1024 )))
 bl2_loc=$(shell echo $$(( $(BL2_SRC_OFFSET) / 1024 )))
 
+# When BL2 is XIP'd from the boot-flash AHB window, the SP-side Block
+# Copy PBI command is redundant: bl2.bin is read live from flash for
+# instruction fetch. Pass -x to create_pbl to suppress the Block Copy
+# emission.
+CREATE_PBL_XIP_FLAG := $(if $(filter 1,$(BL2_IN_XIP_MEM)),-x,)
+
 .PHONY: pbl
 pbl:	${BUILD_PLAT}/bl2.bin
 ifeq ($(SECURE_BOOT),yes)
@@ -32,7 +38,7 @@ else
 
 	# Add Block Copy command for bl2.bin to RCW
 	${CREATE_PBL} -r ${RCW} -i ${BUILD_PLAT}/bl2.bin -b ${BOOT_MODE} -c ${SOC_NUM} -d ${BL2_BASE} -e ${BL2_BASE}\
-			-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -f ${BL2_SRC_OFFSET};\
+			-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -f ${BL2_SRC_OFFSET} ${CREATE_PBL_XIP_FLAG};\
 
 	# Add Block Copy command and Load CSF header command to RCW
 	${CREATE_PBL} -r ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -i ${BUILD_PLAT}/hdr_bl2 -b ${BOOT_MODE} -c ${SOC_NUM} \
@@ -61,7 +67,7 @@ else
 
 	# Add Block Copy command and populate boot loc ptrfor bl2.bin to RCW
 	${CREATE_PBL} -r ${RCW} -i ${BUILD_PLAT}/bl2.bin -b ${BOOT_MODE} -c ${SOC_NUM} -d ${BL2_BASE} -e ${BL2_BASE} \
-	-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -f ${BL2_SRC_OFFSET};
+	-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -f ${BL2_SRC_OFFSET} ${CREATE_PBL_XIP_FLAG};
 
 	# Append the bl2.bin to the RCW image
 	$(s)echo "bl2_loc is ${bl2_loc} KB"
