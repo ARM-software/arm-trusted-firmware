@@ -15,6 +15,13 @@
 #include <fspi_api.h>
 #include <xspi_error_codes.h>
 
+//#define LOG_DEBUG
+
+#ifndef LOG_DEBUG
+#undef  INFO
+#define INFO(...) ((void)0)
+#endif
+
 #ifdef DEBUG_FLEXSPI
 #define PR printf("In [%s][%d]\n", __func__, __LINE__)
 #define PRA(a, b) printf("In [%s][%d] %s="a"\n", __func__, __LINE__, #b, b)
