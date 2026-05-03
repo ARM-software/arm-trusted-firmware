@@ -42,6 +42,18 @@
 #define FSPI_BE_SEQ_ID			5U
 #define FSPI_FASTREAD_SEQ_ID		6U
 #define FSPI_4K_SEQ_ID			7U
+#define FSPI_RDID_SEQ_ID		8U
+#define FSPI_SFDP_SEQ_ID		9U
+#define FSPI_EN4B_SEQ_ID		10U
+#define FSPI_RDSR3_SEQ_ID		11U
+/* slots 12..15 reserved for vendor-specific helpers */
+
+/*
+ * Standard SPI NOR command bytes not already provided by fspi.h's
+ * upstream NOR command set.
+ */
+#define FSPI_NOR_CMD_EN4B		0xB7U
+#define FSPI_NOR_CMD_RDSR3		0x15U
 
 /*
  * LUT register layout:
@@ -110,6 +122,8 @@
 #define FSPI_NOR_CMD_BE			0x60
 #define FSPI_NOR_CMD_RDSR		0x05
 #define FSPI_NOR_CMD_WREN_STOP		0x04
+#define FSPI_NOR_CMD_RDID		0x9f
+#define FSPI_NOR_CMD_SFDP		0x5a
 
 #define FSPI_LUT_STOP			0x00
 #define FSPI_LUT_CMD			0x01

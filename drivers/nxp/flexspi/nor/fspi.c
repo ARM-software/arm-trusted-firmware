@@ -197,6 +197,100 @@ static void fspi_setup_LUT(void)
 	fspi_lock_LUT();
 }
 
+#if defined(NXP_XSPI_DIAG)
+/*
+ * Ensure FSPI SCK <= @max_sck_hz by programming
+ * FSPI_MCR0.SERCLKDIV accordingly.
+ *
+ * The FSPI root clock fed into the divider comes from the SoC's
+ * platform clock tree and is board-specific, so the caller passes
+ * it in as @fspi_root_hz. The divider value written to
+ * FSPI_MCR0[10:8] produces an SCK of
+ *     SCK = fspi_root_hz / (SERCLKDIV + 1)
+ * We pick the smallest SERCLKDIV that keeps SCK at or below
+ * @max_sck_hz, and only update SERCLKDIV if the current value is
+ * below that minimum (so a production RCW that already programmed a
+ * safe divider is not second-guessed).
+ *
+ * Per the LX2160A FlexSPI TRM, MCR0[10:8] may only be changed while
+ * the controller is disabled (MCR0.MDIS=1); this helper disables,
+ * patches, and re-enables accordingly.
+ *
+ * @param[in] fspi_root_hz  current FSPI root-clock frequency in Hz
+ * @param[in] max_sck_hz    desired maximum SCK in Hz
+ */
+void fspi_set_serclk_max_hz(uint64_t fspi_root_hz, uint64_t max_sck_hz)
+{
+	uint32_t min_div = 0U;
+	uint32_t cur_div;
+	uint32_t mcr0;
+
+	if ((max_sck_hz == 0U) || (fspi_root_hz == 0U)) {
+		return;
+	}
+
+	/* ceil(fspi_root_hz / max_sck_hz) - 1 gives the smallest
+	 * divider that keeps SCK <= max_sck_hz. Clamp to the 3-bit
+	 * field range [0..7].
+	 */
+	min_div = (uint32_t)((fspi_root_hz + max_sck_hz - 1ULL) /
+			     max_sck_hz);
+	if (min_div > 0U) {
+		min_div -= 1U;
+	}
+	if (min_div > 7U) {
+		min_div = 7U;
+	}
+
+	mcr0 = fspi_readl(FSPI_MCR0);
+	cur_div = (mcr0 & FSPI_MCR0_SERCLKDIV_MASK) >>
+		  FSPI_MCR0_SERCLKDIV_SHIFT;
+	if (cur_div >= min_div) {
+		NOTICE("fspi: SERCLKDIV already %u (divide by %u), leaving as-is\n",
+		       cur_div, cur_div + 1U);
+		return;
+	}
+
+	NOTICE("fspi: clamping SERCLKDIV %u -> %u (SCK <= %llu kHz)\n",
+	       cur_div, min_div,
+	       (unsigned long long)(max_sck_hz / 1000ULL));
+
+	/* MDIS=1, patch SERCLKDIV, MDIS=0 */
+	fspi_writel(FSPI_MCR0, mcr0 | FSPI_MCR0_MDIS);
+	mcr0 = fspi_readl(FSPI_MCR0);
+	mcr0 &= ~FSPI_MCR0_SERCLKDIV_MASK;
+	mcr0 |= (min_div << FSPI_MCR0_SERCLKDIV_SHIFT) &
+		FSPI_MCR0_SERCLKDIV_MASK;
+	mcr0 |= FSPI_MCR0_MDIS;
+	fspi_writel(FSPI_MCR0, mcr0);
+
+	mcr0 &= ~FSPI_MCR0_MDIS;
+	fspi_writel(FSPI_MCR0, mcr0);
+}
+
+/*
+ * Pretty-print the current FSPI clock tree for diagnostics.
+ *
+ * @param[in] fspi_root_hz  current FSPI root-clock frequency in Hz
+ *                          (caller computes this from its own
+ *                          platform clock knowledge).
+ */
+void fspi_print_speed(uint64_t fspi_root_hz)
+{
+	uint32_t mcr0 = fspi_readl(FSPI_MCR0);
+	uint32_t serclkdiv = (mcr0 & FSPI_MCR0_SERCLKDIV_MASK) >>
+			     FSPI_MCR0_SERCLKDIV_SHIFT;
+	uint64_t fspi_sck_hz = fspi_root_hz / (uint64_t)(serclkdiv + 1U);
+
+	NOTICE("fspi: FSPI_MCR0 = 0x%08x, SERCLKDIV = %u (divide by %u)\n",
+	       mcr0, serclkdiv, serclkdiv + 1U);
+	NOTICE("fspi: FSPI root = %llu MHz, SCK = %llu.%02llu MHz\n",
+	       (unsigned long long)(fspi_root_hz / 1000000ULL),
+	       (unsigned long long)(fspi_sck_hz / 1000000ULL),
+	       (unsigned long long)((fspi_sck_hz / 10000ULL) % 100ULL));
+}
+#endif /* NXP_XSPI_DIAG */
+
 static inline void fspi_ahb_invalidate(void)
 {
 	uint32_t reg;
@@ -600,6 +694,350 @@ int xspi_wren(uint32_t pc_wr_addr)
 	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
 	return XSPI_SUCCESS;
 }
+
+#if defined(NXP_XSPI_DIAG)
+int xspi_read_id(uint8_t *id, uint32_t len)
+{
+	uint32_t lut_addr = FSPI_LUTREG_OFFSET +
+			    (uint32_t)(0x10 * FSPI_RDID_SEQ_ID);
+	uint32_t instr0, intr;
+	uint32_t i;
+
+	if ((id == NULL) || (len == 0U) || (len > 8U)) {
+		return -XSPI_READ_FAIL;
+	}
+
+	/*
+	 * RDID (0x9F) is a command-only, no-address SPI transaction that
+	 * returns up to 20 ID bytes (JEDEC manufacturer, memory type,
+	 * memory capacity, + extended). We program one dedicated LUT slot
+	 * so that inserting this call into the boot path does not disturb
+	 * the core READ / WREN / WRITE / SE / RDSR / BE / FASTREAD / 4K
+	 * sequences installed by fspi_setup_LUT().
+	 */
+	fspi_unlock_LUT();
+
+	instr0 = FSPI_INSTR_OPRND0(FSPI_NOR_CMD_RDID)
+	       | FSPI_INSTR_PAD0(FSPI_LUT_PAD1)
+	       | FSPI_INSTR_OPCODE0(FSPI_LUT_CMD)
+	       | FSPI_INSTR_OPRND1(len)
+	       | FSPI_INSTR_PAD1(FSPI_LUT_PAD1)
+	       | FSPI_INSTR_OPCODE1(FSPI_LUT_READ);
+
+	fspi_writel(lut_addr,        instr0);
+	fspi_writel(lut_addr + 0x4U, 0U);	/* STOP */
+	fspi_writel(lut_addr + 0x8U, 0U);
+	fspi_writel(lut_addr + 0xCU, 0U);
+
+	fspi_lock_LUT();
+
+	/* Drain any stale RX FIFO / IPCMDDONE state. */
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	/* IPCR0 address phase is ignored for RDID but must be a valid
+	 * in-device offset; use 0.
+	 */
+	fspi_writel(FSPI_IPCR0, 0U);
+	fspi_writel(FSPI_IPCR1,
+		    ((uint32_t)FSPI_RDID_SEQ_ID << FSPI_IPCR1_ISEQID_SHIFT) |
+		    len);
+	fspi_writel(FSPI_IPCMD, FSPI_IPCMD_TRG_MASK);
+
+	while ((fspi_readl(FSPI_INTR) & FSPI_INTR_IPCMDDONE_MASK) == 0U)
+		;
+
+	intr = fspi_readl(FSPI_INTR);
+	if (((intr & FSPI_INTR_IPCMDGE) != 0U) ||
+	    ((intr & FSPI_INTR_IPCMDERR) != 0U)) {
+		fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+		fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+		ERROR("%s: IP error INTR=0x%x\n", __func__, intr);
+		return -XSPI_READ_FAIL;
+	}
+
+	/*
+	 * Up to 8 bytes fit in RFDR[0..1]; longer reads would need the
+	 * watermark path (FSPI_INTR_IPRXWA), so len is capped at 8
+	 * above to keep this helper short.
+	 */
+	for (i = 0U; i < len; i += 4U) {
+		uint32_t data = fspi_readl(FSPI_RFDR + i);
+		uint32_t chunk = ((len - i) > 4U) ? 4U : (len - i);
+
+		(void)memcpy(id + i, &data, chunk);
+	}
+
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+	return XSPI_SUCCESS;
+}
+
+int xspi_read_sfdp(uint32_t sfdp_off, uint8_t *buf, uint32_t len)
+{
+	uint32_t lut_addr = FSPI_LUTREG_OFFSET +
+			    (uint32_t)(0x10 * FSPI_SFDP_SEQ_ID);
+	uint32_t instr0, instr1;
+	uint32_t intr;
+	const uint32_t x_size_wm = 8U;
+	uint32_t x_iteration, x_rem;
+	uint32_t i, j;
+
+	if ((buf == NULL) || (len == 0U) || (len > FSPI_RX_IPBUF_SIZE)) {
+		return -XSPI_READ_FAIL;
+	}
+
+	/*
+	 * SFDP (JEDEC JESD216) is defined as: CMD 0x5A, 3-byte address,
+	 * 8 dummy cycles, read N bytes. The 3-byte address and 8-dummy
+	 * framing are fixed by the spec regardless of whether the main
+	 * memory array is in 4-byte address mode; SFDP always uses
+	 * legacy 24-bit addressing.
+	 *
+	 * LUT layout for slot FSPI_SFDP_SEQ_ID:
+	 *   DWORD0: CMD(0x5A)/PAD1 | ADDR(24-bit)/PAD1
+	 *   DWORD1: DUMMY(8)/PAD1  | READ(len via IPCR1)/PAD1
+	 *   DWORD2/3: STOP
+	 */
+	fspi_unlock_LUT();
+
+	instr0 = FSPI_INSTR_OPRND0(FSPI_NOR_CMD_SFDP)
+	       | FSPI_INSTR_PAD0(FSPI_LUT_PAD1)
+	       | FSPI_INSTR_OPCODE0(FSPI_LUT_CMD)
+	       | FSPI_INSTR_OPRND1(FSPI_LUT_ADDR24BIT)
+	       | FSPI_INSTR_PAD1(FSPI_LUT_PAD1)
+	       | FSPI_INSTR_OPCODE1(FSPI_LUT_ADDR);
+
+	instr1 = FSPI_INSTR_OPRND0(8U)
+	       | FSPI_INSTR_PAD0(FSPI_LUT_PAD1)
+	       | FSPI_INSTR_OPCODE0(FSPI_DUMMY_SDR)
+	       | FSPI_INSTR_OPRND1(0U)
+	       | FSPI_INSTR_PAD1(FSPI_LUT_PAD1)
+	       | FSPI_INSTR_OPCODE1(FSPI_LUT_READ);
+
+	fspi_writel(lut_addr,        instr0);
+	fspi_writel(lut_addr + 0x4U, instr1);
+	fspi_writel(lut_addr + 0x8U, 0U);
+	fspi_writel(lut_addr + 0xCU, 0U);
+
+	fspi_lock_LUT();
+
+	/* Drain stale RX FIFO / pending IP events. */
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK | FSPI_INTR_IPRXWA);
+
+	fspi_writel(FSPI_IPCR0, sfdp_off);
+	fspi_writel(FSPI_IPCR1,
+		    ((uint32_t)FSPI_SFDP_SEQ_ID << FSPI_IPCR1_ISEQID_SHIFT) |
+		    len);
+	fspi_writel(FSPI_IPCMD, FSPI_IPCMD_TRG_MASK);
+
+	/*
+	 * RX drain: n iterations of 8 bytes via the watermark interrupt,
+	 * then any remaining <8-byte tail read directly from the FIFO
+	 * fill register. Mirrors xspi_ip_read() precisely.
+	 */
+	x_iteration = len / x_size_wm;
+	for (i = 0U; i < x_iteration; i++) {
+		while ((fspi_readl(FSPI_INTR) & FSPI_INTR_IPRXWA_MASK) == 0U)
+			;
+		for (j = 0U; j < x_size_wm; j += 4U) {
+			uint32_t data = fspi_readl(FSPI_RFDR + j);
+			uint32_t chunk = ((x_size_wm - j) > 4U) ?
+					 4U : (x_size_wm - j);
+
+			(void)memcpy(buf + (i * x_size_wm) + j,
+				     &data, chunk);
+		}
+		fspi_writel(FSPI_INTR, FSPI_INTR_IPRXWA);
+	}
+
+	x_rem = len % x_size_wm;
+	if (x_rem != 0U) {
+		while ((fspi_readl(FSPI_IPRXFSTS) &
+			FSPI_IPRXFSTS_FILL_MASK) == 0U)
+			;
+		j = 0U;
+		while (x_rem > 0U) {
+			uint32_t data = fspi_readl(FSPI_RFDR + j);
+			uint32_t chunk = (x_rem < 4U) ? x_rem : 4U;
+
+			(void)memcpy(buf + (x_iteration * x_size_wm) + j,
+				     &data, chunk);
+			x_rem -= chunk;
+			j += 4U;
+		}
+	}
+
+	while ((fspi_readl(FSPI_INTR) & FSPI_INTR_IPCMDDONE_MASK) == 0U)
+		;
+
+	intr = fspi_readl(FSPI_INTR);
+	if (((intr & FSPI_INTR_IPCMDGE) != 0U) ||
+	    ((intr & FSPI_INTR_IPCMDERR) != 0U)) {
+		fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+		fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+		ERROR("%s: IP error INTR=0x%x\n", __func__, intr);
+		return -XSPI_READ_FAIL;
+	}
+
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+	return XSPI_SUCCESS;
+}
+
+/*
+ * Issue EN4B (0xB7), a command-only no-address no-data SPI
+ * transaction, so the chip switches to 32-bit address mode.
+ * Required on flashes whose ADP (Address-mode Power-up) bit is 0
+ * (powers up in 3-byte mode) when the host driver emits 4-byte
+ * address opcodes for >16 MiB devices; without it a sector-erase
+ * or page-program is silently mis-targeted.
+ *
+ * Installs a one-shot LUT at FSPI_EN4B_SEQ_ID and triggers it
+ * through the IP-command path. Returns XSPI_SUCCESS on success, a
+ * negative error code otherwise.
+ */
+int fspi_enter_4byte_mode(void)
+{
+	uint32_t lut_addr = FSPI_LUTREG_OFFSET +
+			    (uint32_t)(0x10 * FSPI_EN4B_SEQ_ID);
+	uint32_t intr;
+
+	fspi_unlock_LUT();
+	fspi_writel(lut_addr,
+		    FSPI_INSTR_OPRND0(FSPI_NOR_CMD_EN4B)
+		    | FSPI_INSTR_PAD0(FSPI_LUT_PAD1)
+		    | FSPI_INSTR_OPCODE0(FSPI_LUT_CMD));
+	fspi_writel(lut_addr + 0x4U, 0U);
+	fspi_writel(lut_addr + 0x8U, 0U);
+	fspi_writel(lut_addr + 0xCU, 0U);
+	fspi_lock_LUT();
+
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	fspi_writel(FSPI_IPCR0, 0U);
+	fspi_writel(FSPI_IPCR1,
+		    ((uint32_t)FSPI_EN4B_SEQ_ID << FSPI_IPCR1_ISEQID_SHIFT) | 0U);
+	fspi_writel(FSPI_IPCMD, FSPI_IPCMD_TRG_MASK);
+
+	while ((fspi_readl(FSPI_INTR) & FSPI_INTR_IPCMDDONE_MASK) == 0U)
+		;
+
+	intr = fspi_readl(FSPI_INTR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	if ((intr & (FSPI_INTR_IPCMDGE | FSPI_INTR_IPCMDERR)) != 0U) {
+		ERROR("%s: IP error INTR=0x%x\n", __func__, intr);
+		return -XSPI_READ_FAIL;
+	}
+	return XSPI_SUCCESS;
+}
+
+/*
+ * Read Status Register 1 (RDSR, opcode 0x05).
+ *
+ * Uses the LUT slot installed by fspi_setup_LUT() at
+ * FSPI_RDSR_SEQ_ID (= 4), so no LUT patching required. Typical
+ * use: verify WEL latched after xspi_wren(), or surface BP[4:0] /
+ * WIP / SRP0 bits during bring-up.
+ *
+ * @param[out] val  receives the SR1 byte on success
+ * @return XSPI_SUCCESS on success, negative error code on IP error
+ */
+int fspi_read_sr1(uint8_t *val)
+{
+	uint32_t intr;
+
+	if (val == NULL) {
+		return -XSPI_READ_FAIL;
+	}
+
+	/* Drain stale FIFO / DONE. */
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	/* Address irrelevant for RDSR but IPCR0 still needs a value. */
+	fspi_writel(FSPI_IPCR0, 0U);
+	fspi_writel(FSPI_IPCR1,
+		    ((uint32_t)FSPI_RDSR_SEQ_ID << FSPI_IPCR1_ISEQID_SHIFT) | 1U);
+	fspi_writel(FSPI_IPCMD, FSPI_IPCMD_TRG_MASK);
+
+	while ((fspi_readl(FSPI_INTR) & FSPI_INTR_IPCMDDONE_MASK) == 0U)
+		;
+
+	intr = fspi_readl(FSPI_INTR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	if ((intr & (FSPI_INTR_IPCMDGE | FSPI_INTR_IPCMDERR)) != 0U) {
+		ERROR("%s: IP error INTR=0x%x\n", __func__, intr);
+		return -XSPI_READ_FAIL;
+	}
+
+	*val = (uint8_t)(fspi_readl(FSPI_RFDR) & 0xFFU);
+
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPRXWA);
+	return XSPI_SUCCESS;
+}
+
+/*
+ * Read Status Register 3 (opcode 0x15). Used to verify EN4B above
+ * took effect (ADS bit in SR3 = 1 means 4-byte mode). Same
+ * CMD+READ(1) LUT pattern as the driver's upstream fspi_RDSR() for
+ * SR1. Returns XSPI_SUCCESS on success and writes the SR3 byte to
+ * @p val; negative error code on IP failure.
+ */
+int fspi_read_sr3(uint8_t *val)
+{
+	uint32_t lut_addr = FSPI_LUTREG_OFFSET +
+			    (uint32_t)(0x10 * FSPI_RDSR3_SEQ_ID);
+	uint32_t intr;
+
+	if (val == NULL) {
+		return -XSPI_READ_FAIL;
+	}
+
+	fspi_unlock_LUT();
+	fspi_writel(lut_addr,
+		    FSPI_INSTR_OPRND0(FSPI_NOR_CMD_RDSR3)
+		    | FSPI_INSTR_PAD0(FSPI_LUT_PAD1)
+		    | FSPI_INSTR_OPCODE0(FSPI_LUT_CMD)
+		    | FSPI_INSTR_OPRND1(1U)
+		    | FSPI_INSTR_PAD1(FSPI_LUT_PAD1)
+		    | FSPI_INSTR_OPCODE1(FSPI_LUT_READ));
+	fspi_writel(lut_addr + 0x4U, 0U);
+	fspi_writel(lut_addr + 0x8U, 0U);
+	fspi_writel(lut_addr + 0xCU, 0U);
+	fspi_lock_LUT();
+
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	fspi_writel(FSPI_IPCR0, 0U);
+	fspi_writel(FSPI_IPCR1,
+		    ((uint32_t)FSPI_RDSR3_SEQ_ID << FSPI_IPCR1_ISEQID_SHIFT) | 1U);
+	fspi_writel(FSPI_IPCMD, FSPI_IPCMD_TRG_MASK);
+
+	while ((fspi_readl(FSPI_INTR) & FSPI_INTR_IPCMDDONE_MASK) == 0U)
+		;
+
+	intr = fspi_readl(FSPI_INTR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPCMDDONE_MASK);
+
+	if ((intr & (FSPI_INTR_IPCMDGE | FSPI_INTR_IPCMDERR)) != 0U) {
+		ERROR("%s: IP error INTR=0x%x\n", __func__, intr);
+		return -XSPI_READ_FAIL;
+	}
+
+	*val = (uint8_t)(fspi_readl(FSPI_RFDR) & 0xFFU);
+
+	fspi_writel(FSPI_IPRXFCR, FSPI_IPRXFCR_CLR);
+	fspi_writel(FSPI_INTR, FSPI_INTR_IPRXWA);
+	return XSPI_SUCCESS;
+}
+#endif /* NXP_XSPI_DIAG */
 
 static void fspi_bbluk_er(void)
 {
