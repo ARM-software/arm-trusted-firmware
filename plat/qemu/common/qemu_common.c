@@ -239,6 +239,15 @@ static void plat_get_memory_node(int index, struct memory_bank *bank_ptr)
 	bank_ptr->base = NS_DRAM0_BASE;
 	bank_ptr->size = NS_DRAM0_SIZE;
 }
+
+const struct memory_bank ncoh_region_data[] = {};
+const struct memory_bank coh_region_data[] = {};
+
+/* Number of device non-coherent address ranges */
+#define QEMU_RMM_NCOH_REGIONS	ARRAY_SIZE(ncoh_region_data)
+/* Number of device coherent address ranges */
+#define QEMU_RMM_COH_REGIONS	ARRAY_SIZE(coh_region_data)
+
 #elif PLAT_qemu_sbsa
 static uint32_t plat_get_num_memnodes(void)
 {
@@ -256,6 +265,28 @@ static void plat_get_memory_node(int index, struct memory_bank *bank_ptr)
 	bank_ptr->base = data.addr_base;
 	bank_ptr->size = data.addr_size;
 }
+
+struct memory_bank ncoh_region_data[] = {
+	/* SBSA SBSA_PCIE_MMIO region */
+	{SBSA_PCIE_MMIO_BASE,
+	 SBSA_PCIE_MMIO_SIZE
+	},
+	/*
+	 * SBSA SBSA_PCIE_MMIO_HIGH region.  The architecture supports up
+	 * to 1020GB but 10GB should be plenty.
+	 */
+	{SBSA_PCIE_MMIO_HIGH_BASE,
+	 SBSA_PCIE_MMIO_HIGH_SIZE
+	}
+};
+
+const struct memory_bank coh_region_data[] = {};
+
+/* Number of device non-coherent address ranges */
+#define QEMU_RMM_NCOH_REGIONS	ARRAY_SIZE(ncoh_region_data)
+/* Number of device non-coherent address ranges */
+#define QEMU_RMM_COH_REGIONS	ARRAY_SIZE(coh_region_data)
+
 #endif /* PLAT_qemu */
 
 /*
@@ -273,6 +304,50 @@ static uint64_t checksum_calc(uint64_t *buffer, size_t size)
 	}
 
 	return sum;
+}
+
+static void set_memory_region(struct memory_info *region_ptr,
+			      struct memory_bank *bank_ptr,
+			      const struct memory_bank *bank_data,
+			      uint64_t num_bank_data)
+{
+	struct memory_bank *dst;
+	uint64_t checksum, i;
+
+	if (!region_ptr || !bank_ptr || !bank_data)
+		return;
+
+	if (!num_bank_data) {
+		region_ptr->num_banks = 0UL;
+		region_ptr->banks = NULL;
+		region_ptr->checksum = 0UL;
+		return;
+	}
+
+
+	/* Calculate the checksum of address range info structure */
+	checksum = num_bank_data + (uint64_t)bank_ptr;
+
+	/* Zero out the PCIe region info struct */
+	memset((void *)bank_ptr, 0,
+	       sizeof(struct memory_bank) * num_bank_data);
+
+	dst = bank_ptr;
+
+	for (i = 0; i < num_bank_data; i++) {
+		memcpy((void *)dst, (void *)(bank_data + i),
+		       sizeof(struct memory_bank));
+		dst++;
+	}
+
+	/* Update checksum */
+	checksum += checksum_calc((uint64_t *)bank_ptr,
+				  sizeof(struct memory_bank) * num_bank_data);
+
+	/* Checksum must be 0 */
+	region_ptr->checksum = ~checksum + 1UL;
+	region_ptr->num_banks = num_bank_data;
+	region_ptr->banks = bank_ptr;
 }
 
 /*
@@ -387,12 +462,17 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
 	int i, last;
 	uint64_t checksum;
+	uint64_t num_ncoh_regions, num_coh_regions;
 	size_t num_banks = plat_get_num_memnodes();
 	size_t num_consoles = 1;
 	struct memory_bank *bank_ptr;
+	struct memory_bank *ncoh_region_ptr, *coh_region_ptr;
 	struct console_info *console_ptr;
 
 	assert(manifest != NULL);
+
+	num_ncoh_regions = QEMU_RMM_NCOH_REGIONS;
+	num_coh_regions = QEMU_RMM_COH_REGIONS;
 
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
@@ -406,13 +486,29 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	console_ptr = (struct console_info *)
 		((uintptr_t)bank_ptr + (num_banks * sizeof(*bank_ptr)));
 
+	ncoh_region_ptr = (struct memory_bank *)
+			((uintptr_t)console_ptr + (num_consoles *
+						sizeof(struct console_info)));
+	coh_region_ptr = (struct memory_bank *)
+			((uintptr_t)ncoh_region_ptr + (num_ncoh_regions *
+						sizeof(struct memory_bank)));
+
+	/* Currently supported */
 	manifest->plat_dram.banks = bank_ptr;
 	manifest->plat_console.consoles = console_ptr;
+
+	/* Currently not supported */
+	manifest->plat_coh_region.num_banks = num_coh_regions;
+	manifest->plat_coh_region.banks = NULL;
+	manifest->plat_coh_region.checksum = 0UL;
 
 	/* Ensure the manifest is not larger than the shared buffer */
 	assert((sizeof(struct rmm_manifest) +
 		(sizeof(struct console_info) * num_consoles) +
-		(sizeof(struct memory_bank) * num_banks)) <= RMM_SHARED_SIZE);
+		(sizeof(struct memory_bank) * num_banks) +
+		(sizeof(struct memory_bank) * num_ncoh_regions) +
+		(sizeof(struct memory_bank) * num_coh_regions))
+		<= RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
 	checksum = num_banks + (uint64_t)bank_ptr;
@@ -464,6 +560,17 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 	/* Checksum must be 0 */
 	manifest->plat_console.checksum = ~checksum + 1UL;
+
+	/*
+	 * Calculate the checksum of device non-coherent address ranges
+	 */
+	set_memory_region(&manifest->plat_ncoh_region, ncoh_region_ptr,
+			  ncoh_region_data, num_ncoh_regions);
+	/*
+	 * Calculate the checksum of device coherent address ranges
+	 */
+	set_memory_region(&manifest->plat_coh_region, coh_region_ptr,
+			  coh_region_data, num_coh_regions);
 
 	return 0;
 }
