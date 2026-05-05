@@ -53,3 +53,6 @@ node_modules/
 env/
 .venv/
 venv/
+
+# LLM helper output
+.codex
