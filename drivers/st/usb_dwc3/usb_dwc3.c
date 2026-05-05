@@ -1178,6 +1178,8 @@ static enum usb_action dwc3_handle_ep0_xfernotready_event(dwc3_handle_t *dwc3_ha
 	ep_addr = __HAL_PCD_PHYEPNUM_TO_EPADDR(phy_epnum);
 	ep_num = ep_addr & ADDRESS_MASK;
 
+	assert(ep_num < USBD_EP_NB);
+
 	if (__HAL_PCD_SETUP_REQ_LEN(dwc3_handle->setup_addr) == 0U) {
 		switch (status) {
 		case USB_DWC3_DEPEVT_XFERNOTREADY_STATUS_CTRL_STATUS:
@@ -1264,6 +1266,8 @@ static enum usb_action dwc3_handle_ep_event(dwc3_handle_t *dwc3_handle, uint32_t
 
 	ep_addr = __HAL_PCD_PHYEPNUM_TO_EPADDR(phy_epnum);
 	ep_num = ep_addr & ADDRESS_MASK;
+
+	assert(ep_num < USBD_EP_NB);
 
 	if ((ep_addr & EP_DIR_MASK) == EP_DIR_IN) {
 		ep = &dwc3_handle->pcd_handle->in_ep[ep_num];
