@@ -16,6 +16,7 @@
 #include <drivers/partition/partition.h>
 #include <drivers/partition/gpt.h>
 #include <drivers/partition/mbr.h>
+#include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
 static uint8_t mbr_sector[PLAT_PARTITION_BLOCK_SIZE];
@@ -313,7 +314,12 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 	size_t gpt_header_offset;
 	uintptr_t dev_handle, image_spec, image_handle;
 	io_block_spec_t *block_spec;
-	int part_num_entries;
+	size_t backup_gpt_base;
+	size_t backup_gpt_length;
+	size_t mapped_offset;
+	size_t orig_offset;
+	size_t orig_length;
+	unsigned int part_num_entries;
 
 	result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (result != 0) {
@@ -323,24 +329,42 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 	}
 
 	block_spec = (io_block_spec_t *)image_spec;
+	orig_offset = block_spec->offset;
+	orig_length = block_spec->length;
 	/*
 	 * We need to read 32 blocks of GPT entries and one block of GPT header
 	 * try mapping only last 33 last blocks from the image to read the
 	 * Backup-GPT header and its entries.
 	 */
-	part_num_entries = (PLAT_PARTITION_MAX_ENTRIES / 4);
+	part_num_entries = PLAT_PARTITION_MAX_ENTRIES / 4U;
+	if (sector_nums <= part_num_entries) {
+		ERROR("Invalid GPT sector count %u for backup GPT\n",
+		      sector_nums);
+		return -EINVAL;
+	}
+
+	backup_gpt_base = (size_t)LBA(sector_nums - part_num_entries);
+	backup_gpt_length = (size_t)LBA(part_num_entries + 1U);
+	if ((backup_gpt_base != LBA(sector_nums - part_num_entries)) ||
+	    (backup_gpt_length != LBA(part_num_entries + 1U)) ||
+	    add_overflow(orig_offset, backup_gpt_base, &mapped_offset)) {
+		ERROR("Backup GPT mapping overflow for sector count %u\n",
+		      sector_nums);
+		return -EOVERFLOW;
+	}
+
 	/* Move the offset base to LBA-33 */
-	block_spec->offset += LBA(sector_nums - part_num_entries);
+	block_spec->offset = mapped_offset;
 	/*
 	 * Set length as LBA-33, 32 blocks of backup-GPT entries and one
 	 * block of backup-GPT header.
 	 */
-	block_spec->length = LBA(part_num_entries + 1);
+	block_spec->length = backup_gpt_length;
 
 	result = io_open(dev_handle, image_spec, &image_handle);
 	if (result != 0) {
 		VERBOSE("Failed to access image id (%i)\n", result);
-		return result;
+		goto restore;
 	}
 
 	INFO("Trying to retrieve back-up GPT header\n");
@@ -362,6 +386,9 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 
 out:
 	io_close(image_handle);
+restore:
+	block_spec->offset = orig_offset;
+	block_spec->length = orig_length;
 	return result;
 }
 
