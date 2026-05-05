@@ -505,9 +505,11 @@ consult the Arm ARM on any specifics about the feature itself.
   - Add it to the ``assert_numerics`` and ``add_defines`` lists in the
     ``Makefile``.
 
-  - Add a default of ``0`` for it in ``make_helpers/arch_features.mk``. If the
-    feature is listed as mandatory from a certain revision of the architecture,
-    add it to the appropriate list at the top of the same file.
+  - Add a default of ``0`` for it in ``make_helpers/defaults.mk``.
+
+  - If the feature is listed as mandatory from a certain revision of the
+    architecture, add it to the appropriate list in
+    ``make_helpers/arch_features.mk``.
 
   - Add any constraints in ``make_helpers/constraints.mk``. This will usually be
     other features which this feature depends on or is incompatible with and can
