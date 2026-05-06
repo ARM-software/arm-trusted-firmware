@@ -106,6 +106,8 @@ void bl31_plat_arch_setup(void)
 	init_xlat_tables();
 
 	enable_mmu_el3(0);
+
+	gic_set_gicr_frames(gicr_base_addrs);
 }
 
 void plat_gic_pre_pcpu_init(unsigned int cpu_idx)
@@ -119,37 +121,13 @@ void bl31_platform_setup(void)
 
 	generic_delay_timer_init();
 
-	/*
-	 * bl31_main uses gic_pcpu_init() for redistributor base address
-	 * discovery process so even though we're already doing that below
-	 * as a prerequisite for the platform workaround, we're still going
-	 * to have to set the GICR frames otherwise gic_pcpu_init() will
-	 * try to dereference a NULL pointer (or end up with a failed
-	 * assert)
-	 */
-	gic_set_gicr_frames(gicr_base_addrs);
-
-	/*
-	 * In order to apply platform specific gic workaround, the
-	 * gicv3_driver_data need to be initialized, the 'USE_GIC_DRIVER'
-	 * will init it again, it should be fine.
-	 */
-	gic_set_gicr_base(PLAT_ARM_GICR_BASE);
-	gicv3_driver_init_default();
-	/* Ensure to mark the core as asleep, required for reset case. */
-	gic_cpuif_disable(plat_my_core_pos());
-	/* Clear LPIs */
+	/* Platform specific gic workaround: Clear LPIs */
+	gicr_base = PLAT_ARM_GICR_BASE;
 	for (unsigned int i = 0U; i < PLATFORM_CORE_COUNT; i++) {
-		gicr_base = gicv3_driver_data->rdistif_base_addrs[i];
 		gicr_ctlr = gicr_read_ctlr(gicr_base);
 		gicr_write_ctlr(gicr_base, gicr_ctlr & ~(GICR_CTLR_EN_LPIS_BIT));
+		gicr_base += gicv3_redist_size(0U);
 	}
-
-	/*
-	 * done with the workaround - set to 0 to avoid assertion failure during
-	 * gicv3_rdistif_probe() in DEBUG builds
-	 */
-	gic_set_gicr_base(0);
 
 	/* get soc info */
 	ele_get_soc_info();
