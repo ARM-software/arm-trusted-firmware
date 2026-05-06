@@ -51,7 +51,8 @@ static int32_t ti_set_clock_state(uint32_t dev_id, uint32_t clk_id, bool enable)
 		return ret;
 	}
 
-	if (!ti_device_clk_set_gated(dev, clkidx, !enable)) {
+	(void)enable;
+	if (!ti_device_clk_set_gated(dev, clkidx, false)) {
 		return -EINVAL;
 	}
 
