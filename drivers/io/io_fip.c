@@ -309,7 +309,7 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	int result;
 	uintptr_t backend_handle;
 	const io_uuid_spec_t *uuid_spec = (io_uuid_spec_t *)spec;
-	static const uuid_t uuid_null = { {0} }; /* Double braces for clang */
+	static const uuid_t uuid_null = { 0U };
 	size_t bytes_read;
 	size_t toc_offset;
 	size_t fip_size;
