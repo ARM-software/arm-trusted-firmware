@@ -242,6 +242,7 @@ static void plat_get_memory_node(int index, struct memory_bank *bank_ptr)
 
 const struct memory_bank ncoh_region_data[] = {};
 const struct memory_bank coh_region_data[] = {};
+const struct root_complex_info rc_data[] = {};
 
 /* Number of device non-coherent address ranges */
 #define QEMU_RMM_NCOH_REGIONS	ARRAY_SIZE(ncoh_region_data)
@@ -249,6 +250,8 @@ const struct memory_bank coh_region_data[] = {};
 #define QEMU_RMM_COH_REGIONS	ARRAY_SIZE(coh_region_data)
 /* Number of SMMUs */
 #define QEMU_RMM_SMMU_COUNT	0
+/* Number of PCIe Root Complexes */
+#define QEMU_RMM_RC_COUNT	ARRAY_SIZE(rc_data)
 
 #elif PLAT_qemu_sbsa
 static uint32_t plat_get_num_memnodes(void)
@@ -284,12 +287,47 @@ struct memory_bank ncoh_region_data[] = {
 
 const struct memory_bank coh_region_data[] = {};
 
+/* BDF mappings for RP0 RC0 */
+const struct bdf_mapping_info rc0rp0_bdf_data[] = {
+	/* BDF0 */
+	{0U,		/* mapping_base */
+	 0x8000U,	/* mapping_top */
+	 0U,		/* mapping_off */
+	 0U		/* smmu_idx */
+	}
+};
+
+/* Root ports for RC0 */
+const struct root_port_info rc0rp_data[] = {
+	/* RP0 */
+	{0U,						/* root_port_id */
+	 0U,						/* padding */
+	 ARRAY_SIZE(rc0rp0_bdf_data),			/* num_bdf_mappings */
+	 (struct bdf_mapping_info *)rc0rp0_bdf_data	/* bdf_mappings */
+	}
+};
+
+/* See @sbsa_ref_memmap in QEMU's hw/arm/sbsa-ref.c */
+#define PCIE_EXP_BASE	0xf0000000
+/* Root complexes */
+const struct root_complex_info rc_data[] = {
+	/* RC0 */
+	{PCIE_EXP_BASE,				/* ecam_base */
+	 0U,					/* segment */
+	 {0U, 0U, 0U},				/* padding */
+	 ARRAY_SIZE(rc0rp_data),		/* num_root_ports */
+	 (struct root_port_info *)rc0rp_data	/* root_ports */
+	}
+};
+
 /* Number of device non-coherent address ranges */
 #define QEMU_RMM_NCOH_REGIONS	ARRAY_SIZE(ncoh_region_data)
 /* Number of device non-coherent address ranges */
 #define QEMU_RMM_COH_REGIONS	ARRAY_SIZE(coh_region_data)
 /* Number of SMMUs */
 #define QEMU_RMM_SMMU_COUNT	0
+/* Number of PCIe Root Complexes */
+#define QEMU_RMM_RC_COUNT	ARRAY_SIZE(rc_data)
 
 #endif /* PLAT_qemu */
 
@@ -352,6 +390,100 @@ static void set_memory_region(struct memory_info *region_ptr,
 	region_ptr->checksum = ~checksum + 1UL;
 	region_ptr->num_banks = num_bank_data;
 	region_ptr->banks = bank_ptr;
+}
+
+static void set_root_complex(struct root_complex_list *plat_rc_ptr,
+			     struct root_complex_info *root_complex_ptr,
+			     struct root_port_info *root_port_ptr,
+			     struct bdf_mapping_info *bdf_mapping_ptr,
+			     uint64_t num_root_complex)
+{
+	struct root_complex_info *rc_ptr;
+	struct bdf_mapping_info *bdf_ptr;
+	struct root_port_info *rp_ptr;
+	uint64_t num_root_ports, num_bdf_mappings;
+	uint64_t checksum, i, j;
+
+	if (!plat_rc_ptr || !root_complex_ptr ||
+	    !root_port_ptr || !bdf_mapping_ptr)
+		return;
+
+	if (!num_root_complex) {
+		plat_rc_ptr->num_root_complex = 0UL;
+		plat_rc_ptr->rc_info_version = 0UL;
+		plat_rc_ptr->root_complex = NULL;
+		plat_rc_ptr->padding = 0U;
+		plat_rc_ptr->checksum = 0UL;
+	}
+
+	/* Set pointers for data in manifest */
+	rc_ptr = root_complex_ptr;
+	rp_ptr = root_port_ptr;
+	bdf_ptr = bdf_mapping_ptr;
+
+	/* Calculate the checksum of the plat_root_complex structure */
+	checksum = num_root_complex + (uint64_t)root_complex_ptr;
+
+	num_root_ports = 0U;
+	num_bdf_mappings = 0U;
+
+	for (i = 0; i < num_root_complex; i++) {
+		const struct root_complex_info *rc_info = &rc_data[i];
+		const struct root_port_info *rp_info = rc_info->root_ports;
+
+		num_root_ports += rc_data[i].num_root_ports;
+
+		/* Copy root complex data, except root_ports pointer */
+		memcpy((void *)rc_ptr, (void *)rc_info,
+			sizeof(struct root_complex_info) -
+			sizeof(struct root_port_info *));
+
+		/* Set root_ports for root complex */
+		rc_ptr->root_ports = rp_ptr;
+
+		/* Scan root ports */
+		for (j = 0; j < rc_ptr->num_root_ports; j++) {
+			const struct bdf_mapping_info *bdf_info;
+
+			num_bdf_mappings += rc_data[i].root_ports[j].num_bdf_mappings;
+
+			bdf_info = rp_info->bdf_mappings;
+
+			/* Copy root port data, except bdf_mappings pointer */
+			memcpy((void *)rp_ptr, (void *)rp_info,
+			       sizeof(struct root_port_info) -
+			       sizeof(struct bdf_mapping_info *));
+
+			/* Set bdf_mappings for root port */
+			rp_ptr->bdf_mappings = bdf_ptr;
+
+			/* Copy all BDF mappings for root port */
+			memcpy((void *)bdf_ptr, (void *)bdf_info,
+			       sizeof(struct bdf_mapping_info) *
+			       rp_ptr->num_bdf_mappings);
+
+			bdf_ptr += rp_ptr->num_bdf_mappings;
+			rp_ptr++;
+			rp_info++;
+		}
+		rc_ptr++;
+	}
+
+	/* Check that all data are written in manifest */
+	assert(rc_ptr == (root_complex_ptr + num_root_complex));
+	assert(rp_ptr == (root_port_ptr + num_root_ports));
+	assert(bdf_ptr == (bdf_mapping_ptr + num_bdf_mappings));
+
+	/* Update checksum for all PCIe data */
+	checksum += checksum_calc((uint64_t *)root_complex_ptr,
+				  (uintptr_t)bdf_ptr - (uintptr_t)root_complex_ptr);
+
+	plat_rc_ptr->num_root_complex = num_root_complex;
+	plat_rc_ptr->rc_info_version = PCIE_RC_INFO_VERSION;
+	plat_rc_ptr->root_complex = root_complex_ptr;
+	plat_rc_ptr->padding = 0U; /* RES0 */
+	/* Checksum must be 0 */
+	plat_rc_ptr->checksum = ~checksum + 1UL;
 }
 
 /*
@@ -464,21 +596,40 @@ static void set_memory_region(struct memory_info *region_ptr,
 
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
-	int i, last;
+	int i, j, last;
 	uint64_t checksum;
 	uint64_t num_ncoh_regions, num_coh_regions;
-	uint64_t num_smmus;
+	uint64_t num_smmus, num_root_complex;
+	uint64_t num_root_ports, num_bdf_mappings;
 	size_t num_banks = plat_get_num_memnodes();
 	size_t num_consoles = 1;
 	struct memory_bank *bank_ptr;
 	struct memory_bank *ncoh_region_ptr, *coh_region_ptr;
 	struct console_info *console_ptr;
+	struct smmu_info *smmu_ptr;
+	struct root_complex_info *root_complex_ptr;
+	struct root_port_info *root_port_ptr;
+	struct bdf_mapping_info *bdf_mapping_ptr;
 
 	assert(manifest != NULL);
 
 	num_ncoh_regions = QEMU_RMM_NCOH_REGIONS;
 	num_coh_regions = QEMU_RMM_COH_REGIONS;
 	num_smmus = QEMU_RMM_SMMU_COUNT;
+	num_root_complex = QEMU_RMM_RC_COUNT;
+
+	/* Calculate and set number of all PCIe root ports and BDF mappings */
+	num_root_ports = 0U;
+	num_bdf_mappings = 0U;
+
+	/* Scan all root complex entries */
+	for (i = 0UL; i < num_root_complex; i++) {
+		num_root_ports += rc_data[i].num_root_ports;
+		/* Scan all root ports entries in root complex */
+		for (j = 0U; j < rc_data[i].num_root_ports; j++) {
+			num_bdf_mappings += rc_data[i].root_ports[j].num_bdf_mappings;
+		}
+	}
 
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
@@ -498,6 +649,18 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	coh_region_ptr = (struct memory_bank *)
 			((uintptr_t)ncoh_region_ptr + (num_ncoh_regions *
 						sizeof(struct memory_bank)));
+	smmu_ptr = (struct smmu_info *)
+			((uintptr_t)coh_region_ptr + (num_coh_regions *
+						sizeof(struct memory_bank)));
+	root_complex_ptr = (struct root_complex_info *)
+			((uintptr_t)smmu_ptr + (num_smmus *
+						sizeof(struct smmu_info)));
+	root_port_ptr = (struct	root_port_info *)
+			((uintptr_t)root_complex_ptr + (num_root_complex *
+						sizeof(struct root_complex_info)));
+	bdf_mapping_ptr = (struct bdf_mapping_info *)
+			((uintptr_t)root_port_ptr + (num_root_ports *
+						sizeof(struct root_port_info)));
 
 	/* Currently supported */
 	manifest->plat_dram.banks = bank_ptr;
@@ -518,7 +681,11 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 		(sizeof(struct memory_bank) * num_banks) +
 		(sizeof(struct memory_bank) * num_ncoh_regions) +
 		(sizeof(struct memory_bank) * num_coh_regions) +
-		(sizeof(struct smmu_info) * num_smmus))
+		(sizeof(struct memory_bank) * num_coh_regions) +
+		(sizeof(struct smmu_info) * num_smmus) +
+		(sizeof(struct root_complex_info) * num_root_complex) +
+		(sizeof(struct root_port_info) * num_root_ports) +
+		(sizeof(struct bdf_mapping_info) * num_bdf_mappings))
 		<= RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
@@ -582,6 +749,10 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	 */
 	set_memory_region(&manifest->plat_coh_region, coh_region_ptr,
 			  coh_region_data, num_coh_regions);
+
+	/* Calculate the checksum of the plat_root_complex structure */
+	set_root_complex(&manifest->plat_root_complex, root_complex_ptr,
+			 root_port_ptr, bdf_mapping_ptr, num_root_complex);
 
 	return 0;
 }
