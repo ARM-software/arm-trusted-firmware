@@ -74,6 +74,14 @@ ifeq ($(DEBUG_DDR_INPUT_CONFIG), yes)
 $(eval $(call add_define, DEBUG_DDR_INPUT_CONFIG))
 endif
 
+# Tolerant SPD compare workaround is for a dual-DIMM pair whose
+# base/module CRCs differ but whose timing-relevant bytes match
+# Default off: a CRC mismatch is a hard error unless a board
+# wants to be tolerant for such cases.
+ifeq ($(NXP_DDR_DUAL_DIMM_TOLERANT), yes)
+$(eval $(call add_define,NXP_DDR_DUAL_DIMM_TOLERANT))
+endif
+
 DDR_CNTLR_SOURCES	:= $(PLAT_DRIVERS_PATH)/ddr/nxp-ddr/ddr.c \
 			   $(PLAT_DRIVERS_PATH)/ddr/nxp-ddr/ddrc.c \
 			   $(PLAT_DRIVERS_PATH)/ddr/nxp-ddr/dimm.c \
