@@ -488,6 +488,9 @@ CASSERT((PLAT_QEMU_L0_GPT_BASE & (PLAT_QEMU_L0_GPT_SIZE - 1)) == 0,
 #define RMM_SHARED_BASE			(RMM_LIMIT)
 #define RMM_SHARED_SIZE			PLAT_QEMU_RMM_SHARED_SIZE
 
+#define PLAT_ARM_RMM_PAYLOAD_SIZE	UL(0x600000)    /* 2 * 3MB */
+#define RMM_PAYLOAD_LIMIT		(RMM_BASE + PLAT_ARM_RMM_PAYLOAD_SIZE)
+
 /*
  * We add the RMM_SHARED size to RMM mapping to map the region as a block.
  * Else we end up requiring more pagetables in BL2 for ROMLIB build.
