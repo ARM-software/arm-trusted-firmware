@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <string.h>
+
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/mmio.h>
