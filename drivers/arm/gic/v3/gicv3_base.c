@@ -106,6 +106,14 @@ void gic_set_gicd_base(uintptr_t gicd_base)
 }
 
 /*
+ * Override gic_data gicr_base, mainly for SoC specific GIC configuration.
+ */
+void gic_set_gicr_base(uintptr_t gicr_base)
+{
+	gic_data.gicr_base = gicr_base;
+}
+
+/*
  * Override gic_data interrupt_props/interrupt_props_num pointers,
  * mainly for SoC version specific interrupt configuration.
  */
@@ -117,13 +125,18 @@ void gic_set_interrupt_props(const interrupt_prop_t *interrupt_props,
 	gic_data.interrupt_props_num = interrupt_props_num;
 }
 
+void __init gicv3_driver_init_default(void)
+{
+	gicv3_driver_init(&gic_data);
+}
+
 /******************************************************************************
  * ARM common helper to initialize the GIC. Only invoked by BL31. The platform
  * should have already done any prerequisites.
  *****************************************************************************/
 void __init gic_init(unsigned int cpu_idx)
 {
-	gicv3_driver_init(&gic_data);
+	gicv3_driver_init_default();
 	gicv3_distif_init();
 }
 

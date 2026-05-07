@@ -372,6 +372,7 @@ __dead2 void plat_arm_error_handler(int err);
  */
 void gic_set_gicr_frames(const uintptr_t *plat_gicr_frames);
 void gic_set_gicd_base(uintptr_t gicd_base);
+void gic_set_gicr_base(uintptr_t gicr_base);
 void gic_set_interrupt_props(const interrupt_prop_t *interrupt_props,
 			     unsigned int interrupt_props_num);
 int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
