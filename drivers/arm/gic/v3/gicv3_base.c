@@ -98,6 +98,14 @@ void gic_set_gicr_frames(const uintptr_t *plat_gicr_frames)
 }
 
 /*
+ * Override gic_data gicd_base, mainly for SoC specific GIC configuration.
+ */
+void gic_set_gicd_base(uintptr_t gicd_base)
+{
+	gic_data.gicd_base = gicd_base;
+}
+
+/*
  * Override gic_data interrupt_props/interrupt_props_num pointers,
  * mainly for SoC version specific interrupt configuration.
  */
