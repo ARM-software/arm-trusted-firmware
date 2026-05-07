@@ -695,6 +695,13 @@ Note, however, that this is not necessarily true on all platforms. Platform
 vendors should review these threats to make sure they cannot be exploited
 nonetheless once execution has reached the runtime EL3 firmware.
 
+Boot firmware threats that only affect availability, for example persistent
+failure to boot due to corruption of the firmware images on flash, are out
+of scope of this generic threat model. Such threats may be in scope for
+individual platforms, but those platforms are responsible for mitigating
+such threats, for example by protecting against physical access to flash
+or implementing firmware recovery mechanisms.
+
 +------------------------+----------------------------------------------------+
 | ID                     | 01                                                 |
 +========================+====================================================+
@@ -1214,7 +1221,7 @@ Threats to be Mitigated by an External Agent Outside of TF-A
 
 --------------
 
-*Copyright (c) 2021-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2026, Arm Limited. All rights reserved.*
 
 
 .. _STRIDE threat analysis technique: https://docs.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats#stride-model
