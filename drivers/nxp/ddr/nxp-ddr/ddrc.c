@@ -426,19 +426,18 @@ after_reset:
 		mb();
 		isb();
 	} else {
-		/* wait for PHY complete */
-		timeout = 40;
-		while (((ddr_in32(&ddr->ddr_dsr2) & 0x4) != 0) &&
+		/* Wait up to 50 ms for DDR_DSR2[2] PHY_INIT_CMPLT to be set. */
+		timeout = 100;
+		while (((ddr_in32(&ddr->ddr_dsr2) & 0x4) == 0) &&
 		       (timeout > 0)) {
 			udelay(500);
 			timeout--;
 		}
-		if (timeout <= 0) {
-			printf("PHY handshake timeout, ddr_dsr2 = %x\n",
-			       ddr_in32(&ddr->ddr_dsr2));
+		if (timeout > 0) {
+			debug("PHY init complete (DSR2[2]=1) in ~%d ms\n",
+			      (100 - timeout) / 2);
 		} else {
-			debug("PHY handshake completed, timer remains %d\n",
-			      timeout);
+			WARN("PHY init NOT complete after 50 ms (DSR2[2]=0) -> proceeding, training will report any real fault\n");
 		}
 	}
 
