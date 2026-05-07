@@ -73,7 +73,7 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 	return plat_arm_calc_core_pos(mpidr);
 }
 
-gicv3_driver_data_t gic_data __unused = {
+static gicv3_driver_data_t gic_data = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	/* unused for USE_GIC_DRIVER=3. Use gic_set_gicr_frames(), passing a ptr
 	 * to an array with 2 values - the frame's base and a NULL pointer */
