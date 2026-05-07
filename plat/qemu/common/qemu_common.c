@@ -247,6 +247,8 @@ const struct memory_bank coh_region_data[] = {};
 #define QEMU_RMM_NCOH_REGIONS	ARRAY_SIZE(ncoh_region_data)
 /* Number of device coherent address ranges */
 #define QEMU_RMM_COH_REGIONS	ARRAY_SIZE(coh_region_data)
+/* Number of SMMUs */
+#define QEMU_RMM_SMMU_COUNT	0
 
 #elif PLAT_qemu_sbsa
 static uint32_t plat_get_num_memnodes(void)
@@ -286,6 +288,8 @@ const struct memory_bank coh_region_data[] = {};
 #define QEMU_RMM_NCOH_REGIONS	ARRAY_SIZE(ncoh_region_data)
 /* Number of device non-coherent address ranges */
 #define QEMU_RMM_COH_REGIONS	ARRAY_SIZE(coh_region_data)
+/* Number of SMMUs */
+#define QEMU_RMM_SMMU_COUNT	0
 
 #endif /* PLAT_qemu */
 
@@ -463,6 +467,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	int i, last;
 	uint64_t checksum;
 	uint64_t num_ncoh_regions, num_coh_regions;
+	uint64_t num_smmus;
 	size_t num_banks = plat_get_num_memnodes();
 	size_t num_consoles = 1;
 	struct memory_bank *bank_ptr;
@@ -473,6 +478,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 	num_ncoh_regions = QEMU_RMM_NCOH_REGIONS;
 	num_coh_regions = QEMU_RMM_COH_REGIONS;
+	num_smmus = QEMU_RMM_SMMU_COUNT;
 
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
@@ -502,12 +508,17 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	manifest->plat_coh_region.banks = NULL;
 	manifest->plat_coh_region.checksum = 0UL;
 
+	manifest->plat_smmu.num_smmus = num_smmus;
+	manifest->plat_smmu.smmus = NULL;
+	manifest->plat_smmu.checksum = 0UL;
+
 	/* Ensure the manifest is not larger than the shared buffer */
 	assert((sizeof(struct rmm_manifest) +
 		(sizeof(struct console_info) * num_consoles) +
 		(sizeof(struct memory_bank) * num_banks) +
 		(sizeof(struct memory_bank) * num_ncoh_regions) +
-		(sizeof(struct memory_bank) * num_coh_regions))
+		(sizeof(struct memory_bank) * num_coh_regions) +
+		(sizeof(struct smmu_info) * num_smmus))
 		<= RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
