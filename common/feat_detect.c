@@ -60,7 +60,7 @@ check_feature(int state, unsigned long field, const char *feat_name,
  *                       depending on hardware capability.
  *
  * For better readability, state values are defined with macros, namely:
- * { FEAT_STATE_DISABLED, FEAT_STATE_ALWAYS, FEAT_STATE_CHECK }, taking values
+ * { FEAT_STATE_DISABLED, FEAT_STATE_ALWAYS, FEAT_STATE_CHECKED }, taking values
  * { 0, 1, 2 }, respectively, as their naming.
  **********************************************************************************/
 void detect_arch_features(unsigned int core_pos)

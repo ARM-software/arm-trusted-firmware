@@ -13,7 +13,7 @@ void detect_arch_features(unsigned int core_pos);
 /* Macro Definitions */
 #define FEAT_STATE_DISABLED		0
 #define FEAT_STATE_ALWAYS		1
-#define FEAT_STATE_CHECK		2
+#define FEAT_STATE_CHECKED		2
 
 #define _CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
 __attribute__((always_inline))							\

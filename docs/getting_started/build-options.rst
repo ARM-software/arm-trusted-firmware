@@ -1154,7 +1154,7 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
 -  3: Extend the signing to include leaf functions
 -  4: Turn on branch target identification mechanism
 -  5: Enables all types of branch protection features, only if present in
-   hardware (FEAT_STATE_CHECK).
+   hardware (FEAT_STATE_CHECKED).
 
    The table below summarizes ``BRANCH_PROTECTION`` values, GCC compilation options
    and resulting PAuth/BTI features.
