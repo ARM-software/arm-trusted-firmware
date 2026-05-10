@@ -270,8 +270,8 @@
  ******************************************************************************/
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 39)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 39)
-#define MAX_XLAT_TABLES			(128)
-#define MAX_MMAP_REGIONS		(512)
+#define MAX_XLAT_TABLES			(32)
+#define MAX_MMAP_REGIONS		(128)
 
 /*******************************************************************************
  * CPU_EB TCM handling related constants
