@@ -27,7 +27,7 @@ SECTIONS
 		/* system ram start is in SRAM */
 		__system_ram_start__ = .;
 		*(.system_ram)
-	        __system_ram_end__ = .;
+		__system_ram_end__ = .;
 	} >SRAM AT>PRAM
 
 	/* SRAM variable is in PRAM (RW) */
@@ -36,12 +36,11 @@ SECTIONS
 	.system_ram_data : {
 		__system_ram_data_start__ = .;
 		*(.system_ram_data)
-	        __system_ram_data_end__ = .;
+		__system_ram_data_end__ = .;
 	} >SRAM_DATA AT>PRAM
 
-
-    ASSERT(__BL31_END__ <= (BL31_LIMIT - (DEVICE_SRAM_SIZE + DEVICE_SRAM_DATA_SIZE)),
-    "BL31 image too large - writing on top of SRAM!")
+	ASSERT(__BL31_END__ <= (BL31_LIMIT - (DEVICE_SRAM_SIZE + DEVICE_SRAM_DATA_SIZE)),
+	"BL31 image too large - writing on top of SRAM!")
 }
 
 #endif /* RCAR_PLAT_LD_S */
