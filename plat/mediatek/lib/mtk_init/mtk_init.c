@@ -26,12 +26,13 @@ void mtk_init_one_level(uint32_t level)
 		panic();
 	}
 
-	INFO("init calling level:%u\n", level);
+	VERBOSE("init calling level:%u\n", level);
 	for (entry = initcall_list[level];
 	     (entry != NULL) && (entry < initcall_list[level + 1]);
 	     entry++) {
-		INFO("calling %s\n", entry->name);
+		VERBOSE("calling %s\n", entry->name);
 		error = entry->fn();
+
 		if (error != 0) {
 			ERROR("init %s fail, errno:%d\n", entry->name, error);
 		}
