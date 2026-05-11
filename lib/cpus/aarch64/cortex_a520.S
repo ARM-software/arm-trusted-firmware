@@ -68,18 +68,6 @@ workaround_reset_end cortex_a520, ERRATUM(2858100)
 
 check_erratum_ls cortex_a520, ERRATUM(2858100), CPU_REV(0, 1)
 
-workaround_reset_start cortex_a520, ERRATUM(3631357), ERRATA_A520_3631357
-	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(27)
-workaround_reset_end cortex_a520, ERRATUM(3631357)
-
-check_erratum_chosen cortex_a520, ERRATUM(3631357), ERRATA_A520_3631357
-
-workaround_reset_start cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
-	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(9)
-workaround_reset_end cortex_a520, ERRATUM(3685825)
-
-check_erratum_chosen cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
-
 workaround_reset_start cortex_a520, ERRATUM(2900952), ERRATA_DSU_2900952
 	errata_dsu_2900952_wa_apply
 workaround_reset_end cortex_a520, ERRATUM(2900952)
@@ -92,6 +80,18 @@ check_erratum_custom_end cortex_a520, ERRATUM(2900952)
 add_erratum_entry cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996
 
 check_erratum_ls cortex_a520, ERRATUM(2938996), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a520, ERRATUM(3631357), ERRATA_A520_3631357
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(27)
+workaround_reset_end cortex_a520, ERRATUM(3631357)
+
+check_erratum_chosen cortex_a520, ERRATUM(3631357), ERRATA_A520_3631357
+
+workaround_reset_start cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(9)
+workaround_reset_end cortex_a520, ERRATUM(3685825)
+
+check_erratum_chosen cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down

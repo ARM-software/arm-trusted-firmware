@@ -38,6 +38,12 @@ workaround_reset_end cortex_x1, ERRATUM(1467580)
 
 check_erratum_ls cortex_x1, ERRATUM(1467580), CPU_REV(0, 0)
 
+workaround_reset_start cortex_x1, ERRATUM(1479939), ERRATA_X1_1479939
+	sysreg_bit_set CORTEX_X1_CPUACTLR_EL1, BIT(13)
+workaround_reset_end cortex_x1, ERRATUM(1479939)
+
+check_erratum_ls cortex_x1, ERRATUM(1479939), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x1, ERRATUM(1492189), ERRATA_X1_1492189
 	sysreg_bit_set CORTEX_X1_ACTLR5_EL1, BIT(8)
 workaround_reset_end cortex_x1, ERRATUM(1492189)
@@ -98,12 +104,6 @@ workaround_reset_start cortex_x1, ERRATUM(1515634), ERRATA_X1_1515634
 workaround_reset_end cortex_x1, ERRATUM(1515634)
 
 check_erratum_ls cortex_x1, ERRATUM(1515634), CPU_REV(0, 0)
-
-workaround_reset_start cortex_x1, ERRATUM(1479939), ERRATA_X1_1479939
-	sysreg_bit_set CORTEX_X1_CPUACTLR_EL1, BIT(13)
-workaround_reset_end cortex_x1, ERRATUM(1479939)
-
-check_erratum_ls cortex_x1, ERRATUM(1479939), CPU_REV(0, 0)
 
 workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
 	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(1)
