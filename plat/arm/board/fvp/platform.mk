@@ -112,6 +112,7 @@ ENABLE_FEAT_EBEP		:= 2
 ifeq (${ENABLE_RMM},1)
     ENABLE_FEAT_MEC		:= 2
     RMMD_ENABLE_IDE_KEY_PROG	:= 1
+    FIRME_SUPPORT_IDE_KM	:= 1
 endif
 
 # always check that hardware matches the codebase's expectations
@@ -347,6 +348,13 @@ BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_el3_token_sign.c		\
 				plat/arm/board/fvp/fvp_ide_keymgmt.c		\
 				plat/arm/common/plat_rmm_mem_carveout.c
+endif
+
+ifeq (${FIRME_SUPPORT_IDE_KM},1)
+PLAT_PCIE_ROOT_COMPLEX_MAX := 2
+$(eval $(call add_define,PLAT_PCIE_ROOT_COMPLEX_MAX))
+
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_firme_ide_km.c
 endif
 
 ifneq (${ENABLE_FEAT_RNG_TRAP},0)

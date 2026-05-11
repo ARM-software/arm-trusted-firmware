@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <stdint.h>
 
 #include <arch.h>
@@ -99,9 +100,45 @@ static inline firme_instance_e get_instance_from_flags(uint64_t flags)
 	panic();
 }
 
-int32_t firme_init(void)
+/*
+ * This helper converts generic error codes (from platform hooks), to FIRME
+ * error status code.
+ */
+int firme_errno_from_generic_errno(int errno)
 {
-	return firme_mecid_service_init();
+	int rc;
+
+	switch (errno) {
+	case 0:
+		rc = FIRME_SUCCESS;
+		break;
+	case -ENOTSUP:
+		rc = FIRME_NOT_SUPPORTED;
+		break;
+	case -EINVAL:
+		rc = FIRME_INVALID_PARAMETERS;
+		break;
+	case -EBUSY:
+		rc = FIRME_BUSY;
+		break;
+	case -ECANCELED:
+		rc = FIRME_ABORTED;
+		break;
+	case -EACCES:
+		rc = FIRME_DENIED;
+		break;
+	case -EINPROGRESS:
+		rc = FIRME_OP_CONFLICT;
+		break;
+	case -EAGAIN:
+		rc = FIRME_INCOMPLETE;
+		break;
+	default:
+		assert(0);
+		rc = FIRME_NOT_SUPPORTED;
+	}
+
+	return rc;
 }
 
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
@@ -122,6 +159,9 @@ uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	else if (is_ide_key_mgmt_service_fid(smc_fid)) {
+		return firme_ide_km_service_handler(instance, smc_fid, x1,
+						    x2, x3, x4, cookie,
+						    handle, flags);
 	}
 
 	else if (is_mecid_service_fid(smc_fid)) {
@@ -138,4 +178,19 @@ uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	ERROR("FIRME ABI 0x%X is not supported.\n", smc_fid);
 	SMC_RET1(handle, FIRME_NOT_SUPPORTED);
+}
+
+int firme_init(void)
+{
+	int rc = 0;
+
+	if (firme_mecid_service_init() != 0) {
+		rc = 1;
+	}
+
+	if (firme_ide_km_service_init() != 0) {
+		rc = 1;
+	}
+
+	return rc;
 }

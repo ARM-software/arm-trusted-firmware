@@ -1584,6 +1584,11 @@ Common build options
 
 -  ``FIRME_SUPPORT``: This option enables the FIRME service in TF-A.
 
+-  ``FIRME_SUPPORT_IDE_KM``: Boolean flag to enable the IDE key management FIRME
+   service. This service gets enabled for NS instance when ``ENABLE_RMM`` is 0
+   or for Realm instance when ``ENABLE_RMM`` is 1. This flag depends on
+   ``FIRME_SUPPORT`` build flag. Default value is 0.
+
 -  ``RMMD_ENABLE_EL3_TOKEN_SIGN``: Numeric value to enable support for singing
    realm attestation token signing requests in EL3. This flag can take the
    values 0 and 1. The default value is ``0``. When set to ``1``, this option

@@ -430,6 +430,17 @@ int plat_rmmd_el3_ide_km_pull_response(uint64_t ecam_address, uint64_t root_port
 				   uint64_t *cookie);
 #endif /* ENABLE_RMM */
 
+#if (FIRME_SUPPORT_IDE_KM)
+int plat_get_root_complex_index(uint64_t ecam_address);
+int plat_ide_km_keyset_prog(uint64_t ecam_address, uint64_t flags,
+			    uint64_t keyset_id, uint64_t keyqw0,
+			    uint64_t keyqw1, uint64_t keyqw2, uint64_t keyqw3);
+int plat_ide_km_keyset_go(uint64_t ecam_address, uint64_t flags,
+			  uint64_t keyset_id);
+int plat_ide_km_keyset_stop(uint64_t ecam_address, uint64_t flags,
+			    uint64_t keyset_id);
+#endif /* FIRME_SUPPORT_IDE_KM */
+
 /*******************************************************************************
  * Optional BL31 functions (may be overridden)
  ******************************************************************************/

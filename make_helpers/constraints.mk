@@ -256,6 +256,12 @@ endif
 
 endif # ${ENABLE_FEAT_PAUTH_LR}
 
+ifeq (${FIRME_SUPPORT_IDE_KM}, 1)
+    ifeq (${FIRME_SUPPORT}, 0)
+        $(error "FIRME_SUPPORT_IDE_KM requires FIRME_SUPPORT")
+    endif
+endif
+
 ifeq ($(FIRME_SUPPORT),1)
         $(info FIRME_SUPPORT is an experimental feature)
 endif #(FIRME_SUPPORT)

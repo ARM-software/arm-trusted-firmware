@@ -563,6 +563,19 @@ optionally be defined:
    PLAT_PARTITION_BLOCK_SIZE := 4096
    $(eval $(call add_define,PLAT_PARTITION_BLOCK_SIZE))
 
+If the platform port supports IDE key management service to establish an IDE
+stream between the Root port and an Endpoint, the following constant must be
+defined:
+
+-  **PLAT_PCIE_ROOT_COMPLEX_MAX**
+   The maximum number of PCIE Root Complexes supported by the platform.
+   Valid range: 1-8
+   Default value: 1
+
+   For example, define the build flag in ``platform.mk``:
+   PLAT_PCIE_ROOT_COMPLEX_MAX := 2
+   $(eval $(call add_define,PLAT_PCIE_ROOT_COMPLEX_MAX))
+
 If the platform port uses the Arm® Ethos™-N NPU driver, the following
 configuration must be performed:
 
@@ -2668,6 +2681,138 @@ E_RMM_OK - The previous request was successful.
 E_RMM_FAULT - The previous request was not successful.
 E_RMM_INVAL - Arguments to previous request were incorrect.
 E_RMM_UNK - Previous request returned Unknown error.
+
+Function : plat_get_root_complex_index() [mandatory when FIRME_SUPPORT_IDE_KM == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t
+    Return   : int
+
+This function gets the Root Complex index for the given ECAM address
+
+The parameters of the function are:
+
+    arg0 - The ECAM address
+
+The function returns < 0 - On error, else index of the Root Complex for the
+given ECAM address.
+
+Function : plat_ide_km_keyset_prog() [mandatory when FIRME_SUPPORT_IDE_KM == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
+               uint64_t
+    Return   : int
+
+This function programs the AES-GCM 256 bit key for the keyset ID in the ECAM
+address space of a Root port.
+
+The parameters of the function are:
+
+    arg0 - The ECAM address space of a Root port defines the namespace for
+    keyset IDs.
+
+    arg1 - Flags. Value of 0 is a request to configure a PCIe or CXL.io
+    Selective IDE stream. 1 for PCIe Link IDE stream and 3 for CXL.cachemem
+    Link IDE stream.
+
+    arg2 - keyset_id. A 64 bitmap encoded in format
+    Bits[37:30]: Segment number.
+    Bits[29:14]: Root port ID.
+    Bits[13:6]: Stream ID.
+    Bits[5:2]: Substream ID.
+    Bits[1]: Direction.
+    Bits[0]: Key set.
+
+    arg3 - Quad word0 of the AES-GCM 256 bit key.
+
+    arg4 - Quad word1 of the AES-GCM 256 bit key.
+
+    arg5 - Quad word2 of the AES-GCM 256 bit key.
+
+    arg6 - Quad word3 of the AES-GCM 256 bit key.
+
+The function returns:
+0             On success
+-ENOTSUP      If this functionality is not supported
+-EINVAL       For invalid ECAM address or keyset_id or flag arguments
+-EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
+-EINPROGRESS  An operation for the specified keyset ID is already in progress.
+
+Function : plat_ide_km_keyset_go() [mandatory when FIRME_SUPPORT_IDE_KM == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t
+    Return   : int
+
+Once the keys are programmed at the RootPort this function is used to set the
+state of the IDE link/stream to secure state.
+
+The parameters of the function are:
+
+    arg0 - The ECAM address space of a Root port defines the namespace for
+    keyset IDs.
+
+    arg1 - Flags. Value of 0 is a request to configure a PCIe or CXL.io
+    Selective IDE stream. 1 for PCIe Link IDE stream and 3 for CXL.cachemem
+    Link IDE stream.
+
+    arg2 - keyset_id. A 64 bitmap encoded in format
+    Bits[37:30]: Segment number.
+    Bits[29:14]: Root port ID.
+    Bits[13:6]: Stream ID.
+    Bits[5:2]: Substream ID.
+    Bits[1]: Direction.
+    Bits[0]: Key set.
+
+The function returns:
+0             On success
+-ENOTSUP      If this functionality is not supported
+-EINVAL       For invalid ECAM address or keyset_id or flag arguments
+-EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
+-EINPROGRESS  An operation for the specified keyset ID is already in progress.
+-EACCES       No key was programmed for the specified keyset ID.
+
+Function : plat_ide_km_keyset_stop() [mandatory when FIRME_SUPPORT_IDE_KM == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t
+    Return   : int
+
+This function is used to set the state of the IDE link/stream to insecure state.
+
+The parameters of the function are:
+
+    arg0 - The ECAM address space of a Root port defines the namespace for
+    keyset IDs.
+
+    arg1 - Flags. Value of 0 is a request to configure a PCIe or CXL.io
+    Selective IDE stream. 1 for PCIe Link IDE stream and 3 for CXL.cachemem Link
+    IDE stream.
+
+    arg2 - keyset_id. A 64 bitmap encoded in format
+    Bits[37:30]: Segment number.
+    Bits[29:14]: Root port ID.
+    Bits[13:6]: Stream ID.
+    Bits[5:2]: Substream ID.
+    Bits[1]: Direction.
+    Bits[0]: Key set.
+
+The function returns:
+0             On success
+-ENOTSUP      If this functionality is not supported
+-EINVAL       For invalid ECAM address or keyset_id or flag arguments
+-EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
+-EINPROGRESS  An operation for the specified keyset ID is already in progress.
+-EACCES       No key was programmed for the specified keyset ID.
 
 Function : bl31_plat_enable_mmu [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
