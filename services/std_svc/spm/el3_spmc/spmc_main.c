@@ -31,7 +31,8 @@
 #include <platform_def.h>
 
 /* Declare the maximum number of SPs and El3 LPs. */
-#define MAX_SP_LP_PARTITIONS SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT
+#define MAX_SP_LP_PARTITIONS (SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT)
+#define FFA_VERSION_NULL U(0)
 
 #define FFA_VERSION_SPMC_MAJOR U(1)
 #define FFA_VERSION_SPMC_MINOR U(1)
@@ -116,6 +117,58 @@ struct mailbox *spmc_get_mbox_desc(bool secure_origin)
 	} else {
 		return &(spmc_get_hyp_ctx()->mailbox);
 	}
+}
+
+static uint32_t spmc_get_sp_ffa_version(struct secure_partition_desc *sp)
+{
+	uint32_t version;
+
+	spin_lock(&sp->ffa_version_lock);
+	version = sp->ffa_version;
+	spin_unlock(&sp->ffa_version_lock);
+	return version;
+}
+
+static uint32_t spmc_get_ns_ep_ffa_version(struct ns_endpoint_desc *ns_ep)
+{
+	uint32_t version;
+
+	spin_lock(&ns_ep->ffa_version_lock);
+	version = ns_ep->ffa_version;
+	spin_unlock(&ns_ep->ffa_version_lock);
+	return version;
+}
+
+/*
+ * Per FF-A spec, version negotiation ends on the first non-FFA_VERSION call.
+ * So mark the ffa version as locked and return if a valid ffa version has been
+ * negotiated.
+ */
+static bool spmc_complete_ffa_version_negotiation(bool secure_origin)
+{
+	bool has_version = false;
+
+	if (secure_origin) {
+		struct secure_partition_desc *sp = spmc_get_current_sp_ctx();
+
+		spin_lock(&sp->ffa_version_lock);
+		has_version = (sp->ffa_version != FFA_VERSION_NULL);
+		sp->ffa_version_negotiated = true;
+		spin_unlock(&sp->ffa_version_lock);
+	} else {
+		struct ns_endpoint_desc *ns_ep = spmc_get_hyp_ctx();
+
+		spin_lock(&ns_ep->ffa_version_lock);
+		has_version = (ns_ep->ffa_version != FFA_VERSION_NULL);
+		ns_ep->ffa_version_negotiated = true;
+		spin_unlock(&ns_ep->ffa_version_lock);
+	}
+	return has_version;
+}
+
+static bool spmc_ffa_version_is_valid(uint32_t version)
+{
+	return (version & FFA_VERSION_BIT31_MASK) == 0U;
 }
 
 static uint16_t spmc_ffa_version_get_major(uint32_t version)
@@ -345,10 +398,10 @@ static bool direct_msg_validate_lp_resp(uint16_t origin_id, uint16_t lp_id,
 uint32_t get_partition_ffa_version(bool secure_origin)
 {
 	if (secure_origin) {
-		return spmc_get_current_sp_ctx()->ffa_version;
-	} else {
-		return spmc_get_hyp_ctx()->ffa_version;
+		return spmc_get_sp_ffa_version(spmc_get_current_sp_ctx());
 	}
+
+	return spmc_get_ns_ep_ffa_version(spmc_get_hyp_ctx());
 }
 
 /*******************************************************************************
@@ -663,34 +716,81 @@ static uint64_t ffa_version_handler(uint32_t smc_fid,
 	uint32_t requested_version = x1 & FFA_VERSION_MASK;
 	uint32_t spmc_version = MAKE_FFA_VERSION(FFA_VERSION_SPMC_MAJOR,
 						 FFA_VERSION_SPMC_MINOR);
+	bool compatible = spmc_ffa_versions_are_compatible(requested_version,
+							   spmc_version);
+	uint32_t return_val = spmc_version;
 
-	if (requested_version & FFA_VERSION_BIT31_MASK) {
+	/* Reject invalid FF-A version encodings. */
+	if (!spmc_ffa_version_is_valid(requested_version)) {
 		/* Invalid encoding, return an error. */
-		SMC_RET1(handle, FFA_ERROR_NOT_SUPPORTED);
-		/* Execution stops here. */
-	}
+		return_val = SMC_ARCH_CALL_NOT_SUPPORTED;
+	} else if (secure_origin) {
+		struct secure_partition_desc *sp = spmc_get_current_sp_ctx();
 
-	if (spmc_ffa_versions_are_compatible(requested_version, spmc_version)) {
-		/* Determine the caller to store the requested version. */
-		if (secure_origin) {
-			spmc_get_current_sp_ctx()->ffa_version = requested_version;
-		} else {
+		spin_lock(&sp->ffa_version_lock);
+		if (sp->ffa_version_negotiated) {
+			/* If negotiation is locked return the negotiated version. */
+			return_val = sp->ffa_version;
+			WARN("Endpoint %x cannot renegotiate FF-A version.\n",
+			     sp->sp_id);
 			/*
-			 * If this is called by the normal world, record this
-			 * information in its descriptor.
+			 * After any FF-A call other than FFA_VERSION, version
+			 * negotiation is no longer allowed. Return
+			 * FFA_ERROR_NOT_SUPPORTED if no version was negotiated,
+			 * otherwise return the previously negotiated version.
 			 */
-			spmc_get_hyp_ctx()->ffa_version = requested_version;
+			if (return_val == FFA_VERSION_NULL) {
+				return_val = FFA_ERROR_NOT_SUPPORTED;
+			}
+		} else if (compatible) {
+			/*
+			 * If negotiation is still open and the requested_version
+			 * is compatible set the endpoints new version.
+			 */
+			sp->ffa_version = requested_version;
+		} else {
+			WARN("FFA_VERSION: incompatible version v%u.%u (SPMC v%u.%u)\n",
+			     spmc_ffa_version_get_major(requested_version),
+			     spmc_ffa_version_get_minor(requested_version),
+			     spmc_ffa_version_get_major(spmc_version),
+			     spmc_ffa_version_get_minor(spmc_version));
 		}
-
+		spin_unlock(&sp->ffa_version_lock);
 	} else {
-		WARN("FFA_VERSION: incompatible version v%u.%u (SPMC v%u.%u)\n",
-		     spmc_ffa_version_get_major(requested_version),
-		     spmc_ffa_version_get_minor(requested_version),
-		     spmc_ffa_version_get_major(spmc_version),
-		     spmc_ffa_version_get_minor(spmc_version));
+		struct ns_endpoint_desc *ns_ep = spmc_get_hyp_ctx();
+
+		spin_lock(&ns_ep->ffa_version_lock);
+		if (ns_ep->ffa_version_negotiated) {
+			/* If negotiation is locked return the negotiated version. */
+			return_val = ns_ep->ffa_version;
+			WARN("Endpoint %x cannot renegotiate FF-A version.\n",
+			     ns_ep->ns_ep_id);
+			/*
+			 * After any FF-A call other than FFA_VERSION, version
+			 * negotiation is no longer allowed. Return
+			 * FFA_ERROR_NOT_SUPPORTED if no version was negotiated,
+			 * otherwise return the previously negotiated version.
+			 */
+			if (return_val == FFA_VERSION_NULL) {
+				return_val = FFA_ERROR_NOT_SUPPORTED;
+			}
+		} else if (compatible) {
+			/*
+			 * If negotiation is still open and the requested_version
+			 * is compatible set the endpoints new version.
+			 */
+			ns_ep->ffa_version = requested_version;
+		} else {
+			WARN("FFA_VERSION: incompatible version v%u.%u (SPMC v%u.%u)\n",
+			     spmc_ffa_version_get_major(requested_version),
+			     spmc_ffa_version_get_minor(requested_version),
+			     spmc_ffa_version_get_major(spmc_version),
+			     spmc_ffa_version_get_minor(spmc_version));
+		}
+		spin_unlock(&ns_ep->ffa_version_lock);
 	}
 
-	SMC_RET1(handle, spmc_version);
+	SMC_RET1(handle, return_val);
 }
 
 static uint64_t rxtx_map_handler(uint32_t smc_fid,
@@ -1160,7 +1260,7 @@ static uint64_t ffa_features_retrieve_request(bool secure_origin,
 			if ((input_properties &
 			     FFA_FEATURES_RET_REQ_NS_BIT) == 0U) {
 				return spmc_ffa_error_return(handle,
-						       FFA_ERROR_NOT_SUPPORTED);
+							       FFA_ERROR_NOT_SUPPORTED);
 			}
 			return ffa_feature_success(handle,
 						   FFA_FEATURES_RET_REQ_NS_BIT);
@@ -1983,6 +2083,15 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 			  void *handle,
 			  uint64_t flags)
 {
+	/*
+	 * For any FF-A ABI other than FFA_VERSION, mark version negotiation as
+	 * complete and check a version has been successfully negotiated.
+	 */
+	if (smc_fid != FFA_VERSION &&
+	    !spmc_complete_ffa_version_negotiation(secure_origin)) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
 	switch (smc_fid) {
 
 	case FFA_VERSION:
