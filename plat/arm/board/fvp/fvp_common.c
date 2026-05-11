@@ -599,22 +599,12 @@ int32_t plat_get_soc_name(char *soc_name)
 
 /* BDF mappings for RP0 RC0 */
 static struct bdf_mapping_info rc0rp0_bdf_data[] = {
-	/* BDF0 - 127 (0x0 -> 0x7FFF) */
-	{0U,		/* mapping_base */
-	 0x8000U,	/* mapping_top */
-	 0U,		/* mapping_off */
-	 0U		/* smmu_idx */
-	}
+	BDF_RANGE(0x0000U, 0x8000U, 0U, 0U),
 };
 
 /* BDF mappings for RP1 RC0 */
 static struct bdf_mapping_info rc0rp1_bdf_data[] = {
-	/* BDF128+ (0x8000 -> 0xFFFE) */
-	{0x8000U,	/* mapping_base */
-	 0xFFFFU,	/* mapping_top */
-	 0U,		/* mapping_off */
-	 0U		/* smmu_idx */
-	}
+	BDF_RANGE(0x8000U, 0xFFFFU, 0U, 0U),
 };
 
 /* Root Port IDs for FVP */
@@ -622,34 +612,18 @@ static struct bdf_mapping_info rc0rp1_bdf_data[] = {
 #define RC0_RP1_BDF		0x10U		/* Bus: 0x0 Dev: 0x2 Func: 0x0 */
 
 /* Root ports for RC0 */
-static struct root_port_info rc0rp_data[] = {
-	/* RP0 */
-	{RC0_RP0_BDF,					/* root_port_id */
-	 0U,						/* padding */
-	 (uint32_t)ARRAY_SIZE(rc0rp0_bdf_data),		/* num_bdf_mappings */
-	 rc0rp0_bdf_data				/* bdf_mappings */
-	},
-	/* RP1 */
-	{RC0_RP1_BDF,					/* root_port_id */
-	 0U,						/* padding */
-	 (uint32_t)ARRAY_SIZE(rc0rp1_bdf_data),		/* num_bdf_mappings */
-	 rc0rp1_bdf_data				/* bdf_mappings */
-	}
+static struct root_port_info rc0_ports[] = {
+	ROOT_PORT(RC0_RP0_BDF, rc0rp0_bdf_data),
+	ROOT_PORT(RC0_RP1_BDF, rc0rp1_bdf_data),
 };
 
 /* Root complexes */
-static struct root_complex_info rc_data[] = {
-	/* RC0 */
-	{PCIE_EXP_BASE,				/* ecam_base */
-	 0U,					/* segment */
-	 {0U, 0U, 0U},				/* padding */
-	 (uint32_t)ARRAY_SIZE(rc0rp_data),	/* num_root_ports */
-	 rc0rp_data				/* root_ports */
-	}
+static struct root_complex_info fvp_rc_info[] = {
+	ROOT_COMPLEX(PCIE_EXP_BASE, 0U, rc0_ports),
 };
 
 /* Number of PCIe Root Complexes */
-#define FVP_RMM_RC_COUNT	ARRAY_SIZE(rc_data)
+#define FVP_RMM_RC_COUNT	ARRAY_SIZE(fvp_rc_info)
 
 /*
  * Get a pointer to the RMM-EL3 Shared buffer and return it
@@ -831,11 +805,11 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 	/* Scan all root complex entries */
 	for (unsigned long i = 0UL; i < num_root_complex; i++) {
-		num_root_ports += rc_data[i].num_root_ports;
+		num_root_ports += fvp_rc_info[i].num_root_ports;
 
 		/* Scan all root ports entries in root complex */
-		for (unsigned int j = 0U; j < rc_data[i].num_root_ports; j++) {
-			num_bdf_mappings += rc_data[i].root_ports[j].num_bdf_mappings;
+		for (unsigned int j = 0U; j < fvp_rc_info[i].num_root_ports; j++) {
+			num_bdf_mappings += fvp_rc_info[i].root_ports[j].num_bdf_mappings;
 		}
 	}
 
@@ -1015,25 +989,21 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 	/* Fill PCIe root complex info structures */
 	for (unsigned long i = 0U; i < num_root_complex; i++) {
-		const struct root_complex_info *rc_info = &rc_data[i];
+		const struct root_complex_info *rc_info = &fvp_rc_info[i];
 		const struct root_port_info *rp_info = rc_info->root_ports;
 
-		/* Copy root complex data, except root_ports pointer */
-		(void)memcpy((void *)rc_ptr, (void *)rc_info,
-			sizeof(struct root_complex_info) - sizeof(struct root_port_info *));
-
-		/* Set root_ports for root complex */
+		rc_ptr->ecam_base = rc_info->ecam_base;
+		rc_ptr->segment = rc_info->segment;
+		rc_ptr->num_root_ports = rc_info->num_root_ports;
 		rc_ptr->root_ports = rp_ptr;
 
 		/* Scan root ports */
 		for (unsigned int j = 0U; j < rc_ptr->num_root_ports; j++) {
 			const struct bdf_mapping_info *bdf_info = rp_info->bdf_mappings;
 
-			/* Copy root port data, except bdf_mappings pointer */
-			(void)memcpy((void *)rp_ptr, (void *)rp_info,
-				sizeof(struct root_port_info) - sizeof(struct bdf_mapping_info *));
-
-			/* Set bdf_mappings for root port */
+			rp_ptr->root_port_id = rp_info->root_port_id;
+			rp_ptr->padding = rp_info->padding;
+			rp_ptr->num_bdf_mappings = rp_info->num_bdf_mappings;
 			rp_ptr->bdf_mappings = bdf_ptr;
 
 			/* Copy all BDF mappings for root port */

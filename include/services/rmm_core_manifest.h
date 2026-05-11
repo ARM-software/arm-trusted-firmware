@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include <lib/cassert.h>
+#include <lib/utils_def.h>
 
 #define RMMD_MANIFEST_VERSION_MAJOR		U(0)
 #define RMMD_MANIFEST_VERSION_MINOR		U(5)
@@ -200,6 +201,31 @@ CASSERT(offsetof(struct root_complex_list, root_complex) == 16UL,
 			rmm_manifest_root_complex);
 CASSERT(offsetof(struct root_complex_list, checksum) == 24UL,
 			rmm_manifest_root_complex_list_checksum);
+
+#define BDF_RANGE(_base, _top, _off, _smmu)			\
+	{							\
+		(uint16_t)(_base),				\
+		(uint16_t)((_top)),				\
+		(uint16_t)(_off),				\
+		(uint16_t)(_smmu)				\
+	}
+
+#define ROOT_PORT(_root_port_id, _bdf_mappings)		\
+	{						\
+		(_root_port_id),			\
+		0U,					\
+		(uint32_t)ARRAY_SIZE(_bdf_mappings),	\
+		(_bdf_mappings)				\
+	}
+
+#define ROOT_COMPLEX(_ecam_base, _segment, _root_ports)	\
+	{						\
+		(_ecam_base),				\
+		(_segment),				\
+		{ 0U, 0U, 0U },				\
+		(uint32_t)ARRAY_SIZE(_root_ports),	\
+		(_root_ports)				\
+	}
 
 /* Boot manifest core structure as per v0.5 */
 struct rmm_manifest {
