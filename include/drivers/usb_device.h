@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -280,11 +280,11 @@ enum usb_status usb_core_transmit_ep0(struct usb_handle *pdev, uint8_t *p_buf,
 void usb_core_ctl_error(struct usb_handle *pdev);
 enum usb_status usb_core_start(struct usb_handle *pdev);
 enum usb_status usb_core_stop(struct usb_handle *pdev);
-enum usb_status register_usb_driver(struct usb_handle *pdev,
-				    struct pcd_handle *pcd_handle,
-				    const struct usb_driver *driver,
-				    void *driver_handle);
-enum usb_status register_platform(struct usb_handle *pdev,
-				  const struct usb_desc *plat_call_back);
+void register_usb_driver(struct usb_handle *pdev,
+			 struct pcd_handle *pcd_handle,
+			 const struct usb_driver *driver,
+			 void *driver_handle);
+void register_platform(struct usb_handle *pdev,
+		       const struct usb_desc *plat_call_back);
 
 #endif /* USB_DEVICE_H */

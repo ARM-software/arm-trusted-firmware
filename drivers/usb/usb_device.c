@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -795,17 +795,16 @@ enum usb_status usb_core_stop(struct usb_handle *pdev)
 
 /*
  * register_usb_driver
- *         Stop the USB device core.
+ *         Register the USB device core.
  * pdev: Device Handle
  * pcd_handle: PCD handle
  * driver: USB driver
  * driver_handle: USB driver handle
- * return : USBD Status
  */
-enum usb_status register_usb_driver(struct usb_handle *pdev,
-				    struct pcd_handle *pcd_handle,
-				    const struct usb_driver *driver,
-				    void *driver_handle)
+void register_usb_driver(struct usb_handle *pdev,
+			 struct pcd_handle *pcd_handle,
+			 const struct usb_driver *driver,
+			 void *driver_handle)
 {
 	uint8_t i;
 
@@ -826,25 +825,20 @@ enum usb_status register_usb_driver(struct usb_handle *pdev,
 		pdev->ep_in[i].maxpacket = pdev->data->in_ep[i].maxpacket;
 		pdev->ep_out[i].maxpacket = pdev->data->out_ep[i].maxpacket;
 	}
-
-	return USBD_OK;
 }
 
 /*
  * register_platform
- *         Register the USB device core.
+ *         Register the USB platform resources.
  * pdev: Device Handle
  * plat_call_back: callback
- * return : USBD Status
  */
-enum usb_status register_platform(struct usb_handle *pdev,
-				  const struct usb_desc *plat_call_back)
+void register_platform(struct usb_handle *pdev,
+		       const struct usb_desc *plat_call_back)
 {
 	assert(pdev != NULL);
 	assert(plat_call_back != NULL);
 
 	/* Save platform info in class resources */
 	pdev->desc = plat_call_back;
-
-	return USBD_OK;
 }
