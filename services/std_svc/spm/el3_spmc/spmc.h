@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -178,6 +178,17 @@ struct secure_partition_desc {
 	/* Supported FF-A Version. */
 	uint32_t ffa_version;
 
+	/* Protects ffa_version and ffa_version_negotiated. */
+	spinlock_t ffa_version_lock;
+
+	/*
+	 * Set once the version negotiation phase is complete for this
+	 * endpoint. This happens when any non-FFA_VERSION ABI is invoked.
+	 * After this point, FFA_VERSION can no longer be used to negotiate
+	 * or change the version.
+	 */
+	bool ffa_version_negotiated;
+
 	/* Execution State. */
 	enum sp_execution_state execution_state;
 
@@ -233,6 +244,17 @@ struct ns_endpoint_desc {
 	 * Supported FF-A Version
 	 */
 	uint32_t ffa_version;
+
+	/* Protects ffa_version and ffa_version_negotiated. */
+	spinlock_t ffa_version_lock;
+
+	/*
+	 * Set once the version negotiation phase is complete for this
+	 * endpoint. This happens when any non-FFA_VERSION ABI is invoked.
+	 * After this point, FFA_VERSION can no longer be used to negotiate
+	 * or change the version.
+	 */
+	bool ffa_version_negotiated;
 };
 
 /* Reference to power management hooks */
