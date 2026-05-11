@@ -1578,6 +1578,11 @@ Common build options
    ``ENABLE_FEAT_RME``. Until deprecated, setting this option to 1, will also
    set ``ENABLE_FEAT_RME`` and ``ENABLE_RMM`` to 1.
 
+-  ``RMMD_ENABLE_IDE_KEY_PROG``: Boolean flag to enable support for RMM EL3
+   interface to program and manage IDE keys at the PCIe Root Port (RP). Default
+   value is 0. This option will be removed in a future release. Please use FIRME
+   IDE key management service ``FIRME_SUPPORT_IDE_KM`` instead.
+
 -  ``RMM_V1_COMPAT``: Boolean flag to enable support for RMM v1.x compatibility
    mode. When set to 0, TF-A will use the RMM-EL3 interface version required
    for RMMv2.0. Default value is 0.

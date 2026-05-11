@@ -213,6 +213,7 @@ static void trp_asc_mark_nonsecure(unsigned long long x1,
 	smc_ret->x[1] = x1 + PAGE_SIZE_4KB;
 }
 
+#if RMMD_ENABLE_IDE_KEY_PROG
 /*******************************************************************************
  * Test the IDE Key management interface
  ******************************************************************************/
@@ -224,9 +225,8 @@ static void trp_ide_keymgmt_interface_fn(unsigned long long x1, unsigned long lo
 	uint64_t ifvqw0, ifvqw1;
 	int return_value;
 
-#if RMMD_ENABLE_IDE_KEY_PROG
 	trp_get_test_rootport(&ecam_address, &rp_id);
-#endif /* RMMD_ENABLE_IDE_KEY_PROG */
+
 	/*
 	 * Dummy values for testing:
 	 * Key set = 0x0
@@ -268,6 +268,7 @@ static void trp_ide_keymgmt_interface_fn(unsigned long long x1, unsigned long lo
 	smc_ret->x[0] = RMI_ERROR_NOT_SUPPORTED;
 
 }
+#endif /* RMMD_ENABLE_IDE_KEY_PROG */
 
 /*******************************************************************************
  * Main RMI SMC handler function
@@ -306,9 +307,11 @@ void trp_rmi_handler(unsigned long fid,
 	case RMI_RMM_GRANULE_RANGE_UNDELEGATE:
 		trp_asc_mark_nonsecure(x1, smc_ret);
 		break;
+#if RMMD_ENABLE_IDE_KEY_PROG
 	case RMI_RMM_PDEV_CREATE:
 		trp_ide_keymgmt_interface_fn(x1, x2, smc_ret);
 		break;
+#endif
 	case RMI_RMM_CONFIG_SET:
 	case RMI_RMM_CONFIG_GET:
 		smc_ret->x[0] = RMI_SUCCESS;

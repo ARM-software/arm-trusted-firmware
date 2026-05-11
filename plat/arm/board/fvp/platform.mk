@@ -346,9 +346,13 @@ BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_realm_attest_key.c	\
 				plat/arm/board/fvp/fvp_el3_token_sign.c		\
-				plat/arm/board/fvp/fvp_ide_keymgmt.c		\
 				plat/arm/common/plat_rmm_mem_carveout.c
-endif
+
+ifeq (${RMMD_ENABLE_IDE_KEY_PROG},1)
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_ide_keymgmt.c
+endif # (RMMD_ENABLE_IDE_KEY_PROG)
+
+endif # (ENABLE_RMM)
 
 ifeq (${FIRME_SUPPORT_IDE_KM},1)
 PLAT_PCIE_ROOT_COMPLEX_MAX := 2

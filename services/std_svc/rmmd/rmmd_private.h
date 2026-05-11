@@ -57,6 +57,7 @@ int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_size,
 uint64_t rmmd_el3_token_sign(void *handle, uint64_t x1, uint64_t x2,
 				    uint64_t x3, uint64_t x4);
 
+#if RMMD_ENABLE_IDE_KEY_PROG
 /* Functions implementing IDE KM programming */
 int rmmd_el3_ide_key_program(uint64_t ecam_address, uint64_t rp_id,
 			     uint64_t ide_stream_info, rp_ide_key_info_t *ide_key_info_ptr,
@@ -67,6 +68,7 @@ int rmmd_el3_ide_key_set_stop(uint64_t ecam_address, uint64_t rp_id, uint64_t id
 			      uint64_t request_id, uint64_t cookie);
 int rmmd_el3_ide_km_pull_response(uint64_t ecam_address, uint64_t rp_id, uint64_t *req_resp,
 				  uint64_t *request_id, uint64_t *cookie_ptr);
+#endif /* RMMD_ENABLE_IDE_KEY_PROG */
 
 /* Memory reservation for RMM */
 int rmmd_reserve_memory(size_t size, uint64_t *arg);
