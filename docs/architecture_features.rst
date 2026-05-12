@@ -516,23 +516,14 @@ this process up by using the ``new-cpu-feature`` agent skill.
     other features which this feature depends on or is incompatible with and can
     be found in the main description of the feature in the Arm ARM.
 
-- Add the feature accessor functions in ``include/arch/aarch64/arch_features.h``.
-
-  A pair of functions must be defined in the form of ``is_feat_abc_present()``
-  and ``is_feat_abc_supported()``.  Please use the provided macros to define
-  these.
-
-  - The ``_supported`` variant is the one that should usually be used. If common
-    code is to use it, a corresponding AArch32 version should be provided. It
-    should return ``false`` if AArch32 is not to be supported.
+- Create a macro for the feature in ``include/arch/aarch64/arch_features.h`` and
+  add it to the appropriate list to register with other frameworks. If the
+  feature doesn't neatly fit in the standard pattern, it can be progressively
+  unravelled.
 
   - In rare occasions, the feature must be checked in assembly. A
     ``is_feat_abc_present_asm`` macro must be added to
     ``include/lib/cpus/aarch64/cpu_macros.S``.
-
-- Register the feature in ``common/feat_detect.c``.
-
-- Register the feature in lib/extensions/idte/idte3.c.
 
 - Add support for the feature. This will be very feature specific and exact code
   will depend on why support is being added. Usually, support will be a few

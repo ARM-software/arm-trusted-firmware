@@ -31,141 +31,493 @@
 #define FEAT_ENABLE_SECURE		(1 << CPU_CONTEXT_SECURE)
 #define FEAT_ENABLE_NS			(1 << CPU_CONTEXT_NS)
 
-#define SHOULD_ID_FIELD_DISABLE(guard, enabled_worlds, world)		\
-	 (((guard) == 0U) || ((((enabled_worlds) >> (world)) & 1U) == 0U))
+#define CREATE_FEATURE_ID_FIELD		_CREATE_FEATURE_ID_FIELD
+#define CREATE_FEATURE_PRESENT		_CREATE_FEATURE_PRESENT
+#define CREATE_FEATURE_SUPPORTED	_CREATE_FEATURE_SUPPORTED
 
+#define CREATE_FEATURE_FUNCS(name, idreg, guard, field, min, max, worlds)	\
+	CREATE_FEATURE_ID_FIELD(name, idreg, guard, field, min, max, worlds)	\
+	CREATE_FEATURE_PRESENT(name, idreg, guard, field, min, max, worlds)	\
+	CREATE_FEATURE_SUPPORTED(name, idreg, guard, field, min, max, worlds)
+
+/*******************************************************************************
+ * THE ARCHITECTURE FEATURES LIST.
+ *
+ * TF-A supports many Arm architectural features starting from arch version 8.0
+ * onwards. These features are mostly enabled through build flags, and are
+ * discoverable in hardware through standard ID registers. This is the central
+ * database to encode all necessary information to manipulate any given feature.
+ * If TF-A needs to interact with a feature, it must be registered here with a
+ * templating macro that's to be called with 7 arguments:
+ *  * name - the lowercase name of the feature as it appears in the ARM Arm
+ *  * idreg - the name of the ID register where this feature is listed
+ *  * guard - the tri-state (``ENABLE_FEAT`` compliant) flag for the feature
+ *  * field - the base name of the macros for a field of the ID register above
+ *            that identifies this feature.
+ *  * min - the minimum value the field above can take for the feature to be
+ *          considered implemented.
+ *  * max - the maximum value for the field that support has been validated for
+ *  * worlds - a bitmap of which non-root worlds the feature is enabled for
+
+ * The database is used to automatically generate accessors, validators, and
+ * meta-feature (like FEAT_IDTE3) boilerplate.
+ *
+ * Some features don't need or don't fit into this pattern. The template can be
+ * unravelled and unnecessary/illogical information should be replaced with "NA"
+ * placeholders. You should familiarize with the usage of CPUFEAT_LIST before
+ * going that path. A good example of this is FEAT_PAuth.
+ *
+ * Please put features in the version section according to the feature's chapter
+ * in the Arm ARM. For example, if a feature is part of the Armv9.5 extension,
+ * it is optional from Armv9.4 and mandatory from Armv9.6, then it should be in
+ * the Armv9.5 section below.
+ ******************************************************************************/
+
+/* === v8.0 features === */
+#define FEAT_CSV2_2(gen)							\
+	gen(feat_csv2_2, id_aa64pfr0_el1, ENABLE_FEAT_CSV2_2,			\
+	    ID_AA64PFR0_CSV2, 2U, 3U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+
+#define FEAT_CSV2_3(gen)							\
+	gen(feat_csv2_3, id_aa64pfr0_el1, ENABLE_FEAT_CSV2_3,			\
+	    ID_AA64PFR0_CSV2, 3U, 3U, FEAT_ENABLE_ALL_WORLDS)
 
 /*
- * CREATE_IDREG_UPDATE and CREATE_PERCPU_IDREG_UPDATE are two macros that
- * generate the update_feat_abc_idreg_field() function based on how its
- * corresponding ID register is cached.
- * The function disables ID register fields related to a feature if the build
- * flag for that feature is 0 or if the feature should be disabled for that
- * world. If the particular field has to be disabled, its field in the cached
- * ID register is set to 0.
- *
- * Note: For most ID register fields, a value of 0 represents
- * the Unimplemented state, and hence we use this macro to show features
- * disabled in EL3 as unimplemented to lower ELs. However, certain feature's
- * ID Register fields (like ID_AA64MMFR4_EL1.E2H0) deviate from this convention,
- * where 0 does not represent Unimplemented.
- * For those features, a custom update_feat_abc_idreg_field()
- * needs to be created. This custom function should set the field to the
- * feature's unimplemented state value if the feature is disabled in EL3.
- *
- * For example:
- *
- * __attribute__((always_inline))
- * static inline void update_feat_abc_idreg_field(size_t security_state)
- * {
- *	if (SHOULD_ID_FIELD_DISABLE(guard, enabled_worlds, security_state)) {
- *		per_world_context_t *per_world_ctx =
- *				&per_world_context[security_state];
- *		perworld_idregs_t *perworld_idregs = &(per_world_ctx->idregs);
- *
- *		perworld_idregs->idreg &= ~((u_register_t)MASK(idfield));
- *		perworld_idregs->idreg |=
- *		((u_register_t)<unimplemented state value> << idfield##_SHIFT);
- *	}
- * }
+ * Even though the PMUv3 is an OPTIONAL feature, it is always implemented and
+ * Arm prescribes so. So assume it will be there and do away with a flag for it.
+ * This is used to check minor PMUv3px revisions so that we catch them as they
+ * come along
  */
+#define FEAT_PMUV3(gen)								\
+	gen(feat_pmuv3, id_aa64dfr0_el1, FEAT_STATE_ALWAYS,			\
+	    ID_AA64DFR0_PMUVER, 1U, 9U, FEAT_ENABLE_ALL_WORLDS)
 
-#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
-#define CREATE_IDREG_UPDATE(name, idreg, idfield, guard, enabled_worlds)	\
-	__attribute__((always_inline))						\
-static inline void update_ ## name ## _idreg_field(size_t security_state)	\
-{										\
-	if (SHOULD_ID_FIELD_DISABLE(guard, enabled_worlds, security_state)) {	\
-		per_world_context_t *per_world_ctx =				\
-				&per_world_context[security_state];		\
-		perworld_idregs_t *perworld_idregs = &(per_world_ctx->idregs);	\
-		perworld_idregs->idreg &= ~((u_register_t)MASK(idfield));	\
-	}									\
-}
-#define CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, guard,		\
-					enabled_worlds)				\
-	__attribute__((always_inline))						\
-static inline void update_ ## name ## _idreg_field(size_t security_state)	\
-{										\
-	if (SHOULD_ID_FIELD_DISABLE(guard, enabled_worlds, security_state)) {	\
-		percpu_idregs_t *percpu_idregs =				\
-					&(get_cpu_data(idregs[security_state]));\
-		percpu_idregs->idreg &= ~((u_register_t)MASK(idfield));	\
-	}									\
-}
-#else
-#define CREATE_IDREG_UPDATE(name, idreg, idfield, guard, enabled_worlds)
-#define CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, guard,		\
-					enabled_worlds)
-#endif
+#define FEAT_TGRAN16K(gen)							\
+	gen(feat_tgran16K, id_aa64mmfr0_el1, FEAT_STATE_CHECKED,		\
+	    ID_AA64MMFR0_EL1_TGRAN16, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
-#define _CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
-__attribute__((always_inline))							\
-static inline unsigned int read_ ## name ## _id_field(void)			\
-{										\
-	return (unsigned int)EXTRACT(idfield, read_ ## idreg());		\
-}										\
-__attribute__((always_inline))							\
-static inline bool is_ ## name ## _present(void)				\
-{										\
-	return (read_ ## name ## _id_field() >= idval) ? true : false; 		\
-}
+#define FEAT_AES(gen)								\
+	gen(feat_aes, id_aa64isar0_el1, ENABLE_FEAT_CRYPTO,			\
+	    ID_AA64ISAR0_AES, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
 
-#define CREATE_FEATURE_PRESENT(name, idreg, idfield, idval,			\
-				enabled_worlds)					\
-	_CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
-	CREATE_IDREG_UPDATE(name, idreg, idfield, 1U, enabled_worlds)
+#define FEAT_SHA1(gen)								\
+	gen(feat_sha1, id_aa64isar0_el1, ENABLE_FEAT_CRYPTO,			\
+	    ID_AA64ISAR0_SHA1, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
-#define CREATE_PERCPU_FEATURE_PRESENT(name, idreg, idfield, idval,		\
-					enabled_worlds)				\
-	_CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
-	CREATE_PERCPU_IDREG_UPDATE(name, idreg, idfield, 1U,			\
-					enabled_worlds)
+/* Not named in the architecture. Relates to FEAT_TRC_SR */
+#define FEAT_SYS_REG_TRACE(gen)							\
+	gen(feat_sys_reg_trace, id_aa64dfr0_el1, ENABLE_SYS_REG_TRACE_FOR_NS,	\
+	    ID_AA64DFR0_TRACEVER, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
-#define CREATE_FEATURE_FUNCS(name, idreg, idfield, idval, guard,		\
-			     enabled_worlds)					\
-	CREATE_FEATURE_PRESENT(name, idreg, idfield, idval,			\
-				enabled_worlds)					\
-	CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
+/* === v8.1 features === */
+#define FEAT_PAN(gen)								\
+	gen(feat_pan, id_aa64mmfr1_el1, ENABLE_FEAT_PAN,			\
+	    ID_AA64MMFR1_EL1_PAN, 1U, 3U, FEAT_ENABLE_ALL_WORLDS)
 
-#define CREATE_PERCPU_FEATURE_FUNCS(name, idreg, idfield, idval, guard,	\
-				enabled_worlds)					\
-	CREATE_PERCPU_FEATURE_PRESENT(name, idreg, idfield, idval,		\
-				enabled_worlds)					\
-	CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
+#define FEAT_LSE(gen)								\
+	gen(feat_lse, id_aa64isar0_el1, USE_SPINLOCK_CAS,			\
+	    ID_AA64ISAR0_ATOMIC, 2U, 3U, FEAT_ENABLE_ALL_WORLDS)
 
-__attribute__((always_inline))
-static inline bool is_armv7_gentimer_present(void)
-{
-	/* The Generic Timer is always present in an ARMv8-A implementation */
-	return true;
-}
+#define FEAT_VHE(gen)								\
+	gen(feat_vhe, id_aa64mmfr1_el1, ENABLE_FEAT_VHE,			\
+	    ID_AA64MMFR1_EL1_VHE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_pan, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_PAN,
-		     1U, ENABLE_FEAT_PAN,
-		     FEAT_ENABLE_ALL_WORLDS)
+/* === v8.2 features === */
+#define FEAT_RAS(gen)								\
+	gen(feat_ras, id_aa64pfr0_el1, ENABLE_FEAT_RAS,				\
+	    ID_AA64PFR0_RAS, 1U, 3U, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_FUNCS(feat_vhe, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_VHE,
-		     1U, ENABLE_FEAT_VHE,
-		     FEAT_ENABLE_ALL_WORLDS)
+#define FEAT_IESB(gen)								\
+	gen(feat_iesb, id_aa64mmfr2_el1, ENABLE_FEAT_RAS,			\
+	    ID_AA64MMFR2_EL1_IESB, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_PRESENT(feat_ttcnp, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_CNP,
-			1U,
-			FEAT_ENABLE_ALL_WORLDS)
+#define FEAT_SVE(gen)								\
+	gen(feat_sve, id_aa64pfr0_el1, ENABLE_SVE_FOR_NS,			\
+	    ID_AA64PFR0_SVE, 1U, 3U, FEAT_ENABLE_ALL_WORLDS)
 
-CREATE_FEATURE_PRESENT(feat_uao, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_UAO,
-			1U,
-			FEAT_ENABLE_ALL_WORLDS)
+#define FEAT_TTCNP(gen)								\
+	gen(feat_ttcnp, id_aa64mmfr2_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64MMFR2_EL1_CNP, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
-__attribute__((always_inline))
-static inline bool is_feat_pacqarma3_present(void)
-{
-	u_register_t isar2 = read_id_aa64isar2_el1();
+#define FEAT_UAO(gen)								\
+	gen(feat_uao, id_aa64mmfr2_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64MMFR2_EL1_UAO, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
-	return (EXTRACT(ID_AA64ISAR2_GPA3, isar2) |
-		EXTRACT(ID_AA64ISAR2_APA3, isar2)) != 0;
-}
+#define FEAT_SPE(gen)								\
+	gen(feat_spe, id_aa64dfr0_el1, ENABLE_SPE_FOR_NS,			\
+	    ID_AA64DFR0_PMS, 1U, 6U, FEAT_ENABLE_NS)
 
+/* === v8.3 features === */
+#define FEAT_PAUTH(gen)							\
+	gen(feat_pauth, NA, ENABLE_PAUTH, NA, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v8.4 features === */
+#define FEAT_DIT(gen)								\
+	gen(feat_dit, id_aa64pfr0_el1, ENABLE_FEAT_DIT,				\
+	    ID_AA64PFR0_DIT, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_TTST(gen)								\
+	gen(feat_ttst, id_aa64mmfr2_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64MMFR2_EL1_ST, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* FEAT_AMUv1 in the architecture */
+#define FEAT_AMU(gen)								\
+	gen(feat_amu, id_aa64pfr0_el1, ENABLE_FEAT_AMU,				\
+	    ID_AA64PFR0_AMU, 1U, 2U, FEAT_ENABLE_NS)
+
+#define FEAT_MPAM(gen)								\
+	gen(feat_mpam, NA, ENABLE_FEAT_MPAM,					\
+	    NA, 1U, 17U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+
+#define FEAT_NV2(gen)								\
+	gen(feat_nv2, id_aa64mmfr2_el1, CTX_INCLUDE_NEVE_REGS,			\
+	    ID_AA64MMFR2_EL1_NV, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_SEL2(gen)								\
+	gen(feat_sel2, id_aa64pfr0_el1, ENABLE_FEAT_SEL2,			\
+	    ID_AA64PFR0_SEL2, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_TRF(gen)								\
+	gen(feat_trf, id_aa64dfr0_el1, ENABLE_TRF_FOR_NS,			\
+	    ID_AA64DFR0_TRACEFILT, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v8.5 features === */
+#define FEAT_SB(gen)								\
+	gen(feat_sb, id_aa64isar1_el1, ENABLE_FEAT_SB,				\
+	    ID_AA64ISAR1_SB, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_MTE2(gen)								\
+	gen(feat_mte2, id_aa64pfr1_el1, ENABLE_FEAT_MTE2,			\
+	    ID_AA64PFR1_EL1_MTE, 2U, 3U, FEAT_ENABLE_SECURE | FEAT_ENABLE_NS)
+
+#define FEAT_RNG(gen)								\
+	gen(feat_rng, id_aa64isar0_el1, ENABLE_FEAT_RNG,			\
+	    ID_AA64ISAR0_RNDR, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_BTI(gen)								\
+	gen(feat_bti, id_aa64pfr1_el1, ENABLE_BTI,				\
+	    ID_AA64PFR1_EL1_BT, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_RNG_TRAP(gen)							\
+	gen(feat_rng_trap, id_aa64pfr1_el1, ENABLE_FEAT_RNG_TRAP,		\
+	    ID_AA64PFR1_EL1_RNDR_TRAP, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_SSBS(gen)								\
+	gen(feat_ssbs, id_aa64pfr1_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64PFR1_EL1_SSBS, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v8.6 features === */
+#define FEAT_AMUV1P1(gen)							\
+	gen(feat_amuv1p1, id_aa64pfr0_el1, ENABLE_FEAT_AMUv1p1,			\
+	    ID_AA64PFR0_AMU, 2U, 2U, FEAT_ENABLE_NS)
+
+#define FEAT_FGT(gen)								\
+	gen(feat_fgt, id_aa64mmfr0_el1, ENABLE_FEAT_FGT,			\
+	    ID_AA64MMFR0_EL1_FGT, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_ECV(gen)								\
+	gen(feat_ecv, id_aa64mmfr0_el1, ENABLE_FEAT_ECV,			\
+	    ID_AA64MMFR0_EL1_ECV, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_TWED(gen)								\
+	gen(feat_twed, id_aa64mmfr1_el1, ENABLE_FEAT_TWED,			\
+	    ID_AA64MMFR1_EL1_TWED, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_MTPMU(gen)								\
+	gen(feat_mtpmu, id_aa64dfr0_el1, DISABLE_MTPMU,				\
+	    ID_AA64DFR0_MTPMU, 1U, 15U, FEAT_ENABLE_ALL_WORLDS)
+
+/* FEAT_ECV_POFF in the architecture */
+#define FEAT_ECV_V2(gen)							\
+	gen(feat_ecv_v2, id_aa64mmfr0_el1, ENABLE_FEAT_ECV,			\
+	    ID_AA64MMFR0_EL1_ECV, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v8.7 features === */
+#define FEAT_HCX(gen)								\
+	gen(feat_hcx, id_aa64mmfr1_el1, ENABLE_FEAT_HCX,			\
+	    ID_AA64MMFR1_EL1_HCX, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_LS64_ACCDATA(gen)							\
+	gen(feat_ls64_accdata, id_aa64isar1_el1, ENABLE_FEAT_LS64_ACCDATA,	\
+	    ID_AA64ISAR1_LS64, 3U, 3U,  FEAT_ENABLE_ALL_WORLDS)
+
+/* === v8.8 features === */
+#define FEAT_MOPS(gen)								\
+	gen(feat_mops, id_aa64isar2_el1, ENABLE_FEAT_MOPS,			\
+	    ID_AA64ISAR2_EL1_MOPS, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_TCR2(gen)								\
+	gen(feat_tcr2, id_aa64mmfr3_el1, ENABLE_FEAT_TCR2,			\
+	    ID_AA64MMFR3_EL1_TCRX, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_NMI(gen)								\
+	gen(feat_nmi, id_aa64pfr1_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64PFR1_EL1_NMI, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v8.9 features === */
+#define FEAT_FGT2(gen)								\
+	gen(feat_fgt2, id_aa64mmfr0_el1, ENABLE_FEAT_FGT2,			\
+	    ID_AA64MMFR0_EL1_FGT, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_CLRBHB(gen)							\
+	gen(feat_clrbhb, id_aa64isar2_el1, ENABLE_FEAT_CLRBHB,			\
+	    ID_AA64ISAR2_CLRBHB, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_S2PIE(gen)								\
+	gen(feat_s2pie, id_aa64mmfr3_el1, ENABLE_FEAT_S2PIE,			\
+	    ID_AA64MMFR3_EL1_S2PIE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_S1PIE(gen)								\
+	gen(feat_s1pie, id_aa64mmfr3_el1, ENABLE_FEAT_S1PIE,			\
+	    ID_AA64MMFR3_EL1_S1PIE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_S2POE(gen)								\
+	gen(feat_s2poe, id_aa64mmfr3_el1, ENABLE_FEAT_S2POE,			\
+	    ID_AA64MMFR3_EL1_S2POE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_S1POE(gen)								\
+	gen(feat_s1poe, id_aa64mmfr3_el1, ENABLE_FEAT_S1POE,			\
+	    ID_AA64MMFR3_EL1_S1POE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_DEBUGV8P9(gen)							\
+	gen(feat_debugv8p9, id_aa64dfr0_el1, ENABLE_FEAT_DEBUGV8P9,		\
+	    ID_AA64DFR0_DEBUGVER, 11U, 11U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+
+#define FEAT_THE(gen)								\
+	gen(feat_the, id_aa64pfr1_el1, ENABLE_FEAT_THE,				\
+	    ID_AA64PFR1_EL1_THE, 1U, 1U, FEAT_ENABLE_NS)
+
+#define FEAT_SCTLR2(gen)							\
+	gen(feat_sctlr2, id_aa64mmfr3_el1, ENABLE_FEAT_SCTLR2,			\
+	    ID_AA64MMFR3_EL1_SCTLR2, 1U, 1U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+
+#define FEAT_AIE(gen)								\
+	gen(feat_aie, id_aa64mmfr3_el1, ENABLE_FEAT_AIE,			\
+	    ID_AA64MMFR3_EL1_AIE, 1U, 1U, FEAT_ENABLE_NS)
+
+#define FEAT_PFAR(gen)								\
+	gen(feat_pfar, id_aa64pfr1_el1, ENABLE_FEAT_PFAR,			\
+	    ID_AA64PFR1_EL1_PFAR, 1U, 1U, FEAT_ENABLE_NS)
+
+/* === v9.0 features === */
+#define FEAT_TRBE(gen)								\
+	gen(feat_trbe, id_aa64dfr0_el1, ENABLE_TRBE_FOR_NS,			\
+	    ID_AA64DFR0_TRACEBUFFER, 1U, 1U, FEAT_ENABLE_NS)
+
+/* === v9.2 features === */
+#define FEAT_RME(gen)								\
+	gen(feat_rme, id_aa64pfr0_el1, ENABLE_FEAT_RME,				\
+	    ID_AA64PFR0_FEAT_RME, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_BRBE(gen)								\
+	gen(feat_brbe, id_aa64dfr0_el1, ENABLE_BRBE_FOR_NS,			\
+	    ID_AA64DFR0_BRBE, 1U, 2U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+
+#define FEAT_SME(gen)								\
+	gen(feat_sme, id_aa64pfr1_el1, ENABLE_SME_FOR_NS,			\
+	    ID_AA64PFR1_EL1_SME, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_SME_FA64(gen)							\
+	gen(feat_sme_fa64, id_aa64smfr0_el1, FEAT_STATE_CHECKED,		\
+	    ID_AA64SMFR0_EL1_SME_FA64, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v9.3 features === */
+#define FEAT_SME2(gen)								\
+	gen(feat_sme2, id_aa64pfr1_el1, ENABLE_SME2_FOR_NS,			\
+	    ID_AA64PFR1_EL1_SME, 2U, 3U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_GCIE(gen)								\
+	gen(feat_gcie, id_aa64pfr2_el1, ENABLE_FEAT_GCIE,			\
+	    ID_AA64PFR2_EL1_GCIE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_EBEP(gen)								\
+	gen(feat_ebep, id_aa64dfr1_el1, ENABLE_FEAT_EBEP,			\
+	    ID_AA64DFR1_EBEP, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_MEC(gen)								\
+	gen(feat_mec, id_aa64mmfr3_el1, ENABLE_FEAT_MEC,			\
+	    ID_AA64MMFR3_EL1_MEC, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v9.4 features === */
+#define FEAT_D128(gen)								\
+	gen(feat_d128, id_aa64mmfr3_el1, ENABLE_FEAT_D128,			\
+	    ID_AA64MMFR3_EL1_D128, 1U, 1U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+
+#define FEAT_GCS(gen)								\
+	gen(feat_gcs, id_aa64pfr1_el1, ENABLE_FEAT_GCS,				\
+	    ID_AA64PFR1_EL1_GCS, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_RME_GDI(gen)							\
+	gen(feat_rme_gdi, id_aa64mmfr4_el1, ENABLE_FEAT_RME_GDI,		\
+	    ID_AA64MMFR4_EL1_RME_GDI, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_IDTE3(gen)								\
+	gen(feat_idte3, id_aa64mmfr2_el1, ENABLE_FEAT_IDTE3,			\
+	    ID_AA64MMFR2_EL1_IDS, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_SEBEP(gen)								\
+	gen(feat_sebep, id_aa64dfr0_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64DFR0_SEBEP, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v9.5 features === */
+#define FEAT_FGWTE3(gen)							\
+	gen(feat_fgwte3, id_aa64mmfr4_el1, ENABLE_FEAT_FGWTE3,			\
+	    ID_AA64MMFR4_EL1_FGWTE3, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_PAUTH_LR(gen)							\
+	gen(feat_pauth_lr, NA, ENABLE_FEAT_PAUTH_LR,				\
+	    NA, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_FPMR(gen)								\
+	gen(feat_fpmr, id_aa64pfr2_el1, ENABLE_FEAT_FPMR,			\
+	    ID_AA64PFR2_EL1_FPMR, 1U, 1U, FEAT_ENABLE_NS)
+
+#define FEAT_CPA2(gen)								\
+	gen(feat_cpa2, id_aa64isar3_el1, ENABLE_FEAT_CPA2,			\
+	    ID_AA64ISAR3_EL1_CPA, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_HDBSS(gen)								\
+	gen(feat_hdbss, id_aa64mmfr1_el1, ENABLE_FEAT_HDBSS,			\
+	    ID_AA64MMFR1_EL1_HAFDBS, 4U, 4U, FEAT_ENABLE_NS)
+
+#define FEAT_HACDBS(gen)							\
+	gen(feat_hacdbs, id_aa64mmfr4_el1, ENABLE_FEAT_HACDBS,			\
+	    ID_AA64MMFR4_EL1_HACDBS, 1U, 1U, FEAT_ENABLE_NS)
+
+#define FEAT_RME_GPC2(gen)							\
+	gen(feat_rme_gpc2, id_aa64pfr0_el1, FEAT_STATE_CHECKED,			\
+	    ID_AA64PFR0_FEAT_RME, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
+/* === v9.6 features === */
+#define FEAT_UINJ(gen)								\
+	gen(feat_uinj, id_aa64pfr2_el1, ENABLE_FEAT_UINJ,			\
+	    ID_AA64PFR2_EL1_UINJ, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_STEP2(gen)								\
+	gen(feat_step2, id_aa64dfr2_el1, ENABLE_FEAT_STEP2,			\
+	    ID_AA64DFR2_STEP, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_SPE_EXC(gen)							\
+	gen(feat_spe_exc, id_aa64dfr2_el1, ENABLE_FEAT_SPEV1P5,			\
+	    ID_AA64DFR2_SPE_EXC, 1U, 1U, FEAT_ENABLE_NS)
+
+#define FEAT_SPE_NVM(gen)							\
+	gen(feat_spe_nvm, id_aa64dfr2_el1, ENABLE_FEAT_SPEV1P5,			\
+	    ID_AA64DFR2_SPE_NVM, 1U, 1U, FEAT_ENABLE_NS)
+
+/* Auxiliary features. Don't relate to an architectural feature directly */
+#define FEAT_AMU_AUX(gen)							\
+	gen(feat_amu_aux, amcfgr_el0, ENABLE_AMU_AUXILIARY_COUNTERS,		\
+	    AMCFGR_EL0_NCG, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/* 9.3 but no standalone ID field */
+#define FEAT_MPAM_PE_BW_CTRL(gen)						\
+	gen(feat_mpam_pe_bw_ctrl, mpamidr_el1, ENABLE_FEAT_MPAM_PE_BW_CTRL,	\
+	    MPAMIDR_HAS_BW_CTRL, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+#define CTX_PAUTH(gen)								\
+	gen(ctx_pauth, NA, CTX_INCLUDE_PAUTH_REGS,				\
+	    NA, NA, NA, NA)
+
+/* Non-Architectural features */
+#define FEAT_MORELLO(gen)							\
+	gen(feat_morello, id_aa64pfr1_el1, ENABLE_FEAT_MORELLO,			\
+	    ID_AA64PFR1_EL1_CE, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+
+/*
+ * List of "standard" features. They obey the common format of the ID register
+ * scheme (D24.1.3 in the ARM) and can have all boilerplate generated
+ * automatically.
+ */
+#define CPUFEAT_LIST(gen)							\
+	FEAT_CSV2_2(gen)							\
+	FEAT_CSV2_3(gen)							\
+	FEAT_TGRAN16K(gen)							\
+	FEAT_AES(gen)								\
+	FEAT_SHA1(gen)								\
+	FEAT_PAN(gen)								\
+	FEAT_LSE(gen)								\
+	FEAT_VHE(gen)								\
+	FEAT_RAS(gen)								\
+	FEAT_IESB(gen)								\
+	FEAT_SVE(gen)								\
+	FEAT_TTCNP(gen)								\
+	FEAT_UAO(gen)								\
+	FEAT_DIT(gen)								\
+	FEAT_TTST(gen)								\
+	FEAT_AMU(gen)								\
+	FEAT_NV2(gen)								\
+	FEAT_SEL2(gen)								\
+	FEAT_SB(gen)								\
+	FEAT_MTE2(gen)								\
+	FEAT_RNG(gen)								\
+	FEAT_BTI(gen)								\
+	FEAT_RNG_TRAP(gen)							\
+	FEAT_SSBS(gen)								\
+	FEAT_AMUV1P1(gen)							\
+	FEAT_FGT(gen)								\
+	FEAT_ECV(gen)								\
+	FEAT_TWED(gen)								\
+	FEAT_ECV_V2(gen)							\
+	FEAT_HCX(gen)								\
+	FEAT_LS64_ACCDATA(gen)							\
+	FEAT_MOPS(gen)								\
+	FEAT_TCR2(gen)								\
+	FEAT_NMI(gen)								\
+	FEAT_FGT2(gen)								\
+	FEAT_CLRBHB(gen)							\
+	FEAT_S2PIE(gen)								\
+	FEAT_S1PIE(gen)								\
+	FEAT_S2POE(gen)								\
+	FEAT_S1POE(gen)								\
+	FEAT_THE(gen)								\
+	FEAT_SCTLR2(gen)							\
+	FEAT_AIE(gen)								\
+	FEAT_PFAR(gen)								\
+	FEAT_RME(gen)								\
+	FEAT_SME(gen)								\
+	FEAT_SME_FA64(gen)							\
+	FEAT_SME2(gen)								\
+	FEAT_GCIE(gen)								\
+	FEAT_MEC(gen)								\
+	FEAT_D128(gen)								\
+	FEAT_GCS(gen)								\
+	FEAT_RME_GDI(gen)							\
+	FEAT_IDTE3(gen)								\
+	FEAT_FGWTE3(gen)							\
+	FEAT_FPMR(gen)								\
+	FEAT_CPA2(gen)								\
+	FEAT_HDBSS(gen)								\
+	FEAT_HACDBS(gen)							\
+	FEAT_RME_GPC2(gen)							\
+	FEAT_UINJ(gen)								\
+	FEAT_STEP2(gen)								\
+	FEAT_SPE_EXC(gen)							\
+	FEAT_SPE_NVM(gen)							\
+	FEAT_MORELLO(gen)
+
+/*
+ * Same as the above list, except presence of the feature is allowed to be
+ * asymmetric across cores.
+ */
+#define CPUFEAT_PERCPU_LIST(gen)						\
+	FEAT_PMUV3(gen)								\
+	FEAT_SYS_REG_TRACE(gen)							\
+	FEAT_SPE(gen)								\
+	FEAT_TRF(gen)								\
+	FEAT_MTPMU(gen)								\
+	FEAT_DEBUGV8P9(gen)							\
+	FEAT_TRBE(gen)								\
+	FEAT_BRBE(gen)								\
+	FEAT_EBEP(gen)								\
+	FEAT_SEBEP(gen)
+
+CPUFEAT_LIST(CREATE_FEATURE_FUNCS)
+CPUFEAT_PERCPU_LIST(CREATE_FEATURE_FUNCS)
+
+/*******************************************************************************
+ * Helpers that can't match the standard pattern
+ ******************************************************************************/
 __attribute__((always_inline))
 static inline bool is_feat_pauth_present(void)
 {
@@ -175,66 +527,27 @@ static inline bool is_feat_pauth_present(void)
 		MASK(ID_AA64ISAR1_API) |
 		MASK(ID_AA64ISAR1_APA);
 
+	uint64_t mask_id_aa64isar2 =
+		MASK(ID_AA64ISAR2_GPA3) |
+		MASK(ID_AA64ISAR2_APA3);
+
 	/*
 	 * If any of the fields is not zero or QARMA3 is present,
 	 * PAuth is present
 	 */
-	return ((read_id_aa64isar1_el1() & mask_id_aa64isar1) != 0U ||
-		is_feat_pacqarma3_present());
-}
-CREATE_FEATURE_SUPPORTED(feat_pauth, is_feat_pauth_present, ENABLE_PAUTH)
-CREATE_FEATURE_SUPPORTED(ctx_pauth, is_feat_pauth_present, CTX_INCLUDE_PAUTH_REGS)
+	return (read_id_aa64isar1_el1() & mask_id_aa64isar1) != 0U ||
+		(read_id_aa64isar2_el1() & mask_id_aa64isar2) != 0U;
 
-__attribute__((always_inline))
-static inline bool is_feat_crypto_present(void)
+}
+
+/* Make this simple enough to fit into the pattern */
+static inline unsigned int _read_feat_pauth_id_field(void)
 {
-	uint64_t mask_id_aa64isar0 =
-		MASK(ID_AA64ISAR0_AES) |
-		MASK(ID_AA64ISAR0_SHA1) |
-		MASK(ID_AA64ISAR0_SHA2);
-
-	/*
-	 * Check if AES, SHA1, SHA2 extension presents.
-	*/
-	return ((read_id_aa64isar0_el1() & mask_id_aa64isar0) != 0U);
+	return (is_feat_pauth_present()) ? 1 : 0;
 }
-CREATE_FEATURE_SUPPORTED(feat_crypto, is_feat_crypto_present, ENABLE_FEAT_CRYPTO)
 
-#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
-__attribute__((always_inline))
-static inline void update_feat_pauth_idreg_field(size_t security_state)
-{
-	uint64_t mask_id_aa64isar1 =
-		MASK(ID_AA64ISAR1_GPI) |
-		MASK(ID_AA64ISAR1_GPA) |
-		MASK(ID_AA64ISAR1_API) |
-		MASK(ID_AA64ISAR1_APA);
+static inline bool is_ctx_pauth_present(void) { return is_feat_pauth_present(); }
 
-	/* FEAT_PACQARMA3 */
-	uint64_t mask_id_aa64isar2 =
-		MASK(ID_AA64ISAR2_APA3) |
-		MASK(ID_AA64ISAR2_GPA3);
-
-	per_world_context_t *per_world_ctx = &per_world_context[security_state];
-	perworld_idregs_t *perworld_idregs =
-		&(per_world_ctx->idregs);
-
-	if ((SHOULD_ID_FIELD_DISABLE(ENABLE_PAUTH, FEAT_ENABLE_NS,
-				       security_state))  &&
-	    (SHOULD_ID_FIELD_DISABLE(CTX_INCLUDE_PAUTH_REGS,
-				       FEAT_ENABLE_ALL_WORLDS,
-				       security_state))) {
-		perworld_idregs->id_aa64isar1_el1 &= ~(mask_id_aa64isar1);
-		perworld_idregs->id_aa64isar2_el1 &= ~(mask_id_aa64isar2);
-	}
-}
-#endif
-
-/*
- * This feature has a non-standard discovery method so define this function
- * manually then call use the CREATE_FEATURE_SUPPORTED macro with it. This
- * feature is enabled with ENABLE_PAUTH when present.
- */
 __attribute__((always_inline))
 static inline bool is_feat_pauth_lr_present(void)
 {
@@ -256,78 +569,52 @@ static inline bool is_feat_pauth_lr_present(void)
 	}
 	return false;
 }
-CREATE_FEATURE_SUPPORTED(feat_pauth_lr, is_feat_pauth_lr_present, ENABLE_FEAT_PAUTH_LR)
 
-CREATE_FEATURE_PRESENT(feat_ttst, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_ST,
-			1U,
-			FEAT_ENABLE_ALL_WORLDS)
+/* Make this simple enough to fit into the pattern */
+static inline unsigned int _read_feat_pauth_lr_id_field(void)
+{
+	return (is_feat_pauth_lr_present()) ? 1 : 0;
+}
 
-CREATE_FEATURE_FUNCS(feat_bti, id_aa64pfr1_el1, ID_AA64PFR1_EL1_BT,
-			BTI_IMPLEMENTED, ENABLE_BTI,
-			FEAT_ENABLE_ALL_WORLDS)
+__attribute__((always_inline))
+static inline unsigned int _read_feat_mpam_id_field(void)
+{
+	return EXTRACT(ID_AA64PFR0_MPAM, read_id_aa64pfr0_el1()) << ID_AA64PFR0_MPAM_WIDTH |
+	       EXTRACT(ID_AA64PFR1_MPAM_FRAC, read_id_aa64pfr1_el1());
+}
 
-CREATE_FEATURE_FUNCS(feat_mte2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE,
-		     MTE_IMPLEMENTED_ELX, ENABLE_FEAT_MTE2,
-		     FEAT_ENABLE_SECURE | FEAT_ENABLE_NS)
+/*******************************************************************************
+ * Features who have at least one helper that doesn't match the standard
+ * pattern. These need special attention when integrating with FEAT_IDTE3 and
+ * FEATURE_DETECTION
+ ******************************************************************************/
+FEAT_PAUTH(CREATE_FEATURE_SUPPORTED)
+FEAT_PAUTH_LR(CREATE_FEATURE_SUPPORTED)
 
-CREATE_FEATURE_PRESENT(feat_ssbs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SSBS,
-			1U,
-			FEAT_ENABLE_ALL_WORLDS)
+FEAT_MPAM(CREATE_FEATURE_PRESENT)
+FEAT_MPAM(CREATE_FEATURE_SUPPORTED)
 
-CREATE_FEATURE_PRESENT(feat_nmi, id_aa64pfr1_el1, ID_AA64PFR1_EL1_NMI,
-			NMI_IMPLEMENTED,
-			FEAT_ENABLE_ALL_WORLDS)
+FEAT_AMU_AUX(CREATE_FEATURE_FUNCS)
 
-CREATE_PERCPU_FEATURE_FUNCS(feat_ebep, id_aa64dfr1_el1, ID_AA64DFR1_EBEP,
-		     1U,  ENABLE_FEAT_EBEP,
-		     FEAT_ENABLE_ALL_WORLDS)
+/* Automatic inclusion for FEATURE_DETECTION. IDTE3 is on a case-by-case basis */
+#define CPUFEAT_SPECIAL_FEAT_DETECT_LIST(gen)					\
+	FEAT_PAUTH(gen)								\
+	FEAT_PAUTH_LR(gen)							\
+	FEAT_MPAM(gen)
 
-CREATE_PERCPU_FEATURE_PRESENT(feat_sebep, id_aa64dfr0_el1, ID_AA64DFR0_SEBEP,
-			SEBEP_IMPLEMENTED,
-			FEAT_ENABLE_ALL_WORLDS)
+/* Exclude these from FEATURE_DETECTION and IDTE3 */
+CTX_PAUTH(CREATE_FEATURE_SUPPORTED)
+FEAT_MPAM_PE_BW_CTRL(CREATE_FEATURE_FUNCS)
 
-CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2,
-		     1U, ENABLE_FEAT_SEL2,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED,
-		     1U, ENABLE_FEAT_TWED,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT,
-		     1U, ENABLE_FEAT_FGT,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_fgt2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT,
-		     FGT2_IMPLEMENTED, ENABLE_FEAT_FGT2,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_fgwte3, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_FGWTE3,
-		     FGWTE3_IMPLEMENTED,
-		     ENABLE_FEAT_FGWTE3, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV,
-		     1U, ENABLE_FEAT_ECV,
-		     FEAT_ENABLE_ALL_WORLDS)
-CREATE_FEATURE_FUNCS(feat_ecv_v2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV,
-		     ID_AA64MMFR0_EL1_ECV_SELF_SYNCH,
-		     ENABLE_FEAT_ECV, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_rng, id_aa64isar0_el1, ID_AA64ISAR0_RNDR,
-		     1U, ENABLE_FEAT_RNG,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_tcr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_TCRX,
-		     1U, ENABLE_FEAT_TCR2,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_s2poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2POE,
-		     1U, ENABLE_FEAT_S2POE,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_s1poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1POE,
-		     1U, ENABLE_FEAT_S1POE,
-		     FEAT_ENABLE_ALL_WORLDS)
+/*******************************************************************************
+ * Non-standard, not directly architectural helpers
+ ******************************************************************************/
+__attribute__((always_inline))
+static inline bool is_armv7_gentimer_present(void)
+{
+	/* The Generic Timer is always present in an ARMv8-A implementation */
+	return true;
+}
 
 __attribute__((always_inline))
 static inline bool is_feat_sxpoe_supported(void)
@@ -335,253 +622,17 @@ static inline bool is_feat_sxpoe_supported(void)
 	return is_feat_s1poe_supported() || is_feat_s2poe_supported();
 }
 
-CREATE_FEATURE_FUNCS(feat_s2pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2PIE,
-		     1U, ENABLE_FEAT_S2PIE,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE,
-		     1U, ENABLE_FEAT_S1PIE,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_the, id_aa64pfr1_el1, ID_AA64PFR1_EL1_THE,
-		     THE_IMPLEMENTED, ENABLE_FEAT_THE,
-		     FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_sctlr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_SCTLR2,
-		     SCTLR2_IMPLEMENTED,
-		     ENABLE_FEAT_SCTLR2,
-		     FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
-
-CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128,
-		     D128_IMPLEMENTED,
-		     ENABLE_FEAT_D128, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
-
-_CREATE_FEATURE_PRESENT(feat_rme_gpc2, id_aa64pfr0_el1,
-		       ID_AA64PFR0_FEAT_RME,
-		       RME_GPC2_IMPLEMENTED)
-
-CREATE_FEATURE_FUNCS(feat_rme_gdi, id_aa64mmfr4_el1,
-		     ID_AA64MMFR4_EL1_RME_GDI,
-		     RME_GDI_IMPLEMENTED,
-		     ENABLE_FEAT_RME_GDI, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_fpmr, id_aa64pfr2_el1, ID_AA64PFR2_EL1_FPMR,
-		     FPMR_IMPLEMENTED,
-		     ENABLE_FEAT_FPMR, FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_mops, id_aa64isar2_el1, ID_AA64ISAR2_EL1_MOPS,
-		     MOPS_IMPLEMENTED,
-		     ENABLE_FEAT_MOPS, FEAT_ENABLE_ALL_WORLDS)
-
 __attribute__((always_inline))
 static inline bool is_feat_sxpie_supported(void)
 {
 	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
 }
 
-CREATE_FEATURE_FUNCS(feat_gcs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_GCS,
-		     1U, ENABLE_FEAT_GCS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_amu, id_aa64pfr0_el1, ID_AA64PFR0_AMU,
-		     1U, ENABLE_FEAT_AMU,
-		     FEAT_ENABLE_NS)
-
-_CREATE_FEATURE_PRESENT(feat_amu_aux, amcfgr_el0,
-		       AMCFGR_EL0_NCG, 1U)
-
-CREATE_FEATURE_SUPPORTED(feat_amu_aux, is_feat_amu_aux_present,
-			 ENABLE_AMU_AUXILIARY_COUNTERS)
-
-CREATE_FEATURE_FUNCS(feat_amuv1p1, id_aa64pfr0_el1, ID_AA64PFR0_AMU,
-		     ID_AA64PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1,
-		     FEAT_ENABLE_NS)
-
-/*
- * 0x00: None Armv8.0 or later
- * 0x01: v0.1 Armv8.4 or later
- * 0x10: v1.0 Armv8.2 or later
- * 0x11: v1.1 Armv8.4 or later
- */
 __attribute__((always_inline))
-static inline unsigned int read_feat_mpam_id_field(void)
+static inline bool is_feat_crypto_supported(void)
 {
-	return (EXTRACT(ID_AA64PFR0_MPAM, read_id_aa64pfr0_el1()) << 4) |
-	       EXTRACT(ID_AA64PFR1_MPAM_FRAC, read_id_aa64pfr1_el1());
+	return is_feat_aes_supported() || is_feat_sha1_supported();
 }
-
-__attribute__((always_inline))
-static inline bool is_feat_mpam_present(void)
-{
-	return read_feat_mpam_id_field();
-}
-
-CREATE_FEATURE_SUPPORTED(feat_mpam, is_feat_mpam_present, ENABLE_FEAT_MPAM)
-
-
-#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
-__attribute__((always_inline))
-static inline void update_feat_mpam_idreg_field(size_t security_state)
-{
-	if (SHOULD_ID_FIELD_DISABLE(ENABLE_FEAT_MPAM,
-			FEAT_ENABLE_NS | FEAT_ENABLE_REALM, security_state)) {
-		per_world_context_t *per_world_ctx =
-			&per_world_context[security_state];
-		perworld_idregs_t *perworld_idregs =
-			&(per_world_ctx->idregs);
-
-		perworld_idregs->id_aa64pfr0_el1 &=
-			~((u_register_t)MASK(ID_AA64PFR0_MPAM));
-
-		perworld_idregs->id_aa64pfr1_el1 &=
-			~((u_register_t)MASK(ID_AA64PFR1_MPAM_FRAC));
-	}
-}
-#endif
-
-__attribute__((always_inline))
-static inline bool is_feat_mpam_pe_bw_ctrl_present(void)
-{
-	if (is_feat_mpam_present()) {
-		return ((unsigned long long)(read_mpamidr_el1() &
-				MPAMIDR_HAS_BW_CTRL_BIT) != 0U);
-	}
-	return false;
-}
-
-CREATE_FEATURE_SUPPORTED(feat_mpam_pe_bw_ctrl, is_feat_mpam_pe_bw_ctrl_present,
-		ENABLE_FEAT_MPAM_PE_BW_CTRL)
-
-CREATE_PERCPU_FEATURE_FUNCS(feat_debugv8p9, id_aa64dfr0_el1,
-		ID_AA64DFR0_DEBUGVER, DEBUGVER_V8P9_IMPLEMENTED, ENABLE_FEAT_DEBUGV8P9,
-		FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
-
-CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX,
-		     1U, ENABLE_FEAT_HCX,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_rng_trap, id_aa64pfr1_el1, ID_AA64PFR1_EL1_RNDR_TRAP,
-		      RNG_TRAP_IMPLEMENTED, ENABLE_FEAT_RNG_TRAP,
-		      FEAT_ENABLE_ALL_WORLDS)
-
-_CREATE_FEATURE_PRESENT(feat_rme, id_aa64pfr0_el1,
-		      ID_AA64PFR0_FEAT_RME, 1U)
-
-CREATE_FEATURE_SUPPORTED(feat_rme, is_feat_rme_present, ENABLE_FEAT_RME)
-
-CREATE_FEATURE_PRESENT(feat_sb, id_aa64isar1_el1, ID_AA64ISAR1_SB,
-		       1U,
-		       FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_mec, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_MEC,
-		1U, ENABLE_FEAT_MEC,
-		FEAT_ENABLE_ALL_WORLDS)
-
-/*
- * 0b0000 - Feature FEAT_CSV2 is not implemented.
- * 0b0001 - Feature FEAT_CSV2 is implemented, but FEAT_CSV2_2 and FEAT_CSV2_3
- *          are not implemented.
- * 0b0010 - Feature FEAT_CSV2_2 is implemented but FEAT_CSV2_3 is not
- *          implemented.
- * 0b0011 - Feature FEAT_CSV2_3 is implemented.
- */
-CREATE_FEATURE_FUNCS(feat_csv2_2, id_aa64pfr0_el1, ID_AA64PFR0_CSV2,
-		     CSV2_2_IMPLEMENTED, ENABLE_FEAT_CSV2_2,
-		     FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
-CREATE_FEATURE_FUNCS(feat_csv2_3, id_aa64pfr0_el1, ID_AA64PFR0_CSV2,
-		     CSV2_3_IMPLEMENTED, ENABLE_FEAT_CSV2_3,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_clrbhb, id_aa64isar2_el1, ID_AA64ISAR2_CLRBHB,
-		     1U, ENABLE_FEAT_CLRBHB,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_PERCPU_FEATURE_FUNCS(feat_spe, id_aa64dfr0_el1, ID_AA64DFR0_PMS,
-		     1U, ENABLE_SPE_FOR_NS,
-		     FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_spe_exc, id_aa64dfr2_el1, ID_AA64DFR2_SPE_EXC,
-		     1U, ENABLE_FEAT_SPEV1P5,
-		     FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_spe_nvm, id_aa64dfr2_el1, ID_AA64DFR2_SPE_NVM,
-		     1U, ENABLE_FEAT_SPEV1P5,
-		     FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_sve, id_aa64pfr0_el1, ID_AA64PFR0_SVE,
-		     1U, ENABLE_SVE_FOR_NS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-__attribute__((always_inline))
-static inline unsigned int read_feat_iesb_id_field(void)
-{
-	return (unsigned int)EXTRACT(ID_AA64MMFR2_EL1_IESB,
-				read_id_aa64mmfr2_el1());
-}
-
-CREATE_FEATURE_FUNCS(feat_ras, id_aa64pfr0_el1, ID_AA64PFR0_RAS,
-		     1U, ENABLE_FEAT_RAS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_dit, id_aa64pfr0_el1, ID_AA64PFR0_DIT,
-		     1U, ENABLE_FEAT_DIT,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_PERCPU_FEATURE_FUNCS(feat_sys_reg_trace, id_aa64dfr0_el1,
-			ID_AA64DFR0_TRACEVER, 1U, ENABLE_SYS_REG_TRACE_FOR_NS,
-			FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_PERCPU_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT,
-		     1U, ENABLE_TRF_FOR_NS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_nv2, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV,
-		     NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_PERCPU_FEATURE_FUNCS(feat_brbe, id_aa64dfr0_el1, ID_AA64DFR0_BRBE,
-		     1U, ENABLE_BRBE_FOR_NS,
-		     FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
-
-_CREATE_FEATURE_PRESENT(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER, 1U)
-
-CREATE_FEATURE_SUPPORTED(feat_trbe, is_feat_trbe_present, ENABLE_TRBE_FOR_NS)
-
-CREATE_PERCPU_IDREG_UPDATE(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER,
-			ENABLE_TRBE_FOR_NS && !check_if_trbe_disable_affected_core(),
-			FEAT_ENABLE_NS)
-
-CREATE_FEATURE_PRESENT(feat_sme_fa64, id_aa64smfr0_el1, ID_AA64SMFR0_EL1_SME_FA64,
-		    1U,
-		    FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_sme, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME,
-		     1U, ENABLE_SME_FOR_NS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME,
-		     SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_ls64_accdata, id_aa64isar1_el1, ID_AA64ISAR1_LS64,
-		     LS64_ACCDATA_IMPLEMENTED,
-		     ENABLE_FEAT_LS64_ACCDATA, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_aie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_AIE,
-		     1U, ENABLE_FEAT_AIE,
-		     FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_pfar, id_aa64pfr1_el1, ID_AA64PFR1_EL1_PFAR,
-		     1U, ENABLE_FEAT_PFAR,
-		     FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_idte3, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_IDS,
-		     2U, ENABLE_FEAT_IDTE3,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_lse, id_aa64isar0_el1, ID_AA64ISAR0_ATOMIC,
-		     1U, USE_SPINLOCK_CAS,
-		     FEAT_ENABLE_ALL_WORLDS)
 
 __attribute__((always_inline))
 static inline bool is_feat_tgran4K_present(void)
@@ -591,10 +642,6 @@ static inline bool is_feat_tgran4K_present(void)
 	return (tgranx < 8U);
 }
 
-CREATE_FEATURE_PRESENT(feat_tgran16K, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_TGRAN16,
-		       TGRAN16_IMPLEMENTED,
-		       FEAT_ENABLE_ALL_WORLDS)
-
 __attribute__((always_inline))
 static inline bool is_feat_tgran64K_present(void)
 {
@@ -602,39 +649,5 @@ static inline bool is_feat_tgran64K_present(void)
 						    read_id_aa64mmfr0_el1());
 	return (tgranx < 8U);
 }
-
-_CREATE_FEATURE_PRESENT(feat_pmuv3, id_aa64dfr0_el1, ID_AA64DFR0_PMUVER, 1U)
-
-CREATE_PERCPU_FEATURE_FUNCS(feat_mtpmu, id_aa64dfr0_el1, ID_AA64DFR0_MTPMU,
-			   MTPMU_IMPLEMENTED, DISABLE_MTPMU,
-			   FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_gcie, id_aa64pfr2_el1, ID_AA64PFR2_EL1_GCIE,
-		     1U, ENABLE_FEAT_GCIE,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_cpa2, id_aa64isar3_el1, ID_AA64ISAR3_EL1_CPA,
-		     CPA2_IMPLEMENTED,
-		     ENABLE_FEAT_CPA2, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_uinj, id_aa64pfr2_el1, ID_AA64PFR2_EL1_UINJ,
-		     UINJ_IMPLEMENTED,
-		     ENABLE_FEAT_UINJ, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_morello, id_aa64pfr1_el1, ID_AA64PFR1_EL1_CE,
-		     MORELLO_EXTENSION_IMPLEMENTED,
-		     ENABLE_FEAT_MORELLO, FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_step2, id_aa64dfr2_el1, ID_AA64DFR2_STEP,
-		     1U, ENABLE_FEAT_STEP2,
-		     FEAT_ENABLE_ALL_WORLDS)
-
-CREATE_FEATURE_FUNCS(feat_hdbss, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HAFDBS,
-		     HDBSS_IMPLEMENTED,
-		     ENABLE_FEAT_HDBSS, FEAT_ENABLE_NS)
-
-CREATE_FEATURE_FUNCS(feat_hacdbs, id_aa64mmfr4_el1, ID_AA64MMFR4_EL1_HACDBS,
-		     HACDBS_IMPLEMENTED,
-		     ENABLE_FEAT_HACDBS, FEAT_ENABLE_NS)
 
 #endif /* ARCH_FEATURES_H */

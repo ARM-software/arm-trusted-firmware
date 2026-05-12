@@ -12,12 +12,15 @@
 #include <arch_helpers.h>
 #include <common/feat_detect.h>
 
-#define CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)			\
-_CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)
+#define CREATE_FEATURE_PRESENT(name, idreg, field, min)				\
+	_CREATE_FEATURE_ID_FIELD(name, idreg, guard, field, min, NA, NA)	\
+	_CREATE_FEATURE_PRESENT(name, NA, NA, field, min, NA, NA)
+#define CREATE_FEATURE_SUPPORTED(name, idreg, field, min, guard)		\
+	_CREATE_FEATURE_SUPPORTED(name, idreg, guard, field, min, NA, NA)
 
-#define CREATE_FEATURE_FUNCS(name, idreg, idfield, idval, guard)		\
-CREATE_FEATURE_PRESENT(name, idreg, idfield, idval)				\
-CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
+#define CREATE_FEATURE_FUNCS(name, idreg, field, min, guard)			\
+	CREATE_FEATURE_PRESENT(name, idreg, field, min)				\
+	CREATE_FEATURE_SUPPORTED(name, idreg, field, min, guard)
 
 __attribute__((always_inline))
 static inline bool is_armv7_gentimer_present(void)
