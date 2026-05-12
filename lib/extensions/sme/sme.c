@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,7 +48,7 @@ void sme_init_el3(void)
 	 * using SMCR_EL2 and SMCR_EL1.
 	 */
 	smcr_el3 = SMCR_ELX_LEN_MAX;
-	if (is_feat_sme_fa64_present()) {
+	if (is_feat_sme_fa64_supported()) {
 		VERBOSE("[SME] FA64 enabled\n");
 		smcr_el3 |= SMCR_ELX_FA64_BIT;
 	}

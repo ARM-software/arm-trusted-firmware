@@ -233,9 +233,11 @@ static void bl31_adjust_pas_regions(void)
 	pas_regions[3].size = total_size;
 }
 #endif /* PLAT_qemu */
+#endif /* ENABLE_FEAT_RME */
 
 static void bl31_plat_gpt_setup(void)
 {
+#if ENABLE_FEAT_RME
 	/*
 	 * Initialize entire protected space to GPT_GPI_ANY. With each L0 entry
 	 * covering 1GB (currently the only supported option), then covering
@@ -266,8 +268,8 @@ static void bl31_plat_gpt_setup(void)
 		ERROR("gpt_enable() failed!\n");
 		panic();
 	}
-}
 #endif /* ENABLE_FEAT_RME */
+}
 
 void bl31_plat_arch_setup(void)
 {
@@ -300,10 +302,7 @@ void bl31_plat_arch_setup(void)
 	 * check done using is_feat_rme_supported(). So calls to gpt library
 	 * are gated using ENABLE_FEAT_RME.
 	 */
-#if ENABLE_FEAT_RME
 	if (is_feat_rme_supported()) {
-		assert(is_feat_rme_present());
-
 		bl31_plat_gpt_setup();
 
 		/*
@@ -317,8 +316,6 @@ void bl31_plat_arch_setup(void)
 			panic();
 		}
 	}
-#endif /* ENABLE_FEAT_RME */
-
 }
 
 static void qemu_gpio_init(void)

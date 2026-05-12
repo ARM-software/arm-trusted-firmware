@@ -57,7 +57,7 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		 * PE implements architectural Speculation Store Bypass Safe
 		 * (SSBS) feature.
 		 */
-		if (is_feat_ssbs_present()) {
+		if (is_feat_ssbs_supported()) {
 			return SMC_WA_DO_NOT;
 		}
 
@@ -207,7 +207,7 @@ static uintptr_t smccc_arch_feature_availability(u_register_t reg,
 		bitmask &= SCR_EL3_FEATS;
 		bitmask ^= SCR_EL3_FLIPPED;
 		/* will only report 0 if neither is implemented */
-		if (is_feat_rng_trap_supported() || is_feat_rng_present()) {
+		if (is_feat_rng_trap_supported() || is_feat_rng_supported()) {
 			bitmask |= SCR_TRNDR_BIT;
 			check   &= ~SCR_TRNDR_BIT;
 		}

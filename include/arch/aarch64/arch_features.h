@@ -635,7 +635,7 @@ FEAT_MPAM_PE_BW_CTRL(CREATE_FEATURE_FUNCS)
  * Non-standard, not directly architectural helpers
  ******************************************************************************/
 __attribute__((always_inline))
-static inline bool is_armv7_gentimer_present(void)
+static inline bool is_armv7_gentimer_supported(void)
 {
 	/* The Generic Timer is always present in an ARMv8-A implementation */
 	return true;
@@ -660,7 +660,7 @@ static inline bool is_feat_crypto_supported(void)
 }
 
 __attribute__((always_inline))
-static inline bool is_feat_tgran4K_present(void)
+static inline bool is_feat_tgran4K_supported(void)
 {
 	unsigned int tgranx = (unsigned int)EXTRACT(ID_AA64MMFR0_EL1_TGRAN4,
 						    read_id_aa64mmfr0_el1());
@@ -668,7 +668,7 @@ static inline bool is_feat_tgran4K_present(void)
 }
 
 __attribute__((always_inline))
-static inline bool is_feat_tgran64K_present(void)
+static inline bool is_feat_tgran64K_supported(void)
 {
 	unsigned int tgranx = (unsigned int)EXTRACT(ID_AA64MMFR0_EL1_TGRAN64,
 						    read_id_aa64mmfr0_el1());

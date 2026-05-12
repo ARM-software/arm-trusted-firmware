@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -64,7 +64,7 @@ void generic_delay_timer_init_args(uint32_t mult, uint32_t div)
 
 void generic_delay_timer_init(void)
 {
-	assert(is_armv7_gentimer_present());
+	assert(is_armv7_gentimer_supported());
 
 	/* Value in ticks */
 	unsigned int mult = MHZ_TICKS_PER_SEC;
