@@ -15,10 +15,18 @@
 #define _CHECK_FEATURE_MASKING(guard, worlds)					\
 	(guard == FEAT_STATE_DISABLED || (((worlds) >> security_state) & 1U) == 0U)
 
+/*
+ * Downgrade the feature to one less than the minimum known version if a higher
+ * version is present. This allows for features sharing an ID field to be
+ * gradually disabled. Won't work with signed or non-zero disabled ID fields.
+ */
 #define _MASK_FEATURE(idreg, guard, field, min, worlds)				\
 	do {									\
 		if (_CHECK_FEATURE_MASKING(guard, worlds)) {			\
-			idreg &= ~MASK(field);					\
+			assert(min != 0);					\
+			if (EXTRACT(field, idreg) > min - 1) {			\
+				UPDATE_REG_FIELD(field, idreg, min - 1);	\
+			}							\
 		}								\
 	} while (0);
 
