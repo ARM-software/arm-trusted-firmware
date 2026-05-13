@@ -78,8 +78,8 @@
  * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
  * current BL3-1 debug size plus a little space for growth.
  */
-#define BL31_BASE   RCAR_TRUSTED_SRAM_BASE
-#define BL31_LIMIT  (RCAR_TRUSTED_SRAM_BASE + RCAR_TRUSTED_SRAM_SIZE)
+#define BL31_BASE   (RCAR_TRUSTED_SRAM_BASE + 0x1000)
+#define BL31_LIMIT  (RCAR_TRUSTED_SRAM_BASE + RCAR_TRUSTED_SRAM_SIZE - 0x1000)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants

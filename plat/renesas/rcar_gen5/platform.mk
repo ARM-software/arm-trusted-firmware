@@ -34,6 +34,8 @@ ENABLE_STACK_PROTECTOR		:= strong
 
 CTX_INCLUDE_AARCH32_REGS	:= 0
 
+PLAT_EXTRA_LD_SCRIPT		:= 1
+
 # Process SET_SCMI_PARAM flag
 # 0:Disable(default), 1:Enable
 ifndef SET_SCMI_PARAM
@@ -59,7 +61,6 @@ RCAR_X5H:=10
 RCAR_AUTO:=99
 $(eval $(call add_define,RCAR_X5H))
 $(eval $(call add_define,RCAR_AUTO))
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
 ifndef LSI
   $(error "Error: Unknown LSI. Please use LSI=<LSI name> to specify the LSI")
