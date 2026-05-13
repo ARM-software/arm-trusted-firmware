@@ -14,10 +14,19 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/idte3.h>
 
+static int access_raz_wi(bool is_read, uint8_t rt, cpu_context_t *ctx)
+{
+	if (is_read && rt != XZR_REG_NUM) {
+		ctx->gpregs_ctx.ctx_regs[rt] = 0UL;
+	}
+	return TRAP_RET_CONTINUE;
+}
+
 int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 {
 	uint64_t opcode = EXTRACT(ESR_ISS, esr_el3) & ~(MASK(ISS_SYS64_DIR) | MASK(ISS_SYS64_RT));
 	uint8_t rt = EXTRACT(ISS_SYS64_RT, esr_el3);
+	bool is_read = EXTRACT(ISS_SYS64_DIR, opcode);
 
 	if (is_feat_idte3_supported() &&
 	    ((opcode >= ISS_SYSREG_OPCODE_IDREG_MIN &&
@@ -64,6 +73,28 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		assert(ret == TRAP_RET_CONTINUE);
 
 		return ret;
+	}
+
+	if (is_feat_ras_supported() && !FAULT_INJECTION_SUPPORT &&
+	    (opcode == ISS_SYSREG_OPCODE_ERXPFGCDN_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXPFGCTL_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXPFGF_EL1)) {
+		return access_raz_wi(is_read, rt, ctx);
+	}
+
+	if (is_feat_ras_supported() && RAS_TRAP_NS_ERR_REC_ACCESS &&
+	    (opcode == ISS_SYSREG_OPCODE_ERRSELR_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXADDR_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXCTLR_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXMISC0_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXMISC1_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXSTATUS_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERRIDR_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXFR_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXMISC2_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXMISC3_EL1 ||
+	     opcode == ISS_SYSREG_OPCODE_ERXGSR_EL1)) {
+		return access_raz_wi(is_read, rt, ctx);
 	}
 
 #if IMPDEF_SYSREG_TRAP

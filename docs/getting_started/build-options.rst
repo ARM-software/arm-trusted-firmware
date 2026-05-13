@@ -749,10 +749,9 @@ Common build options
    trapped during secure world execution are trapped to the SPMC. This is
    supported only for AArch64 builds.
 
--  ``FAULT_INJECTION_SUPPORT``: ARMv8.4 extensions introduced support for fault
-   injection from lower ELs, and this build option enables lower ELs to use
-   Error Records accessed via System Registers to inject faults. This is
-   applicable only to AArch64 builds.
+-  ``FAULT_INJECTION_SUPPORT``: Boolean option to enable FEAT_RASv1p1 fault
+   injection. When unset, all accesses will be trapped to EL3 and emulated as
+   RAZ/WI. Default value is ``0``.
 
    This feature is intended for testing purposes only, and is advisable to keep
    disabled for production images.
@@ -1363,9 +1362,9 @@ Common build options
       implement this workaround due to the behaviour of the errata mentioned
       in new SDEN document which will get published soon.
 
-- ``RAS_TRAP_NS_ERR_REC_ACCESS``: This flag enables/disables the SCR_EL3.TERR
-  bit, to trap access to the RAS ERR and RAS ERX registers from lower ELs.
-  This flag is disabled by default.
+- ``RAS_TRAP_NS_ERR_REC_ACCESS``: Boolean option to disable FEAT_RAS access to
+  ERR and ERX registers from lower ELs. When set, all accesses will be trapped
+  to EL3 and emulated as RAZ/WI. Default value is ``0``.
 
 - ``OPENSSL_DIR``: This option is used to provide the path to a directory on the
   host machine where a custom installation of OpenSSL is located, which is used
