@@ -232,6 +232,7 @@ endif
 
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/${ARCH}/arm_helpers.S		\
 				plat/arm/common/arm_common.c			\
+				plat/arm/common/arm_common_helpers.c		\
 				plat/arm/common/arm_console.c
 
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
@@ -355,6 +356,7 @@ endif
 ifeq (${ARCH}, aarch64)
 BL31_SOURCES		+=	plat/arm/common/aarch64/execution_state_switch.c\
 				plat/arm/common/arm_sip_svc.c			\
+				plat/arm/common/arm_sip_svc_validation.c	\
 				plat/arm/common/plat_arm_sip_svc.c		\
 				${ARM_SVC_HANDLER_SRCS}
 else

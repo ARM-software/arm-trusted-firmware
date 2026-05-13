@@ -281,6 +281,57 @@ The ``cookie`` parameter to the handler is reserved for future use and can be
 ignored. The ``handle`` is returned by the SMC handler - completion of the
 handler function must always be via one of the ``SMC_RETn()`` macros.
 
+Security Considerations: SMC Argument Validation
+------------------------------------------------
+
+When implementing a platform-specific SiP handler, the following
+architectural patterns MUST be followed to prevent Privilege-Blind
+Forwarding (PBF) and Double-Fetch (TOCTOU) vulnerabilities:
+
+1. **Atomic Shadow-Copy**
+   When an SMC passes a pointer or memory range referencing Non-Secure memory,
+   the contents of that memory are volatile and can be modified by another CPU 
+   core after EL3 has validated the address.
+
+   All arguments MUST be copied into EL3-local variables precisely once before
+   any validation or use occurs. Subsequent logic should only reference these
+   local copies.
+
+2. **Memory Range Tuple Validation**
+   When an SMC passes a memory range (base + size), validating them
+   independently is insufficient as it fails to account for 64-bit integer
+   overflow/wrap-around.
+
+   The handler MUST verify that ``(base + size)`` does not wrap around and that
+   the entire range resides within the expected security boundary (e.g.
+   Non-Secure DRAM).
+
+3. **Dynamic Platform Validation**
+   Validation should not rely on static memory maps. Handlers should use
+   platform-specific hooks (e.g. ``plat_is_valid_ns_address_range()``) that
+   query the Granule Protection Tables (GPT) or other dynamic memory controllers
+   to ensure the requested range is currently owned by the caller's world.
+
+Standard Validation Framework
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TF-A provides a standardized validation framework in
+``include/common/smc_validation_framework.h`` to simplify these checks and
+reduce boilerplate error-prone code. It is recommended to use the
+unmarshaling macros provided by this framework:
+
+.. code:: c
+
+    #include <common/smc_validation_framework.h>
+
+    uintptr_t sip_handler(uint32_t smc_fid, u_register_t x1, ..., void *handle)
+        /* 1. Atomic Shadow-Copy & Validation */
+        SMC_ARG_MEM_RANGE(buf, len, handle, 2, 3);
+
+        /* 2. Parameters are now safe to use */
+        return plat_perform_action(cmd, buf, len);
+    }
+
 .. note::
    The PSCI and Test Secure-EL1 Payload Dispatcher services do not follow
    all of the above requirements yet.
