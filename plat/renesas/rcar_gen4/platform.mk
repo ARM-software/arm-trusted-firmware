@@ -16,7 +16,9 @@ INIT_UNUSED_NS_EL2		:= 1
 
 CRASH_REPORTING			:= 1
 HANDLE_EA_EL3_FIRST_NS		:= 1
-ENABLE_STACK_PROTECTOR	:= strong
+ENABLE_STACK_PROTECTOR		:= strong
+
+PLAT_EXTRA_LD_SCRIPT		:= 1
 
 ifndef PTP_NONSECURE_ACCESS
   PTP_NONSECURE_ACCESS:=0
@@ -39,7 +41,6 @@ $(eval $(call add_define,RCAR_V3U))
 $(eval $(call add_define,RCAR_V4H))
 $(eval $(call add_define,RCAR_V4M))
 $(eval $(call add_define,RCAR_AUTO))
-PLAT_EXTRA_LD_SCRIPT	:=	1
 
 ifndef LSI
   $(error "Error: Unknown LSI. Please use LSI=<LSI name> to specify the LSI")
