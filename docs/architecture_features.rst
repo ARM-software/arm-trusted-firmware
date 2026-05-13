@@ -546,6 +546,9 @@ this process up by using the ``new-cpu-feature`` agent skill.
    ``test_smccc_arch_feature_availability`` test in TFTF, otherwise CI will
    fail.
 
+ - If the feature introduces any bits in ``PSTATE``, those should be added to
+   ``create_spsr()`` in ``bl31/bl31_traps.c``.
+
  - If the feature comes with lower EL registers:
 
    - those should be context switched if enabling the feature for multiple worlds.
