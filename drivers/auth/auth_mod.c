@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
