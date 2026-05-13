@@ -71,7 +71,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +-------------------------+--------+
 | FEAT_EAESR              |   NA   |
 +-------------------------+--------+
-| FEAT_TLBID              |   NA   |
+| FEAT_TLBID              |        |
 +-------------------------+--------+
 | FEAT_SRMASK2            |        |
 +-------------------------+--------+
