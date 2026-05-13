@@ -41,6 +41,7 @@ static int32_t smccc_arch_features(u_register_t arg1)
 	case SMCCC_ARCH_FEATURES:
 		return SMC_ARCH_CALL_SUCCESS;
 	case SMCCC_ARCH_SOC_ID:
+	case SMCCC_ARCH_SOC_ID | (SMC_64 << FUNCID_CC_SHIFT):
 		return plat_is_smccc_feature_available(arg1);
 #ifdef __aarch64__
 	/* Workaround checks are currently only implemented for aarch64 */
