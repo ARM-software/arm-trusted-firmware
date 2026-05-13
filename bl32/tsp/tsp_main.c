@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,8 +27,11 @@
  * state/applications. Once the state is initialized, it must return to the
  * SPD with a pointer to the 'tsp_vector_table' jump table.
  ******************************************************************************/
-uint64_t tsp_main(void)
+uint64_t __no_pauth tsp_main(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+	       u_register_t arg3)
 {
+	tsp_setup(arg0, arg1, arg2, arg3);
+
 	NOTICE("TSP: %s\n", build_version_string);
 	NOTICE("TSP: %s\n", build_message);
 	INFO("TSP: Total memory base : 0x%lx\n", (unsigned long) BL32_BASE);
