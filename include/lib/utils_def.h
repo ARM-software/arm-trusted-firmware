@@ -64,7 +64,7 @@
  * REG_FIELD_SHIFT must be defined.
  */
 #define MASK(regfield)							\
-	((~0ULL >> (64ULL - (regfield##_WIDTH))) << (regfield##_SHIFT))
+	((~ULL(0) >> (ULL(64) - (regfield##_WIDTH))) << (regfield##_SHIFT))
 
 #if defined(__LINKER__) || defined(__ASSEMBLER__)
 #define HI(addr)			(addr >> 32)
@@ -75,7 +75,7 @@
 #endif
 
 #define HI_64(addr)			(addr >> 64)
-#define LO_64(addr)			(addr & 0xffffffffffffffffULL)
+#define LO_64(addr)			(addr & ULL(0xffffffffffffffff))
 
 /**
  * EXTRACT_FIELD - Extracts a specific bit field from a value.
