@@ -46,14 +46,8 @@ typedef enum {
 	FIRME_REALM = 2
 } firme_instance_e;
 
-typedef struct {
-	uint32_t version;
-	uint8_t instance_support;
-	uint8_t num_feature_regs;
-	uint64_t feature_reg[16];
-} firme_service_info_t;
-
 /* Base service feature register definitions */
+#define FIRME_BASE_FEATURE_REG_COUNT			U(2)
 #define FIRME_BASE_VERSION_BIT				BIT(0)
 #define FIRME_BASE_FEATURES_BIT				BIT(1)
 #define FIRME_BASE_MIN_SH_BUF_SZ_SHIFT			U(0)
@@ -119,57 +113,5 @@ int firme_init(void);
 /* Top level handler for FIRME SMC calls. */
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
-
-firme_service_info_t *firme_granule_mgmt_service_get_info(void);
-firme_service_info_t *firme_mecid_service_get_info(void);
-
-u_register_t firme_base_service_handler(firme_instance_e instance, uint32_t smc_fid,
-					uint64_t x1, uint64_t x2, uint64_t x3,
-					uint64_t x4, void *cookie, void *handle,
-					uint64_t flags);
-
-u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
-						uint32_t smc_fid, uint64_t x1,
-						uint64_t x2, uint64_t x3,
-						uint64_t x4, void *cookie,
-						void *handle, uint64_t flags);
-
-u_register_t firme_mecid_service_handler(firme_instance_e instance,
-					 uint32_t smc_fid, uint64_t x1,
-					 uint64_t x2, uint64_t x3,
-					 uint64_t x4, void *cookie,
-					 void *handle, uint64_t flags);
-
-#if FIRME_SUPPORT_IDE_KM
-int firme_ide_km_service_init(void);
-
-firme_service_info_t *firme_ide_km_service_get_info(void);
-
-u_register_t firme_ide_km_service_handler(firme_instance_e instance,
-					  uint32_t smc_fid, uint64_t x1,
-					  uint64_t x2, uint64_t x3,
-					  uint64_t x4, void *cookie,
-					  void *handle, uint64_t flags);
-#else
-static inline int firme_ide_km_service_init(void)
-{
-	return 0;
-}
-
-static inline firme_service_info_t *firme_ide_km_service_get_info(void)
-{
-	return NULL;
-}
-
-static inline u_register_t firme_ide_km_service_handler(
-				firme_instance_e instance,
-				uint32_t smc_fid, uint64_t x1,
-				uint64_t x2, uint64_t x3,
-				uint64_t x4, void *cookie,
-				void *handle, uint64_t flags)
-{
-	SMC_RET1(handle, FIRME_NOT_SUPPORTED);
-}
-#endif /* FIRME_SUPPORT_IDE_KM */
 
 #endif /* FIRME_SVC_H */

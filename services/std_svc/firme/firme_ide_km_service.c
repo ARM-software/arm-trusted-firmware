@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdbool.h>
 #include <stdint.h>
+
+#include "firme_private.h"
 
 #include <arch.h>
 #include <arch_features.h>
@@ -13,6 +16,7 @@
 #include <lib/smccc.h>
 #include <lib/spinlock.h>
 #include <plat/common/platform.h>
+#include <services/firme/firme_ide_km.h>
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
 
@@ -22,6 +26,7 @@
 #define FIRME_IDE_KM_FR0_KEYSET_STOP			BIT(2)
 
 /* IDE KM only has feature register 0. */
+#define FIRME_IDE_KM_FEATURE_REG_COUNT			U(1)
 #define FIRME_IDE_KM_FR0_DEFAULT	(FIRME_IDE_KM_FR0_KEYSET_PROG	| \
 					 FIRME_IDE_KM_FR0_KEYSET_GO	| \
 					 FIRME_IDE_KM_FR0_KEYSET_STOP)
@@ -48,7 +53,15 @@
 #define FIRME_KEYSET_ID_SEGMENT_NUMBER_SHIFT		U(30)
 #define FIRME_KEYSET_ID_SEGMENT_NUMBER_WIDTH		U(8)
 
-static firme_service_info_t firme_ide_km_info;
+static uint64_t registers[FIRME_IDE_KM_FEATURE_REG_COUNT] = {
+	FIRME_IDE_KM_FR0_DEFAULT
+};
+
+#if ENABLE_RMM
+#define IDE_KM_INSTANCE_SUPPORT	BIT(FIRME_REALM)
+#else
+#define IDE_KM_INSTANCE_SUPPORT	BIT(FIRME_NONSECURE)
+#endif
 
 struct ide_km_unit {
 	spinlock_t lock;
@@ -91,6 +104,8 @@ static int firme_ide_km_keyset_prog(uint64_t ecam_address, uint64_t flags,
 	int idx;
 	int firme_rc, err;
 
+	(void)handle;
+
 	firme_rc = validate_and_get_rc_idx(ecam_address, flags, keyset_id, &idx);
 	if (firme_rc != FIRME_SUCCESS) {
 		return firme_rc;
@@ -121,6 +136,8 @@ static int firme_ide_km_keyset_action(uint64_t ecam_address, uint64_t flags,
 	int idx;
 	int firme_rc, err;
 
+	(void)handle;
+
 	firme_rc = validate_and_get_rc_idx(ecam_address, flags, keyset_id, &idx);
 	if (firme_rc != FIRME_SUCCESS) {
 		return firme_rc;
@@ -147,52 +164,54 @@ static int firme_ide_km_keyset_action(uint64_t ecam_address, uint64_t flags,
 	return firme_rc;
 }
 
-int firme_ide_km_service_init(void)
+static int32_t firme_ide_km_service_init(void)
 {
-	/*
-	 * Non-secure and Realm instance currently uses the same version, this
-	 * needs change when different version are exposed based on FIRME
-	 * instance.
-	 */
-	firme_ide_km_info.version = FIRME_VERSION(
-					FIRME_IDE_KEY_MGMT_VERSION_MAJOR,
-					FIRME_IDE_KEY_MGMT_VERSION_MINOR);
+	registers[0] = FIRME_IDE_KM_FR0_DEFAULT;
 
-	/*
-	 * If system supports FEAT_RME, then disable IDE KM for non-secure
-	 * instance. So the NS host uses the IDE key management service ABIs
-	 * exposed by the RMM to establish an IDE stream between the Root port
-	 * and an Endpoint.
-	 */
-#if ENABLE_RMM
-	firme_ide_km_info.instance_support = BIT(FIRME_REALM);
-#else
-	firme_ide_km_info.instance_support = BIT(FIRME_NONSECURE);
-#endif
-
-	firme_ide_km_info.num_feature_regs = 1;
-	firme_ide_km_info.feature_reg[0] = FIRME_IDE_KM_FR0_DEFAULT;
-
-	return 0;
+	return FIRME_SUCCESS;
 }
 
-firme_service_info_t *firme_ide_km_service_get_info(void)
+static int32_t firme_ide_km_service_version(firme_instance_e instance __unused)
 {
-	return &firme_ide_km_info;
+	return FIRME_VERSION(FIRME_IDE_KEY_MGMT_VERSION_MAJOR,
+			     FIRME_IDE_KEY_MGMT_VERSION_MINOR);
 }
 
-u_register_t firme_ide_km_service_handler(firme_instance_e instance,
-					  uint32_t smc_fid, uint64_t x1,
-					  uint64_t x2, uint64_t x3,
-					  uint64_t x4, void *cookie,
-					  void *handle, uint64_t flags)
+static bool firme_ide_km_service_is_supported(firme_instance_e instance)
+{
+	/*
+	 * If RMM is enabled, the NS host uses the IDE KM service exposed by RMM
+	 * to establish IDE streams between Root Ports and Endpoints.
+	 */
+	return (IDE_KM_INSTANCE_SUPPORT & BIT(instance)) != 0U;
+}
+
+static int32_t
+firme_ide_km_service_get_feature_reg(firme_instance_e instance __unused,
+				     uint8_t reg_index, uint64_t *reg)
+{
+	if (reg == NULL) {
+		return FIRME_INVALID_PARAMETERS;
+	}
+
+	if (reg_index >= FIRME_IDE_KM_FEATURE_REG_COUNT) {
+		return FIRME_NOT_SUPPORTED;
+	}
+
+	*reg = registers[reg_index];
+	return FIRME_SUCCESS;
+}
+
+static u_register_t firme_ide_km_service_handler(firme_instance_e instance,
+						 uint32_t smc_fid, uint64_t x1,
+						 uint64_t x2, uint64_t x3,
+						 uint64_t x4, void *cookie,
+						 void *handle, uint64_t flags)
 {
 	int ret;
 
-	/* Check if IDE KM is supported for the incoming instance */
-	if (!(firme_ide_km_info.instance_support & BIT(instance))) {
-		SMC_RET1(handle, FIRME_NOT_SUPPORTED);
-	}
+	(void)cookie;
+	(void)flags;
 
 	switch (smc_fid) {
 	case FIRME_IDE_KEYSET_PROG_FID:
@@ -213,3 +232,12 @@ u_register_t firme_ide_km_service_handler(firme_instance_e instance,
 		SMC_RET1(handle, FIRME_NOT_SUPPORTED);
 	}
 }
+
+const struct firme_service firme_ide_km_service = {
+	.id = FIRME_IDE_KEY_MGMT_ID,
+	.init = firme_ide_km_service_init,
+	.version = firme_ide_km_service_version,
+	.is_supported = firme_ide_km_service_is_supported,
+	.get_feature_reg = firme_ide_km_service_get_feature_reg,
+	.call = firme_ide_km_service_handler,
+};

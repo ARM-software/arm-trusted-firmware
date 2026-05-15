@@ -214,7 +214,7 @@ BL31_SOURCES		+=	services/oem/chromeos/widevine_smc_handlers.c
 endif
 
 ifeq (${FIRME_SUPPORT},1)
-BL31_SOURCES		+=	services/std_svc/firme/firme_main.c \
+BL31_SOURCES		+=	services/std_svc/firme/firme_svc.c \
 				services/std_svc/firme/firme_base_service.c \
 				services/std_svc/firme/firme_granule_management_service.c \
 				services/std_svc/firme/firme_mecid.c
