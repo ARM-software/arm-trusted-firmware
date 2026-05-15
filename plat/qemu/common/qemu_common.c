@@ -15,7 +15,7 @@
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <services/el3_spmc_ffa_memory.h>
-#include <services/firme_svc.h>
+#include <services/firme/firme_mecid.h>
 #if ENABLE_RMM
 #include <services/rmm_core_manifest.h>
 #endif

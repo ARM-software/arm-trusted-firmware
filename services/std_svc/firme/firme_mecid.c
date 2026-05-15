@@ -9,6 +9,7 @@
 
 #include <arch.h>
 #include <arch_features.h>
+#include <services/firme/firme_mecid.h>
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
 

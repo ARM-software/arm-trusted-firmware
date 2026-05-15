@@ -12,6 +12,11 @@
 #include <common/debug.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
+#include <services/firme/firme_attestation.h>
+#include <services/firme/firme_granule_mgmt.h>
+#include <services/firme/firme_ide_km.h>
+#include <services/firme/firme_idev.h>
+#include <services/firme/firme_mecid.h>
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
 
