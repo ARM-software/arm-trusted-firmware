@@ -2365,24 +2365,33 @@ RMM image and stores it in the area specified by manifest.
 
 When ENABLE_RMM is disabled, this function is not used.
 
-Function : plat_rmmd_mecid_key_update() [when ENABLE_RMM == 1]
+Function : plat_firme_mec_refresh() [when FIRME_SUPPORT == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    Argument : uint16_t, unsigned int
+    Argument : uint16_t, uint8_t
     Return   : int
 
-This function is invoked by BL31's RMMD when there is a request from the RMM
-monitor to update the tweak for the encryption key associated to a MECID.
+This function is invoked by BL31's FIRME MECID management service when there is
+a request to refresh the Memory Encryption Context (MEC) associated with a
+MECID.
 
-The first parameter (``uint16_t mecid``) contains the MECID for which the
-encryption key is to be updated. The second argument specifies the reason
-for key update. Possible values are: 0 - Realm creation, 1 - Realm destruction.
+The first parameter (``uint16_t mecid``) contains the MECID whose associated
+MEC is to be refreshed. The second parameter (``uint8_t reason``) specifies the
+reason for the refresh. Possible values are:
+``MEC_REFRESH_REASON_REALM_CREATE`` for Realm creation and
+``MEC_REFRESH_REASON_REALM_DESTROY`` for Realm destruction.
 
-Return value is 0 upon success and -EFAULT otherwise.
+The FIRME MECID management service validates that FEAT_MEC is supported and
+that the MECID fits within the common MECID width before calling this function.
 
-This function needs to be implemented by a platform if it enables RME.
+The function returns a FIRME status code. It should return ``FIRME_SUCCESS`` on
+success, or an appropriate negative FIRME error code such as
+``FIRME_INVALID_PARAMETERS``, ``FIRME_DENIED`` or ``FIRME_RETRY`` on failure.
+
+This function needs to be implemented by a platform if it enables FIRME support
+and advertises the FIRME MECID management service.
 
 Function : plat_rmmd_reserve_memory() [when ENABLE_RMM == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

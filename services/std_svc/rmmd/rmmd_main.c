@@ -32,6 +32,7 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 #include <services/rmmd_svc.h>
+#include <services/firme_svc.h>
 #include <smccc_helpers.h>
 #include <lib/extensions/sme.h>
 #include <lib/extensions/sve.h>
@@ -455,46 +456,6 @@ static int rmm_el3_ifc_get_feat_register(uint64_t feat_reg_idx,
 	return E_RMM_OK;
 }
 
-/*
- * Update encryption key associated with mecid included in x1.
- */
-static int rmmd_mecid_key_update(uint64_t x1)
-{
-	uint64_t mecid_width, mecid_width_mask;
-	uint16_t mecid;
-	unsigned int reason;
-	int ret;
-
-	/*
-	 * Check whether FEAT_MEC is supported by the hardware. If not, return
-	 * unknown SMC.
-	 */
-	if (is_feat_mec_supported() == false) {
-		return E_RMM_UNK;
-	}
-
-	/*
-	 * Check whether the mecid parameter is at most MECIDR_EL2.MECIDWidthm1 + 1
-	 * in length.
-	 */
-	mecid_width = ((read_mecidr_el2() >> MECIDR_EL2_MECIDWidthm1_SHIFT) &
-		MECIDR_EL2_MECIDWidthm1_MASK) + 1UL;
-	mecid_width_mask = ((1UL << mecid_width) - 1UL);
-
-	mecid = (x1 >> MECID_SHIFT) & MECID_MASK;
-	if ((mecid & ~mecid_width_mask) != 0U) {
-		return E_RMM_INVAL;
-	}
-
-	reason = (x1 >> MEC_REFRESH_REASON_SHIFT) & MEC_REFRESH_REASON_MASK;
-	ret = plat_rmmd_mecid_key_update(mecid, reason);
-
-	if (ret != 0) {
-		return E_RMM_UNK;
-	}
-	return E_RMM_OK;
-}
-
 /*******************************************************************************
  * This function handles RMM-EL3 interface SMCs
  ******************************************************************************/
@@ -585,7 +546,8 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		rmmd_rmm_sync_exit(x1);
 	}
 	case RMM_MEC_REFRESH:
-		ret = rmmd_mecid_key_update(x1);
+		ret = firme_handler(FIRME_MEC_REFRESH_FID, x1, x2, x3, x4,
+				    cookie, handle, flags);
 		SMC_RET1(handle, ret);
 	default:
 		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
