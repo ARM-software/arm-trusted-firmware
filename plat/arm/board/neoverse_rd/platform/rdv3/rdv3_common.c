@@ -10,6 +10,7 @@
 #include <drivers/arm/sfcp.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+#include <services/firme_svc.h>
 #include <platform_def.h>
 #include <nrd_plat.h>
 
@@ -193,6 +194,16 @@ int plat_rmmd_mecid_key_update(uint16_t mecid, unsigned int reason)
 	/*
 	 * RDV3 does not support FEAT_MEC.
 	 * This empty hook is for compilation to succeed.
+	 */
+	return 0;
+}
+
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
+{
+	/*
+	 * RDV3 does not support FEAT_MEC.
+	 * FIXME: This hook is needed to maintain backward compatibility with RMMD. Drop once we
+	 * have more fine grained control over what services are exposed and how.
 	 */
 	return 0;
 }

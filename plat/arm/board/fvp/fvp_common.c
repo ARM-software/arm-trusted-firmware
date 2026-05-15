@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,7 @@
 #include <platform_def.h>
 #include <services/arm_arch_svc.h>
 #include <services/rmm_core_manifest.h>
+#include <services/firme_svc.h>
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
@@ -1071,6 +1072,11 @@ int plat_rmmd_mecid_key_update(uint16_t mecid, unsigned int reason)
 	 * FVP does not provide an interface to change the encryption key associated
 	 * with MECID. Hence always return success.
 	 */
+	return 0;
+}
+
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
+{
 	return 0;
 }
 #endif /* ENABLE_RMM */

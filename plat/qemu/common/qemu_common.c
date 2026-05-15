@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <services/el3_spmc_ffa_memory.h>
+#include <services/firme_svc.h>
 #if ENABLE_RMM
 #include <services/rmm_core_manifest.h>
 #endif
@@ -761,6 +762,15 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
  * Update encryption key associated with @mecid.
  */
 int plat_rmmd_mecid_key_update(uint16_t mecid, unsigned int reason)
+{
+	/*
+	 * QEMU does not provide an interface to change the encryption key
+	 * associated with MECID. Hence always return success.
+	 */
+	return 0;
+}
+
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
 {
 	/*
 	 * QEMU does not provide an interface to change the encryption key

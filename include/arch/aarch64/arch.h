@@ -1992,8 +1992,9 @@
  * FEAT_MEC - Memory Encryption Contexts
  ******************************************************************************/
 #define MECIDR_EL2			S3_4_C10_C8_7
-#define MECIDR_EL2_MECIDWidthm1_MASK	U(0xf)
 #define MECIDR_EL2_MECIDWidthm1_SHIFT	U(0)
+#define MECIDR_EL2_MECIDWidthm1_WIDTH	U(4)
+#define MECIDR_EL2_MECIDWidthm1_MASK	GENMASK(3, 0)
 
 /******************************************************************************
  * FEAT_FGWTE3 - Fine Grained Write Trap

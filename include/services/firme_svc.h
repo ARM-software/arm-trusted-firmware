@@ -110,7 +110,10 @@ typedef struct {
 #define FIRME_BASE_MAX_SH_BUF_PG_CNT_MASK		U(0x3FFF)
 #define FIRME_BASE_SERVICE_LIST_SHIFT			U(16)
 #define FIRME_BASE_SERVICE_LIST_MASK			U(0xFFFF)
-#define FIRME_BASE_SERVICE_GRANULE_MGMT_BIT		BIT(16)
+#define FIRME_BASE_SERVICE_BIT(_id)			BIT((_id) + \
+							    FIRME_BASE_SERVICE_LIST_SHIFT)
+#define FIRME_BASE_SERVICE_GRANULE_MGMT_BIT		FIRME_BASE_SERVICE_BIT(0)
+#define FIRME_BASE_SERVICE_MECID_BIT			FIRME_BASE_SERVICE_BIT(2)
 
 /* Granule management service feature register definitions. */
 #define FIRME_GM_GPI_SET_BIT				BIT(0)
@@ -205,7 +208,17 @@ typedef struct {
 #define FIRME_IDE_KEYSET_POLL			SMC64_FIRME_FID(U(0x6))
 
 /* MECID management service */
-#define FIRME_MEC_REFRESH			SMC64_FIRME_FID(U(0x7))
+#define FIRME_MEC_REFRESH_FID			SMC64_FIRME_FID(U(0x7))
+
+#define MEC_REFRESH_REASON_REALM_CREATE		U(0)
+#define MEC_REFRESH_REASON_REALM_DESTROY	U(1)
+
+#define MEC_PARAM_MECID_SHIFT			U(32)
+#define MEC_PARAM_MECID_WIDTH			U(16)
+#define MEC_PARAM_MECID_MASK			MASK(MEC_PARAM_MECID)
+
+#define FIRME_MECID_FEATURE_REG_COUNT		U(1)
+#define FIRME_MECID_FEAT_REG0_MEC_REFRESH_BIT	BIT(0)
 
 /* Attestation service */
 #define FIRME_ATTEST_PAT_GET			SMC64_FIRME_FID(U(0x8))
@@ -224,6 +237,9 @@ uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
 
 firme_service_info_t *firme_granule_mgmt_service_get_info(void);
+firme_service_info_t *firme_mecid_service_get_info(void);
+
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason);
 
 u_register_t firme_base_service_handler(firme_instance_e instance, uint32_t smc_fid,
 					uint64_t x1, uint64_t x2, uint64_t x3,
@@ -235,5 +251,11 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 						uint64_t x2, uint64_t x3,
 						uint64_t x4, void *cookie,
 						void *handle, uint64_t flags);
+
+u_register_t firme_mecid_service_handler(firme_instance_e instance,
+					 uint32_t smc_fid, uint64_t x1,
+					 uint64_t x2, uint64_t x3,
+					 uint64_t x4, void *cookie,
+					 void *handle, uint64_t flags);
 
 #endif /* FIRME_SVC_H */

@@ -216,7 +216,8 @@ endif
 ifeq (${FIRME_SUPPORT},1)
 BL31_SOURCES		+=	services/std_svc/firme/firme_main.c \
 				services/std_svc/firme/firme_base_service.c \
-				services/std_svc/firme/firme_granule_management_service.c
+				services/std_svc/firme/firme_granule_management_service.c \
+				services/std_svc/firme/firme_mecid.c
 endif
 
 BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S

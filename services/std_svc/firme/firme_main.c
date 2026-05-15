@@ -53,7 +53,7 @@ static inline bool is_ide_key_mgmt_service_fid(uint32_t fid)
 
 static inline bool is_mecid_service_fid(uint32_t fid)
 {
-	if (fid == FIRME_MEC_REFRESH) {
+	if (fid == FIRME_MEC_REFRESH_FID) {
 		return true;
 	} else {
 		return false;
@@ -120,6 +120,9 @@ uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	else if (is_mecid_service_fid(smc_fid)) {
+		return firme_mecid_service_handler(instance, smc_fid, x1, x2,
+						   x3, x4, cookie, handle,
+						   flags);
 	}
 
 	else if (is_attestation_service_fid(smc_fid)) {
