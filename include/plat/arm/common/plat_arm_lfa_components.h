@@ -29,7 +29,9 @@
  * Define platform-specific numeric IDs for LFA FVP components.
  */
 typedef enum {
-	LFA_BL31_COMPONENT = 0,
+#if ENABLE_LFA_BL31
+	LFA_BL31_COMPONENT,
+#endif
 #if BL32_BASE
 	LFA_BL32_COMPONENT,
 #endif /* BL32_BASE */
