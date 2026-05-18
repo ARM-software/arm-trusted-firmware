@@ -2,12 +2,8 @@ Runtime Instrumentation Testing - N1SDP
 =======================================
 
 For this test we used the N1 System Development Platform (`N1SDP`_), which
-contains an SoC consisting of two dual-core Arm N1 clusters.
-
-The following source trees were used:
-
-- `TF-A v2.14-rc0`_
-- `TFTF v2.14-rc0`_
+contains an SoC consisting of two dual-core Arm N1 clusters. Testing was done
+after the rc0 tag.
 
 Please see the Runtime Instrumentation :ref:`Testing Methodology
 <Runtime Instrumentation Methodology>` page for more details. The tests were ran
@@ -20,120 +16,57 @@ Results
 
 ``CPU_SUSPEND`` to deepest power level
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in parallel (v2.14)
 
-    +---------+------+----------------+-----------------+----------------+
-    | Cluster | Core |   Powerdown    |      Wakeup     |  Cache Flush   |
-    +---------+------+----------------+-----------------+----------------+
-    |    0    |  0   | 3380.0(+1.81%) | 12480.0(-7.00%) | 340.0(+21.43%) |
-    +---------+------+----------------+-----------------+----------------+
-    |    0    |  1   | 3840.0(-4.48%) | 17940.0(-1.10%) | 220.0(-21.43%) |
-    +---------+------+----------------+-----------------+----------------+
-    |    1    |  0   | 2560.0(-5.19%) | 17140.0(-1.38%) | 160.0(-38.46%) |
-    +---------+------+----------------+-----------------+----------------+
-    |    1    |  1   | 3040.0(+2.70%) |  9960.0(-8.29%) | 140.0(-46.15%) |
-    +---------+------+----------------+-----------------+----------------+
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in parallel (current release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/current/test_rt_instr_susp_deep_parallel.csv
 
-.. table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in parallel (v2.13)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in parallel (previous release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/previous/test_rt_instr_susp_deep_parallel.csv
 
-    +---------+------+-----------+----------+-------------+
-    | Cluster | Core | Powerdown |  Wakeup  | Cache Flush |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  0   |  3320.00  | 13420.00 |    280.00   |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  1   |  4020.00  | 18140.00 |    280.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  0   |  2700.00  | 17380.00 |    260.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  1   |  2960.00  | 10860.00 |    260.00   |
-    +---------+------+-----------+----------+-------------+
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in serial (current release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/current/test_rt_instr_susp_deep_serial.csv
 
-.. table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in serial (v2.14)
-
-    +---------+------+----------------+-----------------+----------------+
-    | Cluster | Core |   Powerdown    |      Wakeup     |  Cache Flush   |
-    +---------+------+----------------+-----------------+----------------+
-    |    0    |  0   | 1640.0(+1.23%) |     10140.0     |     300.0      |
-    +---------+------+----------------+-----------------+----------------+
-    |    0    |  1   | 1980.0(+6.45%) | 10440.0(-1.69%) |     280.0      |
-    +---------+------+----------------+-----------------+----------------+
-    |    1    |  0   | 1640.0(-8.89%) | 10340.0(+1.77%) | 160.0(-50.00%) |
-    +---------+------+----------------+-----------------+----------------+
-    |    1    |  1   | 2280.0(+5.56%) |     10560.0     | 600.0(+20.00%) |
-    +---------+------+----------------+-----------------+----------------+
-
-.. table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in serial (v2.13)
-
-    +---------+------+-----------+----------+-------------+
-    | Cluster | Core | Powerdown |  Wakeup  | Cache Flush |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  0   |  1620.00  | 10140.00 |    300.00   |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  1   |  1860.00  | 10620.00 |    280.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  0   |  1800.00  | 10160.00 |    320.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  1   |  2160.00  | 10600.00 |    500.00   |
-    +---------+------+-----------+----------+-------------+
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in serial (previous release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/previous/test_rt_instr_susp_deep_serial.csv
 
 ``CPU_SUSPEND`` to power level 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in parallel (v2.14)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in parallel (current release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/current/test_rt_instr_cpu_susp_parallel.csv
 
-    +---------+------+-----------------+------------------+----------------+
-    | Cluster | Core |    Powerdown    |      Wakeup      |  Cache Flush   |
-    +---------+------+-----------------+------------------+----------------+
-    |    0    |  0   | 1380.0(+72.50%) | 10600.0(-11.52%) | 240.0(-7.69%)  |
-    +---------+------+-----------------+------------------+----------------+
-    |    0    |  1   |  1660.0(+7.79%) | 15880.0(-3.41%)  | 140.0(-46.15%) |
-    +---------+------+-----------------+------------------+----------------+
-    |    1    |  0   |  1640.0(+1.23%) | 15200.0(-5.59%)  | 140.0(-53.33%) |
-    +---------+------+-----------------+------------------+----------------+
-    |    1    |  1   |  1780.0(-1.11%) |  9880.0(-6.26%)  | 140.0(-30.00%) |
-    +---------+------+-----------------+------------------+----------------+
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in parallel (previous release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/previous/test_rt_instr_cpu_susp_parallel.csv
 
-.. table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in parallel (v2.13)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in serial (current release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/current/test_rt_instr_cpu_susp_serial.csv
 
-    +---------+------+-----------+----------+-------------+
-    | Cluster | Core | Powerdown |  Wakeup  | Cache Flush |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  0   |   800.00  | 11980.00 |    260.00   |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  1   |  1540.00  | 16440.00 |    260.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  0   |  1620.00  | 16100.00 |    300.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  1   |  1800.00  | 10540.00 |    200.00   |
-    +---------+------+-----------+----------+-------------+
-
-.. table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in serial (v2.14)
-
-    +---------+------+-----------------+-----------------+----------------+
-    | Cluster | Core |    Powerdown    |      Wakeup     |  Cache Flush   |
-    +---------+------+-----------------+-----------------+----------------+
-    |    0    |  0   |  1560.0(+8.33%) |  9680.0(-2.22%) |     300.0      |
-    +---------+------+-----------------+-----------------+----------------+
-    |    0    |  1   |  1900.0(+9.20%) |     10380.0     |     280.0      |
-    +---------+------+-----------------+-----------------+----------------+
-    |    1    |  0   |  1760.0(-2.22%) | 10220.0(+1.79%) |     340.0      |
-    +---------+------+-----------------+-----------------+----------------+
-    |    1    |  1   | 1760.0(-10.20%) |     10500.0     | 140.0(-68.18%) |
-    +---------+------+-----------------+-----------------+----------------+
-
-.. table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in serial (v2.13)
-
-    +---------+------+-----------+----------+-------------+
-    | Cluster | Core | Powerdown |  Wakeup  | Cache Flush |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  0   |  1440.00  | 9900.00  |    300.00   |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  1   |  1740.00  | 10400.00 |    280.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  0   |  1800.00  | 10040.00 |    340.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  1   |  1960.00  | 10460.00 |    440.00   |
-    +---------+------+-----------+----------+-------------+
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in serial (previous release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/previous/test_rt_instr_cpu_susp_serial.csv
 
 ``CPU_OFF`` on all non-lead CPUs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,70 +74,36 @@ Results
 ``CPU_OFF`` on all non-lead CPUs in sequence then, ``CPU_SUSPEND`` on the lead
 core to the deepest power level.
 
-.. table:: ``CPU_OFF`` latencies (ns) on all non-lead CPUs (v2.14)
+.. csv-table:: ``CPU_OFF`` latencies (ns) on all non-lead CPUs (current release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/current/test_rt_instr_cpu_off_serial.csv
 
-    +---------+------+-----------------+-----------------+----------------+
-    | Cluster | Core |    Powerdown    |      Wakeup     |  Cache Flush   |
-    +---------+------+-----------------+-----------------+----------------+
-    |    0    |  0   |  1700.0(+3.66%) | 10020.0(-2.15%) |     300.0      |
-    +---------+------+-----------------+-----------------+----------------+
-    |    0    |  1   | 14440.0(+3.74%) | 17140.0(-3.16%) | 360.0(+20.00%) |
-    +---------+------+-----------------+-----------------+----------------+
-    |    1    |  0   | 13680.0(+1.03%) |     16680.0     | 260.0(-13.33%) |
-    +---------+------+-----------------+-----------------+----------------+
-    |    1    |  1   |     14260.0     | 17600.0(-3.72%) |     300.0      |
-    +---------+------+-----------------+-----------------+----------------+
-
-.. table:: ``CPU_OFF`` latencies (ns) on all non-lead CPUs (v2.13)
-
-    +---------+------+-----------+----------+-------------+
-    | Cluster | Core | Powerdown |  Wakeup  | Cache Flush |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  0   |  1640.00  | 10240.00 |    300.00   |
-    +---------+------+-----------+----------+-------------+
-    |    0    |  1   |  13920.00 | 17700.00 |    300.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  0   |  13540.00 | 16740.00 |    300.00   |
-    +---------+------+-----------+----------+-------------+
-    |    1    |  1   |  14120.00 | 18280.00 |    300.00   |
-    +---------+------+-----------+----------+-------------+
+.. csv-table:: ``CPU_OFF`` latencies (ns) on all non-lead CPUs (previous release)
+    :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
+    :width: 95%
+    :widths: 1, 1, 3, 3, 3
+    :file: data/n1sdp/previous/test_rt_instr_cpu_off_serial.csv
 
 ``CPU_VERSION`` in parallel
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. table:: ``CPU_VERSION`` latency (ns) in parallel on all cores (v2.14)
+.. csv-table:: ``CPU_VERSION`` latency (ns) in parallel on all cores (current release)
+    :header: Cluster, Core, Latency
+    :width: 95%
+    :widths: 1, 1, 2
+    :file: data/n1sdp/current/test_rt_instr_psci_version_parallel.csv
 
-    +----------+------+-------------------+
-    | Cluster  | Core |      Latency      |
-    +----------+------+-------------------+
-    |    0     |  0   |   140.0(+16.67%)  |
-    +----------+------+-------------------+
-    |    0     |  1   |   240.0(+20.00%)  |
-    +----------+------+-------------------+
-    |    1     |  0   |   220.0(+10.00%)  |
-    +----------+------+-------------------+
-    |    1     |  1   |   260.0(+8.33%)   |
-    +----------+------+-------------------+
-
-.. table:: ``CPU_VERSION`` latency (ns) in parallel on all cores (v2.13)
-
-    +-------------+--------+--------------+
-    |   Cluster   |  Core  |   Latency    |
-    +-------------+--------+--------------+
-    |      0      |   0    |    120.00    |
-    +-------------+--------+--------------+
-    |      0      |   1    |    200.00    |
-    +-------------+--------+--------------+
-    |      1      |   0    |    200.00    |
-    +-------------+--------+--------------+
-    |      1      |   1    |    240.00    |
-    +-------------+--------+--------------+
+.. csv-table:: ``CPU_VERSION`` latency (ns) in parallel on all cores (previous release)
+    :header: Cluster, Core, Latency
+    :width: 95%
+    :widths: 1, 1, 2
+    :file: data/n1sdp/previous/test_rt_instr_psci_version_parallel.csv
 
 --------------
 
-*Copyright (c) 2023-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2026, Arm Limited. All rights reserved.*
 
-.. _TF-A v2.14-rc0: https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.14-rc0
-.. _TFTF v2.14-rc0: https://review.trustedfirmware.org/plugins/gitiles/TF-A/tf-a-tests/+/refs/tags/v2.14-rc0
 .. _user guide: https://gitlab.arm.com/arm-reference-solutions/arm-reference-solutions-docs/-/blob/master/docs/n1sdp/user-guide.rst
 .. _N1SDP: https://developer.arm.com/documentation/101489/latest
