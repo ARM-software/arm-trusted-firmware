@@ -41,25 +41,25 @@ Results
 ``CPU_SUSPEND`` to deepest power level
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to deepest power level in parallel (current release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in parallel (current release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/current/test_rt_instr_susp_deep_parallel.csv
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to deepest power level in parallel (previous release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in parallel (previous release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/previous/test_rt_instr_susp_deep_parallel.csv
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to deepest power level in serial (current release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in serial (current release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/current/test_rt_instr_susp_deep_serial.csv
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to deepest power level in serial (previous release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to deepest power level in serial (previous release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
@@ -68,25 +68,25 @@ Results
 ``CPU_SUSPEND`` to power level 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to power level 0 in parallel (current release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in parallel (current release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/current/test_rt_instr_cpu_susp_parallel.csv
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to power level 0 in parallel (previous release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in parallel (previous release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/previous/test_rt_instr_cpu_susp_parallel.csv
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to power level 0 in serial (current release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in serial (current release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/current/test_rt_instr_cpu_susp_serial.csv
 
-.. csv-table:: ``CPU_SUSPEND`` latencies (µs) to power level 0 in serial (previous release)
+.. csv-table:: ``CPU_SUSPEND`` latencies (ns) to power level 0 in serial (previous release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
@@ -98,13 +98,13 @@ Results
 ``CPU_OFF`` on all non-lead CPUs in sequence then, ``CPU_SUSPEND`` on the lead
 core to the deepest power level.
 
-.. csv-table:: ``CPU_OFF`` latencies (µs) on all non-lead CPUs (current release)
+.. csv-table:: ``CPU_OFF`` latencies (ns) on all non-lead CPUs (current release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
     :file: data/juno/current/test_rt_instr_cpu_off_serial.csv
 
-.. csv-table:: ``CPU_OFF`` latencies (µs) on all non-lead CPUs (previous release)
+.. csv-table:: ``CPU_OFF`` latencies (ns) on all non-lead CPUs (previous release)
     :header: Cluster, Core, Powerdown, Wakeup, Cache Flush
     :width: 95%
     :widths: 1, 1, 3, 3, 3
@@ -113,13 +113,13 @@ core to the deepest power level.
 ``CPU_VERSION`` in parallel
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. csv-table:: ``CPU_VERSION`` latency (µs) in parallel on all cores (2.14)
+.. csv-table:: ``CPU_VERSION`` latency (ns) in parallel on all cores (2.14)
     :header: Cluster, Core, Latency
     :width: 95%
     :widths: 1, 1, 2
     :file: data/juno/current/test_rt_instr_psci_version_parallel.csv
 
-.. csv-table:: ``CPU_VERSION`` latency (µs) in parallel on all cores (2.13)
+.. csv-table:: ``CPU_VERSION`` latency (ns) in parallel on all cores (2.13)
     :header: Cluster, Core, Latency
     :width: 95%
     :widths: 1, 1, 2
