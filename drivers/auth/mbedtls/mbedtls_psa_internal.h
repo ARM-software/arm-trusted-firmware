@@ -1,11 +1,15 @@
 /*
- * Copyright (c) 2025, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef MBEDTLS_PSA_CRYPTO_H
-#define MBEDTLS_PSA_CRYPTO_H
+#ifndef MBEDTLS_PSA_INTERNAL_H
+#define MBEDTLS_PSA_INTERNAL_H
+
+#include <stdbool.h>
+
+#include <psa/crypto.h>
 
 #define MAX_CACHED_KEYS				10
 
@@ -17,4 +21,4 @@ typedef struct key_cache_s {
 	bool valid;				/* Whether this cache entry is valid */
 } key_cache_t;
 
-#endif /* MBEDTLS_PSA_CRYPTO_H */
+#endif /* MBEDTLS_PSA_INTERNAL_H */
