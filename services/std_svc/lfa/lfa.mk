@@ -12,3 +12,7 @@ LFA_SOURCES	+=	$(addprefix services/std_svc/lfa/, \
 ifeq (${ENABLE_RMM}, 1)
 LFA_SOURCES	+=	services/std_svc/rmmd/rmmd_rmm_lfa.c
 endif
+
+ifeq (${ENABLE_LFA_BL31}, 1)
+LFA_SOURCES	+=	services/std_svc/lfa/lfa_relocatable.S
+endif

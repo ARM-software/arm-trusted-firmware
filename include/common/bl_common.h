@@ -164,6 +164,15 @@ IMPORT_SYM(uintptr_t, __COHERENT_RAM_START__,	BL_COHERENT_RAM_BASE);
 IMPORT_SYM(uintptr_t, __COHERENT_RAM_END__,	BL_COHERENT_RAM_END);
 #endif
 
+#if ENABLE_LFA_BL31
+/* These symbols are needed so the relocatable code can be loaded. */
+IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_CODE_START__,	LFA_RELOCATABLE_CODE_START);
+IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_CODE_END__,	LFA_RELOCATABLE_CODE_END);
+IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_LMA__,		LFA_RELOCATABLE_LMA);
+IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_DATA_START__,	LFA_RELOCATABLE_DATA_START);
+IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_DATA_END__,	LFA_RELOCATABLE_DATA_END);
+#endif
+
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.
