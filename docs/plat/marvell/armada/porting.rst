@@ -85,7 +85,7 @@ This file defines the dram topology and parameters of the target board.
 The DDR code is part of the BLE component, which is an extension of ARM Trusted
 Firmware (TF-A).
 
-The DDR driver called mv_ddr is released separately apart from TF-A sources.
+The DDR driver called mv_ddr is integrated as the ``contrib/mv-ddr`` submodule.
 
 The BLE and consequently, the DDR init code is executed at the early stage of
 the boot process.
@@ -93,8 +93,8 @@ the boot process.
 Each supported platform of the TF-A has its own DDR porting file called
 dram_port.c located at ``atf/plat/marvell/armada/a8k/<platform>/board`` directory.
 
-Please refer to '<path_to_mv_ddr_sources>/doc/porting_guide.txt' for detailed
-porting description.
+Please refer to ``contrib/mv-ddr/doc/porting_guide.txt`` for detailed porting
+instructions.
 
 The build target directory is "build/<platform>/release/ble".
 
