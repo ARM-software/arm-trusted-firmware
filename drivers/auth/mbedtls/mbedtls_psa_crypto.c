@@ -233,6 +233,26 @@ static void cleanup_pk_context(mbedtls_pk_context *pk, bool *pk_initialized)
 }
 
 /*
+ * Extract the signature bytes from the DER-encoded SignatureValue BIT STRING.
+ */
+static int get_signature_bytes(void *sig_ptr, unsigned int sig_len,
+			       unsigned char **signature_ptr,
+			       size_t *signature_len)
+{
+	unsigned char *p = (unsigned char *)sig_ptr;
+	unsigned char *end = p + sig_len;
+	int rc;
+
+	rc = mbedtls_asn1_get_bitstring_null(&p, end, signature_len);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	*signature_ptr = p;
+	return CRYPTO_SUCCESS;
+}
+
+/*
  * Verify a signature.
  *
  * Parameters are passed using the DER encoding format following the ASN.1
@@ -300,15 +320,10 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 		cleanup_pk_context(&pk, &pk_initialized);
 	}
 
-	/* Extract the signature from sig_ptr. */
-	p = (unsigned char *) sig_ptr;
-	end = p + sig_len;
-	rc = mbedtls_asn1_get_bitstring_null(&p, end, &local_sig_len);
-	if (rc != 0) {
-		rc = CRYPTO_ERR_SIGNATURE;
+	rc = get_signature_bytes(sig_ptr, sig_len, &local_sig_ptr, &local_sig_len);
+	if (rc != CRYPTO_SUCCESS) {
 		goto end1;
 	}
-	local_sig_ptr = p;
 
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA || \
 TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
@@ -316,7 +331,7 @@ TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
 		/* Convert the DER ASN.1 signature to raw format. */
 		size_t key_bits = psa_get_key_bits(&psa_key_attr);
 
-		rc = mbedtls_ecdsa_der_to_raw(key_bits, p, local_sig_len,
+		rc = mbedtls_ecdsa_der_to_raw(key_bits, local_sig_ptr, local_sig_len,
 					      reformatted_sig, ECDSA_SIG_BUFFER_SIZE,
 					      &local_sig_len);
 		if (rc != 0) {
