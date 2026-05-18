@@ -9,9 +9,11 @@
 
 #include <stdbool.h>
 
+#include <mbedtls/x509.h>
 #include <psa/crypto.h>
 
 #define MAX_CACHED_KEYS				10
+#define MBEDTLS_PSA_MAX_CACHED_EXTENSIONS	10
 
 typedef struct key_cache_s {
 	const char *pk_oid;			/* Store OID of the public key */
@@ -20,5 +22,12 @@ typedef struct key_cache_s {
 	psa_key_attributes_t psa_key_attr;	/* PSA key attributes associated with the key */
 	bool valid;				/* Whether this cache entry is valid */
 } key_cache_t;
+
+typedef struct extension_cache_s {
+	mbedtls_x509_buf extension_oid;
+	void *ext;
+	unsigned int ext_len;
+	bool valid;
+} extension_cache_t;
 
 #endif /* MBEDTLS_PSA_INTERNAL_H */
