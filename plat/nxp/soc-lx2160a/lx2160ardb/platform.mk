@@ -41,6 +41,12 @@ BL2_SOURCES	+=	${BOARD_PATH}/ddr_init.c\
 			${BOARD_PATH}/platform.c\
 			${PLAT_SOC_PATH}/plat_soc_hooks_default.c
 
+# Optional io_storage backend for the FlexSPI NOR
+ifeq ($(IO_XSPI_NOR),1)
+include drivers/nxp/io/io_xspi_nor.mk
+BL2_SOURCES += ${NXP_IO_XSPI_NOR_SOURCES}
+endif
+
 SUPPORTED_BOOT_MODE	:=	flexspi_nor	\
 				sd		\
 				emmc
