@@ -114,20 +114,23 @@ static void destroy_key_ids(void)
 	for (int i = 0; i < MAX_CACHED_KEYS; i++) {
 		if (key_cache[i].valid) {
 			psa_destroy_key(key_cache[i].key_id);
+			key_cache[i].valid = false;
 		}
 	}
 }
 
 /* Retrieve cached key ID, algorithm, and key attributes */
-static bool get_cached_psa_key_info(const char *pk_oid, psa_key_id_t *key_id,
-		psa_algorithm_t *psa_alg, psa_key_attributes_t *psa_key_attr)
+static bool get_cached_psa_key_info(const char *pk_oid, psa_algorithm_t psa_alg,
+		psa_key_id_t *key_id, psa_key_attributes_t *psa_key_attr)
 {
+	size_t pk_oid_len = strlen(pk_oid);
+
 	for (int i = 0; i < MAX_CACHED_KEYS; i++) {
 		if (key_cache[i].valid &&
-				(strlen(key_cache[i].pk_oid) == strlen(pk_oid)) &&
-				(strncmp(key_cache[i].pk_oid, pk_oid, strlen(pk_oid)) == 0)) {
+				(key_cache[i].psa_alg == psa_alg) &&
+				(strlen(key_cache[i].pk_oid) == pk_oid_len) &&
+				(strncmp(key_cache[i].pk_oid, pk_oid, pk_oid_len) == 0)) {
 			*key_id = key_cache[i].key_id;
-			*psa_alg = key_cache[i].psa_alg;
 			*psa_key_attr = key_cache[i].psa_key_attr;
 			return true;
 		}
@@ -254,8 +257,13 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	unsigned char *local_sig_ptr;
 	size_t local_sig_len;
 
+	rc = construct_psa_alg(sig_alg, sig_alg_len, &pk_alg, &psa_alg);
+	if (rc != CRYPTO_SUCCESS) {
+		return rc;
+	}
+
 	/* Check if key, algorithm, and key attributes are already cached */
-	if (!get_cached_psa_key_info(pk_oid, &psa_key_id, &psa_alg, &psa_key_attr)) {
+	if (!get_cached_psa_key_info(pk_oid, psa_alg, &psa_key_id, &psa_key_attr)) {
 		/* Load the key into the PSA key store. */
 		initialize_pk_context(&pk, &pk_initialized);
 
@@ -274,10 +282,6 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 			goto end2;
 		}
 
-		rc = construct_psa_alg(sig_alg, sig_alg_len, &pk_alg, &psa_alg);
-		if (rc != CRYPTO_SUCCESS) {
-			goto end2;
-		}
 		psa_set_key_algorithm(&psa_key_attr, psa_alg);
 
 		rc = mbedtls_pk_import_into_psa(&pk, &psa_key_attr, &psa_key_id);
