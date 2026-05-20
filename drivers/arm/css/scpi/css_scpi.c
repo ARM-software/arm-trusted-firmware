@@ -19,6 +19,8 @@
 #define SCPI_SHARED_MEM_AP_TO_SCP	(PLAT_CSS_SCP_COM_SHARED_MEM_BASE \
 								 + 0x100)
 
+static volatile scpi_cmd_t *shared_mem_scp_to_ap =
+	(volatile scpi_cmd_t *)SCPI_SHARED_MEM_SCP_TO_AP;
 static volatile scpi_cmd_t *shared_mem_ap_to_scp =
 	(volatile scpi_cmd_t *)SCPI_SHARED_MEM_AP_TO_SCP;
 
@@ -76,7 +78,7 @@ static int scpi_secure_message_receive(scpi_cmd_t *cmd)
 	 */
 	dmbld();
 
-	*cmd = *shared_mem_ap_to_scp;
+	*cmd = *shared_mem_scp_to_ap;
 
 	return 0;
 }
