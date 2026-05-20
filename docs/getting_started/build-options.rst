@@ -1611,6 +1611,11 @@ Common build options
 -  ``LFA_SUPPORT``: Boolean flag to enable support for Live Firmware
    activation as per the specification. This option defaults to 0.
 
+-  ``ENABLE_LFA_BL31``: Boolean flag to enable live activation of BL31 using
+   the EL3 LFA framework. This option depends on ``LFA_SUPPORT`` and defaults
+   to 0. See :doc:`../components/bl31-lfa` for the design, assumptions, and
+   limitations of BL31 self-update.
+
 -  ``TRANSFER_LIST``: Setting this to ``1`` enables support for Firmware
    Handoff using Transfer List defined in `Firmware Handoff specification`_.
    This defaults to ``0``. Current implementation follows the Firmware Handoff
