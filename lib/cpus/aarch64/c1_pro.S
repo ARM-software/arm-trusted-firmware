@@ -24,6 +24,10 @@
 
 cpu_reset_prologue c1_pro
 
+add_erratum_entry c1_pro, CVE(2026, 995), WORKAROUND_CVE_2026_0995
+.global check_erratum_c1_pro_995
+check_erratum_ls c1_pro, CVE(2026, 995), CPU_REV(1, 2)
+
 workaround_runtime_start c1_pro, ERRATUM(3338470), ERRATA_C1PRO_3338470
 	speculation_barrier
 workaround_runtime_end c1_pro, ERRATUM(3338470)
