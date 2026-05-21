@@ -203,6 +203,15 @@ void imx_set_sys_wakeup(uint32_t last_core, bool pdn)
 		/* If mask is not zero, increase the mark_count */
 		wakeup_mark_count++;
 
+#if defined(PLAT_imx952)
+		if (i == IRQ_MASK(NETC_IREC_PCI_INT_X1) &&
+		    (mask & IRQ_SHIFT(NETC_IREC_PCI_INT_X1))) {
+			has_netc_irq = true;
+			/* SGMII requires keep GPIO state */
+			gpio_wakeup = true;
+		}
+#endif
+
 		if (i == IRQ_MASK(NETC_IREC_PCI_INT_X0) &&
 		    (mask & IRQ_SHIFT(NETC_IREC_PCI_INT_X0))) {
 			/*

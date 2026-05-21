@@ -88,6 +88,7 @@
 #define WDOG_NUM			U(2)
 
 #define NETC_IREC_PCI_INT_X0		304
+#define NETC_IREC_PCI_INT_X1		305
 
 #define COUNTER_FREQUENCY		24000000
 

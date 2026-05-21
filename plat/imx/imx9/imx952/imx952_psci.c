@@ -22,12 +22,12 @@ uint32_t mask_all[IMR_NUM] = {
 /* IRQ masks used to check if any wakeup source is enabled:
  * lpuart3-8: 64-69, flexcan2,3: 38, 40
  * usdhc1,2,3: 86, 87, 191
- * netc: 304
+ * netc: 304, 305
  */
 uint32_t wakeup_irq_mask[IMR_NUM] = {
 	0x0, 0x0140, 0xc0003f, 0x0,
 	0x0, 0x80000000, 0x0, 0x0,
-	0x0, 0x10000, 0x0, 0x0, 0x0
+	0x0, 0x30000, 0x0, 0x0, 0x0
 };
 
 struct per_hsk_cfg per_hsk_cfg[] = {
