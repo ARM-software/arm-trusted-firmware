@@ -110,6 +110,7 @@ TF-A build options
 - **RAS_TRAP_NS_ERR_REC_ACCESS**: Trap Non-secure access of RAS error record registers.
 - **RAS_EXTENSION**: Deprecated macro, equivalent to ENABLE_FEAT_RAS and
   HANDLE_EA_EL3_FIRST_NS put together.
+- **ENABLE_FEAT_AxERR**: enables the use of FEAT_ANERR and FEAT_ADERR at EL3
 
 RAS internal macros
 

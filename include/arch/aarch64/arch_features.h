@@ -299,6 +299,14 @@
 	gen(feat_pfar, id_aa64pfr1_el1, ENABLE_FEAT_PFAR,			\
 	    ID_AA64PFR1_EL1_PFAR, 1U, 1U, FEAT_ENABLE_NS)
 
+#define FEAT_ADERR(gen)								\
+	gen(feat_aderr, id_aa64mmfr3_el1, ENABLE_FEAT_AxERR,			\
+	    ID_AA64MMFR3_EL1_ADERR, 2U, 3U, FEAT_ENABLE_ALL_WORLDS)
+
+#define FEAT_ANERR(gen)								\
+	gen(feat_anerr, id_aa64mmfr3_el1, ENABLE_FEAT_AxERR,			\
+	    ID_AA64MMFR3_EL1_ANERR, 2U, 3U, FEAT_ENABLE_ALL_WORLDS)
+
 /* === v9.0 features === */
 #define FEAT_TRBE(gen)								\
 	gen(feat_trbe, id_aa64dfr0_el1, ENABLE_TRBE_FOR_NS,			\
@@ -474,6 +482,8 @@
 	FEAT_SCTLR2(gen)							\
 	FEAT_AIE(gen)								\
 	FEAT_PFAR(gen)								\
+	FEAT_ADERR(gen)								\
+	FEAT_ANERR(gen)								\
 	FEAT_RME(gen)								\
 	FEAT_SME(gen)								\
 	FEAT_SME_FA64(gen)							\

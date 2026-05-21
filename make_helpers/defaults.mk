@@ -723,6 +723,9 @@ ENABLE_FEAT_AIE				?=	0
 # PFAR extension using the PFAR system registers
 ENABLE_FEAT_PFAR			?=	0
 
+# Enable asynchronous Device and Normal Error Exceptions.
+ENABLE_FEAT_AxERR			?=	0
+
 #-------------------------------------------------------------
 # Non-standard feature
 #-------------------------------------------------------------

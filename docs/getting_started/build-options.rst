@@ -1413,6 +1413,12 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
 -  ``ENABLE_FEAT_PFAR``: Enables access to the PFAR system
    registers from non-secure world. Default value is ``0``.
 
+-  ``ENABLE_FEAT_AxERR``: Enables the use of FEAT_ADERR and FEAT_ANERR at EL3,
+   allowing EL3 Device and Normal memory External Aborts (like consuming RAS
+   poison) to be handled asynchronously in exchange for improved performance.
+   Platforms should not enable this option if this behaviour is undesirable.
+   Default value is ``0``.
+
 GIC driver options
 --------------------
 
