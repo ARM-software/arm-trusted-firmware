@@ -29,6 +29,7 @@ Requirements
 Arm Compiler             6.23
 Arm GNU Compiler         15.2
 Clang/LLVM               18.1.8
+CMake                    3.22
 Device Tree Compiler     1.6.1
 GNU Make                 4.3
 Node.js [#f2]_           20.11.1
