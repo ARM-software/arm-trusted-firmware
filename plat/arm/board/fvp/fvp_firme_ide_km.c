@@ -69,3 +69,17 @@ int plat_ide_km_keyset_stop(uint64_t ecam_address, uint64_t flags,
 	return 0;
 #endif
 }
+
+#if (PLAT_IDE_KM_PENDING_OPS_MAX != 0)
+/* Poll for specified keyset_id in the ECAM space */
+int plat_ide_km_keyset_poll(uint64_t ecam_address, uint64_t keyset_id)
+{
+	return 0;
+}
+
+/* Poll for any pending keyset_id in the ECAM space and return it on success */
+int plat_ide_km_poll(uint64_t ecam_address, uint64_t *keyset_id_ret)
+{
+	return 0;
+}
+#endif

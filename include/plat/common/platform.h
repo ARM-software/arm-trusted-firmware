@@ -442,6 +442,12 @@ int plat_ide_km_keyset_go(uint64_t ecam_address, uint64_t flags,
 			  uint64_t keyset_id);
 int plat_ide_km_keyset_stop(uint64_t ecam_address, uint64_t flags,
 			    uint64_t keyset_id);
+
+#if (PLAT_IDE_KM_PENDING_OPS_MAX != 0)
+int plat_ide_km_keyset_poll(uint64_t ecam_address, uint64_t keyset_id);
+int plat_ide_km_poll(uint64_t ecam_address, uint64_t *keyset_id_ret);
+#endif /* (PLAT_IDE_KM_PENDING_OPS_MAX != 0) */
+
 #endif /* FIRME_SUPPORT_IDE_KM */
 
 /*******************************************************************************

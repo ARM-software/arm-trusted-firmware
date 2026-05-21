@@ -280,6 +280,9 @@ ifeq (${FIRME_SUPPORT_IDE_KM},1)
 PLAT_PCIE_ROOT_COMPLEX_MAX := 2
 $(eval $(call add_define,PLAT_PCIE_ROOT_COMPLEX_MAX))
 
+PLAT_IDE_KM_PENDING_OPS_MAX := 0
+$(eval $(call add_define,PLAT_IDE_KM_PENDING_OPS_MAX))
+
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_firme_ide_km.c
 
 FVP_SIMULATE_IDE_KM_UNIT := 0
