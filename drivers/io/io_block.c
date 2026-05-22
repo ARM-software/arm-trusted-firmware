@@ -143,8 +143,7 @@ static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	    ((region->length % cur->dev_spec->block_size) != 0U)) {
 		return -EINVAL;
 	}
-	if (check_u64_overflow((uint64_t)region->offset,
-			       (uint64_t)region->length)) {
+	if (check_size_t_overflow(region->offset, region->length)) {
 		return -EINVAL;
 	}
 
