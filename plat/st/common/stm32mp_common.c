@@ -300,7 +300,7 @@ int stm32mp_uart_console_setup(void)
 
 	reset_uart((uint32_t)dt_uart_info.reset);
 
-	clk_rate = clk_get_rate((unsigned long)dt_uart_info.clock);
+	clk_rate = (uint32_t)clk_get_rate((unsigned long)dt_uart_info.clock);
 #endif
 
 	set_console(dt_uart_info.base, clk_rate);
