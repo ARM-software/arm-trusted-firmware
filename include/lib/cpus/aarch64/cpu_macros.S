@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -547,7 +547,7 @@
 .endm
 
 
-#if __clang_major__ < 17
+#if defined(__clang_major__) && __clang_major__ < 17
 /*
  * A problem with clang version < 17 can cause resolving nested
  * 'cfi_startproc' to fail compilation.
