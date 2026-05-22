@@ -23,7 +23,7 @@
 #define PMIC_NODE_NOT_FOUND	1
 
 struct regul_handle_s {
-	const uint32_t id;
+	const uint8_t id;
 	uint16_t bypass_mv;
 };
 
@@ -305,26 +305,25 @@ static int pmic2_list_voltages(const struct regul_description *desc,
 static int pmic2_set_flag(const struct regul_description *desc, uint16_t flag)
 {
 	struct regul_handle_s *regul = (struct regul_handle_s *)desc->driver_data;
-	uint32_t id = regul->id;
 	int ret = -EPERM;
 
 	VERBOSE("%s: set_flag 0x%x\n", desc->node_name, flag);
 
 	switch (flag) {
 	case REGUL_PULL_DOWN:
-		ret = stpmic2_regulator_set_prop(pmic2, id, STPMIC2_PULL_DOWN, 1U);
+		ret = stpmic2_regulator_set_prop(pmic2, regul->id, STPMIC2_PULL_DOWN, 1U);
 		break;
 	case REGUL_OCP:
-		ret = stpmic2_regulator_set_prop(pmic2, id, STPMIC2_OCP, 1U);
+		ret = stpmic2_regulator_set_prop(pmic2, regul->id, STPMIC2_OCP, 1U);
 		break;
 	case REGUL_SINK_SOURCE:
-		ret = stpmic2_regulator_set_prop(pmic2, id, STPMIC2_SINK_SOURCE, 1U);
+		ret = stpmic2_regulator_set_prop(pmic2, regul->id, STPMIC2_SINK_SOURCE, 1U);
 		break;
 	case REGUL_ENABLE_BYPASS:
-		ret = stpmic2_regulator_set_prop(pmic2, id, STPMIC2_BYPASS, 1U);
+		ret = stpmic2_regulator_set_prop(pmic2, regul->id, STPMIC2_BYPASS, 1U);
 		break;
 	case REGUL_MASK_RESET:
-		ret = stpmic2_regulator_set_prop(pmic2, id, STPMIC2_MASK_RESET, 1U);
+		ret = stpmic2_regulator_set_prop(pmic2, regul->id, STPMIC2_MASK_RESET, 1U);
 		break;
 	default:
 		ERROR("Invalid flag %u", flag);
