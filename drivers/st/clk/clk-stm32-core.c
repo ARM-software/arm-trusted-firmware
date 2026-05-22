@@ -71,7 +71,7 @@ static int clk_gate_enable(struct stm32_clk_priv *priv, int id)
 	const struct clk_stm32 *clk = _clk_get(priv, id);
 	struct clk_gate_cfg *cfg = clk->clock_cfg;
 
-	mmio_setbits_32(priv->base + cfg->offset, BIT(cfg->bit_idx));
+	mmio_setbits_32(priv->base + cfg->offset, BIT_32(cfg->bit_idx));
 
 	/* Make sure the clock register has been written */
 	(void)mmio_read_32(priv->base + cfg->offset);
@@ -86,7 +86,7 @@ static void clk_gate_disable(struct stm32_clk_priv *priv, int id)
 
 	dmbsy(); /* Ensure previous transactions are performed. */
 
-	mmio_clrbits_32(priv->base + cfg->offset, BIT(cfg->bit_idx));
+	mmio_clrbits_32(priv->base + cfg->offset, BIT_32(cfg->bit_idx));
 
 	/* Make sure the clock register has been written */
 	(void)mmio_read_32(priv->base + cfg->offset);
@@ -97,7 +97,7 @@ static bool clk_gate_is_enabled(struct stm32_clk_priv *priv, int id)
 	const struct clk_stm32 *clk = _clk_get(priv, id);
 	struct clk_gate_cfg *cfg = clk->clock_cfg;
 
-	return ((mmio_read_32(priv->base + cfg->offset) & BIT(cfg->bit_idx)) != 0U);
+	return ((mmio_read_32(priv->base + cfg->offset) & BIT_32(cfg->bit_idx)) != 0U);
 }
 
 const struct stm32_clk_ops clk_gate_ops = {
@@ -112,9 +112,9 @@ void _clk_stm32_gate_disable(struct stm32_clk_priv *priv, uint16_t gate_id)
 	uintptr_t addr = priv->base + gate->offset;
 
 	if (gate->set_clr != 0U) {
-		mmio_write_32(addr + RCC_MP_ENCLRR_OFFSET, BIT(gate->bit_idx));
+		mmio_write_32(addr + RCC_MP_ENCLRR_OFFSET, BIT_32(gate->bit_idx));
 	} else {
-		mmio_clrbits_32(addr, BIT(gate->bit_idx));
+		mmio_clrbits_32(addr, BIT_32(gate->bit_idx));
 	}
 }
 
@@ -124,10 +124,10 @@ int _clk_stm32_gate_enable(struct stm32_clk_priv *priv, uint16_t gate_id)
 	uintptr_t addr = priv->base + gate->offset;
 
 	if (gate->set_clr != 0U) {
-		mmio_write_32(addr, BIT(gate->bit_idx));
+		mmio_write_32(addr, BIT_32(gate->bit_idx));
 
 	} else {
-		mmio_setbits_32(addr, BIT(gate->bit_idx));
+		mmio_setbits_32(addr, BIT_32(gate->bit_idx));
 	}
 
 	return 0;
@@ -151,7 +151,7 @@ static const struct stm32_clk_ops *_clk_get_ops(struct stm32_clk_priv *priv, int
 	return priv->ops_array[clk->ops];
 }
 
-#define clk_div_mask(_width) GENMASK(((_width) - 1U), 0U)
+#define clk_div_mask(_width) GENMASK_32(((_width) - 1U), 0U)
 
 static unsigned int _get_table_div(const struct clk_div_table *table,
 				   unsigned int val)
@@ -176,11 +176,11 @@ static unsigned int _get_div(const struct clk_div_table *table,
 	}
 
 	if ((flags & CLK_DIVIDER_POWER_OF_TWO) != 0UL) {
-		return BIT(val);
+		return BIT_32(val);
 	}
 
 	if ((flags & CLK_DIVIDER_MAX_AT_ZERO) != 0UL) {
-		return (val != 0U) ? val : BIT(width);
+		return (val != 0U) ? val : BIT_32(width);
 	}
 
 	if (table != NULL) {
@@ -208,7 +208,7 @@ int clk_mux_set_parent(struct stm32_clk_priv *priv, uint16_t pid, uint8_t sel)
 
 	timeout = timeout_init_us(CLKSRC_TIMEOUT);
 
-	mask = BIT(mux->bitrdy);
+	mask = BIT_32(mux->bitrdy);
 
 	while ((mmio_read_32(address) & mask) == 0U) {
 		if (timeout_elapsed(timeout)) {
@@ -708,7 +708,7 @@ int clk_stm32_set_div(struct stm32_clk_priv *priv, uint32_t div_id, uint32_t val
 	}
 
 	timeout = timeout_init_us(CLKSRC_TIMEOUT);
-	mask = BIT(divider->bitrdy);
+	mask = BIT_32(divider->bitrdy);
 
 	while ((mmio_read_32(address) & mask) == 0U) {
 		if (timeout_elapsed(timeout)) {
@@ -724,12 +724,12 @@ int _clk_stm32_gate_wait_ready(struct stm32_clk_priv *priv, uint16_t gate_id,
 {
 	const struct gate_cfg *gate = &priv->gates[gate_id];
 	uintptr_t address = priv->base + gate->offset;
-	uint32_t mask_rdy = BIT(gate->bit_idx);
+	uint32_t mask_rdy = BIT_32(gate->bit_idx);
 	uint64_t timeout;
 	uint32_t mask_test;
 
 	if (ready_on) {
-		mask_test = BIT(gate->bit_idx);
+		mask_test = BIT_32(gate->bit_idx);
 	} else {
 		mask_test = 0U;
 	}
@@ -757,10 +757,10 @@ int clk_stm32_gate_enable(struct stm32_clk_priv *priv, int id)
 	uintptr_t addr = priv->base + gate->offset;
 
 	if (gate->set_clr != 0U) {
-		mmio_write_32(addr, BIT(gate->bit_idx));
+		mmio_write_32(addr, BIT_32(gate->bit_idx));
 
 	} else {
-		mmio_setbits_32(addr, BIT(gate->bit_idx));
+		mmio_setbits_32(addr, BIT_32(gate->bit_idx));
 	}
 
 	return 0;
@@ -774,21 +774,21 @@ void clk_stm32_gate_disable(struct stm32_clk_priv *priv, int id)
 	uintptr_t addr = priv->base + gate->offset;
 
 	if (gate->set_clr != 0U) {
-		mmio_write_32(addr + RCC_MP_ENCLRR_OFFSET, BIT(gate->bit_idx));
+		mmio_write_32(addr + RCC_MP_ENCLRR_OFFSET, BIT_32(gate->bit_idx));
 	} else {
-		mmio_clrbits_32(addr, BIT(gate->bit_idx));
+		mmio_clrbits_32(addr, BIT_32(gate->bit_idx));
 	}
 }
 
 bool _clk_stm32_gate_is_enabled(struct stm32_clk_priv *priv, int gate_id)
 {
 	const struct gate_cfg *gate;
-	uint32_t addr;
+	uintptr_t addr;
 
 	gate = &priv->gates[gate_id];
 	addr = priv->base + gate->offset;
 
-	return ((mmio_read_32(addr) & BIT(gate->bit_idx)) != 0U);
+	return ((mmio_read_32(addr) & BIT_32(gate->bit_idx)) != 0U);
 }
 
 bool clk_stm32_gate_is_enabled(struct stm32_clk_priv *priv, int id)
@@ -826,8 +826,8 @@ unsigned long fixed_factor_recalc_rate(struct stm32_clk_priv *priv,
 	return (unsigned long)(rate / cfg->div);
 };
 
-#define APB_DIV_MASK	GENMASK(2, 0)
-#define TIM_PRE_MASK	BIT(0)
+#define APB_DIV_MASK	GENMASK_32(2, 0)
+#define TIM_PRE_MASK	BIT_32(0)
 
 static unsigned long timer_recalc_rate(struct stm32_clk_priv *priv,
 				       int id, unsigned long prate)

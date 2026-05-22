@@ -139,7 +139,7 @@ struct clk_gate_cfg {
 #define DIV_NO_BIT_RDY			UINT8_MAX
 
 #define MASK_WIDTH_SHIFT(_width, _shift) \
-	GENMASK(((_width) + (_shift) - 1U), (_shift))
+	GENMASK_32(((_width) + (_shift) - 1U), (_shift))
 
 void clk_stm32_rcc_regs_lock(void);
 void clk_stm32_rcc_regs_unlock(void);

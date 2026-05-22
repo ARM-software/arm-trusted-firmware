@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2024-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,7 +28,7 @@ static uint8_t id2reg_bit_pos(unsigned int reset_id)
 static int reset_toggle(uint32_t id, unsigned int to_us, bool reset_status)
 {
 	uint32_t offset = id2reg_offset(id);
-	uint32_t bitmsk = BIT(id2reg_bit_pos(id));
+	uint32_t bitmsk = BIT_32(id2reg_bit_pos(id));
 	uint32_t bit_check;
 	uintptr_t rcc_base = stm32mp_rcc_base();
 
