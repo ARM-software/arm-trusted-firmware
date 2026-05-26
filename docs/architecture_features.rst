@@ -569,9 +569,8 @@ this process up by using the ``new-cpu-feature`` agent skill.
   setting it to ``2`` (``FEAT_STATE_CHECKED``).
 
 - If the feature is optional, enable it in CI in the "allconfig" fragments.
-  Those are currently ``run_config/fvp-aemv8a.all.bmcov``,
-  ``run_config/fvp-spm.all.bmcov``, ``run_config/fvp-spm.all``, and
-  ``run_config/fvp-aemv8a.all``. Mandatory features are expected to be covered
+  Those currently happens in a list at the top of
+  ``model/base-aemva-common.sh``. Mandatory features are expected to be covered
   by the architecture revision passed to the model.
 
 - Optionally, although recommended, is to add a test in TFTF. This should only
