@@ -133,7 +133,6 @@ else
 # Cores used with DSU only
 	ifeq (${CTX_INCLUDE_AARCH32_REGS}, 0)
 	# AArch64-only cores
-	# TODO: add all cores to the appropriate lists
 		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a65.S		\
 					lib/cpus/aarch64/cortex_a65ae.S	\
 					lib/cpus/aarch64/cortex_a76.S		\
@@ -150,7 +149,13 @@ else
 					lib/cpus/aarch64/neoverse_v1.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/cortex_x2.S		\
-					lib/cpus/aarch64/cortex_x4.S
+					lib/cpus/aarch64/cortex_x4.S		\
+					lib/cpus/aarch64/cortex_a510.S		\
+					lib/cpus/aarch64/cortex_a520.S		\
+					lib/cpus/aarch64/cortex_x1.S		\
+					lib/cpus/aarch64/cortex_x3.S		\
+					lib/cpus/aarch64/neoverse_v2.S		\
+					lib/cpus/aarch64/neoverse_v3.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
