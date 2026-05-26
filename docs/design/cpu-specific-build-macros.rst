@@ -52,6 +52,11 @@ vulnerability workarounds should be applied at runtime.
    of this workaround it cannot be checked at runtime so should not be enabled
    unless needed by the platform.
 
+-  ``WORKAROUND_CVE_2026-0995``: Enables mitigation for `CVE-2026-0995`_.
+   This build option should be set to 1 if the target platform contains at least
+   1 C1 Pro CPU. Platforms should also inlcude lib/cpus/aarch64/c1_pro_pubsub.c
+   in BL31_SOURCES. Defaults to 0.
+
 .. _arm_cpu_macros_errata_workarounds:
 
 CPU Errata Workarounds
@@ -1942,6 +1947,7 @@ GIC Errata Workarounds
 .. _CVE-2024-5660: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-5660
 .. _CVE-2024-7881: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-7881
 .. _CVE-2025-10263: https://www.cve.org/CVERecord?id=CVE-2025-10263
+.. _CVE-2026-0995: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0995
 .. _Cortex-A72 MPCore Software Developers Errata Notice: https://developer.arm.com/documentation/epm012079/latest
 .. _Cortex-A57 Software Optimization Guide: https://developer.arm.com/documentation/uan0015
 .. _Arm DSU Software Developers Errata Notice: https://developer.arm.com/documentation/SDEN854652
