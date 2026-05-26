@@ -367,10 +367,6 @@
 	gen(feat_idte3, id_aa64mmfr2_el1, ENABLE_FEAT_IDTE3,			\
 	    ID_AA64MMFR2_EL1_IDS, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
 
-#define FEAT_SEBEP(gen)								\
-	gen(feat_sebep, id_aa64dfr0_el1, FEAT_STATE_CHECKED,			\
-	    ID_AA64DFR0_SEBEP, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
-
 /* === v9.5 features === */
 #define FEAT_FGWTE3(gen)							\
 	gen(feat_fgwte3, id_aa64mmfr4_el1, ENABLE_FEAT_FGWTE3,			\
@@ -534,8 +530,7 @@
 	FEAT_TRBE(gen)								\
 	FEAT_BRBE(gen)								\
 	FEAT_EBEP(gen)								\
-	FEAT_BRBEV1P1(gen)							\
-	FEAT_SEBEP(gen)
+	FEAT_BRBEV1P1(gen)
 
 CPUFEAT_LIST(CREATE_FEATURE_FUNCS)
 CPUFEAT_PERCPU_LIST(CREATE_FEATURE_FUNCS)

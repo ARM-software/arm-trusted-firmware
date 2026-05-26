@@ -249,12 +249,6 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el, u_regist
 		new_spsr |= SPSR_PM_BIT_AARCH64;
 	}
 
-	/* If FEAT_SEBEP is present clear PPEND bit */
-	new_spsr |= old_spsr & SPSR_PPEND_BIT;
-	if (is_feat_sebep_present()) {
-		new_spsr &= ~SPSR_PPEND_BIT;
-	}
-
 	/* If FEAT_GCS is present, update EXLOCK bit */
 	new_spsr |= old_spsr & SPSR_EXLOCK_BIT_AARCH64;
 	if (is_feat_gcs_present()) {
