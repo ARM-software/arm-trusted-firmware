@@ -121,7 +121,8 @@ static int ti_sci_get_response(struct ti_sci_msg *msg,
 		if (hdr->seq == message_sequence)
 			break;
 		else
-			WARN("Message with sequence ID %u is not expected\n", hdr->seq);
+			WARN("Message with sequence ID %u is not expected, expecting %u\n",
+			     hdr->seq, message_sequence);
 	}
 	if (!retry) {
 		ERROR("Timed out waiting for message\n");
