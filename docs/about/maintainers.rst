@@ -131,8 +131,6 @@ Secure Partition Manager Dispatcher (SPMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|G|: `odeprez`_
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :|G|: `madhukar-Arm`_
 :|F|: services/std_svc/spmd/\*
@@ -143,18 +141,18 @@ Secure Partition Manager Dispatcher (SPMD)
 
 Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
-:|G|: `jayanthchidanand-arm`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: bl31/ehf.c
 
 Runtime Exceptions and Interrupt Management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: bl31/aarch64/
 :|F|: bl31/interrupt_mgmt.c
 :|F|: include/bl31/interrupt_mgmt.h
@@ -193,8 +191,6 @@ Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
 :|M|: Bipin Ravi <bipin.ravi@arm.com>
 :|G|: `bipinravi-arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|G|: `loosper-arm`_
 :|F|: lib/cpus/
@@ -233,12 +229,8 @@ Console API framework
 
 Context Management
 ^^^^^^^^^^^^^^^^^^
-:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
-:|G|: `jayanthchidanand-arm`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|G|: `loosper-arm`_
 :|F|: bl1/aarch32/bl1_context_mgmt.c
@@ -289,8 +281,8 @@ Errata Management
 ^^^^^^^^^^^^^^^^^
 :|M|: Bipin Ravi <bipin.ravi@arm.com>
 :|G|: `bipinravi-arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 
 Firmware Configuration Framework (FCONF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -325,8 +317,6 @@ Firmware Handoff Library (Transfer List)
 
 GIC driver
 ^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|G|: `AlexeiFedorov`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
@@ -403,8 +393,6 @@ Max Power Mitigation Mechanism (MPMM)
 
 Measured Boot
 ^^^^^^^^^^^^^
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
-:|G|: `sandrine-bailleux-arm`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
@@ -445,8 +433,8 @@ Per-CPU Framework
 
 Performance Measurement Framework (PMF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
 :|F|: lib/pmf/
 
 Platform Security Architecture (PSA) APIs
@@ -470,10 +458,6 @@ Power State Coordination Interface (PSCI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|G|: `loosper-arm`_
 :|F|: lib/psci/
@@ -509,8 +493,8 @@ Runtime Services
 ^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: services/std_svc/std_svc_setup.c
 :|F|: common/runtime_svc.c
 :|F|: include/common/runtime_svc.h
@@ -546,8 +530,8 @@ Translation tables (``xlat_tables``) library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
 :|F|: lib/xlat\_tables_\*/
 
 Platform Ports
@@ -604,8 +588,6 @@ Arm FVP Platform port
 ^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
-:|G|: `madhukar-Arm`_
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
 :|G|: `harrisonmutai-arm`_
 :|F|: plat/arm/board/fvp
@@ -1055,8 +1037,8 @@ Fiptool
 ^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
 :|F|: tools/fiptool/
 
 Cert_create tool
@@ -1065,8 +1047,6 @@ Cert_create tool
 :|G|: `sandrine-bailleux-arm`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
-:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
-:|G|: `laurenw-arm`_
 :|F|: tools/cert_create/
 
 Encrypt_fw tool
@@ -1077,18 +1057,18 @@ Encrypt_fw tool
 
 Sptool
 ^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
-:|M|: Joao Alves <Joao.Alves@arm.com>
-:|G|: `J-Alves`_
 :|F|: tools/sptool/
 
 Build system
 ^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
 :|G|: `CJKay`_
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
 :|F|: Makefile
 :|F|: make_helpers/
 
@@ -1148,7 +1128,6 @@ Conventional Changelog Extensions
 .. _hzhuang1: https://github.com/hzhuang1
 .. _hugues-kambampiana-arm: https://github.com/hugueskamba
 .. _JackyBai: https://github.com/JackyBai
-.. _J-Alves: https://github.com/J-Alves
 .. _jason-ch-chen: https://github.com/jason-ch-chen
 .. _javieralso-arm: https://github.com/javieralso-arm
 .. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
