@@ -101,7 +101,6 @@ $(eval $(call add_define,RPI3_PRELOADED_DTB_BASE))
 endif
 $(eval $(call add_define,RPI3_RUNTIME_UART))
 $(eval $(call add_define,RPI3_USE_UEFI_MAP))
-$(eval $(call add_define,SMC_PCI_SUPPORT))
 
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on rpi5)
