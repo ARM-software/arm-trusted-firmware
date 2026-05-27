@@ -133,8 +133,18 @@
  *              |       (~1MB)     |
  *  0xFFFF_FFFF --------------------
  */
+#ifdef PLAT_ARM_TZC_DRAM1_SIZE
+#define ARM_TZC_DRAM1_SIZE		PLAT_ARM_TZC_DRAM1_SIZE
+#else /* !PLAT_ARM_TZC_DRAM1_SIZE */
 #if ENABLE_FEAT_RME
-#define ARM_TZC_DRAM1_SIZE              UL(0x04000000) /* 64MB */
+#define ARM_TZC_DRAM1_SIZE		UL(0x04000000) /* 64MB */
+#else /* !ENABLE_FEAT_RME */
+#define ARM_TZC_DRAM1_SIZE		UL(0x01000000) /* 16MB */
+#endif /* ENABLE_FEAT_RME */
+#endif /* PLAT_ARM_TZC_DRAM1_SIZE */
+
+
+#if ENABLE_FEAT_RME
 /*
  * Define a region within the TZC secured DRAM for use by EL3 runtime
  * firmware. This region is meant to be NOLOAD and will not be zero
@@ -146,7 +156,6 @@
 #define ARM_L1_GPT_SIZE			UL(0x00100000) /* 1MB */
 
 #else /* !ENABLE_FEAT_RME */
-#define ARM_TZC_DRAM1_SIZE		UL(0x01000000) /* 16MB */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00200000) /* 2MB */
 #define ARM_L1_GPT_SIZE			UL(0)
 #endif /* ENABLE_FEAT_RME */
