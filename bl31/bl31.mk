@@ -243,7 +243,6 @@ $(eval $(call assert_booleans,\
 	CRASH_REPORTING \
 	EL3_EXCEPTION_HANDLING \
 	FIRME_SUPPORT \
-	SDEI_SUPPORT \
 	USE_DSU_DRIVER \
 )))
 
@@ -257,7 +256,6 @@ $(eval $(call add_defines,\
     $(sort \
 	CRASH_REPORTING \
 	EL3_EXCEPTION_HANDLING \
-	SDEI_SUPPORT \
 	USE_DSU_DRIVER \
 	FIRME_SUPPORT \
 )))
