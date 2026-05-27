@@ -2224,6 +2224,22 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 		return ret;
 	}
 
+	if (!spmc_ffa_version_is_valid(config_32)) {
+		ERROR("Invalid Secure Partition FF-A Version (0x%x).\n",
+		      config_32);
+		return -EINVAL;
+	}
+
+	if (!spmc_ffa_versions_are_compatible(config_32,
+			MAKE_FFA_VERSION(FFA_VERSION_SPMC_MAJOR,
+					 FFA_VERSION_SPMC_MINOR))) {
+		ERROR("Secure Partition FF-A Version v%u.%u is incompatible with SPMC v%u.%u.\n",
+		      spmc_ffa_version_get_major(config_32),
+		      spmc_ffa_version_get_minor(config_32),
+		      FFA_VERSION_SPMC_MAJOR, FFA_VERSION_SPMC_MINOR);
+		return -EINVAL;
+	}
+
 	sp->ffa_version = config_32;
 
 	ret = fdt_read_uint32(sp_manifest, node, "execution-state", &config_32);
