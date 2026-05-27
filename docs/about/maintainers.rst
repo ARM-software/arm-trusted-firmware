@@ -71,16 +71,16 @@ LTS Maintainers
 
 :|M|: Bipin Ravi <bipin.ravi@arm.com>
 :|G|: `bipinravi-arm`_
-:|M|: Joanna Farley <joanna.farley@arm.com>
-:|G|: `joannafarley-arm`_
-:|M|: Jidong Sun <jidong@google.com>
-:|G|: `jidongsun`_
+:|M|: Olivier Deprez <olivier.deprez@arm.com>
+:|G|: `odeprez`_
+:|M|: Jamie Fox <jamiefox@google.com>
+:|G|: `jf549`_
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|G|: `vwadekar`_
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
-:|M|: Govindraj Raja <govindraj.raja@arm.com>
-:|G|: `govindraj-arm`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 
 .. _code owners:
 
@@ -1154,6 +1154,7 @@ Conventional Changelog Extensions
 .. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
 .. _jcorbier: https://github.com/jcorbier
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _jf549: https://github.com/jf549
 .. _JiafeiPan: https://github.com/JiafeiPan
 .. _joannafarley-arm: https://github.com/joannafarley-arm
 .. _jslater8: https://github.com/jslater8
