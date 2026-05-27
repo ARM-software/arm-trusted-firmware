@@ -274,12 +274,6 @@
 /*******************************************************************************
  * GICv3 and 3.1 CPU interface registers & constants
  ******************************************************************************/
-/* ICC_SRE bit definitions */
-#define ICC_SRE_EN_BIT		BIT_32(3)
-#define ICC_SRE_DIB_BIT		BIT_32(2)
-#define ICC_SRE_DFB_BIT		BIT_32(1)
-#define ICC_SRE_SRE_BIT		BIT_32(0)
-
 /* ICC_IGRPEN1_EL3 bit definitions */
 #define IGRPEN1_EL3_ENABLE_G1NS_SHIFT	0
 #define IGRPEN1_EL3_ENABLE_G1S_SHIFT	1
