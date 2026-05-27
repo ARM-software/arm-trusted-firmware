@@ -49,22 +49,22 @@
 
 #define CPU_ERRATA_LIST_START_SIZE	CPU_WORD_SIZE
 #define CPU_ERRATA_LIST_END_SIZE	CPU_WORD_SIZE
+
 /* Fields required to print errata status  */
-#if REPORT_ERRATA
+#if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && REPORT_ERRATA
 #define CPU_CPU_STR_SIZE	CPU_WORD_SIZE
-/* BL1 doesn't require mutual exclusion and printed flag. */
-#if defined(IMAGE_BL31) || defined(IMAGE_BL32)
 #define CPU_ERRATA_LOCK_SIZE	CPU_WORD_SIZE
 #define CPU_ERRATA_PRINTED_SIZE	CPU_WORD_SIZE
-#else
+#elif defined(IMAGE_BL1) && REPORT_ERRATA
+/* BL1 doesn't require mutual exclusion and printed flag. */
+#define CPU_CPU_STR_SIZE	CPU_WORD_SIZE
 #define CPU_ERRATA_LOCK_SIZE	0
 #define CPU_ERRATA_PRINTED_SIZE	0
-#endif /* defined(IMAGE_BL31) || defined(IMAGE_BL32) */
-#else
+#else /* (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && REPORT_ERRATA */
 #define CPU_CPU_STR_SIZE	0
 #define CPU_ERRATA_LOCK_SIZE	0
 #define CPU_ERRATA_PRINTED_SIZE	0
-#endif /* REPORT_ERRATA */
+#endif /* (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && REPORT_ERRATA */
 
 #if defined(IMAGE_BL31) && CRASH_REPORTING
 #define CPU_REG_DUMP_SIZE	CPU_WORD_SIZE
