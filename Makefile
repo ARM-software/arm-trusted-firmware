@@ -739,6 +739,7 @@ $(eval $(call assert_numerics,\
 	IMPDEF_SYSREG_TRAP \
 	W \
 	TEST_IO_SHORT_READ_FI_IMAGE_ID \
+	USE_GIC_DRIVER \
 )))
 
 ifdef KEY_SIZE
@@ -938,6 +939,7 @@ $(eval $(call add_defines,\
 	TEST_IO_SHORT_READ_FI \
 	TEST_IO_SHORT_READ_FI_IMAGE_ID \
 	SDEI_SUPPORT \
+	USE_GIC_DRIVER \
 )))
 
 ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)
