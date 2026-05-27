@@ -654,6 +654,7 @@ $(eval $(call assert_booleans,\
 	SUPPORT_SP_LIVE_ACTIVATION \
 	TEST_IO_SHORT_READ_FI \
 	SDEI_SUPPORT \
+	SMC_PCI_SUPPORT \
 )))
 
 # Numeric_Flags
@@ -940,6 +941,7 @@ $(eval $(call add_defines,\
 	TEST_IO_SHORT_READ_FI_IMAGE_ID \
 	SDEI_SUPPORT \
 	USE_GIC_DRIVER \
+	SMC_PCI_SUPPORT \
 )))
 
 ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)
