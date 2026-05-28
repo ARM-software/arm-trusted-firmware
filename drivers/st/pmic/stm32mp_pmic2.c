@@ -546,7 +546,7 @@ void initialize_pmic(void)
 		return;
 	}
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	if (stpmic2_get_version(pmic2, &val) != 0) {
 		ERROR("Failed to access PMIC\n");

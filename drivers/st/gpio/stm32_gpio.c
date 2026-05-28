@@ -285,13 +285,13 @@ static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
 #ifdef STM32MP1X
 	if (status == DT_SECURE) {
 		stm32mp_register_secure_gpio(bank, pin);
-#if !IMAGE_BL2
+#ifndef IMAGE_BL2
 		set_gpio_secure_cfg(bank, pin, true);
 #endif
 
 	} else {
 		stm32mp_register_non_secure_gpio(bank, pin);
-#if !IMAGE_BL2
+#ifndef IMAGE_BL2
 		set_gpio_secure_cfg(bank, pin, false);
 #endif
 	}
