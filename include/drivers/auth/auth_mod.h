@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
  */
 #define IMG_FLAG_AUTHENTICATED		(1 << 0)
 
-#if COT_DESC_IN_DTB && !IMAGE_BL1
+#if COT_DESC_IN_DTB && !defined(IMAGE_BL1)
 /*
  * Authentication image descriptor
  */
@@ -40,7 +40,7 @@ typedef struct auth_img_desc_s {
 	const auth_method_desc_t *const img_auth_methods;
 	const auth_param_desc_t *const authenticated_data;
 } auth_img_desc_t;
-#endif /* COT_DESC_IN_DTB && !IMAGE_BL1 */
+#endif /* COT_DESC_IN_DTB && !defined(IMAGE_BL1) */
 
 /* Public functions */
 #if TRUSTED_BOARD_BOOT
