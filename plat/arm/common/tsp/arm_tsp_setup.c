@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,7 +128,7 @@ void tsp_plat_arch_setup(void)
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 	enable_mmu_el1(0);
 
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 	arm_xlat_make_tables_readonly();
 #endif
 }

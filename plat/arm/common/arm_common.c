@@ -44,7 +44,7 @@ uintptr_t arm_gicr_base_addrs[2] = {
  * image's translation tables are located such that the tables will have
  * read-only permissions.
  ******************************************************************************/
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 void arm_xlat_make_tables_readonly(void)
 {
 	int rc = xlat_make_tables_readonly();

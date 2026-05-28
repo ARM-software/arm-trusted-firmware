@@ -443,7 +443,7 @@ void arm_bl31_plat_runtime_setup(void)
 	arm_free_init_memory();
 #endif
 
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 	arm_xlat_make_tables_readonly();
 #endif
 }
