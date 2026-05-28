@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2015-2026, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -31,7 +31,7 @@
 	.extern console_renesas_init
 	.extern console_renesas_putc
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	#define	INT_ID_MASK	(0x3ff)
 	.extern bl2_interrupt_error_type
 	.extern bl2_interrupt_error_id
@@ -210,7 +210,7 @@ endfunc bl2_enter_bl31
 	 * -----------------------------------------------------
 	 */
 func platform_mem_init
-#if !IMAGE_BL2
+#ifndef IMAGE_BL2
 	ldr	x0, =MBOX_BASE
 	mov	w1, #PLATFORM_CORE_COUNT
 loop:
@@ -230,7 +230,7 @@ endfunc platform_mem_init
 func plat_report_exception
 	/* Switch to SP_EL0 */
 	msr	spsel, #0
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	mov	w1, #FIQ_SP_EL0
 	cmp	w0, w1
 	beq	rep_exec_fiq_elx
@@ -261,7 +261,7 @@ endfunc plat_report_exception
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	mov	x0, #0
 #else
 	mov	x1, sp

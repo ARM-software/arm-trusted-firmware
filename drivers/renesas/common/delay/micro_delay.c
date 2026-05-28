@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +13,7 @@
 #define RCAR_CONV_MICROSEC		1000000U
 
 void
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	__attribute__ ((section(".system_ram"), no_stack_protector))
 #endif
 	rcar_micro_delay(uint64_t micro_sec)

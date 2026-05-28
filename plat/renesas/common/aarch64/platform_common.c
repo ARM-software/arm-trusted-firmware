@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -71,7 +71,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 #define MAP_ATFW_LOG		MAP_REGION_FLAT(RCAR_BL31_LOG_BASE,	\
 					RCAR_BL31_LOG_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #define MAP_DRAM0		MAP_REGION_FLAT(DRAM1_BASE,		\
 					DRAM1_SIZE,			\
 					RCAR_DCACHE | MT_RW | MT_SECURE)
@@ -107,7 +107,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 					MT_MEMORY | MT_RW | MT_SECURE)
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 static const mmap_region_t rcar_mmap[] = {
 	MAP_FLASH0,	/*   0x08000000 -   0x0BFFFFFF  RPC area            */
 	MAP_DRAM0,	/*   0x40000000 -   0xBFFFFFFF  DRAM area(Legacy)   */
@@ -121,7 +121,7 @@ static const mmap_region_t rcar_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 static const mmap_region_t rcar_mmap[] = {
 	MAP_SHARED_RAM,
 	MAP_ATFW_CRASH,
@@ -134,7 +134,7 @@ static const mmap_region_t rcar_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL32
+#ifdef IMAGE_BL33
 static const mmap_region_t rcar_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
@@ -225,7 +225,7 @@ void plat_rcar_gic_init(void)
 }
 
 static const interrupt_prop_t interrupt_props[] = {
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	INTR_PROP_DESC(ARM_IRQ_SEC_WDT, GIC_HIGHEST_SEC_PRIORITY,
 		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 #else

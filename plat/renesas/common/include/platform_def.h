@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,21 +28,21 @@
  #define FIRMWARE_WELCOME_STR	"Booting Rcar-gen3 Trusted Firmware\n"
 
 /* Size of cacheable stacks */
-#if IMAGE_BL1
+#if defined(IMAGE_BL1)
 #if TRUSTED_BOARD_BOOT
 #define PLATFORM_STACK_SIZE	U(0x1000)
 #else
 #define PLATFORM_STACK_SIZE	U(0x440)
 #endif
-#elif IMAGE_BL2
+#elif defined(IMAGE_BL2)
 #if TRUSTED_BOARD_BOOT
 #define PLATFORM_STACK_SIZE	U(0x1000)
 #else
 #define PLATFORM_STACK_SIZE	U(0x400)
 #endif
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 #define PLATFORM_STACK_SIZE	U(0x800)
-#elif IMAGE_BL32
+#elif defined(IMAGE_BL32)
 #define PLATFORM_STACK_SIZE	U(0x440)
 #endif
 
@@ -159,17 +160,17 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#if IMAGE_BL1
+#if defined(IMAGE_BL1)
 #define MAX_XLAT_TABLES		U(2)
-#elif IMAGE_BL2
+#elif defined(IMAGE_BL2)
 #define MAX_XLAT_TABLES		U(5)
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 #define MAX_XLAT_TABLES		U(4)
-#elif IMAGE_BL32
+#elif defined(IMAGE_BL32)
 #define MAX_XLAT_TABLES		U(3)
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 40)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 40)
 #else
