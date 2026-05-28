@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: BSD-3-Clause
  *
  * Copyright (c) 2019-2025, Linaro Limited and Contributors. All rights reserved.
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  */
 
 #ifndef PLATFORM_DEF_H
@@ -319,14 +319,14 @@
 #define PLAT_QEMU_SP_IMAGE_BASE		BL_RAM_BASE
 #define PLAT_QEMU_SP_IMAGE_SIZE		ULL(0x300000)
 
-#ifdef IMAGE_BL2
+#if defined(IMAGE_BL2)
 /* In BL2 all memory allocated to the SPM Payload image is marked as RW. */
 # define QEMU_SP_IMAGE_MMAP		MAP_REGION_FLAT( \
 						PLAT_QEMU_SP_IMAGE_BASE, \
 						PLAT_QEMU_SP_IMAGE_SIZE, \
 						MT_MEMORY | MT_RW | \
 						MT_SECURE)
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 /* All SPM Payload memory is marked as code in S-EL0 */
 # define QEMU_SP_IMAGE_MMAP		MAP_REGION2(PLAT_QEMU_SP_IMAGE_BASE, \
 						PLAT_QEMU_SP_IMAGE_BASE, \
