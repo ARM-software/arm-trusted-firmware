@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#if __aarch64__
+#ifdef __aarch64__
 
 #include <aem_generic.h>
 #include <arch_helpers.h>
