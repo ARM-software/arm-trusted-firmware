@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
  * Replace or extend the below regions as required
  */
 
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	N1SDP_MAP_DEVICE,
@@ -28,7 +28,7 @@ const mmap_region_t plat_arm_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	N1SDP_MAP_DEVICE,
@@ -42,7 +42,7 @@ const mmap_region_t plat_arm_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	N1SDP_MAP_DEVICE,
