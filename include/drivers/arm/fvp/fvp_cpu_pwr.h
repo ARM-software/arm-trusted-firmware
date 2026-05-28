@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#if __aarch64__
+#ifdef __aarch64__
 bool check_cpupwrctrl_el1_is_available(void);
 #endif /* __aarch64__ */
 #endif /* __ASSEMBLER__ */
