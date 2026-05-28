@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -14,8 +14,8 @@
 
 project = "Trusted Firmware-A"
 author = "Trusted Firmware-A contributors"
-version = "2.14.0"
-release = "2.14.0"
+version = "2.15.0"
+release = "2.15.0"
 
 # -- General configuration ---------------------------------------------------
 
