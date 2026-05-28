@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -210,7 +210,7 @@ func denver_disable_dco
 endfunc denver_disable_dco
 
 workaround_reset_start denver, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	adr	x1, workaround_bpflush_runtime_exceptions
 	msr	vbar_el3, x1
 #endif
