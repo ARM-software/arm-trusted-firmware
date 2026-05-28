@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,7 +71,7 @@ struct xlat_ctx {
 	 */
 	uint64_t (*tables)[XLAT_TABLE_ENTRIES];
 	int tables_num;
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 	bool readonly_tables;
 #endif
 	/*
@@ -126,7 +126,7 @@ struct xlat_ctx {
 	/* do nothing */
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 #define XLAT_CTX_INIT_TABLE_ATTR()					\
 	.readonly_tables = false,
 #else

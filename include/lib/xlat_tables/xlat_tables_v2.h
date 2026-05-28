@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -390,7 +390,7 @@ int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 				   size_t size, uint32_t attr);
 int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr);
 
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 /*
  * Change the memory attributes of the memory region encompassing the higher
  * level translation tables to secure read-only data.
