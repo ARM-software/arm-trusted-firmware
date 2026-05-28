@@ -201,7 +201,6 @@ static int32_t firme_attest_pat_get(firme_instance_e instance,
 	rc = firme_attest_plat_get_token(instance, token_addr, token_size,
 					 challenge_addr, challenge_size,
 					 write_size, remaining_size);
-
 unmap:
 	if (instance == FIRME_NONSECURE) {
 		mmap_rc = mmap_remove_dynamic_region(shared_buf_addr,
