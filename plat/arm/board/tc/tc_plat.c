@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
  * arm_configure_mmu_elx() will give the available subset of that.
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	TC_MAP_NS_DRAM1,
@@ -39,7 +39,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	TC_FLASH0_RO,
@@ -68,7 +68,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
