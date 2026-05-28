@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	RD1AE_MAP_DEVICE,
 	RD1AE_EXTERNAL_FLASH,
 	SOC_PLATFORM_PERIPH_MAP_DEVICE,
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	RD1AE_MAP_NS_DRAM1,
 #endif
 	RD1AE_MAP_S_DRAM1,
