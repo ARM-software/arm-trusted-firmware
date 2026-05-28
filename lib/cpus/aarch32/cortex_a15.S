@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -124,7 +124,7 @@ func cortex_a15_reset_func
 	bl	errata_a15_827671_wa
 #endif
 
-#if IMAGE_BL32 && (WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960)
+#if defined(IMAGE_BL32) && (WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960)
 	ldcopr	r0, ACTLR
 	orr	r0, #CORTEX_A15_ACTLR_INV_BTB_BIT
 	stcopr	r0, ACTLR

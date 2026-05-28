@@ -151,7 +151,7 @@ workaround_reset_end cortex_a78_ae, ERRATUM(4302973)
 check_erratum_chosen cortex_a78_ae, ERRATUM(4302973), ERRATA_A78_AE_4302973
 
 workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A78AE generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.

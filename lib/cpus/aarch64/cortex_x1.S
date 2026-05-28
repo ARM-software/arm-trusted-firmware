@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022-2024, Google LLC. All rights reserved.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -223,7 +224,7 @@ check_erratum_chosen cortex_x1, ERRATUM(4302972), ERRATA_X1_4302972
 check_erratum_chosen cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-X1 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.

@@ -268,7 +268,7 @@ workaround_reset_end neoverse_v1, ERRATUM(3888016)
 check_erratum_chosen neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
 
 workaround_reset_start neoverse_v1, CVE(2022,23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Neoverse-V1 generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.

@@ -212,7 +212,7 @@ workaround_reset_end cortex_a715, ERRATUM(3711916)
 check_erratum_ls cortex_a715, ERRATUM(3711916), CPU_REV(1, 3)
 
 workaround_reset_start cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A715 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.

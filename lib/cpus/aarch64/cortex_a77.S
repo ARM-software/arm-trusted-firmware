@@ -174,7 +174,7 @@ workaround_reset_end cortex_a77, ERRATUM(3888015)
 check_erratum_chosen cortex_a77, ERRATUM(3888015), ERRATA_A77_3888015
 
 workaround_reset_start cortex_a77, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A77 generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.
