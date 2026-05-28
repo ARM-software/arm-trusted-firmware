@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -14,21 +15,21 @@
  */
 
 /* Size of cacheable stacks */
-#if IMAGE_BL1
+#if defined(IMAGE_BL1)
 #if TRUSTED_BOARD_BOOT
 # define PLATFORM_STACK_SIZE 0x1000
 #else
 # define PLATFORM_STACK_SIZE 0x440
 #endif
-#elif IMAGE_BL2
+#elif defined(IMAGE_BL2)
 # if TRUSTED_BOARD_BOOT
 #  define PLATFORM_STACK_SIZE 0x1000
 # else
 #  define PLATFORM_STACK_SIZE 0x400
 # endif
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 # define PLATFORM_STACK_SIZE 0x400
-#elif IMAGE_BL32
+#elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE 0x440
 #endif
 
@@ -36,35 +37,35 @@
  * PLAT_MARVELL_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
-#if IMAGE_BLE
+#if defined(IMAGE_BLE)
 #  define PLAT_MARVELL_MMAP_ENTRIES	3
 #endif
-#if IMAGE_BL1
+#if defined(IMAGE_BL1)
 #  if TRUSTED_BOARD_BOOT
 #   define PLAT_MARVELL_MMAP_ENTRIES	7
 #  else
 #   define PLAT_MARVELL_MMAP_ENTRIES	6
 #  endif	/* TRUSTED_BOARD_BOOT */
 #endif
-#if IMAGE_BL2
+#if defined(IMAGE_BL2)
 #  define PLAT_MARVELL_MMAP_ENTRIES		8
 #endif
-#if IMAGE_BL31
+#if defined(IMAGE_BL31)
 #define PLAT_MARVELL_MMAP_ENTRIES		5
 #endif
 
 /*
  * Platform specific page table and MMU setup constants
  */
-#if IMAGE_BL1
+#if defined(IMAGE_BL1)
 #define MAX_XLAT_TABLES			4
-#elif IMAGE_BLE
+#elif defined(IMAGE_BLE)
 #  define MAX_XLAT_TABLES		4
-#elif IMAGE_BL2
+#elif defined(IMAGE_BL2)
 #  define MAX_XLAT_TABLES		4
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 # define MAX_XLAT_TABLES		4
-#elif IMAGE_BL32
+#elif defined(IMAGE_BL32)
 #  define MAX_XLAT_TABLES               4
 #endif
 

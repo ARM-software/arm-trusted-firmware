@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -79,7 +80,7 @@ void plat_marvell_gic_driver_init(void)
 	 * can use GIC system registers to manage interrupts and does
 	 * not need GIC interface base addresses to be configured.
 	 */
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	gicv3_driver_init(&marvell_gic_data);
 #endif
 }

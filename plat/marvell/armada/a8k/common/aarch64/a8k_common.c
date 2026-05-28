@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -16,14 +17,14 @@
 /*
  * Table of regions for various BL stages to map using the MMU.
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 const mmap_region_t plat_marvell_mmap[] = {
 	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	{0}
 };
 #endif
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 const mmap_region_t plat_marvell_mmap[] = {
 	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
@@ -36,7 +37,7 @@ const mmap_region_t plat_marvell_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL2U
+#ifdef IMAGE_BL2U
 const mmap_region_t plat_marvell_mmap[] = {
 	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
@@ -51,7 +52,7 @@ const mmap_region_t plat_marvell_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 const mmap_region_t plat_marvell_mmap[] = {
 	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
@@ -59,7 +60,7 @@ const mmap_region_t plat_marvell_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 const mmap_region_t plat_marvell_mmap[] = {
 	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
