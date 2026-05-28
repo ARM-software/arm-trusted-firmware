@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -210,7 +210,7 @@ bool validate_spsr_mode(void)
 {
 	/* In AArch64, if the caller is EL1, return true */
 
-	#if __aarch64__
+	#ifdef __aarch64__
 		if (GET_EL(read_spsr_el3()) == MODE_EL1) {
 			return true;
 		}
