@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, Broadcom
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,17 +59,17 @@
 #define BL2_PLATFORM_STACK_SIZE 0xc000
 #define BL11_PLATFORM_STACK_SIZE 0x2b00
 #define DEFAULT_PLATFORM_STACK_SIZE 0x400
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 # define PLATFORM_STACK_SIZE BL1_PLATFORM_STACK_SIZE
 #else
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #ifdef USE_BL1_RW
 # define PLATFORM_STACK_SIZE BL2_PLATFORM_STACK_SIZE
 #else
 # define PLATFORM_STACK_SIZE BL1_PLATFORM_STACK_SIZE
 #endif
 #else
-#if IMAGE_BL11
+#ifdef IMAGE_BL11
 # define PLATFORM_STACK_SIZE BL11_PLATFORM_STACK_SIZE
 #else
 # define PLATFORM_STACK_SIZE DEFAULT_PLATFORM_STACK_SIZE
