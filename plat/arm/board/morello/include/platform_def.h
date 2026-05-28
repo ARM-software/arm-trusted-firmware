@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -123,7 +123,7 @@
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
-#if IMAGE_BL1 || IMAGE_BL31
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
 # define PLAT_ARM_MMAP_ENTRIES			U(6)
 # define MAX_XLAT_TABLES			U(7)
 #else
