@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2025, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,7 +43,7 @@ struct bl_params *plat_get_next_bl_params(void)
 {
 	struct bl_params *arm_bl_params = arm_get_next_bl_params();
 
-#if __aarch64__
+#ifdef __aarch64__
 	const struct dyn_cfg_dtb_info_t *fw_config_info __maybe_unused;
 	bl_mem_params_node_t *param_node __maybe_unused;
 	uintptr_t fw_config_base __maybe_unused = 0U;
