@@ -57,7 +57,7 @@ static bool get_handler_for_smc_fid(uint32_t smc_fid, rt_svc_handle_t *handler)
 	return true;
 }
 
-#if __aarch64__
+#ifdef __aarch64__
 #include <lib/extensions/ras_arch.h>
 
 #if FFH_SUPPORT
