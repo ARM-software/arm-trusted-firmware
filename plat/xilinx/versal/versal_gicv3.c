@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -79,7 +79,7 @@ void __init plat_versal_gic_driver_init(void)
 	 * can use GIC system registers to manage interrupts and does
 	 * not need GIC interface base addresses to be configured.
 	 */
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	gicv3_driver_init(&versal_gic_data);
 #endif
 }
