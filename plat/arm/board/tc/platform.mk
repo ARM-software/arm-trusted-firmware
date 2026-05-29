@@ -43,12 +43,7 @@ ENABLE_MPMM			:=	1
 ENABLE_FEAT_MTE2		:=	2
 ENABLE_SPE_FOR_NS		:=	2
 ENABLE_FEAT_TCR2		:=	2
-
-ifneq ($(filter ${TARGET_PLATFORM}, 3),)
-ENABLE_FEAT_RNG_TRAP		:=	0
-else
 ENABLE_FEAT_RNG_TRAP		:=	1
-endif
 
 CTX_INCLUDE_AARCH32_REGS	:=	0
 
@@ -76,12 +71,12 @@ ifeq ($(filter ${TC_RESOLUTION}, ${TC_RESOLUTION_OPTIONS}),)
 endif
 endif
 
-ifneq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
+ifneq ($(shell expr $(TARGET_PLATFORM) \<= 3), 0)
         $(error Platform ${PLAT}$(TARGET_PLATFORM) is no longer available.)
 endif
 
-ifeq ($(shell expr $(TARGET_PLATFORM) \<= 4), 0)
-        $(error TARGET_PLATFORM must be less than or equal to 4)
+ifneq ($(TARGET_PLATFORM), 4)
+        $(error TARGET_PLATFORM must be equal to 4)
 endif
 
 ifeq ($(filter ${TARGET_FLAVOUR}, fvp fpga),)
@@ -132,15 +127,6 @@ TC_BASE	=	plat/arm/board/tc
 
 PLAT_INCLUDES		+=	-I${TC_BASE}/include/ \
 				-I${TC_BASE}/fdts/
-
-# CPU libraries for TARGET_PLATFORM=3
-ifeq (${TARGET_PLATFORM}, 3)
-ERRATA_A520_2938996	:=	1
-
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
-			lib/cpus/aarch64/cortex_a725.S \
-			lib/cpus/aarch64/cortex_x925.S
-endif
 
 # CPU libraries for TARGET_PLATFORM=4
 ifeq (${TARGET_PLATFORM}, 4)
