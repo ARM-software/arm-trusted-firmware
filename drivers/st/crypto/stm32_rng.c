@@ -76,7 +76,7 @@
 #define RNG_NIST_CONFIG3		0xEU
 #define RNG_HTCFG_CONFIG		0x00006688U
 #define RNG_NSCFG_CONFIG		0x0002E649U
-#define RNG_MAX_NOISE_CLK_FREQ		48000000U
+#define RNG_CLKDIV_STATIC		1U /* 64MHz >> 1 = 32MHz (≤ 48MHz target) */
 #elif STM32_RNG_VER_MINOR == 4
 /* MP21 default values */
 #define RNG_NIST_CONFIG1		0xFU
@@ -84,12 +84,16 @@
 #define RNG_NIST_CONFIG3		0xFU
 #define RNG_HTCFG_CONFIG		0x0000AAC7U
 #define RNG_NSCFG_CONFIG		0x000001FFU
-#define RNG_MAX_NOISE_CLK_FREQ		4000000U
+#define RNG_CLKDIV_STATIC		4U /* 64MHz >> 4 = 4MHz <= (<=4MHz target) */
 #else
 #error "Please define STM32_RNG_VER_MINOR"
 #endif
 #endif
 
+/* For MP1x, clock correspond to rng_clk as this one isn't fixed and can
+ * be used to activate peripheral bus clock hclk. In MP2X, rng_clk is fixed
+ * and clock correspond to hclk directly.
+ */
 struct stm32_rng_instance {
 	uintptr_t base;
 	unsigned long clock;
@@ -124,6 +128,8 @@ static void seed_error_recovery(void)
 	}
 }
 
+#if STM32_RNG_VER == 4
+#if STM32_RNG_VER_MINOR == 2
 static uint32_t stm32_rng_clock_freq_restrain(void)
 {
 	unsigned long clock_rate;
@@ -144,6 +150,13 @@ static uint32_t stm32_rng_clock_freq_restrain(void)
 
 	return clock_div;
 }
+#else
+static uint32_t stm32_rng_clock_freq_restrain(void)
+{
+	return RNG_CLKDIV_STATIC;
+}
+#endif
+#endif /* STM32_RNG_VER == 4 */
 
 static int stm32_rng_enable(void)
 {
