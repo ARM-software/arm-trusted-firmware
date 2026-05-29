@@ -14,10 +14,12 @@ Some of the features of TC platform referenced in TF-A include:
 - MHUv2
 
 The TF-A build is specified by the option `TARGET_PLATFORM` which represents
-the Total Compute platform number. The platforms support the CPU variants
-listed as below:
+the Total Compute platform number.
 
--  TC3 has support for Cortex A520, Cortex A725 and Cortex x925.
+The TC4 platform supports the following CPUs:
+   - C1-Nano
+   - C1-Pro
+   - C1-Ultra
 
 Boot Sequence
 -------------
@@ -41,7 +43,7 @@ Build Procedure (TF-A only)
    .. code:: shell
 
       make PLAT=tc BL33=<path_to_uboot.bin> \
-      SCP_BL2=<path_to_scp_ramfw.bin> TARGET_PLATFORM={3} all fip
+      SCP_BL2=<path_to_scp_ramfw.bin> TARGET_PLATFORM=4 all fip
 
    Enable TBBR by adding the following options to the make command:
 
@@ -54,6 +56,6 @@ Build Procedure (TF-A only)
 
 --------------
 
-*Copyright (c) 2020-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2026, Arm Limited. All rights reserved.*
 
 .. _Arm Toolchain: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads

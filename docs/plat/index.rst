@@ -74,9 +74,10 @@ Deprecated platforms
 |    Platform    |     Vendor     | Deprecated version |  Deleted version   |
 +================+================+====================+====================+
 |    RD1AE       |      Arm       |        2.14        |         TBD        |
-|                |                |                    |                    |
++----------------+----------------+--------------------+--------------------+
+|     TC3        |      Arm       |        2.15        |         2.15       |
 +----------------+----------------+--------------------+--------------------+
 
 --------------
 
-*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2026, Arm Limited. All rights reserved.*
