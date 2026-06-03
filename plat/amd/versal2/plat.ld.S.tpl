@@ -7,7 +7,8 @@
  *
  * Built by plat/amd/common/custom_pkg.mk:
  * - Each custom_pkg.ld.S is preprocessed separately with package-specific macros
- * - This template preprocesses with #include of preprocessed scripts
+ * - A generated wrapper file includes the preprocessed custom package scripts
+ * - This template preprocesses with #include of that wrapper file
  * - Result is final plat.ld.S with TF-A core + custom package sections
  */
 
@@ -51,7 +52,5 @@ SECTIONS {
 		__BSS_END__ = . ;
 	} >BL31_OCRAM AT >BL31_OCRAM
 	/* Custom Package Sections: appended inside SECTIONS */
-#ifdef CUSTOM_PKG_LD_SCRIPTS_PP
-	#include CUSTOM_PKG_LD_SCRIPTS_PP
-#endif
+	#include CUSTOM_PKG_LD_WRAPPER
 }
