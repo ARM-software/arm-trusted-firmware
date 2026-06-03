@@ -31,16 +31,6 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 
-void plat_arm_secure_wdt_start(void)
-{
-	sbsa_wdog_start(SBSA_SECURE_WDOG_BASE, SBSA_SECURE_WDOG_TIMEOUT);
-}
-
-void plat_arm_secure_wdt_stop(void)
-{
-	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
-}
-
 void plat_arm_security_setup(void)
 {
 }
