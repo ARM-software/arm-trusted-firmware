@@ -45,6 +45,7 @@
 #ifdef NXP_NV_SW_MAINT_LAST_EXEC_DATA
 #include <plat_nv_storage.h>
 #endif
+#include "plat_soc_hooks.h"
 #ifdef NXP_WARM_BOOT
 #include <plat_warm_rst.h>
 #endif
@@ -327,6 +328,9 @@ void soc_early_init(void)
 	 */
 	delay_timer_init(NXP_TIMER_ADDR);
 	i2c_init(NXP_I2C_ADDR);
+
+	/* Platform extension point; default no-op */
+	plat_soc_early_init_hook();
 }
 
 void soc_bl2_prepare_exit(void)

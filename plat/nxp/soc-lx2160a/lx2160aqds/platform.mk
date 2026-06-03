@@ -38,7 +38,8 @@ WARM_BOOT	:=	yes
 
 # Adding Platform files build files
 BL2_SOURCES	+=	${BOARD_PATH}/ddr_init.c\
-			${BOARD_PATH}/platform.c
+			${BOARD_PATH}/platform.c\
+			${PLAT_SOC_PATH}/plat_soc_hooks_default.c
 
 SUPPORTED_BOOT_MODE	:=	flexspi_nor	\
 				sd		\

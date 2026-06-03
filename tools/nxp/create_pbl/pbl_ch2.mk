@@ -11,6 +11,12 @@ BYTE_SWAP	?=	${CREATE_PBL_TOOL_PATH}/byte_swap$(.exe)
 
 HOST_GCC	:= gcc
 
+# When BL2 is XIP'd from the boot-flash AHB window, the SP-side Block
+# Copy PBI command is redundant: bl2.bin is read live from flash for
+# instruction fetch. Pass -x to create_pbl to suppress the Block Copy
+# emission.
+CREATE_PBL_XIP_FLAG := $(if $(filter 1,$(BL2_IN_XIP_MEM)),-x,)
+
 .PHONY: pbl
 pbl:	${BUILD_PLAT}/bl2.bin
 ifeq ($(SECURE_BOOT),yes)
@@ -24,7 +30,7 @@ else
 	$(q)${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" --no-print-directory -C ${CREATE_PBL_TOOL_PATH};\
 	# Add bl2.bin to RCW
 	${CREATE_PBL} -r ${RCW} -i ${BUILD_PLAT}/bl2.bin -b ${BOOT_MODE} -c ${SOC_NUM} -d ${BL2_BASE} -e ${BL2_BASE}\
-			-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl ;\
+			-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl ${CREATE_PBL_XIP_FLAG};\
 	# Add header to RCW
 	${CREATE_PBL} -r ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -i ${BUILD_PLAT}/hdr_bl2 -b ${BOOT_MODE} -c ${SOC_NUM} \
 			-d ${BL2_HDR_LOC} -e ${BL2_HDR_LOC} -o ${BUILD_PLAT}/bl2_${BOOT_MODE}_sec.pbl -s;\
@@ -45,7 +51,7 @@ else
 	# -a option appends the image for Chassis 3 devices in case of non secure boot
 	$(q)${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" --no-print-directory -C ${CREATE_PBL_TOOL_PATH};
 	${CREATE_PBL} -r ${RCW} -i ${BUILD_PLAT}/bl2.bin -b ${BOOT_MODE} -c ${SOC_NUM} -d ${BL2_BASE} -e ${BL2_BASE} \
-	-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl ;
+	-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl ${CREATE_PBL_XIP_FLAG};
 # Swapping of RCW is required for QSPi Chassis 2 devices
 ifeq (${BOOT_MODE}, qspi)
 ifeq ($(SWAP),1)

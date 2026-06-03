@@ -195,6 +195,7 @@ struct pbl_image {
 
 static uint32_t pbl_size;
 bool sb_flag;
+static bool xip_flag;
 
 /***************************************************************************
  * Description	:	CRC32 Lookup Table
@@ -286,6 +287,15 @@ static void print_usage(void)
 	printf("\t-e  <Address>           - [Optional] Entry Point Address\n");
 	printf("\t                          of the BL2.bin\n");
 	printf("\t-s  Secure Boot.\n");
+	printf("\t-x  XIP build -- bl2.bin is XIP'd from the boot-flash\n");
+	printf("\t                AHB window. Suppress BOTH the Block Copy\n");
+	printf("\t                PBI command AND the BOOTLOCPTR write that\n");
+	printf("\t                would otherwise target -e <BL2_BASE>. The\n");
+	printf("\t                bytes are read live from flash for\n");
+	printf("\t                instruction fetch, and BOOTLOCPTR is\n");
+	printf("\t                expected to be set elsewhere (typically\n");
+	printf("\t                in the RCW source's PBI block, pointing\n");
+	printf("\t                at the AHB window).\n");
 	printf("\t-h  Help.\n");
 	printf("\n\n");
 	exit(0);
@@ -531,6 +541,20 @@ int add_blk_cpy_cmd(FILE *fp_rcw_pbi_op, uint16_t args)
 	int ret = FAILURE;
 	int num_pad_bytes = 0;
 
+	/*
+	 * XIP build (-x): bl2.bin is XIP'd from the boot-flash AHB window;
+	 * the SP doesn't need to copy it anywhere. Skip the Block Copy
+	 * PBI command emission entirely. BOOTLOCPTR is also suppressed
+	 * for XIP -- see the dispatcher above
+	 * (`bootptr_flag == true && xip_flag == false`); for XIP the RCW
+	 * source's PBI block writes BOOTLOCPTR to the AHB window itself.
+	 */
+	if (xip_flag == true) {
+		printf("XIP: skipping Block Copy PBI command "
+		       "(bl2.bin stays in flash for in-place execution)\n");
+		return SUCCESS;
+	}
+
 	if ((args & BL2_BIN_STRG_LOC_BOOT_SRC_ARG_MASK) == 0) {
 		printf("ERROR: Offset not specified for Block Copy Cmd.\n");
 		printf("\tSee Usage and use -f option\n");
@@ -703,12 +727,13 @@ int main(int argc, char **argv)
 	int ret = FAILURE;
 	bool bootptr_flag = false;
 	enum stop_command flag_stop_cmd = CRC_STOP_COMMAND;
+	xip_flag = false; /* set by -x */
 
 	/* Initializing the global structure to zero. */
 	memset(&pblimg, 0x0, sizeof(struct pbl_image));
 
 	while ((opt = getopt(argc, argv,
-			     ":b:f:r:i:e:d:c:o:h:s")) != -1) {
+			     ":b:f:r:i:e:d:c:o:h:sx")) != -1) {
 		switch (opt) {
 		case 'd':
 			pblimg.addr = strtoull(optarg, &ptr, 16);
@@ -784,6 +809,18 @@ int main(int argc, char **argv)
 			break;
 		case 's':
 			sb_flag = true;
+			break;
+		case 'x':
+			/*
+			 * XIP build — suppress BOTH the Block Copy PBI
+			 * command AND the BOOTLOCPTR write. bl2.bin stays
+			 * in flash and is executed in place via the boot-
+			 * flash AHB window; BOOTLOCPTR is expected to be
+			 * set by the RCW source's PBI block (pointing at
+			 * the AHB window) rather than by create_pbl
+			 * (which would override it with -e <BL2_BASE>).
+			 */
+			xip_flag = true;
 			break;
 		case 'b':
 			if (strcmp(optarg, "qspi") == 0) {
@@ -876,7 +913,7 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (bootptr_flag == true) {
+		if (bootptr_flag == true && xip_flag == false) {
 			/* Add command to set boot_loc ptr */
 			ret = add_boot_ptr_cmd(fp_rcw_pbi_op);
 			if (ret != SUCCESS) {
@@ -884,10 +921,12 @@ int main(int argc, char **argv)
 			}
 		}
 
-		/* Write acs write commands to output file */
-		ret = add_cpy_cmd(fp_rcw_pbi_op);
-		if (ret != SUCCESS) {
-			goto exit_main;
+		if (xip_flag == false) {
+			/* Write acs write commands to output file for non XIP */
+			ret = add_cpy_cmd(fp_rcw_pbi_op);
+			if (ret != SUCCESS) {
+				goto exit_main;
+			}
 		}
 
 		/* Add stop command after adding pbi commands
@@ -913,9 +952,14 @@ int main(int argc, char **argv)
 			pbl_size++;
 			/* 11th words in RCW has PBL length. Update it
 			 * with new length. 2 commands get added
-			 * Block copy + CCSR Write/CSF header write
+			 * Block copy + CCSR Write/CSF header write.
+			 *
+			 * With -x (XIP) neither command gets added, so the
+			 * PBI_LEN field must stay at the input RCW's value.
+			 * Bumping it would tell the SP to read past the
+			 * actual PBI section into garbage.
 			 */
-			if (pbl_size == 11) {
+			if (pbl_size == 11 && xip_flag == false) {
 				word_1 = (word & PBI_LEN_MASK)
 					+ (PBI_LEN_ADD << 20);
 				word = word & ~PBI_LEN_MASK;
@@ -925,8 +969,14 @@ int main(int argc, char **argv)
 			/* Check load command..
 			 * add a check if command is Stop with CRC
 			 * or stop without checksum
+			 *
+			 * With -x (XIP) the PBI_LEN bump above was skipped,
+			 * so no header bytes changed and the input RCW's
+			 * checksum is still correct -- skip the recompute.
+			 * (rcw.py / qoriq-rcw already wrote a valid checksum
+			 * that the SP accepts.)
 			 */
-			if (pbl_size == 35) {
+			if (pbl_size == 35 && xip_flag == false) {
 				word = crypto_calculate_checksum(fp_rcw_pbi_op,
 						NUM_RCW_WORD - 1);
 				if (word == FAILURE) {
@@ -952,7 +1002,7 @@ int main(int argc, char **argv)
 				flag_stop_cmd = STOP_COMMAND;
 			}
 		}
-		if (bootptr_flag == true) {
+		if (bootptr_flag == true && xip_flag == false) {
 			/* Add command to set boot_loc ptr */
 			ret = add_boot_ptr_cmd(fp_rcw_pbi_op);
 			if (ret != SUCCESS) {
