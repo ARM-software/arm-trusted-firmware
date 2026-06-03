@@ -118,7 +118,7 @@ PLAT_LD_SCRIPT := $(BL31_BUILD_DIR)/plat.ld.S
 # Includes custom package include directories for proper header resolution
 %.ld.pp: %.ld.S
 	@echo "  PP      $<"
-	$(Q)$($(ARCH)-cpp) -E -P $(CUSTOM_PKG_LD_INCLUDES) $(ASFLAGS) -o $@ $<
+	$(q)$($(ARCH)-cpp) -E -P $(CUSTOM_PKG_LD_INCLUDES) $(ASFLAGS) -o $@ $<
 
 # Rule 2: Generate final plat.ld.S from template + preprocessed scripts
 # Uses TF-A's standard architecture-specific C preprocessor
@@ -126,7 +126,7 @@ PLAT_LD_SCRIPT := $(BL31_BUILD_DIR)/plat.ld.S
 $(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_SCRIPTS_PP)
 	@echo "  GEN     $@"
 	@mkdir -p $(BL31_BUILD_DIR)
-	$(Q)$($(ARCH)-cpp) -E -P \
+	$(q)$($(ARCH)-cpp) -E -P \
 		-DCUSTOM_PKG_LD_SCRIPTS_PP="$(CUSTOM_PKG_LD_SCRIPTS_PP)" \
 		$(CUSTOM_PKG_LD_INCLUDES) \
 		$(ASFLAGS) \
