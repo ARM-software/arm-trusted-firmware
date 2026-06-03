@@ -317,7 +317,13 @@ int apusys_devapc_ao_init(void)
 
 int apusys_devapc_rcx_init(void)
 {
+	static bool devapc_rcx_initialized;
 	int32_t ret = APUSYS_APC_OK;
+
+	if (devapc_rcx_initialized) {
+		INFO("[APUAPC_RCX] %s is already initialized\n", __func__);
+		return APUSYS_APC_OK;
+	}
 
 	apusys_devapc_init(APUSYS_CTRL_DAPC_RCX_BASE);
 
@@ -332,6 +338,8 @@ int apusys_devapc_rcx_init(void)
 #endif
 
 	INFO("[APUAPC_RCX] %s done\n", __func__);
+
+	devapc_rcx_initialized = true;
 
 	return ret;
 }
