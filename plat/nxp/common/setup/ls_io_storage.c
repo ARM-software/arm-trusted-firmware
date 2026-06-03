@@ -31,6 +31,10 @@
 #if defined(SD_BOOT) || defined(EMMC_BOOT)
 #include <sd_mmc.h>
 #endif
+#if defined(SEMIHOSTING_BOOT)
+#include <lib/semihosting.h>
+#include <drivers/io/io_semihosting.h>
+#endif
 #include <tools_share/firmware_image_package.h>
 
 #ifdef CONFIG_DDR_FIP_IMAGE
@@ -50,10 +54,17 @@ static const io_dev_connector_t *fip_dev_con;
 static uintptr_t fip_dev_handle;
 static const io_dev_connector_t *backend_dev_con;
 
+#ifndef SEMIHOSTING_BOOT
 static io_block_spec_t fip_block_spec = {
 	.offset = PLAT_FIP_OFFSET,
 	.length = PLAT_FIP_MAX_SIZE
 };
+#else
+static io_file_spec_t fip_file_spec = {
+	.path = "fip.bin",
+	.mode = FOPEN_MODE_RB
+};
+#endif
 
 static const io_uuid_spec_t bl2_uuid_spec = {
 	.uuid = UUID_TRUSTED_BOOT_FIRMWARE_BL2,
@@ -135,11 +146,19 @@ struct plat_io_policy {
 
 /* By default, ARM platforms load images from the FIP */
 static const struct plat_io_policy policies[] = {
+#ifndef SEMIHOSTING_BOOT
 	[FIP_IMAGE_ID] = {
 		&backend_dev_handle,
 		(uintptr_t)&fip_block_spec,
 		open_backend
 	},
+#else
+	[FIP_IMAGE_ID] = {
+		&backend_dev_handle,
+		(uintptr_t)&fip_file_spec,
+		open_backend
+	},
+#endif
 	[BL2_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl2_uuid_spec,
@@ -301,6 +320,22 @@ static int plat_io_memmap_setup(size_t fip_offset)
 	/* Open connections to devices and cache the handles */
 	io_result = io_dev_open(backend_dev_con, (uintptr_t)NULL,
 				&backend_dev_handle);
+	assert(io_result == 0);
+
+	return io_result;
+}
+#endif
+
+#if defined SEMIHOSTING_BOOT
+static int plat_io_sh_setup(void)
+{
+	int io_result;
+
+	io_result = register_io_dev_sh(&backend_dev_con);
+	assert(io_result == 0);
+
+	/* Open connections to devices and cache the handles */
+	io_result = io_dev_open(backend_dev_con, (uintptr_t)NULL, &backend_dev_handle);
 	assert(io_result == 0);
 
 	return io_result;
@@ -481,6 +516,13 @@ int ls_flexspi_nor_io_setup(void)
 #endif
 }
 
+#if defined(SEMIHOSTING_BOOT)
+int ls_sh_io_setup(void)
+{
+	return plat_io_sh_setup();
+}
+#endif
+
 static int (* const ls_io_setup_table[])(void) = {
 	[BOOT_DEVICE_IFC_NOR] = ifc_nor_io_setup,
 	[BOOT_DEVICE_IFC_NAND] = ifc_nand_io_setup,
@@ -489,6 +531,9 @@ static int (* const ls_io_setup_table[])(void) = {
 	[BOOT_DEVICE_SDHC2_EMMC] = emmc_sdhc2_io_setup,
 	[BOOT_DEVICE_FLEXSPI_NOR] = ls_flexspi_nor_io_setup,
 	[BOOT_DEVICE_FLEXSPI_NAND] = ls_flexspi_nor_io_setup,
+#if defined(SEMIHOSTING_BOOT)
+	[BOOT_DEVICE_SEMIHOSTING] = ls_sh_io_setup,
+#endif
 };
 
 

@@ -83,11 +83,14 @@ ifeq (${BOOT_MODE}, emmc)
 $(eval $(call SET_NXP_MAKE_FLAG,SD_MMC_NEEDED,BL2))
 $(eval $(call add_define,EMMC_BOOT))
 else
+ifeq (${BOOT_MODE}, semihosting)
+$(eval $(call add_define,SEMIHOSTING_BOOT))
+else
 $(error Un-supported Boot Mode = ${BOOT_MODE})
 endif
 endif
 endif
-
+endif
 
  # Separate DDR-FIP image to be loaded.
 $(eval $(call SET_NXP_MAKE_FLAG,DDR_FIP_IO_NEEDED,BL2))

@@ -83,6 +83,12 @@ BL2_SOURCES		+=	drivers/io/io_fip.c			\
 				plat/nxp/common/setup/ls_bl2_setup.c	\
 				plat/nxp/common/setup/${ARCH}/ls_bl2_mem_params_desc.c
 
+ifeq (${BOOT_MODE}, semihosting)
+BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
+				lib/semihosting/semihosting.c		\
+				lib/semihosting/${ARCH}/semihosting_call.S
+endif
+
 BL31_SOURCES		+=	plat/nxp/common/setup/ls_bl31_setup.c	\
 
 ifeq (${LS_EL3_INTERRUPT_HANDLER}, yes)
