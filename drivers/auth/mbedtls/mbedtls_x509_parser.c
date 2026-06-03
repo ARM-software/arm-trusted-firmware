@@ -22,10 +22,8 @@
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
 
-#include <arch_helpers.h>
 #include <drivers/auth/img_parser_mod.h>
 #include <drivers/auth/mbedtls/mbedtls_common.h>
-#include <lib/utils.h>
 
 /* Maximum OID string length ("a.b.c.d.e.f ...") */
 #define MAX_OID_STR_LEN			64
@@ -47,19 +45,11 @@ static mbedtls_asn1_buf signature;
  */
 static void clear_temp_vars(void)
 {
-#define ZERO_AND_CLEAN(x)					\
-	do {							\
-		zeromem(&x, sizeof(x));				\
-		clean_dcache_range((uintptr_t)&x, sizeof(x));	\
-	} while (0);
-
-	ZERO_AND_CLEAN(tbs)
-	ZERO_AND_CLEAN(v3_ext);
-	ZERO_AND_CLEAN(pk);
-	ZERO_AND_CLEAN(sig_alg);
-	ZERO_AND_CLEAN(signature);
-
-#undef ZERO_AND_CLEAN
+	mbedtls_zero_and_clean(&tbs, sizeof(tbs));
+	mbedtls_zero_and_clean(&v3_ext, sizeof(v3_ext));
+	mbedtls_zero_and_clean(&pk, sizeof(pk));
+	mbedtls_zero_and_clean(&sig_alg, sizeof(sig_alg));
+	mbedtls_zero_and_clean(&signature, sizeof(signature));
 }
 
 /*

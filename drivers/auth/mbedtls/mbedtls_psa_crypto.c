@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,7 +24,7 @@
 #include <drivers/auth/auth_util.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/auth/mbedtls/mbedtls_common.h>
-#include <drivers/auth/mbedtls/mbedtls_psa_crypto.h>
+#include "mbedtls_psa_internal.h"
 #include <plat/common/platform.h>
 
 #define LIB_NAME		"mbed TLS PSA"
@@ -114,20 +114,23 @@ static void destroy_key_ids(void)
 	for (int i = 0; i < MAX_CACHED_KEYS; i++) {
 		if (key_cache[i].valid) {
 			psa_destroy_key(key_cache[i].key_id);
+			key_cache[i].valid = false;
 		}
 	}
 }
 
 /* Retrieve cached key ID, algorithm, and key attributes */
-static bool get_cached_psa_key_info(const char *pk_oid, psa_key_id_t *key_id,
-		psa_algorithm_t *psa_alg, psa_key_attributes_t *psa_key_attr)
+static bool get_cached_psa_key_info(const char *pk_oid, psa_algorithm_t psa_alg,
+		psa_key_id_t *key_id, psa_key_attributes_t *psa_key_attr)
 {
+	size_t pk_oid_len = strlen(pk_oid);
+
 	for (int i = 0; i < MAX_CACHED_KEYS; i++) {
 		if (key_cache[i].valid &&
-				(strlen(key_cache[i].pk_oid) == strlen(pk_oid)) &&
-				(strncmp(key_cache[i].pk_oid, pk_oid, strlen(pk_oid)) == 0)) {
+				(key_cache[i].psa_alg == psa_alg) &&
+				(strlen(key_cache[i].pk_oid) == pk_oid_len) &&
+				(strncmp(key_cache[i].pk_oid, pk_oid, pk_oid_len) == 0)) {
 			*key_id = key_cache[i].key_id;
-			*psa_alg = key_cache[i].psa_alg;
 			*psa_key_attr = key_cache[i].psa_key_attr;
 			return true;
 		}
@@ -230,6 +233,26 @@ static void cleanup_pk_context(mbedtls_pk_context *pk, bool *pk_initialized)
 }
 
 /*
+ * Extract the signature bytes from the DER-encoded SignatureValue BIT STRING.
+ */
+static int get_signature_bytes(void *sig_ptr, unsigned int sig_len,
+			       unsigned char **signature_ptr,
+			       size_t *signature_len)
+{
+	unsigned char *p = (unsigned char *)sig_ptr;
+	unsigned char *end = p + sig_len;
+	int rc;
+
+	rc = mbedtls_asn1_get_bitstring_null(&p, end, signature_len);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	*signature_ptr = p;
+	return CRYPTO_SUCCESS;
+}
+
+/*
  * Verify a signature.
  *
  * Parameters are passed using the DER encoding format following the ASN.1
@@ -254,8 +277,13 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	unsigned char *local_sig_ptr;
 	size_t local_sig_len;
 
+	rc = construct_psa_alg(sig_alg, sig_alg_len, &pk_alg, &psa_alg);
+	if (rc != CRYPTO_SUCCESS) {
+		return rc;
+	}
+
 	/* Check if key, algorithm, and key attributes are already cached */
-	if (!get_cached_psa_key_info(pk_oid, &psa_key_id, &psa_alg, &psa_key_attr)) {
+	if (!get_cached_psa_key_info(pk_oid, psa_alg, &psa_key_id, &psa_key_attr)) {
 		/* Load the key into the PSA key store. */
 		initialize_pk_context(&pk, &pk_initialized);
 
@@ -274,10 +302,6 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 			goto end2;
 		}
 
-		rc = construct_psa_alg(sig_alg, sig_alg_len, &pk_alg, &psa_alg);
-		if (rc != CRYPTO_SUCCESS) {
-			goto end2;
-		}
 		psa_set_key_algorithm(&psa_key_attr, psa_alg);
 
 		rc = mbedtls_pk_import_into_psa(&pk, &psa_key_attr, &psa_key_id);
@@ -296,15 +320,10 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 		cleanup_pk_context(&pk, &pk_initialized);
 	}
 
-	/* Extract the signature from sig_ptr. */
-	p = (unsigned char *) sig_ptr;
-	end = p + sig_len;
-	rc = mbedtls_asn1_get_bitstring_null(&p, end, &local_sig_len);
-	if (rc != 0) {
-		rc = CRYPTO_ERR_SIGNATURE;
+	rc = get_signature_bytes(sig_ptr, sig_len, &local_sig_ptr, &local_sig_len);
+	if (rc != CRYPTO_SUCCESS) {
 		goto end1;
 	}
-	local_sig_ptr = p;
 
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA || \
 TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
@@ -312,7 +331,7 @@ TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
 		/* Convert the DER ASN.1 signature to raw format. */
 		size_t key_bits = psa_get_key_bits(&psa_key_attr);
 
-		rc = mbedtls_ecdsa_der_to_raw(key_bits, p, local_sig_len,
+		rc = mbedtls_ecdsa_der_to_raw(key_bits, local_sig_ptr, local_sig_len,
 					      reformatted_sig, ECDSA_SIG_BUFFER_SIZE,
 					      &local_sig_len);
 		if (rc != 0) {
