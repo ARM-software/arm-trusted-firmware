@@ -132,7 +132,7 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 	bl31_fw_config.reserved = (void *)plat_params_from_bl2;
 #endif
 
-	INFO("MTK BL31 start\n");
+	VERBOSE("MTK BL31 start\n");
 	/* Init delay function */
 	generic_delay_timer_init();
 	/* Initialize module initcall */

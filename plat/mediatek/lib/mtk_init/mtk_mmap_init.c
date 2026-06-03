@@ -44,8 +44,8 @@ void mtk_xlat_init(const mmap_region_t *bl_regions)
 		     (char *)iter < (char *)MTK_MMAP_POINTER_POOL_END_UNALIGNED;
 		     iter++) {
 			regions = iter->mmap_ptr;
-			INFO("mmap_name: %s\n", iter->mmap_name);
-			INFO("mmap_size: 0x%x\n", iter->mmap_size);
+			VERBOSE("mmap_name: %s\n", iter->mmap_name);
+			VERBOSE("mmap_size: 0x%x\n", iter->mmap_size);
 			print_mmap(regions);
 			mmap_add(regions);
 		}
