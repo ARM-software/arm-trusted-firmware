@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,8 +70,10 @@ static inline void bl31_set_default_config(void)
 #endif
 
 #if defined(SPD_spmd)
+#if (TRANSFER_LIST == 0)
 	bl32_image_ep_info.args.arg2 = XILINX_OF_BOARD_DTB_ADDR;
 	bl32_image_ep_info.args.arg0 = SPMC_MANIFEST_DTB_ADDR;
+#endif
 #endif
 
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
@@ -136,8 +138,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	default:
 		panic();
 	}
+
 #if (TRANSFER_LIST == 1)
-	tl_status = populate_data_from_xfer_list();
+	tl_status = init_transfer_list_from_fdt_or_static();
 	if (tl_status != true) {
 		WARN("Invalid transfer list\n");
 	}
@@ -277,6 +280,8 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 
 void bl31_platform_setup(void)
 {
+	int32_t __unused rc;
+
 	prepare_dtb();
 
 	/*
@@ -292,14 +297,27 @@ void bl31_platform_setup(void)
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_gic_driver_init();
 	plat_gic_init();
+
+#if (TRANSFER_LIST == 1)
+	/*
+	 * Populate empty non-secure transfer-list & update handoff info
+	 * bl31_prepare_next_image_entry() is called before bl31_plat_runtime_setup()
+	 * which sets up handoff to bl33
+	 */
+	rc = tl_init_ns_transfer_list(&bl33_image_ep_info);
+	if (rc < 0) {
+		WARN("Failed to create non-secure TL\n");
+	}
+#endif
 }
 
 void bl31_plat_runtime_setup(void)
 {
 	uint32_t rre_ret = 0;
+	int32_t __unused rc;
+
 #if defined(SPD_none) || defined(SPD_opteed)
 	uint32_t flags = 0;
-	int32_t rc;
 
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
@@ -315,6 +333,14 @@ void bl31_plat_runtime_setup(void)
 	if (rre_ret != 0) {
 		INFO("Runtime FDT reserve node retreival failed");
 	}
+
+#if (TRANSFER_LIST == 1)
+	/* Update non-secure TL with overlay entries */
+	rc = tl_populate_ns_transfer_list();
+	if (rc < 0) {
+		WARN("Failed to add overlay entries to non-secure TL\n");
+	}
+#endif
 
 	custom_runtime_setup();
 

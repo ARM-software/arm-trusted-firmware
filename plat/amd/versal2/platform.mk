@@ -49,6 +49,13 @@ override CTX_INCLUDE_AARCH32_REGS    := 0
 override PLAT_XLAT_TABLES_DYNAMIC := 1
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 
+# Optionally override non-secure firmware handoff base address
+ifeq (${TRANSFER_LIST},1)
+    ifdef NS_FW_HANDOFF_BASE
+        $(eval $(call add_define,NS_FW_HANDOFF_BASE))
+    endif
+endif
+
 ifdef TFA_NO_PM
    $(eval $(call add_define,TFA_NO_PM))
 endif

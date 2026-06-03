@@ -42,6 +42,13 @@ AMD Versal Gen 2 platform specific build options
     -   `pl011_1`         : ARM pl011 UART 1
     -   `dcc`             : JTAG Debug Communication Channel(DCC)
 
+*   `NS_FW_HANDOFF_BASE`: When the handoff protocol using transfer lists is
+    enabled (``TRANSFER_LIST=1``), the build system optionally accepts a
+    build-time override for the non-secure firmware handoff base address via
+    this argument. If not provided, the platform falls back to the default
+    base address defined in the Versal Gen 2 platform header
+    (``PLAT_ARM_NS_IMAGE_BASE`` minus 10 MB).
+
 Configurable Stack Size
 -----------------------
 
