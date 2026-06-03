@@ -133,6 +133,24 @@ struct mailbox *spmc_get_mbox_desc(bool secure_origin)
 	}
 }
 
+static uint16_t spmc_ffa_version_get_major(uint32_t version)
+{
+	return (version >> FFA_VERSION_MAJOR_SHIFT) & FFA_VERSION_MAJOR_MASK;
+}
+
+static uint16_t spmc_ffa_version_get_minor(uint32_t version)
+{
+	return (version >> FFA_VERSION_MINOR_SHIFT) & FFA_VERSION_MINOR_MASK;
+}
+
+static bool spmc_ffa_versions_are_compatible(uint32_t caller, uint32_t callee)
+{
+	return (spmc_ffa_version_get_major(caller) ==
+	       spmc_ffa_version_get_major(callee)) &&
+	       (spmc_ffa_version_get_minor(caller) <=
+	       spmc_ffa_version_get_minor(callee));
+}
+
 /******************************************************************************
  * This function returns to the place where spmc_sp_synchronous_entry() was
  * called originally.
@@ -785,6 +803,8 @@ static uint64_t ffa_version_handler(uint32_t smc_fid,
 				    uint64_t flags)
 {
 	uint32_t requested_version = x1 & FFA_VERSION_MASK;
+	uint32_t spmc_version = MAKE_FFA_VERSION(FFA_VERSION_SPMC_MAJOR,
+						 FFA_VERSION_SPMC_MINOR);
 
 	if (requested_version & FFA_VERSION_BIT31_MASK) {
 		/* Invalid encoding, return an error. */
@@ -792,27 +812,27 @@ static uint64_t ffa_version_handler(uint32_t smc_fid,
 		/* Execution stops here. */
 	}
 
-	/* Determine the caller to store the requested version. */
-	if (secure_origin) {
-		/*
-		 * Ensure that the SP is reporting the same version as
-		 * specified in its manifest. If these do not match there is
-		 * something wrong with the SP.
-		 * TODO: Should we abort the SP? For now assert this is not
-		 *       case.
-		 */
-		assert(requested_version ==
-		       spmc_get_current_sp_ctx()->ffa_version);
+	if (spmc_ffa_versions_are_compatible(requested_version, spmc_version)) {
+		/* Determine the caller to store the requested version. */
+		if (secure_origin) {
+			spmc_get_current_sp_ctx()->ffa_version = requested_version;
+		} else {
+			/*
+			 * If this is called by the normal world, record this
+			 * information in its descriptor.
+			 */
+			spmc_get_hyp_ctx()->ffa_version = requested_version;
+		}
+
 	} else {
-		/*
-		 * If this is called by the normal world, record this
-		 * information in its descriptor.
-		 */
-		spmc_get_hyp_ctx()->ffa_version = requested_version;
+		WARN("FFA_VERSION: incompatible version v%u.%u (SPMC v%u.%u)\n",
+		     spmc_ffa_version_get_major(requested_version),
+		     spmc_ffa_version_get_minor(requested_version),
+		     spmc_ffa_version_get_major(spmc_version),
+		     spmc_ffa_version_get_minor(spmc_version));
 	}
 
-	SMC_RET1(handle, MAKE_FFA_VERSION(FFA_VERSION_SPMC_MAJOR,
-					  FFA_VERSION_SPMC_MINOR));
+	SMC_RET1(handle, spmc_version);
 }
 
 static uint64_t rxtx_map_handler(uint32_t smc_fid,
