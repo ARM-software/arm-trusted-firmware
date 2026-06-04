@@ -92,7 +92,7 @@ endfunc inv_dcache_range
 func do_dcsw_op
 	push	{r4-r12, lr}
 	ldcopr	r8, ID_MMFR4		// stash FEAT_CCIDX identifier in r8
-	ubfx	r8, r8, #ID_MMFR4_CCIDX_SHIFT, #ID_MMFR4_CCIDX_LENGTH
+	ubfx	r8, r8, #ID_MMFR4_CCIDX_SHIFT, #ID_MMFR4_CCIDX_WIDTH
 	adr	r11, dcsw_loop_table	// compute cache op based on the operation type
 	add	r6, r11, r0, lsl #3	// cache op is 2x32-bit instructions
 loop1:

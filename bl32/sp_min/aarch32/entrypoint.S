@@ -212,7 +212,7 @@ func sp_min_handle_smc
 
 	ldr	r0, [r2, #SMC_CTX_GPREG_R0]	/* smc_fid */
 	/* Check whether an SMC64 is issued */
-	tst	r0, #(FUNCID_CC_MASK << FUNCID_CC_SHIFT)
+	tst	r0, #MASK(FUNCID_CC)
 	beq	1f
 	/* SMC32 is not detected. Return error back to caller */
 	mov	r0, #SMC_UNK

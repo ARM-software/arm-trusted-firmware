@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -106,65 +106,58 @@
 
 /* ID_DFR0 definitions */
 #define ID_DFR0_PERFMON_SHIFT		U(24)
-#define ID_DFR0_PERFMON_MASK		U(0xf)
+#define ID_DFR0_PERFMON_WIDTH		U(4)
 #define ID_DFR0_PERFMON_PMUV3		U(3)
 #define ID_DFR0_PERFMON_PMUV3P5		U(6)
 #define ID_DFR0_COPTRC_SHIFT		U(12)
-#define ID_DFR0_COPTRC_MASK		U(0xf)
+#define ID_DFR0_COPTRC_WIDTH		U(4)
 #define COPTRC_IMPLEMENTED		U(1)
-#define ID_DFR0_COPTRC_LENGTH		U(4)
 #define ID_DFR0_TRACEFILT_SHIFT		U(28)
-#define ID_DFR0_TRACEFILT_MASK		U(0xf)
+#define ID_DFR0_TRACEFILT_WIDTH		U(4)
 #define TRACEFILT_IMPLEMENTED		U(1)
-#define ID_DFR0_TRACEFILT_LENGTH	U(4)
 
 /* ID_DFR1_EL1 definitions */
 #define ID_DFR1_MTPMU_SHIFT	U(0)
-#define ID_DFR1_MTPMU_MASK	U(0xf)
+#define ID_DFR1_MTPMU_WIDTH	U(4)
 #define MTPMU_IMPLEMENTED	U(1)
 #define MTPMU_NOT_IMPLEMENTED	U(15)
 
 /* ID_MMFR3 definitions */
 #define ID_MMFR3_PAN_SHIFT	U(16)
-#define ID_MMFR3_PAN_MASK	U(0xf)
+#define ID_MMFR3_PAN_WIDTH	U(4)
 
 /* ID_MMFR4 definitions */
 #define ID_MMFR4_CNP_SHIFT	U(12)
-#define ID_MMFR4_CNP_LENGTH	U(4)
-#define ID_MMFR4_CNP_MASK	U(0xf)
+#define ID_MMFR4_CNP_WIDTH	U(4)
 
 #define ID_MMFR4_CCIDX_SHIFT	U(24)
-#define ID_MMFR4_CCIDX_LENGTH	U(4)
-#define ID_MMFR4_CCIDX_MASK	U(0xf)
+#define ID_MMFR4_CCIDX_WIDTH	U(4)
 
 /* ID_PFR0 definitions */
 #define ID_PFR0_AMU_SHIFT	U(20)
-#define ID_PFR0_AMU_LENGTH	U(4)
-#define ID_PFR0_AMU_MASK	U(0xf)
+#define ID_PFR0_AMU_WIDTH	U(4)
 #define ID_PFR0_AMU_V1		U(0x1)
 #define ID_PFR0_AMU_V1P1	U(0x2)
 
 #define ID_PFR0_DIT_SHIFT	U(24)
-#define ID_PFR0_DIT_LENGTH	U(4)
-#define ID_PFR0_DIT_MASK	U(0xf)
+#define ID_PFR0_DIT_WIDTH	U(4)
 #define DIT_IMPLEMENTED		(U(1) << ID_PFR0_DIT_SHIFT)
 
 /* ID_PFR1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
-#define ID_PFR1_VIRTEXT_MASK	U(0xf)
-#define GET_VIRT_EXT(id)	(((id) >> ID_PFR1_VIRTEXT_SHIFT) \
-				 & ID_PFR1_VIRTEXT_MASK)
+#define ID_PFR1_VIRTEXT_WIDTH	U(4)
+#define GET_VIRT_EXT(id)	EXTRACT(ID_PFR1_VIRTEXT, (id))
 #define ID_PFR1_GENTIMER_SHIFT	U(16)
-#define ID_PFR1_GENTIMER_MASK	U(0xf)
+#define ID_PFR1_GENTIMER_WIDTH	U(4)
 #define ID_PFR1_GIC_SHIFT	U(28)
-#define ID_PFR1_GIC_MASK	U(0xf)
+#define ID_PFR1_GIC_WIDTH	U(4)
 #define ID_PFR1_SEC_SHIFT	U(4)
-#define ID_PFR1_SEC_MASK	U(0xf)
+#define ID_PFR1_SEC_WIDTH	U(4)
 #define ID_PFR1_ELx_ENABLED	U(1)
 
 /* ID_PFR2 definitions */
 #define ID_PFR2_SSBS_SHIFT	U(4)
-#define ID_PFR2_SSBS_MASK	U(0xf)
+#define ID_PFR2_SSBS_WIDTH	U(4)
 #define SSBS_NOT_IMPLEMENTED	U(0)
 
 /* SCTLR definitions */
@@ -781,7 +774,7 @@
 
 /* AMCFGR definitions */
 #define AMCFGR_NCG_SHIFT	U(28)
-#define AMCFGR_NCG_MASK		U(0xf)
+#define AMCFGR_NCG_WIDTH	U(4)
 #define AMCFGR_N_SHIFT		U(0)
 #define AMCFGR_N_MASK		U(0xff)
 

@@ -449,6 +449,8 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 | FEAT_PMUv3p7        |   OK   |
 +---------------------+--------+
 
+.. _enable_feat_mechanism:
+
 The ``ENABLE_FEAT`` mechanism
 -----------------------------
 
@@ -503,9 +505,11 @@ consult the Arm ARM on any specifics about the feature itself.
   - Add it to the ``assert_numerics`` and ``add_defines`` lists in the
     ``Makefile``.
 
-  - Add a default of ``0`` for it in ``make_helpers/arch_features.mk``. If the
-    feature is listed as mandatory from a certain revision of the architecture,
-    add it to the appropriate list at the top of the same file.
+  - Add a default of ``0`` for it in ``make_helpers/defaults.mk``.
+
+  - If the feature is listed as mandatory from a certain revision of the
+    architecture, add it to the appropriate list in
+    ``make_helpers/arch_features.mk``.
 
   - Add any constraints in ``make_helpers/constraints.mk``. This will usually be
     other features which this feature depends on or is incompatible with and can
@@ -550,8 +554,14 @@ consult the Arm ARM on any specifics about the feature itself.
    ``test_smccc_arch_feature_availability`` test in TFTF, otherwise CI will
    fail.
 
- - If the feature comes with registers, those should be context switched if
-   enabling the feature for multiple worlds.
+ - If the feature comes with lower EL registers:
+
+   - those should be context switched if enabling the feature for multiple worlds.
+
+   - if these are EL2 control registers, consider their fields' reset values. If
+     they can reset to a value that would make a field active (like enabling a
+     trap), a safe inactive reset value should be added to
+     ``setup_el2_context()`` in ``lib/el3_runtime/aarch64/context_mgmt.c``.
 
  - Consider whether the feature introduces any potential side channels and how
    to close them.

@@ -22,30 +22,6 @@ Common build options
    directory containing the SP source, relative to the ``bl32/``; the directory
    is expected to contain a makefile called ``<aarch32_sp-value>.mk``.
 
--  ``AMU_RESTRICT_COUNTERS``: Register reads to the group 1 counters will return
-   zero at all but the highest implemented exception level. External
-   memory-mapped debug accesses are unaffected by this control.
-   The default value is 1 for all platforms.
-
--  ``ARCH`` : Choose the target build architecture for TF-A. It can take either
-   ``aarch64`` or ``aarch32`` as values. By default, it is defined to
-   ``aarch64``.
-
--  ``ARM_ARCH_FEATURE``: Optional Arm Architecture build option which specifies
-   one or more feature modifiers. This option has the form ``[no]feature+...``
-   and defaults to ``none``. It translates into compiler option
-   ``-march=armvX[.Y]-a+[no]feature+...``. See compiler's documentation for the
-   list of supported feature modifiers.
-
--  ``ARM_ARCH_MAJOR``: The major version of Arm Architecture to target when
-   compiling TF-A. Its value must be numeric, and defaults to 8 . See also,
-   *Armv8 Architecture Extensions* and *Armv7 Architecture Extensions* in
-   :ref:`Firmware Design`.
-
--  ``ARM_ARCH_MINOR``: The minor version of Arm Architecture to target when
-   compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
-   *Armv8 Architecture Extensions* in :ref:`Firmware Design`.
-
 -  ``ARM_BL2_SP_LIST_DTS``: Path to DTS file snippet to override the hardcoded
    SP nodes in tb_fw_config.
 
@@ -116,43 +92,6 @@ Common build options
    file that contains the BL33 private key in PEM format or a PKCS11 URI. If
    ``SAVE_KEYS=1``, only a file is accepted and it will be used to save the key.
 
--  ``BRANCH_PROTECTION``: Numeric value to enable ARMv8.3 Pointer Authentication
-   and ARMv8.5 Branch Target Identification support for TF-A BL images themselves.
-   If enabled, it is needed to use a compiler that supports the option
-   ``-mbranch-protection``. The value of the ``-march`` (via ``ARM_ARCH_MINOR``
-   and ``ARM_ARCH_MAJOR``) option will control which instructions will be
-   emitted (HINT space or not). Selects the branch protection features to use:
--  0: Default value turns off all types of branch protection (FEAT_STATE_DISABLED)
--  1: Enables all types of branch protection features
--  2: Return address signing to its standard level
--  3: Extend the signing to include leaf functions
--  4: Turn on branch target identification mechanism
--  5: Enables all types of branch protection features, only if present in
-   hardware (FEAT_STATE_CHECK).
-
-   The table below summarizes ``BRANCH_PROTECTION`` values, GCC compilation options
-   and resulting PAuth/BTI features.
-
-   +-------+--------------+-------+-----+
-   | Value |  GCC option  | PAuth | BTI |
-   +=======+==============+=======+=====+
-   |   0   |     none     |   N   |  N  |
-   +-------+--------------+-------+-----+
-   |   1   |   standard   |   Y   |  Y  |
-   +-------+--------------+-------+-----+
-   |   2   |   pac-ret    |   Y   |  N  |
-   +-------+--------------+-------+-----+
-   |   3   | pac-ret+leaf |   Y   |  N  |
-   +-------+--------------+-------+-----+
-   |   4   |     bti      |   N   |  Y  |
-   +-------+--------------+-------+-----+
-   |   5   |   dynamic    |   Y   |  Y  |
-   +-------+--------------+-------+-----+
-
-   This option defaults to 0.
-   Note that Pointer Authentication is enabled for Non-secure world
-   irrespective of the value of this option if the CPU supports it.
-
 -  ``BUILD_MESSAGE_TIMESTAMP``: String used to identify the time and date of the
    compilation of each build. It must be set to a C string (including quotes
    where applicable). Defaults to a string that contains the time and date of
@@ -187,44 +126,6 @@ Common build options
    certificate generation tool to create new keys in case no valid keys are
    present or specified. Allowed options are '0' or '1'. Default is '1'.
 
--  ``CTX_INCLUDE_AARCH32_REGS`` : Boolean option that, when set to 1, will cause
-   the AArch32 system registers to be included when saving and restoring the
-   CPU context. The option must be set to 0 for AArch64-only platforms (that
-   is on hardware that does not implement AArch32, or at least not at EL1 and
-   higher ELs). Default value is 1.
-
--  ``CTX_INCLUDE_FPREGS``: Boolean option that, when set to 1, will cause the FP
-   registers to be included when saving and restoring the CPU context. Default
-   is 0.
-
--  ``CTX_INCLUDE_MPAM_REGS``: Boolean option that, when set to 1, will cause the
-   Memory System Resource Partitioning and Monitoring (MPAM)
-   registers to be included when saving and restoring the CPU context.
-   Default is '0'.
-
--  ``CTX_INCLUDE_NEVE_REGS``: Numeric value, when set will cause the Armv8.4-NV
-   registers to be saved/restored when entering/exiting an EL2 execution
-   context. This flag can take values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. Default value is 0.
-
--  ``CTX_INCLUDE_PAUTH_REGS``: Numeric value to enable the Pointer
-   Authentication for Secure world. This will cause the ARMv8.3-PAuth registers
-   to be included when saving and restoring the CPU context as part of world
-   switch. Automatically enabled when ``BRANCH_PROTECTION`` is enabled. This flag
-   can take values 0 to 2, to align with ``ENABLE_FEAT`` mechanism. Default value
-   is 0.
-
-   Note that Pointer Authentication is enabled for Non-secure world irrespective
-   of the value of this flag if the CPU supports it. Alternatively, when
-   ``BRANCH_PROTECTION`` is enabled, this flag is superseded.
-
--  ``CTX_INCLUDE_SVE_REGS``: Boolean option that, when set to 1, will cause the
-   SVE registers to be included when saving and restoring the CPU context. Note
-   that this build option requires ``ENABLE_SVE_FOR_SWD`` to be enabled. In
-   general, it is recommended to perform SVE context management in lower ELs
-   and skip in EL3 due to the additional cost of maintaining large data
-   structures to track the SVE state. Hence, the default value is 0.
-
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
@@ -237,11 +138,6 @@ Common build options
 -  ``DISABLE_BIN_GENERATION``: Boolean option to disable the generation
    of the binary image. If set to 1, then only the ELF image is built.
    0 is the default.
-
--  ``DISABLE_MTPMU``: Numeric option to disable ``FEAT_MTPMU`` (Multi Threaded
-   PMU). ``FEAT_MTPMU`` is an optional feature available on Armv8.6 onwards.
-   This flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. Default is ``0``.
 
 -  ``DYN_DISABLE_AUTH``: Provides the capability to dynamically disable Trusted
    Board Boot authentication at runtime. This option is meant to be enabled only
@@ -290,348 +186,12 @@ Common build options
    builds, but this behaviour can be overridden in each platform's Makefile or
    in the build command line.
 
--  ``FEATURE_DETECTION``: Boolean option to enable the architectural features
-   verification mechanism. This is a debug feature that compares the
-   architectural features enabled through the feature specific build flags
-   (ENABLE_FEAT_xxx) with the features actually available on the CPU running,
-   and reports any discrepancies.
-
-   It is expected that this feature is only used for flexible platforms like
-   software emulators, or for hardware platforms at bringup time, to verify
-   that the configured feature set matches the CPU.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_AMU``: Numeric value to enable Activity Monitor Unit
-   extensions. This flag can take the values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. This is an optional architectural feature
-   available on v8.4 onwards. Some v8.2 implementations also implement an AMU
-   and this option can be used to enable this feature on those systems as well.
-   This flag can take the values 0 to 2, the default is 0.
-
--  ``ENABLE_FEAT_AMUv1p1``: Numeric value to enable the ``FEAT_AMUv1p1``
-   extension. ``FEAT_AMUv1p1`` is an optional feature available on Arm v8.6
-   onwards. This flag can take the values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_CLRBHB``: Numeric value to enable the CLRBHB instruction.
-    Clear Branch History clears the branch history for the current context to
-    the extent that branch history information created before the CLRBHB instruction
-    cannot be used by code. This is an optional architectural feature available on v8.0
-    onwards and is a mandatory feature from v8.9 onwards.
-    This flag can take the values of 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
-    Default value is ``0``.
-
--  ``ENABLE_FEAT_CPA2``: Numeric value to enable the ``FEAT_CPA2`` extension.
-   It enables checked pointer arithmetic in EL3, which will result in address
-   faults in the event that a pointer arithmetic overflow error occurs. This is
-   an optional feature starting from Arm v9.4 and This flag can take values 0 to
-   2, to align with the ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_CSV2_2``: Numeric value to enable the ``FEAT_CSV2_2``
-   extension. It allows access to the SCXTNUM_EL2 (Software Context Number)
-   register during EL2 context save/restore operations. ``FEAT_CSV2_2`` is an
-   optional feature available on Arm v8.0 onwards. This flag can take values
-   0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_CSV2_3``: Numeric value to enable support for ``FEAT_CSV2_3``
-   extension. This feature is supported in AArch64 state only and is an optional
-   feature available in Arm v8.0 implementations.
-   ``FEAT_CSV2_3`` implies the implementation of ``FEAT_CSV2_2``.
-   The flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_CRYPTO``: Numeric value to enable the ``FEAT_CRYPTO``
-   extension. It allows using the SIMD crypto extension AES, SHA1 and SHA2
-   instructions for mbedtls HASH256, which speeds up the authentication process
-   of the subsequent images in BL1 and BL2. ``FEAT_CRYPTO`` is an optional
-   feature available on Arm v8 onwards. This flag can take values
-   0 to 2, to align with the ``ENABLE_FEAT`` mechanism, however, value ``2``
-   is treated as ``0`` since there is no way to perform runtime check.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_CRYPTO_SHA3``: Numeric value to enable the ``FEAT_CRYPTO``
-   extension. It allows using the SIMD crypto extension SHA3 instructions for
-   mbedtls HASH384 and HASH512, which speeds up the authentication process of
-   the subsequent images in BL1 and BL2. ``FEAT_CRYPTO_SHA3`` is an optional
-   feature available on Arm v8.2 onwards. This flag can take values
-   0 to 1, to align with the ``ENABLE_FEAT`` mechanism, however, value ``2``
-   is treated as ``0`` since there is no way to perform runtime check.
-   Default value is ``0``.
-
-- ``ENABLE_FEAT_DEBUGV8P9``: Numeric value to enable ``FEAT_DEBUGV8P9``
-   extension which allows the ability to implement more than 16 breakpoints
-   and/or watchpoints. This feature is mandatory from v8.9 and is optional
-   from v8.8. This flag can take the values of 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_DIT``: Numeric value to enable ``FEAT_DIT`` (Data Independent
-   Timing) extension. It allows setting the ``DIT`` bit of PSTATE in EL3.
-   ``FEAT_DIT`` is a mandatory  architectural feature and is enabled from v8.4
-   and upwards. This flag can take the values 0 to 2, to align  with the
-   ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_ECV``: Numeric value to enable support for the Enhanced Counter
-   Virtualization feature, allowing for access to the CNTPOFF_EL2 (Counter-timer
-   Physical Offset register) during EL2 to EL3 context save/restore operations.
-   Its a mandatory architectural feature and is enabled from v8.6 and upwards.
-   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_FPMR``: Numerical value to enable support for Floating Point
-   Mode Register feature, allowing access to the FPMR register. FPMR register
-   controls the behaviors of FP8 instructions. It is an optional architectural
-   feature from v9.2 and upwards. This flag can take value of 0 to 2, to align
-   with the ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_FGT``: Numeric value to enable support for FGT (Fine Grain Traps)
-   feature allowing for access to the HDFGRTR_EL2 (Hypervisor Debug Fine-Grained
-   Read Trap Register) during EL2 to EL3 context save/restore operations.
-   Its a mandatory architectural feature and is enabled from v8.6 and upwards.
-   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_FGT2``: Numeric value to enable support for FGT2
-   (Fine Grain Traps 2) feature allowing for access to Fine-grained trap 2 registers
-   during  EL2 to EL3 context save/restore operations.
-   Its an optional architectural feature and is available from v8.8 and upwards.
-   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_FGWTE3``: Numeric value to enable support for
-   Fine Grained Write Trap EL3 (FEAT_FGWTE3), a feature that allows EL3 to
-   restrict overwriting certain EL3 registers after boot.
-   This lockdown is established by setting individual trap bits for
-   system registers that are not expected to be overwritten after boot.
-   This feature is an optional architectural feature and is available from
-   Armv9.4 onwards. This flag can take values from 0 to 2, aligning with
-   the ``ENABLE_FEAT`` mechanism. The default value is 0.
-
-   .. note::
-      This feature currently traps access to all EL3 registers in
-      ``FGWTE3_EL3``, except for ``MDCR_EL3``, ``MPAM3_EL3``,
-      ``TPIDR_EL3``(when ``CRASH_REPORTING=1``), and
-      ``SCTLR_EL3``(when ``HW_ASSISTED_COHERENCY=0``).
-      If additional traps need to be disabled for specific platforms,
-      please contact the Arm team on `TF-A public mailing list`_.
-
--  ``ENABLE_FEAT_HDBSS``: Numeric value to enable support for HDBSS (Hardware
-   Dirty state tracking structure) by setting ``SCR_EL3.HDBSSEn`` for NS world.
-   This is an optional architectural feature and is available from v9.4 and
-   upwards. This flag can take the values 0 to 2, to align  with the
-   ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_HACDBS``: Numeric value to enable support for
-   HACDBS (Hardware accelerator for cleaning Dirty state) by setting
-   ``SCR_EL3.HACDBSEn`` for NS world. This is an optional architectural feature
-   and is available from v9.4 and upwards. This flag can take the values 0 to 2,
-   to align  with the ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_HCX``: Numeric value to set the bit SCR_EL3.HXEn in EL3 to
-   allow access to HCRX_EL2 (extended hypervisor control register) from EL2 as
-   well as adding HCRX_EL2 to the EL2 context save/restore operations. Its a
-   mandatory architectural feature and is enabled from v8.7 and upwards. This
-   flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_IDTE3``: Numeric value to set SCR_EL3.TID3/TID5 bits which
-   enables trapping of ID register reads by lower ELs to EL3. This allows EL3
-   to control the feature visibility to lower ELs by returning a sanitized value
-   based on current feature enablement status. Hypervisors are expected to
-   cache ID register during their boot stage. This flag can take the
-   values 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``. This feature is EXPERIMENTAL.
-
-   .. note::
-      This feature traps all lower EL accesses to Group 3 and Group 5
-      ID registers to EL3. This can incur a performance impact and platforms
-      should enable them only if they have a specific need.
-
-- ``ENABLE_FEAT_MOPS``: Numeric value to enable FEAT_MOPS (Standardization
-   of memory operations) when INIT_UNUSED_NS_EL2=1.
-   This feature is mandatory from v8.8 and enabling of FEAT_MOPS does not
-   require any settings from EL3 as the controls are present in EL2 registers
-   (HCRX_EL2.{MSCEn,MCE2} and SCTLR_EL2.MSCEn) and in most configurations
-   we expect EL2 to be present. But in case of INIT_UNUSED_NS_EL2=1 ,
-   EL3 should configure the EL2 registers. This flag
-   can take values 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_MTE2``: Numeric value to enable Memory Tagging Extension2
-   if the platform wants to use this feature and MTE2 is enabled at ELX.
-   This flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_PAN``: Numeric value to enable the ``FEAT_PAN`` (Privileged
-   Access Never) extension. ``FEAT_PAN`` adds a bit to PSTATE, generating a
-   permission fault for any privileged data access from EL1/EL2 to virtual
-   memory address, accessible at EL0, provided (HCR_EL2.E2H=1). It is a
-   mandatory architectural feature and is enabled from v8.1 and upwards. This
-   flag can take values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_PAUTH_LR``: Numeric value to enable the ``FEAT_PAUTH_LR``
-   extension. ``FEAT_PAUTH_LR`` is an optional feature available from Arm v9.4
-   onwards. This feature requires PAUTH to be enabled via the
-   ``BRANCH_PROTECTION`` flag. This flag can take the values 0 to 2, to align
-   with the ``ENABLE_FEAT`` mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_RNG``: Numeric value to enable the ``FEAT_RNG`` extension.
-   ``FEAT_RNG`` is an optional feature available on Arm v8.5 onwards. This
-   flag can take the values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_RNG_TRAP``: Numeric value to enable the ``FEAT_RNG_TRAP``
-   extension. This feature is only supported in AArch64 state. This flag can
-   take values 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``. ``FEAT_RNG_TRAP`` is an optional feature from
-   Armv8.5 onwards.
-
--  ``ENABLE_FEAT_SB``: Numeric option to let the TF-A code use the ``FEAT_SB``
-   (Speculation Barrier) instruction ``FEAT_SB`` is an optional feature and
-   defaults to ``0`` for pre-Armv8.5 CPUs, but is mandatory for Armv8.5 or
-   later CPUs. It is enabled from v8.5 and upwards and if needed can be
-   overidden from platforms explicitly. This flag can take values 0 to 2, to
-   align with the ``ENABLE_FEAT`` mechanism.  Default value is ``0``.
-
--  ``ENABLE_FEAT_SEL2``: Numeric value to enable the ``FEAT_SEL2`` (Secure EL2)
-   extension. ``FEAT_SEL2`` is a mandatory feature available on Arm v8.4.
-   This flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. Default is ``0``.
-
--  ``ENABLE_FEAT_TWED``: Numeric value to enable the ``FEAT_TWED`` (Delayed
-   trapping of WFE Instruction) extension. ``FEAT_TWED`` is a optional feature
-   available on Arm v8.6. This flag can take values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. Default is ``0``.
-
-    When ``ENABLE_FEAT_TWED`` is set to ``1``, WFE instruction trapping gets
-    delayed by the amount of value in ``TWED_DELAY``.
-
--  ``ENABLE_FEAT_VHE``: Numeric value to enable the ``FEAT_VHE`` (Virtualization
-   Host Extensions) extension. It allows access to CONTEXTIDR_EL2 register
-   during EL2 context save/restore operations.``FEAT_VHE`` is a mandatory
-   architectural feature and is enabled from v8.1 and upwards. It can take
-   values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_TCR2``: Numeric value to set the bit SCR_EL3.ENTCR2 in EL3 to
-   allow access to TCR2_EL2 (extended translation control) from EL2 as
-   well as adding TCR2_EL2 to the EL2 context save/restore operations. Its a
-   mandatory architectural feature and is enabled from v8.9 and upwards. This
-   flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_S2PIE``: Numeric value to enable support for FEAT_S2PIE
-   at EL2 and below, and context switch relevant registers.  This flag
-   can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_S1PIE``: Numeric value to enable support for FEAT_S1PIE
-   at EL2 and below, and context switch relevant registers.  This flag
-   can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_S2POE``: Numeric value to enable support for FEAT_S2POE
-   at EL2 and below, and context switch relevant registers.  This flag
-   can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_S1POE``: Numeric value to enable support for FEAT_S1POE
-   at EL2 and below, and context switch relevant registers.  This flag
-   can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_GCS``: Numeric value to set the bit SCR_EL3.GCSEn in EL3 to
-   allow use of Guarded Control Stack from EL2 as well as adding the GCS
-   registers to the EL2 context save/restore operations. This flag can take
-   the values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
-
- - ``ENABLE_FEAT_GCIE``: Boolean value to enable support for the GICv5 CPU
-   interface (see ``USE_GIC_DRIVER`` for the IRI). GICv5 and GICv3 are mutually
-   exclusive, so the ``ENABLE_FEAT`` mechanism is currently not supported.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_THE``: Numeric value to enable support for FEAT_THE
-   (Translation Hardening Extension) at EL2 and below, setting the bit
-   SCR_EL3.RCWMASKEn in EL3 to allow access to RCWMASK_EL1 and RCWSMASK_EL1
-   registers and context switch them.
-   Its an optional architectural feature and is available from v8.8 and upwards.
-   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_SCTLR2``: Numeric value to enable support for FEAT_SCTLR2
-   (Extension to SCTLR_ELx) at EL2 and below, setting the bit
-   SCR_EL3.SCTLR2En in EL3 to allow access to SCTLR2_ELx registers and
-   context switch them. This feature is OPTIONAL from Armv8.0 implementations
-   and mandatory in Armv8.9 implementations.
-   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_STEP2``: Numeric value that enables support for FEAT_STEP2 by
-   setting ``MDCR_EL3.EnSTEPOP`` so that lower ELs can access ``MDSTEPOP_EL1``.
-   This feature is optional from Armv9.4 implementations and is mandatory in
-   Armv9.5 implementations. This flag can take the values 0 to 2, to align  with
-   the ``ENABLE_FEAT`` mechanism Defaults value is ``0``.
-
--  ``ENABLE_FEAT_D128``: Numeric value to enable support for FEAT_D128
-   at EL2 and below, setting the bit SCT_EL3.D128En in EL3 to allow access to
-   128 bit version of system registers like PAR_EL1, TTBR0_EL1, TTBR1_EL1,
-   TTBR0_EL2, TTBR1_EL2, TTBR0_EL12, TTBR1_EL12 , VTTBR_EL2, RCWMASK_EL1, and
-   RCWSMASK_EL1. Its an optional architectural feature and is available from
-   9.3 and upwards.
-   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. Default value is ``0``.
-
--  ``ENABLE_FEAT_UINJ``: Numerical value to enable FEAT_UINJ support which
-   is hardware based injection of undefined instruction exceptions.
-   The objective of this feature is to provide higher privilege software with a
-   future proofed mechanism to inject an Undefined Instruction exception into
-   lower privilege software. It is an optional architectural feature from v9.0
-   and mandatory from v9.6. This flag can take value of 0 to 2,
-   to align with the ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
-
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support. This option is currently only supported for AArch64. On GCC it only
    applies to TF-A proper, and not its libraries. If LTO on libraries (except
    the libc) is desired a platform can pass `-flto -ffat-lto-objects` as long as
    GCC >= 14 is in use. ``ENABLE_LTO`` is enabled by default on release builds.
    Default is 0.
-
--  ``ENABLE_FEAT_MPAM``: Numeric value to enable lower ELs to use MPAM
-   feature. MPAM is an optional Armv8.4 extension that enables various memory
-   system components and resources to define partitions; software running at
-   various ELs can assign themselves to desired partition to control their
-   performance aspects.
-
-   This flag can take values 0 to 2, to align  with the ``ENABLE_FEAT``
-   mechanism. When this option is set to ``1`` or ``2``, EL3 allows lower ELs to
-   access their own MPAM registers without trapping into EL3. This option
-   doesn't make use of partitioning in EL3, however. Platform initialisation
-   code should configure and use partitions in EL3 as required. This option
-   defaults to ``2`` since MPAM is enabled by default for NS world only.
-   The flag is automatically disabled when the target
-   architecture is AArch32.
-
--  ``ENABLE_FEAT_MPAM_PE_BW_CTRL``: This option enables Armv9.3 MPAM
-   PE-side bandwidth controls and disables traps to EL3/EL2 (when
-   ``INIT_UNUSED_NS_EL2`` = 1). The flag accepts values from 0 to 2, in
-   line with the ``ENABLE_FEAT`` mechanism, and defaults to ``0``.
-
--  ``ENABLE_FEAT_LS64_ACCDATA``: Numeric value to enable access and save and
-   restore the ACCDATA_EL1 system register, at EL2 and below. This flag can
-   take the values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_AIE``: Numeric value to enable access to the (A)MAIR2 system
-   registers from non-secure world. This flag can take the values 0 to 2, to
-   align  with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
-
--  ``ENABLE_FEAT_PFAR``: Numeric value to enable access to the PFAR system
-   registers from non-secure world. This flag can take the values 0 to 2, to
-   align  with the ``ENABLE_FEAT`` mechanism.
-   Default value is ``0``.
 
 -  ``ENABLE_MPMM``: Boolean option to enable support for the Maximum Power
    Mitigation Mechanism supported by certain Arm cores, which allows the SoC
@@ -659,35 +219,6 @@ Common build options
    instrumented. Enabling this option enables the ``ENABLE_PMF`` build option
    as well. Default is 0.
 
--  ``ENABLE_SPE_FOR_NS`` : Numeric value to enable Statistical Profiling
-   extensions. This is an optional architectural feature for AArch64.
-   This flag can take the values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. The default is 2 but is automatically disabled when the target
-   architecture is AArch32.
-
--  ``ENABLE_SVE_FOR_NS``: Numeric value to enable Scalable Vector Extension
-   (SVE) for the Non-secure world only. SVE is an optional architectural feature
-   for AArch64. This flag can take the values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. At this time, this build option cannot be used on
-   systems that have SPM_MM enabled. The default value is 2.
-
-   Note that when SVE is enabled for the Non-secure world, access
-   to SVE, SIMD and floating-point functionality from the Secure world is
-   independently controlled by build option ``ENABLE_SVE_FOR_SWD``. When enabling
-   ``CTX_INCLUDE_FPREGS`` and ``ENABLE_SVE_FOR_NS`` together, it is mandatory to
-   enable ``CTX_INCLUDE_SVE_REGS``. This is to avoid corruption of the Non-secure
-   world data in the Z-registers which are aliased by the SIMD and FP registers.
-
--  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE and FPU/SIMD functionality
-   for the Secure world. SVE is an optional architectural feature for AArch64.
-   The default is 0 and it is automatically disabled when the target architecture
-   is AArch32.
-
-   .. note::
-      This build flag requires ``ENABLE_SVE_FOR_NS`` to be enabled. When enabling
-      ``ENABLE_SVE_FOR_SWD``, a developer must carefully consider whether
-      ``CTX_INCLUDE_SVE_REGS`` is also needed.
-
 -  ``ENABLE_STACK_PROTECTOR``: String option to enable the stack protection
    checks in GCC. Allowed values are "all", "strong", "default" and "none". The
    default value is set to "none". "strong" is the recommended stack protection
@@ -700,13 +231,6 @@ Common build options
    option to enable the workarounds for all errata that TF-A implements. Normally
    they should be explicitly enabled depending on each platform's needs. Not
    recommended for release builds. This option is default set to 0.
-
--  ``ENABLE_FEAT_MORELLO`` : Numeric option to enable the Morello capability aware
-   firmware. This flag can take the values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. This option is experimental and supported only with
-   LLVM CLANG toolchain and not with GCC toolchain. Capability awareness is
-   currently enabled only in BL31 firmware and not in other firmware types of
-   trusted firmware. Enabling this on regular AARCH64 system might not work.
 
 -  ``ENCRYPT_BL31``: Binary flag to enable encryption of BL31 firmware. This
    flag depends on ``DECRYPTION_SUPPORT`` build flag.
@@ -1016,14 +540,6 @@ Common build options
    optional SMCCC_ARCH_FEATURE_AVAILABILITY call. This option implicitly
    interacts with IMPDEF_SYSREG_TRAP and software emulation. This option
    defaults to 0.
-
--  ``ENABLE_FEAT_RAS``: Numeric flag to enable Armv8.2 RAS features. RAS
-   features are an optional extension for pre-Armv8.2 CPUs, but are mandatory
-   for Armv8.2 or later CPUs. NOTE: This flag enables use of IESB capability to
-   reduce entry latency into EL3 even when RAS error handling is not performed
-   on the platform. Hence this flag is recommended to be turned on Armv8.2 and
-   later CPUs. This flag can take the values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. The default is 0.
 
 -  ``RESET_TO_BL31``: Enable BL31 entrypoint as the CPU reset vector instead
    of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
@@ -1375,39 +891,6 @@ Common build options
   functions that wait for an arbitrary time length (udelay and mdelay). The
   default value is 0.
 
-- ``ENABLE_BRBE_FOR_NS``: Numeric value to enable access to the branch record
-  buffer registers from NS ELs when FEAT_BRBE is implemented. BRBE is an
-  optional architectural feature for AArch64. This flag can take the values
-  0 to 2, to align with the ``ENABLE_FEAT`` mechanism. The default is 0
-  and it is automatically disabled when the target architecture is AArch32.
-
-- ``ENABLE_TRBE_FOR_NS``: Numeric value to enable access of trace buffer
-  control registers from NS ELs, NS-EL2 or NS-EL1(when NS-EL2 is implemented
-  but unused) when FEAT_TRBE is implemented. TRBE is an optional architectural
-  feature for AArch64. This flag can take the values  0 to 2, to align with the
-  ``ENABLE_FEAT`` mechanism. The default is 0 and it is automatically
-  disabled when the target architecture is AArch32.
-
-- ``USE_SPINLOCK_CAS``: Numeric value to use FEAT_LSE atomics instead of
-  load/store exclusive instructions with spinlocks. FEAT_LSE is a mandatory
-  feature from v8.1, however it is only architecturally guaranteed to work on
-  "conventional memory" which may not apply to tightly coupled memory (eg. SRAM,
-  TF-A's usual place). Platforms must check if TF-A's memory can be targetted
-  by atomics before enabling this feature. Expected to increase performance on
-  systems with many cores. This flag can take the values 0 to 2, to align with
-  the ``ENABLE_FEAT`` mechanism. The default is 0.
-
-- ``ENABLE_SYS_REG_TRACE_FOR_NS``: Numeric value to enable trace system
-  registers access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented
-  but unused). This feature is available if trace unit such as ETMv4.x, and
-  ETE(extending ETM feature) is implemented. This flag can take the values
-  0 to 2, to align with the ``ENABLE_FEAT`` mechanism. The default is 0.
-
-- ``ENABLE_TRF_FOR_NS``: Numeric value to enable trace filter control registers
-  access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented but unused),
-  if FEAT_TRF is implemented. This flag can take the values 0 to 2, to align
-  with the ``ENABLE_FEAT`` mechanism. This flag is disabled by default.
-
 - ``CONDITIONAL_CMO``: Boolean option to enable call to platform-defined routine
   ``plat_can_cmo`` which will return zero if cache management operations should
   be skipped and non-zero otherwise. By default, this option is disabled which
@@ -1426,6 +909,503 @@ Common build options
   vector into TF-A by potentially allowing an attacker to inject arbitrary data.
   This option should only be enabled on a need basis if there is a use case for
   reading characters from the console.
+
+CPU Architecture feature options
+--------------------------------
+
+Meta options
+~~~~~~~~~~~~
+
+-  ``ARCH`` : Choose the target build architecture for TF-A. It can take either
+   ``aarch64`` or ``aarch32`` as values. By default, it is defined to
+   ``aarch64``.
+
+-  ``ARM_ARCH_MAJOR``: The major version of Arm Architecture to target when
+   compiling TF-A. Its value must be numeric, and defaults to 8 . See also,
+   *Armv8 Architecture Extensions* and *Armv7 Architecture Extensions* in
+   :ref:`Firmware Design`.
+
+-  ``ARM_ARCH_MINOR``: The minor version of Arm Architecture to target when
+   compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
+   *Armv8 Architecture Extensions* in :ref:`Firmware Design`.
+
+-  ``ARM_ARCH_FEATURE``: Optional Arm Architecture build option which specifies
+   one or more feature modifiers. This option has the form ``[no]feature+...``
+   and defaults to ``none``. It translates into compiler option
+   ``-march=armvX[.Y]-a+[no]feature+...``. See compiler's documentation for the
+   list of supported feature modifiers.
+
+CPU feature enables
+~~~~~~~~~~~~~~~~~~~
+
+This section describes flags that control the enablement of Architectural
+features in the A class Armv8.0+ architecture. Unless stated otherwise, these
+flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
+
+-  ``FEATURE_DETECTION``: Boolean option to enable the architectural features
+   verification mechanism. This is a debug feature that compares the
+   architectural features enabled through the feature specific build flags
+   (ENABLE_FEAT_xxx) with the features actually available on the CPU running,
+   and reports any discrepancies.
+
+   It is expected that this feature is only used for flexible platforms like
+   software emulators, or for hardware platforms at bringup time, to verify
+   that the configured feature set matches the CPU.
+   Default value is ``0``.
+
+-  ``CTX_INCLUDE_NEVE_REGS``: When set, causes the Armv8.4-NV
+   registers to be saved/restored when entering/exiting an EL2 execution
+   context. Default value is 0.
+
+-  ``CTX_INCLUDE_PAUTH_REGS``: Enables Pointer
+   Authentication for Secure world. This will cause the ARMv8.3-PAuth registers
+   to be included when saving and restoring the CPU context as part of world
+   switch. Automatically enabled when ``BRANCH_PROTECTION`` is enabled. Default
+   value is 0.
+
+   Note that Pointer Authentication is enabled for Non-secure world irrespective
+   of the value of this flag if the CPU supports it. Alternatively, when
+   ``BRANCH_PROTECTION`` is enabled, this flag is superseded.
+
+-  ``CTX_INCLUDE_AARCH32_REGS`` : Boolean option that, when set to 1, will cause
+   the AArch32 system registers to be included when saving and restoring the
+   CPU context. The option must be set to 0 for AArch64-only platforms (that
+   is on hardware that does not implement AArch32, or at least not at EL1 and
+   higher ELs). Default value is 1.
+
+-  ``CTX_INCLUDE_FPREGS``: Boolean option that, when set to 1, will cause the FP
+   registers to be included when saving and restoring the CPU context. Default
+   is 0.
+
+-  ``CTX_INCLUDE_MPAM_REGS``: Boolean option that, when set to 1, will cause the
+   Memory System Resource Partitioning and Monitoring (MPAM)
+   registers to be included when saving and restoring the CPU context.
+   Default is '0'.
+
+-  ``CTX_INCLUDE_SVE_REGS``: Boolean option that, when set to 1, will cause the
+   SVE registers to be included when saving and restoring the CPU context. Note
+   that this build option requires ``ENABLE_SVE_FOR_SWD`` to be enabled. In
+   general, it is recommended to perform SVE context management in lower ELs
+   and skip in EL3 due to the additional cost of maintaining large data
+   structures to track the SVE state. Hence, the default value is 0.
+
+-  ``DISABLE_MTPMU``: Disables ``FEAT_MTPMU`` (Multi Threaded
+   PMU). ``FEAT_MTPMU`` is an optional feature available on Armv8.6 onwards.
+   Default is ``0``.
+
+-  ``ENABLE_FEAT_AMU``: Enables Activity Monitor Unit
+   extensions. This is an optional architectural feature
+   available on v8.4 onwards. Some v8.2 implementations also implement an AMU
+   and this option can be used to enable this feature on those systems as well.
+   The default is 0.
+
+-  ``AMU_RESTRICT_COUNTERS``: Register reads to the group 1 counters will return
+   zero at all but the highest implemented exception level. External
+   memory-mapped debug accesses are unaffected by this control.
+   The default value is 1 for all platforms.
+
+-  ``ENABLE_FEAT_AMUv1p1``: Enables the ``FEAT_AMUv1p1``
+   extension. ``FEAT_AMUv1p1`` is an optional feature available on Arm v8.6
+   onwards. Default value is ``0``.
+
+-  ``ENABLE_FEAT_CLRBHB``: Enables the CLRBHB instruction.
+    Clear Branch History clears the branch history for the current context to
+    the extent that branch history information created before the CLRBHB instruction
+    cannot be used by code. This is an optional architectural feature available on v8.0
+    onwards and is a mandatory feature from v8.9 onwards.
+    Default value is ``0``.
+
+-  ``ENABLE_FEAT_CPA2``: Enables the ``FEAT_CPA2`` extension.
+   It enables checked pointer arithmetic in EL3, which will result in address
+   faults in the event that a pointer arithmetic overflow error occurs. This is
+   an optional feature starting from Arm v9.4. Default value is ``0``.
+
+-  ``ENABLE_FEAT_CSV2_2``: Enables the ``FEAT_CSV2_2``
+   extension. It allows access to the SCXTNUM_EL2 (Software Context Number)
+   register during EL2 context save/restore operations. ``FEAT_CSV2_2`` is an
+   optional feature available on Arm v8.0 onwards. Default value is ``0``.
+
+-  ``ENABLE_FEAT_CSV2_3``: Enables support for ``FEAT_CSV2_3``
+   extension. This feature is supported in AArch64 state only and is an optional
+   feature available in Arm v8.0 implementations.
+   ``FEAT_CSV2_3`` implies the implementation of ``FEAT_CSV2_2``.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_CRYPTO``: Enables the ``FEAT_CRYPTO``
+   extension. It allows using the SIMD crypto extension AES, SHA1 and SHA2
+   instructions for mbedtls HASH256, which speeds up the authentication process
+   of the subsequent images in BL1 and BL2. ``FEAT_CRYPTO`` is an optional
+   feature available on Arm v8 onwards. Setting this flag to 2 has the same
+   effect as 0 since there is no way to do runtime checks. Default value is ``0``.
+
+-  ``ENABLE_FEAT_CRYPTO_SHA3``: Enables the ``FEAT_CRYPTO``
+   extension. It allows using the SIMD crypto extension SHA3 instructions for
+   mbedtls HASH384 and HASH512, which speeds up the authentication process of
+   the subsequent images in BL1 and BL2. ``FEAT_CRYPTO_SHA3`` is an optional
+   feature available on Arm v8.2 onwards. Setting this flag to 2 has the same
+   effect as 0 since there is no way to do runtime checks. Default value is ``0``.
+
+-  ``ENABLE_FEAT_DEBUGV8P9``: Enables ``FEAT_DEBUGV8P9``
+   extension which allows the ability to implement more than 16 breakpoints
+   and/or watchpoints. This feature is mandatory from v8.9 and is optional
+   from v8.8. Default value is ``0``.
+
+-  ``ENABLE_FEAT_DIT``: Enables ``FEAT_DIT`` (Data Independent
+   Timing) extension. It allows setting the ``DIT`` bit of PSTATE in EL3.
+   ``FEAT_DIT`` is a mandatory  architectural feature and is enabled from v8.4
+   and upwards. Default value is ``0``.
+
+-  ``ENABLE_FEAT_ECV``: Enables support for the Enhanced Counter
+   Virtualization feature, allowing for access to the CNTPOFF_EL2 (Counter-timer
+   Physical Offset register) during EL2 to EL3 context save/restore operations.
+   Its a mandatory architectural feature and is enabled from v8.6 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_FPMR``: Enables support for Floating Point
+   Mode Register feature, allowing access to the FPMR register. FPMR register
+   controls the behaviors of FP8 instructions. It is an optional architectural
+   feature from v9.2 and upwards. This flag can take value of 0 to 2, to align
+   with the ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
+
+-  ``ENABLE_FEAT_FGT``: Enables support for FGT (Fine Grain Traps)
+   feature allowing for access to the HDFGRTR_EL2 (Hypervisor Debug Fine-Grained
+   Read Trap Register) during EL2 to EL3 context save/restore operations.
+   Its a mandatory architectural feature and is enabled from v8.6 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_FGT2``: Enables support for FGT2
+   (Fine Grain Traps 2) feature allowing for access to Fine-grained trap 2 registers
+   during  EL2 to EL3 context save/restore operations.
+   Its an optional architectural feature and is available from v8.8 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_FGWTE3``: Enables support for
+   Fine Grained Write Trap EL3 (FEAT_FGWTE3), a feature that allows EL3 to
+   restrict overwriting certain EL3 registers after boot.
+   This lockdown is established by setting individual trap bits for
+   system registers that are not expected to be overwritten after boot.
+   This feature is an optional architectural feature and is available from
+   Armv9.4 onwards. The default value is 0.
+
+   .. note::
+      This feature currently traps access to all EL3 registers in
+      ``FGWTE3_EL3``, except for ``MDCR_EL3``, ``MPAM3_EL3``,
+      ``TPIDR_EL3``(when ``CRASH_REPORTING=1``), and
+      ``SCTLR_EL3``(when ``HW_ASSISTED_COHERENCY=0``).
+      If additional traps need to be disabled for specific platforms,
+      please contact the Arm team on `TF-A public mailing list`_.
+
+-  ``ENABLE_FEAT_HDBSS``: Enables support for HDBSS (Hardware
+   Dirty state tracking structure) by setting ``SCR_EL3.HDBSSEn`` for NS world.
+   This is an optional architectural feature and is available from v9.4 and
+   upwards. Default value is ``0``.
+
+-  ``ENABLE_FEAT_HACDBS``: Enables support for
+   HACDBS (Hardware accelerator for cleaning Dirty state) by setting
+   ``SCR_EL3.HACDBSEn`` for NS world. This is an optional architectural feature
+   and is available from v9.4 and upwards. Default value is ``0``.
+
+-  ``ENABLE_FEAT_HCX``: Sets the bit SCR_EL3.HXEn in EL3 to
+   allow access to HCRX_EL2 (extended hypervisor control register) from EL2 as
+   well as adding HCRX_EL2 to the EL2 context save/restore operations. Its a
+   mandatory architectural feature and is enabled from v8.7 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_IDTE3``: Sets SCR_EL3.TID3/TID5 bits, which
+   enables trapping of ID register reads by lower ELs to EL3. This allows EL3
+   to control the feature visibility to lower ELs by returning a sanitized value
+   based on current feature enablement status. Hypervisors are expected to
+   cache ID register during their boot stage. Default value is ``0``. This
+   feature is EXPERIMENTAL.
+
+   .. note::
+      This feature traps all lower EL accesses to Group 3 and Group 5
+      ID registers to EL3. This can incur a performance impact and platforms
+      should enable them only if they have a specific need.
+
+-  ``ENABLE_FEAT_MOPS``: Enables FEAT_MOPS (Standardization
+   of memory operations) when INIT_UNUSED_NS_EL2=1.
+   This feature is mandatory from v8.8 and enabling of FEAT_MOPS does not
+   require any settings from EL3 as the controls are present in EL2 registers
+   (HCRX_EL2.{MSCEn,MCE2} and SCTLR_EL2.MSCEn) and in most configurations
+   we expect EL2 to be present. But in case of INIT_UNUSED_NS_EL2=1 ,
+   EL3 should configure the EL2 registers. Default value is ``0``.
+
+-  ``ENABLE_FEAT_MTE2``: Enables Memory Tagging Extension2
+   if the platform wants to use this feature and MTE2 is enabled at ELX.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_PAN``: Enables the ``FEAT_PAN`` (Privileged
+   Access Never) extension. ``FEAT_PAN`` adds a bit to PSTATE, generating a
+   permission fault for any privileged data access from EL1/EL2 to virtual
+   memory address, accessible at EL0, provided (HCR_EL2.E2H=1). It is a
+   mandatory architectural feature and is enabled from v8.1 and upwards.
+   Default value is ``0``.
+
+-  ``BRANCH_PROTECTION``: Enables ARMv8.3 Pointer Authentication
+   and ARMv8.5 Branch Target Identification support for TF-A BL images themselves.
+   If enabled, it is needed to use a compiler that supports the option
+   ``-mbranch-protection``. The value of the ``-march`` (via ``ARM_ARCH_MINOR``
+   and ``ARM_ARCH_MAJOR``) option will control which instructions will be
+   emitted (HINT space or not). Selects the branch protection features to use:
+-  0: Default value turns off all types of branch protection (FEAT_STATE_DISABLED)
+-  1: Enables all types of branch protection features
+-  2: Return address signing to its standard level
+-  3: Extend the signing to include leaf functions
+-  4: Turn on branch target identification mechanism
+-  5: Enables all types of branch protection features, only if present in
+   hardware (FEAT_STATE_CHECK).
+
+   The table below summarizes ``BRANCH_PROTECTION`` values, GCC compilation options
+   and resulting PAuth/BTI features.
+
+   +-------+--------------+-------+-----+
+   | Value |  GCC option  | PAuth | BTI |
+   +=======+==============+=======+=====+
+   |   0   |     none     |   N   |  N  |
+   +-------+--------------+-------+-----+
+   |   1   |   standard   |   Y   |  Y  |
+   +-------+--------------+-------+-----+
+   |   2   |   pac-ret    |   Y   |  N  |
+   +-------+--------------+-------+-----+
+   |   3   | pac-ret+leaf |   Y   |  N  |
+   +-------+--------------+-------+-----+
+   |   4   |     bti      |   N   |  Y  |
+   +-------+--------------+-------+-----+
+   |   5   |   dynamic    |   Y   |  Y  |
+   +-------+--------------+-------+-----+
+
+   This option defaults to 0.
+   Note that Pointer Authentication is enabled for Non-secure world
+   irrespective of the value of this option if the CPU supports it.
+
+-  ``ENABLE_FEAT_PAUTH_LR``: Enables the ``FEAT_PAUTH_LR``
+   extension. ``FEAT_PAUTH_LR`` is an optional feature available from Arm v9.4
+   onwards. This feature requires PAUTH to be enabled via the
+   ``BRANCH_PROTECTION`` flag. Default value is ``0``.
+
+-  ``ENABLE_FEAT_RNG``: Enables the ``FEAT_RNG`` extension.
+   ``FEAT_RNG`` is an optional feature available on Arm v8.5 onwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_RNG_TRAP``: Enables the ``FEAT_RNG_TRAP``
+   extension. This feature is only supported in AArch64 state. Default value
+   is ``0``. ``FEAT_RNG_TRAP`` is an optional feature from
+   Armv8.5 onwards.
+
+-  ``ENABLE_FEAT_SB``: Lets the TF-A code use the ``FEAT_SB``
+   (Speculation Barrier) instruction ``FEAT_SB`` is an optional feature and
+   defaults to ``0`` for pre-Armv8.5 CPUs, but is mandatory for Armv8.5 or
+   later CPUs. It is enabled from v8.5 and upwards and if needed can be
+   overidden from platforms explicitly. Default value is ``0``.
+
+-  ``ENABLE_FEAT_SEL2``: Enables the ``FEAT_SEL2`` (Secure EL2)
+   extension. ``FEAT_SEL2`` is a mandatory feature available on Arm v8.4.
+   Default is ``0``.
+
+-  ``ENABLE_FEAT_TWED``: Enables the ``FEAT_TWED`` (Delayed
+   trapping of WFE Instruction) extension. ``FEAT_TWED`` is a optional feature
+   available on Arm v8.6. Default is ``0``.
+
+    When ``ENABLE_FEAT_TWED`` is set to ``1``, WFE instruction trapping gets
+    delayed by the amount of value in ``TWED_DELAY``.
+
+-  ``ENABLE_FEAT_VHE``: Enables the ``FEAT_VHE`` (Virtualization
+   Host Extensions) extension. It allows access to CONTEXTIDR_EL2 register
+   during EL2 context save/restore operations.``FEAT_VHE`` is a mandatory
+   architectural feature and is enabled from v8.1 and upwards. Default value
+   is ``0``.
+
+-  ``ENABLE_FEAT_TCR2``: Sets the bit SCR_EL3.ENTCR2 in EL3 to
+   allow access to TCR2_EL2 (extended translation control) from EL2 as
+   well as adding TCR2_EL2 to the EL2 context save/restore operations. Its a
+   mandatory architectural feature and is enabled from v8.9 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_S2PIE``: Enables support for FEAT_S2PIE
+   at EL2 and below, and context switch relevant registers. Default value is
+   ``0``.
+
+-  ``ENABLE_FEAT_S1PIE``: Enables support for FEAT_S1PIE
+   at EL2 and below, and context switch relevant registers. Default value is
+   ``0``.
+
+-  ``ENABLE_FEAT_S2POE``: Enables support for FEAT_S2POE
+   at EL2 and below, and context switch relevant registers. Default value is
+   ``0``.
+
+-  ``ENABLE_FEAT_S1POE``: Enables support for FEAT_S1POE
+   at EL2 and below, and context switch relevant registers. Default value is
+   ``0``.
+
+-  ``ENABLE_FEAT_GCS``: Sets the bit SCR_EL3.GCSEn in EL3 to
+   allow use of Guarded Control Stack from EL2 as well as adding the GCS
+   registers to the EL2 context save/restore operations. Default value is
+   ``0``.
+
+ - ``ENABLE_FEAT_GCIE``: Boolean value to enable support for the GICv5 CPU
+   interface (see ``USE_GIC_DRIVER`` for the IRI). GICv5 and GICv3 are mutually
+   exclusive so the ``ENABLE_FEAT`` mechanism is currently not supported.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_THE``: Enables support for FEAT_THE
+   (Translation Hardening Extension) at EL2 and below, setting the bit
+   SCR_EL3.RCWMASKEn in EL3 to allow access to RCWMASK_EL1 and RCWSMASK_EL1
+   registers and context switch them.
+   Its an optional architectural feature and is available from v8.8 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_SCTLR2``: Enables support for FEAT_SCTLR2
+   (Extension to SCTLR_ELx) at EL2 and below, setting the bit
+   SCR_EL3.SCTLR2En in EL3 to allow access to SCTLR2_ELx registers and
+   context switch them. This feature is OPTIONAL from Armv8.0 implementations
+   and mandatory in Armv8.9 implementations.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_STEP2``: Enables support for FEAT_STEP2 by
+   setting ``MDCR_EL3.EnSTEPOP`` so that lower ELs can access ``MDSTEPOP_EL1``.
+   This feature is optional from Armv9.4 implementations and is mandatory in
+   Armv9.5 implementations. Defaults value is ``0``.
+
+-  ``ENABLE_FEAT_D128``: Enables support for FEAT_D128
+   at EL2 and below, setting the bit SCT_EL3.D128En in EL3 to allow access to
+   128 bit version of system registers like PAR_EL1, TTBR0_EL1, TTBR1_EL1,
+   TTBR0_EL2, TTBR1_EL2, TTBR0_EL12, TTBR1_EL12 , VTTBR_EL2, RCWMASK_EL1, and
+   RCWSMASK_EL1. Its an optional architectural feature and is available from
+   9.3 and upwards.
+   Default value is ``0``.
+
+-  ``ENABLE_FEAT_UINJ``: Enables FEAT_UINJ support, which
+   is hardware based injection of undefined instruction exceptions.
+   The objective of this feature is to provide higher privilege software with a
+   future proofed mechanism to inject an Undefined Instruction exception into
+   lower privilege software. It is an optional architectural feature from v9.0
+   and mandatory from v9.6. This flag can take value of 0 to 2,
+   to align with the ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
+
+-  ``ENABLE_FEAT_MEC``: Enables support for the ARMv9.2 Memory
+   Encryption Contexts (MEC). MEC supports multiple encryption contexts for
+   Realm security state and only one encryption context for the rest of the
+   security states. Default value is 0.
+
+-  ``ENABLE_FEAT_MORELLO`` : Enables the Morello capability aware
+   firmware. This option is experimental and supported only with LLVM CLANG
+   toolchain and not with GCC toolchain. Capability awareness is currently
+   enabled only in BL31 firmware and not in other firmware types of trusted
+   firmware. Enabling this on regular AARCH64 system might not work.
+
+-  ``ENABLE_FEAT_RAS``: Enables Armv8.2 RAS features. RAS
+   features are an optional extension for pre-Armv8.2 CPUs, but are mandatory
+   for Armv8.2 or later CPUs. NOTE: This flag enables use of IESB capability to
+   reduce entry latency into EL3 even when RAS error handling is not performed
+   on the platform. Hence this flag is recommended to be turned on Armv8.2 and
+   later CPUs. The default is 0.
+
+-  ``ENABLE_FEAT_RME``: Enables support for the ARMv9 Realm
+   Management Extension. Default value is 0.
+   This flag solely controls the architectural bits of RME, to let TF-A run
+   in the "root" physical address space and this will setup Granule Protection
+   Tables (GPT). Also this will make BL2 run in EL3, so it has access to the new
+   root address space. For deploying a Realm-EL2 payload (RMM), also set
+   ``ENABLE_RMM`` and provide an RMM image file.
+
+-  ``ENABLE_SPE_FOR_NS`` : Enables Statistical Profiling
+   extensions. This is an optional architectural feature for AArch64.
+   The default is 2 but is automatically disabled when the target architecture
+   is AArch32.
+
+-  ``ENABLE_SVE_FOR_NS``: Enables Scalable Vector Extension
+   (SVE) for the Non-secure world only. SVE is an optional architectural feature
+   for AArch64. At this time, this build option cannot be used on systems that
+   have SPM_MM enabled. The default value is 2.
+
+   Note that when SVE is enabled for the Non-secure world, access
+   to SVE, SIMD and floating-point functionality from the Secure world is
+   independently controlled by build option ``ENABLE_SVE_FOR_SWD``. When enabling
+   ``CTX_INCLUDE_FPREGS`` and ``ENABLE_SVE_FOR_NS`` together, it is mandatory to
+   enable ``CTX_INCLUDE_SVE_REGS``. This is to avoid corruption of the Non-secure
+   world data in the Z-registers which are aliased by the SIMD and FP registers.
+
+-  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE and FPU/SIMD functionality
+   for the Secure world. SVE is an optional architectural feature for AArch64.
+   The default is 0 and it is automatically disabled when the target architecture
+   is AArch32.
+
+   .. note::
+      This build flag requires ``ENABLE_SVE_FOR_NS`` to be enabled. When enabling
+      ``ENABLE_SVE_FOR_SWD``, a developer must carefully consider whether
+      ``CTX_INCLUDE_SVE_REGS`` is also needed.
+
+- ``ENABLE_BRBE_FOR_NS``: Enables access to the branch record
+  buffer registers from NS ELs when FEAT_BRBE is implemented. BRBE is an
+  optional architectural feature for AArch64. The default is 0 and it is
+  automatically disabled when the target architecture is AArch32.
+
+- ``ENABLE_TRBE_FOR_NS``: Enables access of trace buffer
+  control registers from NS ELs, NS-EL2 or NS-EL1(when NS-EL2 is implemented
+  but unused) when FEAT_TRBE is implemented. TRBE is an optional architectural
+  feature for AArch64. The default is 0 and it is automatically disabled when
+  the target architecture is AArch32.
+
+- ``USE_SPINLOCK_CAS``: Uses FEAT_LSE atomics instead of
+  load/store exclusive instructions with spinlocks. FEAT_LSE is a mandatory
+  feature from v8.1, however it is only architecturally guaranteed to work on
+  "conventional memory" which may not apply to tightly coupled memory (eg. SRAM,
+  TF-A's usual place). Platforms must check if TF-A's memory can be targetted
+  by atomics before enabling this feature. Expected to increase performance on
+  systems with many cores. The default is 0.
+
+- ``ENABLE_SYS_REG_TRACE_FOR_NS``: Enables trace system
+  registers access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented
+  but unused). This feature is available if trace unit such as ETMv4.x, and
+  ETE(extending ETM feature) is implemented. The default is 0.
+
+- ``ENABLE_TRF_FOR_NS``: Enables trace filter control registers
+  access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented but unused),
+  if FEAT_TRF is implemented. This flag is disabled by default.
+
+-  ``ENABLE_SME_FOR_NS``: Enables Scalable Matrix Extension
+   (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
+   registers so are enabled together. Using this option without
+   ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
+   world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
+   superset of SVE. SME is an optional architectural feature for AArch64.
+   At this time, this build option cannot be used on systems that have
+   SPD=spmd/SPM_MM and atempting to build with this option will fail.
+   Default is 0.
+
+-  ``ENABLE_SME2_FOR_NS``: Enables Scalable Matrix Extension
+   version 2 (SME2) for the non-secure world only. SME2 is an optional
+   architectural feature for AArch64.
+   This should be set along with ENABLE_SME_FOR_NS=1, if not, the default SME
+   accesses will still be trapped. Default is 0.
+
+-  ``ENABLE_FEAT_MPAM``: Enables lower ELs to use MPAM
+   feature. MPAM is an optional Armv8.4 extension that enables various memory
+   system components and resources to define partitions; software running at
+   various ELs can assign themselves to desired partition to control their
+   performance aspects.
+
+   When this option is set to ``1`` or ``2``, EL3 allows lower ELs to access
+   their own MPAM registers without trapping into EL3. This option doesn't make
+   use of partitioning in EL3, however. Platform initialisation code should
+   configure and use partitions in EL3 as required. This option defaults to
+   ``2`` since MPAM is enabled by default for NS world only. The flag is
+   automatically disabled when the target architecture is AArch32.
+
+-  ``ENABLE_FEAT_MPAM_PE_BW_CTRL``: This option enables Armv9.3 MPAM
+   PE-side bandwidth controls and disables traps to EL3/EL2 (when
+   ``INIT_UNUSED_NS_EL2`` = 1). The default is ``0``.
+
+-  ``ENABLE_FEAT_LS64_ACCDATA``: Enables access to, and save and
+   restore the ACCDATA_EL1 system register, at EL2 and below. Default value is
+   ``0``.
+
+-  ``ENABLE_FEAT_AIE``: Enables access to the (A)MAIR2 system
+   registers from non-secure world. Default value is ``0``.
+
+-  ``ENABLE_FEAT_PFAR``: Enables access to the PFAR system
+   registers from non-secure world. Default value is ``0``.
 
 GIC driver options
 --------------------
@@ -1575,24 +1555,9 @@ Common build options
    Default value is 0. Setting this flag implies that RMM must be enabled
    therefore, it mandates ``ENABLE_FEAT_RME`` to 1.
 
--  ``ENABLE_FEAT_RME``: Numeric value to enable support for the ARMv9 Realm
-   Management Extension. This flag can take the values 0 to 2, to align with
-   the ``ENABLE_FEAT`` mechanism. Default value is 0.
-   This flag solely controls the architectural bits of RME, to let TF-A run
-   in the "root" physical address space and this will setup Granule Protection
-   Tables (GPT). Also this will make BL2 run in EL3, so it has access to the new
-   root address space. For deploying a Realm-EL2 payload (RMM), also set
-   ``ENABLE_RMM`` and provide an RMM image file.
-
 -  ``ENABLE_RME``: This options will be deprecated. Please use
    ``ENABLE_FEAT_RME``. Until deprecated, setting this option to 1, will also
    set ``ENABLE_FEAT_RME`` and ``ENABLE_RMM`` to 1.
-
--  ``ENABLE_FEAT_MEC``: Numeric value to enable support for the ARMv9.2 Memory
-   Encryption Contexts (MEC). This flag can take the values 0 to 2, to align
-   with the ``ENABLE_FEAT`` mechanism. MEC supports multiple encryption
-   contexts for Realm security state and only one encryption context for the
-   rest of the security states. Default value is 0.
 
 -  ``RMM_V1_COMPAT``: Boolean flag to enable support for RMM v1.x compatibility
    mode. When set to 0, TF-A will use the RMM-EL3 interface version required
@@ -1606,24 +1571,6 @@ Common build options
    enables additional RMMD SMCs to push and pop requests for signing to
    EL3 along with platform hooks that must be implemented to service those
    requests and responses.
-
--  ``ENABLE_SME_FOR_NS``: Numeric value to enable Scalable Matrix Extension
-   (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
-   registers so are enabled together. Using this option without
-   ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
-   world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
-   superset of SVE. SME is an optional architectural feature for AArch64.
-   At this time, this build option cannot be used on systems that have
-   SPD=spmd/SPM_MM and atempting to build with this option will fail.
-   This flag can take the values 0 to 2, to align with the ``ENABLE_FEAT``
-   mechanism. Default is 0.
-
--  ``ENABLE_SME2_FOR_NS``: Numeric value to enable Scalable Matrix Extension
-   version 2 (SME2) for the non-secure world only. SME2 is an optional
-   architectural feature for AArch64.
-   This should be set along with ENABLE_SME_FOR_NS=1, if not, the default SME
-   accesses will still be trapped. This flag can take the values 0 to 2, to
-   align with the ``ENABLE_FEAT`` mechanism. Default is 0.
 
 -  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
    Extension for secure world. Used along with SVE and FPU/SIMD.

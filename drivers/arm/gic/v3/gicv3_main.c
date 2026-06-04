@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -114,11 +114,9 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 
 	/* Check for system register support */
 #ifndef __aarch64__
-	assert((read_id_pfr1() &
-			(ID_PFR1_GIC_MASK << ID_PFR1_GIC_SHIFT)) != 0U);
+	assert(EXTRACT(ID_PFR1_GIC, read_id_pfr1()) != 0U);
 #else
-	assert((read_id_aa64pfr0_el1() &
-			(ID_AA64PFR0_GIC_MASK << ID_AA64PFR0_GIC_SHIFT)) != 0U);
+	assert(EXTRACT(ID_AA64PFR0_GIC, read_id_aa64pfr0_el1()) != 0U);
 #endif /* !__aarch64__ */
 
 	gic_version = gicd_read_pidr2(plat_driver_data->gicd_base);

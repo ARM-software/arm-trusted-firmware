@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,8 +71,7 @@ static const unsigned int pa_range_bits_arr[] = {
 
 static unsigned long long get_max_supported_pa(void)
 {
-	u_register_t pa_range = read_id_aa64mmfr0_el1() &
-						ID_AA64MMFR0_EL1_PARANGE_MASK;
+	u_register_t pa_range = EXTRACT(ID_AA64MMFR0_EL1_PARANGE, read_id_aa64mmfr0_el1());
 
 	/* All other values are reserved */
 	assert(pa_range < ARRAY_SIZE(pa_range_bits_arr));

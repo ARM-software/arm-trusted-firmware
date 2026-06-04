@@ -301,7 +301,7 @@ cpu_reset_func_start neoverse_n2
 
 	/* Check if the PE implements SSBS */
 	mrs	x0, id_aa64pfr1_el1
-	tst	x0, #(ID_AA64PFR1_EL1_SSBS_MASK << ID_AA64PFR1_EL1_SSBS_SHIFT)
+	tst	x0, #MASK(ID_AA64PFR1_EL1_SSBS)
 	b.eq	1f
 
 	/* Disable speculative loads */

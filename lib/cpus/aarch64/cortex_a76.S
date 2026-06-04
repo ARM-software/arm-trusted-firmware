@@ -491,8 +491,7 @@ cpu_reset_func_start cortex_a76
 #if WORKAROUND_CVE_2018_3639
 	/* If the PE implements SSBS, we don't need the dynamic workaround */
 	mrs	x0, id_aa64pfr1_el1
-	lsr	x0, x0, #ID_AA64PFR1_EL1_SSBS_SHIFT
-	and	x0, x0, #ID_AA64PFR1_EL1_SSBS_MASK
+	ubfx	x0, x0, #ID_AA64PFR1_EL1_SSBS_SHIFT, #ID_AA64PFR1_EL1_SSBS_WIDTH
 #if !DYNAMIC_WORKAROUND_CVE_2018_3639 && ENABLE_ASSERTIONS
 	cmp	x0, 0
 	ASM_ASSERT(ne)

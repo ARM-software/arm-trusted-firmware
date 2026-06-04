@@ -369,36 +369,36 @@
 
 	.macro is_feat_sysreg128_present_asm reg:req
 	mrs	\reg, ID_AA64ISAR2_EL1
-	ands	\reg, \reg, #(ID_AA64ISAR2_SYSREG128_MASK << ID_AA64ISAR2_SYSREG128_SHIFT)
+	ands	\reg, \reg, #MASK(ID_AA64ISAR2_SYSREG128)
 	.endm
 
 	.macro is_feat_pauth_present_asm reg:req, clobber:req
 	mrs	\reg, ID_AA64ISAR1_EL1
-	mov_imm	\clobber, ((ID_AA64ISAR1_GPI_MASK << ID_AA64ISAR1_GPI_SHIFT) \
-			 | (ID_AA64ISAR1_GPA_MASK << ID_AA64ISAR1_GPA_SHIFT) \
-			 | (ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) \
-			 | (ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT))
+	mov_imm	\clobber, (MASK(ID_AA64ISAR1_GPI) \
+			 | MASK(ID_AA64ISAR1_GPA) \
+			 | MASK(ID_AA64ISAR1_API) \
+			 | MASK(ID_AA64ISAR1_APA))
 	tst	\reg, \clobber
 	.endm
 
 	.macro is_feat_sctlr2_present_asm reg:req
 	mrs	\reg, ID_AA64MMFR3_EL1
-	ands	\reg, \reg, #(ID_AA64MMFR3_EL1_SCTLR2_MASK << ID_AA64MMFR3_EL1_SCTLR2_SHIFT)
+	ands	\reg, \reg, #MASK(ID_AA64MMFR3_EL1_SCTLR2)
 	.endm
 
 	.macro is_feat_sme_present_asm reg:req
 	mrs	\reg, id_aa64pfr1_el1
-	ands	\reg, \reg, #(ID_AA64PFR1_EL1_SME_MASK << ID_AA64PFR1_EL1_SME_SHIFT)
+	ands	\reg, \reg, #MASK(ID_AA64PFR1_EL1_SME)
 	.endm
 
 	.macro is_feat_amu_present_asm reg:req
 	mrs	\reg, ID_AA64PFR0_EL1
-	ands	\reg, \reg, #(ID_AA64PFR0_AMU_MASK << ID_AA64PFR0_AMU_SHIFT)
+	ands	\reg, \reg, #MASK(ID_AA64PFR0_AMU)
 	.endm
 
 	.macro is_feat_morello_present_asm reg:req
 	mrs	\reg, id_aa64pfr1_el1
-	ands	\reg, \reg, #(ID_AA64PFR1_EL1_CE_MASK << ID_AA64PFR1_EL1_CE_SHIFT)
+	ands	\reg, \reg, #MASK(ID_AA64PFR1_EL1_CE)
 	.endm
 
 	.macro is_feat_mte_present_asm reg:req
