@@ -19,8 +19,10 @@
 #include <drivers/tpm/tpm2_slb9670/slb9670_gpio.h>
 #include <event_measure.h>
 #include <event_print.h>
+#if DISCRETE_TPM
 #include <tpm2.h>
 #include <tpm2_chip.h>
+#endif
 #if TRANSFER_LIST
 #include <tpm_event_log.h>
 #include <transfer_list.h>
@@ -35,6 +37,13 @@ const event_log_metadata_t rpi3_event_log_metadata[] = {
 	{ BL31_IMAGE_ID, MBOOT_BL31_IMAGE_STRING, PCR_0 },
 	{ BL33_IMAGE_ID, MBOOT_BL33_IMAGE_STRING, PCR_0 },
 	{ NT_FW_CONFIG_ID, MBOOT_NT_FW_CONFIG_STRING, PCR_0 },
+#if defined(SPD_opteed) || defined(SPD_spmd)
+	{ BL32_IMAGE_ID, MBOOT_BL32_IMAGE_STRING, PCR_0 },
+	{ BL32_EXTRA1_IMAGE_ID, MBOOT_BL32_EXTRA1_IMAGE_STRING, PCR_0 },
+#endif
+#if defined(SPD_spmd)
+	{ TOS_FW_CONFIG_ID, MBOOT_TOS_FW_CONFIG_STRING, PCR_0 },
+#endif
 
 	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) } /* Terminator */
 };
@@ -119,7 +128,7 @@ void bl2_plat_mboot_init(void)
 
 void bl2_plat_mboot_finish(void)
 {
-	int rc;
+	int __maybe_unused rc;
 	size_t event_log_cur_size;
 #if TRANSFER_LIST
 	struct transfer_list_header *ns_tl = NULL;

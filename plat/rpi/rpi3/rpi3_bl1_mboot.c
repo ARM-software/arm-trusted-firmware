@@ -12,8 +12,10 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
+#if DISCRETE_TPM
 #include <tpm2.h>
 #include <tpm2_chip.h>
+#endif
 
 #include <common/desc_image_load.h>
 #include <common/ep_info.h>

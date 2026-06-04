@@ -12,10 +12,13 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <tpm2.h>
 #include <event_measure.h>
 #include <event_print.h>
 #include <rpi3_measured_boot.h>
+
+#if DISCRETE_TPM
+#include <tpm2.h>
+#endif
 
 /* RPI3 table with platform specific image IDs, names and PCRs */
 extern const event_log_metadata_t rpi3_event_log_metadata[];
