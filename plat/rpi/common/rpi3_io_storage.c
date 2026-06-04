@@ -64,6 +64,10 @@ static const io_uuid_spec_t bl32_extra2_uuid_spec = {
 	.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA2,
 };
 
+static const io_uuid_spec_t tos_fw_config_uuid_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
+};
+
 static const io_uuid_spec_t bl33_uuid_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
@@ -141,6 +145,11 @@ static const struct plat_io_policy policies[] = {
 	[BL32_EXTRA2_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl32_extra2_uuid_spec,
+		open_fip
+	},
+	[TOS_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&tos_fw_config_uuid_spec,
 		open_fip
 	},
 	[BL33_IMAGE_ID] = {

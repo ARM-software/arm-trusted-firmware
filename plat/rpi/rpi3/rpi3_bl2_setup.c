@@ -116,6 +116,22 @@ void bl2_platform_setup(void)
 	 * This is where a TrustZone address space controller and other
 	 * security related peripherals would be configured.
 	 */
+
+	// Setup TOS Firmware Image Here - If I set it up earlier it get overwritten by event log
+#if defined(SPD_spmd) && defined(PLAT_RPI3_SPMC_SP_MANIFEST_SIZE)
+	bl_mem_params_node_t *next_param_node =
+		get_bl_mem_params_node(TOS_FW_CONFIG_ID);
+	assert(next_param_node != NULL);
+
+	struct transfer_list_entry *te = transfer_list_add(bl2_tl, TL_TAG_DT_SPMC_MANIFEST,
+			PLAT_RPI3_SPMC_SP_MANIFEST_SIZE, NULL);
+	assert(te != NULL);
+
+	next_param_node->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
+	next_param_node->image_info.image_max_size = PLAT_RPI3_SPMC_SP_MANIFEST_SIZE;
+	next_param_node->image_info.image_base =
+		(uintptr_t)transfer_list_entry_data(te);
+#endif /* defined(SPD_spmd) && defined(PLAT_RPI3_SPMC_SP_MANIFEST_SIZE) */
 }
 
 void rpi3_bl2_sync_transfer_list(void)
@@ -149,10 +165,10 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
-#ifdef SPD_opteed
+#if defined(SPD_opteed) || defined(SPD_spmd)
 	bl_mem_params_node_t *pager_mem_params = NULL;
 	bl_mem_params_node_t *paged_mem_params = NULL;
-#endif
+#endif /* defined(SPD_opteed) || defined(SPD_spmd) */
 #if TRANSFER_LIST
 	struct transfer_list_header *ns_tl = NULL;
 #endif
@@ -160,6 +176,13 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	switch (image_id) {
 #if TRANSFER_LIST
+	case TOS_FW_CONFIG_ID:
+		/*
+		 * Refresh the now stale checksum following loading of
+		 * HW_CONFIG or TOS_FW_CONFIG into the TL.
+		 */
+		transfer_list_update_checksum(bl2_tl);
+		break;
 	case BL31_IMAGE_ID:
 		/*
 		 * arg0 is a bl_params_t reserved for bl31_early_platform_setup2
@@ -174,7 +197,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		break;
 #endif
 	case BL32_IMAGE_ID:
-#ifdef SPD_opteed
+#if defined(SPD_opteed) || defined(SPD_spmd)
 		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
 		assert(pager_mem_params);
 
@@ -186,8 +209,11 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 				&paged_mem_params->image_info);
 		if (err != 0)
 			WARN("OPTEE header parse error.\n");
-#endif
+#endif /* defined(SPD_opteed) || defined(SPD_spmd) */
 		bl_mem_params->ep_info.spsr = rpi3_get_spsr_for_bl32_entry();
+#if defined(SPD_spmd)
+		bl_mem_params->ep_info.args.arg3 = (uintptr_t)bl2_tl;
+#endif /* defined(SPD_spmd) */
 		break;
 
 	case BL33_IMAGE_ID:

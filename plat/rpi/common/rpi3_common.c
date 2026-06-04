@@ -247,3 +247,54 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 	return get_mbedtls_heap_helper(heap_addr, heap_size);
 }
 #endif
+
+#if defined(SPD_spmd)
+unsigned int plat_ic_acknowledge_interrupt(void)
+{
+	return INTR_ID_UNAVAILABLE;
+}
+
+unsigned int plat_ic_get_interrupt_id(unsigned int id)
+{
+	return INTR_ID_UNAVAILABLE;
+}
+
+void plat_ic_end_of_interrupt(uint32_t id)
+{
+
+}
+
+#if (SPMC_AT_EL3 == 0)
+/*
+ * A dummy implementation of the platform handler for Group0 secure interrupt.
+ */
+int plat_spmd_handle_group0_interrupt(uint32_t intid)
+{
+	(void)intid;
+	return -1;
+}
+#endif /* (SPMC_AT_EL3 == 0) */
+#endif /* defined(SPD_spmd) */
+
+#ifndef RPI_HAVE_GIC
+/*
+ * This function is from plat_gicv2.c - this is done instead of including the file
+ *  to avoid pulling in the GIC code and its dependencies for the RPI3 platform.
+ */
+bool plat_ic_has_interrupt_type(unsigned int type)
+{
+	bool has_interrupt_type = false;
+
+	switch (type) {
+	case INTR_TYPE_S_EL1:
+	case INTR_TYPE_NS:
+		has_interrupt_type = true;
+		break;
+	default: // case INTR_TYPE_EL3:
+		/* Do nothing in default case */
+		break;
+	}
+
+	return has_interrupt_type;
+}
+#endif /* RPI_HAVE_GIC */

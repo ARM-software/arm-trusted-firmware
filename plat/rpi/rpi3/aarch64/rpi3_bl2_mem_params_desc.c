@@ -106,6 +106,20 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 #endif
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
+
+#ifdef SPD_spmd
+	/* Fill TOS_FW_CONFIG related information */
+	{
+		.image_id = TOS_FW_CONFIG_ID,
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+			VERSION_2, image_info_t, 0),
+		.image_info.image_max_size = RPI3_SPMC_MANIFEST_LOAD_SIZE,
+
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+#endif /* SPD_spmd */
 # endif /* BL32_BASE */
 
 	/* Fill BL33 related information */
