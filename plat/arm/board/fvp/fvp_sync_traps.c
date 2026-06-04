@@ -35,7 +35,7 @@ int plat_handle_rng_trap(u_register_t *data, bool rndrrs)
 			*data = read_rndr();
 		}
 	} else {
-		return RANDOM_VALUE ^ read_cntpct_el0();
+		*data = RANDOM_VALUE ^ read_cntpct_el0();
 	}
 
 	return TRAP_RET_CONTINUE;
