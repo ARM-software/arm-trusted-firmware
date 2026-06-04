@@ -1696,14 +1696,27 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 
 	/* Validate that the provided emad offset and structure is valid.*/
 	for (size_t i = 0; i < req->emad_count; i++) {
+		uintptr_t req_base = (uintptr_t)req;
+		uintptr_t emad_start;
 		size_t emad_size;
 		struct ffa_emad_v1_0 *emad;
 
 		emad = spmc_shmem_obj_get_emad(req, i, ffa_version,
 					       &emad_size);
+		emad_start = (uintptr_t)emad;
 
-		if ((uintptr_t) emad >= (uintptr_t)
-					((uint8_t *) req + total_length)) {
+		/*
+		 * Ensure the EMAD is large enough for the fields accessed below and
+		 * lies entirely within the request buffer.
+		 * The emad_size > total_length check is required to avoid
+		 * unsigned underflow in total_length - emad_size; otherwise an
+		 * oversized EMAD can wrap the subtraction and bypass the final
+		 * bounds check.
+		 */
+		if ((emad == NULL) || (emad_size < sizeof(*emad)) ||
+		    (emad_start < req_base) ||
+		    (emad_size > total_length) ||
+		    ((emad_start - req_base) > (total_length - emad_size))) {
 			WARN("Invalid emad access.\n");
 			ret = FFA_ERROR_INVALID_PARAMETER;
 			goto err_unlock_all;
