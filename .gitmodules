@@ -6,3 +6,7 @@
 	path = contrib/libeventlog
 	url = https://review.trustedfirmware.org/shared/libEventLog
 	shallow = true
+[submodule "mbed-tls"]
+	path = contrib/mbed-tls
+	url = https://github.com/Mbed-TLS/mbedtls.git
+	shallow = true

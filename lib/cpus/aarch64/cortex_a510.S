@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,71 @@
 
 cpu_reset_prologue cortex_a510
 
+workaround_reset_start cortex_a510, ERRATUM(1910738), ERRATA_A510_1910738
+	is_feat_mte_present_asm x1
+	cmp x1, #1	/* if the value is 0b01, BROADCASTMTE is low */
+	beq 1f
+	sysreg_bit_set CORTEX_A510_CPUECTLR_EL1, BIT(19)
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(4)
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(26)
+1:
+workaround_reset_end cortex_a510, ERRATUM(1910738)
+
+check_erratum_ls cortex_a510, ERRATUM(1910738), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(1937669), ERRATA_A510_1937669
+	is_feat_mte_present_asm x1
+	cmp x1, #1	/* if the value is 0b01, BROADCASTMTE is low */
+	beq 1f
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(10)
+1:
+workaround_reset_end cortex_a510, ERRATUM(1937669)
+
+check_erratum_ls cortex_a510, ERRATUM(1937669), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(1942494), ERRATA_A510_1942494
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(15)
+workaround_reset_end cortex_a510, ERRATUM(1942494)
+
+check_erratum_ls cortex_a510, ERRATUM(1942494), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(1952872), ERRATA_A510_1952872
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(18)
+workaround_reset_end cortex_a510, ERRATUM(1952872)
+
+check_erratum_ls cortex_a510, ERRATUM(1952872), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(1966377), ERRATA_A510_1966377
+	sysreg_bit_set CORTEX_A510_CPUACTLR2_EL1, BIT(29)
+workaround_reset_end cortex_a510, ERRATUM(1966377)
+
+check_erratum_ls cortex_a510, ERRATUM(1966377), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(1975068), ERRATA_A510_1975068
+	sysreg_bitfield_insert CORTEX_A510_CMPXECTLR_EL1, \
+		CORTEX_A510_CMPXECTLR_EL1_FPDFTH_BIT, \
+		CORTEX_A510_CMPXECTLR_EL1_FPDFTH_SHIFT, \
+		CORTEX_A510_CMPXECTLR_EL1_FPDFTH_WIDTH
+workaround_reset_end cortex_a510, ERRATUM(1975068)
+
+check_erratum_ls cortex_a510, ERRATUM(1975068), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(1976290), ERRATA_A510_1976290
+	is_feat_mte_present_asm x1
+	cmp x1, #1	/* if the value is 0b01, BROADCASTMTE is low */
+	beq 1f
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(4)
+1:
+workaround_reset_end cortex_a510, ERRATUM(1976290)
+
+check_erratum_ls cortex_a510, ERRATUM(1976290), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a510, ERRATUM(2002389), ERRATA_A510_2002389
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(3)
+workaround_reset_end cortex_a510, ERRATUM(2002389)
+
+check_erratum_ls cortex_a510, ERRATUM(2002389), CPU_REV(0, 1)
+
 workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 	/* Stash ERRSELR_EL1 in x2 */
 	mrs	x2, ERRSELR_EL1
@@ -47,6 +112,18 @@ workaround_runtime_start cortex_a510, ERRATUM(2008766), ERRATA_A510_2008766
 workaround_runtime_end cortex_a510, ERRATUM(2008766), NO_ISB
 
 check_erratum_ls cortex_a510, ERRATUM(2008766), CPU_REV(1, 3)
+
+workaround_reset_start cortex_a510, ERRATUM(2027318), ERRATA_A510_2027318
+	sysreg_bit_set CORTEX_A510_CMPXACTLR_EL1, BIT(11)
+workaround_reset_end cortex_a510, ERRATUM(2027318)
+
+check_erratum_ls cortex_a510, ERRATUM(2027318), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a510, ERRATUM(2028010), ERRATA_A510_2028010
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, BIT(38)
+workaround_reset_end cortex_a510, ERRATUM(2028010)
+
+check_erratum_ls cortex_a510, ERRATUM(2028010), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a510, ERRATUM(2041909), ERRATA_A510_2041909
 	/* Apply workaround */

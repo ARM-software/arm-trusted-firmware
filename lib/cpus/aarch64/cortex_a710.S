@@ -34,6 +34,30 @@
 
 cpu_reset_prologue cortex_a710
 
+workaround_reset_start cortex_a710, ERRATUM(1785648), ERRATA_A710_1785648
+	sysreg_bit_set CORTEX_A710_CPUACTLR2_EL1, BIT(2)
+workaround_reset_end cortex_a710, ERRATUM(1785648)
+
+check_erratum_ls cortex_a710, ERRATUM(1785648), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a710, ERRATUM(1793423), ERRATA_A710_1793423
+	sysreg_bit_set CORTEX_A710_CPUACTLR5_EL1, BIT(10)
+workaround_reset_end cortex_a710, ERRATUM(1793423)
+
+check_erratum_ls cortex_a710, ERRATUM(1793423), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a710, ERRATUM(1847092), ERRATA_A710_1847092
+	sysreg_bit_set CORTEX_A710_CPUACTLR5_EL1, BIT(10)
+workaround_reset_end cortex_a710, ERRATUM(1847092)
+
+check_erratum_ls cortex_a710, ERRATUM(1847092), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a710, ERRATUM(1887102), ERRATA_A710_1887102
+	sysreg_bit_set CORTEX_A710_CPUACTLR2_EL1, BIT(27)
+workaround_reset_end cortex_a710, ERRATUM(1887102)
+
+check_erratum_ls cortex_a710, ERRATUM(1887102), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a710, ERRATUM(1901946), ERRATA_A710_1901946
 	sysreg_bit_set	CORTEX_A710_CPUACTLR4_EL1, BIT(15)
 workaround_reset_end cortex_a710, ERRATUM(1901946)
@@ -256,6 +280,18 @@ workaround_runtime_start cortex_a710, ERRATUM(3324338), ERRATA_A710_3324338
 workaround_runtime_end cortex_a710, ERRATUM(3324338)
 
 check_erratum_ls cortex_a710, ERRATUM(3324338), CPU_REV(2, 1)
+
+workaround_reset_start cortex_a710, ERRATUM(3888122), ERRATA_A710_3888122
+	sysreg_bit_set CORTEX_A710_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a710, ERRATUM(3888122)
+
+check_erratum_chosen cortex_a710, ERRATUM(3888122), ERRATA_A710_3888122
+
+workaround_reset_start cortex_a710, ERRATUM(4302969), ERRATA_A710_4302969
+	sysreg_bit_set CORTEX_A710_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_a710, ERRATUM(4302969)
+
+check_erratum_chosen cortex_a710, ERRATUM(4302969), ERRATA_A710_4302969
 
 add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
 

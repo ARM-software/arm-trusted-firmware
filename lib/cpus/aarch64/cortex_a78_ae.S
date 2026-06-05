@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  * Copyright (c) 2021-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -23,6 +23,18 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue cortex_a78_ae
+
+workaround_reset_start cortex_a78_ae, ERRATUM(1827431), ERRATA_A78_AE_1827431
+	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, BIT(53)
+workaround_reset_end cortex_a78_ae, ERRATUM(1827431)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(1827431), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78_ae, ERRATUM(1827433), ERRATA_A78_AE_1827433
+	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, BIT(2)
+workaround_reset_end cortex_a78_ae, ERRATUM(1827433)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(1827433), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a78_ae, ERRATUM(1941500), ERRATA_A78_AE_1941500
 	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
@@ -60,6 +72,20 @@ workaround_reset_end cortex_a78_ae, ERRATUM(1951502)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(1951502), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a78_ae, ERRATUM(2242639), ERRATA_A78_AE_2242639
+	ldr x0,=0x5
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0x10f600e000
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0x10ff80e000
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x80000000003ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78_ae, ERRATUM(2242639)
+
+check_erratum_range cortex_a78_ae, ERRATUM(2242639), CPU_REV(0, 1), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a78_ae, ERRATUM(2376748), ERRATA_A78_AE_2376748
 	/* -------------------------------------------------------
 	 * Set CPUACTLR2_EL1[0] to 1 to force PLDW/PFRM ST to
@@ -85,6 +111,44 @@ workaround_reset_start cortex_a78_ae, ERRATUM(2395408), ERRATA_A78_AE_2395408
 workaround_reset_end cortex_a78_ae, ERRATUM(2395408)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(2395408), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a78_ae, ERRATUM(2466780), ERRATA_A78_AE_2466780
+	ldr x0,=0x3
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0xee010f10
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0xff1f0ffe
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x100000004003ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78_ae, ERRATUM(2466780)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(2466780), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a78_ae, ERRATUM(2743229), ERRATA_A78_AE_2743229
+	sysreg_bitfield_insert CORTEX_A78_AE_CPUACTLR5_EL1, 1, 55, 2
+workaround_reset_end cortex_a78_ae, ERRATUM(2743229)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(2743229), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a78_ae, ERRATUM(2779481), ERRATA_A78_AE_2779481
+	sysreg_bit_set CORTEX_A78_AE_CPUACTLR3_EL1, BIT(47)
+workaround_reset_end cortex_a78_ae, ERRATUM(2779481)
+
+check_erratum_ls cortex_a78_ae, ERRATUM(2779481), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a78_ae, ERRATUM(3888018), ERRATA_A78_AE_3888018
+	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a78_ae, ERRATUM(3888018)
+
+check_erratum_chosen cortex_a78_ae, ERRATUM(3888018), ERRATA_A78_AE_3888018
+
+workaround_reset_start cortex_a78_ae, ERRATUM(4302973), ERRATA_A78_AE_4302973
+	sysreg_bit_set CORTEX_A78_AE_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_a78_ae, ERRATUM(4302973)
+
+check_erratum_chosen cortex_a78_ae, ERRATUM(4302973), ERRATA_A78_AE_4302973
 
 workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31

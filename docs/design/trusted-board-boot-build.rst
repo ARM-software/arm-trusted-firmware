@@ -28,7 +28,6 @@ images with support for these features:
 #. To build the FIP image, ensure the following command line variables are set
    while invoking ``make`` to build TF-A:
 
-   -  ``MBEDTLS_DIR=<path of the directory containing mbed TLS sources>``
    -  ``TRUSTED_BOARD_BOOT=1``
    -  ``GENERATE_COT=1``
 
@@ -87,7 +86,6 @@ images with support for these features:
 
    .. code:: shell
 
-       MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
        make PLAT=<platform> TRUSTED_BOARD_BOOT=1 GENERATE_COT=1        \
        ARM_ROTPK_LOCATION=devel_rsa                                    \
        ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
@@ -111,7 +109,6 @@ images with support for these features:
 
    ::
 
-       MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
        make PLAT=juno TRUSTED_BOARD_BOOT=1 GENERATE_COT=1              \
        ARM_ROTPK_LOCATION=devel_rsa                                    \
        ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,18 @@ cpu_reset_prologue neoverse_v1
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V1_BHB_LOOP_COUNT, neoverse_v1
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_reset_start neoverse_v1, ERRATUM(1542436), ERRATA_V1_1542436
+	sysreg_bit_set NEOVERSE_V1_CPUACTLR4_EL1, BIT(14)
+workaround_reset_end neoverse_v1, ERRATUM(1542436)
+
+check_erratum_ls neoverse_v1, ERRATUM(1542436), CPU_REV(0, 0)
+
+workaround_reset_start neoverse_v1, ERRATUM(1618634), ERRATA_V1_1618634
+	sysreg_bit_set NEOVERSE_V1_CPUACTLR_EL1, BIT(13)
+workaround_reset_end neoverse_v1, ERRATUM(1618634)
+
+check_erratum_ls neoverse_v1, ERRATUM(1618634), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_v1, ERRATUM(1618635), ERRATA_V1_1618635
 	/* Inserts a DMB SY before and after MRS PAR_EL1 */
@@ -82,6 +94,30 @@ workaround_reset_start neoverse_v1, ERRATUM(1618635), ERRATA_V1_1618635
 workaround_reset_end neoverse_v1, ERRATUM(1618635)
 
 check_erratum_ls neoverse_v1, ERRATUM(1618635), CPU_REV(0, 0)
+
+workaround_reset_start neoverse_v1, ERRATUM(1618636), ERRATA_V1_1618636
+	sysreg_bit_set NEOVERSE_V1_ACTLR5_EL1, BIT(8)
+workaround_reset_end neoverse_v1, ERRATUM(1618636)
+
+check_erratum_ls neoverse_v1, ERRATUM(1618636), CPU_REV(0, 0)
+
+workaround_reset_start neoverse_v1, ERRATUM(1619807), ERRATA_V1_1619807
+	sysreg_bit_set NEOVERSE_V1_CPUACTLR_EL1, BIT(11)
+workaround_reset_end neoverse_v1, ERRATUM(1619807)
+
+check_erratum_ls neoverse_v1, ERRATUM(1619807), CPU_REV(0, 0)
+
+workaround_reset_start neoverse_v1, ERRATUM(1654562), ERRATA_V1_1654562
+	sysreg_bit_set NEOVERSE_V1_ACTLR2_EL1, BIT(1)
+workaround_reset_end neoverse_v1, ERRATUM(1654562)
+
+check_erratum_ls neoverse_v1, ERRATUM(1654562), CPU_REV(0, 0)
+
+workaround_reset_start neoverse_v1, ERRATUM(1674403), ERRATA_V1_1674403
+	sysreg_bit_set NEOVERSE_V1_ACTLR3_EL1, BIT(12)
+workaround_reset_end neoverse_v1, ERRATUM(1674403)
+
+check_erratum_ls neoverse_v1, ERRATUM(1674403), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_v1, ERRATUM(1774420), ERRATA_V1_1774420
 	/* Set bit 53 in CPUECTLR_EL1 */
@@ -223,6 +259,11 @@ workaround_reset_end neoverse_v1, ERRATUM(2779461)
 
 check_erratum_ls neoverse_v1, ERRATUM(2779461), CPU_REV(1, 2)
 
+workaround_reset_start neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
+	sysreg_bit_set NEOVERSE_V1_ACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_v1, ERRATUM(3888016)
+
+check_erratum_chosen neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
 
 workaround_reset_start neoverse_v1, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31

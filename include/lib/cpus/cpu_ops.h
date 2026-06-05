@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,6 +98,7 @@
 #endif /* __aarch64__ */
 
 #ifndef __ASSEMBLER__
+#include <arch_helpers.h>
 #include <lib/cassert.h>
 #include <lib/spinlock.h>
 
@@ -133,6 +134,16 @@ CASSERT(sizeof(struct cpu_ops) == CPU_OPS_SIZE,
 
 long cpu_get_rev_var(void);
 void *get_cpu_ops_ptr(void);
+
+static inline int midr_match(unsigned int cpu_midr)
+{
+	unsigned int midr, midr_mask;
+
+	midr = (unsigned int)read_midr();
+	midr_mask = (MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) |
+		(MIDR_PN_MASK << MIDR_PN_SHIFT);
+	return ((midr & midr_mask) == (cpu_midr & midr_mask));
+}
 
 #endif /* __ASSEMBLER__ */
 #endif /* CPU_OPS_H */

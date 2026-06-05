@@ -419,13 +419,6 @@ ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
         endif
 endif
 
-ifeq (${WORKAROUND_CVE_2025_0647},1)
-ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-else
-        $(error Error: WORKAROUND_CVE_2025_0647 can only be used with Arm Arch v8.5+, set ARM_ARCH_MAJOR and ARM_ARCH_MINOR appropriately.)
-endif
-endif
-
 # Handle all deprecated build options.
 ifeq (${ERROR_DEPRECATED}, 1)
     ifneq (${NS_TIMER_SWITCH},0)

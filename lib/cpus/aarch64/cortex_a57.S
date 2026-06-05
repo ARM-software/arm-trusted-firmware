@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -100,6 +100,12 @@ workaround_runtime_end cortex_a57, ERRATUM(817169), NO_ISB
 
 check_erratum_ls cortex_a57, ERRATUM(817169), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a57, ERRATUM(817171), ERRATA_A57_817171
+	sysreg_bit_set CORTEX_A57_L2ACTLR_EL1, BIT(26)
+workaround_reset_end cortex_a57, ERRATUM(817171)
+
+check_erratum_ls cortex_a57, ERRATUM(817171), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a57, ERRATUM(826974), ERRATA_A57_826974
 	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_DMB
 workaround_reset_end cortex_a57, ERRATUM(826974)
@@ -138,6 +144,12 @@ workaround_reset_start cortex_a57, ERRATUM(833471), ERRATA_A57_833471
 workaround_reset_end cortex_a57, ERRATUM(833471)
 
 check_erratum_ls cortex_a57, ERRATUM(833471), CPU_REV(1, 2)
+
+workaround_reset_start cortex_a57, ERRATUM(836019), ERRATA_A57_836019
+	sysreg_bit_set CORTEX_A57_L2ACTLR_EL1, BIT(7)
+workaround_reset_end cortex_a57, ERRATUM(836019)
+
+check_erratum_chosen cortex_a57, ERRATUM(836019), ERRATA_A57_836019
 
 workaround_reset_start cortex_a57, ERRATUM(859972), ERRATA_A57_859972
 	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_INSTR_PREFETCH

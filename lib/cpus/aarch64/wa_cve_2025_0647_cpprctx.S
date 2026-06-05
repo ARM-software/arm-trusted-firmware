@@ -74,8 +74,10 @@ endfunc wa_cve_2025_0647_instruction_patch
  *   x5 - Scratch register
  */
 func wa_cve_2025_0647_do_cpp_wa
-	psb	csync
-	tsb	csync
+	/* give the assembler access to the cpp rctx instruction */
+	.arch_extension predres
+	psb_csync
+	tsb_csync
 	dsb	osh
 
 	/* Stash SCR_EL3 so we can restore it later. */

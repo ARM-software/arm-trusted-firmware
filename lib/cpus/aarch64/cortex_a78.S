@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,84 @@
 
 cpu_reset_prologue cortex_a78
 
+workaround_reset_start cortex_a78, ERRATUM(1467580), ERRATA_A78_1467580
+	ldr x0,=0x7
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0xf3d08000
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0xfff0f0ff
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x80000002003ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78, ERRATUM(1467580)
+
+check_erratum_ls cortex_a78, ERRATUM(1467580), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78, ERRATUM(1479939), ERRATA_A78_1479939
+	sysreg_bit_set CORTEX_A78_CPUACTLR_EL1, BIT(13)
+workaround_reset_end cortex_a78, ERRATUM(1479939)
+
+check_erratum_ls cortex_a78, ERRATUM(1479939), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78, ERRATUM(1492189), ERRATA_A78_1492189
+	sysreg_bit_set CORTEX_A78_ACTLR5_EL1, BIT(8)
+workaround_reset_end cortex_a78, ERRATUM(1492189)
+
+check_erratum_ls cortex_a78, ERRATUM(1492189), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78, ERRATUM(1503072), ERRATA_A78_1503072
+	ldr x0,=0x0
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0xee070f14
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0xffff0fff
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x4005027ff
+	msr s3_6_c15_c8_1,x0
+	ldr x0,=0x1
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0x00e8400000
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0x00fff00000
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x4001027ff
+	msr s3_6_c15_c8_1,x0
+	ldr x0,=0x2
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0x00e8c00040
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0x00fff00040
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x4001027ff
+	msr s3_6_c15_c8_1,x0
+	ldr x0,=0x3
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0x00e8400000
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0x00fff00000
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x4004027ff
+	msr s3_6_c15_c8_1,x0
+	ldr x0,=0x4
+	msr s3_6_c15_c8_0,x0
+	ldr x0,=0x00e8c00040
+	msr s3_6_c15_c8_2,x0
+	ldr x0,=0x00fff00040
+	msr s3_6_c15_c8_3,x0
+	ldr x0,=0x4004027ff
+	msr s3_6_c15_c8_1,x0
+	isb
+workaround_reset_end cortex_a78, ERRATUM(1503072)
+
+check_erratum_ls cortex_a78, ERRATUM(1503072), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78, ERRATUM(1515634), ERRATA_A78_1515634
+	sysreg_bit_set CORTEX_A78_CPUACTLR_EL1, BIT(11)
+workaround_reset_end cortex_a78, ERRATUM(1515634)
+
+check_erratum_ls cortex_a78, ERRATUM(1515634), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
 	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1
 workaround_reset_end cortex_a78, ERRATUM(1688305)
@@ -37,6 +115,12 @@ workaround_reset_start cortex_a78, ERRATUM(1821534), ERRATA_A78_1821534
 workaround_reset_end cortex_a78, ERRATUM(1821534)
 
 check_erratum_ls cortex_a78, ERRATUM(1821534), CPU_REV(1, 0)
+
+workaround_reset_start cortex_a78, ERRATUM(1827429), ERRATA_A78_1827429
+	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(53)
+workaround_reset_end cortex_a78, ERRATUM(1827429)
+
+check_erratum_ls cortex_a78, ERRATUM(1827429), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a78, ERRATUM(1941498), ERRATA_A78_1941498
 	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, CORTEX_A78_CPUECTLR_EL1_BIT_8
@@ -147,6 +231,18 @@ workaround_reset_end cortex_a78, ERRATUM(2779479)
 
 check_erratum_ls cortex_a78, ERRATUM(2779479), CPU_REV(1, 2)
 
+workaround_reset_start cortex_a78, ERRATUM(3888017), ERRATA_A78_3888017
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a78, ERRATUM(3888017)
+
+check_erratum_chosen cortex_a78, ERRATUM(3888017), ERRATA_A78_3888017
+
+workaround_reset_start cortex_a78, ERRATUM(4302972), ERRATA_A78_4302972
+	sysreg_bit_set CORTEX_A78_ACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_a78, ERRATUM(4302972)
+
+check_erratum_chosen cortex_a78, ERRATUM(4302972), ERRATA_A78_4302972
+
 workaround_reset_start cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -164,7 +260,7 @@ workaround_reset_start cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_a78, CVE(2024, 5660)
 
-check_erratum_ls cortex_a78, CVE(2024, 5660), CPU_REV(1, 2)
+check_erratum_chosen cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 cpu_reset_func_start cortex_a78
 #if ENABLE_FEAT_AMU

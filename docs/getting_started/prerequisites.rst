@@ -31,17 +31,15 @@ Arm GNU Compiler         14.3
 Clang/LLVM               18.1.8
 Device Tree Compiler     1.6.1
 GNU Make                 4.3
-mbed TLS\ [#f1]_         3.6.5
 Node.js [#f2]_           20.11.1
 OpenSSL                  1.0.0
 Poetry                   1.3.2
-QCBOR\ [#f3]_            1.2
-Sphinx\ [#f2]_           5.3.0
+QCBOR\ [#f2]_            1.2
+Sphinx\ [#f1]_           5.3.0
 ======================== =====================
 
-.. [#f1] Required for Trusted Board Boot and Measured Boot.
-.. [#f2] Required only for building TF-A documentation.
-.. [#f3] Required only when enabling DICE Protection Environment support.
+.. [#f1] Required only for building TF-A documentation.
+.. [#f2] Required only when enabling DICE Protection Environment support.
 
 Toolchain
 ^^^^^^^^^

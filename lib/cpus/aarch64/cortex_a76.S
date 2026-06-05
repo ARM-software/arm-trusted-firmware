@@ -452,12 +452,24 @@ workaround_reset_end cortex_a76, ERRATUM(1946160)
 
 check_erratum_chosen cortex_a76, ERRATUM(1946160), ERRATA_A76_1946160
 
+workaround_reset_start cortex_a76, ERRATUM(2356586), ERRATA_A76_2356586
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, BIT(0)
+workaround_reset_end cortex_a76, ERRATUM(2356586)
+
+check_erratum_chosen cortex_a76, ERRATUM(2356586), ERRATA_A76_2356586
+
 workaround_runtime_start cortex_a76, ERRATUM(2743102), ERRATA_A76_2743102
 	/* dsb before isb of power down sequence */
 	dsb	sy
 workaround_runtime_end cortex_a76, ERRATUM(2743102)
 
 check_erratum_ls cortex_a76, ERRATUM(2743102), CPU_REV(4, 1)
+
+workaround_reset_start cortex_a76, ERRATUM(3888013), ERRATA_A76_3888013
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a76, ERRATUM(3888013)
+
+check_erratum_chosen cortex_a76, ERRATUM(3888013), ERRATA_A76_3888013
 
 check_erratum_chosen cortex_a76, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,6 +37,43 @@ workaround_reset_end cortex_a78c, ERRATUM(1827440)
 
 check_erratum_ls cortex_a78c, ERRATUM(1827440), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a78c, ERRATUM(1941499), ERRATA_A78C_1941499
+	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(8)
+workaround_reset_end cortex_a78c, ERRATUM(1941499)
+
+check_erratum_ls cortex_a78c, ERRATUM(1941499), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a78c, ERRATUM(1951501), ERRATA_A78C_1951501
+	ldr x0,=0x0
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x10e3900002
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x10fff00083
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x2001003ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0,=0x1
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x10e3800082
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x10fff00083
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x2001003ff
+	msr s3_6_c15_c8_1, x0
+
+	ldr x0, =0x2
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0x10e3800200
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0x10fff003e0
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x2001003ff
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_a78c, ERRATUM(1951501)
+
+check_erratum_ls cortex_a78c, ERRATUM(1951501), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a78c, ERRATUM(2242638), ERRATA_A78C_2242638
 	ldr	x0, =0x5
 	msr	CORTEX_A78C_IMP_CPUPSELR_EL3, x0
@@ -50,17 +87,43 @@ workaround_reset_end cortex_a78c, ERRATUM(2242638)
 
 check_erratum_range cortex_a78c, ERRATUM(2242638), CPU_REV(0, 1), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(2376746), ERRATA_A78C_2376746
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, BIT(0)
+workaround_reset_end cortex_a78c, ERRATUM(2376746)
+
+check_erratum_chosen cortex_a78c, ERRATUM(2376746), ERRATA_A78C_2376746
+
 workaround_reset_start cortex_a78c, ERRATUM(2376749), ERRATA_A78C_2376749
 	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, CORTEX_A78C_CPUACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a78c, ERRATUM(2376749)
 
 check_erratum_range cortex_a78c, ERRATUM(2376749), CPU_REV(0, 1), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(2395407), ERRATA_A78C_2395407
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, BIT(40)
+workaround_reset_end cortex_a78c, ERRATUM(2395407)
+
+check_erratum_chosen cortex_a78c, ERRATUM(2395407), ERRATA_A78C_2395407
+
 workaround_reset_start cortex_a78c, ERRATUM(2395411), ERRATA_A78C_2395411
 	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, CORTEX_A78C_CPUACTLR2_EL1_BIT_40
 workaround_reset_end cortex_a78c, ERRATUM(2395411)
 
 check_erratum_range cortex_a78c, ERRATUM(2395411), CPU_REV(0, 1), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a78c, ERRATUM(2478780), ERRATA_A78C_2478780
+	ldr x0, =0x3
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xee010f10
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xff1f0ffe
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x100000004003ff
+	msr s3_6_c15_c8_1, x0
+	isb
+workaround_reset_end cortex_a78c, ERRATUM(2478780)
+
+check_erratum_chosen cortex_a78c, ERRATUM(2478780), ERRATA_A78C_2478780
 
 workaround_reset_start cortex_a78c, ERRATUM(2683027), ERRATA_A78C_2683027
 	ldr	x0, =0x3
@@ -90,11 +153,29 @@ workaround_runtime_end cortex_a78c, ERRATUM(2772121)
 
 check_erratum_ls cortex_a78c, ERRATUM(2772121), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(2779483), ERRATA_A78C_2779483
+	sysreg_bit_set CORTEX_A78C_ACTLR3_EL1, BIT(47)
+workaround_reset_end cortex_a78c, ERRATUM(2779483)
+
+check_erratum_chosen cortex_a78c, ERRATUM(2779483), ERRATA_A78C_2779483
+
 workaround_reset_start cortex_a78c, ERRATUM(2779484), ERRATA_A78C_2779484
 	sysreg_bit_set CORTEX_A78C_ACTLR3_EL1, BIT(47)
 workaround_reset_end cortex_a78c, ERRATUM(2779484)
 
 check_erratum_range cortex_a78c, ERRATUM(2779484), CPU_REV(0, 1), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a78c, ERRATUM(3888019), ERRATA_A78C_3888019
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a78c, ERRATUM(3888019)
+
+check_erratum_chosen cortex_a78c, ERRATUM(3888019), ERRATA_A78C_3888019
+
+workaround_reset_start cortex_a78c, ERRATUM(4302974), ERRATA_A78C_4302974
+	sysreg_bit_set CORTEX_A78C_ACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_a78c, ERRATUM(4302974)
+
+check_erratum_chosen cortex_a78c, ERRATUM(4302974), ERRATA_A78C_4302974
 
 check_erratum_chosen cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
@@ -113,7 +194,7 @@ workaround_reset_start cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_a78c, CVE(2024, 5660)
 
-check_erratum_ls cortex_a78c, CVE(2024, 5660), CPU_REV(0, 2)
+check_erratum_chosen cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 cpu_reset_func_start cortex_a78c
 cpu_reset_func_end cortex_a78c

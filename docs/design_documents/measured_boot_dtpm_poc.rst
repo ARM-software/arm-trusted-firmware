@@ -119,7 +119,6 @@ TF-A build command:
     DISCRETE_TPM=1                        \
     MBOOT_TPM_HASH_ALG=sha256             \
     TPM_INTERFACE=FIFO_SPI                \
-    MBEDTLS_DIR=/path/to/mbedtls/repo     \
     LOG_LEVEL=40                          \
     fip all
 
@@ -139,7 +138,6 @@ platform port, To learn more about the platform and its build options, visit
      the only algorithm supported by both TF-A Measured Boot and the SLB 9670
      TPM 2.0.
    - ``TPM_INTERFACE=FIFO_SPI`` specifies the use of the FIFO SPI interface.
-   - ``MBEDTLS_DIR`` is the path to your local mbedtls repo.
    - ``LOG_LEVEL=40`` ensures that eventlog is printed at the end of BL1 and BL2.
 
 

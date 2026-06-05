@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,7 +39,6 @@ unsigned int cpuamu_read_cpuamcntenclr_el0(void);
 void cpuamu_write_cpuamcntenset_el0(unsigned int mask);
 void cpuamu_write_cpuamcntenclr_el0(unsigned int mask);
 
-int midr_match(unsigned int cpu_midr);
 void cpuamu_context_save(unsigned int nr_counters);
 void cpuamu_context_restore(unsigned int nr_counters);
 

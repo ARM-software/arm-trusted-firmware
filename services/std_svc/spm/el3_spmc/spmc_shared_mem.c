@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -229,6 +229,12 @@ spmc_shmem_obj_get_emad(const struct ffa_mtd *desc, uint32_t index,
 	return (emad + (*emad_size * index));
 }
 
+static inline const struct ffa_emad_v1_0 *
+emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
+{
+	return (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + offset);
+}
+
 /**
  * spmc_shmem_obj_get_comp_mrd - Get comp_mrd from a mtd struct based on the
  *				 FF-A version of the descriptor.
@@ -328,17 +334,43 @@ overlapping_memory_regions(struct ffa_comp_mrd *region1,
 	for (size_t i = 0; i < region1->address_range_count; i++) {
 
 		region1_start = region1->address_range_array[i].address;
+
+		/*
+		 * Ensure page_count * PAGE_SIZE_4KB is computed without
+		 * overflowing before deriving the region end address.
+		 */
+		if (region1->address_range_array[i].page_count >
+		    (UINT64_MAX / PAGE_SIZE_4KB)) {
+			return true;
+		}
+
 		region1_size =
-			region1->address_range_array[i].page_count *
+			(uint64_t)region1->address_range_array[i].page_count *
 			PAGE_SIZE_4KB;
+
+		if (check_u64_overflow(region1_start, region1_size)) {
+			return true;
+		}
+
 		region1_end = region1_start + region1_size;
 
 		for (size_t j = 0; j < region2->address_range_count; j++) {
 
 			region2_start = region2->address_range_array[j].address;
+
+			if (region2->address_range_array[j].page_count >
+			    (UINT64_MAX / PAGE_SIZE_4KB)) {
+				return true;
+			}
+
 			region2_size =
-				region2->address_range_array[j].page_count *
+				(uint64_t)region2->address_range_array[j].page_count *
 				PAGE_SIZE_4KB;
+
+			if (check_u64_overflow(region2_start, region2_size)) {
+				return true;
+			}
+
 			region2_end = region2_start + region2_size;
 
 			/* Check if regions are not overlapping. */
@@ -537,7 +569,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 {
 	struct ffa_mtd *mtd_orig = &orig->desc;
 	struct ffa_mtd_v1_0 *out = (struct ffa_mtd_v1_0 *) &out_obj->desc;
-	struct ffa_emad_v1_0 *emad_in;
+	const struct ffa_emad_v1_0 *emad_in;
 	struct ffa_emad_v1_0 *emad_array_in;
 	struct ffa_emad_v1_0 *emad_array_out;
 	struct ffa_comp_mrd *mrd_in;
@@ -563,7 +595,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 	emad_array_out = out->emad;
 
 	/* Copy across the emad structs. */
-	emad_in = emad_array_in;
+	emad_in = (const struct ffa_emad_v1_0 *)emad_array_in;
 	for (unsigned int i = 0U; i < out->emad_count; i++) {
 		/* Bound check for emad array. */
 		if (((uint8_t *)emad_in + sizeof(struct ffa_emad_v1_0)) >
@@ -574,7 +606,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 		memcpy(&emad_array_out[i], emad_in,
 		       sizeof(struct ffa_emad_v1_0));
 
-		emad_in +=  mtd_orig->emad_size;
+		emad_in = emad_advance(emad_in, mtd_orig->emad_size);
 	}
 
 	/* Place the mrd descriptors after the end of the emad descriptors. */
@@ -601,13 +633,13 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 	 * Update the offset in the emads by the delta between the input and
 	 * output addresses.
 	 */
-	emad_in = emad_array_in;
+	emad_in = (const struct ffa_emad_v1_0 *)emad_array_in;
 
 	for (unsigned int i = 0U; i < out->emad_count; i++) {
 		emad_array_out[i].comp_mrd_offset = emad_in->comp_mrd_offset +
 						    (mrd_out_offset -
 						     mrd_in_offset);
-		emad_in +=  mtd_orig->emad_size;
+		emad_in = emad_advance(emad_in, mtd_orig->emad_size);
 	}
 
 	/* Verify that we stay within bound of the memory descriptors. */
@@ -778,12 +810,6 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
 	}
 
 	return 0;
-}
-
-static inline const struct ffa_emad_v1_0 *
-emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
-{
-	return (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + offset);
 }
 
 /**

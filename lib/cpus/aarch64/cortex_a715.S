@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,42 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue cortex_a715
+
+workaround_reset_start cortex_a715, ERRATUM(2238661), ERRATA_A715_2238661
+	sysreg_bit_set CORTEX_A715_CPUACTLR_EL1, BIT(0)
+workaround_reset_end cortex_a715, ERRATUM(2238661)
+
+check_erratum_ls cortex_a715, ERRATUM(2238661), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a715, ERRATUM(2239006), ERRATA_A715_2239006
+	sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(9)
+workaround_reset_end cortex_a715, ERRATUM(2239006)
+
+check_erratum_ls cortex_a715, ERRATUM(2239006), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a715, ERRATUM(2275754), ERRATA_A715_2275754
+	sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(20)
+workaround_reset_end cortex_a715, ERRATUM(2275754)
+
+check_erratum_ls cortex_a715, ERRATUM(2275754), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a715, ERRATUM(2284544), ERRATA_A715_2284544
+	sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(20)
+workaround_reset_end cortex_a715, ERRATUM(2284544)
+
+check_erratum_ls cortex_a715, ERRATUM(2284544), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a715, ERRATUM(2285473), ERRATA_A715_2285473
+	sysreg_bit_set CORTEX_A715_CPUACTLR3_EL1, BIT(12)
+workaround_reset_end cortex_a715, ERRATUM(2285473)
+
+check_erratum_ls cortex_a715, ERRATUM(2285473), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a715, ERRATUM(2292761), ERRATA_A715_2292761
+	sysreg_bit_set CORTEX_A715_CPUACTLR4_EL1, BIT(13)
+workaround_reset_end cortex_a715, ERRATUM(2292761)
+
+check_erratum_ls cortex_a715, ERRATUM(2292761), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a715, ERRATUM(2331818), ERRATA_A715_2331818
         sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(20)

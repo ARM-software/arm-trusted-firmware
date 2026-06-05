@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <cortex_a75.h>
 #include <cpuamu.h>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/pubsub_events.h>
 
 static void *cortex_a75_context_save(const void *arg)

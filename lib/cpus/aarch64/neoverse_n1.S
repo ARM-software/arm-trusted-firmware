@@ -30,6 +30,13 @@
 
 cpu_reset_prologue neoverse_n1
 
+workaround_reset_start neoverse_n1, ERRATUM(925373), ERRATA_N1_925373
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(33)
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(34)
+workaround_reset_end neoverse_n1, ERRATUM(925373)
+
+check_erratum_ls neoverse_n1, ERRATUM(925373), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_n1, ERRATUM(936184), ERRATA_DSU_936184
 	errata_dsu_936184_wa_impl
 workaround_reset_end neoverse_n1, ERRATUM(936184)
@@ -131,6 +138,12 @@ workaround_reset_end neoverse_n1, ERRATUM(1542419)
 
 check_erratum_range neoverse_n1, ERRATUM(1542419), CPU_REV(3, 0), CPU_REV(4, 0)
 
+workaround_reset_start neoverse_n1, ERRATUM(1791580), ERRATA_N1_1791580
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, BIT(2)
+workaround_reset_end neoverse_n1, ERRATUM(1791580)
+
+check_erratum_ls neoverse_n1, ERRATUM(1791580), CPU_REV(4, 0)
+
 workaround_reset_start neoverse_n1, ERRATUM(1868343), ERRATA_N1_1868343
 	sysreg_bit_set NEOVERSE_N1_CPUACTLR_EL1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 workaround_reset_end neoverse_n1, ERRATUM(1868343)
@@ -179,6 +192,12 @@ workaround_runtime_start  neoverse_n1, ERRATUM(3324349), ERRATA_N1_3324349
 workaround_runtime_end neoverse_n1, ERRATUM(3324349)
 
 check_erratum_ls neoverse_n1, ERRATUM(3324349), CPU_REV(4, 1)
+
+workaround_reset_start neoverse_n1, ERRATUM(3888013), ERRATA_N1_3888013
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_n1, ERRATUM(3888013)
+
+check_erratum_chosen neoverse_n1, ERRATUM(3888013), ERRATA_N1_3888013
 
 workaround_reset_start neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31

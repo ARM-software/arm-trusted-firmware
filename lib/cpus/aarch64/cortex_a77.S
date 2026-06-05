@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,37 @@ cpu_reset_prologue cortex_a77
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A77_BHB_LOOP_COUNT, cortex_a77
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_reset_start cortex_a77, ERRATUM(1160841), ERRATA_A77_1160841
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, BIT(0)
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, BIT(15)
+workaround_reset_end cortex_a77, ERRATUM(1160841)
+
+check_erratum_ls cortex_a77, ERRATUM(1160841), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a77, ERRATUM(1204882), ERRATA_A77_1204882
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, BIT(11)
+workaround_reset_end cortex_a77, ERRATUM(1204882)
+
+check_erratum_ls cortex_a77, ERRATUM(1204882), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a77, ERRATUM(1220737), ERRATA_A77_1220737
+	sysreg_bitfield_insert CORTEX_A77_CPUECTLR_EL1, 3, 24, 2
+workaround_reset_end cortex_a77, ERRATUM(1220737)
+
+check_erratum_ls cortex_a77, ERRATUM(1220737), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a77, ERRATUM(1253791), ERRATA_A77_1253791
+	sysreg_bit_set CORTEX_A77_CPUACTLR3_EL1, BIT(10)
+workaround_reset_end cortex_a77, ERRATUM(1253791)
+
+check_erratum_ls cortex_a77, ERRATUM(1253791), CPU_REV(0, 0)
+
+workaround_reset_start cortex_a77, ERRATUM(1273521), ERRATA_A77_1273521
+	sysreg_bit_set CORTEX_A77_CPUACTLR_EL1, BIT(13)
+workaround_reset_end cortex_a77, ERRATUM(1273521)
+
+check_erratum_ls cortex_a77, ERRATUM(1273521), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a77, ERRATUM(1508412), ERRATA_A77_1508412
 	/* move cpu revision in again and compare against r0p0 */
@@ -66,6 +97,12 @@ workaround_reset_start cortex_a77, ERRATUM(1508412), ERRATA_A77_1508412
 workaround_reset_end cortex_a77, ERRATUM(1508412)
 
 check_erratum_ls cortex_a77, ERRATUM(1508412), CPU_REV(1, 0)
+
+workaround_reset_start cortex_a77, ERRATUM(1515815), ERRATA_A77_1515815
+	sysreg_bit_set CORTEX_A77_CPUACTLR_EL1, BIT(11)
+workaround_reset_end cortex_a77, ERRATUM(1515815)
+
+check_erratum_ls cortex_a77, ERRATUM(1515815), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a77, ERRATUM(1791578), ERRATA_A77_1791578
 	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, CORTEX_A77_ACTLR2_EL1_BIT_2
@@ -130,6 +167,12 @@ workaround_runtime_end cortex_a77, ERRATUM(2743100), NO_ISB
 
 check_erratum_ls cortex_a77, ERRATUM(2743100), CPU_REV(1, 1)
 
+workaround_reset_start cortex_a77, ERRATUM(3888015), ERRATA_A77_3888015
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, BIT(22)
+workaround_reset_end cortex_a77, ERRATUM(3888015)
+
+check_erratum_chosen cortex_a77, ERRATUM(3888015), ERRATA_A77_3888015
+
 workaround_reset_start cortex_a77, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -148,7 +191,7 @@ workaround_reset_start cortex_a77, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_a77, CVE(2024, 5660)
 
-check_erratum_ls cortex_a77, CVE(2024, 5660), CPU_REV(1, 1)
+check_erratum_chosen cortex_a77, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77. Must follow AAPCS.
