@@ -29,8 +29,8 @@ void plat_hold_pen_init(struct hold_slot *hold_pen, unsigned int core_count)
 		 * defence in depth against reordering.
 		 */
 		dmbish();
-		hold_pen[i].magic1 = HOLD_MAGIC1;
-		hold_pen[i].magic2 = HOLD_MAGIC2;
+		hold_pen[i].magic1 = HOLD_BOOT_MAGIC1;
+		hold_pen[i].magic2 = HOLD_BOOT_MAGIC2;
 	}
 
 	flush_dcache_range((uintptr_t)hold_pen,

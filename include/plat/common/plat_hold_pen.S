@@ -32,11 +32,11 @@
 	madd	\base, \idx, \tmp, \base
 poll_\@:
 	ldr	\idx, [\base, #HOLD_SLOT_MAGIC1]
-	mov_imm	\tmp, HOLD_MAGIC1
+	mov_imm	\tmp, HOLD_BOOT_MAGIC1
 	cmp	\idx, \tmp
 	b.ne	wait_\@
 	ldr	\idx, [\base, #HOLD_SLOT_MAGIC2]
-	mov_imm	\tmp, HOLD_MAGIC2
+	mov_imm	\tmp, HOLD_BOOT_MAGIC2
 	cmp	\idx, \tmp
 	b.ne	wait_\@
 	ldr	\idx, [\base, #HOLD_SLOT_ENTRY]
@@ -56,11 +56,11 @@ wait_\@:
 	mla	\base, \idx, \tmp, \base
 poll_\@:
 	ldr	\idx, [\base, #HOLD_SLOT_MAGIC1]
-	mov_imm	\tmp, HOLD_MAGIC1
+	mov_imm	\tmp, HOLD_BOOT_MAGIC1
 	cmp	\idx, \tmp
 	bne	wait_\@
 	ldr	\idx, [\base, #HOLD_SLOT_MAGIC2]
-	mov_imm	\tmp, HOLD_MAGIC2
+	mov_imm	\tmp, HOLD_BOOT_MAGIC2
 	cmp	\idx, \tmp
 	bne	wait_\@
 	ldr	\idx, [\base, #HOLD_SLOT_ENTRY]
