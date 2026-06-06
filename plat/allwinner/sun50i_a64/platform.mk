@@ -10,6 +10,7 @@ SUNXI_AMEND_DTB		:=	1
 
 # The differences between the platform are covered by the include files.
 include plat/allwinner/common/allwinner-common.mk
+include plat/allwinner/common/allwinner-common-a53.mk
 
 BL31_SOURCES		+=	drivers/allwinner/axp/axp803.c		\
 				drivers/allwinner/sunxi_rsb.c

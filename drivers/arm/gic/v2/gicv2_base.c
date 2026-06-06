@@ -20,8 +20,12 @@
  * interrupts.
  *****************************************************************************/
 static const interrupt_prop_t arm_interrupt_props[] = {
+#ifdef PLAT_ARM_G1S_IRQ_PROPS
 	PLAT_ARM_G1S_IRQ_PROPS(GICV2_INTR_GROUP0),
+#endif
+#ifdef PLAT_ARM_G0_IRQ_PROPS
 	PLAT_ARM_G0_IRQ_PROPS(GICV2_INTR_GROUP0)
+#endif
 };
 
 static unsigned int target_mask_array[PLATFORM_CORE_COUNT];
