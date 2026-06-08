@@ -142,9 +142,24 @@ then this should be done automatically for you.
 
 More details may be found in the `Gerrit Change-Ids documentation`_.
 
+Optional Automation Trailers
+----------------------------
+
+Projects and workflows built around |TF-A| may use additional machine-readable
+trailers to simplify triage and backporting. For LTS triage, developers may
+add ``LTS-candidate: yes`` in the footer block at the end of the commit
+message to indicate to the LTS maintainers that the patch should be evaluated
+as a candidate for a future LTS release. LTS maintainers retain the final say
+in triage and merge decisions for the LTS branches.
+
+These trailers are optional and should be added in the footer block of the
+commit message. They do not change the standard TF-A commit subject format,
+which should remain a normal Conventional Commits subject such as
+``fix(psci): ...``.
+
 --------------
 
-*Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2021-2026, Arm Limited and Contributors. All rights reserved.*
 
 .. _Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html
