@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2026, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,6 +113,12 @@
 #define RCAR_PRR			UL(0xFFF00044)
 #define RCAR_CPU_HAVE_CAXX		0x00000000U
 #define PRR_CAXX_XX_EN_CLUSTER_MASK	0x00000004U
+#define PRR_PRODUCT_MASK		0x00007F00U
+#define PRR_CUT_MASK			0x000000FFU
+#define PRR_PRODUCT_S4			0x00005A00U	/* R-Car S4 */
+#define PRR_PRODUCT_10			0x00U		/* Ver.1.0 */
+#define PRR_PRODUCT_11			0x01U		/* Ver.1.1 */
+#define PRR_PRODUCT_12			0x02U		/* Ver.1.2 */
 
 /* Memory mapped Generic timer interfaces */
 #define ARM_SYS_CNTCTL_BASE		RCAR_CNTC_BASE

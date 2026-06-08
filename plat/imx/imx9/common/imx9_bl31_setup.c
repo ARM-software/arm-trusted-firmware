@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,8 +29,6 @@
 #include <imx_scmi_client.h>
 #include <plat_imx8.h>
 #include <platform_def.h>
-
-extern gicv3_driver_data_t gic_data;
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
@@ -136,8 +134,8 @@ void bl31_platform_setup(void)
 	 * gicv3_driver_data need to be initialized, the 'USE_GIC_DRIVER'
 	 * will init it again, it should be fine.
 	 */
-	gic_data.gicr_base = PLAT_ARM_GICR_BASE;
-	gicv3_driver_init(&gic_data);
+	gic_set_gicr_base(PLAT_ARM_GICR_BASE);
+	gicv3_driver_init_default();
 	/* Ensure to mark the core as asleep, required for reset case. */
 	gic_cpuif_disable(plat_my_core_pos());
 	/* Clear LPIs */
@@ -151,7 +149,7 @@ void bl31_platform_setup(void)
 	 * done with the workaround - set to 0 to avoid assertion failure during
 	 * gicv3_rdistif_probe() in DEBUG builds
 	 */
-	gic_data.gicr_base = 0;
+	gic_set_gicr_base(0);
 
 	/* get soc info */
 	ele_get_soc_info();

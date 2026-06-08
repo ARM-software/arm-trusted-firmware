@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2015-2025, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2026, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,10 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <common/interrupt_props.h>
 #include <drivers/arm/cci.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv3.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
 #include "mssr.h"
@@ -30,6 +33,21 @@ static const uintptr_t gicr_base_addrs[2] = {
 	PLAT_ARM_GICR_BASE,	/* GICR Base address of the primary CPU */
 	0U			/* Zero Termination */
 };
+
+#if (RCAR_LSI == RCAR_S4)
+static const interrupt_prop_t arm_interrupt_props_s4_rev11_and_older[] = {
+#ifdef PLAT_ARM_G1S_IRQ_PROPS_S4_REV11_AND_OLDER
+	PLAT_ARM_G1S_IRQ_PROPS_S4_REV11_AND_OLDER(INTR_GROUP1S),
+#endif
+#ifdef PLAT_ARM_G0_IRQ_PROPS
+	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0),
+#endif
+#if ENABLE_FEAT_RAS && FFH_SUPPORT
+	INTR_PROP_DESC(PLAT_CORE_FAULT_IRQ, PLAT_RAS_PRI, INTR_GROUP0,
+			GIC_INTR_CFG_LEVEL)
+#endif
+};
+#endif
 
 struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
@@ -54,6 +72,9 @@ void bl31_plat_arch_setup(void)
 {
 	static const uintptr_t BL31_RO_BASE = BL_CODE_BASE;
 	static const uintptr_t BL31_RO_LIMIT = BL_CODE_END;
+#if (RCAR_LSI == RCAR_S4)
+	uint32_t prr;
+#endif
 
 	rcar_configure_mmu_el3(BL31_BASE,
 			       BL31_LIMIT - BL31_BASE,
@@ -62,6 +83,25 @@ void bl31_plat_arch_setup(void)
 	rcar_pwrc_code_copy_to_system_ram();
 
 	gic_set_gicr_frames(gicr_base_addrs);
+
+#if (RCAR_LSI == RCAR_S4)
+	prr = mmio_read_32(RCAR_PRR);
+
+	/* Test if this is R-Car S4, if not, do nothing. */
+	if ((prr & PRR_PRODUCT_MASK) != PRR_PRODUCT_S4) {
+		return;
+	}
+
+	/* Test if this is R-Car S4 rev.1.0 or rev.1.1, if not, do nothing. */
+	if ((prr & PRR_CUT_MASK) > PRR_PRODUCT_11) {
+		/* R-Car S4 rev.1.2 or newer. */
+		return;
+	}
+
+	/* Apply SGI workaround on R-Car S4 rev.1.0 and rev.1.1. */
+	gic_set_interrupt_props(arm_interrupt_props_s4_rev11_and_older,
+				ARRAY_SIZE(arm_interrupt_props_s4_rev11_and_older));
+#endif
 }
 
 void plat_gic_pre_pcpu_init(unsigned int cpu_idx)
