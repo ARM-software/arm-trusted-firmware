@@ -29,9 +29,9 @@ static inline bool is_granule_mgmt_service_fid(uint32_t fid)
 {
 	switch (fid) {
 	case FIRME_GM_GPI_SET_FID:
-	case FIRME_GM_GPI_OP_CONTINUE:
-	case FIRME_GM_L1_GPT_CREATE:
-	case FIRME_GM_L1_GPT_DESTROY:
+	case FIRME_GM_GPI_OP_CONTINUE_FID:
+	case FIRME_GM_L1_GPT_CREATE_FID:
+	case FIRME_GM_L1_GPT_DESTROY_FID:
 		return true;
 	default:
 		return false;
@@ -41,10 +41,10 @@ static inline bool is_granule_mgmt_service_fid(uint32_t fid)
 static inline bool is_ide_key_mgmt_service_fid(uint32_t fid)
 {
 	switch (fid) {
-	case FIRME_IDE_KEYSET_PROG:
-	case FIRME_IDE_KEYSET_GO:
-	case FIRME_IDE_KEYSET_STOP:
-	case FIRME_IDE_KEYSET_POLL:
+	case FIRME_IDE_KEYSET_PROG_FID:
+	case FIRME_IDE_KEYSET_GO_FID:
+	case FIRME_IDE_KEYSET_STOP_FID:
+	case FIRME_IDE_KEYSET_POLL_FID:
 		return true;
 	default:
 		return false;
@@ -63,12 +63,12 @@ static inline bool is_mecid_service_fid(uint32_t fid)
 static inline bool is_attestation_service_fid(uint32_t fid)
 {
 	switch (fid) {
-	case FIRME_ATTEST_PAT_GET:
-	case FIRME_ATTEST_RAK_GET:
-	case FIRME_ATTEST_RAT_SIGN:
-	case FIRME_ATTEST_PAT_EXT_CLAIMS_STAGE:
-	case FIRME_ATTEST_PAT_EXT_CLAIMS_CLEAR:
-	case FIRME_ATTEST_PAT_EXT_CLAIMS_FINALISE:
+	case FIRME_ATTEST_PAT_GET_FID:
+	case FIRME_ATTEST_RAK_GET_FID:
+	case FIRME_ATTEST_RAT_SIGN_FID:
+	case FIRME_ATTEST_PAT_EXT_CLAIMS_STAGE_FID:
+	case FIRME_ATTEST_PAT_EXT_CLAIMS_CLEAR_FID:
+	case FIRME_ATTEST_PAT_EXT_CLAIMS_FINALISE_FID:
 		return true;
 	default:
 		return false;
@@ -78,8 +78,8 @@ static inline bool is_attestation_service_fid(uint32_t fid)
 static inline bool is_integrated_device_mgmt_service_fid(uint32_t fid)
 {
 	switch (fid) {
-	case FIRME_IDEV_OP_START:
-	case FIRME_IDEV_OP_CONTINUE:
+	case FIRME_IDEV_OP_START_FID:
+	case FIRME_IDEV_OP_CONTINUE_FID:
 		return true;
 	default:
 		return false;

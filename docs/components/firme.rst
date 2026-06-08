@@ -58,7 +58,7 @@ Current status
   operation.
 - The IDE key management, MECID management, attestation, and integrated device
   management services are not implemented yet.
-- ``FIRME_GM_GPI_OP_CONTINUE`` is mandatory in the ``1.0 alp2`` specification,
+- ``FIRME_GM_GPI_OP_CONTINUE_FID`` is mandatory in the ``1.0 alp2`` specification,
   but it is not implemented yet.
 
 As a result, the current implementation tracks FIRME ``1.0 alp2`` for
