@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,12 +21,15 @@ int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 
 /*
  * Add dummy implementations of memory management related platform hooks.
- * These can be used to implement platform specific functionality to support
- * a memory sharing/lending operation.
  *
- * Note: The hooks must be located as part of the initial share request and
- * final reclaim to prevent order dependencies with operations that may take
- * place in the normal world without visibility of the SPMC.
+ * Platform implementations may use these hooks to perform ownership and
+ * security-state validation of memory regions supplied through FF-A memory
+ * sharing/lending operations, as well as any platform-specific access
+ * control programming required by the platform security model.
+ *
+ * Note: These hooks must be invoked as part of the initial share request and
+ * final reclaim to prevent ordering dependencies with operations that may
+ * take place in the Normal World without visibility of the SPMC.
  */
 int plat_spmc_shmem_begin(struct ffa_mtd *desc)
 {

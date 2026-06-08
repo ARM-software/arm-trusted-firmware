@@ -86,10 +86,15 @@ Platform Guide
   - plat_spmc_shmem_reclaim
 
 SPMC provides platform hooks related to memory management interfaces.
-These hooks can be used for platform specific implementations like
-for managing access control, programming TZ Controller or MPUs.
-These hooks are called by SPMC before the initial share request completes,
-and after the final reclaim has been completed.
+These hooks can be used for platform specific implementations such as
+managing access control, programming TZ Controllers or MPUs, and
+validating ownership and security state of memory regions supplied
+through FFA_MEM_SHARE and FFA_MEM_LEND requests.
+
+Platform implementations are expected to ensure that memory regions
+accepted for sharing or lending comply with the platform security model
+and enforce any ownership, access control, and security-state checks
+required by the platform.
 
 - Datastore
 
@@ -594,4 +599,4 @@ Client <https://developer.arm.com/documentation/den0006/d/>`__
 
 --------------
 
-*Copyright (c) 2020-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2020-2026, Arm Limited and Contributors. All rights reserved.*
