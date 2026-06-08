@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,8 +48,6 @@ struct spmc_shmem_obj_state {
 };
 
 extern struct spmc_shmem_obj_state spmc_shmem_obj_state;
-extern int plat_spmc_shmem_begin(struct ffa_mtd *desc);
-extern int plat_spmc_shmem_reclaim(struct ffa_mtd *desc);
 
 bool spmc_compatible_version(uint32_t ffa_version, uint16_t major,
 			     uint16_t minor);
