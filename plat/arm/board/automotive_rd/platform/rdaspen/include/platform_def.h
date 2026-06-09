@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,8 @@
 
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+
+#define ARM_RDASPEN_SOC_NAME			"Arm Zena CSS"
 
 #define PLAT_ARM_TRUSTED_SRAM_BASE		UL(0x0)
 #define PLAT_ARM_TRUSTED_SRAM_SIZE		UL(0x00100000)
@@ -295,5 +297,11 @@
 #define AP_RSE_SECURE_MHU_V3_PBX	RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE
 #define AP_RSE_SECURE_MHU_V3_MBX	RDASPEN_CSS_AP_RSE_SECURE_MHU_BASE + \
 						MHU_V3_MBX_FRAME_OFFSET
+
+/* RD-Aspen SID_SOC_ID register bits */
+#define RDASPEN_SYSTEM_ID_BASE		UL(0x1A4A0000)
+#define RDASPEN_SOC_ID_OFFSET		UL(0x50)
+#define RDASPEN_SOC_REV_SHIFT		U(28)
+#define RDASPEN_SOC_VER_SHIFT		U(12)
 
 #endif  /* PLATFORM_DEF_H */
