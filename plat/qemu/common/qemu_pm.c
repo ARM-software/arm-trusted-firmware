@@ -157,7 +157,19 @@ qemu_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
  ******************************************************************************/
 void qemu_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	assert(0);
+	/* Set up the mailbox to prepare for the interrupt coming back up */
+	unsigned pos = plat_my_core_pos();
+	struct hold_slot *hold_base = (struct hold_slot *)PLAT_QEMU_HOLD_BASE;
+
+	/* As we enter the suspend state, mark the special magic numbers in the
+	 * hold pen slot to indicate that this is a suspend entry.
+	 */
+	hold_base[pos].magic1 = HOLD_SUSPEND_MAGIC1;
+	hold_base[pos].magic2 = HOLD_SUSPEND_MAGIC2;
+	hold_base[pos].entry = secure_entrypoint;
+
+	flush_dcache_range((uintptr_t)&hold_base[pos],
+			   sizeof(struct hold_slot));
 }
 
 /*******************************************************************************
@@ -180,7 +192,7 @@ void qemu_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 void qemu_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
-	assert(0);
+	/* Do nothing */
 }
 
 /*******************************************************************************
@@ -233,6 +245,16 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	secure_entrypoint = sec_entrypoint;
 	plat_hold_pen_init((struct hold_slot *)PLAT_QEMU_HOLD_BASE,
 		      PLATFORM_CORE_COUNT);
+
+	/*
+	 * Now bring the secondary cores out of the hold pen from bl1.
+	 */
+	for (unsigned int pos = 0; pos < PLATFORM_CORE_COUNT; pos++) {
+		plat_hold_pen_signal((struct hold_slot *)PLAT_QEMU_HOLD_BASE,
+				     pos,
+				     (uintptr_t)plat_secondary_cold_boot_setup);
+	}
+
 	*psci_ops = &plat_qemu_psci_pm_ops;
 
 	return 0;

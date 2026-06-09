@@ -47,8 +47,18 @@
  * cannot accidentally evict or corrupt another's.
  */
 
-#define HOLD_MAGIC1		UL(0xCAFECAFE)
-#define HOLD_MAGIC2		UL(0xBEEFBEEF)
+#define HOLD_BOOT_MAGIC1	UL(0xCAFECAFE)
+#define HOLD_BOOT_MAGIC2	UL(0xBEEFBEEF)
+
+/*
+ * Magic values for suspend/resume.
+ *
+ * Platforms that support suspend/resume may use these tags to mark
+ * suspend-related hold-pen states and distinguish suspend-related hold-pen
+ * states from the normal boot bring-up path.
+ */
+#define HOLD_SUSPEND_MAGIC1	UL(0xBA5EBA11)
+#define HOLD_SUSPEND_MAGIC2	UL(0xFEEDF00D)
 
 /*
  * All-ones sentinel: no valid entrypoint can live here.

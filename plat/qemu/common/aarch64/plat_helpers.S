@@ -55,6 +55,20 @@ func plat_is_my_cpu_primary
 endfunc plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
+	 * Helper macro to gather the core position into x0, the
+	 * hold pen base address into x1, and the hold pen slot
+	 * size into x2.
+	 *
+	 * This macro uses bl, so lr will be clobbered.
+	 * -----------------------------------------------------
+	 */
+.macro	gather_platinum_trio
+	bl	plat_my_core_pos
+	mov_imm	x1, PLAT_QEMU_HOLD_BASE
+	mov	x2, HOLD_SLOT_SIZE
+.endm
+
+	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
 	 *
 	 * This function performs any platform specific actions
@@ -64,9 +78,37 @@ endfunc plat_is_my_cpu_primary
 	 * -----------------------------------------------------
 	 */
 func plat_secondary_cold_boot_setup
-	bl	plat_my_core_pos
-	mov_imm	x1, PLAT_QEMU_HOLD_BASE
+	gather_platinum_trio
+	/* first check to see if we are about to be suspended */
+	madd	x1, x0, x2, x1
+	ldr	x0, [x1, HOLD_SLOT_MAGIC1]
+	mov_imm x2, HOLD_SUSPEND_MAGIC1
+	cmp x2, x0
+	/* if not, normal mailbox */
+	bne	1f
+	ldr	x0, [x1, HOLD_SLOT_MAGIC2]
+	mov_imm x2, HOLD_SUSPEND_MAGIC2
+	cmp	x2, x0
+	/* if the magic numbers match, we enter the suspend state */
+	beq	2f
+	/* if not, normal mailbox */
+1:
+	gather_platinum_trio
 	plat_hold_pen_wait_and_jump x1, x0, x2
+2:
+	wfi
+	/* if we wake up from wfi, the suspend is considered over.
+	 * We will now clear the magic numbers in the hold pen slot
+	 * to prevent any stale entry from being reused on a future
+	 * warm boot.
+	 */
+	gather_platinum_trio
+	madd	x1, x0, x2, x1
+	mov_imm x2, HOLD_BOOT_MAGIC1
+	str x2, [x1, HOLD_SLOT_MAGIC1]
+	mov_imm x2, HOLD_BOOT_MAGIC2
+	str x2, [x1, HOLD_SLOT_MAGIC2]
+	b	1b
 endfunc plat_secondary_cold_boot_setup
 
 func plat_get_my_entrypoint
