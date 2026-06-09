@@ -92,33 +92,7 @@ static void enable_ns_mcn_pmu(void)
 	}
 }
 
-#if TARGET_PLATFORM == 3
-static void set_mcn_slc_alloc_mode(void)
-{
-	/*
-	 * SLC WRALLOCMODE and RDALLOCMODE are configured by default to
-	 * 0b01 (always alloc), configure both to 0b10 (use bus signal
-	 * attribute from interface).
-	 */
-	for (int i = 0; i < MCN_INSTANCES; i++) {
-		uintptr_t slccfg_ctl_ns = MCN_MPAM_NS_BASE_ADDR(i) +
-			MPAM_SLCCFG_CTL_OFFSET;
-		uintptr_t slccfg_ctl_s = MCN_MPAM_S_BASE_ADDR(i) +
-			MPAM_SLCCFG_CTL_OFFSET;
-
-		mmio_clrsetbits_32(slccfg_ctl_ns,
-				   (SLC_RDALLOCMODE_MASK | SLC_WRALLOCMODE_MASK),
-				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_RDALLOCMODE_SHIFT) |
-				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_WRALLOCMODE_SHIFT));
-		mmio_clrsetbits_32(slccfg_ctl_s,
-				   (SLC_RDALLOCMODE_MASK | SLC_WRALLOCMODE_MASK),
-				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_RDALLOCMODE_SHIFT) |
-				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_WRALLOCMODE_SHIFT));
-	}
-}
-#endif
-
-#if defined(TARGET_FLAVOUR_FPGA) && TARGET_PLATFORM == 4
+#if defined(TARGET_FLAVOUR_FPGA)
 /*
  * Configure MTU tag registers to initialize the MTE carveout.
  * This isn't required for FVP builds, as FVPs do not emulate
@@ -166,10 +140,6 @@ void bl31_platform_setup(void)
 
 	tc_bl31_common_platform_setup();
 	enable_ns_mcn_pmu();
-#if TARGET_PLATFORM == 3
-	set_mcn_slc_alloc_mode();
-	plat_arm_ni_setup(NCI_BASE_ADDR);
-#endif
 
 	/* Initialize SFCP for communications between AP and RSE */
 	sfcp_err = sfcp_init();
@@ -177,7 +147,7 @@ void bl31_platform_setup(void)
 		ERROR("Unable to initialize SFCP: %d\n", sfcp_err);
 		plat_panic_handler();
 	}
-#if defined(TARGET_FLAVOUR_FPGA) && TARGET_PLATFORM == 4
+#if defined(TARGET_FLAVOUR_FPGA)
 	set_mcn_mtu_tag_addr();
 #endif
 }

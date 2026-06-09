@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,9 +10,6 @@
 #include <cpu_macros.S>
 
 #include <c1_pro.h>
-
-#define TC_HANDLER(rev)         plat_reset_handler_tc##rev
-#define PLAT_RESET_HANDLER(rev) TC_HANDLER(rev)
 
 	.globl	plat_arm_calc_core_pos
 	.globl	plat_reset_handler
@@ -74,29 +71,14 @@ func enable_dsu_pmu_el1_access
 	ret
 endfunc enable_dsu_pmu_el1_access
 
-func TC_HANDLER(3)
-	mov	x9, lr
-	bl	mark_extllc_presence
-	bl	enable_dsu_pmu_el1_access
-	mov	lr, x9
-	ret
-endfunc TC_HANDLER(3)
-
-func TC_HANDLER(4)
-	mov	x9, lr
-	bl	mark_extllc_presence
-	bl	enable_dsu_pmu_el1_access
-	mov	lr, x9
-	ret
-endfunc TC_HANDLER(4)
-
 	/* -----------------------------------------------------
 	 * void plat_reset_handler(void);
 	 * -----------------------------------------------------
 	 */
 func plat_reset_handler
 	mov	x8, lr
-	bl	PLAT_RESET_HANDLER(TARGET_PLATFORM)
+	bl	mark_extllc_presence
+	bl	enable_dsu_pmu_el1_access
 	mov	lr, x8
 	ret
 endfunc plat_reset_handler
