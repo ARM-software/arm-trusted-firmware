@@ -336,6 +336,71 @@ unmarshaling macros provided by this framework:
    The PSCI and Test Secure-EL1 Payload Dispatcher services do not follow
    all of the above requirements yet.
 
+Security Considerations: SMC Function ID Validation
+----------------------------------------------------
+
+Every handler receives calls for all function IDs within its registered OEN
+range. Before acting on a call, the handler must validate the internal fields
+of ``smc_fid`` and enforce an explicit binding between the function ID and the
+permitted caller security world.
+
+1. **Extract fields via macros, never compare raw FIDs**
+
+   The ``smc_fid`` parameter contains defined bit fields and reserved bits that
+   may carry undefined values. Use the ``GET_SMC_*`` macros from ``lib/smccc.h``
+   to decompose the identifier before any comparison:
+
+   .. code:: c
+
+       uint32_t oen  = GET_SMC_OEN(smc_fid);   /* bits[29:24] */
+       uint32_t type = GET_SMC_TYPE(smc_fid);  /* bit[31]     */
+       uint32_t cc   = GET_SMC_CC(smc_fid);    /* bit[30]     */
+       uint32_t num  = GET_SMC_NUM(smc_fid);   /* bits[15:0]  */
+
+   Comparing a raw ``smc_fid`` value directly against a constant risks false
+   matches if reserved bits are set by the caller.
+
+2. **Bind each function ID to its permitted caller world**
+
+   Each supported function number should have an explicit allowlist of security
+   worlds. Use the ``flags`` parameter with ``is_caller_non_secure()``,
+   ``is_caller_secure()``, and ``is_caller_realm()`` from ``lib/smccc.h`` to
+   enforce this at the point of dispatch:
+
+   .. code:: c
+
+       switch (GET_SMC_NUM(smc_fid)) {
+       case PLAT_SIP_FUNC_A:          /* NS-only */
+           if (!is_caller_non_secure(flags)) {
+               SMC_RET1(handle, SMC_UNK);
+           }
+           return plat_sip_func_a(x1, x2);
+
+       case PLAT_SIP_FUNC_B:          /* Secure-only */
+           if (!is_caller_secure(flags)) {
+               SMC_RET1(handle, SMC_UNK);
+           }
+           return plat_sip_func_b(x1);
+
+       default:
+           SMC_RET1(handle, SMC_UNK);
+       }
+
+   Absence of an explicit caller-world check is a **Privilege-Blind Forwarding
+   (PBF)** vulnerability: a caller from the wrong security world can invoke a
+   function it was never intended to reach.
+
+3. **Re-check caller world at every forwarding point**
+
+   When a handler forwards a call to a sub-dispatcher, the sub-dispatcher must
+   perform its own caller-world check independently. A check at the outer
+   handler does **not** protect the inner one. If the forwarding path does not
+   re-validate security state, a caller can reach a privileged sub-operation in
+   the wrong world.
+
+   Each handler in the call chain is responsible for its own security-state
+   validation.
+
 Services that contain multiple sub-services
 -------------------------------------------
 
