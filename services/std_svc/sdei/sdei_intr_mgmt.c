@@ -18,6 +18,7 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/cassert.h>
+#include <lib/per_cpu/per_cpu.h>
 #include <services/sdei.h>
 
 #include "sdei_private.h"
@@ -29,8 +30,7 @@
 #define MAX_EVENT_NESTING	2U
 
 /* Per-CPU SDEI state access macro */
-#define sdei_get_this_pe_state()		(&cpu_state[plat_my_core_pos()])
-#define sdei_get_target_pe_state(_pe)	(&cpu_state[plat_core_pos_by_mpidr(_pe)])
+#define sdei_get_this_pe_state()		PER_CPU_CUR(cpu_state)
 
 /* Structure to store information about an outstanding dispatch */
 typedef struct sdei_dispatch_context {
@@ -56,17 +56,31 @@ typedef struct sdei_cpu_state {
 	bool pending_enables;
 } sdei_cpu_state_t;
 
-/* SDEI states for all cores in the system */
-static sdei_cpu_state_t cpu_state[PLATFORM_CORE_COUNT];
+/* SDEI state for each core in the system */
+static PER_CPU_DEFINE(sdei_cpu_state_t, cpu_state);
+
+static sdei_cpu_state_t *sdei_get_target_pe_state(uint64_t target_pe)
+{
+	int cpu = plat_core_pos_by_mpidr(target_pe);
+	unsigned int cpu_idx;
+
+	if (cpu < 0) {
+		return NULL;
+	}
+
+	cpu_idx = (unsigned int)cpu;
+	if (cpu_idx >= PLATFORM_CORE_COUNT) {
+		return NULL;
+	}
+
+	return PER_CPU_BY_INDEX(cpu_state, cpu_idx);
+}
 
 bool sdei_is_target_pe_masked(uint64_t target_pe)
 {
-	int errstat = plat_core_pos_by_mpidr(target_pe);
-	if (errstat >= 0) {
-		const sdei_cpu_state_t *state = &cpu_state[errstat];
-		return state->pe_masked;
-	}
-	return true;
+	const sdei_cpu_state_t *state = sdei_get_target_pe_state(target_pe);
+
+	return (state != NULL) ? state->pe_masked : true;
 }
 
 int64_t sdei_pe_mask(void)
