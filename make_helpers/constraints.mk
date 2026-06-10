@@ -314,6 +314,10 @@ ifeq (${ARCH},aarch32)
                 $(error "ENABLE_SPE_FOR_NS cannot be used with ARCH=aarch32")
 	endif
 
+	ifneq (${ENABLE_FEAT_SPEV1P5},0)
+                $(error "ENABLE_FEAT_SPEV1P5 cannot be used with ARCH=aarch32")
+	endif
+
 	# BRBE is not supported in AArch32
 	ifneq (${ENABLE_BRBE_FOR_NS},0)
                 $(error "ENABLE_BRBE_FOR_NS cannot be used with ARCH=aarch32")
@@ -378,6 +382,12 @@ ifneq (${ENABLE_FEAT_FPMR},0)
                 $(error "ENABLE_FEAT_FPMR requires ENABLE_FEAT_HCX")
 	endif
 endif #(ENABLE_FEAT_FPMR)
+
+ifneq (${ENABLE_FEAT_SPEV1P5},0)
+	ifeq (${ENABLE_SPE_FOR_NS},0)
+                $(error "ENABLE_FEAT_SPEV1P5 requires ENABLE_SPE_FOR_NS")
+	endif
+endif #(ENABLE_FEAT_SPEV1P5)
 
 ifneq (${ENABLE_FEAT_CPA2},0)
 	ifeq (${ENABLE_FEAT_SCTLR2},0)

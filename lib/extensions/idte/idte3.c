@@ -103,6 +103,8 @@ void idte3_init_cached_idregs_per_world(size_t security_state)
 	update_feat_step2_idreg_field(security_state);
 	update_feat_hdbss_idreg_field(security_state);
 	update_feat_hacdbs_idreg_field(security_state);
+	update_feat_spe_exc_idreg_field(security_state);
+	update_feat_spe_nvm_idreg_field(security_state);
 }
 
 int handle_idreg_trap(uint8_t rt, uint64_t idreg, cpu_context_t *ctx, u_register_t flags)

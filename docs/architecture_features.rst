@@ -92,11 +92,11 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +=======================+========+
 | FEAT_PMUv3_EXTPMN     |   NA   |
 +-----------------------+--------+
-| FEAT_SPEv1p5          |   NA   |
+| FEAT_SPEv1p5          |   OK   |
 +-----------------------+--------+
-| FEAT_SPE_EXC          |        |
+| FEAT_SPE_EXC          |   OK   |
 +-----------------------+--------+
-| FEAT_SPE_nVM          |        |
+| FEAT_SPE_nVM          |   OK   |
 +-----------------------+--------+
 | FEAT_TRBEv1p1         |   NA   |
 +-----------------------+--------+
@@ -496,7 +496,8 @@ c) EL3 wants to hide a feature from lower ELs (eg. with ``FEAT_IDTE3``)
 The following is a checklist with guidance on what to do to add a new feature,
 in this case a fictional ``FEAT_ABC``. This is not an exhaustive list on how to
 do this, so please consult with previous such patches and/or maintainers. Please
-consult the Arm ARM on any specifics about the feature itself.
+consult the Arm ARM on any specifics about the feature itself. You can speed
+this process up by using the ``new-cpu-feature`` agent skill.
 
 - Add a feature flag to the build system.
 
