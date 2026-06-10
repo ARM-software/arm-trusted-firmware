@@ -189,7 +189,15 @@ static int32_t fdt_add_uart_info(dt_uart_info_t *info, int node, void *dtb)
 			goto error;
 		}
 
-		info->baud_rate = get_baudrate(dtb);
+		ret = get_baudrate(dtb);
+		if (ret <= 0) {
+			ERROR("Failed to get baud rate from DTB: %d\n",
+			      ret);
+			goto error;
+		}
+		info->baud_rate = (uint32_t)ret;
+		/* Reset ret to 0 after storing baud rate in info->baud_rate */
+		ret = 0;
 
 		if (strncmp(info->compatible, DT_UART_CAD_COMPAT,
 					strlen(DT_UART_CAD_COMPAT)) == 0) {
