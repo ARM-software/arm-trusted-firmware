@@ -568,6 +568,11 @@ this process up by using the ``new-cpu-feature`` agent skill.
 - Enable the feature for the FVP platform in ``plat/arm/board/fvp/platform.mk``,
   setting it to ``2`` (``FEAT_STATE_CHECKED``).
 
+- Finally, do all of this in a single commit. Include the following information:
+  - a brief description of the feature
+  - any tradeoffs that the implementation makes that aren't just the obvious
+  - the version of the Arm ARM used (and link if another document)
+
 - If the feature is optional, enable it in CI in the "allconfig" fragments.
   Those currently happens in a list at the top of
   ``model/base-aemva-common.sh``. Mandatory features are expected to be covered
