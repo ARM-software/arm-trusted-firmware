@@ -287,17 +287,19 @@ int mt_spm_hwctrl(uint32_t type, int set, void *priv)
 	case PLAT_AP_ASSERT_SPM_IRQ:
 		mt_irq_set_pending(spm_irq_num);
 		break;
-	case PLAT_AP_SPM_RESOURCE_REQUEST_UPDATE:
+	case PLAT_AP_SPM_RESOURCE_REQUEST_UPDATE: {
 		struct spm_lp_scen *spmlp;
 
 #if defined(MT_SPM_FEATURE_SUPPORT)
 		mt_spm_idle_generic_get_spm_lp(&spmlp);
 #endif
-		if (!spmlp)
+		if (!spmlp) {
 			return -1;
+		}
 		__spm_set_power_control(spmlp->pwrctrl, *(uint32_t *)priv);
 		ret = __spm_wait_spm_request_ack(*(uint32_t *)priv, SPM_ACK_TIMEOUT_US);
 		break;
+	}
 	default:
 		/* not supported type */
 		ret = -1;
