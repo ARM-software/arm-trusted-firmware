@@ -212,6 +212,15 @@ static const uint8_t sample_platform_token[] = {
 };
 static uint64_t platform_token_offset;
 
+typedef struct {
+	spinlock_t lock;
+	bool active;
+	bool in_call;
+	firme_instance_e owner;
+} fvp_attest_request_t;
+
+static fvp_attest_request_t fvp_attest_request;
+
 int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len, uintptr_t hash,
 				   size_t hash_size, uint64_t *remaining_len)
 {
@@ -221,8 +230,14 @@ int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len, uintptr_t hash,
 		return -EINVAL;
 	}
 
+	rc = firme_attest_plat_begin(FIRME_REALM, hash_size != 0U);
+	if (rc != FIRME_SUCCESS) {
+		return (rc == FIRME_BUSY) ? -EAGAIN : -EINVAL;
+	}
+
 	rc = firme_attest_plat_get_token(FIRME_REALM, buf, *len, hash,
 					 hash_size, len, remaining_len);
+	firme_attest_plat_finish(FIRME_REALM, rc);
 
 	switch (rc) {
 	case FIRME_BUSY:
@@ -236,6 +251,47 @@ int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len, uintptr_t hash,
 	}
 
 	return rc;
+}
+
+int32_t firme_attest_plat_begin(firme_instance_e instance, bool is_new_request)
+{
+	int32_t rc = FIRME_SUCCESS;
+
+	spin_lock(&fvp_attest_request.lock);
+
+	if (fvp_attest_request.in_call) {
+		rc = FIRME_BUSY;
+	} else if (fvp_attest_request.active) {
+		if (is_new_request) {
+			rc = FIRME_BUSY;
+		} else if (fvp_attest_request.owner != instance) {
+			rc = FIRME_DENIED;
+		} else {
+			fvp_attest_request.in_call = true;
+		}
+	} else if (!is_new_request) {
+		rc = FIRME_INVALID_PARAMETERS;
+	} else {
+		fvp_attest_request.active = true;
+		fvp_attest_request.in_call = true;
+		fvp_attest_request.owner = instance;
+	}
+
+	spin_unlock(&fvp_attest_request.lock);
+
+	return rc;
+}
+
+void firme_attest_plat_finish(firme_instance_e instance, int32_t status)
+{
+	(void)instance;
+
+	spin_lock(&fvp_attest_request.lock);
+	fvp_attest_request.in_call = false;
+	if ((status != FIRME_OP_CONFLICT) && (status != FIRME_INCOMPLETE)) {
+		fvp_attest_request.active = false;
+	}
+	spin_unlock(&fvp_attest_request.lock);
 }
 
 /*
@@ -255,6 +311,7 @@ int32_t firme_attest_plat_get_token(firme_instance_e instance,
 	size_t platform_token_size = sizeof(sample_platform_token);
 	size_t local_hunk_len;
 	size_t local_remaining_len;
+	(void)instance;
 	(void)challenge;
 
 	if ((write_size == NULL) || (remaining_size == NULL)) {

@@ -164,6 +164,11 @@ static int32_t firme_attest_pat_get(firme_instance_e instance,
 		return FIRME_INVALID_PARAMETERS;
 	}
 
+	rc = firme_attest_plat_begin(instance, is_new_request);
+	if (rc != FIRME_SUCCESS) {
+		return rc;
+	}
+
 	if (instance == FIRME_NONSECURE) {
 		mmap_rc = mmap_add_dynamic_region(shared_buf_addr,
 						  shared_buf_addr,
@@ -172,6 +177,8 @@ static int32_t firme_attest_pat_get(firme_instance_e instance,
 		if (mmap_rc != 0) {
 			ERROR("mmap_add_dynamic_region failed rc=%d\n",
 			      mmap_rc);
+			firme_attest_plat_finish(instance,
+						 FIRME_INVALID_PARAMETERS);
 			return FIRME_INVALID_PARAMETERS;
 		}
 	}
@@ -203,12 +210,14 @@ unmap:
 			if (mmap_rc != -ENOMEM) {
 				ERROR("%s(): mmap_remove_dynamic_region() failed unexpectedly rc=%d\n",
 				      __func__, mmap_rc);
-				return FIRME_NO_MEMORY;
+				rc = FIRME_NO_MEMORY;
 			}
 
-			return FIRME_INVALID_PARAMETERS;
+			rc = FIRME_INVALID_PARAMETERS;
 		}
 	}
+
+	firme_attest_plat_finish(instance, rc);
 
 	return rc;
 }

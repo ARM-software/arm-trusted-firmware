@@ -59,6 +59,26 @@ uintptr_t firme_plat_shared_buf_addr(firme_instance_e instance,
 				     size_t *plat_buf_page_cnt);
 
 /**
+ * @brief Admit a platform attestation token request.
+ *
+ * Allows platforms to serialize requests and validate continuation ownership.
+ *
+ * @param instance        FIRME instance that requested the token.
+ * @param is_new_request  True for a request with a challenge.
+ *
+ * @return FIRME_SUCCESS if the request may proceed, or a FIRME error code.
+ */
+int32_t firme_attest_plat_begin(firme_instance_e instance, bool is_new_request);
+
+/**
+ * @brief Complete a platform attestation token request.
+ *
+ * @param instance  FIRME instance that requested the token.
+ * @param status    Status returned by the token request.
+ */
+void firme_attest_plat_finish(firme_instance_e instance, int32_t status);
+
+/**
  * @brief Platform hook to retrieve the platform attestation token.
  *
  * A non-zero challenge_size requests a fresh token; zero continues the previous
