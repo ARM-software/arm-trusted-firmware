@@ -158,6 +158,13 @@ encoding follows the PSA client protocol described in the
 restricted to the static handle use case therefore only the ``psa_call`` API is
 implemented.
 
+The RSE ``psa_call`` implementation can return ``PSA_OPERATION_INCOMPLETE``
+when the transport has not received the service response yet. RSE service
+wrapper APIs that provide blocking helper semantics are expected to retry the
+same ``psa_call`` until a final PSA status is returned. Callers should only need
+to handle ``PSA_OPERATION_INCOMPLETE`` for APIs that explicitly document
+non-blocking behaviour.
+
 
 Software and API layers
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -795,6 +802,6 @@ References
 
 --------------
 
-*Copyright (c) 2023-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2026, Arm Limited. All rights reserved.*
 *Copyright (c) 2024, Linaro Limited. All rights reserved.*
 *Copyright (c) 2025, STMicroelectronics - All Rights Reserved*
