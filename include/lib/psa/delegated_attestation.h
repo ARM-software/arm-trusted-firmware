@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -61,7 +61,9 @@
  * key_buf       Pointer to the buffer where the delegated attestation key will
  *               be stored.
  * key_buf_size  Size of allocated buffer for the key, in bytes.
- * key_size      Size of the key that has been returned, in bytes.
+ * key_size      Size of the key that has been returned, in bytes. Set to zero
+ *               when PSA_OPERATION_INCOMPLETE is returned. Unchanged for
+ *               other error statuses.
  * hash_algo     The hash algorithm that will be used later by the owner of the
  *               requested delegated key for binding it to the platform
  *               attestation token.
@@ -90,7 +92,9 @@ rse_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
  * token_buf          Pointer to the buffer where the platform attestation token
  *                    will be stored.
  * token_buf_size     Size of allocated buffer for token, in bytes.
- * token_size         Size of the token that has been returned, in bytes.
+ * token_size         Size of the token that has been returned, in bytes. Set
+ *                    to zero when PSA_OPERATION_INCOMPLETE is returned.
+ *                    Unchanged for other error statuses.
  *
  * Returns error code as specified in psa_status_t.
  *
