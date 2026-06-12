@@ -91,6 +91,8 @@ HW_ASSISTED_COHERENCY := 1
 USE_COHERENT_MEM := 0
 CTX_INCLUDE_AARCH32_REGS := 0
 
+WORKAROUND_CVE_2025_10263 := 1
+
 # indicate the reset vector address can be programmed
 PROGRAMMABLE_RESET_ADDRESS := 1
 
