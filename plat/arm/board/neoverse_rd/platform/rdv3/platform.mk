@@ -189,3 +189,5 @@ override CTX_INCLUDE_SVE_REGS	:= 0
 override CTX_INCLUDE_FPREGS	:= 0
 endif
 endif
+
+WORKAROUND_CVE_2025_10263	:= 1

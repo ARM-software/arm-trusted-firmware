@@ -22,6 +22,8 @@ ERRATA_X4_2897503	:=	1
 ERRATA_X4_2923985	:=	1
 ERRATA_X4_3076789	:=	1
 
+WORKAROUND_CVE_2025_10263 :=	1
+
 include plat/mediatek/build_helpers/mtk_build_helpers.mk
 include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
