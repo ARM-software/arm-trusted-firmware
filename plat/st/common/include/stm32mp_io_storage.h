@@ -49,6 +49,10 @@
 #endif
 #endif /* PSA_FWU_SUPPORT */
 
+#ifndef STM32MP_NAND_FIP_RECOVERY_OFFSET
+#define STM32MP_NAND_FIP_RECOVERY_OFFSET	U(0)
+#endif
+
 /*
  * Only used for MTD devices that need some backup blocks.
  * Must define a maximum size for a partition.
