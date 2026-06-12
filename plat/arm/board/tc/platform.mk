@@ -137,6 +137,8 @@ endif
 
 # CPU libraries for TARGET_PLATFORM=4
 ifeq (${TARGET_PLATFORM}, 4)
+WORKAROUND_CVE_2025_10263 :=	1
+
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/c1_pro.S \
 			lib/cpus/aarch64/c1_nano.S \
 			lib/cpus/aarch64/c1_ultra.S
