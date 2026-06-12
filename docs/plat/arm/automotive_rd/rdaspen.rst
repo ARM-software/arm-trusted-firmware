@@ -102,11 +102,17 @@ Build Procedure (TF-A only)
    FIP image resides inside a GPT partition on Secure Flash.
 
    The ``MEASURED_BOOT`` flag is also optional. It must be enabled in order to
-   enable measurement of FW images and data.
+   enable measurement of firmware images and configuration data. When
+   ``MEASURED_BOOT=1`` is set, ``RDASPEN_ENABLE_RSE_COMMS_BL2`` is enabled
+   automatically because the measured boot flow requires BL2 communication
+   with the RSE.
+
+   ``RDASPEN_ENABLE_RSE_COMMS_BL2`` includes the RSE communication sources in the
+   RD-Aspen BL2 build independently of ``MEASURED_BOOT``.
 
 --------------
 
-*Copyright (c) 2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2025-2026, Arm Limited. All rights reserved.*
 
 .. _Prerequisites:  https://trustedfirmware-a.readthedocs.io/en/latest/getting_started/prerequisites.html
 .. _Trusted Board Boot (TBB): https://trustedfirmware-a.readthedocs.io/en/latest/design/trusted-board-boot.html
