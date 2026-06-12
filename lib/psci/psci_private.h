@@ -137,7 +137,17 @@ typedef struct non_cpu_pwr_domain_node {
 	 * TODO: Figure out whether to whether using pointer is more efficient.
 	 */
 	unsigned int parent_node;
+#if PSCI_OS_INIT_MODE
+	/*
+	 * The starting index of the first immediate child. This index refers to
+	 * either the psci_cpu_pd_nodes[] or psci_non_cpu_pd_nodes[] array, this
+	 * can determined by the 'level' field.
+	 */
+	unsigned int first_child_idx;
 
+	/* The number of immediate child nodes. */
+	unsigned int num_children;
+#endif
 	plat_local_state_t local_state;
 
 	unsigned char level;
