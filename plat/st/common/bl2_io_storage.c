@@ -311,6 +311,14 @@ static void boot_spi_nor(boot_api_context_t *boot_context)
 #endif /* STM32MP_SPI_NOR */
 
 #if STM32MP_RAW_NAND || STM32MP_SPI_NAND
+/* Backup blocks remaining after the primary is tried by the caller. */
+static unsigned int nand_backup_block_count(void)
+{
+	unsigned int nb = PLATFORM_MTD_MAX_PART_SIZE / nand_block_sz;
+
+	return (nb != 0U) ? (nb - 1U) : 0U;
+}
+
 /*
  * This function returns 0 if it can find an alternate
  * image to be loaded or a negative errno otherwise.
@@ -326,7 +334,7 @@ static int try_nand_backup_partitions(unsigned int image_id)
 	}
 
 	if (backup_id != image_id) {
-		backup_block_nb = PLATFORM_MTD_MAX_PART_SIZE / nand_block_sz;
+		backup_block_nb = nand_backup_block_count();
 		backup_id = image_id;
 	}
 
