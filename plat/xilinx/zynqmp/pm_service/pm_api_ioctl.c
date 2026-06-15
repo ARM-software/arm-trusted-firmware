@@ -785,7 +785,7 @@ enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask, uint32_t flag)
 
 	for (i = 0U; i < ARRAY_SIZE(supported_ids); i++) {
 		ioctl_id = supported_ids[i];
-		if (ioctl_id >= 64U) {
+		if (ioctl_id >= (uint8_t)IOCTL_MAX_ID) {
 			ret = PM_RET_ERROR_NOTSUPPORTED;
 			break;
 		}
