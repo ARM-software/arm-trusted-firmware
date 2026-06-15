@@ -382,8 +382,7 @@
 	/* Found, skip more checks */
 	beq	1f
 	mrs	\reg, ID_AA64ISAR2_EL1
-	mov_imm	\clobber, ((ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_SHIFT) \
-			 | (ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT))
+	mov_imm	\clobber, (MASK(ID_AA64ISAR2_GPA3) | MASK(ID_AA64ISAR2_APA3))
 	tst	\reg, \clobber
 	1:
 	.endm
