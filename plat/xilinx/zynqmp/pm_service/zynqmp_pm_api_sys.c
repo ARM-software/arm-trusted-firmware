@@ -818,10 +818,6 @@ enum pm_ret_status check_api_dependency(uint8_t id, uint32_t flag)
 
 	for (i = 0U; i < ARRAY_SIZE(api_dep_table); i++) {
 		if (api_dep_table[i].id == id) {
-			if (api_dep_table[i].api_id == 0U) {
-				break;
-			}
-
 			ret = fw_api_version(api_dep_table[i].api_id,
 					     &version_type, 1, flag);
 			if (ret != PM_RET_SUCCESS) {
