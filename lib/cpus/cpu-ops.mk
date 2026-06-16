@@ -45,6 +45,13 @@ CPU_FLAG_LIST += WORKAROUND_CVE_2024_5660
 WORKAROUND_CVE_2025_0647		?=1
 CPU_FLAG_LIST += WORKAROUND_CVE_2025_0647
 
+# Flag to enable the CVE-2025-10263 workaround. The platform should enable this
+# flag if it contains at least one affected CPU. It is disabled by default since
+# if any affected core is present, it must unconditionally be applied on all
+# CPUs in the platform.
+WORKAROUND_CVE_2025_10263		?=0
+CPU_FLAG_LIST += WORKAROUND_CVE_2025_10263
+
 # Flag to enable the C1-Pro CVE-2026-0995 workaround.
 # Platforms that contain affected C1-Pro CPUs must explicitly enable this
 # flag and include lib/cpus/aarch64/c1_pro_pubsub.c in BL31_SOURCES.
