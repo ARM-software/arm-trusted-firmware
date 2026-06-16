@@ -93,15 +93,18 @@ endif
 # This handles preprocessing of custom package linker scripts
 # and generation of the final consolidated plat.ld.S
 #
-# Two-stage preprocessing using TF-A's standard C preprocessor:
+# Two-stage preprocessing using TF-A's linker-script preprocessing flow:
 # Stage 1: Preprocess custom_pkg.ld.S files
 #   Input: custom_pkg.ld.S (contains package-specific macros)
-#   Process: $($(ARCH)-cpp) -E -P with ASFLAGS containing package macro definitions
+#   Process: $($(ARCH)-cpp) -E -P -x assembler-with-cpp with BL31 linker-script
+#            flags plus package macro definitions from ASFLAGS
 #   Output: custom_pkg.ld.pp (macros expanded)
 #
-# Stage 2: Preprocess template with all preprocessed scripts included
-#   Input: plat.ld.S.tpl (contains #include CUSTOM_PKG_LD_SCRIPTS_PP)
-#   Process: $($(ARCH)-cpp) -E -P with all macro definitions
+# Stage 2: Generate a wrapper file and preprocess the template through it
+#   Input: plat.ld.S.tpl (contains #include CUSTOM_PKG_LD_WRAPPER)
+#   Process: Generate custom_pkg_includes.ld.h with direct #include lines for
+#            the preprocessed scripts, then preprocess the template with the
+#            same BL31 linker-script flags
 #   Output: build/versal2/release/bl31/plat.ld.S (final linker script)
 # ============================================================================
 
@@ -112,24 +115,41 @@ BL31_BUILD_DIR := $(BUILD_DIR)/bl31
 # Linker script template and output
 PLAT_LD_TEMPLATE := plat/amd/versal2/plat.ld.S.tpl
 PLAT_LD_SCRIPT := $(BL31_BUILD_DIR)/plat.ld.S
+CUSTOM_PKG_LD_WRAPPER := $(BL31_BUILD_DIR)/custom_pkg_includes.ld.h
+CUSTOM_PKG_BL31_LD_CPPFLAGS = $(BL31_CPPFLAGS) -DIMAGE_BL31 \
+	$(addprefix -I,$(BL31_INCLUDE_DIRS))
+CUSTOM_PKG_LD_ASFLAGS = $(filter-out -Wa%,$(ASFLAGS))
+CUSTOM_PKG_LD_PPFLAGS = -D__LINKER__ $(CUSTOM_PKG_BL31_LD_CPPFLAGS) \
+	$(CUSTOM_PKG_LD_INCLUDES) $(CUSTOM_PKG_LD_ASFLAGS)
 
 # Rule 1: Preprocess individual custom_pkg.ld.S files
-# Uses TF-A's standard architecture-specific C preprocessor
-# Includes custom package include directories for proper header resolution
+# Use TF-A's standard .ld.S preprocessing flow so armclang picks up the
+# configured target triple and BL31 linker-script defines.
 %.ld.pp: %.ld.S
 	@echo "  PP      $<"
-	$(Q)$($(ARCH)-cpp) -E -P $(CUSTOM_PKG_LD_INCLUDES) $(ASFLAGS) -o $@ $<
+	$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp \
+		$(TF_CFLAGS) \
+		$(CUSTOM_PKG_LD_PPFLAGS) \
+		-o $@ $<
 
 # Rule 2: Generate final plat.ld.S from template + preprocessed scripts
-# Uses TF-A's standard architecture-specific C preprocessor
-# Includes custom package include directories for proper header resolution
-$(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_SCRIPTS_PP)
+# Use a generated wrapper include file instead of passing raw absolute paths
+# through a preprocessor macro for #include.
+$(CUSTOM_PKG_LD_WRAPPER): $(CUSTOM_PKG_LD_SCRIPTS_PP)
 	@echo "  GEN     $@"
 	@mkdir -p $(BL31_BUILD_DIR)
-	$(Q)$($(ARCH)-cpp) -E -P \
-		-DCUSTOM_PKG_LD_SCRIPTS_PP="$(CUSTOM_PKG_LD_SCRIPTS_PP)" \
-		$(CUSTOM_PKG_LD_INCLUDES) \
-		$(ASFLAGS) \
+	@tmp=$@.tmp; rm -f $$tmp; : > $$tmp; \
+	for f in $(CUSTOM_PKG_LD_SCRIPTS_PP); do \
+		echo "#include \"$$f\"" >> $$tmp; \
+	done; \
+	mv $$tmp $@
+
+$(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_WRAPPER)
+	@echo "  GEN     $@"
+	$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp \
+		'-DCUSTOM_PKG_LD_WRAPPER="$(CUSTOM_PKG_LD_WRAPPER)"' \
+		$(TF_CFLAGS) \
+		$(CUSTOM_PKG_LD_PPFLAGS) \
 		-o $@ \
 		$(PLAT_LD_TEMPLATE)
 
