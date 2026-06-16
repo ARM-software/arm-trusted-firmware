@@ -105,6 +105,8 @@ $(warning QTISECLIB_PATH is not provided while building, using stub implementati
 		Please refer to documentation for more details \
 		THIS FIRMWARE WILL NOT BOOT!)
 
+include drivers/qti/smmu/smmu.mk
+
 PLAT_INCLUDES   +=      -Iinclude/drivers/qti/qtimer/${CHIPSET} \
 			-Iinclude/drivers/qti/watchdog/${CHIPSET}
 

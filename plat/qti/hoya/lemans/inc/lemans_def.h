@@ -28,6 +28,10 @@
 #define QTI_PWR_LVL2			MPIDR_AFFLVL2
 #define QTI_PWR_LVL3			MPIDR_AFFLVL3
 
+#define APPS_SMMU_BASE			0x15000000
+#define GPU_SMMU_BASE			0x03DA0000
+#define PCIE_SMMU_BASE			0x15200000
+
 /*
  *  Macros for local power states encoded by State-ID field
  *  within the power-state parameter.
