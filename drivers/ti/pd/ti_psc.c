@@ -137,6 +137,15 @@ void ti_psc_pd_wait(struct ti_device *dev, struct ti_psc_pd *pd)
 	uint32_t psc_ptstat = PSC_PTSTAT;
 	ti_pd_idx_t psc_idx    = ti_psc_pd_idx(dev, pd);
 
+	/*
+	 * Skip waiting for power domains with TI_PSC_PD_SKIP_WAIT flag.
+	 * Used for domains where transitions complete based on hardware
+	 * conditions rather than PSC status register updates.
+	 */
+	if ((get_psc_pd_data(dev, pd)->flags & TI_PSC_PD_SKIP_WAIT) != 0U) {
+		return;
+	}
+
 	if (0U == (get_psc_pd_data(dev, pd)->flags & TI_PSC_PD_ALWAYSON)) {
 		uint32_t retry_count = PSC_TRANSITION_RETRY_COUNT;
 		/* power domain >= 32 uses PSC_PTSTAT_H register */
