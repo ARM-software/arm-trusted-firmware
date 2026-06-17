@@ -11,6 +11,7 @@
 
 #if ENABLE_BRBE_FOR_NS
 void brbe_enable(cpu_context_t *ctx);
+void brbe_enable_el3(void);
 void brbe_start_recording(void);
 void brbe_stop_recording(void);
 void _brbe_dump_branch_records(void);
@@ -30,6 +31,9 @@ static inline void brbe_dump_branch_records(void)
 }
 #else
 static inline void brbe_enable(cpu_context_t *ctx)
+{
+}
+static inline void brbe_enable_el3(void)
 {
 }
 static inline void brbe_start_recording(void)

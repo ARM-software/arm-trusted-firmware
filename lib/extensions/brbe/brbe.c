@@ -149,6 +149,15 @@ void brbe_enable(cpu_context_t *ctx)
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
+void brbe_enable_el3(void)
+{
+	/* Synchronize any branches that might have been captured so far.
+	 * Recording should be disabled by now  */
+	isb();
+	/* rule SYLMQQ says to do this. Is this in scope of the threat model? */
+	brbiall();
+}
+
 static void select_bank(uint8_t bank)
 {
 	u_register_t brbfcr_val = read_brbfcr_el1();

@@ -790,6 +790,10 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 		write_sctlr2_el3(read_sctlr2_el3() | SCTLR2_EnANERR_BIT);
 	}
 
+	if (is_feat_brbe_supported()) {
+		brbe_enable_el3();
+	}
+
 	pmuv3_init_el3();
 
 	/* NOTE: must be done last, makes the configuration immutable */
