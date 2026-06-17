@@ -54,6 +54,13 @@ Other configuration flags:
   | Default: stm32mp157c-ev1.dtb
 - | ``DWL_BUFFER_BASE``: the 'serial boot' load address of FIP,
   | default location (end of the first 128MB) is used when absent
+- | ``STM32MP_FORCE_MTD_START_OFFSET``: to force the FIP offset on MTD devices.
+  | Requires PSA_FWU_SUPPORT=0.
+  | Default: 0x80000 on NOR, 0x200000 on NAND
+- | ``STM32MP_NAND_FIP_RECOVERY_OFFSET``: NAND offset of a recovery FIP, tried when
+  | the active FIP and its backup blocks are exhausted. Requires PSA_FWU_SUPPORT=0.
+  | Use a partition the same size as the active FIP.
+  | Default: 0 (disabled)
 - | ``STM32MP_RECONFIGURE_CONSOLE``: to re-configure crash console (especially after BL2).
   | Default: 0 (disabled)
 - | ``STM32MP_UART_BAUDRATE``: to select UART baud rate.

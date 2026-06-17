@@ -267,6 +267,12 @@ ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND}),)
 ifneq (${STM32MP_FORCE_MTD_START_OFFSET},)
 $(eval $(call add_define_val,STM32MP_NAND_FIP_OFFSET,${STM32MP_FORCE_MTD_START_OFFSET}))
 endif
+ifneq (${STM32MP_NAND_FIP_RECOVERY_OFFSET},)
+ifneq (${PSA_FWU_SUPPORT},0)
+$(error STM32MP_NAND_FIP_RECOVERY_OFFSET requires PSA_FWU_SUPPORT=0)
+endif
+$(eval $(call add_define_val,STM32MP_NAND_FIP_RECOVERY_OFFSET,${STM32MP_NAND_FIP_RECOVERY_OFFSET}))
+endif
 BL2_SOURCES			+=	drivers/mtd/nand/core.c
 endif
 
