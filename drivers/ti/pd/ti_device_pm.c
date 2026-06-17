@@ -137,3 +137,87 @@ void ti_device_set_retention(struct ti_device *device_ptr, bool retention)
 		ti_soc_device_ret_disable(device_ptr);
 	}
 }
+
+/**
+ * ti_device_id_disable_clocks() - Disable all clocks for a device
+ * @idx: The device index
+ */
+void ti_device_id_disable_clocks(ti_dev_idx_t idx)
+{
+	struct ti_device *dev;
+	const struct ti_dev_data *data;
+	int32_t i;
+
+	dev = ti_device_lookup(idx);
+
+	assert(dev != NULL);
+
+	data = ti_get_dev_data(dev);
+
+	for (i = (int32_t)data->n_clocks - 1; i >= 0; i--) {
+		ti_device_clk_disable(dev, (uint16_t)i);
+	}
+}
+
+/**
+ * ti_device_id_power_down() - Power down a device without touching clocks
+ * @idx: The device index
+ */
+void ti_device_id_power_down(ti_dev_idx_t idx)
+{
+	struct ti_device *dev;
+
+	dev = ti_device_lookup(idx);
+
+	assert(dev != NULL);
+
+	dev->flags &= ~(uint32_t)TI_DEV_FLAG_POWER_ON_ENABLED;
+
+	ti_soc_device_disable(dev, false);
+
+	ti_device_set_retention(dev, false);
+}
+
+/**
+ * ti_device_id_enable_clocks() - Enable all clocks for a device
+ * @idx: The device index
+ *
+ * Enables all clocks associated with the specified device.
+ */
+void ti_device_id_enable_clocks(ti_dev_idx_t idx)
+{
+	struct ti_device *dev;
+	const struct ti_dev_data *data;
+	uint16_t i;
+
+	dev = ti_device_lookup(idx);
+
+	assert(dev != NULL);
+
+	data = ti_get_dev_data(dev);
+
+	for (i = 0U; i < data->n_clocks; i++) {
+		ti_device_clk_enable(dev, i);
+	}
+}
+
+/**
+ * ti_device_id_power_up() - Power up a device without touching clocks
+ * @idx: The device index
+ *
+ * Powers up the specified device without touching clocks.
+ */
+void ti_device_id_power_up(ti_dev_idx_t idx)
+{
+	struct ti_device *dev;
+
+	dev = ti_device_lookup(idx);
+
+	assert(dev != NULL);
+
+	ti_device_set_retention(dev, true);
+
+	dev->flags |= (uint32_t)TI_DEV_FLAG_POWER_ON_ENABLED;
+
+	ti_soc_device_enable(dev);
+}

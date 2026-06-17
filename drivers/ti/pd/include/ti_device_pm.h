@@ -17,6 +17,8 @@
 
 #include <stdbool.h>
 
+#include <ti_device.h>
+
 /**
  * ti_soc_device_get_state() - Get the current device state (SoC specific impl.)
  * @dev: The device to query.
@@ -143,6 +145,48 @@ static inline void ti_device_set_reset_iso(struct ti_device *dev, bool enable)
 {
 	ti_soc_device_set_reset_iso(dev, enable);
 }
+
+/**
+ * ti_device_id_disable_clocks() - Disable all clocks for a device
+ * @idx: The device index
+ *
+ * Disables all clocks associated with the specified device.
+ *
+ * Must be paired with ti_device_id_power_down() to complete the
+ * device disable sequence.
+ */
+void ti_device_id_disable_clocks(ti_dev_idx_t idx);
+
+/**
+ * ti_device_id_power_down() - Power down a device without touching clocks
+ * @idx: The device index
+ *
+ * Powers down the specified device without touching clocks. This function
+ * is designed to be called when clock disable operations will be done by
+ * ti_device_id_disable_clocks()
+ */
+void ti_device_id_power_down(ti_dev_idx_t idx);
+
+/**
+ * ti_device_id_enable_clocks() - Enable all clocks for a device
+ * @idx: The device index
+ *
+ * Enables all clocks associated with the specified device.
+ *
+ * Must be paired with ti_device_id_power_up() to complete the
+ * device enable sequence.
+ */
+void ti_device_id_enable_clocks(ti_dev_idx_t idx);
+
+/**
+ * ti_device_id_power_up() - Power up a device without touching clocks
+ * @idx: The device index
+ *
+ * Powers up the specified device without touching clocks. Should be
+ * paired with ti_device_id_enable_clocks() to complete the device
+ * enable sequence.
+ */
+void ti_device_id_power_up(ti_dev_idx_t idx);
 
 /* Return values for ti_device_get_state() and ti_soc_device_get_state() */
 #define TI_DEVICE_STATE_DISABLED        0U /* Module is off (SwRstDisable) */
