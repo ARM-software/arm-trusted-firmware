@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -152,15 +152,93 @@ static void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
 }
 
 /**
+ * versal_pwr_domain_off() - This function performs actions to turn off core.
+ * @target_state: Targated state.
+ *
+ */
+static void versal_pwr_domain_off(const psci_power_state_t *target_state)
+{
+	uint32_t ret, fw_api_version, version_type[RET_PAYLOAD_ARG_CNT] = {0U};
+	uint32_t cpu_id = plat_my_core_pos();
+	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (proc == NULL) {
+		return;
+	}
+
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
+			__func__, i, target_state->pwr_domain_state[i]);
+	}
+
+	/* Prevent interrupts from spuriously waking up this cpu */
+	plat_versal_gic_cpuif_disable();
+
+	/*
+	 * Send request to PMC to power down the appropriate APU CPU
+	 * core.
+	 * According to PSCI specification, CPU_off function does not
+	 * have resume address and CPU core can only be woken up
+	 * invoking CPU_on function, during which resume address will
+	 * be set.
+	 */
+	ret = (uint32_t)pm_feature_check((uint32_t)PM_SELF_SUSPEND,
+					 &version_type[0], NON_SECURE);
+	if (ret == (uint32_t)PM_RET_SUCCESS) {
+		fw_api_version = version_type[0] & 0xFFFFU;
+		if (fw_api_version >= 3U) {
+			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
+					      NON_SECURE);
+		} else {
+			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+					      NON_SECURE);
+		}
+	}
+}
+
+/**
  * versal_system_off() - This function sends the system off request to firmware.
  *                       This function does not return.
  *
  */
 static void __dead2 versal_system_off(void)
 {
+	psci_power_state_t target_state;
+	uint32_t uret;
+	uint64_t timeout;
+	enum pm_ret_status ret;
+
+	request_cpu_pwrdwn();
+
 	/* Send the power down request to the PMC */
-	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+	ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
 				 pm_get_shutdown_scope(), NON_SECURE);
+
+	if (ret != PM_RET_SUCCESS) {
+		ERROR("System shutdown failed\n");
+	}
+
+	/*
+	 * Wait for system shutdown request completed and idle callback
+	 * not received.
+	 */
+	timeout = timeout_init_us(IDLE_CB_WAIT_TIMEOUT);
+	do {
+		uret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+					     apu_ipi.remote_ipi_id);
+		udelay(100);
+	} while ((uret != IPI_MB_STATUS_RECV_PENDING) && !timeout_elapsed(timeout));
+
+	if (uret != IPI_MB_STATUS_RECV_PENDING) {
+		WARN("Timed out waiting for system shutdown acknowledgment\n");
+	}
+
+	/* Request the platform to power this core down. */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+
+	versal_pwr_domain_off(&target_state);
 
 	while (true) {
 		wfi();
@@ -216,51 +294,6 @@ static int32_t versal_validate_ns_entrypoint(uint64_t ns_entrypoint)
 	}
 
 	return ret;
-}
-
-/**
- * versal_pwr_domain_off() - This function performs actions to turn off core.
- * @target_state: Targated state.
- *
- */
-static void versal_pwr_domain_off(const psci_power_state_t *target_state)
-{
-	uint32_t ret, fw_api_version, version_type[RET_PAYLOAD_ARG_CNT] = {0U};
-	uint32_t cpu_id = plat_my_core_pos();
-	const struct pm_proc *proc = pm_get_proc(cpu_id);
-
-	if (proc == NULL) {
-		return;
-	}
-
-	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
-		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
-			__func__, i, target_state->pwr_domain_state[i]);
-	}
-
-	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_versal_gic_cpuif_disable();
-
-	/*
-	 * Send request to PMC to power down the appropriate APU CPU
-	 * core.
-	 * According to PSCI specification, CPU_off function does not
-	 * have resume address and CPU core can only be woken up
-	 * invoking CPU_on function, during which resume address will
-	 * be set.
-	 */
-	ret = (uint32_t)pm_feature_check((uint32_t)PM_SELF_SUSPEND,
-					 &version_type[0], NON_SECURE);
-	if (ret == (uint32_t)PM_RET_SUCCESS) {
-		fw_api_version = version_type[0] & 0xFFFFU;
-		if (fw_api_version >= 3U) {
-			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
-					      NON_SECURE);
-		} else {
-			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-					      NON_SECURE);
-		}
-	}
 }
 
 /**

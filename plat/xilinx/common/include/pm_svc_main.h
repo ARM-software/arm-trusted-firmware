@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,9 @@
 
 #define PASS_THROUGH_FW_CMD_ID	U(0xfff)
 #define API_ID_MASK		U(0xff)
+
+/* 1 sec of wait timeout for receiving idle callback */
+#define IDLE_CB_WAIT_TIMEOUT		(1000000U)
 
 /******************************************************************************/
 /**

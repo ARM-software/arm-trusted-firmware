@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -286,9 +286,42 @@ exit_label:
  */
 static void __dead2 versal_net_system_off(void)
 {
+	psci_power_state_t target_state;
+	uint32_t uret;
+	uint64_t timeout;
+	enum pm_ret_status ret;
+
+	request_cpu_pwrdwn();
+
 	/* Send the power down request to the PMC */
-	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+	ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
 				 pm_get_shutdown_scope(), NON_SECURE);
+
+	if (ret != PM_RET_SUCCESS) {
+		ERROR("System shutdown failed\n");
+	}
+
+	/*
+	 * Wait for system shutdown request completed and idle callback
+	 * not received.
+	 */
+	timeout = timeout_init_us(IDLE_CB_WAIT_TIMEOUT);
+	do {
+		uret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+					     apu_ipi.remote_ipi_id);
+		udelay(100);
+	} while ((uret != IPI_MB_STATUS_RECV_PENDING) && !timeout_elapsed(timeout));
+
+	if (uret != IPI_MB_STATUS_RECV_PENDING) {
+		WARN("Timed out waiting for system shutdown acknowledgment\n");
+	}
+
+	/* Request the platform to power this core down. */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+
+	versal_net_pwr_domain_off(&target_state);
 
 	while (true) {
 		wfi();

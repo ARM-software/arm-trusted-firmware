@@ -28,9 +28,6 @@
 
 static uintptr_t sec_entry;
 
-/* 1 sec of wait timeout for receiving idle callback */
-#define IDLE_CB_WAIT_TIMEOUT	(1000000U)
-
 static int32_t versal2_pwr_domain_on(u_register_t mpidr)
 {
 	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
@@ -296,6 +293,10 @@ static void __dead2 versal2_system_off(void)
 					     apu_ipi.remote_ipi_id);
 		udelay(100);
 	} while ((uret != IPI_MB_STATUS_RECV_PENDING) && !timeout_elapsed(timeout));
+
+	if (uret != IPI_MB_STATUS_RECV_PENDING) {
+		WARN("Timed out waiting for system shutdown acknowledgment\n");
+	}
 
 	(void)psci_cpu_off();
 
