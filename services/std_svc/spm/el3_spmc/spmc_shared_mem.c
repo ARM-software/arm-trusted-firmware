@@ -12,6 +12,7 @@
 #include <lib/object_pool.h>
 #include <lib/spinlock.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
 #include <services/ffa_svc.h>
 #include "spmc.h"
 #include "spmc_shared_mem.h"

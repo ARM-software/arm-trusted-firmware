@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -469,7 +469,10 @@ int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 				const void *pm_addr);
 #endif
 #if defined(SPMC_AT_EL3)
+struct ffa_mtd;
 int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size);
+int plat_spmc_shmem_begin(struct ffa_mtd *desc);
+int plat_spmc_shmem_reclaim(struct ffa_mtd *desc);
 #endif
 
 /*******************************************************************************
