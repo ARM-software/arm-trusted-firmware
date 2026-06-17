@@ -303,9 +303,13 @@ To make a new minor release (e.g. 2.x.y → 2.x.y+1), follow these steps.
    the patch/all patches in the stack. The other LTS maintainers will provide
    MR+1 and COR+1 votes. If the CI is OK and votes V+1, and if the
    Maintainer-Review+1 (MR+1), Code-Owner-Review+1 (COR+1), and V+1 votes are
-   present, Gerrit will automatically merge the patch. LTS maintainers will then
-   trigger a Jenkins job that will take care of the release (tag, mail, and
-   readthedocs update).
+   present, Gerrit will automatically merge the patch.
+#. Once the patch stack is merged, LTS maintainers will then manually trigger the Jenkins
+   ``tf-a-lts-create-release`` job for the target LTS branch/release. This job
+   generates the changelog and triggers the follow-up jobs
+   ``tf-a-lts-release-tagged``, ``tf-a-lts-release-docs`` and
+   ``tf-a-lts-release-mail``. These jobs tag the release, tag the
+   documentation and send the release announcement email respectively.
 #. Some features may also require updates in other repositories (tf-a-ci-scripts,
    tf-a-job-configs or tf-a-tests...). For tf-a-job-configs, there are no LTS branches, but
    dedicated scripts for each LTS version which have to be updated manually. This is the case
