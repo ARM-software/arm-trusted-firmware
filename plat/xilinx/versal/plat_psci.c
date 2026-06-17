@@ -198,10 +198,8 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 
 /**
  * versal_system_off() - This function sends the system off request to firmware.
- *                       This function does not return.
- *
  */
-static void __dead2 versal_system_off(void)
+static void versal_system_off(void)
 {
 	psci_power_state_t target_state;
 	uint32_t uret;
@@ -233,26 +231,24 @@ static void __dead2 versal_system_off(void)
 		WARN("Timed out waiting for system shutdown acknowledgment\n");
 	}
 
-	/* Request the platform to power this core down. */
+	/*
+	 * Power off this core via the platform hook; the generic PSCI framework
+	 * completes the architectural power-down after this handler returns.
+	 */
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 	}
 
 	versal_pwr_domain_off(&target_state);
-
-	while (true) {
-		wfi();
-	}
 }
 
 /**
  * versal_system_reset() - This function sends the reset request to firmware
- *                         for the system to reset.  This function does not
- *			   return.
- *
+ *                         for the system to reset.
  */
-static void __dead2 versal_system_reset(void)
+static void versal_system_reset(void)
 {
+	psci_power_state_t target_state;
 	uint32_t ret, timeout = 10000U;
 
 	request_cpu_pwrdwn();
@@ -277,11 +273,15 @@ static void __dead2 versal_system_reset(void)
 		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
 	}
 
-	(void)psci_cpu_off();
-
-	while (true) {
-		wfi();
+	/*
+	 * Power off this core via the platform hook; the generic PSCI framework
+	 * completes the architectural power-down after this handler returns.
+	 */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 	}
+
+	versal_pwr_domain_off(&target_state);
 }
 
 static int32_t versal_validate_ns_entrypoint(uint64_t ns_entrypoint)

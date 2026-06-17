@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -168,7 +168,7 @@ static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_st
  * ZynqMP handlers to shutdown/reboot the system
  ******************************************************************************/
 
-static void __dead2 zynqmp_system_off(void)
+static void zynqmp_system_off(void)
 {
 	/* disable coherency */
 	plat_arm_interconnect_exit_coherency();
@@ -177,13 +177,9 @@ static void __dead2 zynqmp_system_off(void)
 	(void)pm_system_shutdown((uint32_t)PMF_SHUTDOWN_TYPE_SHUTDOWN,
 				 pm_get_shutdown_scope(),
 				 NON_SECURE);
-
-	while (true) {
-		wfi();
-	}
 }
 
-static void __dead2 zynqmp_system_reset(void)
+static void zynqmp_system_reset(void)
 {
 	/* disable coherency */
 	plat_arm_interconnect_exit_coherency();
@@ -192,10 +188,6 @@ static void __dead2 zynqmp_system_reset(void)
 	(void)pm_system_shutdown((uint32_t)PMF_SHUTDOWN_TYPE_RESET,
 				 pm_get_shutdown_scope(),
 				 NON_SECURE);
-
-	while (true) {
-		wfi();
-	}
 }
 
 static int32_t zynqmp_validate_ns_entrypoint(uint64_t ns_entrypoint)
