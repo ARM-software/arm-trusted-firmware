@@ -748,20 +748,8 @@ ENABLE_SME_FOR_NS			?=	0
 # Scalable Vector Extension for secure world.
 ENABLE_SVE_FOR_SWD			?=	0
 
-# By default, disable access of trace buffer control registers from NS
-# lower ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
-# if FEAT_TRBE is implemented.
-# Note FEAT_TRBE is only supported on AArch64 - therefore do not enable in
-# AArch32.
-ifeq (${ARCH},aarch64)
-        ENABLE_TRBE_FOR_NS		?=	0
-else ifeq (${ARCH},aarch32)
-        ifneq ($(or $(ENABLE_TRBE_FOR_NS),0),0)
-               $(error ENABLE_TRBE_FOR_NS is not supported for AArch32)
-        else
-               ENABLE_TRBE_FOR_NS 	:=	0
-        endif
-endif
+# Flag to enable Trace Buffer Extension
+ENABLE_TRBE_FOR_NS			?=	0
 
 # Flag that enables hardware injection of undefined exceptions
 ENABLE_FEAT_UINJ			?=	0
@@ -779,9 +767,7 @@ ENABLE_SME2_FOR_NS			?=	0
 # Scalable Matrix Extension for secure world.
 ENABLE_SME_FOR_SWD			?=	0
 
-# By default, disable access to branch record buffer control registers from NS
-# lower ELs i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
-# if FEAT_BRBE is implemented.
+# Flag to enable Branch Record Buffer Extension
 ENABLE_BRBE_FOR_NS			?=	0
 
 # Flag to enable Branch Recording at EL3
