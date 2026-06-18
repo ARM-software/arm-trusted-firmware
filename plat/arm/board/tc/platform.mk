@@ -130,6 +130,7 @@ PLAT_INCLUDES		+=	-I${TC_BASE}/include/ \
 
 # CPU libraries for TARGET_PLATFORM=4
 ifeq (${TARGET_PLATFORM}, 4)
+WORKAROUND_CVE_2025_10263 :=	1
 
 # prevent CME related wakups
 CSS_ERRATA_SME_POWER_DOWN := 1
