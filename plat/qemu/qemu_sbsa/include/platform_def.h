@@ -254,6 +254,18 @@
 #define DEVICE2_BASE			0x50000000
 #define DEVICE2_SIZE			0x00001000
 
+/* PCI MMIO AREAS */
+#define SBSA_PCIE_MMIO_BASE		0x80000000
+#define SBSA_PCIE_MMIO_SIZE		0x70000000
+#define SBSA_PCIE_MMIO_HIGH_BASE	0x100000000
+/*
+ * The second PCIE MMIO areas is 1020GB wide, which needs to be
+ * taken into account when computing the amount of granules needed
+ * to marshal that area.  10GB should be plenty and much easier to
+ * allocate granules for.
+ */
+#define SBSA_PCIE_MMIO_HIGH_SIZE	0x280000000
+
 /*
  * GIC related constants
  * We use GICv3 where CPU Interface registers are not memory mapped
@@ -475,6 +487,9 @@ CASSERT((PLAT_QEMU_L0_GPT_BASE & (PLAT_QEMU_L0_GPT_SIZE - 1)) == 0,
 #define RMM_LIMIT			(RMM_BASE + PLAT_QEMU_RMM_SIZE)
 #define RMM_SHARED_BASE			(RMM_LIMIT)
 #define RMM_SHARED_SIZE			PLAT_QEMU_RMM_SHARED_SIZE
+
+#define PLAT_ARM_RMM_PAYLOAD_SIZE	UL(0x600000)    /* 2 * 3MB */
+#define RMM_PAYLOAD_LIMIT		(RMM_BASE + PLAT_ARM_RMM_PAYLOAD_SIZE)
 
 /*
  * We add the RMM_SHARED size to RMM mapping to map the region as a block.

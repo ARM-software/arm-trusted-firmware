@@ -200,6 +200,8 @@ static pas_region_t pas_regions[] = {
 	QEMU_PAS_NS0,
 #if ENABLE_RMM
 	QEMU_PAS_REALM,
+	QEMU_PAS_PCI_MEM_1,
+	QEMU_PAS_PCI_MEM_2,
 #endif
 };
 

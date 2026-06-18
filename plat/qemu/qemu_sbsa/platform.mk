@@ -71,6 +71,11 @@ BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
 				${LIBFDT_SRCS}
 endif
 
+ifeq (${ENABLE_RMM},1)
+BL31_SOURCES		+=	${PLAT_QEMU_PATH}/plat_rmm_mem_carveout.c
+endif
+
+
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
