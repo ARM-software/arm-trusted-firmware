@@ -119,6 +119,14 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 		pin_func = 0x22;
 		device_bit = BIT(6);
 		break;
+	case SUNXI_SOC_A133:
+		if (use_rsb) {
+			return -ENODEV;
+		}
+		pin_func = 0x22;
+		device_bit = BIT(16);
+		reset_offset = 0x19c;
+		break;
 	case SUNXI_SOC_H6:
 	case SUNXI_SOC_H616:
 		pin_func = use_rsb ? 0x22 : 0x33;
