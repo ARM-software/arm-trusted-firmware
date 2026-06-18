@@ -50,6 +50,31 @@ Making Changes
       Makefile target is provided for convenience, see :ref:`this
       section<automatic-compliance-checking>` for more details.
 
+-  If a patch should be considered for LTS backporting, keep the normal
+   |TF-A| commit subject format and add an ``LTS-candidate: yes`` trailer in
+   the footer block at the end of the commit message, alongside the other
+   commit trailers. This tag acts as an indication to the LTS maintainers that
+   the patch should be evaluated as a candidate for the next LTS release. It
+   also helps the LTS weekly triage tooling to automatically pull the patch in
+   so it can be reviewed among the maintainers. For example:
+
+   .. code::
+
+      fix(psci): get the cpu_ops before exiting coherency
+
+      Dereference the cpu_ops pointer before disabling coherency so the
+      warm path does not observe stale data from cache.
+
+      Signed-off-by: Developer Name <developer@example.com>
+      Change-Id: I0123456789abcdef0123456789abcdef01234567
+      LTS-candidate: yes
+
+   Reviewers and maintainers should use this trailer as the preferred
+   machine-readable signal for LTS triage automation, but LTS maintainers
+   retain the final say on whether a patch is taken into an LTS branch. They
+   should also look for LTS-eligible patches that were posted without it and
+   ask authors to add it in follow-up revisions where practical.
+
 -  Where appropriate, please update the documentation.
 
    -  Consider whether the :ref:`Porting Guide`, :ref:`Firmware Design` document
@@ -332,7 +357,7 @@ Binary Components
 
 --------------
 
-*Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.*
 
 .. _review.trustedfirmware.org: https://review.trustedfirmware.org
 .. _Git guidelines: https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project
