@@ -2365,6 +2365,27 @@ RMM image and stores it in the area specified by manifest.
 
 When ENABLE_RMM is disabled, this function is not used.
 
+Function : plat_firme_get_common_mecid_width() [when FIRME_SUPPORT == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint8_t
+
+This function is invoked by BL31's FIRME MECID management service during
+initialization to obtain the system MECID width. This is the smallest supported
+MECID width for the entire system.
+
+The returned value uses the same encoding as ``MECIDR_EL2.MECIDWidthm1``. That
+is, it is the system MECID width minus one. The common MECID width is defined as
+the smallest MECID width supported across the entire system (see rule IQDYKJ in
+the M.b version of the Arm ARM for details). The FIRME MECID management service
+advertises the returned value in FIRME MECID feature register 1.
+
+This function needs to be implemented by a platform if it enables FIRME support
+and advertises the FIRME MECID management service.
+
 Function : plat_firme_mec_refresh() [when FIRME_SUPPORT == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

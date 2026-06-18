@@ -99,6 +99,11 @@ static inline firme_instance_e get_instance_from_flags(uint64_t flags)
 	panic();
 }
 
+int32_t firme_init(void)
+{
+	return firme_mecid_service_init();
+}
+
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags)
 {

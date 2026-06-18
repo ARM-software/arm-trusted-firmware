@@ -83,6 +83,12 @@ static int32_t std_svc_setup(void)
 	trng_setup();
 #endif /* TRNG_SUPPORT */
 
+#if FIRME_SUPPORT
+	if (firme_init() != 0) {
+		ret = 1;
+	}
+#endif /* FIRME_SUPPORT */
+
 #if DRTM_SUPPORT
 	if (drtm_setup() != 0) {
 		ret = 1;

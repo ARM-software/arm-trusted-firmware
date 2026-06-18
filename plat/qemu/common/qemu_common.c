@@ -5,10 +5,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdint.h>
 #include <string.h>
 
 #include <platform_def.h>
 
+#include <arch.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -768,6 +770,12 @@ int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
 	 * associated with MECID. Hence always return success.
 	 */
 	return 0;
+}
+
+uint8_t plat_firme_get_common_mecid_width(void)
+{
+	/* Safe default value for common MECID width. */
+	return (uint8_t)EXTRACT(MECIDR_EL2_MECIDWidthm1, read_mecidr_el2());
 }
 #endif  /* ENABLE_RMM */
 

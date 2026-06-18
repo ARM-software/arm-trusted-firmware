@@ -18,7 +18,7 @@ static firme_service_info_t mecid_info = {
 				 FIRME_MECID_MGMT_VERSION_MINOR),
 	.instance_support = BIT(FIRME_REALM),
 	.num_feature_regs = FIRME_MECID_FEATURE_REG_COUNT,
-	.feature_reg = { FIRME_MECID_FEAT_REG0_MEC_REFRESH_BIT },
+	.feature_reg = { FIRME_MECID_FEAT_REG0_MEC_REFRESH_BIT, 0U },
 };
 
 firme_service_info_t *firme_mecid_service_get_info(void)
@@ -28,6 +28,23 @@ firme_service_info_t *firme_mecid_service_get_info(void)
 	}
 
 	return &mecid_info;
+}
+
+int32_t firme_mecid_service_init(void)
+{
+	uint64_t __maybe_unused mecid_width;
+
+	if (is_feat_mec_supported()) {
+		mecid_width = (uint64_t)plat_firme_get_common_mecid_width();
+		if ((mecid_width &
+		      ~FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_MASK) != 0U) {
+			return FIRME_INVALID_PARAMETERS;
+		}
+
+		mecid_info.feature_reg[1] = EXTRACT(FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS, mecid_width);
+	}
+
+	return 0;
 }
 
 static int firme_mec_refresh(u_register_t mec_params)
@@ -46,8 +63,8 @@ static int firme_mec_refresh(u_register_t mec_params)
 	/*
 	 * Check whether the MECID parameter fits within the common MECID width.
 	 */
-	common_mecid_width = ((read_mecidr_el2() >> MECIDR_EL2_MECIDWidthm1_SHIFT) &
-		MECIDR_EL2_MECIDWidthm1_MASK) + 1UL;
+	common_mecid_width = (mecid_info.feature_reg[1] &
+			    FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_MASK) + 1U;
 	mecid = EXTRACT(MEC_PARAM_MECID, mec_params);
 
 	if (mecid > common_mecid_width) {

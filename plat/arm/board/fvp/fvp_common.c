@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch.h>
@@ -1073,5 +1074,15 @@ int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
 	 * with MECID. Hence always return success.
 	 */
 	return 0;
+}
+
+uint8_t plat_firme_get_common_mecid_width(void)
+{
+
+	/*
+	 * Use the PE MECID width as the system MECID width is expected to be the same for all
+	 * system components on FVP.
+	 */
+	return (uint8_t)EXTRACT(MECIDR_EL2_MECIDWidthm1, read_mecidr_el2());
 }
 #endif /* ENABLE_RMM */

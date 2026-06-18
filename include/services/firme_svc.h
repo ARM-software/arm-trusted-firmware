@@ -217,8 +217,11 @@ typedef struct {
 #define MEC_PARAM_MECID_WIDTH			U(16)
 #define MEC_PARAM_MECID_MASK			MASK(MEC_PARAM_MECID)
 
-#define FIRME_MECID_FEATURE_REG_COUNT		U(1)
+#define FIRME_MECID_FEATURE_REG_COUNT		U(2)
 #define FIRME_MECID_FEAT_REG0_MEC_REFRESH_BIT	BIT(0)
+#define FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_SHIFT	U(0)
+#define FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_WIDTH	U(4)
+#define FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_MASK	MASK(FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS)
 
 /* Attestation service */
 #define FIRME_ATTEST_PAT_GET_FID		SMC64_FIRME_FID(U(0x8))
@@ -233,13 +236,17 @@ typedef struct {
 #define FIRME_IDEV_OP_CONTINUE_FID		SMC64_FIRME_FID(U(0x11))
 
 /* Top level handler for FIRME SMC calls. */
+int32_t firme_init(void);
+
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
 
 firme_service_info_t *firme_granule_mgmt_service_get_info(void);
 firme_service_info_t *firme_mecid_service_get_info(void);
 
+int32_t firme_mecid_service_init(void);
 int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason);
+uint8_t plat_firme_get_common_mecid_width(void);
 
 u_register_t firme_base_service_handler(firme_instance_e instance, uint32_t smc_fid,
 					uint64_t x1, uint64_t x2, uint64_t x3,
