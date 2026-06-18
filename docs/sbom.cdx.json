@@ -13,7 +13,7 @@
     {
       "type": "library",
       "bom-ref": "pkg:github/TrustedFirmware-A/trusted-firmware-a@@VCS_TAG@",
-      "cpe": "cpe:2.3:a:trustedfirmware.org:trusted-firmware-a:@VCS_TAG@:*:*:*:*:*:*:*",
+      "cpe": "cpe:2.3:o:trustedfirmware:trusted_firmware-a:@VCS_TAG@:*:*:*:*:*:*:*",
       "name": "trusted-firmware-a",
       "version": "@VCS_VERSION@",
       "description": "Reference implementation of secure software for Arm A-Profile architectures",
