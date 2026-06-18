@@ -400,8 +400,7 @@ static int mentor_i2c_target_offset_set(uint8_t chip, uint32_t addr, int alen)
 		off_block[0] = addr & 0xff;
 		off_size = 1;
 	}
-	VERBOSE("%s: off_size = %x addr1 = %x addr2 = %x\n", __func__,
-		off_size, off_block[0], off_block[1]);
+	VERBOSE("%s: off_size = %x addr = %x\n", __func__, off_size, addr);
 	return mentor_i2c_data_transmit(off_block, off_size);
 }
 
