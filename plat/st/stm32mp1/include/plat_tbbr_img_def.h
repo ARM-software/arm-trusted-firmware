@@ -35,6 +35,12 @@
 #define STM32MP_CONFIG_CERT_ID		U(17)
 
 /* Increase the MAX_NUMBER_IDS to match the authentication pool required */
+#if STM32MP_PSA_FWU_AB_SUPPORT
+#define FWU_BOOTFS_ID			U(19)
+#define FWU_ROOTFS_ID			U(20)
+#define MAX_NUMBER_IDS			U(21)
+#else
 #define MAX_NUMBER_IDS			U(19)
+#endif	/* STM32MP_PSA_FWU_AB_SUPPORT */
 
 #endif	/* STM32MP1_IMG_DEF_H */
