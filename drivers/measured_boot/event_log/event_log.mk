@@ -44,10 +44,13 @@ $(warning MBOOT_EL_HASH_ALG is supported solely for backward compatibility. \
 Please configure the hash algorithm at runtime instead.)
 ifeq ($(MBOOT_EL_HASH_ALG),sha256)
     TPM_ALG_ID					:= EVLOG_TPM_ALG_SHA256
+    TCG_DIGEST_SIZE				:= 32
 else ifeq ($(MBOOT_EL_HASH_ALG),sha384)
     TPM_ALG_ID					:= EVLOG_TPM_ALG_SHA384
+    TCG_DIGEST_SIZE				:= 48
 else ifeq ($(MBOOT_EL_HASH_ALG),sha512)
     TPM_ALG_ID					:= EVLOG_TPM_ALG_SHA512
+    TCG_DIGEST_SIZE				:= 64
 else
     $(error Unsupported legacy MBOOT_EL_HASH_ALG '$(MBOOT_EL_HASH_ALG)'. Expected: sha256, sha384, sha512)
 endif
