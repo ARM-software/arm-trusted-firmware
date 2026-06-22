@@ -3,6 +3,9 @@
  * Copyright (c) 2021-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/101779/latest
+ * SDEN: https://developer.arm.com/documentation/SDEN-1707912/latest
  */
 
 #include <arch.h>
