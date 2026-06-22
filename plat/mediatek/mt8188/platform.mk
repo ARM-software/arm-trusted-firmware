@@ -70,3 +70,5 @@ BL31_SOURCES += drivers/delay_timer/delay_timer.c \
 include plat/mediatek/build_helpers/mtk_build_helpers_epilogue.mk
 
 include lib/coreboot/coreboot.mk
+
+WORKAROUND_CVE_2025_10263 := 1

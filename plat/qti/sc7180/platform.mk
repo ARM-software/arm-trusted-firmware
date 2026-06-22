@@ -22,6 +22,7 @@ ENABLE_PLAT_COMPAT		:=	0
 #Enable errata for cortex_a55 and cortex_a76
 ERRATA_A55_1530923 		:= 	1
 ERRATA_A76_1165522 		:= 	1
+WORKAROUND_CVE_2025_10263	:=	1
 
 # Enable PSCI v1.0 extended state ID format
 PSCI_EXTENDED_STATE_ID	:=  1

@@ -32,6 +32,7 @@ ERRATA_A76_1165522				:=	1
 ERRATA_A76_1868343				:=	1
 ERRATA_A76_1946160				:=	1
 ERRATA_A76_2743102				:=	1
+WORKAROUND_CVE_2025_10263			:=	1
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT				:=	0
