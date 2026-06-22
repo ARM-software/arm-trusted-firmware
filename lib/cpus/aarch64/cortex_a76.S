@@ -484,6 +484,9 @@ check_erratum_chosen cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 /* erratum has no workaround in the cpu. Generic code must take care */
 add_erratum_entry cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+add_erratum_entry cortex_a76, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen cortex_a76, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+
 cpu_reset_func_start cortex_a76
 
 #if WORKAROUND_CVE_2018_3639
