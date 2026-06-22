@@ -84,7 +84,7 @@
 	 * that we are at the end of the list. Some cpus call declare_cpu_ops
 	 * twice, so only do this once.
 	 */
-	.pushsection .rodata.errata_entries
+	.pushsection .rodata.errata.errata_entries
 	.ifndef \_name\()_errata_list_start
 		\_name\()_errata_list_start:
 	.endif
@@ -108,7 +108,7 @@
 	  .popsection
 
 	  /* Place CPU string in rodata */
-	  .pushsection .rodata
+	  .pushsection .rodata.errata
 	  \_name\()_cpu_str:
 	  .asciz "\_name"
 	  .popsection
@@ -202,7 +202,7 @@
  */
 .macro add_erratum_entry _cpu:req, _cve:req, _id:req, _chosen:req, _split_wa=0
 #if INCLUDE_ERRATA_LIST
-	.pushsection .rodata.errata_entries
+	.pushsection .rodata.errata.errata_entries
 		.align	3
 		.ifndef \_cpu\()_errata_list_start
 		\_cpu\()_errata_list_start:
@@ -256,11 +256,11 @@
 
 	.if \_chosen
 		/* put errata directly into the reset function */
-		.pushsection .text.asm.\_cpu\()_reset_func, "ax"
+		.pushsection .text.errata.\_cpu\()_reset_func, "ax"
 	.else
 		/* or something else that will get garbage collected by the
 		 * linker */
-		.pushsection .text.asm.erratum_\_cpu\()_\_id\()_wa, "ax"
+		.pushsection .text.errata.erratum_\_cpu\()_\_id\()_wa, "ax"
 	.endif
 		/* revision is stored in x14, get it */
 		mov	x0, x14
@@ -280,7 +280,7 @@
 .macro workaround_runtime_start _cpu:req, _cve:req, _id:req, _chosen:req, _midr
 	add_erratum_entry \_cpu, \_cve, \_id, \_chosen
 
-	func erratum_\_cpu\()_\_id\()_wa
+	errata_func_compat erratum_\_cpu\()_\_id\()_wa
 		mov	x8, x30
 	/*
 	 * Let errata specify if they need MIDR checking. Sadly, storing the
@@ -328,7 +328,7 @@
 	.endif
 	erratum_\_cpu\()_\_id\()_skip_runtime:
 		ret	x8
-	endfunc erratum_\_cpu\()_\_id\()_wa
+	errata_endfunc_compat erratum_\_cpu\()_\_id\()_wa
 .endm
 
 /*******************************************************************************
@@ -566,6 +566,16 @@
 #endif
 .endm
 
+.macro errata_func_compat _name, _align=2
+	.section .text.errata.\_name, "ax"
+	.type \_name, %function
+	.align \_align
+	\_name:
+#if ENABLE_BTI
+	BTI	jc
+#endif
+.endm
+
 /*
  * This macro is used to mark the end of a function.
  */
@@ -575,10 +585,31 @@
 
 #else
 
-#define func_compat func
-#define endfunc_compat endfunc
+.macro func_compat _name
+	func \_name
+.endm
+
+.macro errata_func_compat _name, _align=2
+	.cfi_sections .debug_frame
+	.section .text.errata.\_name, "ax"
+	.type \_name, %function
+	.cfi_startproc
+	.align \_align
+	\_name:
+#if ENABLE_BTI
+	BTI	jc
+#endif
+.endm
+
+.macro endfunc_compat _name
+	endfunc \_name
+.endm
 
 #endif /* __clang_version__ < 17 */
+
+.macro errata_endfunc_compat _name
+	endfunc_compat \_name
+.endm
 
 /*
  * Helpers to select which revisions errata apply to.
@@ -601,35 +632,35 @@
  *	argument: x0 - cpu_rev_var
  */
 .macro check_erratum_ls _cpu:req, _cve:req, _id:req, _rev_num:req
-	func_compat check_erratum_\_cpu\()_\_id
+	errata_func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_ls \_rev_num
 		ret
-	endfunc_compat check_erratum_\_cpu\()_\_id
+	errata_endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_hs _cpu:req, _cve:req, _id:req, _rev_num:req
-	func_compat check_erratum_\_cpu\()_\_id
+	errata_func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_hs \_rev_num
 		ret
-	endfunc_compat check_erratum_\_cpu\()_\_id
+	errata_endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_range _cpu:req, _cve:req, _id:req, _rev_num_lo:req, _rev_num_hi:req
-	func_compat check_erratum_\_cpu\()_\_id
+	errata_func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_range \_rev_num_lo, \_rev_num_hi
 		ret
-	endfunc_compat check_erratum_\_cpu\()_\_id
+	errata_endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_chosen _cpu:req, _cve:req, _id:req, _chosen:req
-	func_compat check_erratum_\_cpu\()_\_id
+	errata_func_compat check_erratum_\_cpu\()_\_id
 		.if \_chosen
 			mov	x0, #ERRATA_APPLIES
 		.else
 			mov	x0, #ERRATA_MISSING
 		.endif
 		ret
-	endfunc_compat check_erratum_\_cpu\()_\_id
+	errata_endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 /*
@@ -637,7 +668,7 @@
  * body: clobber x0 to x4
  */
 .macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
-	func_compat check_erratum_\_cpu\()_\_id
+	errata_func_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_custom_end _cpu:req, _cve:req, _id:req
@@ -656,7 +687,7 @@
  *	Name of cpu as given to declare_cpu_ops
  */
 .macro cpu_reset_prologue _cpu:req
-	func_compat \_cpu\()_reset_func
+	errata_func_compat \_cpu\()_reset_func
 		mov	x15, x30
 		get_rev_var x14, x0
 .endm
@@ -675,13 +706,13 @@
 .macro cpu_reset_func_start _cpu:req
 	/* the func/endfunc macros will change sections. So change the section
 	 * back to the reset function's */
-	.section .text.asm.\_cpu\()_reset_func, "ax"
+	.section .text.errata.\_cpu\()_reset_func, "ax"
 .endm
 
 .macro cpu_reset_func_end _cpu:req
 		isb
 		ret	x15
-	endfunc_compat \_cpu\()_reset_func
+	errata_endfunc_compat \_cpu\()_reset_func
 .endm
 
 /*
