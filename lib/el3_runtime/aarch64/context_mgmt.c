@@ -772,6 +772,24 @@ void __no_pauth cm_manage_extensions_el3(unsigned int my_idx)
 		cpa2_enable_el3();
 	}
 
+	/*
+	 * FEAT_ANERR and FEAT_ADERR trade performance for reduced accuracy of
+	 * error reporting. This is undesirable on debug builds as we want as
+	 * accurate information as possible to triage programming errors that
+	 * could be singalled synchronously.
+	 *
+	 * No programming errors are expected on release builds and speed is
+	 * paramount. RAS errors while running at EL3 are always fatal so this
+	 * will not have an impact on recovery.
+	 */
+	if (is_feat_aderr_supported() && !DEBUG) {
+		write_sctlr2_el3(read_sctlr2_el3() | SCTLR2_EnADERR_BIT);
+	}
+
+	if (is_feat_anerr_supported() && !DEBUG) {
+		write_sctlr2_el3(read_sctlr2_el3() | SCTLR2_EnANERR_BIT);
+	}
+
 	pmuv3_init_el3();
 
 	/* NOTE: must be done last, makes the configuration immutable */

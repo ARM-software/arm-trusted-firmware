@@ -389,11 +389,15 @@ ifneq (${ENABLE_FEAT_SPEV1P5},0)
 	endif
 endif #(ENABLE_FEAT_SPEV1P5)
 
-ifneq (${ENABLE_FEAT_CPA2},0)
-	ifeq (${ENABLE_FEAT_SCTLR2},0)
-                $(error "Error: ENABLE_FEAT_CPA2 cannot be used without ENABLE_FEAT_SCTLR2")
+ifeq (${ENABLE_FEAT_SCTLR2},0)
+	ifneq (${ENABLE_FEAT_CPA2},0)
+                $(error "ENABLE_FEAT_CPA2 requires ENABLE_FEAT_SCTLR2")
 	endif
-endif #${ENABLE_FEAT_CPA2}
+
+	ifneq (${ENABLE_FEAT_AxERR},0)
+                $(error "ENABLE_FEAT_AxERR requires ENABLE_FEAT_SCTLR2")
+	endif
+endif #${ENABLE_FEAT_AxERR}
 
 ifneq (${ENABLE_SME_FOR_NS},0)
 	ifeq (${ENABLE_SVE_FOR_NS},0)

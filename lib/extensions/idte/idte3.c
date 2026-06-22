@@ -12,25 +12,43 @@
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/extensions/idte3.h>
 
+#define _CHECK_FEATURE_MASKING(guard, worlds)					\
+	(guard == FEAT_STATE_DISABLED || (((worlds) >> security_state) & 1U) == 0U)
+
+/*
+ * Downgrade the feature to one less than the minimum known version if a higher
+ * version is present. This allows for features sharing an ID field to be
+ * gradually disabled. Won't work with signed or non-zero disabled ID fields.
+ */
+#define _MASK_FEATURE(idreg, guard, field, min, worlds)				\
+	do {									\
+		if (_CHECK_FEATURE_MASKING(guard, worlds)) {			\
+			assert(min != 0);					\
+			if (EXTRACT(field, idreg) > min - 1) {			\
+				UPDATE_REG_FIELD(field, idreg, min - 1);	\
+			}							\
+		}								\
+	} while (0);
+
+#define MASK_PERCPU_FEATURES(name, idreg, guard, field, min, max, worlds)	\
+	_MASK_FEATURE(ctx->idreg, guard, field, min, worlds)
+
+#define MASK_FEATURES(name, idreg, guard, field, min, max, worlds)		\
+	_MASK_FEATURE(ctx->idreg, guard, field, min, worlds)
+
+#define MASK_NONSTANDARD_FEATURE(name, idreg, guard, field, min, max, worlds)	\
+	_CHECK_FEATURE_MASKING(guard, worlds)
+
 void idte3_init_percpu_once_regs(size_t security_state)
 {
 	assert(security_state < CPU_CONTEXT_NUM);
 
-	percpu_idregs_t * const reg =
-		&get_cpu_data(idregs[security_state]);
+	percpu_idregs_t * const ctx = &get_cpu_data(idregs[security_state]);
 
-	reg->id_aa64dfr0_el1 = read_id_aa64dfr0_el1();
-	reg->id_aa64dfr1_el1 = read_id_aa64dfr1_el1();
+	ctx->id_aa64dfr0_el1 = read_id_aa64dfr0_el1();
+	ctx->id_aa64dfr1_el1 = read_id_aa64dfr1_el1();
 
-	update_feat_spe_idreg_field(security_state);
-	update_feat_brbe_idreg_field(security_state);
-	update_feat_trbe_idreg_field(security_state);
-	update_feat_trf_idreg_field(security_state);
-	update_feat_mtpmu_idreg_field(security_state);
-	update_feat_sebep_idreg_field(security_state);
-	update_feat_sys_reg_trace_idreg_field(security_state);
-	update_feat_debugv8p9_idreg_field(security_state);
-	update_feat_ebep_idreg_field(security_state);
+	CPUFEAT_PERCPU_LIST(MASK_PERCPU_FEATURES)
 }
 
 void idte3_init_cached_idregs_per_world(size_t security_state)
@@ -38,73 +56,49 @@ void idte3_init_cached_idregs_per_world(size_t security_state)
 
 	assert(security_state < CPU_CONTEXT_NUM);
 
-	per_world_context_t *per_world_ctx = &per_world_context[security_state];
-	perworld_idregs_t *reg = &(per_world_ctx->idregs);
+	perworld_idregs_t *ctx = &(per_world_context[security_state].idregs);
 
-	reg->id_aa64pfr0_el1 = read_id_aa64pfr0_el1();
-	reg->id_aa64pfr1_el1 = read_id_aa64pfr1_el1();
-	reg->id_aa64pfr2_el1 = read_id_aa64pfr2_el1();
-	reg->id_aa64smfr0_el1 = read_id_aa64smfr0_el1();
-	reg->id_aa64isar0_el1 = read_id_aa64isar0_el1();
-	reg->id_aa64isar1_el1 = read_id_aa64isar1_el1();
-	reg->id_aa64isar2_el1 = read_id_aa64isar2_el1();
-	reg->id_aa64isar3_el1 = read_id_aa64isar3_el1();
-	reg->id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
-	reg->id_aa64mmfr1_el1 = read_id_aa64mmfr1_el1();
-	reg->id_aa64mmfr2_el1 = read_id_aa64mmfr2_el1();
-	reg->id_aa64mmfr3_el1 = read_id_aa64mmfr3_el1();
-	reg->id_aa64mmfr4_el1 = read_id_aa64mmfr4_el1();
-	reg->id_aa64dfr2_el1  = read_id_aa64dfr2_el1();
+	ctx->id_aa64pfr0_el1 = read_id_aa64pfr0_el1();
+	ctx->id_aa64pfr1_el1 = read_id_aa64pfr1_el1();
+	ctx->id_aa64pfr2_el1 = read_id_aa64pfr2_el1();
+	ctx->id_aa64smfr0_el1 = read_id_aa64smfr0_el1();
+	ctx->id_aa64isar0_el1 = read_id_aa64isar0_el1();
+	ctx->id_aa64isar1_el1 = read_id_aa64isar1_el1();
+	ctx->id_aa64isar2_el1 = read_id_aa64isar2_el1();
+	ctx->id_aa64isar3_el1 = read_id_aa64isar3_el1();
+	ctx->id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
+	ctx->id_aa64mmfr1_el1 = read_id_aa64mmfr1_el1();
+	ctx->id_aa64mmfr2_el1 = read_id_aa64mmfr2_el1();
+	ctx->id_aa64mmfr3_el1 = read_id_aa64mmfr3_el1();
+	ctx->id_aa64mmfr4_el1 = read_id_aa64mmfr4_el1();
+	ctx->id_aa64dfr2_el1  = read_id_aa64dfr2_el1();
 
-	update_feat_pan_idreg_field(security_state);
-	update_feat_vhe_idreg_field(security_state);
-	update_feat_ttcnp_idreg_field(security_state);
-	update_feat_uao_idreg_field(security_state);
-	update_feat_pauth_idreg_field(security_state);
-	update_feat_ttst_idreg_field(security_state);
-	update_feat_bti_idreg_field(security_state);
-	update_feat_mte2_idreg_field(security_state);
-	update_feat_ssbs_idreg_field(security_state);
-	update_feat_nmi_idreg_field(security_state);
-	update_feat_gcs_idreg_field(security_state);
-	update_feat_ebep_idreg_field(security_state);
-	update_feat_sel2_idreg_field(security_state);
-	update_feat_twed_idreg_field(security_state);
-	update_feat_fgt_idreg_field(security_state);
-	update_feat_ecv_idreg_field(security_state);
-	update_feat_rng_idreg_field(security_state);
-	update_feat_tcr2_idreg_field(security_state);
-	update_feat_s2poe_idreg_field(security_state);
-	update_feat_s1poe_idreg_field(security_state);
-	update_feat_s2pie_idreg_field(security_state);
-	update_feat_s1pie_idreg_field(security_state);
-	update_feat_amu_idreg_field(security_state);
-	update_feat_mpam_idreg_field(security_state);
-	update_feat_hcx_idreg_field(security_state);
-	update_feat_rng_trap_idreg_field(security_state);
-	update_feat_sb_idreg_field(security_state);
-	update_feat_csv2_2_idreg_field(security_state);
-	update_feat_sve_idreg_field(security_state);
-	update_feat_ras_idreg_field(security_state);
-	update_feat_dit_idreg_field(security_state);
-	update_feat_trbe_idreg_field(security_state);
-	update_feat_sme_idreg_field(security_state);
-	update_feat_fgt2_idreg_field(security_state);
-	update_feat_the_idreg_field(security_state);
-	update_feat_sctlr2_idreg_field(security_state);
-	update_feat_d128_idreg_field(security_state);
-	update_feat_ls64_accdata_idreg_field(security_state);
-	update_feat_fpmr_idreg_field(security_state);
-	update_feat_mops_idreg_field(security_state);
-	update_feat_fgwte3_idreg_field(security_state);
-	update_feat_cpa2_idreg_field(security_state);
-	update_feat_idte3_idreg_field(security_state);
-	update_feat_uinj_idreg_field(security_state);
-	update_feat_step2_idreg_field(security_state);
-	update_feat_hdbss_idreg_field(security_state);
-	update_feat_hacdbs_idreg_field(security_state);
-	update_feat_spe_exc_idreg_field(security_state);
-	update_feat_spe_nvm_idreg_field(security_state);
+	CPUFEAT_LIST(MASK_FEATURES)
+
+	/*
+	 * Features that do not conform to the standard ID register discovery
+	 * mechanism.
+	 *
+	 * FEAT_PAuth_LR is always accesible to lower Els, the flag only enables
+	 * usage at EL3. Exclude from masking.
+	 *
+	 * FEAT_PAuth is always accessible to NS regardless of flags. It needs
+	 * contexting to be usable from S/RL
+	 */
+	if (CTX_INCLUDE_PAUTH_REGS == FEAT_STATE_DISABLED &&
+	    security_state != CPU_CONTEXT_NS) {
+		ctx->id_aa64isar1_el1 &= ~(MASK(ID_AA64ISAR1_GPI) |
+					   MASK(ID_AA64ISAR1_GPA) |
+					   MASK(ID_AA64ISAR1_API) |
+					   MASK(ID_AA64ISAR1_APA));
+		ctx->id_aa64isar2_el1 &= ~(MASK(ID_AA64ISAR2_APA3) |
+					   MASK(ID_AA64ISAR2_GPA3));
+	}
+
+	if (FEAT_MPAM(MASK_NONSTANDARD_FEATURE)) {
+		ctx->id_aa64pfr0_el1 &= ~MASK(ID_AA64PFR0_MPAM);
+		ctx->id_aa64pfr1_el1 &= ~MASK(ID_AA64PFR1_MPAM_FRAC);
+	}
 }
 
 int handle_idreg_trap(uint8_t rt, uint64_t idreg, cpu_context_t *ctx, u_register_t flags)

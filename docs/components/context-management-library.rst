@@ -105,7 +105,7 @@ for lower exception levels.
 
 	#define FEAT_STATE_DISABLED     	0
 	#define FEAT_STATE_ENABLED      	1
-	#define FEAT_STATE_CHECK        	2
+	#define FEAT_STATE_CHECKED        	2
 
 A pattern is established for feature enablement behavior.
 Each feature must support the 3 possible values with rigid semantics.
@@ -116,7 +116,7 @@ Each feature must support the 3 possible values with rigid semantics.
 - **FEAT_STATE_ALWAYS** - all code relating to this feature is always executed.
   Firmware expects this feature to be present in hardware.
 
-- **FEAT_STATE_CHECK** - same as ``FEAT_STATE_ALWAYS`` except that the feature's
+- **FEAT_STATE_CHECKED** - same as ``FEAT_STATE_ALWAYS`` except that the feature's
   existence will be checked at runtime. Default on dynamic platforms (example: FVP).
 
  .. note::
