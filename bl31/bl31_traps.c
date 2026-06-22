@@ -161,22 +161,28 @@ static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsign
 	return elr_el3;
 }
 
-/*
- * Explicitly create all bits of SPSR to get PSTATE at exception return.
+/*******************************************************************************
+ * HARDWARE PSEUDOCODE
  *
- * The code is based on "Aarch64.exceptions.takeexception" described in
- * DDI0602 revision 2026-03.
- * "https://developer.arm.com/documentation/ddi0597/2026-03/Shared-Pseudocode/
- * aarch64-exceptions-takeexception"
+ * The code here is based on pseudocode described in the Arm ARM (DDI0487). They
+ * can also be found in the Arm A-profile A64 Instruction Set Architecture
+ * document (DDI0602) available at
+ * https://developer.arm.com/documentation/ddi0602/latest/.
  *
  * NOTE: This piece of code must be reviewed every release against the latest
- * takeexception sequence to ensure that we keep up with new arch features that
- * affect the PSTATE.
+ * sequence to ensure that we keep up with new arch features.
+ *
+ * The pseudocode is based on revision 2026-03 (replace `latest` in the URL).
  *
  * Next review: TF-A 2.16 release
  *
  * FEAT_NV3 has an impact but is not implemented in EL3 yet.
  * TODO: this should create a BRBE exception record
+ ******************************************************************************/
+
+/*
+ * Explicitly create all bits of SPSR to get PSTATE at exception return. Based
+ * on aarch64.exceptions.takeexception.AArch64_TakeException.
  */
 u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 {
@@ -288,6 +294,10 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 
 	return new_spsr;
 }
+
+/*******************************************************************************
+ * END OF HARDWARE PSEUDOCODE
+ ******************************************************************************/
 
 /*
  * Handler for injecting Undefined exception to lower EL which is caused by
