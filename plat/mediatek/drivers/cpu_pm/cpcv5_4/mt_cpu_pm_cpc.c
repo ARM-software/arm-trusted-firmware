@@ -316,6 +316,10 @@ uint64_t mtk_cpc_prof_dev_name(unsigned int dev_id)
 		"MCUSYS"
 	};
 
+	if (dev_id >= ARRAY_SIZE(prof_dev_name)) {
+		return 0;
+	}
+
 	while ((prof_dev_name[dev_id][i] != '\0') && (i < PROF_DEV_NAME_LEN)) {
 		tran = (uint64_t)(prof_dev_name[dev_id][i] & 0xFF);
 		ret |= (tran  << (i << 3));
