@@ -400,6 +400,10 @@
 	gen(feat_rme_gpc2, id_aa64pfr0_el1, FEAT_STATE_CHECKED,			\
 	    ID_AA64PFR0_FEAT_RME, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
 
+#define FEAT_SRMASK(gen)							\
+	gen(feat_srmask, id_aa64mmfr4_el1, ENABLE_FEAT_SRMASK,			\
+	    ID_AA64MMFR4_EL1_SRMASK, 1U, 1U, FEAT_ENABLE_NS)
+
 /* === v9.6 features === */
 #define FEAT_UINJ(gen)								\
 	gen(feat_uinj, id_aa64pfr2_el1, ENABLE_FEAT_UINJ,			\
@@ -508,6 +512,7 @@
 	FEAT_STEP2(gen)								\
 	FEAT_SPE_EXC(gen)							\
 	FEAT_SPE_NVM(gen)							\
+	FEAT_SRMASK(gen)							\
 	FEAT_MORELLO(gen)
 
 /*

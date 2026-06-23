@@ -139,7 +139,7 @@ endif
 # Enable the features which are mandatory from ARCH version 9.6 and upwards.
 ifeq "9.6" "$(word 1, $(sort 9.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
 # 9.5 Compliant
-armv9-6-a-feats         := ENABLE_FEAT_UINJ
+armv9-6-a-feats         := ENABLE_FEAT_UINJ ENABLE_FEAT_SRMASK
 armv9-6-a-feats         += ${armv9-5-a-feats}
 FEAT_LIST               := ${armv9-6-a-feats}
 endif

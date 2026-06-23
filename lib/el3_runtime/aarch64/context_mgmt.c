@@ -430,6 +430,13 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		scr_el3 |= SCR_HACDBSEn_BIT;
 	}
 
+	if (is_feat_srmask_supported()) {
+		/* Set the SRMASKEn bit to enable access to alias and bitmask
+		 * registers.
+		 */
+		scr_el3 |= SCR_SRMASKEn_BIT;
+	}
+
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
 	manage_extensions_nonsecure(ctx);

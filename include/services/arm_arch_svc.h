@@ -56,6 +56,12 @@
 #define SCR_FEAT_SCTLR2 (0)
 #endif
 
+#if ENABLE_FEAT_SRMASK
+#define SCR_FEAT_SRMASK SCR_SRMASKEn_BIT
+#else
+#define SCR_FEAT_SRMASK (0)
+#endif
+
 #if ENABLE_FEAT_TCR2
 #define SCR_FEAT_TCR2 SCR_TCR2EN_BIT
 #else
@@ -234,6 +240,7 @@
 	SCR_FEAT_IDTE3		|						\
 	SCR_FEAT_HDBSS		|						\
 	SCR_FEAT_HACDBS		|						\
+	SCR_FEAT_SRMASK		|						\
 	SCR_PLAT_FEATS)
 #define SCR_EL3_FLIPPED (							\
 	SCR_FEAT_RAS		|						\

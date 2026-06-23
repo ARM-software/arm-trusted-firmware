@@ -836,3 +836,6 @@ ENABLE_FEAT_SPEV1P5			?=	0
 
 # Flag to enable trapping of ID registers to EL3
 ENABLE_FEAT_IDTE3                       ?=      0
+
+# Flag to enable EL1 control register aliases and bitmasks (FEAT_SRMASK).
+ENABLE_FEAT_SRMASK			?=	0

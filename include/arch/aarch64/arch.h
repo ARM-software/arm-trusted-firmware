@@ -490,6 +490,9 @@
 #define ID_AA64MMFR4_EL1_RME_GDI_WIDTH		U(4)
 #define ID_AA64MMFR4_EL1_RME_GDI_LENGTH		U(4)
 
+#define ID_AA64MMFR4_EL1_SRMASK_SHIFT		U(44)
+#define ID_AA64MMFR4_EL1_SRMASK_WIDTH		U(4)
+
 /* ID_AA64PFR1_EL1 definitions */
 
 #define ID_AA64PFR1_EL1_BT_SHIFT	U(0)
@@ -696,6 +699,7 @@
 #define SCR_HACDBSEn_BIT	(UL(1) << 61)
 #define SCR_HDBSSEn_BIT		(UL(1) << 60)
 #define SCR_FGTEN2_BIT		(UL(1) << 59)
+#define SCR_SRMASKEn_BIT	(UL(1) << 54)
 #define SCR_PFAREn_BIT		(UL(1) << 53)
 #define SCR_EnFPM_BIT		(ULL(1) << 50)
 #define SCR_MECEn_BIT		(UL(1) << 49)

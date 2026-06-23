@@ -78,6 +78,7 @@ endif
       ENABLE_FEAT_HDBSS			:= 2
       ENABLE_FEAT_HACDBS		:= 2
       ENABLE_FEAT_SPEV1P5		:= 2
+      ENABLE_FEAT_SRMASK		:= 2
       ENABLE_FEAT_BRBEV1P1		:= 2
 endif
 
