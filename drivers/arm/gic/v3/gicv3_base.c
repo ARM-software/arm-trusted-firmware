@@ -170,7 +170,7 @@ void gic_pcpu_init(unsigned int cpu_idx)
 	/* did the platform initialise the array with gic_set_gicr_frames() */
 	assert(gicr_frames != NULL);
 
-#if __aarch64__
+#ifdef __aarch64__
 	plat_gic_pre_pcpu_init(cpu_idx);
 #endif
 

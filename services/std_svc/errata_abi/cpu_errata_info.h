@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 
-#if __aarch64__
+#ifdef __aarch64__
 #include <cortex_a710.h>
 #include <cortex_a78.h>
 #include <cortex_a78_ae.h>

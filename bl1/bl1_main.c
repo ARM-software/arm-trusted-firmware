@@ -284,7 +284,7 @@ u_register_t bl1_smc_handler(unsigned int smc_fid,
 	}
 }
 
-#if __aarch64__
+#ifdef __aarch64__
 u_register_t bl1_smc_wrapper_aarch64(cpu_context_t *ctx)
 {
 	u_register_t x1, x2, x3, x4;

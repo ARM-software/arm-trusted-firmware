@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -103,7 +103,7 @@ struct bl_params *plat_get_next_bl_params(void)
 
 	arm_bl_params = arm_get_next_bl_params();
 
-#if __aarch64__
+#ifdef __aarch64__
 	/* Get BL31 image node */
 	param_node = get_bl_mem_params_node(BL31_IMAGE_ID);
 #else /* aarch32 */
