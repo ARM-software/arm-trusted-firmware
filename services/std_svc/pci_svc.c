@@ -68,7 +68,7 @@ uint64_t pci_smc_handler(uint32_t smc_fid,
 		}
 		break;
 	case SMC_PCI_READ: {
-		uint32_t ret;
+		uint32_t ret = 0U;
 
 		if (validate_rw_addr_sz(x1, x2, x3) != SMC_PCI_CALL_SUCCESS) {
 			SMC_RET2(handle, SMC_PCI_CALL_INVAL_PARAM, 0U);
