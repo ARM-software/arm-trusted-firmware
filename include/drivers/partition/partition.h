@@ -13,13 +13,13 @@
 #include <drivers/partition/efi.h>
 #include <tools_share/uuid.h>
 
-#if !PLAT_PARTITION_MAX_ENTRIES
+#if !defined(PLAT_PARTITION_MAX_ENTRIES) || !PLAT_PARTITION_MAX_ENTRIES
 # define PLAT_PARTITION_MAX_ENTRIES	128
 #endif	/* PLAT_PARTITION_MAX_ENTRIES */
 
 CASSERT(PLAT_PARTITION_MAX_ENTRIES <= 128, assert_plat_partition_max_entries);
 
-#if !PLAT_PARTITION_BLOCK_SIZE
+#if !defined(PLAT_PARTITION_BLOCK_SIZE) || !PLAT_PARTITION_BLOCK_SIZE
 # define PLAT_PARTITION_BLOCK_SIZE	512
 #endif /* PLAT_PARTITION_BLOCK_SIZE */
 
