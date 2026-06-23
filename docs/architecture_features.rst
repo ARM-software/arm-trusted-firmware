@@ -378,7 +378,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +------------------+--------+
 | FEAT_MEC         |   OK   |
 +------------------+--------+
-| FEAT_BRBEv1p1    |   WIP  |
+| FEAT_BRBEv1p1    |   OK   |
 +------------------+--------+
 | FEAT_CMOW        |   NA   |
 +------------------+--------+

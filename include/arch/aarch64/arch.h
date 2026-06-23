@@ -1813,7 +1813,129 @@
 /*******************************************************************************
  * FEAT_BRBE - Branch Record Buffer Extension Registers
  ******************************************************************************/
-#define BRBCR_EL2		S2_4_C9_C0_0
+#define BRBE_RECORDS_PER_BANK		32
+
+#define BRBCR_EL2			S2_4_C9_C0_0
+
+#define BRBFCR_EL1			S2_1_C9_C0_1
+#define BRBFCR_EL1_PAUSED_BIT		BIT(7)
+#define BRBFCR_EL1_INDCALL_BIT		BIT(20)
+#define BRBFCR_EL1_DIRCALL_BIT		BIT(21)
+#define BRBFCR_EL1_BANK_SHIFT		U(28)
+#define BRBFCR_EL1_BANK_WIDTH		U(2)
+
+#define BRBIDR0_EL1			S2_1_C9_C2_0
+#define BRBIDR0_EL1_NUMREC_SHIFT	UL(0)
+#define BRBIDR0_EL1_NUMREC_WIDTH	UL(8)
+
+#define BRBINFINJ_EL1			S2_1_C9_C1_0
+#define BRBSRCINJ_EL1			S2_1_C9_C1_1
+#define BRBTGTINJ_EL1			S2_1_C9_C1_2
+
+#define BRBINF0_EL1			S2_1_C8_C0_0
+#define BRBINF1_EL1			S2_1_C8_C1_0
+#define BRBINF2_EL1			S2_1_C8_C2_0
+#define BRBINF3_EL1			S2_1_C8_C3_0
+#define BRBINF4_EL1			S2_1_C8_C4_0
+#define BRBINF5_EL1			S2_1_C8_C5_0
+#define BRBINF6_EL1			S2_1_C8_C6_0
+#define BRBINF7_EL1			S2_1_C8_C7_0
+#define BRBINF8_EL1			S2_1_C8_C8_0
+#define BRBINF9_EL1			S2_1_C8_C9_0
+#define BRBINF10_EL1			S2_1_C8_C10_0
+#define BRBINF11_EL1			S2_1_C8_C11_0
+#define BRBINF12_EL1			S2_1_C8_C12_0
+#define BRBINF13_EL1			S2_1_C8_C13_0
+#define BRBINF14_EL1			S2_1_C8_C14_0
+#define BRBINF15_EL1			S2_1_C8_C15_0
+#define BRBINF16_EL1			S2_1_C8_C0_4
+#define BRBINF17_EL1			S2_1_C8_C1_4
+#define BRBINF18_EL1			S2_1_C8_C2_4
+#define BRBINF19_EL1			S2_1_C8_C3_4
+#define BRBINF20_EL1			S2_1_C8_C4_4
+#define BRBINF21_EL1			S2_1_C8_C5_4
+#define BRBINF22_EL1			S2_1_C8_C6_4
+#define BRBINF23_EL1			S2_1_C8_C7_4
+#define BRBINF24_EL1			S2_1_C8_C8_4
+#define BRBINF25_EL1			S2_1_C8_C9_4
+#define BRBINF26_EL1			S2_1_C8_C10_4
+#define BRBINF27_EL1			S2_1_C8_C11_4
+#define BRBINF28_EL1			S2_1_C8_C12_4
+#define BRBINF29_EL1			S2_1_C8_C13_4
+#define BRBINF30_EL1			S2_1_C8_C14_4
+#define BRBINF31_EL1			S2_1_C8_C15_4
+#define BRBINF_VALID_SHIFT		U(0)
+#define BRBINF_VALID_WIDTH		U(3)
+#define BRBINF_INVALID			U(0x0)
+#define BRBINF_HALF_TGT			U(0x1)
+#define BRBINF_HALF_SRC			U(0x2)
+#define BRBINF_FULL			U(0x3)
+
+#define BRBSRC0_EL1			S2_1_C8_C0_1
+#define BRBSRC1_EL1			S2_1_C8_C1_1
+#define BRBSRC2_EL1			S2_1_C8_C2_1
+#define BRBSRC3_EL1			S2_1_C8_C3_1
+#define BRBSRC4_EL1			S2_1_C8_C4_1
+#define BRBSRC5_EL1			S2_1_C8_C5_1
+#define BRBSRC6_EL1			S2_1_C8_C6_1
+#define BRBSRC7_EL1			S2_1_C8_C7_1
+#define BRBSRC8_EL1			S2_1_C8_C8_1
+#define BRBSRC9_EL1			S2_1_C8_C9_1
+#define BRBSRC10_EL1			S2_1_C8_C10_1
+#define BRBSRC11_EL1			S2_1_C8_C11_1
+#define BRBSRC12_EL1			S2_1_C8_C12_1
+#define BRBSRC13_EL1			S2_1_C8_C13_1
+#define BRBSRC14_EL1			S2_1_C8_C14_1
+#define BRBSRC15_EL1			S2_1_C8_C15_1
+#define BRBSRC16_EL1			S2_1_C8_C0_5
+#define BRBSRC17_EL1			S2_1_C8_C1_5
+#define BRBSRC18_EL1			S2_1_C8_C2_5
+#define BRBSRC19_EL1			S2_1_C8_C3_5
+#define BRBSRC20_EL1			S2_1_C8_C4_5
+#define BRBSRC21_EL1			S2_1_C8_C5_5
+#define BRBSRC22_EL1			S2_1_C8_C6_5
+#define BRBSRC23_EL1			S2_1_C8_C7_5
+#define BRBSRC24_EL1			S2_1_C8_C8_5
+#define BRBSRC25_EL1			S2_1_C8_C9_5
+#define BRBSRC26_EL1			S2_1_C8_C10_5
+#define BRBSRC27_EL1			S2_1_C8_C11_5
+#define BRBSRC28_EL1			S2_1_C8_C12_5
+#define BRBSRC29_EL1			S2_1_C8_C13_5
+#define BRBSRC30_EL1			S2_1_C8_C14_5
+#define BRBSRC31_EL1			S2_1_C8_C15_5
+
+#define BRBTGT0_EL1			S2_1_C8_C0_2
+#define BRBTGT1_EL1			S2_1_C8_C1_2
+#define BRBTGT2_EL1			S2_1_C8_C2_2
+#define BRBTGT3_EL1			S2_1_C8_C3_2
+#define BRBTGT4_EL1			S2_1_C8_C4_2
+#define BRBTGT5_EL1			S2_1_C8_C5_2
+#define BRBTGT6_EL1			S2_1_C8_C6_2
+#define BRBTGT7_EL1			S2_1_C8_C7_2
+#define BRBTGT8_EL1			S2_1_C8_C8_2
+#define BRBTGT9_EL1			S2_1_C8_C9_2
+#define BRBTGT10_EL1			S2_1_C8_C10_2
+#define BRBTGT11_EL1			S2_1_C8_C11_2
+#define BRBTGT12_EL1			S2_1_C8_C12_2
+#define BRBTGT13_EL1			S2_1_C8_C13_2
+#define BRBTGT14_EL1			S2_1_C8_C14_2
+#define BRBTGT15_EL1			S2_1_C8_C15_2
+#define BRBTGT16_EL1			S2_1_C8_C0_6
+#define BRBTGT17_EL1			S2_1_C8_C1_6
+#define BRBTGT18_EL1			S2_1_C8_C2_6
+#define BRBTGT19_EL1			S2_1_C8_C3_6
+#define BRBTGT20_EL1			S2_1_C8_C4_6
+#define BRBTGT21_EL1			S2_1_C8_C5_6
+#define BRBTGT22_EL1			S2_1_C8_C6_6
+#define BRBTGT23_EL1			S2_1_C8_C7_6
+#define BRBTGT24_EL1			S2_1_C8_C8_6
+#define BRBTGT25_EL1			S2_1_C8_C9_6
+#define BRBTGT26_EL1			S2_1_C8_C10_6
+#define BRBTGT27_EL1			S2_1_C8_C11_6
+#define BRBTGT28_EL1			S2_1_C8_C12_6
+#define BRBTGT29_EL1			S2_1_C8_C13_6
+#define BRBTGT30_EL1			S2_1_C8_C14_6
+#define BRBTGT31_EL1			S2_1_C8_C15_6
 
 /*******************************************************************************
  * FEAT_LS64_ACCDATA - LoadStore64B with status data

@@ -534,6 +534,13 @@ ifneq ($(ENABLE_FEAT_MORELLO),0)
         $(warning Morello capability is an experimental feature)
 endif
 
+ifneq (${ENABLE_FEAT_BRBEV1P1},0)
+        ifeq (${ENABLE_BRBE_FOR_NS},0)
+                $(error "ENABLE_FEAT_BRBEV1P1 requires ENABLE_BRBE_FOR_NS")
+        endif
+        $(warning ENABLE_FEAT_BRBEV1P1 is an experimental feature!)
+endif
+
 # Handle all deprecated build options.
 ifeq (${ERROR_DEPRECATED}, 1)
     ifneq (${NS_TIMER_SWITCH},0)

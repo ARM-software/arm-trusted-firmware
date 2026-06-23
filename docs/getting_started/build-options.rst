@@ -1347,6 +1347,13 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
   optional architectural feature for AArch64. The default is 0 and it is
   automatically disabled when the target architecture is AArch32.
 
+- ``ENABLE_FEAT_BRBEV1P1``: Numeric value to enable support for
+  ``FEAT_BRBEv1p1``, which allows Branch recording at EL3 via the functions
+  ``brbe_start_recording()``, ``brbe_stop_recording()``, and
+  ``brbe_dump_branch_records()``. FEAT_BRBEv1p1 is an optional architectural
+  feature available from Arm v9.2 onwards and is EXPERIMENTAL. This flag may be
+  renamed or removed in the future. Default value is 0.
+
 - ``ENABLE_TRBE_FOR_NS``: Enables access of trace buffer
   control registers from NS ELs, NS-EL2 or NS-EL1(when NS-EL2 is implemented
   but unused) when FEAT_TRBE is implemented. TRBE is an optional architectural

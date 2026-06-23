@@ -346,6 +346,10 @@
 	gen(feat_mec, id_aa64mmfr3_el1, ENABLE_FEAT_MEC,			\
 	    ID_AA64MMFR3_EL1_MEC, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
+#define FEAT_BRBEV1P1(gen)							\
+	gen(feat_brbev1p1, id_aa64dfr0_el1, ENABLE_FEAT_BRBEV1P1,		\
+	    ID_AA64DFR0_BRBE, 2U, 2U, FEAT_ENABLE_ALL_WORLDS)
+
 /* === v9.4 features === */
 #define FEAT_D128(gen)								\
 	gen(feat_d128, id_aa64mmfr3_el1, ENABLE_FEAT_D128,			\
@@ -520,6 +524,7 @@
 	FEAT_TRBE(gen)								\
 	FEAT_BRBE(gen)								\
 	FEAT_EBEP(gen)								\
+	FEAT_BRBEV1P1(gen)							\
 	FEAT_SEBEP(gen)
 
 CPUFEAT_LIST(CREATE_FEATURE_FUNCS)
