@@ -94,7 +94,7 @@ add_erratum_entry cortex_a76ae, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 check_erratum_chosen cortex_a76ae, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 workaround_reset_start cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A76ae generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.

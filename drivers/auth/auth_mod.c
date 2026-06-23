@@ -390,13 +390,13 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 		/* Invalid NV-counter */
 		return 1;
 	} else if (*cert_nv_ctr > plat_nv_ctr) {
-#if PSA_FWU_SUPPORT && IMAGE_BL2
+#if PSA_FWU_SUPPORT && defined(IMAGE_BL2)
 		if (fwu_get_active_bank_state() == FWU_BANK_STATE_ACCEPTED) {
 			*need_nv_ctr_upgrade = true;
 		} else {
 			*need_nv_ctr_upgrade = false;
 		}
-#elif PSA_FWU_SUPPORT && IMAGE_BL1
+#elif PSA_FWU_SUPPORT && defined(IMAGE_BL1)
 		/* The check is for bl1 only */
 		if (bl1_plat_is_shared_nv_ctr() == false) {
 			/* If NV ctr is not shared, it can be upgraded */
@@ -407,7 +407,7 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 		}
 #else
 		*need_nv_ctr_upgrade = true;
-#endif /* PSA_FWU_SUPPORT && IMAGE_BL2 */
+#endif /* PSA_FWU_SUPPORT && defined(IMAGE_BL2) */
 	}
 
 	return 0;

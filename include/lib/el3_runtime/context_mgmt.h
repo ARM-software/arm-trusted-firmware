@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,7 +41,7 @@ void cm_init_percpu_once_regs(void);
 void cm_sysregs_context_save_amu(unsigned int security_state);
 void cm_sysregs_context_restore_amu(unsigned int security_state);
 
-#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
+#if (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31))
 void cm_el2_sysregs_context_save_gic(uint32_t security_state);
 void cm_el2_sysregs_context_restore_gic(uint32_t security_state);
 void cm_el2_sysregs_context_save(uint32_t security_state);
@@ -49,7 +49,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state);
 #else
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
-#endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
+#endif /* (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31)) */
 
 void cm_set_elr_el3(uint32_t security_state, uintptr_t entrypoint);
 void cm_set_elr_spsr_el3(uint32_t security_state,

@@ -7,15 +7,15 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
-#include <lib/el3_runtime/context_el2.h>
-#else
+#if !(CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31))
 /**
  * El1 context is required either when:
- * IMAGE_BL1 || ((!CTX_INCLUDE_EL2_REGS) && IMAGE_BL31)
+ * defined(IMAGE_BL1) || ((!CTX_INCLUDE_EL2_REGS) && defined(IMAGE_BL31))
  */
 #include <lib/el3_runtime/context_el1.h>
-#endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
+#else
+#include <lib/el3_runtime/context_el2.h>
+#endif /* !(CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31)) */
 
 #include <lib/el3_runtime/simd_ctx.h>
 #include <lib/utils_def.h>
@@ -188,12 +188,12 @@
  ******************************************************************************/
 #define CTX_CPTR_EL3			U(0x0)
 #define CTX_MPAM3_EL3			U(0x8)
-#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
+#if (ENABLE_FEAT_IDTE3 && defined(IMAGE_BL31))
 #define CTX_IDREGS_EL3			U(0x10)
 #define CTX_PERWORLD_EL3STATE_END	U(0x80)
 #else
 #define CTX_PERWORLD_EL3STATE_END	U(0x10)
-#endif /* ENABLE_FEAT_IDTE3 && IMAGE_BL31 */
+#endif /* ENABLE_FEAT_IDTE3 && defined(IMAGE_BL31) */
 
 #ifndef __ASSEMBLER__
 
@@ -315,7 +315,7 @@ typedef struct cpu_context {
 
 	ddc_cap_t ddc_el0;
 
-#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
+#if (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31))
 	el2_sysregs_t el2_sysregs_ctx;
 #else
 	/* El1 context should be included only either for IMAGE_BL1,
@@ -339,7 +339,7 @@ typedef struct cpu_context {
 typedef struct per_world_context {
 	uint64_t ctx_cptr_el3;
 	uint64_t ctx_mpam3_el3;
-#if (ENABLE_FEAT_IDTE3 && IMAGE_BL31)
+#if (ENABLE_FEAT_IDTE3 && defined(IMAGE_BL31))
 	perworld_idregs_t idregs;
 #endif
 } per_world_context_t;
@@ -363,7 +363,7 @@ extern per_world_context_t per_world_context[CPU_CONTEXT_NUM];
 /* Macros to access members of the 'cpu_context_t' structure */
 #define get_el3state_ctx(h)	(&((cpu_context_t *) h)->el3state_ctx)
 
-#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
+#if (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31))
 #define get_el2_sysregs_ctx(h)	(&((cpu_context_t *) h)->el2_sysregs_ctx)
 #else
 #define get_el1_sysregs_ctx(h)	(&((cpu_context_t *) h)->el1_sysregs_ctx)
@@ -434,7 +434,7 @@ void fpregs_context_restore(simd_regs_t *regs);
  * |______________________|______________________|____________________________|
  * ============================================================================
  ******************************************************************************/
-#if (IMAGE_BL1 || ((ERRATA_SPECULATIVE_AT) || (!CTX_INCLUDE_EL2_REGS)))
+#if (defined(IMAGE_BL1) || ((ERRATA_SPECULATIVE_AT) || (!CTX_INCLUDE_EL2_REGS)))
 
 static inline void write_ctx_sctlr_el1_reg_errata(cpu_context_t *ctx, u_register_t val)
 {
@@ -476,7 +476,7 @@ static inline u_register_t read_ctx_tcr_el1_reg_errata(cpu_context_t *ctx)
 #endif /* ERRATA_SPECULATIVE_AT */
 }
 
-#endif /* (IMAGE_BL1 || ((ERRATA_SPECULATIVE_AT) || (!CTX_INCLUDE_EL2_REGS))) */
+#endif /* (defined(IMAGE_BL1) || ((ERRATA_SPECULATIVE_AT) || (!CTX_INCLUDE_EL2_REGS))) */
 
 #endif /* __ASSEMBLER__ */
 

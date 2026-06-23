@@ -96,7 +96,7 @@ static void generic_errata_report(struct cpu_ops *cpu_ops)
  */
 void print_errata_status(void)
 {
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 	struct cpu_ops *cpu_ops = get_cpu_ops_ptr();
 #else
 	struct cpu_ops *cpu_ops = get_cpu_data(cpu_ops_ptr);
@@ -104,7 +104,7 @@ void print_errata_status(void)
 
 	assert(cpu_ops != NULL);
 
-#if !IMAGE_BL1
+#ifndef IMAGE_BL1
 	/*
 	 * Try to acquire the lock. The first CPU of each type to do so will
 	 * report errata. The others need not do anything. Never release the

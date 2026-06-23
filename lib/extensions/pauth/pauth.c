@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,7 +33,7 @@ void pauth_init(void)
 	write_apiakeylo_el1(key_lo);
 	write_apiakeyhi_el1(key_hi);
 
-#if IMAGE_BL31
+#if defined(IMAGE_BL31)
 	/*
 	 * In the warmboot entrypoint, cpu_data may have been used before data
 	 * caching was enabled.  Flush the caches so nothing stale is
@@ -48,7 +48,7 @@ void pauth_init(void)
 #if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_cpu_data(apiakey);
 #endif
-#elif IMAGE_BL1
+#elif defined(IMAGE_BL1)
 	bl1_apiakey[0] = key_lo;
 	bl1_apiakey[1] = key_hi;
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,13 +37,13 @@ static u_register_t mtpmu_disable_el3(u_register_t mdcr_el3)
 
 void pmuv3_enable(cpu_context_t *ctx)
 {
-#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
+#if (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31))
 	u_register_t mdcr_el2_val;
 
 	mdcr_el2_val = read_el2_ctx_common(get_el2_sysregs_ctx(ctx), mdcr_el2);
 	mdcr_el2_val = init_mdcr_el2_hpmn(mdcr_el2_val);
 	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), mdcr_el2, mdcr_el2_val);
-#endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
+#endif /* (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31)) */
 
 	el3_state_t *state = get_el3state_ctx(ctx);
 	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);

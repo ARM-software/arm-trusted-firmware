@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,7 +56,7 @@ check_erratum_custom_start cortex_a75, ERRATUM(936184)
 check_erratum_custom_end cortex_a75, ERRATUM(936184)
 
 workaround_reset_start cortex_a75, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_bpiall_vbar
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a75, CVE(2017, 5715)
@@ -71,7 +71,7 @@ workaround_reset_end cortex_a75, CVE(2018, 3639)
 check_erratum_chosen cortex_a75, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a75, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* Skip installing vector table again if already done for CVE(2017, 5715) */
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	mrs	x1, vbar_el3
