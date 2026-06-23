@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,7 +94,7 @@ static const mmap_region_t g12a_mmap[] = {
  ******************************************************************************/
 void aml_setup_page_tables(void)
 {
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	const mmap_region_t g12a_bl_mmap[] = {
 		MAP_BL31,
 		MAP_BL_CODE,
