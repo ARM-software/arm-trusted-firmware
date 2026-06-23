@@ -151,9 +151,9 @@
 						RDASPEN_CPER_BUF_SIZE, \
 						MT_MEMORY | MT_RW | MT_NS)
 
-#if IMAGE_BL2
+#if defined(IMAGE_BL2)
 #define PLAT_ARM_MMAP_ENTRIES			U(9)
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 #define PLAT_ARM_MMAP_ENTRIES			(U(9))
 #endif
 #define MAX_XLAT_TABLES				(U(10))

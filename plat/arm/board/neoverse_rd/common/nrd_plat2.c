@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@
 /*
  * Table of regions for different BL stages to map using the MMU.
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	NRD_CSS_SHARED_RAM_MMAP(0),
 	NRD_ROS_FLASH0_RO_MMAP,
@@ -32,7 +32,7 @@ const mmap_region_t plat_arm_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	NRD_CSS_SHARED_RAM_MMAP(0),
 	NRD_ROS_FLASH0_RO_MMAP,
@@ -66,7 +66,7 @@ const mmap_region_t plat_arm_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	NRD_CSS_SHARED_RAM_MMAP(0),
 #ifdef PLAT_ARM_MEM_PROT_ADDR

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,7 +120,7 @@ void arm_bl1_set_mbedtls_heap(void)
 }
 #endif /* CRYPTO_SUPPORT && !TRANSFER_LIST */
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 /*
  * BL2 utility function to initialize dynamic configuration specified by
  * FW_CONFIG. Populate the bl_mem_params_node_t of other FW_CONFIGs if

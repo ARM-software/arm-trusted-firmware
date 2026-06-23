@@ -31,7 +31,7 @@ io_block_spec_t fip_block_spec = {
  *  - Without ARM_GPT_SUPPORT: both BL1 and BL2 use the fixed FIP base address.
  */
 #if ARM_GPT_SUPPORT
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 	.offset = PLAT_ARM_FLASH_IMAGE_BASE + PLAT_ARM_FIP_OFFSET_IN_GPT,
 #endif /* IMAGE_BL1 */
 #else
