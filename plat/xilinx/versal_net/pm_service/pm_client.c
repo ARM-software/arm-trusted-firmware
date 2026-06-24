@@ -40,7 +40,7 @@ static inline void pm_client_lock_release(void)
 	spin_unlock(&pm_client_secure_lock);
 }
 
-static const struct pm_ipi apu_ipi = {
+const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_LOCAL_ID,
 	.remote_ipi_id = IPI_REMOTE_ID,
 	.buffer_base = IPI_BUFFER_LOCAL_BASE,
@@ -50,82 +50,66 @@ static const struct pm_ipi apu_ipi = {
 static const struct pm_proc pm_procs_all[] = {
 	{
 		.node_id = PM_DEV_CLUSTER0_ACPU_0,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER0_ACPU_1,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER0_ACPU_2,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER0_ACPU_3,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER1_ACPU_0,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER1_ACPU_1,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER1_ACPU_2,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER1_ACPU_3,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER2_ACPU_0,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER2_ACPU_1,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER2_ACPU_2,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER2_ACPU_3,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER3_ACPU_0,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER3_ACPU_1,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER3_ACPU_2,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	},
 	{
 		.node_id = PM_DEV_CLUSTER3_ACPU_3,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = 0,
 	}
 };

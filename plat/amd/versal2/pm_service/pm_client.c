@@ -47,7 +47,7 @@ static inline void pm_client_lock_release(void)
 	spin_unlock(&pm_client_secure_lock);
 }
 
-static const struct pm_ipi apu_ipi = {
+const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_LOCAL_ID,
 	.remote_ipi_id = IPI_REMOTE_ID,
 	.buffer_base = IPI_BUFFER_LOCAL_BASE,
@@ -55,22 +55,22 @@ static const struct pm_ipi apu_ipi = {
 
 /* Default topology: 4 clusters x 2 cores. Order must match cpu ids. */
 static const struct pm_proc pm_procs_default[] = {
-	{ .node_id = PM_DEV_CLUSTER0_ACPU_0, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER0_ACPU_1, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER1_ACPU_0, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER1_ACPU_1, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER2_ACPU_0, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER2_ACPU_1, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER3_ACPU_0, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER3_ACPU_1, .ipi = &apu_ipi },
+	{ .node_id = PM_DEV_CLUSTER0_ACPU_0 },
+	{ .node_id = PM_DEV_CLUSTER0_ACPU_1 },
+	{ .node_id = PM_DEV_CLUSTER1_ACPU_0 },
+	{ .node_id = PM_DEV_CLUSTER1_ACPU_1 },
+	{ .node_id = PM_DEV_CLUSTER2_ACPU_0 },
+	{ .node_id = PM_DEV_CLUSTER2_ACPU_1 },
+	{ .node_id = PM_DEV_CLUSTER3_ACPU_0 },
+	{ .node_id = PM_DEV_CLUSTER3_ACPU_1 },
 };
 
 /* 1 cluster x 4 cores topology. Order must match cpu ids. */
 static const struct pm_proc pm_procs_1c4[] = {
-	{ .node_id = PM_DEV_CLUSTER0_ACPU_0, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER0_ACPU_1, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER0_ACPU_2, .ipi = &apu_ipi },
-	{ .node_id = PM_DEV_CLUSTER0_ACPU_3, .ipi = &apu_ipi },
+	{ .node_id = PM_DEV_CLUSTER0_ACPU_0 },
+	{ .node_id = PM_DEV_CLUSTER0_ACPU_1 },
+	{ .node_id = PM_DEV_CLUSTER0_ACPU_2 },
+	{ .node_id = PM_DEV_CLUSTER0_ACPU_3 },
 };
 
 /* Active proc table and count; default is the 4x2 topology. */

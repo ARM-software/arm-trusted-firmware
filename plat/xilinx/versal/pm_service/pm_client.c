@@ -30,7 +30,7 @@
 
 static DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
-static const struct pm_ipi apu_ipi = {
+const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_LOCAL_ID,
 	.remote_ipi_id = IPI_REMOTE_ID,
 	.buffer_base = IPI_BUFFER_LOCAL_BASE,
@@ -40,12 +40,10 @@ static const struct pm_ipi apu_ipi = {
 static const struct pm_proc pm_procs_all[] = {
 	{
 		.node_id = XPM_DEVID_ACPU_0,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = APU_0_PWRCTL_CPUPWRDWNREQ_MASK,
 	},
 	{
 		.node_id = XPM_DEVID_ACPU_1,
-		.ipi = &apu_ipi,
 		.pwrdn_mask = APU_1_PWRCTL_CPUPWRDWNREQ_MASK,
 	}
 };

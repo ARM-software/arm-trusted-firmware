@@ -64,7 +64,9 @@ static inline void pm_ipi_lock_release(void)
  */
 void pm_ipi_init(const struct pm_proc *proc)
 {
-	ipi_mb_open(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+	(void)proc;
+
+	ipi_mb_open(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id);
 }
 
 /**
@@ -84,9 +86,12 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 					     uint32_t is_blocking)
 {
 	uint32_t offset = PM_OFFSET;
-	uintptr_t buffer_base = proc->ipi->buffer_base +
+	uintptr_t buffer_base = apu_ipi.buffer_base +
 					IPI_BUFFER_TARGET_REMOTE_OFFSET +
 					IPI_BUFFER_REQ_OFFSET;
+
+	(void)proc;
+
 #if IPI_CRC_CHECK
 	payload[PAYLOAD_CRC_POS] = calculate_crc(payload, IPI_W0_TO_W6_SIZE);
 #endif
@@ -98,7 +103,7 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 	}
 
 	/* Generate IPI to remote processor */
-	ipi_mb_notify(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id,
+	ipi_mb_notify(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id,
 		      is_blocking);
 
 	return PM_RET_SUCCESS;
@@ -172,9 +177,11 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 #if IPI_CRC_CHECK
 	uint32_t crc;
 #endif
-	uintptr_t buffer_base = proc->ipi->buffer_base +
+	uintptr_t buffer_base = apu_ipi.buffer_base +
 				IPI_BUFFER_TARGET_REMOTE_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
+
+	(void)proc;
 
 	/*
 	 * Read response from IPI buffer
@@ -290,12 +297,16 @@ unlock:
 
 void pm_ipi_irq_enable(const struct pm_proc *proc)
 {
-	ipi_mb_enable_irq(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+	(void)proc;
+
+	ipi_mb_enable_irq(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id);
 }
 
 void pm_ipi_irq_clear(const struct pm_proc *proc)
 {
-	ipi_mb_ack(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+	(void)proc;
+
+	ipi_mb_ack(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id);
 }
 
 uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
@@ -303,8 +314,10 @@ uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 	uint32_t ret;
 	uint32_t result = (uint32_t)PM_RET_SUCCESS;
 
-	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
-				    proc->ipi->remote_ipi_id);
+	(void)proc;
+
+	ret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+				    apu_ipi.remote_ipi_id);
 	if ((ret & IPI_MB_STATUS_RECV_PENDING) != 0U) {
 		result = IPI_MB_STATUS_RECV_PENDING;
 	}

@@ -46,18 +46,21 @@ struct pm_ipi {
 	const uintptr_t buffer_base;
 };
 
+/*
+ * All APU processors communicate with the platform management controller over
+ * a single IPI channel. Each platform defines this channel once in its
+ * pm_client.c and the common PM IPI layer references it directly.
+ */
+extern const struct pm_ipi apu_ipi;
+
 /**
  * struct pm_proc - struct for capturing processor related info.
  * @node_id: node-ID of the processor.
  * @pwrdn_mask: cpu-specific mask to be used for power control register.
- * @ipi: pointer to IPI channel structure.
- *       (in APU all processors share one IPI channel)
- *
  */
 struct pm_proc {
 	const uint32_t node_id;
 	const uint32_t pwrdn_mask;
-	const struct pm_ipi *ipi;
 };
 
 const struct pm_proc *pm_get_proc(uint32_t cpuid);
