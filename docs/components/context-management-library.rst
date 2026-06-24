@@ -252,30 +252,9 @@ CPU Context and Memory allocation
 CPU Context
 ~~~~~~~~~~~
 The members of the context structure used by the EL3 firmware to preserve the
-state of CPU across exception levels for a given security state are listed below.
-
-.. code:: c
-
-	typedef struct cpu_context {
-	gp_regs_t gpregs_ctx;
-	el3_state_t el3state_ctx;
-
-	cve_2018_3639_t cve_2018_3639_ctx;
-
-	#if ERRATA_SPECULATIVE_AT
-	errata_speculative_at_t errata_speculative_at_ctx;
-	#endif
-
-	#if CTX_INCLUDE_PAUTH_REGS
-	pauth_t pauth_ctx;
-	#endif
-
-	#if (CTX_INCLUDE_EL2_REGS && defined(IMAGE_BL31))
-	el2_sysregs_t el2_sysregs_ctx;
-	#else
-	el1_sysregs_t el1_sysregs_ctx;
-	#endif
-	} cpu_context_t;
+state of CPU across exception levels for a given security state are listed in
+the cpu_context structure, located in `lib/el3_runtime/aarch32/context.h`_ or
+`lib/el3_runtime/aarch64/context.h`_.
 
 Context Memory Allocation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -598,4 +577,6 @@ entrypaths and at all the possible exception handlers routing to EL3 at runtime.
 .. |Root Context Sequence| image:: ../resources/diagrams/root_context_sequence.png
 .. _Trustzone for AArch64: https://developer.arm.com/documentation/102418/0101/TrustZone-in-the-processor/Switching-between-Security-states
 .. _Security States with RME: https://developer.arm.com/documentation/den0126/0100/Security-states
-.. _lib/el3_runtime/(aarch32/aarch64): https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/lib/el3_runtime
+.. _lib/el3_runtime/(aarch32/aarch64): https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/+/master/lib/el3_runtime
+.. _lib/el3_runtime/aarch32/context.h: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/master/include/lib/el3_runtime/aarch32/context.h
+.. _lib/el3_runtime/aarch64/context.h: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/master/include/lib/el3_runtime/aarch64/context.h
