@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -28,7 +28,7 @@ enum stm32mp_ddr_reg_type {
 struct stm32mp_ddr_reg_desc {
 	uint16_t offset;	/* Offset for base address */
 	uint8_t par_offset;	/* Offset for parameter array */
-#ifdef STM32MP2X
+#if STM32MP2X
 	bool qd; /* quasi-dynamic register if true */
 #endif
 };
