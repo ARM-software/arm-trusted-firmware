@@ -145,6 +145,19 @@ uint32_t rockchip_get_uart_baudrate(void);
 uint32_t rockchip_get_uart_clock(void);
 
 void rockchip_init_scmi_server(void);
+
+static inline uint64_t rockchip_get_sp(void)
+{
+	uint64_t save_sp;
+
+	__asm__ volatile("mov %0, sp" : "=r" (save_sp) : :);
+	return save_sp;
+}
+
+static inline void rockchip_set_sp(uint64_t set_sp)
+{
+	__asm__ volatile("mov sp, %0" : : "r" (set_sp) :);
+}
 #endif /* __ASSEMBLER__ */
 
 /******************************************************************************

@@ -643,6 +643,9 @@ subsections:
           - title: RK3588
             scope: rk3588
 
+          - title: RV1126B
+            scope: rv1126b
+
       - title: Socionext
         scope: socionext
 
