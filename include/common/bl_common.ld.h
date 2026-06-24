@@ -84,7 +84,7 @@
 /*
  * The base xlat table
  *
- * It is put into the rodata section if PLAT_RO_XLAT_TABLES=1,
+ * It is put into the rodata section if PLAT_RO_XLAT_TABLES is defined,
  * or into the bss section otherwise.
  */
 #define BASE_XLAT_TABLE					\
@@ -93,7 +93,7 @@
 	*(.base_xlat_table)				\
 	__BASE_XLAT_TABLE_END__ = .;
 
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 #define BASE_XLAT_TABLE_RO		BASE_XLAT_TABLE
 #define BASE_XLAT_TABLE_BSS
 #else

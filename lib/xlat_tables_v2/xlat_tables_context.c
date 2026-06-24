@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,7 +120,7 @@ int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
 	return xlat_change_mem_attributes_ctx(&tf_xlat_ctx, base_va, size, attr);
 }
 
-#if PLAT_RO_XLAT_TABLES
+#ifdef PLAT_RO_XLAT_TABLES
 /* Change the memory attributes of the descriptors which resolve the address
  * range that belongs to the translation tables themselves, which are by default
  * mapped as part of read-write data in the BL image's memory.
