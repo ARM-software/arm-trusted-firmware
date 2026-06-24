@@ -290,6 +290,7 @@ end:
  */
 int32_t pm_setup(void)
 {
+	const struct pm_proc *proc;
 	int32_t ret = 0;
 
 	/*
@@ -324,10 +325,15 @@ int32_t pm_setup(void)
 	gicd_write_irouter(gicv3_driver_data->gicd_base, PLAT_VERSAL_IPI_IRQ, MODE);
 
 	/* Register for idle callback during force power down/restart */
-	ret = (int32_t)pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
-					    0x0U, 0x1U, (uint32_t)SECURE);
-	if (ret != 0) {
-		WARN("BL31: registering idle callback for restart/force power down failed\n");
+	proc = pm_get_proc(0U);
+	if (proc != NULL) {
+		ret = (int32_t)pm_register_notifier(proc->node_id, EVENT_CPU_PWRDWN,
+						    0x0U, 0x1U, (uint32_t)SECURE);
+		if (ret != 0) {
+			WARN("BL31: registering idle callback for restart/force power down failed\n");
+		}
+	} else {
+		WARN("BL31: Failed to get primary proc\n");
 	}
 
 	return ret;

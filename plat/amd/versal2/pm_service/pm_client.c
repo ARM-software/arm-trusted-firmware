@@ -77,9 +77,6 @@ static const struct pm_proc pm_procs_1c4[] = {
 static const struct pm_proc *pm_procs_all = pm_procs_default;
 static size_t pm_procs_count = ARRAY_SIZE(pm_procs_default);
 
-/* Only index [0] is used and it is identical in both topology tables. */
-const struct pm_proc *primary_proc = &pm_procs_default[0];
-
 /* Select pm_procs_1c4 for 1-cluster 4-core topology; call after DT topology is set. */
 void pm_client_init(void)
 {

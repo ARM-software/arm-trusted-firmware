@@ -266,8 +266,6 @@ static uint32_t pm_get_cpuid(enum pm_node_id nid)
 	return ret;
 }
 
-const struct pm_proc *primary_proc = &pm_procs_all[0];
-
 /**
  * pm_client_suspend() - Client-specific suspend actions.
  * @proc: processor which need to suspend.

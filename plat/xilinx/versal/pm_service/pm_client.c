@@ -48,8 +48,6 @@ static const struct pm_proc pm_procs_all[] = {
 	}
 };
 
-const struct pm_proc *primary_proc = &pm_procs_all[0];
-
 /**
  * irq_to_pm_node_idx - Get PM node index corresponding to the interrupt number.
  * @irq: Interrupt number

@@ -114,8 +114,6 @@ static const struct pm_proc pm_procs_all[] = {
 	}
 };
 
-const struct pm_proc *primary_proc = &pm_procs_all[0];
-
 /**
  * pm_get_proc() - returns pointer to the proc structure.
  * @cpuid: id of the cpu whose proc struct pointer should be returned.
