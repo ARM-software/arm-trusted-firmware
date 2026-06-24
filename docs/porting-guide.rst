@@ -515,17 +515,6 @@ must also be defined:
    With this macro, multiple block devices could be supported at the same
    time.
 
-If the platform needs to allocate data within the per-cpu data framework in
-BL31, it should define the following macro. Currently this is only required if
-the platform decides not to use the coherent memory section by undefining the
-``USE_COHERENT_MEM`` build flag. In this case, the framework allocates the
-required memory within the the per-cpu data to minimize wastage.
-
--  **#define : PLAT_PCPU_DATA_SIZE**
-
-   Defines the memory (in bytes) to be reserved within the per-cpu data
-   structure for use by the platform layer.
-
 The following constants are optional. They should be defined when the platform
 memory layout implies some image overlaying like in Arm standard platforms.
 
