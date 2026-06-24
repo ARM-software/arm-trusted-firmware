@@ -185,10 +185,12 @@ static void psc_pd_clk_get(const struct ti_psc_pd_data *data)
 	uint32_t i;
 
 	for (i = 0U; i < ARRAY_SIZE(data->clock_dep); i++) {
-		struct ti_clk *clkp = ti_clk_lookup(data->clock_dep[i]);
+		if (data->clock_dep[i] != 0U) {
+			struct ti_clk *clkp = ti_clk_lookup(data->clock_dep[i]);
 
-		if (clkp != NULL) {
-			(void) ti_clk_get(clkp);
+			if (clkp != NULL) {
+				(void) ti_clk_get(clkp);
+			}
 		}
 	}
 }
@@ -251,10 +253,12 @@ static void psc_pd_clk_put(const struct ti_psc_pd_data *data)
 	uint32_t i;
 
 	for (i = 0U; i < ARRAY_SIZE(data->clock_dep); i++) {
-		struct ti_clk *clkp = ti_clk_lookup(data->clock_dep[i]);
+		if (data->clock_dep[i] != 0U) {
+			struct ti_clk *clkp = ti_clk_lookup(data->clock_dep[i]);
 
-		if (clkp != NULL) {
-			ti_clk_put(clkp);
+			if (clkp != NULL) {
+				ti_clk_put(clkp);
+			}
 		}
 	}
 }
