@@ -742,7 +742,7 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		/* Send request to the PMU */
 		PM_PACK_PAYLOAD5(payload, flag, PM_IOCTL, nid, ioctl_id, arg1, arg2);
 
-		ret = pm_ipi_send_sync(primary_proc, payload, value, 1);
+		ret = pm_ipi_send_sync(payload, value, 1);
 		break;
 	}
 

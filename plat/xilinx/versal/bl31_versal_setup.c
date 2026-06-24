@@ -123,7 +123,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #if (TFA_NO_PM == 0)
 	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, 1U, PM_LOAD_GET_HANDOFF_PARAMS,
 			(uintptr_t)addr >> 32U, (uintptr_t)addr, max_size);
-	ret_status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	ret_status = pm_ipi_send_sync(payload, NULL, 0);
 	if (ret_status == PM_RET_SUCCESS) {
 		INFO("BL31: GET_HANDOFF_PARAMS call success=%d\n", ret_status);
 		tfa_handoff_addr = (uintptr_t)&addr;

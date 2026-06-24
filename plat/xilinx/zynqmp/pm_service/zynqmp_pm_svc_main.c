@@ -223,7 +223,7 @@ int32_t pm_setup(void)
 	enum pm_ret_status err;
 	int32_t ret = -EINVAL;
 
-	pm_ipi_init(primary_proc);
+	pm_ipi_init();
 
 	err = pm_get_api_version(&pm_ctx.api_version, SECURE);
 	if (err != PM_RET_SUCCESS) {
@@ -372,7 +372,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			 * Even if we were wrong, it would not enable the IRQ in
 			 * the GIC.
 			 */
-			pm_ipi_irq_enable(primary_proc);
+			pm_ipi_irq_enable();
 			ipi_irq_flag = 1U;
 		}
 		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
@@ -562,7 +562,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		PM_PACK_PAYLOAD5(payload, security_flag, smc_fid & FUNCID_NUM_MASK,
 				 pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
-		ret = pm_ipi_send_sync(primary_proc, payload, ret_payload, 3U);
+		ret = pm_ipi_send_sync(payload, ret_payload, 3U);
 		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)ret_payload[0] << 32U)),
 			 ((uint64_t)ret_payload[1] | ((uint64_t)ret_payload[2] << 32U)));
 	}
@@ -583,7 +583,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		/* Send request to the PMU */
 		PM_PACK_PAYLOAD6(payload, security_flag, api_id, pm_arg[0],
 				 pm_arg[1], pm_arg[2], pm_arg[3], pm_arg[4]);
-		ret = pm_ipi_send_sync(primary_proc, payload, result,
+		ret = pm_ipi_send_sync(payload, result,
 				       RET_PAYLOAD_ARG_CNT);
 		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)result[0] << 32U)),
 			 ((uint64_t)result[1] | ((uint64_t)result[2] << 32U)));

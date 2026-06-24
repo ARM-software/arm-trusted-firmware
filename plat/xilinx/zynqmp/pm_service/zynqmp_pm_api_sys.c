@@ -285,7 +285,7 @@ enum pm_ret_status pm_self_suspend(enum pm_node_id nid,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD6(payload, flag, PM_SELF_SUSPEND, proc->node_id,
 			 latency, state, address, (address >> 32));
-	return pm_ipi_send_sync(proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 /**
@@ -312,9 +312,9 @@ enum pm_ret_status pm_req_suspend(enum pm_node_id target,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, flag, PM_REQ_SUSPEND, target, ack, latency, state);
 	if (ack == REQ_ACK_BLOCKING) {
-		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(payload, NULL, 0);
 	} else {
-		ret = pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(payload);
 	}
 
 	return ret;
@@ -358,9 +358,9 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 			 encoded_address >> 32, ack);
 
 	if (ack == REQ_ACK_BLOCKING) {
-		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(payload, NULL, 0);
 	} else {
-		ret = pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(payload);
 	}
 
 	return ret;
@@ -388,9 +388,9 @@ enum pm_ret_status pm_force_powerdown(enum pm_node_id target,
 	PM_PACK_PAYLOAD3(payload, flag, PM_FORCE_POWERDOWN, target, ack);
 
 	if (ack == REQ_ACK_BLOCKING) {
-		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(payload, NULL, 0);
 	} else {
-		ret = pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(payload);
 	}
 
 	return ret;
@@ -417,7 +417,7 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
 
 	PM_PACK_PAYLOAD4(payload, flag, PM_SET_WAKEUP_SOURCE, target, wkup_node,
 			 enable);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 /**
@@ -441,7 +441,7 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype,
 		pm_shutdown_scope = subtype;
 	} else {
 		PM_PACK_PAYLOAD3(payload, flag, PM_SYSTEM_SHUTDOWN, type, subtype);
-		ret = pm_ipi_send_non_blocking(primary_proc, payload);
+		ret = pm_ipi_send_non_blocking(payload);
 	}
 
 	return ret;
@@ -473,9 +473,9 @@ enum pm_ret_status pm_req_node(enum pm_node_id nid,
 	PM_PACK_PAYLOAD5(payload, flag, PM_REQ_NODE, nid, capabilities, qos, ack);
 
 	if (ack == REQ_ACK_BLOCKING) {
-		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(payload, NULL, 0);
 	} else {
-		ret = pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(payload);
 	}
 
 	return ret;
@@ -508,9 +508,9 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 			 ack);
 
 	if (ack == REQ_ACK_BLOCKING) {
-		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(payload, NULL, 0);
 	} else {
-		ret = pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(payload);
 	}
 
 	return ret;
@@ -534,7 +534,7 @@ enum pm_ret_status pm_get_api_version(uint32_t *version, uint32_t flag)
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, flag, PM_GET_API_VERSION);
-	ret = pm_ipi_send_sync(primary_proc, payload, version, 1);
+	ret = pm_ipi_send_sync(payload, version, 1);
 	return ret;
 }
 
@@ -558,7 +558,7 @@ enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	PM_PACK_PAYLOAD2(payload, flag, PM_GET_NODE_STATUS, nid);
-	return pm_ipi_send_sync(primary_proc, payload, ret_buff, 3);
+	return pm_ipi_send_sync(payload, ret_buff, 3);
 }
 
 /**
@@ -584,7 +584,7 @@ enum pm_ret_status pm_mmio_write(uintptr_t address,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, flag, PM_MMIO_WRITE, address, mask, value);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 /**
@@ -606,7 +606,7 @@ enum pm_ret_status pm_mmio_read(uintptr_t address, uint32_t *value, uint32_t fla
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, flag, PM_MMIO_READ, address);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+	return pm_ipi_send_sync(payload, value, 1);
 }
 
 /**
@@ -634,7 +634,7 @@ enum pm_ret_status pm_fpga_load(uint32_t address_low,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, security_flag, PM_FPGA_LOAD, address_high,
 			 address_low, size, flags);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 /**
@@ -655,7 +655,7 @@ enum pm_ret_status pm_fpga_get_status(uint32_t *value, uint32_t flag)
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, flag, PM_FPGA_GET_STATUS);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+	return pm_ipi_send_sync(payload, value, 1);
 }
 
 /**
@@ -673,7 +673,7 @@ enum pm_ret_status pm_get_chipid(uint32_t *value, uint32_t flag)
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, flag, PM_GET_CHIPID);
-	return pm_ipi_send_sync(primary_proc, payload, value, 2);
+	return pm_ipi_send_sync(payload, value, 2);
 }
 
 /**
@@ -702,7 +702,7 @@ enum pm_ret_status pm_secure_rsaaes(uint32_t address_low,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, security_flag, PM_SECURE_RSA_AES, address_high,
 			 address_low, size, flags);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 /**
@@ -728,7 +728,7 @@ enum pm_ret_status pm_aes_engine(uint32_t address_high,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, flag, PM_SECURE_AES, address_high, address_low);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+	return pm_ipi_send_sync(payload, value, 1);
 }
 
 /**
@@ -745,12 +745,12 @@ enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count)
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	/* Return if interrupt is not from PMU */
-	if ((pm_ipi_irq_status(primary_proc) == 0U)) {
+	if ((pm_ipi_irq_status() == 0U)) {
 		goto exit_label;
 	}
 
 	ret = pm_ipi_buff_read_callb(data, count);
-	pm_ipi_irq_clear(primary_proc);
+	pm_ipi_irq_clear();
 
 exit_label:
 	return ret;
@@ -798,7 +798,7 @@ static enum pm_ret_status fw_api_version(uint32_t id, uint32_t *version,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	PM_PACK_PAYLOAD2(payload, flag, PM_FEATURE_CHECK, id);
-	return pm_ipi_send_sync(primary_proc, payload, version, len);
+	return pm_ipi_send_sync(payload, version, len);
 }
 
 /**
@@ -1205,7 +1205,7 @@ static enum pm_ret_status pm_clock_gate(uint32_t clock_id,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, flag, api_id, clock_id);
-	status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	status = pm_ipi_send_sync(payload, NULL, 0);
 
 	/* If action fails due to the lack of permissions filter the error */
 	if (status == PM_RET_ERROR_ACCESS) {
@@ -1313,7 +1313,7 @@ enum pm_ret_status pm_clock_getstate(uint32_t clock_id,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, flag, PM_CLOCK_GETSTATE, clock_id);
-	status = pm_ipi_send_sync(primary_proc, payload, state, 1);
+	status = pm_ipi_send_sync(payload, state, 1);
 
 exit_label:
 	return status;
@@ -1371,7 +1371,7 @@ enum pm_ret_status pm_clock_setdivider(uint32_t clock_id,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, flag, PM_CLOCK_SETDIVIDER, clock_id, div_id, val);
-	status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	status = pm_ipi_send_sync(payload, NULL, 0);
 
 exit_label:
 	return status;
@@ -1417,7 +1417,7 @@ enum pm_ret_status pm_clock_getdivider(uint32_t clock_id,
 		/* Send request to the PMU to get div0 */
 		PM_PACK_PAYLOAD3(payload, flag, PM_CLOCK_GETDIVIDER, clock_id,
 				 PM_CLOCK_DIV0_ID);
-		status = pm_ipi_send_sync(primary_proc, payload, &val, 1);
+		status = pm_ipi_send_sync(payload, &val, 1);
 		if (status != PM_RET_SUCCESS) {
 			goto exit_label;
 		}
@@ -1428,7 +1428,7 @@ enum pm_ret_status pm_clock_getdivider(uint32_t clock_id,
 		/* Send request to the PMU to get div1 */
 		PM_PACK_PAYLOAD3(payload, flag, PM_CLOCK_GETDIVIDER, clock_id,
 				 PM_CLOCK_DIV1_ID);
-		status = pm_ipi_send_sync(primary_proc, payload, &val, 1);
+		status = pm_ipi_send_sync(payload, &val, 1);
 		if (status != PM_RET_SUCCESS) {
 			goto exit_label;
 		}
@@ -1474,7 +1474,7 @@ enum pm_ret_status pm_clock_setparent(uint32_t clock_id,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, flag, PM_CLOCK_SETPARENT, clock_id, parent_index);
-	status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	status = pm_ipi_send_sync(payload, NULL, 0);
 
 exit_label:
 	return status;
@@ -1517,7 +1517,7 @@ enum pm_ret_status pm_clock_getparent(uint32_t clock_id,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, flag, PM_CLOCK_GETPARENT, clock_id);
-	status = pm_ipi_send_sync(primary_proc, payload, parent_index, 1);
+	status = pm_ipi_send_sync(payload, parent_index, 1);
 
 exit_label:
 	return status;
@@ -1698,7 +1698,7 @@ void pm_query_data(enum pm_query_ids qid, uint32_t arg1, uint32_t arg2,
 	default:
 		/* Send request to the PMU */
 		PM_PACK_PAYLOAD5(payload, flag, PM_QUERY_DATA, qid, arg1, arg2, arg3);
-		data[0] = (uint32_t)pm_ipi_send_sync(primary_proc, payload, &data[1], 3U);
+		data[0] = (uint32_t)pm_ipi_send_sync(payload, &data[1], 3U);
 		break;
 	}
 }
@@ -1714,7 +1714,7 @@ enum pm_ret_status pm_sha_hash(uint32_t address_high,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, security_flag, PM_SECURE_SHA, address_high,
 			 address_low, size, flags);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 enum pm_ret_status pm_rsa_core(uint32_t address_high,
@@ -1728,7 +1728,7 @@ enum pm_ret_status pm_rsa_core(uint32_t address_high,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, security_flag, PM_SECURE_RSA, address_high,
 			 address_low, size, flags);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	return pm_ipi_send_sync(payload, NULL, 0);
 }
 
 enum pm_ret_status pm_secure_image(uint32_t address_low,
@@ -1743,7 +1743,7 @@ enum pm_ret_status pm_secure_image(uint32_t address_low,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, flag, PM_SECURE_IMAGE, address_high,
 			 address_low, key_hi, key_lo);
-	return pm_ipi_send_sync(primary_proc, payload, value, 2);
+	return pm_ipi_send_sync(payload, value, 2);
 }
 
 /**
@@ -1776,7 +1776,7 @@ enum pm_ret_status pm_fpga_read(uint32_t reg_numframes,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, flag, PM_FPGA_READ, reg_numframes, address_low,
 			 address_high, readback_type);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+	return pm_ipi_send_sync(payload, value, 1);
 }
 
 /*
@@ -1816,7 +1816,7 @@ enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, flag, PM_PLL_SET_PARAMETER, nid, param_id, value);
-	ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	ret = pm_ipi_send_sync(payload, NULL, 0);
 
 exit_label:
 	return ret;
@@ -1855,7 +1855,7 @@ enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, flag, PM_PLL_GET_PARAMETER, nid, param_id);
-	ret = pm_ipi_send_sync(primary_proc, payload, value, 1);
+	ret = pm_ipi_send_sync(payload, value, 1);
 
 exit_label:
 	return ret;
@@ -1897,7 +1897,7 @@ enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, flag, PM_PLL_SET_MODE, nid, mode);
-	ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	ret = pm_ipi_send_sync(payload, NULL, 0);
 
 exit_label:
 	return ret;
@@ -1927,7 +1927,7 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode,
 	} else {
 		/* Send request to the PMU */
 		PM_PACK_PAYLOAD2(payload, flag, PM_PLL_GET_MODE, nid);
-		ret = pm_ipi_send_sync(primary_proc, payload, &mode_val, 1);
+		ret = pm_ipi_send_sync(payload, &mode_val, 1);
 		if (ret == PM_RET_SUCCESS) {
 			*mode = (enum pm_pll_mode)mode_val;
 		}
@@ -2008,5 +2008,5 @@ enum pm_ret_status pm_efuse_access(uint32_t address_high,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, flag, PM_EFUSE_ACCESS, address_high, address_low);
 
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+	return pm_ipi_send_sync(payload, value, 1);
 }

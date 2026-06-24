@@ -152,7 +152,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, 1U, PM_LOAD_GET_HANDOFF_PARAMS,
 			 (uintptr_t)buff >> 32U, (uintptr_t)buff, max_size);
 
-	ret_status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	ret_status = pm_ipi_send_sync(payload, NULL, 0);
 	if (ret_status == PM_RET_SUCCESS) {
 		enum xbl_handoff xbl_ret;
 
