@@ -30,7 +30,7 @@ check_feature(int state, unsigned long field, const char *feat_name,
 
 #define CHECK_FEATURE(name, idreg, guard, field, min, max, worlds)		\
 	do {									\
-		tainted |= check_feature(guard, _read_ ## name ## _id_field(), #name, min, max); \
+		tainted = tainted || check_feature(guard, _read_ ## name ## _id_field(), #name, min, max); \
 	} while (0);
 
 /*
