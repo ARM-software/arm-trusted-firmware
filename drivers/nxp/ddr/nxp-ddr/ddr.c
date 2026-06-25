@@ -6,6 +6,7 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -571,8 +572,85 @@ static int parse_spd(struct ddr_info *priv)
 
 			if (spd_idx != 0 && spd_checksum[0] !=
 			    spd_checksum[spd_idx]) {
+#if defined(NXP_DDR_DUAL_DIMM_TOLERANT)
+				/* DDR4 SPD bytes that have impacts */
+				static const unsigned int timing_bytes[] = {
+
+					/* device key + organisation */
+					2,	/* mem_type DDR3 / DDR4 / LPDDR4 key */
+					4,	/* density_banks SDRAM density + bank groups */
+					5,	/* addressing row/col bit counts */
+					6,	/* package_type SDP / DDP / 3DS / QDP */
+					7,	/* opt_feature MAW, fault detect */
+					8,	/* thermal_ref refresh interval mode */
+					9,	/* oth_opt_features PPR / soft-PPR */
+					11,	/* module_vdd nominal voltage (DDR4 = 1.2 V) */
+					12,	/* organization ranks + DRAM width (x4/x8/x16) */
+					13,	/* bus_width primary bus width + ECC bit */
+					14,	/* therm_sensor on-DIMM temp-sensor presence */
+
+					/* DDR4 base timing block - MTB units (MTB = 125 ps) */
+					17,	/* timebases MTB/FTB select (0x00 on DDR4) */
+					18,	/* tck_min min SDRAM cycle time -> speed bin */
+					19,	/* tck_max max SDRAM cycle time */
+					20,	/* caslat_b1 supported CAS latencies, byte 1 */
+					21,	/* caslat_b2 supported CAS latencies, byte 2 */
+					22,	/* caslat_b3 supported CAS latencies, byte 3 */
+					23,	/* caslat_b4 supported CAS latencies, byte 4 */
+					24,	/* taa_min min CAS latency time -> CL pick */
+					25,	/* trcd_min RAS-to-CAS delay */
+					26,	/* trp_min row precharge time */
+					27,	/* tras_trc_ext upper nibbles for tRAS / tRC */
+					28,	/* tras_min_lsb active-to-precharge LSB */
+					29,	/* trc_min_lsb row-cycle time LSB */
+					30,	/* trfc1_min_lsb refresh recovery 1x mode LSB */
+					31,	/* trfc1_min_msb refresh recovery 1x mode MSB */
+					32,	/* trfc2_min_lsb refresh recovery 2x mode LSB */
+					33,	/* trfc2_min_msb refresh recovery 2x mode MSB */
+					34,	/* trfc4_min_lsb refresh recovery 4x mode LSB */
+					35,	/* trfc4_min_msb refresh recovery 4x mode MSB */
+					36,	/* tfaw_msb four-activate-window upper nibble */
+					37,	/* tfaw_min four-activate-window LSB */
+					38,	/* trrds_min act-to-act, different bank groups */
+					39,	/* trrdl_min act-to-act, same bank group */
+					40,	/* tccdl_min CAS-to-CAS, same bank group */
+
+					/* DDR4 fine timing - FTB units (1 ps), signed deltas */
+					117,	/* fine_tccdl_min adds to byte 40 (tccdl_min) */
+					118,	/* fine_trrdl_min adds to byte 39 (trrdl_min) */
+					119,	/* fine_trrds_min adds to byte 38 (trrds_min) */
+					120,	/* fine_trc_min adds to byte 27/29 (trc) */
+					121,	/* fine_trp_min adds to byte 26 (trp) */
+					122,	/* fine_trcd_min adds to byte 25 (trcd) */
+					123,	/* fine_taa_min adds to byte 24 (taa) */
+					124,	/* fine_tck_max adds to byte 19 (tck_max) */
+					125,	/* fine_tck_min adds to byte 18 (tck_min) */
+				};
+				const unsigned char *pa =
+					(const unsigned char *)&spd[0];
+				const unsigned char *pb =
+					(const unsigned char *)&spd[spd_idx];
+				bool timing_ok = true;
+				unsigned int t;
+
+				for (t = 0U; t < ARRAY_SIZE(timing_bytes); t++) {
+					unsigned int bx = timing_bytes[t];
+
+					if (pa[bx] != pb[bx]) {
+						ERROR("DDR SPD timing byte %u: 0x%02x vs 0x%02x\n",
+						      bx, pa[bx], pb[bx]);
+						timing_ok = false;
+					}
+				}
+				if (!timing_ok) {
+					ERROR("Not identical DIMMs (timing-relevant mismatch).\n");
+					return -EINVAL;
+				}
+				NOTICE("DDR SPDs differ for non-timing bytes only -> accepting\n");
+#else
 				ERROR("Not identical DIMMs.\n");
 				return -EINVAL;
+#endif
 			}
 			conf->dimm_in_use[j] = 1;
 			valid_mask |= 1 << addr_idx;
