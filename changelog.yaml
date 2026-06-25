@@ -493,6 +493,10 @@ subsections:
                         deprecated:
                           - plat/soc-lx2160
 
+                        subsections:
+                          - title: Nodebox v3
+                            scope: nbxv3
+
               - title: LS1046A
                 scope: ls1046a
 
