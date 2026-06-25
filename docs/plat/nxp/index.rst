@@ -8,6 +8,7 @@ NXP Reference Development Platforms
    nxp-layerscape
    nxp-ls-fuse-prov
    nxp-ls-tbbr
+   nbxv3
 
 This chapter holds documentation related to NXP reference development platforms.
 It includes details on image flashing, fuse provisioning and trusted board boot-up.
