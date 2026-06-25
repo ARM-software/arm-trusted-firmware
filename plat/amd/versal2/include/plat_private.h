@@ -48,6 +48,8 @@ extern uint32_t plat_primary_cpu_core;
 
 extern uint32_t cpu_clock, platform_id, platform_version;
 extern uint32_t rtlversion, psversion, pmcversion;
+extern uint32_t idcode, version_type;
+
 void board_detection(void);
 const char *board_name_decode(void);
 uint64_t smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
