@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2025-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -38,7 +38,3 @@ BL31_SOURCES	+=	${GIC_SOURCES}
 else
 BL32_SOURCES	+=	${GIC_SOURCES}
 endif
-
-$(eval $(call add_defines,\
-	USE_GIC_DRIVER \
-))
