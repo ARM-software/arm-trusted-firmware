@@ -62,8 +62,10 @@ endif
 ifeq (${CTX_INCLUDE_EL2_REGS}, 1)
 	ifeq (${SPD},none)
 		ifeq (${ENABLE_RMM},0)
-                        $(error CTX_INCLUDE_EL2_REGS is available only when SPD \
-                        or RMM is enabled)
+                        ifeq (${ENABLE_LFA_BL31},0)
+                                $(error CTX_INCLUDE_EL2_REGS is available only when SPD \
+                                RMM, or BL31 LFA is enabled)
+                        endif
 		endif
 	endif
 endif

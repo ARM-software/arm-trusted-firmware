@@ -13,6 +13,7 @@
 #include <context.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/per_cpu/per_cpu_macros.S>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 	/*
 	 * Helper macro to initialise EL3 registers we care about.
@@ -574,6 +575,37 @@ feat_sctlr2_not_supported\@:
 #endif
 
 		isb
+	.endm
+
+	.macro el3_enable_mmu
+	/*
+	 * We're about to enable MMU and participate in PSCI state coordination.
+	 *
+	 * The PSCI implementation invokes platform routines that enable CPUs to
+	 * participate in coherency. On a system where CPUs are not
+	 * cache-coherent without appropriate platform specific programming,
+	 * having caches enabled until such time might lead to coherency issues
+	 * (resulting from stale data getting speculatively fetched, among
+	 * others). Therefore we keep data caches disabled even after enabling
+	 * the MMU for such platforms.
+	 *
+	 * On systems with hardware-assisted coherency, or on single cluster
+	 * platforms, such platform specific programming is not required to
+	 * enter coherency (as CPUs already are); and there's no reason to have
+	 * caches disabled either.
+	 *
+	 * IMPORTANT: after invoking bl31_plat_enable_mmu(), the stack may end up
+	 * corrupted. Thus, when using this function, we must operate under the
+	 * assumption that we've no stack to use. Therefore, DO NOT place this
+	 * in another C function call or, generally, any place that would break
+	 * the aforementioned assumption.
+	 */
+#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
+		mov     x0, xzr
+#else
+		mov     x0, #DISABLE_DCACHE
+#endif
+		bl      bl31_plat_enable_mmu
 	.endm
 
 #endif /* EL3_COMMON_MACROS_S */

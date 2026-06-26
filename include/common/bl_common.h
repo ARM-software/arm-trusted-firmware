@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -171,6 +171,10 @@ IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_CODE_END__,	LFA_RELOCATABLE_CODE_END);
 IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_LMA__,		LFA_RELOCATABLE_LMA);
 IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_DATA_START__,	LFA_RELOCATABLE_DATA_START);
 IMPORT_SYM(uintptr_t, __LFA_RELOCATABLE_DATA_END__,	LFA_RELOCATABLE_DATA_END);
+IMPORT_SYM(uintptr_t, __ERRATA_START__,			ERRATA_START);
+IMPORT_SYM(uintptr_t, __ERRATA_END__,			ERRATA_END);
+IMPORT_SYM(uintptr_t, __CPU_OPS_START__,		CPU_OPS_START);
+IMPORT_SYM(uintptr_t, __CPU_OPS_END__,			CPU_OPS_END);
 #endif
 
 /*******************************************************************************
