@@ -3,6 +3,14 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.3..refs/tags/lts-v2.14.4) (2026-06-26)
+
+### Resolved Issues
+
+- apply workaround for CVE-2025-10263 to N1 ([81c6bad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81c6bad02fd404e780e815a88c15943b7cd137ed))
+- enable WORKAROUND_CVE_2025_10263 for affected platforms ([3629e8f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3629e8f409d3245c665355abea8b5b6e4f68e76e))
+- workaround for CVE-2025-10263 ([b25757b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b25757bcde8080503771d93937fa3400402b8841))
+
 ## [lts-2.14.3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.2..refs/tags/lts-v2.14.3) (2026-06-12)
 
 ### ⚠ BREAKING CHANGES
