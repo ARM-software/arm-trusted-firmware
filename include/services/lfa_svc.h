@@ -77,6 +77,12 @@ enum lfa_retc {
 	LFA_ACTIVATION_FAILED		= -11,
 };
 
+typedef struct {
+	entry_point_info_t ep;
+	uint64_t spinlock_p;
+	uintptr_t plat_wr_mailbox;
+} lfa_mailbox_message_t;
+
 /* Initialization routine for the LFA service */
 int lfa_setup(void);
 
@@ -85,5 +91,6 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 			 void *handle, u_register_t flags);
 void lfa_reset_activation(void);
 bool lfa_is_prime_complete(uint32_t lfa_component_id);
+uint64_t prepare_warm_reset(uintptr_t lfa_ns_ep, uint64_t context_id, uint64_t cpu_spinlock);
 
 #endif /* LFA_SVC_H */
