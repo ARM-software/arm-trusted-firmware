@@ -371,6 +371,8 @@ FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
 HW_CONFIG		:=	${FVP_HW_CONFIG}
 
+HW_CONFIG_BASE		?=	0x82000000
+
 # Set default initrd base 128MiB offset of the default kernel address in FVP
 INITRD_BASE		?=	0x90000000
 

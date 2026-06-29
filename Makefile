@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -1437,6 +1437,7 @@ $(eval $(call add_defines,\
 	PSA_CRYPTO	\
 	ENABLE_CONSOLE_GETC \
 	INIT_UNUSED_NS_EL2	\
+	HW_CONFIG_BASE \
 )))
 
 ifeq (${SANITIZE_UB},trap)
