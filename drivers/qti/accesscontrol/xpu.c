@@ -10,6 +10,14 @@
 #include <drivers/qti/accesscontrol/xpu.h>
 #include <lib/mmio.h>
 
+/*
+ * In the QTISECLIB_PATH build, msm_xpu_cfg is provided by the qtiseclib
+ * library (see the extern declaration below), not by TF-A. The structs below
+ * must mirror qtiseclib's layout exactly: the bypass loop dereferences the
+ * library-owned table through these definitions, so any drift in field order,
+ * size or alignment relative to qtiseclib goes undetected by the compiler and
+ * results in writes to the wrong offsets. Keep them in sync with qtiseclib.
+ */
 struct RGPartitionRangeType {
 	uint32_t rg_num;
 	uintptr_t start_addr;
