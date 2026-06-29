@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch.h>
@@ -23,6 +24,7 @@
 #include <platform_def.h>
 #include <services/arm_arch_svc.h>
 #include <services/rmm_core_manifest.h>
+#include <services/firme_svc.h>
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
@@ -1065,12 +1067,22 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 /*
  * Update encryption key associated with @mecid.
  */
-int plat_rmmd_mecid_key_update(uint16_t mecid, unsigned int reason)
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
 {
 	/*
 	 * FVP does not provide an interface to change the encryption key associated
 	 * with MECID. Hence always return success.
 	 */
 	return 0;
+}
+
+uint8_t plat_firme_get_common_mecid_width(void)
+{
+
+	/*
+	 * Use the PE MECID width as the system MECID width is expected to be the same for all
+	 * system components on FVP.
+	 */
+	return (uint8_t)EXTRACT(MECIDR_EL2_MECIDWidthm1, read_mecidr_el2());
 }
 #endif /* ENABLE_RMM */

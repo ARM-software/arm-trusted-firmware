@@ -4,12 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdint.h>
+
 #include <common/debug.h>
 #include <drivers/arm/gic600_multichip.h>
 #include <drivers/arm/mhu.h>
 #include <drivers/arm/sfcp.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+#include <services/firme_svc.h>
 #include <platform_def.h>
 #include <nrd_plat.h>
 
@@ -188,13 +191,20 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 /*
  * Update encryption key associated with @mecid.
  */
-int plat_rmmd_mecid_key_update(uint16_t mecid, unsigned int reason)
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason)
 {
 	/*
 	 * RDV3 does not support FEAT_MEC.
-	 * This empty hook is for compilation to succeed.
+	 * FIXME: This hook is needed to maintain backward compatibility with RMMD. Drop once we
+	 * have more fine grained control over what services are exposed and how.
 	 */
 	return 0;
+}
+
+uint8_t plat_firme_get_common_mecid_width(void)
+{
+	/* RDV3 does not support FEAT_MEC. */
+	return 0U;
 }
 
 int plat_spmd_handle_group0_interrupt(uint32_t intid)

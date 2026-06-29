@@ -110,7 +110,10 @@ typedef struct {
 #define FIRME_BASE_MAX_SH_BUF_PG_CNT_MASK		U(0x3FFF)
 #define FIRME_BASE_SERVICE_LIST_SHIFT			U(16)
 #define FIRME_BASE_SERVICE_LIST_MASK			U(0xFFFF)
-#define FIRME_BASE_SERVICE_GRANULE_MGMT_BIT		BIT(16)
+#define FIRME_BASE_SERVICE_BIT(_id)			BIT((_id) + \
+							    FIRME_BASE_SERVICE_LIST_SHIFT)
+#define FIRME_BASE_SERVICE_GRANULE_MGMT_BIT		FIRME_BASE_SERVICE_BIT(0)
+#define FIRME_BASE_SERVICE_MECID_BIT			FIRME_BASE_SERVICE_BIT(2)
 
 /* Granule management service feature register definitions. */
 #define FIRME_GM_GPI_SET_BIT				BIT(0)
@@ -194,36 +197,56 @@ typedef struct {
 /* These are unimplemented so far and will be added in the future. */
 
 /* Granule management service ABIs */
-#define FIRME_GM_GPI_OP_CONTINUE		SMC64_FIRME_FID(U(0x12))
-#define FIRME_GM_L1_GPT_CREATE			SMC64_FIRME_FID(U(0xE))
-#define FIRME_GM_L1_GPT_DESTROY			SMC64_FIRME_FID(U(0xF))
+#define FIRME_GM_GPI_OP_CONTINUE_FID		SMC64_FIRME_FID(U(0x12))
+#define FIRME_GM_L1_GPT_CREATE_FID		SMC64_FIRME_FID(U(0xE))
+#define FIRME_GM_L1_GPT_DESTROY_FID		SMC64_FIRME_FID(U(0xF))
 
 /* IDE key management service */
-#define FIRME_IDE_KEYSET_PROG			SMC64_FIRME_FID(U(0x3))
-#define FIRME_IDE_KEYSET_GO			SMC64_FIRME_FID(U(0x4))
-#define FIRME_IDE_KEYSET_STOP			SMC64_FIRME_FID(U(0x5))
-#define FIRME_IDE_KEYSET_POLL			SMC64_FIRME_FID(U(0x6))
+#define FIRME_IDE_KEYSET_PROG_FID		SMC64_FIRME_FID(U(0x3))
+#define FIRME_IDE_KEYSET_GO_FID			SMC64_FIRME_FID(U(0x4))
+#define FIRME_IDE_KEYSET_STOP_FID		SMC64_FIRME_FID(U(0x5))
+#define FIRME_IDE_KEYSET_POLL_FID		SMC64_FIRME_FID(U(0x6))
 
 /* MECID management service */
-#define FIRME_MEC_REFRESH			SMC64_FIRME_FID(U(0x7))
+#define FIRME_MEC_REFRESH_FID			SMC64_FIRME_FID(U(0x7))
+
+#define MEC_REFRESH_REASON_REALM_CREATE		U(0)
+#define MEC_REFRESH_REASON_REALM_DESTROY	U(1)
+
+#define MEC_PARAM_MECID_SHIFT			U(32)
+#define MEC_PARAM_MECID_WIDTH			U(16)
+#define MEC_PARAM_MECID_MASK			MASK(MEC_PARAM_MECID)
+
+#define FIRME_MECID_FEATURE_REG_COUNT		U(2)
+#define FIRME_MECID_FEAT_REG0_MEC_REFRESH_BIT	BIT(0)
+#define FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_SHIFT	U(0)
+#define FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_WIDTH	U(4)
+#define FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_MASK	MASK(FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS)
 
 /* Attestation service */
-#define FIRME_ATTEST_PAT_GET			SMC64_FIRME_FID(U(0x8))
-#define FIRME_ATTEST_RAK_GET			SMC64_FIRME_FID(U(0x9))
-#define FIRME_ATTEST_RAT_SIGN			SMC64_FIRME_FID(U(0xA))
-#define FIRME_ATTEST_PAT_EXT_CLAIMS_STAGE	SMC64_FIRME_FID(U(0xB))
-#define FIRME_ATTEST_PAT_EXT_CLAIMS_CLEAR	SMC64_FIRME_FID(U(0xC))
-#define FIRME_ATTEST_PAT_EXT_CLAIMS_FINALISE	SMC64_FIRME_FID(U(0xD))
+#define FIRME_ATTEST_PAT_GET_FID		SMC64_FIRME_FID(U(0x8))
+#define FIRME_ATTEST_RAK_GET_FID		SMC64_FIRME_FID(U(0x9))
+#define FIRME_ATTEST_RAT_SIGN_FID		SMC64_FIRME_FID(U(0xA))
+#define FIRME_ATTEST_PAT_EXT_CLAIMS_STAGE_FID	SMC64_FIRME_FID(U(0xB))
+#define FIRME_ATTEST_PAT_EXT_CLAIMS_CLEAR_FID	SMC64_FIRME_FID(U(0xC))
+#define FIRME_ATTEST_PAT_EXT_CLAIMS_FINALISE_FID	SMC64_FIRME_FID(U(0xD))
 
 /* Integrated device management service */
-#define FIRME_IDEV_OP_START			SMC64_FIRME_FID(U(0x10))
-#define FIRME_IDEV_OP_CONTINUE			SMC64_FIRME_FID(U(0x11))
+#define FIRME_IDEV_OP_START_FID			SMC64_FIRME_FID(U(0x10))
+#define FIRME_IDEV_OP_CONTINUE_FID		SMC64_FIRME_FID(U(0x11))
 
 /* Top level handler for FIRME SMC calls. */
+int32_t firme_init(void);
+
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
 
 firme_service_info_t *firme_granule_mgmt_service_get_info(void);
+firme_service_info_t *firme_mecid_service_get_info(void);
+
+int32_t firme_mecid_service_init(void);
+int plat_firme_mec_refresh(uint16_t mecid, uint8_t reason);
+uint8_t plat_firme_get_common_mecid_width(void);
 
 u_register_t firme_base_service_handler(firme_instance_e instance, uint32_t smc_fid,
 					uint64_t x1, uint64_t x2, uint64_t x3,
@@ -235,5 +258,11 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 						uint64_t x2, uint64_t x3,
 						uint64_t x4, void *cookie,
 						void *handle, uint64_t flags);
+
+u_register_t firme_mecid_service_handler(firme_instance_e instance,
+					 uint32_t smc_fid, uint64_t x1,
+					 uint64_t x2, uint64_t x3,
+					 uint64_t x4, void *cookie,
+					 void *handle, uint64_t flags);
 
 #endif /* FIRME_SVC_H */
