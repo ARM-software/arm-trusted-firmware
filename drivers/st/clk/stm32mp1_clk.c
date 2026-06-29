@@ -211,22 +211,6 @@ static const struct mux_cfg parent_mp15[MUX_NB] = {
 #define MASK_WIDTH_SHIFT(_width, _shift) \
 	GENMASK(((_width) + (_shift) - 1U), (_shift))
 
-int clk_mux_get_parent(struct stm32_clk_priv *priv, uint32_t mux_id)
-{
-	const struct mux_cfg *mux;
-	uint32_t mask;
-
-	if (mux_id >= priv->nb_parents) {
-		panic();
-	}
-
-	mux = &priv->parents[mux_id];
-
-	mask = MASK_WIDTH_SHIFT(mux->width, mux->shift);
-
-	return (mmio_read_32(priv->base + mux->offset) & mask) >> mux->shift;
-}
-
 static int clk_mux_set_parent(struct stm32_clk_priv *priv, uint16_t pid, uint8_t sel)
 {
 	const struct mux_cfg *mux = &priv->parents[pid];
@@ -264,7 +248,7 @@ static int stm32_clk_configure_mux(struct stm32_clk_priv *priv, uint32_t val)
 	return clk_mux_set_parent(priv, mux, sel);
 }
 
-int clk_stm32_set_div(struct stm32_clk_priv *priv, uint32_t div_id, uint32_t value)
+static int clk_stm32_set_div(struct stm32_clk_priv *priv, uint32_t div_id, uint32_t value)
 {
 	const struct div_cfg *divider;
 	uintptr_t address;

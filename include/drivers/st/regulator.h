@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,7 +68,7 @@ int regulator_set_flag(struct rdev *rdev, uint16_t flag);
 struct regul_description {
 	const char *node_name;
 	const struct regul_ops *ops;
-	const void *driver_data;
+	void *driver_data;
 	const char *supply_name;
 	const uint32_t enable_ramp_delay;
 };

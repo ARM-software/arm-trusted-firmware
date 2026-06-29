@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,6 @@ struct stm32_sdmmc2_params {
 
 unsigned long long stm32_sdmmc2_mmc_get_device_size(void);
 int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params);
-bool plat_sdmmc2_use_dma(unsigned int instance, unsigned int memory);
+bool plat_sdmmc2_use_dma(uintptr_t instance, uintptr_t memory);
 
 #endif /* STM32_SDMMC2_H */

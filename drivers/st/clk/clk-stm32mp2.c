@@ -727,11 +727,11 @@ static void clk_oscillator_set_bypass(struct stm32_clk_priv *priv, int id,
 	address = priv->base + bypass_data->offset;
 
 	if (digbyp) {
-		mmio_setbits_32(address, BIT(bypass_data->bit_digbyp));
+		mmio_setbits_32(address, BIT_32(bypass_data->bit_digbyp));
 	}
 
 	if (bypass || digbyp) {
-		mmio_setbits_32(address, BIT(bypass_data->bit_byp));
+		mmio_setbits_32(address, BIT_32(bypass_data->bit_byp));
 	}
 }
 
@@ -750,7 +750,7 @@ static void clk_oscillator_set_css(struct stm32_clk_priv *priv, int id,
 	address = priv->base + css_data->offset;
 
 	if (css) {
-		mmio_setbits_32(address, BIT(css_data->bit_css));
+		mmio_setbits_32(address, BIT_32(css_data->bit_css));
 	}
 }
 
@@ -770,7 +770,7 @@ static void clk_oscillator_set_drive(struct stm32_clk_priv *priv, int id,
 
 	address = priv->base + drive_data->offset;
 
-	mask = (BIT(drive_data->drv_width) - 1U) <<  drive_data->drv_shift;
+	mask = (BIT_32(drive_data->drv_width) - 1U) <<  drive_data->drv_shift;
 
 	/*
 	 * Warning: not recommended to switch directly from "high drive"
@@ -2137,10 +2137,10 @@ static int wait_predivsr(uint16_t channel)
 
 	if (channel < __WORD_BIT) {
 		previvsr = rcc_base + RCC_PREDIVSR1;
-		channel_bit = BIT(channel);
+		channel_bit = BIT_32(channel);
 	} else {
 		previvsr = rcc_base + RCC_PREDIVSR2;
-		channel_bit = BIT(channel - __WORD_BIT);
+		channel_bit = BIT_32(channel - __WORD_BIT);
 	}
 
 	timeout = timeout_init_us(CLKDIV_TIMEOUT);
@@ -2165,10 +2165,10 @@ static int wait_findivsr(uint16_t channel)
 
 	if (channel < __WORD_BIT) {
 		finvivsr = rcc_base + RCC_FINDIVSR1;
-		channel_bit = BIT(channel);
+		channel_bit = BIT_32(channel);
 	} else {
 		finvivsr = rcc_base + RCC_FINDIVSR2;
-		channel_bit = BIT(channel - __WORD_BIT);
+		channel_bit = BIT_32(channel - __WORD_BIT);
 	}
 
 	timeout = timeout_init_us(CLKDIV_TIMEOUT);

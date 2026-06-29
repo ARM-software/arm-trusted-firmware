@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,7 +70,14 @@ uintptr_t plat_get_ns_image_entrypoint(void)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
-	return read_cntfrq_el0();
+	/*
+	 * The system counter clock will never be above 4GHz, it is usually set
+	 * at 64MHz (HSI) at startup, and then moved to another clock with a
+	 * lower frequency and more stable.
+	 * It is then safe to cast the return of read_cntfrq_el0 to a 32 bit
+	 * value to match the plat_get_syscnt_freq2 function prototype.
+	 */
+	return (unsigned int)read_cntfrq_el0();
 }
 
 static uintptr_t boot_ctx_address;
@@ -293,7 +300,7 @@ int stm32mp_uart_console_setup(void)
 
 	reset_uart((uint32_t)dt_uart_info.reset);
 
-	clk_rate = clk_get_rate((unsigned long)dt_uart_info.clock);
+	clk_rate = (uint32_t)clk_get_rate((unsigned long)dt_uart_info.clock);
 #endif
 
 	set_console(dt_uart_info.base, clk_rate);

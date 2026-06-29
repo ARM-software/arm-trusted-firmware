@@ -163,7 +163,7 @@ static struct stm32_sdmmc2_params sdmmc2_params;
 static bool next_cmd_is_acmd;
 
 #pragma weak plat_sdmmc2_use_dma
-bool plat_sdmmc2_use_dma(unsigned int instance, unsigned int memory)
+bool plat_sdmmc2_use_dma(uintptr_t instance, uintptr_t memory)
 {
 	return false;
 }

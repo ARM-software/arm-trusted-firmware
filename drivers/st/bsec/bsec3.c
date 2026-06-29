@@ -42,7 +42,7 @@ static uint32_t otp_bank(uint32_t otp)
 
 static uint32_t otp_bit_mask(uint32_t otp)
 {
-	return BIT(otp & BSEC_OTP_MASK);
+	return BIT_32(otp & BSEC_OTP_MASK);
 }
 
 /*
