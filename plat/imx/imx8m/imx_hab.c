@@ -5,7 +5,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <common/smc_validation_framework.h>
+
 #include <imx_sip_svc.h>
 
 #define HAB_CID_ATF	U(2)	/* TF-A Caller ID */
@@ -80,7 +83,8 @@ struct hab_rvt_api {
 		size_t *bytes, hab_loader_callback_f_t loader, uint32_t srkmask, int skip_dcd);
 };
 
-struct hab_rvt_api *g_hab_rvt_api = (struct hab_rvt_api *)HAB_RVT_BASE;
+static const struct hab_rvt_api *g_hab_rvt_api =
+	(const struct hab_rvt_api *)HAB_RVT_BASE;
 
 /*******************************************************************************
  * Handler for servicing HAB SMC calls
@@ -102,12 +106,66 @@ int imx_hab_handler(uint32_t smc_fid,
 	case IMX_SIP_HAB_AUTH_IMG:
 		return (unsigned long)g_hab_rvt_api->authenticate_image(HAB_CID_ATF,
 			x2, (void **)x3, (size_t *)x4, NULL);
+
 	case IMX_SIP_HAB_REPORT_EVENT:
-		return g_hab_rvt_api->report_event(HAB_FAILURE,
-			(uint32_t)x2, (uint8_t *)x3, (size_t *)x4);
+	{
+		uintptr_t event_buf = (uintptr_t)x3;
+		uintptr_t bytes_ptr = (uintptr_t)x4;
+
+		if (smc_validate_mem_range(bytes_ptr, sizeof(size_t)) != SMC_OK) {
+			WARN("HAB: REPORT_EVENT bytes_ptr 0x%lx failed NS check\n",
+			     bytes_ptr);
+			return (int)HAB_FAILURE;
+		}
+
+		size_t max_bytes = *(size_t *)bytes_ptr;
+
+		if (smc_validate_mem_range(event_buf, max_bytes) != SMC_OK) {
+			WARN("HAB: REPORT_EVENT buf 0x%lx+0x%zx failed NS check\n",
+			     event_buf, max_bytes);
+			return (int)HAB_FAILURE;
+		}
+
+		enum hab_status status = g_hab_rvt_api->report_event(
+			HAB_FAILURE, (uint32_t)x2,
+			(uint8_t *)event_buf, &max_bytes);
+
+		*(size_t *)bytes_ptr = max_bytes;
+
+		return (int)status;
+	}
+
 	case IMX_SIP_HAB_REPORT_STATUS:
-		return g_hab_rvt_api->report_status((enum hab_config *)x2,
-			(enum hab_state *)x3);
+	{
+		uintptr_t config_ptr = (uintptr_t)x2;
+		uintptr_t state_ptr = (uintptr_t)x3;
+
+		if (smc_validate_mem_range(config_ptr,
+					   sizeof(enum hab_config)) != SMC_OK) {
+			WARN("HAB: REPORT_STATUS config_ptr 0x%lx failed NS check\n",
+			     config_ptr);
+			return (int)HAB_FAILURE;
+		}
+
+		if (smc_validate_mem_range(state_ptr,
+					   sizeof(enum hab_state)) != SMC_OK) {
+			WARN("HAB: REPORT_STATUS state_ptr 0x%lx failed NS check\n",
+			     state_ptr);
+			return (int)HAB_FAILURE;
+		}
+
+		enum hab_config config_local;
+		enum hab_state state_local;
+
+		enum hab_status status = g_hab_rvt_api->report_status(
+			&config_local, &state_local);
+
+		*(enum hab_config *)config_ptr = config_local;
+		*(enum hab_state *)state_ptr = state_local;
+
+		return (int)status;
+	}
+
 	case IMX_SIP_HAB_FAILSAFE:
 		g_hab_rvt_api->failsafe();
 		break;
