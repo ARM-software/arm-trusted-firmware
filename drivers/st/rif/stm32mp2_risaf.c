@@ -253,7 +253,7 @@ static int risaf_get_instance_from_region(uintptr_t address, size_t length)
  * Register region in platfoirm data structure if parameters are valid.
  * If instance is known, related entry parameter is filled, else it is equal to -1.
  */
-static int risaf_register_region(void *fdt, int node, int instance)
+static int risaf_register_region(const void *fdt, int node, int instance)
 {
 	struct stm32mp2_risaf_platdata *pdata = &stm32mp2_risaf;
 	const fdt32_t *cuint;
@@ -618,7 +618,7 @@ static int risaf_parse_fwconfig(uintptr_t config)
 	}
 
 	fdt_for_each_subnode(subnode, fdt, node) {
-		if (risaf_register_region((void *)fdt, subnode, -1) != 0) {
+		if (risaf_register_region(fdt, subnode, -1) != 0) {
 			ERROR("RISAF: Region %d error\n", pdata->nregions);
 			return -EINVAL;
 		}
