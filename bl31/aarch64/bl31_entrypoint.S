@@ -16,6 +16,10 @@
 	.globl	bl31_entrypoint
 	.globl	bl31_warm_entrypoint
 
+#if ENABLE_LFA_BL31
+	.globl	bl31_lfa_entrypoint
+#endif
+
 	/* -----------------------------------------------------
 	 * bl31_entrypoint() is the cold boot entrypoint,
 	 * executed only by the primary cpu.
@@ -169,34 +173,7 @@ func bl31_warm_entrypoint
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=0
 
-/*
- * We're about to enable MMU and participate in PSCI state coordination.
- *
- * The PSCI implementation invokes platform routines that enable CPUs to
- * participate in coherency. On a system where CPUs are not
- * cache-coherent without appropriate platform specific programming,
- * having caches enabled until such time might lead to coherency issues
- * (resulting from stale data getting speculatively fetched, among
- * others). Therefore we keep data caches disabled even after enabling
- * the MMU for such platforms.
- *
- * On systems with hardware-assisted coherency, or on single cluster
- * platforms, such platform specific programming is not required to
- * enter coherency (as CPUs already are); and there's no reason to have
- * caches disabled either.
- *
- * IMPORTANT: after invoking bl31_plat_enable_mmu(), the stack may end up
- * corrupted. Thus, when using this function, we must operate under the
- * assumption that we've no stack to use. Therefore, DO NOT place this
- * in another C function call or, generally, any place that would break
- * the aforementioned assumption.
- */
-#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
-	mov     x0, xzr
-#else
-	mov     x0, #DISABLE_DCACHE
-#endif
-	bl      bl31_plat_enable_mmu
+	el3_enable_mmu
 
 	bl	bl31_warmboot
 
@@ -220,3 +197,35 @@ func bl31_warm_entrypoint
 #endif
 	b	el3_exit
 endfunc bl31_warm_entrypoint
+
+#if ENABLE_LFA_BL31
+	/*
+	 *---------------------------------------------------------------------
+	 * This CPU has been warm reset during a BL31 live firmware activation
+	 * --------------------------------------------------------------------
+	 */
+func bl31_lfa_entrypoint
+	/*
+	 * When a BL31 LFA update requests a warm reboot this is the entry
+	 * point used. We are trying to do as little as possible and just get
+	 * the new BL31 up and running as quickly as possible while restoring
+	 * the state of the system.
+	 */
+	el3_entrypoint_common					\
+		_init_sctlr=PROGRAMMABLE_RESET_ADDRESS		\
+		_warm_boot_mailbox=0				\
+		_secondary_cold_boot=0				\
+		_init_memory=0					\
+		_init_c_runtime=0				\
+		_exception_vectors=runtime_exceptions		\
+		_pie_fixup_size=0
+
+	el3_enable_mmu
+
+	/* Jump to C LFA warm reset entrypoint. */
+	bl	lfa_warm_reset_entrypoint
+
+	b	el3_exit
+endfunc bl31_lfa_entrypoint
+
+#endif /* ENABLE_LFA_BL31 */

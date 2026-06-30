@@ -32,3 +32,4 @@ Components
    context-management-library
    numa-per-cpu
    cpu-service
+   bl31-lfa

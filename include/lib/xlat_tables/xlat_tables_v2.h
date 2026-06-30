@@ -390,6 +390,11 @@ int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 				   size_t size, uint32_t attr);
 int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr);
 
+#if ENABLE_LFA_BL31
+/* Returns a pointer to the current xlat table, only used during BL31 LFA */
+const xlat_ctx_t *get_xlat_tables(void);
+#endif
+
 #ifdef PLAT_RO_XLAT_TABLES
 /*
  * Change the memory attributes of the memory region encompassing the higher

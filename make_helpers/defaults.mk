@@ -457,6 +457,7 @@ RMM_V1_COMPAT			:= 0
 
 # Live firmware activation support
 LFA_SUPPORT			:= 0
+ENABLE_LFA_BL31			:= 0
 
 # Enable support for arm DSU driver.
 USE_DSU_DRIVER			:= 0

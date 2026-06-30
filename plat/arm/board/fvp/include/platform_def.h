@@ -237,7 +237,11 @@
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	31
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	13
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		9
+#  if ENABLE_LFA_BL31
+#   define PLAT_ARM_MMAP_ENTRIES	12
+#  else
+#   define PLAT_ARM_MMAP_ENTRIES	9
+#  endif
 #  if USE_DEBUGFS
 #   if ENABLE_RMM
 #    define MAX_XLAT_TABLES		9
@@ -647,5 +651,20 @@ FVP_TRUSTED_SRAM_SIZE == 512
  * Number of MMAP entries used by DRTM implementation
  */
 #define PLAT_DRTM_MMAP_ENTRIES			PLAT_ARM_MMAP_ENTRIES
+
+#if ENABLE_LFA_BL31
+/*
+ * A 16MB carved out shared region with Non-Secure to preload firmware image to
+ * live activate for FVP test platforms.
+ */
+#define PLAT_LFA_STORE_BASE			UL(0xFB000000)
+#define PLAT_LFA_STORE_SIZE			SZ_16M
+
+/*
+ * The errata section is padded to allow for growth without affecting the rest
+ * of the binary.
+ */
+#define PLAT_LFA_ERRATA_SECTION_SIZE		U(0x1000)
+#endif /* ENABLE_LFA_BL31 */
 
 #endif /* PLATFORM_DEF_H */

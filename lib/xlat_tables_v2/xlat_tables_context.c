@@ -120,6 +120,13 @@ int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
 	return xlat_change_mem_attributes_ctx(&tf_xlat_ctx, base_va, size, attr);
 }
 
+#if ENABLE_LFA_BL31
+const xlat_ctx_t *get_xlat_tables(void)
+{
+	return &tf_xlat_ctx;
+}
+#endif
+
 #ifdef PLAT_RO_XLAT_TABLES
 /* Change the memory attributes of the descriptors which resolve the address
  * range that belongs to the translation tables themselves, which are by default

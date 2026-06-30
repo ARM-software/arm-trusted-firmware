@@ -109,6 +109,12 @@ arm_config_t arm_config;
 #endif
 #endif
 
+#if ENABLE_LFA_BL31
+#define MAP_LFA_STORE						\
+	MAP_REGION_FLAT(PLAT_LFA_STORE_BASE, PLAT_LFA_STORE_SIZE,		\
+			MT_MEMORY | MT_RO | MT_NS)
+#endif /* ENABLE_LFA_BL31 */
+
 /*
  * Table of memory regions for various BL stages to map using the MMU.
  * This doesn't include Trusted SRAM as setup_page_tables() already takes care
@@ -237,6 +243,11 @@ const mmap_region_t plat_arm_mmap[] = {
 #if defined(MAP_EL3_FW_HANDOFF) && !RESET_TO_BL31
 	MAP_EL3_FW_HANDOFF,
 #endif
+#if ENABLE_LFA_BL31
+	ARM_MAP_LFA_RELOCATABLE_DATA,
+	ARM_MAP_LFA_RELOCATABLE_CODE,
+	MAP_LFA_STORE,
+#endif /* ENABLE_LFA_BL31 */
 	{ 0 }
 };
 

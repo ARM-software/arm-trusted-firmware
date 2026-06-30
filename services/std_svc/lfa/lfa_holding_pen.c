@@ -7,10 +7,12 @@
 
 #include <string.h>
 
+#include <common/bl_common.h>
 #include <common/debug.h>
 #include <lib/psci/psci_lib.h>
 #include <lib/spinlock.h>
 #include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <services/lfa_holding_pen.h>
 
@@ -18,7 +20,7 @@
 
 static spinlock_t holding_lock;
 static spinlock_t activation_lock;
-static uint32_t activation_count;
+static volatile uint32_t activation_count;
 static enum lfa_retc activation_status;
 
 /**
@@ -44,28 +46,31 @@ static enum lfa_retc activation_status;
  */
 bool lfa_holding_start(void)
 {
-	bool status;
-	unsigned int no_of_cpus;
+	unsigned int no_of_cpus = psci_num_cpus_running_on_safe(plat_my_core_pos());
+	bool last_cpu;
 
+	/*
+	 * This lock ensures only one CPU uses the activation_count
+	 * variable at a time.
+	 */
 	spin_lock(&activation_lock);
 
+	/* First CPU to arrive locks the holding pen. */
 	if (activation_count == 0U) {
-		/* First CPU locks holding lock */
 		spin_lock(&holding_lock);
 	}
 
 	activation_count += 1U;
+	last_cpu = (activation_count == no_of_cpus);
 
-	no_of_cpus = psci_num_cpus_running_on_safe(plat_my_core_pos());
-	status = (activation_count == no_of_cpus);
-	if (!status) {
-		VERBOSE("Hold, %d CPU left\n",
-			 no_of_cpus - activation_count);
+	if (!last_cpu) {
+		VERBOSE("Hold, %d CPU left\n", no_of_cpus - activation_count);
 	}
 
+	/* Release the lock once count is updated. */
 	spin_unlock(&activation_lock);
 
-	return status;
+	return last_cpu;
 }
 
 /**
@@ -103,3 +108,42 @@ void lfa_holding_release(enum lfa_retc status)
 	activation_status = status;
 	spin_unlock(&holding_lock);
 }
+
+#if ENABLE_LFA_BL31
+void lfa_load_relocatable(void)
+{
+	int ret;
+
+	/*
+	 * The relocatable code area is outside of the normal BL31 image, so
+	 * before we can use it we have to make it writeable then copy the
+	 * relocatable code into it. Then once the copy is complete we must
+	 * mark it read only and executable again.
+	 */
+	ret = xlat_change_mem_attributes(LFA_RELOCATABLE_CODE_START,
+					 (LFA_RELOCATABLE_DATA_START - LFA_RELOCATABLE_CODE_START),
+					 MT_MEMORY | MT_RW | MT_EXECUTE_NEVER | EL3_PAS);
+	if (ret != 0) {
+		ERROR("LFA: Could not update memory attributes: %d\n", ret);
+		panic();
+	}
+
+	memcpy((void *)LFA_RELOCATABLE_CODE_START, (void *)LFA_RELOCATABLE_LMA,
+	       (uintptr_t)(LFA_RELOCATABLE_DATA_START - LFA_RELOCATABLE_CODE_START));
+
+	ret = xlat_change_mem_attributes(LFA_RELOCATABLE_CODE_START,
+					 (LFA_RELOCATABLE_DATA_START - LFA_RELOCATABLE_CODE_START),
+					 MT_MEMORY | MT_RO | MT_EXECUTE | EL3_PAS);
+	if (ret != 0) {
+		ERROR("LFA: Could not update memory attributes: %d\n", ret);
+		panic();
+	}
+
+	/*
+	 * The relocatable data section contains unknown information at this
+	 * point so zero it out before we use it.
+	 */
+	memset((void *)LFA_RELOCATABLE_DATA_START, 0,
+	       (LFA_RELOCATABLE_DATA_END - LFA_RELOCATABLE_DATA_START));
+}
+#endif /* ENABLE_LFA_BL31 */

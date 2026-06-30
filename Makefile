@@ -521,6 +521,10 @@ ifdef FDT_SOURCES
 	NEED_FDT := yes
 endif #(FDT_SOURCES)
 
+ifneq (${ENABLE_LFA_BL31},0)
+	CTX_INCLUDE_EL2_REGS := 1
+endif #(ENABLE_LFA_BL31)
+
 ################################################################################
 # Include libraries' Makefile that are used in all BL
 ################################################################################
@@ -651,6 +655,7 @@ $(eval $(call assert_booleans,\
 	PRESERVE_DSU_PMU_REGS \
 	HOB_LIST \
 	LFA_SUPPORT \
+	ENABLE_LFA_BL31 \
 	SUPPORT_SP_LIVE_ACTIVATION \
 	TEST_IO_SHORT_READ_FI \
 	SDEI_SUPPORT \
@@ -936,6 +941,7 @@ $(eval $(call add_defines,\
 	HOB_LIST \
 	HW_CONFIG_BASE \
 	LFA_SUPPORT \
+	ENABLE_LFA_BL31 \
 	SUPPORT_SP_LIVE_ACTIVATION \
 	TEST_IO_SHORT_READ_FI \
 	TEST_IO_SHORT_READ_FI_IMAGE_ID \
