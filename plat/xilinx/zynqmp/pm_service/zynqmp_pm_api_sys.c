@@ -1922,6 +1922,7 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode,
 				   uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	uint32_t mode_val = 0U;
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	/* Check if given node ID is a PLL node */
@@ -1930,7 +1931,10 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode,
 	} else {
 		/* Send request to the PMU */
 		PM_PACK_PAYLOAD2(payload, flag, PM_PLL_GET_MODE, nid);
-		ret = pm_ipi_send_sync(primary_proc, payload, mode, 1);
+		ret = pm_ipi_send_sync(primary_proc, payload, &mode_val, 1);
+		if (ret == PM_RET_SUCCESS) {
+			*mode = (enum pm_pll_mode)mode_val;
+		}
 	}
 
 	return ret;
