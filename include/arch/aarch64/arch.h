@@ -124,6 +124,12 @@
 #define ICC_EOIR1_EL1		S3_0_c12_c12_1
 #define ICC_SGI0R_EL1		S3_0_c12_c11_7
 
+/* ICC_SRE bit definitions */
+#define ICC_SRE_EN_BIT		BIT_32(3)
+#define ICC_SRE_DIB_BIT		BIT_32(2)
+#define ICC_SRE_DFB_BIT		BIT_32(1)
+#define ICC_SRE_SRE_BIT		BIT_32(0)
+
 /*******************************************************************************
  * Definitions for EL2 system registers for save/restore routine
  ******************************************************************************/

@@ -18,7 +18,6 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
-#include <drivers/arm/gicv3.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/context_mgmt.h>

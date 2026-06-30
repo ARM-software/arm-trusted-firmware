@@ -80,6 +80,15 @@
 #endif
 
 /*******************************************************************************
+ * Definitions for CPU system register interface to GIC
+ ******************************************************************************/
+/* ICC_SRE bit definitions */
+#define ICC_SRE_EN_BIT		BIT_32(3)
+#define ICC_SRE_DIB_BIT		BIT_32(2)
+#define ICC_SRE_DFB_BIT		BIT_32(1)
+#define ICC_SRE_SRE_BIT		BIT_32(0)
+
+/*******************************************************************************
  * Generic timer memory mapped registers & offsets
  ******************************************************************************/
 #define CNTCR_OFF			U(0x000)
