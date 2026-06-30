@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,8 +19,8 @@
 #include <platform_def.h>
 #include <stm32mp_fconf_getter.h>
 
-#define STM32MP_REGION_PARAMS	4
-#define STM32MP_MAX_REGIONS	8
+#define STM32MP_REGION_PARAMS	4U
+#define STM32MP_MAX_REGIONS	8U
 #define FORCE_SEC_REGION	BIT(31)
 
 static uint32_t nb_regions;
@@ -98,7 +98,7 @@ static int fconf_populate_stm32mp1_firewall(uintptr_t config)
 	}
 
 	/* Locate the memory cells and read all values */
-	for (i = 0U; i < (unsigned int)(len / (sizeof(uint32_t) * STM32MP_REGION_PARAMS)); i++) {
+	for (i = 0U; i < ((unsigned int)len / (sizeof(uint32_t) * STM32MP_REGION_PARAMS)); i++) {
 		uint32_t idx = i * STM32MP_REGION_PARAMS;
 		uint32_t base;
 		uint32_t size;
