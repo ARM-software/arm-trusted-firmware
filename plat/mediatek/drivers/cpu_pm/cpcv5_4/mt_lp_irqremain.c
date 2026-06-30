@@ -43,6 +43,10 @@ int mt_lp_irqremain_set(unsigned int type,
 		return -1;
 
 	idx = remain_irqs.count;
+	if (idx >= MT_IRQ_REMAIN_MAX) {
+		return -1;
+	}
+
 	switch (type) {
 	case IRQS_REMAIN_IRQ:
 		remain_irqs.irqs[idx] = info->val;
