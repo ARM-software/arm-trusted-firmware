@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
  * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
@@ -80,7 +80,7 @@ void __init plat_gic_driver_init(void)
 	 * can use GIC system registers to manage interrupts and does
 	 * not need GIC interface base addresses to be configured.
 	 */
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	gicv3_driver_init(&_gic_data);
 #endif
 }
