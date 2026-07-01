@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -251,7 +252,7 @@ void ccu_dram_target_set(int ap_index, uint32_t target)
 /* Setup CCU DRAM window and enable it */
 void ccu_dram_win_config(int ap_index, struct addr_map_win *win)
 {
-#if IMAGE_BLE /* BLE */
+#ifdef IMAGE_BLE /* BLE */
 	/* On BLE stage the AP0 DRAM window is opened by the BootROM at index 2.
 	 * Since the BootROM is not accessing DRAM at BLE stage,
 	 * the DRAM window can be temporarely disabled.
@@ -320,7 +321,7 @@ int init_ccu(int ap_index)
 	uint32_t win_id, win_reg;
 	uint32_t win_count, array_id;
 	uint32_t dram_target;
-#if IMAGE_BLE
+#ifdef IMAGE_BLE
 	/* In BootROM context CCU Window-1
 	 * has SRAM_TID target and should not be disabled
 	 */
