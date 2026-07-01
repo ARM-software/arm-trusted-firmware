@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@ extern void bl2_plat_flush_bl31_params(void);
  ******************************************************************************/
 void plat_flush_next_bl_params(void)
 {
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	bl2_plat_flush_bl31_params();
 #endif
 }

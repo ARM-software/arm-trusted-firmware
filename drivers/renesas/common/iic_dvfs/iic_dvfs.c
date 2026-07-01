@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,7 +78,7 @@ enum dvfs_state_t {
 #define DVFS_COMPLETE			(0)
 #define DVFS_ERROR			(-1)
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 #define IIC_DVFS_FUNC(__name, ...)					\
 static int32_t	__attribute__ ((section(".system_ram"), no_stack_protector)) \
 dvfs_ ##__name(__VA_ARGS__)

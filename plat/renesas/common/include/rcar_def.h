@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,13 +61,13 @@
  * The RCAR_MAX_MMAP_REGIONS depends on the number of entries in rcar_mmap[]
  * defined for each BL stage in rcar_common.c.
  */
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #define RCAR_MMAP_ENTRIES		(9)
 #endif
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 #define RCAR_MMAP_ENTRIES		(9)
 #endif
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #define REG1_BASE			U(0xE6400000)
 #define REG1_SIZE			U(0x04C00000)
 #define ROM0_BASE			U(0xEB100000)

@@ -82,10 +82,10 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#if IMAGE_BL2
+#if defined(IMAGE_BL2)
 #define MAX_XLAT_TABLES			U(4)
 #define MAX_MMAP_REGIONS		U(9)
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 #define MAX_XLAT_TABLES			U(6)
 #define MAX_MMAP_REGIONS		U(9)
 #endif

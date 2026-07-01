@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  * reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -58,7 +59,7 @@ int auth_mod_verify_img(unsigned int img_id, void *ptr, unsigned int len)
 		{ BL338_IMAGE_ID, BL338_CERT_ID, "BL338" },
 	};
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 	switch (img_id) {
 	case TRUSTED_KEY_CERT_ID:
 	case SOC_FW_KEY_CERT_ID:
