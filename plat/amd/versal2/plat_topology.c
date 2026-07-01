@@ -49,7 +49,7 @@ static const uint8_t plat_power_domain_tree_desc[] = {
 };
 #endif
 
-#if VERSAL2_VARIANT == 42
+#if !((VERSAL2_VARIANT == 42) || (VERSAL2_VARIANT == 14))
 /* cluster and core updated at runtime */
 static uint8_t plat_power_domain_tree_dyn[PLATFORM_CLUSTER_COUNT + PLAT_PWR_DOMAIN_PREFIX_SIZE] = {0};
 
@@ -210,9 +210,9 @@ const uint8_t *plat_get_power_domain_tree_desc(void)
 {
 	const uint8_t *ret = NULL;
 
-#if VERSAL2_VARIANT == 14
+#if (VERSAL2_VARIANT == 14) || (VERSAL2_VARIANT == 42)
 	ret = plat_power_domain_tree_desc;
-#elif VERSAL2_VARIANT == 42
+#else
 	if (init_topology_from_dt() == 0) {
 		ret = plat_power_domain_tree_dyn;
 	} else {

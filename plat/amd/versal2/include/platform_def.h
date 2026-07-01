@@ -22,6 +22,7 @@
 #define PLATFORM_STACK_SIZE		U(0x440)
 #endif
 
+#define PLAT_GICR_BASE_2VM3654		U(0xE20A0000)
 /*
  * Variant 14: 1 cluster with 4 cores;
  * default 42: 4 clusters with 2 cores each.
@@ -29,7 +30,7 @@
 #if VERSAL2_VARIANT == 14
 #define PLATFORM_CLUSTER_COUNT		U(1)
 #define PLATFORM_CORE_COUNT_PER_CLUSTER	U(4) /* 4 CPUs per cluster */
-#define PLAT_GICR_BASE_VALUE		U(0xE20A0000)
+#define PLAT_GICR_BASE_VALUE		PLAT_GICR_BASE_2VM3654
 #elif VERSAL2_VARIANT == 42
 #define PLATFORM_CLUSTER_COUNT		U(4)
 #define PLATFORM_CORE_COUNT_PER_CLUSTER	U(2) /* 2 CPUs per cluster */
