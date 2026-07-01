@@ -218,7 +218,12 @@ BL31_SOURCES		+=	services/std_svc/firme/firme_main.c \
 				services/std_svc/firme/firme_base_service.c \
 				services/std_svc/firme/firme_granule_management_service.c \
 				services/std_svc/firme/firme_mecid.c
+
+ifeq (${FIRME_SUPPORT_IDE_KM},1)
+BL31_SOURCES		+=	services/std_svc/firme/firme_ide_km_service.c
 endif
+
+endif # (FIRME_SUPPORT)
 
 BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S
 
@@ -244,6 +249,7 @@ $(eval $(call assert_booleans,\
 	CRASH_REPORTING \
 	EL3_EXCEPTION_HANDLING \
 	FIRME_SUPPORT \
+	FIRME_SUPPORT_IDE_KM \
 	USE_DSU_DRIVER \
 )))
 
@@ -259,4 +265,5 @@ $(eval $(call add_defines,\
 	EL3_EXCEPTION_HANDLING \
 	USE_DSU_DRIVER \
 	FIRME_SUPPORT \
+	FIRME_SUPPORT_IDE_KM \
 )))

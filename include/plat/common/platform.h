@@ -411,6 +411,7 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared);
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest);
 uintptr_t plat_rmmd_reserve_memory(size_t size, unsigned long alignment);
 
+#if RMMD_ENABLE_IDE_KEY_PROG
 /* The following 4 functions are to be implemented if
  * RMMD_ENABLE_IDE_KEY_PROG=1.
  * The following functions are expected to return E_RMM_* error codes.
@@ -428,7 +429,20 @@ int plat_rmmd_el3_ide_key_set_stop(uint64_t ecam_address, uint64_t root_port_id,
 int plat_rmmd_el3_ide_km_pull_response(uint64_t ecam_address, uint64_t root_port_id,
 				   uint64_t *req_resp, uint64_t *request_id,
 				   uint64_t *cookie);
+#endif /* RMMD_ENABLE_IDE_KEY_PROG */
+
 #endif /* ENABLE_RMM */
+
+#if (FIRME_SUPPORT_IDE_KM)
+int plat_get_root_complex_index(uint64_t ecam_address);
+int plat_ide_km_keyset_prog(uint64_t ecam_address, uint64_t flags,
+			    uint64_t keyset_id, uint64_t keyqw0,
+			    uint64_t keyqw1, uint64_t keyqw2, uint64_t keyqw3);
+int plat_ide_km_keyset_go(uint64_t ecam_address, uint64_t flags,
+			  uint64_t keyset_id);
+int plat_ide_km_keyset_stop(uint64_t ecam_address, uint64_t flags,
+			    uint64_t keyset_id);
+#endif /* FIRME_SUPPORT_IDE_KM */
 
 /*******************************************************************************
  * Optional BL31 functions (may be overridden)

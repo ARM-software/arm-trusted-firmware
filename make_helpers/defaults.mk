@@ -480,6 +480,9 @@ TEST_IO_SHORT_READ_FI_IMAGE_ID	:= 0
 # Enable the FIRME interface.
 FIRME_SUPPORT			:= 0
 
+# FIRME IDE KM support.
+FIRME_SUPPORT_IDE_KM		:= 0
+
 # Flag to enable the spinlock implementation variant using the FEAT_LSE
 # compare-and-swap instruction.
 USE_SPINLOCK_CAS		?=	0

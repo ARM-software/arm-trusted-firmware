@@ -51,6 +51,12 @@ static uint64_t firme_base_get_feat_reg_1(firme_instance_e instance)
 		reg |= FIRME_BASE_SERVICE_MECID_BIT;
 	}
 
+	info = firme_ide_km_service_get_info();
+	if ((info != NULL) &&
+	    ((info->instance_support & BIT(instance)) != 0U)) {
+		reg |= FIRME_BASE_SERVICE_IDE_KM_BIT;
+	}
+
 	return reg;
 }
 
@@ -72,6 +78,9 @@ static int32_t get_firme_service_version(firme_instance_e instance,
 		break;
 	case FIRME_MECID_MGMT_ID:
 		info = firme_mecid_service_get_info();
+		break;
+	case FIRME_IDE_KEY_MGMT_ID:
+		info = firme_ide_km_service_get_info();
 		break;
 	default:
 		return FIRME_NOT_SUPPORTED;
@@ -110,6 +119,9 @@ static int32_t get_firme_feature_reg(uint64_t *reg, firme_instance_e instance,
 		break;
 	case FIRME_MECID_MGMT_ID:
 		info = firme_mecid_service_get_info();
+		break;
+	case FIRME_IDE_KEY_MGMT_ID:
+		info = firme_ide_km_service_get_info();
 		break;
 	}
 

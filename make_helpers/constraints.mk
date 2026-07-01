@@ -59,6 +59,10 @@ ifeq (${ENABLE_RMM},1)
         $(warning "RMM is an experimental feature")
 endif
 
+ifeq (${RMMD_ENABLE_IDE_KEY_PROG},1)
+        $(warning "RMMD_ENABLE_IDE_KEY_PROG is deprecated. Use FIRME service option FIRME_SUPPORT_IDE_KM instead.")
+endif
+
 ifeq (${CTX_INCLUDE_EL2_REGS}, 1)
 	ifeq (${SPD},none)
 		ifeq (${ENABLE_RMM},0)
@@ -257,6 +261,12 @@ ifneq (${ARCH},aarch64)
 endif
 
 endif # ${ENABLE_FEAT_PAUTH_LR}
+
+ifeq (${FIRME_SUPPORT_IDE_KM}, 1)
+    ifeq (${FIRME_SUPPORT}, 0)
+        $(error "FIRME_SUPPORT_IDE_KM requires FIRME_SUPPORT")
+    endif
+endif
 
 ifeq ($(FIRME_SUPPORT),1)
         $(info FIRME_SUPPORT is an experimental feature)

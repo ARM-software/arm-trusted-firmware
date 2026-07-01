@@ -255,23 +255,27 @@ RMM-EL3 runtime services
 The following table summarizes the RMM runtime services that need to be
 implemented by EL3 Firmware.
 
-.. csv-table::
-   :header: "FID", "Command"
-   :widths: 2 5
+If an equivalent FIRME SMC is supported, it is recommended to use the FIRME
+interface as a future version of RMM-EL3 runtime service will remove the
+redundant SMCs.
 
-   0xC400018F,``RMM_RMI_REQ_COMPLETE``
-   0xC40001B0,``RMM_GTSI_DELEGATE``
-   0xC40001B1,``RMM_GTSI_UNDELEGATE``
-   0xC40001B2,``RMM_ATTEST_GET_REALM_KEY``
-   0xC40001B3,``RMM_ATTEST_GET_PLAT_TOKEN``
-   0xC40001B4,``RMM_EL3_FEATURES``
-   0xC40001B5,``RMM_EL3_TOKEN_SIGN``
-   0xC40001B6,``RMM_MECID_KEY_UPDATE``
-   0xC40001B7,``RMM_IDE_KEY_PROG``
-   0xC40001B8,``RMM_IDE_KEY_SET_GO``
-   0xC40001B9,``RMM_IDE_KEY_SET_STOP``
-   0xC40001BA,``RMM_IDE_KM_PULL_RESPONSE``
-   0xC40001BB,``RMM_RESERVE_MEMORY``
+.. csv-table::
+   :header: "FID", "Command", "Corresponding FIRME ABI"
+   :widths: 2 5 5
+
+   0xC400018F,``RMM_RMI_REQ_COMPLETE``,
+   0xC40001B0,``RMM_GTSI_DELEGATE``,``FIRME_GM_GPI_SET_FID``
+   0xC40001B1,``RMM_GTSI_UNDELEGATE``,``FIRME_GM_GPI_SET_FID``
+   0xC40001B2,``RMM_ATTEST_GET_REALM_KEY``,
+   0xC40001B3,``RMM_ATTEST_GET_PLAT_TOKEN``,
+   0xC40001B4,``RMM_EL3_FEATURES``,
+   0xC40001B5,``RMM_EL3_TOKEN_SIGN``,
+   0xC40001B6,``RMM_MECID_KEY_UPDATE``,``FIRME_MEC_REFRESH_FID``
+   0xC40001B7,``RMM_IDE_KEY_PROG``,``FIRME_IDE_KEYSET_PROG_FID``
+   0xC40001B8,``RMM_IDE_KEY_SET_GO``,``FIRME_IDE_KEYSET_GO_FID``
+   0xC40001B9,``RMM_IDE_KEY_SET_STOP``,``FIRME_IDE_KEYSET_STOP``
+   0xC40001BA,``RMM_IDE_KM_PULL_RESPONSE``,
+   0xC40001BB,``RMM_RESERVE_MEMORY``,
 
 RMM_RMI_REQ_COMPLETE command
 ============================
@@ -731,7 +735,7 @@ a failure. The errors are ordered by condition check.
    ``E_RMM_OK``, "No errors detected"
 
 RMM_IDE_KEY_PROG command
-=========================
+========================
 
 Set the key/IV info at Root port for an IDE stream as part of Device Assignment flow. This
 command is available from v0.6 of the RMM-EL3 interface.

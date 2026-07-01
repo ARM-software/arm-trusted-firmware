@@ -10,6 +10,7 @@
 #include <common/sha_common_macros.h>
 #include <lib/smccc.h>
 #include <lib/utils_def.h>
+#include <smccc_helpers.h>
 
 /* FIRME service versions currently supported */
 /* Version 0.0 returns not supported */
@@ -17,7 +18,7 @@
 #define FIRME_BASE_VERSION_MINOR			U(0)
 #define FIRME_GRANULE_MGMT_VERSION_MAJOR		U(1)
 #define FIRME_GRANULE_MGMT_VERSION_MINOR		U(0)
-#define FIRME_IDE_KEY_MGMT_VERSION_MAJOR		U(0)
+#define FIRME_IDE_KEY_MGMT_VERSION_MAJOR		U(1)
 #define FIRME_IDE_KEY_MGMT_VERSION_MINOR		U(0)
 #define FIRME_MECID_MGMT_VERSION_MAJOR			U(0)
 #define FIRME_MECID_MGMT_VERSION_MINOR			U(0)
@@ -67,8 +68,8 @@ typedef struct {
 #define FIRME_ABORTED			-3
 #define FIRME_INCOMPLETE		-4
 #define FIRME_DENIED			-5
-#define FIRME_RETRY			-6
-#define FIRME_IN_PROGRESS		-7
+#define FIRME_BUSY			-6
+#define FIRME_OP_CONFLICT		-7
 #define FIRME_EXISTS			-8
 #define FIRME_NO_ENTRY			-9
 #define FIRME_NO_MEMORY			-10
@@ -113,6 +114,7 @@ typedef struct {
 #define FIRME_BASE_SERVICE_BIT(_id)			BIT((_id) + \
 							    FIRME_BASE_SERVICE_LIST_SHIFT)
 #define FIRME_BASE_SERVICE_GRANULE_MGMT_BIT		FIRME_BASE_SERVICE_BIT(0)
+#define FIRME_BASE_SERVICE_IDE_KM_BIT			FIRME_BASE_SERVICE_BIT(1)
 #define FIRME_BASE_SERVICE_MECID_BIT			FIRME_BASE_SERVICE_BIT(2)
 
 /* Granule management service feature register definitions. */
@@ -235,9 +237,15 @@ typedef struct {
 #define FIRME_IDEV_OP_START_FID			SMC64_FIRME_FID(U(0x10))
 #define FIRME_IDEV_OP_CONTINUE_FID		SMC64_FIRME_FID(U(0x11))
 
-/* Top level handler for FIRME SMC calls. */
-int32_t firme_init(void);
+/*
+ * Platform hooks will return generic error codes, this helper converts to
+ * FIRME error status code.
+ */
+int firme_errno_from_generic_errno(int errno);
 
+int firme_init(void);
+
+/* Top level handler for FIRME SMC calls. */
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
 
@@ -264,5 +272,37 @@ u_register_t firme_mecid_service_handler(firme_instance_e instance,
 					 uint64_t x2, uint64_t x3,
 					 uint64_t x4, void *cookie,
 					 void *handle, uint64_t flags);
+
+#if FIRME_SUPPORT_IDE_KM
+int firme_ide_km_service_init(void);
+
+firme_service_info_t *firme_ide_km_service_get_info(void);
+
+u_register_t firme_ide_km_service_handler(firme_instance_e instance,
+					  uint32_t smc_fid, uint64_t x1,
+					  uint64_t x2, uint64_t x3,
+					  uint64_t x4, void *cookie,
+					  void *handle, uint64_t flags);
+#else
+static inline int firme_ide_km_service_init(void)
+{
+	return 0;
+}
+
+static inline firme_service_info_t *firme_ide_km_service_get_info(void)
+{
+	return NULL;
+}
+
+static inline u_register_t firme_ide_km_service_handler(
+				firme_instance_e instance,
+				uint32_t smc_fid, uint64_t x1,
+				uint64_t x2, uint64_t x3,
+				uint64_t x4, void *cookie,
+				void *handle, uint64_t flags)
+{
+	SMC_RET1(handle, FIRME_NOT_SUPPORTED);
+}
+#endif /* FIRME_SUPPORT_IDE_KM */
 
 #endif /* FIRME_SVC_H */
