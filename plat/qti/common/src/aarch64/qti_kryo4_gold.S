@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -19,7 +19,7 @@
  * -------------------------------------------------
  */
 func qti_kryo4_gold_reset_func
-#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2017_5715
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	msr	vbar_el3, x0
 	isb
