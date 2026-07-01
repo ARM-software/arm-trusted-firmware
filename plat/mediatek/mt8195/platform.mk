@@ -8,9 +8,13 @@ MTK_PLAT     := plat/mediatek
 MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 MTK_SOC      := ${PLAT}
 
+MTK_DFD_SUPPORT ?= $(DEBUG)
+$(eval $(call add_define,MTK_DFD_SUPPORT))
+
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/include                     \
                  -I${MTK_PLAT}/drivers/cirq/                      \
+                 -I${MTK_PLAT}/drivers/dfd/                       \
                  -I${MTK_PLAT}/drivers/dp/                        \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
@@ -75,7 +79,6 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/drivers/apusys/mtk_apusys.c           \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm_utils.c           \
-                ${MTK_PLAT_SOC}/drivers/dfd/plat_dfd.c                \
                 ${MTK_PLAT_SOC}/drivers/emi_mpu/emi_mpu.c             \
                 ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm.c              \
@@ -87,6 +90,10 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
                 ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
                 ${MTK_PLAT_SOC}/plat_topology.c
+
+ifeq ($(MTK_DFD_SUPPORT),1)
+BL31_SOURCES += ${MTK_PLAT_SOC}/drivers/dfd/plat_dfd.c
+endif
 
 # Build SPM drivers
 include ${MTK_PLAT_SOC}/drivers/spm/build.mk

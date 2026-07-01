@@ -56,6 +56,7 @@
 	{ \
 		if (_smc_id##_descriptor_index < 0) { \
 			SMC_HANDLER_DEBUG(SMC_HANDLER_DEBUG_NOT_IMP_MSG, #_smc_id, smc_id); \
+			ret = MTK_SIP_E_NOT_SUPPORTED; \
 			break; \
 		} \
 		if (_smc_id##_descriptor_index >= smc_id_descriptor_max) { \

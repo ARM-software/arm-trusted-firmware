@@ -23,6 +23,9 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -I${MTK_PLAT_SOC}/include \
 		 -Idrivers/arm/gic \
 
+MTK_DFD_SUPPORT ?= $(DEBUG)
+$(eval $(call add_define,MTK_DFD_SUPPORT))
+
 MODULES-y += $(MTK_PLAT)/common
 MODULES-y += $(MTK_PLAT)/common/lpm_v2
 MODULES-y += $(MTK_PLAT)/helpers

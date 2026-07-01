@@ -6,16 +6,17 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
+
+#include <dfd.h>
 #include <mtk_sip_svc.h>
-#include <plat_dfd.h>
 
 static bool dfd_enabled;
 static uint64_t dfd_base_addr;
 static uint64_t dfd_chain_length;
 static uint64_t dfd_cache_dump;
 
-static void dfd_setup(uint64_t base_addr, uint64_t chain_length,
-		      uint64_t cache_dump)
+void dfd_setup(uint64_t base_addr, uint64_t chain_length,
+	       uint64_t cache_dump)
 {
 	/* bit[0]: rg_rw_dfd_internal_dump_en -> 1 */
 	/* bit[2]: rg_rw_dfd_clock_stop_en -> 1 */
