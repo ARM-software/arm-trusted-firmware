@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2026, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -27,14 +27,14 @@ endif
 $(warning "OPTEE_ALLOW_SMC_LOAD is enabled which may result in an insecure \
 	platform")
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
-$(eval $(call add_define,OPTEE_ALLOW_SMC_LOAD))
 include lib/libfdt/libfdt.mk
 endif
+$(eval $(call add_define,OPTEE_ALLOW_SMC_LOAD))
 
 CROS_WIDEVINE_SMC		:=	0
 ifeq ($(CROS_WIDEVINE_SMC),1)
 ifeq ($(OPTEE_ALLOW_SMC_LOAD),0)
 $(error When CROS_WIDEVINE_SMC=1, OPTEE_ALLOW_SMC_LOAD must also be 1)
 endif
-$(eval $(call add_define,CROS_WIDEVINE_SMC))
 endif
+$(eval $(call add_define,CROS_WIDEVINE_SMC))
