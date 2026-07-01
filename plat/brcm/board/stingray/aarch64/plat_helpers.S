@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, Broadcom
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,7 +43,7 @@
 	 */
 func plat_l2_init
 	mrs x0, CORTEX_A72_L2ACTLR_EL1
-#if (IMAGE_BL1 || IMAGE_BL2) || defined(USE_SINGLE_CLUSTER)
+#if (defined(IMAGE_BL1) || defined(IMAGE_BL2)) || defined(USE_SINGLE_CLUSTER)
 	orr x0, x0, #CORTEX_A72_L2ACTLR_DISABLE_ACE_SH_OR_CHI
 #else
 	bic x0, x0, #CORTEX_A72_L2ACTLR_DISABLE_ACE_SH_OR_CHI

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 - 2020, Broadcom
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +8,7 @@
 #include <brcm_def.h>
 #include <plat_brcm.h>
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 const mmap_region_t plat_brcm_mmap[] = {
 	HSLS_REGION,
 	BRCM_MAP_SHARED_RAM,
@@ -36,7 +37,7 @@ const mmap_region_t plat_brcm_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 const mmap_region_t plat_brcm_mmap[] = {
 	HSLS_REGION,
 #ifdef PERIPH0_REGION

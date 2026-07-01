@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 - 2020, Broadcom
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -114,7 +115,7 @@
 #endif
 
 #if BRCM_BL31_IN_DRAM
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #define BRCM_MAP_BL31_SEC_DRAM		MAP_REGION_FLAT(		\
 						BL31_BASE,		\
 						PLAT_BRCM_MAX_BL31_SIZE,\
