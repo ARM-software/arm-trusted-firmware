@@ -30,11 +30,9 @@ static void zynqmp_cpu_standby(plat_local_state_t cpu_state)
 	wfi();
 }
 
-#define MPIDR_MT_BIT	(24)
-
 static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 {
-	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr) & ~BIT(MPIDR_MT_BIT);
+	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	int32_t cpu = cpu_id % plat_cores_per_cluster;
 	int32_t cluster = cpu_id / plat_cores_per_cluster;
 	uintptr_t apu_cluster_base = 0, apu_pcli_base, apu_pcli_cluster = 0;
@@ -44,7 +42,7 @@ static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 	VERBOSE("%s: mpidr: 0x%lx, cpuid: %x, cpu: %x, cluster: %x\n",
 		__func__, mpidr, cpu_id, cpu, cluster);
 
-	if (cpu_id == -1) {
+	if (cpu_id < 0) {
 		ret = PSCI_E_INTERN_FAIL;
 		goto exit_label;
 	}

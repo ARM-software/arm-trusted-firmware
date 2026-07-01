@@ -45,19 +45,12 @@ static gicv3_dist_ctx_t dist_ctx __section(".versal_el3_tzc_dram");
  * MPIDR hashing function for translating MPIDRs read from GICR_TYPER register
  * to core position.
  *
- * Calculating core position is dependent on MPIDR_EL1.MT bit. However, affinity
- * values read from GICR_TYPER don't have an MT field. To reuse the same
- * translation used for CPUs, we insert MT bit read from the PE's MPIDR into
- * that read from GICR_TYPER.
- *
- * Assumptions:
- *
- *   - All CPUs implemented in the system have MPIDR_EL1.MT bit set;
- *   - No CPUs implemented in the system use affinity level 3.
+ * Versal CPUs (Cortex-A72) do not implement multi-threading (MT=0). Affinity
+ * values read from GICR_TYPER use Aff0 as CPU ID and Aff1 as cluster ID,
+ * which maps directly to the core position via versal_calc_core_pos().
  */
 static uint32_t versal_gicv3_mpidr_hash(u_register_t mpidr)
 {
-	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
 	return versal_calc_core_pos(mpidr);
 }
 
