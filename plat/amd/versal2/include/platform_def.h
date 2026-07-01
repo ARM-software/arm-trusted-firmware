@@ -22,21 +22,27 @@
 #define PLATFORM_STACK_SIZE		U(0x440)
 #endif
 
+/* GICR base for the 2VM3654 die (1-cluster, 4-core variant) */
 #define PLAT_GICR_BASE_2VM3654		U(0xE20A0000)
+/* 2VM3654 die topology: 1 cluster x 4 cores */
+#define PLATFORM_CORE_COUNT_2VM3654	U(4)
+#define PLATFORM_CLUSTER_COUNT_2VM3654	U(1)
+
 /*
  * Variant 14: 1 cluster with 4 cores;
- * default 42: 4 clusters with 2 cores each.
+ * Variant 42: 4 clusters with 2 cores each;
+ * Variant 0 (default): auto-detect chip at runtime.
  */
 #if VERSAL2_VARIANT == 14
 #define PLATFORM_CLUSTER_COUNT		U(1)
 #define PLATFORM_CORE_COUNT_PER_CLUSTER	U(4) /* 4 CPUs per cluster */
 #define PLAT_GICR_BASE_VALUE		PLAT_GICR_BASE_2VM3654
-#elif VERSAL2_VARIANT == 42
+#elif (VERSAL2_VARIANT == 42) || (VERSAL2_VARIANT == 0)
 #define PLATFORM_CLUSTER_COUNT		U(4)
 #define PLATFORM_CORE_COUNT_PER_CLUSTER	U(2) /* 2 CPUs per cluster */
 #define PLAT_GICR_BASE_VALUE		U(0xE2060000)
 #else
-#error "Unsupported VERSAL2_VARIANT. Valid values are 14 or 42."
+#error "Unsupported VERSAL2_VARIANT. Valid values are 0, 14 or 42."
 #endif
 
 /* Power domain descriptor prefix: entry for root + entry for total cluster count */
