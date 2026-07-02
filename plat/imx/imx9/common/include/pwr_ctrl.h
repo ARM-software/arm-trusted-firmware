@@ -241,6 +241,8 @@ static inline void src_ack_cnt_mode(unsigned int mix, uint8_t mode)
 
 enum ccm_clock_root {
 	M33_ROOT = 3,
+	BUS_WAKEUP_ROOT = 5,
+	BUS_AON_ROOT = 6,
 	WAKEUP_AXI_ROOT = 7,
 	CAN1_ROOT = 23,
 	CAN2_ROOT = 24,

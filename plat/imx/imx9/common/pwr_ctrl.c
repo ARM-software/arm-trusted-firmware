@@ -160,6 +160,8 @@ void nicmix_pwr_up(unsigned int core_id)
 
 	/* Keep nicmix on when exit from system suspend */
 	src_mix_set_lpm(SRC_NIC, 0x3, CM_MODE_SUSPEND);
+	mmio_clrbits_32(SRC_SLICE(SRC_NIC) + SRC_AUTHEN_CTRL, BIT(2));
+
 	trdc_n_reinit();
 #if defined(PLAT_imx93)
 	nicmix_qos_init();
@@ -332,7 +334,7 @@ void wakeupmix_pwr_up(void)
 		mmio_setbits_32(CCM_ROOT_SLICE(M33_ROOT), clock_root[0] & ROOT_MUX_MASK);
 		/* Keep wakeupmix on when exit from system suspend */
 		src_mix_set_lpm(SRC_WKUP, 0x3, CM_MODE_SUSPEND);
-		mmio_clrbits_32(SRC_BASE + 0xc00 + 0x4, BIT(2));
+		mmio_clrbits_32(SRC_SLICE(SRC_WKUP) + SRC_AUTHEN_CTRL, BIT(2));
 		trdc_w_reinit();
 #if defined(PLAT_imx93)
 		wakeupmix_qos_init();
