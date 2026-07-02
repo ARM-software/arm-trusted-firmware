@@ -152,7 +152,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +-----------------------+--------+
 | FEAT_PCDPHINT         |   NA   |
 +-----------------------+--------+
-| FEAT_SRMASK           |        |
+| FEAT_SRMASK           |   OK   |
 +-----------------------+--------+
 | FEAT_IDTE3            |   OK   |
 +-----------------------+--------+
