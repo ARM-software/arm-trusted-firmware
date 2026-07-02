@@ -73,11 +73,27 @@
 #define TRDC_N_BASE			U(0x49010000)
 #define TRDC_x_SISE			U(0x20000)
 
+#define WDOG1_BASE			U(0x442D0000)
 #define WDOG3_BASE			U(0x42490000)
 #define WDOG_CS				U(0x0)
+#define WDOG_CS_UPDATE			BIT(5)
+#define WDOG_CS_EN			BIT(7)
+#define WDOG_CS_RCS			BIT(10)
 #define WDOG_CS_ULK			BIT(11)
+#define WDOG_CS_CMD32EN			BIT(13)
+#define WDOG_CS_FLG			BIT(14)
 #define WDOG_CNT			U(0x4)
 #define WDOG_TOVAL			U(0x8)
+#define WDOG_WIN			U(0xC)
+#define WDOG_UNLOCK			U(0xD928C520)
+#define WDOG_REFRESH			U(0xB480A602)
+#define WDOG_LPO_CLK			U(0x1)
+#define WDOG_TIMEOUT_DEFAULT		U(0x400)
+#define WDOG_TIMEOUT_SHORT		U(1000)
+/* WDOG_CS: CMD32EN | LPO_CLK | UPDATE — disable with update enabled */
+#define WDOG_CONFIG_VALUE		(WDOG_CS_CMD32EN | (WDOG_LPO_CLK << 8) | WDOG_CS_UPDATE)
+/* WDOG_CS: CMD32EN | ULK | LPO_CLK — enable with unlock */
+#define WDOG_ENABLE_CONFIG		(WDOG_CS_CMD32EN | WDOG_CS_ULK | (WDOG_LPO_CLK << 8))
 
 #define BBNSM_BASE			U(0x44440000)
 #define BBNSM_CTRL			U(0x8)
