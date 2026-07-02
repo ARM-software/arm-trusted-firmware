@@ -720,7 +720,7 @@ static unsigned int cpupm_get_pstate(enum mt_cpupm_pwr_domain domain,
 	return pstate;
 }
 
-#define CPUPM_READY_MS (40000)
+#define CPUPM_READY_MS (60000)
 static int cpupm_pwr_state_valid(unsigned int afflv, unsigned int state)
 {
 	if (cpu_pm_status == CPU_PM_LP_READY)
