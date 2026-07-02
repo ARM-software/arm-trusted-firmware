@@ -111,16 +111,14 @@ There are several build options:
 
 - MV_DDR_PATH
 
-        This parameter is required for ``mrvl_flash`` and ``mrvl_uart`` targets.
-        For A7K/A8K/CN913x it is used for BLE build and for Armada37x0 it used
-        for ddr_tool build.
+        This parameter is deprecated. It's an optional flag for ``mrvl_flash`` and
+        ``mrvl_uart`` targets. For A7K/A8K/CN913x it is used for BLE build and for
+        Armada37x0 it used for ``ddr_tool`` build.
 
-        Specify path to the full checkout of Marvell mv-ddr-marvell git
-        repository. Checkout must contain also .git subdirectory because
-        mv-ddr build process calls git commands.
-
-        Do not remove any parts of git checkout becuase build process and other
-        applications need them for correct building and version determination.
+        By default, TF-A uses the in-tree ``contrib/mv-ddr`` submodule. To use a
+        different checkout, specify the path to a full checkout of the Marvell
+        ``mv-ddr-marvell`` Git repository. This checkout must also contain a ``.git``
+        subdirectory because the ``mv-ddr`` build process calls Git commands.
 
 
 CN913x specific build options:
@@ -303,7 +301,8 @@ Armada37x0 specific build options for ``mrvl_flash`` and ``mrvl_uart`` targets:
         build process calls git commands.
 
         WTP build process uses also Marvell mv-ddr-marvell git repository
-        specified in MV_DDR_PATH option.
+        specified in MV_DDR_PATH option, or the in-tree ``contrib/mv-ddr``
+        submodule by default.
 
         Do not remove any parts of git checkout becuase build process and other
         applications need them for correct building and version determination.
@@ -350,8 +349,8 @@ line is as following
 
     > make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 CLOCKSPRESET=CPU_1000_DDR_800 \
         MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 \
-        MV_DDR_PATH=/path/to/mv-ddr-marvell/ WTP=/path/to/A3700-utils-marvell/ \
-        CRYPTOPP_PATH=/path/to/cryptopp/ BL33=/path/to/u-boot.bin \
+        WTP=/path/to/A3700-utils-marvell/ CRYPTOPP_PATH=/path/to/cryptopp/ \
+        BL33=/path/to/u-boot.bin \
         all fip mrvl_bootimage mrvl_flash mrvl_uart
 
 To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run following command:
@@ -369,17 +368,17 @@ EspressoBin board (PLAT=a3700) with 1GHz CPU (CLOCKSPRESET=CPU_1000_DDR_800) and
 .. code:: shell
 
     > git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+    > git -C trusted-firmware-a submodule update --init contrib/mv-ddr
     > git clone https://source.denx.de/u-boot/u-boot.git
     > git clone https://github.com/weidai11/cryptopp.git
-    > git clone https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
     > git clone https://github.com/MarvellEmbeddedProcessors/A3700-utils-marvell.git
     > git clone https://gitlab.nic.cz/turris/mox-boot-builder.git
     > make -C u-boot CROSS_COMPILE=aarch64-linux-gnu- mvebu_espressobin-88f3720_defconfig u-boot.bin
     > make -C mox-boot-builder CROSS_CM3=arm-linux-gnueabi- wtmi_app.bin
     > make -C trusted-firmware-a CROSS_COMPILE=aarch64-linux-gnu- CROSS_CM3=arm-linux-gnueabi- \
         USE_COHERENT_MEM=0 PLAT=a3700 CLOCKSPRESET=CPU_1000_DDR_800 DDR_TOPOLOGY=5 \
-        MV_DDR_PATH=$PWD/mv-ddr-marvell/ WTP=$PWD/A3700-utils-marvell/ \
-        CRYPTOPP_PATH=$PWD/cryptopp/ BL33=$PWD/u-boot/u-boot.bin \
+        WTP=$PWD/A3700-utils-marvell/ CRYPTOPP_PATH=$PWD/cryptopp/ \
+        BL33=$PWD/u-boot/u-boot.bin \
         WTMI_IMG=$PWD/mox-boot-builder/wtmi_app.bin FIP_ALIGN=0x100 mrvl_flash
 
 Produced Marvell firmware flash image: ``trusted-firmware-a/build/a3700/release/flash-image.bin``
@@ -447,10 +446,9 @@ Armada37x0 Builds require installation of additional components
 
         > export CROSS_CM3=/opt/arm-cross/bin/arm-linux-gnueabi
 
-(2) DDR initialization library sources (mv_ddr) available at the following repository
-    (use the "master" branch):
-
-    https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+(2) DDR initialization library sources (mv_ddr) from the in-tree
+    ``contrib/mv-ddr`` submodule, or an external checkout specified via
+    ``MV_DDR_PATH``.
 
 (3) Armada3700 tools available at the following repository
     (use the "master" branch):
@@ -468,10 +466,9 @@ Armada37x0 Builds require installation of additional components
 Armada70x0, Armada80x0 and CN913x Builds require installation of additional components
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-(1) DDR initialization library sources (mv_ddr) available at the following repository
-    (use the "master" branch):
-
-    https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+(1) DDR initialization library sources (mv_ddr) from the in-tree
+    ``contrib/mv-ddr`` submodule, or an external checkout specified via
+    ``MV_DDR_PATH``.
 
 (2) MSS Management SubSystem Firmware available at the following repository
     (use the "binaries-marvell-armada-SDK10.0.1.0" branch):

@@ -14,3 +14,6 @@
 	path = contrib/mbed-tls
 	url = https://github.com/Mbed-TLS/mbedtls.git
 	shallow = true
+[submodule "contrib/mv-ddr"]
+	path = contrib/mv-ddr
+	url = https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
