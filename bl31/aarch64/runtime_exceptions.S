@@ -107,7 +107,7 @@
 	b.eq	sync_handler64
 
 	cmp	x30, #EC_IMP_DEF_EL3
-	b.eq	imp_def_el3_handler
+	b.eq	sync_handler64
 
 	/* If FFH Support then try to handle lower EL EA exceptions. */
 #if FFH_SUPPORT
@@ -389,11 +389,17 @@ sync_handler64:
 	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
 	bfi	x7, x18, #0, #1
 
-	/* check for system register traps */
+	/* Read exception cause. */
 	mrs	x16, esr_el3
 	ubfx	x17, x16, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+
+	/* Check for system register trap */
 	cmp	x17, #EC_AARCH64_SYS
 	b.eq	sysreg_handler64
+
+	/* Check for imp def trap */
+	cmp	x17, #EC_IMP_DEF_EL3
+	b.eq	imp_def_trap_handler
 
 	mov	sp, x12
 
@@ -491,6 +497,42 @@ sysreg_handler64:
 	mov	x0, x19
 	bl	inject_undef64
 	b	el3_exit
+
+imp_def_trap_handler:
+	/* Use EL3 runtime stack. */
+	mov	sp, x12
+
+	/* Get the cpu_ops pointer */
+	bl 	get_cpu_ops_ptr
+
+	/* Get the cpu_ops exception handler */
+	ldr	x0, [x0, #CPU_E_HANDLER_FUNC]
+
+	/* Stash context pointer. */
+	mov	x19, x6
+
+	/*
+	* If the reserved function pointer is NULL, this CPU does not have an
+	* implementation defined exception handler function
+	*/
+	cbz	x0, report_unhandled_exception
+	blr	x0
+
+	cmp	x0, #TRAP_RET_CONTINUE
+	b.ne	1f
+	/* Increment the return address. */
+	ldr	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
+	add	x1, x1, #4
+	str	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
+	b  	el3_exit
+
+1:
+	cmp	x0, #TRAP_RET_REPEAT
+	b.ne	2f
+
+	b  	el3_exit
+2:
+	b	el3_panic
 
 smc_unknown:
 	/*
@@ -596,34 +638,6 @@ interrupt_exit:
 	/* Return from exception, possibly in a different security state */
 	b	el3_exit
 endfunc handle_interrupt_exception
-
-func imp_def_el3_handler
-	/* Save GP registers */
-	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-
-	/* Get the cpu_ops pointer */
-	bl	get_cpu_ops_ptr
-
-	/* Get the cpu_ops exception handler */
-	ldr	x0, [x0, #CPU_E_HANDLER_FUNC]
-
-	/*
-	 * If the reserved function pointer is NULL, this CPU does not have an
-	 * implementation defined exception handler function
-	 */
-	cbz	x0, el3_handler_exit
-	mrs	x1, esr_el3
-	ubfx	x1, x1, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	blr	x0
-el3_handler_exit:
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	restore_x30
-	no_ret	report_unhandled_exception
-endfunc imp_def_el3_handler
 
 /*
  * Handler for async EA from lower EL synchronized at EL3 entry in KFH mode.

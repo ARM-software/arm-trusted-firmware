@@ -97,7 +97,7 @@ struct cpu_ops {
 	void (*reset_func)(void);
 #endif /* IMAGE_AT_EL3 */
 #if __aarch64__
-	void (*e_handler_func)(long es);
+	int (*e_handler_func)(long es);
 #endif /* __aarch64__ */
 #if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS
 	cpu_ops_pwr_dwn_op_t pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS];

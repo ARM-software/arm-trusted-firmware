@@ -143,11 +143,6 @@ check_erratum_chosen neoverse_v3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #if WORKAROUND_CVE_2025_0647
 func neoverse_v3_impl_defined_el3_handler
 	mov	x0, #0
-
-	/* See if this call came from trap handler. */
-	cmp	x1, #EC_IMP_DEF_EL3
-	bne	wa_cve_2025_0647_do_cpp_wa
-	orr	x0, x0, #WA_IS_TRAP_HANDLER
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc neoverse_v3_impl_defined_el3_handler
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,9 +14,6 @@
 
 /* Neoverse N1 loop count for CVE-2022-23960 mitigation */
 #define NEOVERSE_N1_BHB_LOOP_COUNT			U(24)
-
-/* Exception Syndrome register EC code for IC Trap */
-#define NEOVERSE_N1_EC_IC_TRAP				U(0x1f)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions.

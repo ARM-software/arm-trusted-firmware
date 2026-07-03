@@ -48,8 +48,6 @@ void wa_cve_2025_0647_execute_cpp_el3(uint64_t arg);
 #define	WA_CPUPMR_EL3		S3_6_C15_C8_3
 
 /* Flags passed to workaround function in X0. */
-#define	WA_IS_TRAP_HANDLER_BIT  (0)
-#define	WA_IS_TRAP_HANDLER	BIT(WA_IS_TRAP_HANDLER_BIT)
 #define WA_LS_RCG_EN_BIT	(1)
 #define	WA_LS_RCG_EN		BIT(WA_LS_RCG_EN_BIT)
 

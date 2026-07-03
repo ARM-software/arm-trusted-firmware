@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl31/sync_handle.h>
 #include <context.h>
 #include <wa_cve_2025_0647_cpprctx.h>
 
@@ -217,25 +218,7 @@ el3_handler_skip_sel2_tlbi:
 	isb
 skip_ls_rcg_alwayson_disable:
 
-	/* Skip ERET if this is not an exception handler call. */
-	tbz	x0, #WA_IS_TRAP_HANDLER_BIT, skip_eret
-
-	/*
-	 * Update ELR_EL3 to skip the triggering instruction
-	 */
-	mrs	x5, ELR_EL3
-	add	x5, x5, #4
-	msr	ELR_EL3, x5
-
-	/* Restore context and ERET */
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
-	exception_return
-
-skip_eret:
+	mov	x0, #TRAP_RET_CONTINUE
 	ret
 endfunc wa_cve_2025_0647_do_cpp_wa
 

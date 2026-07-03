@@ -223,11 +223,6 @@ check_erratum_chosen cortex_x3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #if WORKAROUND_CVE_2025_0647
 func cortex_x3_impl_defined_el3_handler
 	mov	x0, #WA_LS_RCG_EN
-
-	/* See if this call came from trap handler. */
-	cmp	x1, #EC_IMP_DEF_EL3
-	bne	wa_cve_2025_0647_do_cpp_wa
-	orr	x0, x0, #WA_IS_TRAP_HANDLER
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc cortex_x3_impl_defined_el3_handler
 #endif

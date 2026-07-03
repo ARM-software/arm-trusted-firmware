@@ -9,6 +9,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl31/sync_handle.h>
 #include <cpuamu.h>
 #include <cpu_macros.S>
 #include <dsu_macros.S>
@@ -281,12 +282,8 @@ endfunc neoverse_n1_core_pwr_dwn
 /*
  * Handle trap of EL0 IC IVAU instructions to EL3 by executing a TLB
  * inner-shareable invalidation to an arbitrary address followed by a DSB.
- *
- * x1: Exception Syndrome
  */
 func neoverse_n1_errata_ic_trap_handler
-	cmp	x1, #NEOVERSE_N1_EC_IC_TRAP
-	b.ne	1f
 	tlbi	vae3is, xzr
 	dsb	sy
 
@@ -302,18 +299,7 @@ func neoverse_n1_errata_ic_trap_handler
 	dsb	ish
 #endif /* WORKAROUND_CVE_2025_10263 */
 
-	# Skip the IC instruction itself
-	mrs     x3, elr_el3
-	add     x3, x3, #4
-	msr     elr_el3, x3
-
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
-	exception_return
-1:
+	mov	x0, #TRAP_RET_CONTINUE
 	ret
 endfunc neoverse_n1_errata_ic_trap_handler
 
