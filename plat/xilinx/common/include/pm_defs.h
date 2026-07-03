@@ -103,6 +103,8 @@ enum {
 	IOCTL_READ_REG = 28U,
 	IOCTL_UFS_TXRX_CFGRDY_GET = 40,
 	IOCTL_UFS_SRAM_CSR_SEL = 41,
+	/* Max IOCTL IDs representable in uint32_t[2] bitmap (2 x 32 bits = 64) */
+	IOCTL_MAX_ID = 64,
 };
 
 /**
