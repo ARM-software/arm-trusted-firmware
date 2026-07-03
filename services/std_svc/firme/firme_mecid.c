@@ -50,6 +50,7 @@ int32_t firme_mecid_service_init(void)
 static int firme_mec_refresh(u_register_t mec_params)
 {
 	uint64_t common_mecid_width;
+	uint64_t mecid_mask;
 	uint16_t mecid;
 
 	/*
@@ -66,8 +67,9 @@ static int firme_mec_refresh(u_register_t mec_params)
 	common_mecid_width = (mecid_info.feature_reg[1] &
 			    FIRME_MECID_FEAT_REG1_COMMON_MECID_WIDTH_BITS_MASK) + 1U;
 	mecid = EXTRACT(MEC_PARAM_MECID, mec_params);
+	mecid_mask = (1UL << common_mecid_width) - 1UL;
 
-	if (mecid > common_mecid_width) {
+	if ((mecid & ~mecid_mask) != 0U) {
 		return FIRME_INVALID_PARAMETERS;
 	}
 
