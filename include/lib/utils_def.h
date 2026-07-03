@@ -214,6 +214,13 @@
 #define check_u64_overflow(_u64, _inc) \
 	((_u64) > (UINT64_MAX - (_inc)))
 
+/*
+ * Evaluates to 1 if (_size_t + _inc) overflows, 0 otherwise.
+ * Both arguments must be size_t (i.e. effectively unsigned long integers).
+ */
+#define check_size_t_overflow(_size_t, _inc) \
+	((_size_t) > (SIZE_MAX - (_inc)))
+
 /* Register size of the current architecture. */
 #ifdef __aarch64__
 #define REGSZ		U(8)
