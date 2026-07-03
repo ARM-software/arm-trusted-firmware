@@ -5,6 +5,7 @@
 
 MV_DDR_CROSS_COMPILE	:=	$(or $(CROSS_COMPILE),aarch64-none-elf-)
 
+MV_DDR_PATH		:=	contrib/mv-ddr
 MV_DDR_LIB		=	$(BUILD_PLAT)/ble/mv_ddr_lib.a
 LIBC_LIB		=	$(BUILD_PLAT)/lib/libc.a
 BLE_LIBS		=	$(MV_DDR_LIB) $(LIBC_LIB)
