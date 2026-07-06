@@ -110,6 +110,8 @@ int firme_errno_from_generic_errno(int errno);
 
 int firme_init(void);
 
+int plat_firme_get_supported_svcs(uint16_t *svc_mask);
+
 /* Top level handler for FIRME SMC calls. */
 uint64_t firme_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);

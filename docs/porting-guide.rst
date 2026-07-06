@@ -2367,6 +2367,34 @@ RMM image and stores it in the area specified by manifest.
 
 When ENABLE_RMM is disabled, this function is not used.
 
+Function : plat_firme_get_supported_svcs() [when FIRME_SUPPORT == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint16_t *
+    Return   : int
+
+This function is invoked by BL31's FIRME service during initialization to obtain
+the set of FIRME services supported by the platform.
+
+The first parameter points to the service mask to be populated by the platform.
+Each bit in the mask corresponds to the service ID with the same value in
+``firme_service_id_e``. For example, bit ``FIRME_BASE_ID`` controls the FIRME
+base service, bit ``FIRME_GRANULE_MGMT_ID`` controls the granule management
+service and bit ``FIRME_MECID_MGMT_ID`` controls the MECID management service.
+
+The FIRME base service is mandatory when FIRME support is enabled, so the
+platform must set bit ``FIRME_BASE_ID`` and at least one additional service bit.
+A mask containing only ``FIRME_BASE_ID`` is invalid and causes FIRME initialization
+to fail. Services whose bits are clear are not initialized and are reported as
+not supported by the FIRME dispatcher.
+
+The function returns 0 on success, or a negative error code on failure. BL31
+provides a weak default implementation that enables all FIRME services compiled
+into the image, so platforms only need to override this function when they need
+to restrict the advertised FIRME service set.
+
 Function : plat_firme_get_common_mecid_width() [when FIRME_SUPPORT == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -22,7 +22,7 @@
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
 
-static const struct firme_service *const firme_services[FIRME_SERVICE_ID_MAX] = {
+static const struct firme_service *firme_services[FIRME_SERVICE_ID_MAX] = {
 	[FIRME_BASE_ID] = &firme_base_service,
 	[FIRME_GRANULE_MGMT_ID] = &firme_granule_mgmt_service,
 	[FIRME_MECID_MGMT_ID] = &firme_mecid_service,
@@ -30,6 +30,19 @@ static const struct firme_service *const firme_services[FIRME_SERVICE_ID_MAX] = 
 	[FIRME_IDE_KEY_MGMT_ID] = &firme_ide_km_service,
 #endif
 };
+
+#define FIRME_SERVICE_MASK_ALL	((uint16_t)(BIT(FIRME_SERVICE_ID_MAX) - 1U))
+
+#pragma weak plat_firme_get_supported_svcs
+int plat_firme_get_supported_svcs(uint16_t *svc_mask)
+{
+	if (svc_mask == NULL) {
+		return -EINVAL;
+	}
+
+	*svc_mask = FIRME_SERVICE_MASK_ALL;
+	return 0;
+}
 
 static inline firme_service_id_e get_service_id_from_fid(uint32_t fid)
 {
@@ -122,12 +135,32 @@ int firme_errno_from_generic_errno(int errno)
 int32_t firme_init(void)
 {
 	int32_t rc;
+	uint16_t svc_mask = FIRME_SERVICE_MASK_ALL;
 	unsigned int i;
+
+	rc = plat_firme_get_supported_svcs(&svc_mask);
+	if (rc != 0U) {
+		ERROR("Failed to retrieve supported services!");
+		return -1;
+	}
+
+	if (!((svc_mask & BIT(FIRME_BASE_ID)) &&
+		(svc_mask & ~BIT(FIRME_BASE_ID)))) {
+		ERROR("Invalid FIRME sevice configuration!");
+		return -1;
+	}
 
 	for (i = 0U; i < FIRME_SERVICE_ID_MAX; i++) {
 		const struct firme_service *service = firme_services[i];
 
 		if (service == NULL) {
+			continue;
+		}
+
+		if ((svc_mask & BIT(i)) == 0U) {
+			VERBOSE("Service %u disabled by platform.\n",
+				service->id);
+			firme_services[i] = NULL;
 			continue;
 		}
 
