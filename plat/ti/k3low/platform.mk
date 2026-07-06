@@ -65,6 +65,7 @@ endif
 endif
 
 PLAT_INCLUDES +=	\
+			-I${PLAT_PATH}/common \
 			-I${PLAT_PATH}/common/drivers/firewall \
 			-I${PLAT_PATH}/common/drivers/k3-ddrss \
 			-I${PLAT_PATH}/common/drivers/k3-ddrss/common \
