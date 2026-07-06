@@ -187,6 +187,9 @@
 /* Identifier for the hash algorithm used for attestation signing */
 #define EL3_TOKEN_SIGN_HASH_ALG_SHA384		U(1)
 
+/* Signature length for the ECDSA P384 algorithm */
+#define EL3_TOKEN_SIGN_ECDSA_P384_SIG_LEN 	U(96)
+
 /* Starting RMM-EL3 interface version 0.6 */
 /*
  * Function codes to support RMM IDE Key management Interface.

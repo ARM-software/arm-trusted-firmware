@@ -88,7 +88,7 @@ int plat_rmmd_el3_token_sign_pull_resp(struct el3_token_sign_response *resp)
 
 	resp->rec_granule = el3_req.rec_granule;
 	resp->req_ticket = el3_req.req_ticket;
-	resp->sig_len = (uint16_t)sizeof(resp->signature_buf);
+	resp->sig_len = EL3_TOKEN_SIGN_ECDSA_P384_SIG_LEN;
 	/* TODO: Provide real signature */
 	memset(resp->signature_buf, 0, sizeof(resp->signature_buf));
 
