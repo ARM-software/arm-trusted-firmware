@@ -243,11 +243,15 @@ void handler_sync_exception(cpu_context_t *ctx)
 	el3_state_t *state = get_el3state_ctx(ctx);
 	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
 
-	if (exc_class == EC_AARCH32_SMC || exc_class == EC_AARCH64_SMC) {
-		if (exc_class == EC_AARCH32_SMC && EXTRACT(FUNCID_CC, smc_fid) != 0) {
+	if (exc_class == EC_AARCH64_SMC) {
+		return sync_handler(ctx, smc_fid, scr_el3);
+#if CTX_INCLUDE_AARCH32_REGS
+	} else if (exc_class == EC_AARCH32_SMC) {
+		if (EXTRACT(FUNCID_CC, smc_fid) != 0) {
 			return smc_unknown(ctx);
 		}
 		return sync_handler(ctx, smc_fid, scr_el3);
+#endif /* CTX_INCLUDE_AARCH32_REGS */
 	} else if (exc_class == EC_AARCH64_SYS) {
 		int ret = handle_sysreg_trap(esr_el3, ctx, get_flags(smc_fid, scr_el3));
 		if (ret == TRAP_RET_CONTINUE) {
@@ -276,6 +280,7 @@ void handler_sync_exception(cpu_context_t *ctx)
 #endif /* FFH_SUPPORT */
 	}
 
+#if CTX_INCLUDE_AARCH32_REGS
 	/* unhandled trap, UNDEF injection not provided for lower EL in AArch32 mode. */
 	if (read_spsr_el3() & MASK(SPSR_M)) {
 		ERROR("Trapped an instruction from AArch32 %s mode\n",
@@ -283,6 +288,7 @@ void handler_sync_exception(cpu_context_t *ctx)
 		ERROR("at address 0x%lx, reason 0x%lx\n", read_elr_el3(), esr_el3);
 		report_unhandled_exception();
 	}
+#endif /* CTX_INCLUDE_AARCH32_REGS */
 
 	/*
 	 * UNDEF injection by default for AArch64 on any otherwise unhandled
