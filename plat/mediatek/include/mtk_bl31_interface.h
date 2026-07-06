@@ -79,7 +79,7 @@ enum mtk_bl31_status emi_clear_violation(unsigned int id, unsigned int type);
 enum mtk_bl31_status slc_parity_select(unsigned int id, unsigned int port);
 enum mtk_bl31_status slc_parity_clear(unsigned int id);
 enum mtk_bl31_status emi_mpu_set_aid(unsigned int region, unsigned int num);
-void emi_protection_init(void);
+enum mtk_bl31_status emi_set_nsr_permission(void);
 
 /* CPU QoS interfaces */
 void cpu_qos_change_dcc(uint32_t on, uint32_t is_auto);

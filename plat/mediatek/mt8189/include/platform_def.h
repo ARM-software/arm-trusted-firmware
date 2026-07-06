@@ -139,6 +139,11 @@
 #define DISP_DITHER0_BASE	(IO_PHYS + 0x04012000)
 #define MM_IOMMU_BASE		(IO_PHYS + 0x0e802000 + 0x4000)
 #define APU_IOMMU_BASE		(IO_PHYS + 0x09010000)
+#define EMI_MPU_ALIGN_BITS	12
+
+#define BL31_EMI_REGION_ID 	(1)
+#define BL32_EMI_REGION_ID 	(2)
+#define GPUMPU_EMI_REGION_ID 	(12)
 
 #define IOMMU_REG_RNG_SIZE	(0x5000)
 
@@ -166,6 +171,8 @@
  ******************************************************************************/
 #define TZRAM_BASE			(0x54600000)
 #define TZRAM_SIZE			(0x00200000)
+#define GPUMPU_BASE			(0xA2000000)
+#define GPUMPU_SIZE			(0x1000000)
 
 /*******************************************************************************
  * BL31 specific defines.

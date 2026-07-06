@@ -236,6 +236,11 @@
 #define SUB_INFRACFG_AO_MEM_BASE	(IO_PHYS + 0x00504000)
 #define EMI_MPU_ALIGN_BITS		12
 
+#define BL31_EMI_REGION_ID 		(1)
+#define BL32_EMI_REGION_ID 		(2)
+#define GPUMPU_EMI_REGION_ID 		(12)
+#define GPUEB_SHARED_EMI_REGION_ID	(31)
+
 /*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
@@ -253,6 +258,12 @@
  ******************************************************************************/
 #define TZRAM_BASE			(0x94600000)
 #define TZRAM_SIZE			(0x00200000)
+#define BL32_REGION_BASE		(0x80500000)
+#define BL32_REGION_SIZE		(0x1400000)
+#define GPUMPU_BASE			(0xA2000000)
+#define GPUMPU_SIZE			(0x1000000)
+#define GPUEB_SHARED_BASE		(0xA0000000)
+#define GPUEB_SHARED_SIZE		(0x200000)
 
 /*******************************************************************************
  * BL31 specific defines.
