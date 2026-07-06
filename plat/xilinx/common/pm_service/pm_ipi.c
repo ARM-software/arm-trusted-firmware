@@ -54,7 +54,6 @@ static inline void pm_ipi_lock_release(void)
 /**
  * pm_ipi_init() - Initialize IPI peripheral for communication with
  *                 remote processor.
- * @proc: Pointer to the processor who is initiating request.
  *
  * Return: On success, the initialization function must return 0.
  *         Any other return value will cause the framework to ignore
@@ -62,14 +61,13 @@ static inline void pm_ipi_lock_release(void)
  *
  * Called from pm_setup initialization function.
  */
-void pm_ipi_init(const struct pm_proc *proc)
+void pm_ipi_init(void)
 {
-	ipi_mb_open(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+	ipi_mb_open(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id);
 }
 
 /**
  * pm_ipi_send_common() - Sends IPI request to the remote processor.
- * @proc: Pointer to the processor who is initiating request.
  * @payload: API id and call arguments to be written in IPI buffer.
  * @is_blocking: if to trigger the notification in blocking mode or not.
  *
@@ -79,14 +77,14 @@ void pm_ipi_init(const struct pm_proc *proc)
  * Return: Returns status, either success or error+reason.
  *
  */
-static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
-					     uint32_t payload[PAYLOAD_ARG_CNT],
+static enum pm_ret_status pm_ipi_send_common(uint32_t payload[PAYLOAD_ARG_CNT],
 					     uint32_t is_blocking)
 {
 	uint32_t offset = PM_OFFSET;
-	uintptr_t buffer_base = proc->ipi->buffer_base +
+	uintptr_t buffer_base = apu_ipi.buffer_base +
 					IPI_BUFFER_TARGET_REMOTE_OFFSET +
 					IPI_BUFFER_REQ_OFFSET;
+
 #if IPI_CRC_CHECK
 	payload[PAYLOAD_CRC_POS] = calculate_crc(payload, IPI_W0_TO_W6_SIZE);
 #endif
@@ -98,7 +96,7 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 	}
 
 	/* Generate IPI to remote processor */
-	ipi_mb_notify(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id,
+	ipi_mb_notify(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id,
 		      is_blocking);
 
 	return PM_RET_SUCCESS;
@@ -107,7 +105,6 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 /**
  * pm_ipi_send_non_blocking() - Sends IPI request to the remote processor
  *                              without blocking notification.
- * @proc: Pointer to the processor who is initiating request.
  * @payload: API id and call arguments to be written in IPI buffer.
  *
  * Send an IPI request to the power controller.
@@ -115,14 +112,13 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
  * Return: Returns status, either success or error+reason.
  *
  */
-enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
-					    uint32_t payload[PAYLOAD_ARG_CNT])
+enum pm_ret_status pm_ipi_send_non_blocking(uint32_t payload[PAYLOAD_ARG_CNT])
 {
 	enum pm_ret_status ret;
 
 	pm_ipi_lock_get();
 
-	ret = pm_ipi_send_common(proc, payload, IPI_NON_BLOCKING);
+	ret = pm_ipi_send_common(payload, IPI_NON_BLOCKING);
 
 	pm_ipi_lock_release();
 
@@ -131,7 +127,6 @@ enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
 
 /**
  * pm_ipi_send() - Sends IPI request to the remote processor.
- * @proc: Pointer to the processor who is initiating request.
  * @payload: API id and call arguments to be written in IPI buffer.
  *
  * Send an IPI request to the power controller.
@@ -139,14 +134,13 @@ enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
  * Return: Returns status, either success or error+reason.
  *
  */
-enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
-			       uint32_t payload[PAYLOAD_ARG_CNT])
+enum pm_ret_status pm_ipi_send(uint32_t payload[PAYLOAD_ARG_CNT])
 {
 	enum pm_ret_status ret;
 
 	pm_ipi_lock_get();
 
-	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
+	ret = pm_ipi_send_common(payload, IPI_BLOCKING);
 
 	pm_ipi_lock_release();
 
@@ -157,22 +151,20 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 /**
  * pm_ipi_buff_read() - Reads IPI response after remote processor has handled
  *                      interrupt.
- * @proc: Pointer to the processor who is waiting and reading response.
  * @value: Used to return value from IPI buffer element (optional).
  * @count: Number of values to return in @value.
  *
  * Return: Returns status, either success or error+reason.
  *
  */
-static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
-					   uint32_t *value, size_t count)
+static enum pm_ret_status pm_ipi_buff_read(uint32_t *value, size_t count)
 {
 	size_t i;
 	enum pm_ret_status ret;
 #if IPI_CRC_CHECK
 	uint32_t crc;
 #endif
-	uintptr_t buffer_base = proc->ipi->buffer_base +
+	uintptr_t buffer_base = apu_ipi.buffer_base +
 				IPI_BUFFER_TARGET_REMOTE_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
 
@@ -255,7 +247,6 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 
 /**
  * pm_ipi_send_sync() - Sends IPI request to the remote processor.
- * @proc: Pointer to the processor who is initiating request.
  * @payload: API id and call arguments to be written in IPI buffer.
  * @value: Used to return value from IPI buffer element (optional).
  * @count: Number of values to return in @value.
@@ -266,21 +257,20 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
  *         @value.
  *
  */
-enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
-				    uint32_t payload[PAYLOAD_ARG_CNT],
+enum pm_ret_status pm_ipi_send_sync(uint32_t payload[PAYLOAD_ARG_CNT],
 				    uint32_t *value, size_t count)
 {
 	enum pm_ret_status ret;
 
 	pm_ipi_lock_get();
 
-	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
+	ret = pm_ipi_send_common(payload, IPI_BLOCKING);
 	if (ret != PM_RET_SUCCESS) {
 		goto unlock;
 	}
 
 	ret = (enum pm_ret_status)(ERROR_CODE_MASK &
-				   (uint32_t)(pm_ipi_buff_read(proc, value, count)));
+				   (uint32_t)(pm_ipi_buff_read(value, count)));
 
 unlock:
 	pm_ipi_lock_release();
@@ -288,23 +278,23 @@ unlock:
 	return ret;
 }
 
-void pm_ipi_irq_enable(const struct pm_proc *proc)
+void pm_ipi_irq_enable(void)
 {
-	ipi_mb_enable_irq(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+	ipi_mb_enable_irq(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id);
 }
 
-void pm_ipi_irq_clear(const struct pm_proc *proc)
+void pm_ipi_irq_clear(void)
 {
-	ipi_mb_ack(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+	ipi_mb_ack(apu_ipi.local_ipi_id, apu_ipi.remote_ipi_id);
 }
 
-uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
+uint32_t pm_ipi_irq_status(void)
 {
 	uint32_t ret;
 	uint32_t result = (uint32_t)PM_RET_SUCCESS;
 
-	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
-				    proc->ipi->remote_ipi_id);
+	ret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+				    apu_ipi.remote_ipi_id);
 	if ((ret & IPI_MB_STATUS_RECV_PENDING) != 0U) {
 		result = IPI_MB_STATUS_RECV_PENDING;
 	}

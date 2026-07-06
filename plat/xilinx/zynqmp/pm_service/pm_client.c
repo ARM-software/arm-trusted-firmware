@@ -35,7 +35,7 @@
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
-static const struct pm_ipi apu_ipi = {
+const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_LOCAL_ID,
 	.remote_ipi_id = IPI_REMOTE_ID,
 	.buffer_base = IPI_BUFFER_LOCAL_BASE,
@@ -48,22 +48,18 @@ static const struct pm_proc pm_procs_all[] = {
 	{
 		.node_id = (uint32_t)NODE_APU_0,
 		.pwrdn_mask = APU_0_PWRCTL_CPUPWRDWNREQ_MASK,
-		.ipi = &apu_ipi,
 	},
 	{
 		.node_id = (uint32_t)NODE_APU_1,
 		.pwrdn_mask = APU_1_PWRCTL_CPUPWRDWNREQ_MASK,
-		.ipi = &apu_ipi,
 	},
 	{
 		.node_id = (uint32_t)NODE_APU_2,
 		.pwrdn_mask = APU_2_PWRCTL_CPUPWRDWNREQ_MASK,
-		.ipi = &apu_ipi,
 	},
 	{
 		.node_id = (uint32_t)NODE_APU_3,
 		.pwrdn_mask = APU_3_PWRCTL_CPUPWRDWNREQ_MASK,
-		.ipi = &apu_ipi,
 	},
 };
 
@@ -269,8 +265,6 @@ static uint32_t pm_get_cpuid(enum pm_node_id nid)
 
 	return ret;
 }
-
-const struct pm_proc *primary_proc = &pm_procs_all[0];
 
 /**
  * pm_client_suspend() - Client-specific suspend actions.

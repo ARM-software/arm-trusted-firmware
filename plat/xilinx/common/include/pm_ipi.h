@@ -17,19 +17,16 @@
 #define IPI_BLOCKING		1
 #define IPI_NON_BLOCKING	0
 
-void pm_ipi_init(const struct pm_proc *proc);
+void pm_ipi_init(void);
 
-enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
-			       uint32_t payload[PAYLOAD_ARG_CNT]);
-enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
-					    uint32_t payload[PAYLOAD_ARG_CNT]);
-enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
-				    uint32_t payload[PAYLOAD_ARG_CNT],
+enum pm_ret_status pm_ipi_send(uint32_t payload[PAYLOAD_ARG_CNT]);
+enum pm_ret_status pm_ipi_send_non_blocking(uint32_t payload[PAYLOAD_ARG_CNT]);
+enum pm_ret_status pm_ipi_send_sync(uint32_t payload[PAYLOAD_ARG_CNT],
 				    uint32_t *value, size_t count);
 enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count);
-void pm_ipi_irq_enable(const struct pm_proc *proc);
-void pm_ipi_irq_clear(const struct pm_proc *proc);
-uint32_t pm_ipi_irq_status(const struct pm_proc *proc);
+void pm_ipi_irq_enable(void);
+void pm_ipi_irq_clear(void);
+uint32_t pm_ipi_irq_status(void);
 #if IPI_CRC_CHECK
 uint32_t calculate_crc(const uint32_t payload[PAYLOAD_ARG_CNT], uint32_t buffersize);
 #endif

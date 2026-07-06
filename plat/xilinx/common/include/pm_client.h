@@ -25,9 +25,6 @@ void pm_client_wakeup(const struct pm_proc *proc);
 enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq);
 #endif
 
-/* Global variables to be set in pm_client.c */
-extern const struct pm_proc *primary_proc;
-
 #if defined(PLAT_zynqmp)
 enum pm_ret_status pm_set_suspend_mode(uint32_t mode);
 #endif /* PLAT_zynqmp */

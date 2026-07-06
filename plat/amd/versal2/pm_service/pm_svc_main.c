@@ -129,7 +129,7 @@ void request_cpu_pwrdwn(void)
 	}
 
 	/* Clear IPI IRQ */
-	pm_ipi_irq_clear(primary_proc);
+	pm_ipi_irq_clear();
 
 	/* Deactivate IPI IRQ */
 	plat_ic_end_of_interrupt(PLAT_VERSAL_IPI_IRQ);
@@ -219,12 +219,12 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 		}
 		break;
 	case (uint32_t) PM_RET_ERROR_INVALID_CRC:
-		pm_ipi_irq_clear(primary_proc);
+		pm_ipi_irq_clear();
 		WARN("Invalid CRC in the payload\n");
 		break;
 
 	default:
-		pm_ipi_irq_clear(primary_proc);
+		pm_ipi_irq_clear();
 		WARN("Invalid IPI payload\n");
 		break;
 	}
@@ -290,6 +290,7 @@ end:
  */
 int32_t pm_setup(void)
 {
+	const struct pm_proc *proc;
 	int32_t ret = 0;
 
 	/*
@@ -298,7 +299,7 @@ int32_t pm_setup(void)
 	 */
 	pm_client_init();
 
-	pm_ipi_init(primary_proc);
+	pm_ipi_init();
 	pm_up = true;
 	pwrdwn_req_received = false;
 
@@ -314,7 +315,7 @@ int32_t pm_setup(void)
 	 * Even if we were wrong, it would not enable the IRQ in
 	 * the GIC.
 	 */
-	pm_ipi_irq_enable(primary_proc);
+	pm_ipi_irq_enable();
 
 	ret = request_intr_type_el3(PLAT_VERSAL_IPI_IRQ, ipi_fiq_handler);
 	if (ret != 0) {
@@ -324,10 +325,15 @@ int32_t pm_setup(void)
 	gicd_write_irouter(gicv3_driver_data->gicd_base, PLAT_VERSAL_IPI_IRQ, MODE);
 
 	/* Register for idle callback during force power down/restart */
-	ret = (int32_t)pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
-					    0x0U, 0x1U, (uint32_t)SECURE);
-	if (ret != 0) {
-		WARN("BL31: registering idle callback for restart/force power down failed\n");
+	proc = pm_get_proc(0U);
+	if (proc != NULL) {
+		ret = (int32_t)pm_register_notifier(proc->node_id, EVENT_CPU_PWRDWN,
+						    0x0U, 0x1U, (uint32_t)SECURE);
+		if (ret != 0) {
+			WARN("BL31: registering idle callback for restart/force power down failed\n");
+		}
+	} else {
+		WARN("BL31: Failed to get primary proc\n");
 	}
 
 	return ret;
@@ -470,7 +476,7 @@ static uintptr_t eemi_api_handler(uint32_t api_id, const uint32_t *pm_arg,
 			 pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3],
 			 pm_arg[4], pm_arg[5]);
 
-	ret = pm_ipi_send_sync(primary_proc, payload, (uint32_t *)buf,
+	ret = pm_ipi_send_sync(payload, (uint32_t *)buf,
 			       RET_PAYLOAD_ARG_CNT);
 
 	SMC_RET4(handle, (uint64_t)ret | ((uint64_t)buf[0] << 32U),
