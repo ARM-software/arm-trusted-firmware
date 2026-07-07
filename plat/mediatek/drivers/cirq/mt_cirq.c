@@ -8,6 +8,7 @@
 #include <common/debug.h>
 #include <drivers/arm/gic_common.h>
 #include <lib/mmio.h>
+#include <lib/pm/mtk_pm.h>
 
 #include <mt_cirq.h>
 #include <mt_gic_v3.h>
@@ -371,6 +372,10 @@ static void cirq_fast_clone(void)
 
 void set_wakeup_sources(uint32_t *list, uint32_t num_of_events)
 {
+	if (num_of_events > MT_IRQ_REMAIN_MAX) {
+		num_of_events = MT_IRQ_REMAIN_MAX;
+	}
+
 	cirq_all_events.num_of_events = num_of_events;
 	cirq_all_events.wakeup_events = list;
 }
