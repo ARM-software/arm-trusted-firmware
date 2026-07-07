@@ -233,13 +233,6 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	 */
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
 
-#if ARM_LINUX_KERNEL_AS_BL33
-	bl33_image_ep_info.args.arg0 = ARM_PRELOADED_DTB_BASE;
-	bl33_image_ep_info.args.arg1 = 0U;
-	bl33_image_ep_info.args.arg2 = 0U;
-	bl33_image_ep_info.args.arg3 = 0U;
-#endif /* ARM_LINUX_KERNEL_AS_BL33 */
-
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
@@ -316,6 +309,24 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 		panic();
 #endif
 #endif /* RESET_TO_BL31 */
+
+#if USE_KERNEL_DT_CONVENTION
+	/*
+	 * Only use the default DT base address if TF-A has not supplied one.
+	 * This can occur when the DT is side-loaded and its memory location
+	 * is unknown (e.g., RESET_TO_BL31).
+	 */
+
+	if (bl33_image_ep_info.args.arg0 == 0U) {
+		bl33_image_ep_info.args.arg0 = HW_CONFIG_BASE;
+	}
+
+#if ARM_LINUX_KERNEL_AS_BL33
+	bl33_image_ep_info.args.arg1 = 0U;
+	bl33_image_ep_info.args.arg2 = 0U;
+	bl33_image_ep_info.args.arg3 = 0U;
+#endif
+#endif
 }
 #endif /* TRANSFER_LIST */
 
