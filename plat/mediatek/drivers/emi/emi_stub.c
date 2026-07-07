@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Mediatek Inc. All rights reserved.
+ * Copyright (c) 2026, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,8 +86,9 @@ enum mtk_bl31_status emi_mpu_set_aid(unsigned int region, unsigned int num)
 	return MTK_BL31_STATUS_NOT_SUPPORTED;
 }
 
-void emi_protection_init(void)
+enum mtk_bl31_status emi_set_nsr_permission(void)
 {
+	return MTK_BL31_STATUS_NOT_SUPPORTED;
 }
 
 enum mtk_bl31_status emi_mpu_set_protection(uint32_t start, uint32_t end,

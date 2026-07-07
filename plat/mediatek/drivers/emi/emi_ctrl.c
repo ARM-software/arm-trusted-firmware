@@ -1,14 +1,17 @@
 /*
- * Copyright (c) 2025, Mediatek Inc. All rights reserved.
+ * Copyright (c) 2026, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/debug.h>
 
+#include <assert.h>
 #include <lib/mtk_init/mtk_init.h>
+#include <lib/utils_def.h>
 #include <mtk_bl31_interface.h>
 #include <mtk_sip_svc.h>
+#include <platform_def.h>
 
 #define NO_PROTECTION	0
 #define SEC_RW		1
@@ -42,6 +45,23 @@
 #define EMI_CLE				10
 #define SLC_PARITY_SELECT		11
 #define SLC_PARITY_CLEAR		12
+
+struct emi_region {
+	uint64_t start;
+	size_t size;
+	unsigned int region_id;
+};
+
+static const struct emi_region init_regions[] = {
+	{TZRAM_BASE, TZRAM_SIZE, BL31_EMI_REGION_ID},
+#ifndef SPD_NONE
+	{BL32_REGION_BASE, BL32_REGION_SIZE, BL32_EMI_REGION_ID},
+#endif
+	{GPUMPU_BASE, GPUMPU_SIZE, GPUMPU_EMI_REGION_ID},
+#if CONFIG_MTK_GPUEB
+	{GPUEB_SHARED_BASE, GPUEB_SHARED_SIZE, GPUEB_SHARED_EMI_REGION_ID},
+#endif
+};
 
 static uint64_t emi_mpu_read_by_type(unsigned int reg_type, unsigned int region,
 				     unsigned int aid_shift, struct smccc_res *smccc_ret)
@@ -180,9 +200,40 @@ DECLARE_SMC_HANDLER(MTK_SIP_TEE_EMI_MPU_CONTROL, sip_tee_emimpu_control);
 
 int emi_mpu_init(void)
 {
+	enum mtk_bl31_status ret;
+
 	INFO("[%s] emi mpu initialization\n", __func__);
 
-	emi_protection_init();
+	for (size_t i = 0; i < ARRAY_SIZE(init_regions); i++) {
+		uint64_t emi_start = init_regions[i].start >> EMI_MPU_ALIGN_BITS;
+		uint64_t emi_end =
+			(init_regions[i].start + init_regions[i].size) >> EMI_MPU_ALIGN_BITS;
+
+		/* Avoid emi_end overflow */
+		assert(emi_end >= emi_start);
+		/*
+		 * The emi address should be a 32-bit unsigned integer
+		 * after being shifted with EMI_MPU_ALIGN_BITS.
+		 */
+		assert(!(emi_start >> 32) && !(emi_end >> 32));
+
+		ret = emi_mpu_set_protection((uint32_t)emi_start,
+					     (uint32_t)emi_end,
+					     init_regions[i].region_id);
+		if (ret != MTK_BL31_STATUS_SUCCESS) {
+			ERROR("[%s] failed to set emi mpu region %u! ret: %d\n",
+			      __func__, init_regions[i].region_id, ret);
+			return -1;
+		}
+	}
+
+	/* NSR enable */
+	ret = emi_set_nsr_permission();
+	if (ret != MTK_BL31_STATUS_SUCCESS) {
+		ERROR("[%s] failed to set NSR permission! ret: %d\n",
+		      __func__, ret);
+		return -1;
+	}
 
 	return 0;
 }
