@@ -31,6 +31,10 @@ FVP_TRUSTED_SRAM_SIZE		:= 256
 # Macro to enable helpers for running SPM tests. Disabled by default.
 PLAT_TEST_SPM	:= 0
 
+
+# Enable passing the DT to BL33 in x0 by default.
+USE_KERNEL_DT_CONVENTION	:= 1
+
 # By default dont build CPUs with no FVP model.
 BUILD_CPUS_WITH_NO_FVP_MODEL	?= 0
 
