@@ -389,7 +389,7 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
-	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(LIB$(4)_ASFLAGS) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
