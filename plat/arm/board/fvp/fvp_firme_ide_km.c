@@ -19,6 +19,8 @@ int fvp_simulate_ide_km_keyset_go(uint64_t ecam_address, uint64_t flags,
 				  uint64_t keyset_id);
 int fvp_simulate_ide_km_keyset_stop(uint64_t ecam_address, uint64_t flags,
 				    uint64_t keyset_id);
+int fvp_simulate_ide_km_keyset_poll(uint64_t ecam_address, uint64_t keyset_id);
+int fvp_simulate_ide_km_poll(uint64_t ecam_address, uint64_t *keyset_id_ret);
 #endif
 
 /*
@@ -74,12 +76,20 @@ int plat_ide_km_keyset_stop(uint64_t ecam_address, uint64_t flags,
 /* Poll for specified keyset_id in the ECAM space */
 int plat_ide_km_keyset_poll(uint64_t ecam_address, uint64_t keyset_id)
 {
+#if FVP_SIMULATE_IDE_KM_UNIT
+	return fvp_simulate_ide_km_keyset_poll(ecam_address, keyset_id);
+#else
 	return 0;
+#endif
 }
 
 /* Poll for any pending keyset_id in the ECAM space and return it on success */
 int plat_ide_km_poll(uint64_t ecam_address, uint64_t *keyset_id_ret)
 {
+#if FVP_SIMULATE_IDE_KM_UNIT
+	return fvp_simulate_ide_km_poll(ecam_address, keyset_id_ret);
+#else
 	return 0;
-}
 #endif
+}
+#endif /* PLAT_IDE_KM_PENDING_OPS_MAX */
