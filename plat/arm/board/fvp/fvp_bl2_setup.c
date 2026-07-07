@@ -138,3 +138,15 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	return arm_bl2_plat_handle_post_image_load(image_id);
 }
+
+uintptr_t plat_get_hw_dt_base(void)
+{
+	const struct dyn_cfg_dtb_info_t *hw_config_info;
+
+	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
+	if (hw_config_info == NULL) {
+		return 0U;
+	}
+
+	return hw_config_info->secondary_config_addr;
+}

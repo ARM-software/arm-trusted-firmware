@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,7 +22,7 @@
 			load-address = <0x0 0x07f00000>;
 			max-size = <0x00100000>;
 			id = <HW_CONFIG_ID>;
-			secondary-load-address = <0x0 0x82000000>;
+			secondary-load-address = <0x0 HW_CONFIG_BASE>;
 		};
 
 		/*

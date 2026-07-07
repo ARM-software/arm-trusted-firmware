@@ -74,11 +74,6 @@ supporting tools:
     source code, as it may not be available in the default package repositories.
     Please refer to the OpenSSL project documentation for more information.
 
-The following libraries are required for Trusted Board Boot and Measured Boot
-support:
-
-- mbed TLS == 3.6.4 (tag: ``mbedtls-3.6.4``)
-
 These tools are optional:
 
 - Device Tree Compiler (DTC) >= 1.4.7

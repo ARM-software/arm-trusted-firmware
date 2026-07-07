@@ -100,7 +100,7 @@ Build Tested:
 .. code:: bash
 
        make bl2 bl31 rzg LOG_LEVEL=40 PLAT=rzg LSI=G2M RCAR_DRAM_SPLIT=2\
-       RCAR_LOSSY_ENABLE=1 SPD="none" MBEDTLS_DIR=$mbedtls
+       RCAR_LOSSY_ENABLE=1 SPD="none"
 
 System Tested:
 ~~~~~~~~~~~~~~
@@ -153,7 +153,7 @@ TF-A Build Procedure
 .. code:: bash
 
        make bl2 bl31 rzg LOG_LEVEL=40 PLAT=rzg LSI=G2M RCAR_DRAM_SPLIT=2\
-       RCAR_LOSSY_ENABLE=1 SPD="none" MBEDTLS_DIR=$mbedtls
+       RCAR_LOSSY_ENABLE=1 SPD="none"
 
 
 Install Procedure

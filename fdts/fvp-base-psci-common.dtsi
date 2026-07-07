@@ -7,7 +7,7 @@
  *
  * RTSM_VE_AEMv8A.lisa
  *
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  */
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
@@ -27,11 +27,9 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-#if (ENABLE_RME == 1)
-	chosen { bootargs = "console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";};
-#else
-	chosen {};
-#endif
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";
+	};
 
 	aliases {
 		serial0 = &v2m_serial0;
