@@ -338,6 +338,10 @@ static int validate_power_state(unsigned int power_state,
 	int aff_lvl = psci_get_pstate_pwrlvl(power_state);
 	unsigned int my_core_pos = plat_my_core_pos();
 
+	if (aff_lvl > PLAT_MAX_PWR_LVL) {
+		return PSCI_E_INVALID_PARAMS;
+	}
+
 	if (!imtk_cpu_pwr.ops)
 		return PSCI_E_INVALID_PARAMS;
 

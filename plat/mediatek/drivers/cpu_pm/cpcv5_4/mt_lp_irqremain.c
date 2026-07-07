@@ -43,8 +43,17 @@ int mt_lp_irqremain_set(unsigned int type,
 		return -1;
 
 	idx = remain_irqs.count;
+	if (idx >= MT_IRQ_REMAIN_MAX) {
+		return -1;
+	}
+
 	switch (type) {
 	case IRQS_REMAIN_IRQ:
+		if (info->val < CIRQ_TO_IRQ_NUM(0) ||
+		    info->val >= CIRQ_TO_IRQ_NUM(CIRQ_IRQ_NUM)) {
+			return -1;
+		}
+
 		remain_irqs.irqs[idx] = info->val;
 		break;
 	case IRQS_REMAIN_WAKEUP_CAT:
@@ -60,7 +69,7 @@ int mt_lp_irqremain_set(unsigned int type,
 int mt_lp_irqremain_get(unsigned int idx, unsigned int type,
 			struct mt_lp_irqinfo *info)
 {
-	if (!p_irqs || !info || (idx > remain_irqs.count))
+	if (!p_irqs || !info || (idx >= remain_irqs.count))
 		return -1;
 
 	switch (type) {

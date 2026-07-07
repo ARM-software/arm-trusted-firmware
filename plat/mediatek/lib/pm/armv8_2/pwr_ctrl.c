@@ -359,6 +359,10 @@ static int armv8_2_validate_power_state(unsigned int power_state, psci_power_sta
 	unsigned int aff_lvl = psci_get_pstate_pwrlvl(power_state);
 	unsigned int my_core_pos = plat_my_core_pos();
 
+	if (aff_lvl > PLAT_MAX_PWR_LVL) {
+		return PSCI_E_INVALID_PARAMS;
+	}
+
 	if (mtk_cpu_pwr.ops == NULL) {
 		return PSCI_E_INVALID_PARAMS;
 	}
