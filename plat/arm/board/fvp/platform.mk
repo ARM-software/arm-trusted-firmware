@@ -281,7 +281,15 @@ PLAT_PCIE_ROOT_COMPLEX_MAX := 2
 $(eval $(call add_define,PLAT_PCIE_ROOT_COMPLEX_MAX))
 
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_firme_ide_km.c
+
+FVP_SIMULATE_IDE_KM_UNIT := 0
+
+ifeq (${FVP_SIMULATE_IDE_KM_UNIT},1)
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_simulate_ide_km_unit.c
+$(eval $(call add_define,FVP_SIMULATE_IDE_KM_UNIT))
 endif
+
+endif # (FIRME_SUPPORT_IDE_KM)
 
 ifneq (${ENABLE_FEAT_RNG_TRAP},0)
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_sync_traps.c
