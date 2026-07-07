@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <bl32/tsp/tsp.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <lib/extensions/pauth.h>
 #include <lib/spinlock.h>
 #include <plat/common/platform.h>
 #include <platform_tsp.h>
@@ -64,7 +65,7 @@ smc_args_t *set_smc_args(uint64_t arg0,
 /*******************************************************************************
  * Setup function for TSP.
  ******************************************************************************/
-void tsp_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+void __no_pauth tsp_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	       u_register_t arg3)
 {
 	/* Enable early console if EARLY_CONSOLE flag is enabled */
@@ -75,6 +76,10 @@ void tsp_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 
 	/* Perform late platform-specific setup. */
 	tsp_plat_arch_setup();
+
+	if (is_feat_pauth_supported()) {
+		pauth_init_enable_el1();
+	}
 }
 
 /*******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -139,7 +139,8 @@ smc_args_t *tsp_system_off_main(uint64_t arg0,
 				uint64_t arg6,
 				uint64_t arg7);
 
-uint64_t tsp_main(void);
+uint64_t __no_pauth tsp_main(u_register_t arg0, u_register_t arg1,
+			     u_register_t arg2, u_register_t arg3);
 #endif /* __ASSEMBLER__ */
 
 #endif /* TSP_PRIVATE_H */
