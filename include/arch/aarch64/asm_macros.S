@@ -266,6 +266,14 @@
 	msr	SYSREG_SB, xzr
 	.endm
 
+	.macro psb_csync
+	hint #17 /* use the hint synonym for compatibility */
+	.endm
+
+	.macro tsb_csync
+	hint #18 /* use the hint synonym for compatibility */
+	.endm
+
 	/*
 	 * Macro for using speculation barrier instruction introduced by
 	 * FEAT_SB, if it's enabled.
