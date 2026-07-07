@@ -356,6 +356,19 @@ FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
 
 FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
+HW_CONFIG		:=	${FVP_HW_CONFIG}
+
+# Set default initrd base 128MiB offset of the default kernel address in FVP
+INITRD_BASE		?=	0x90000000
+
+# Kernel base address supports Linux kernels before v5.7
+# DTB base 1MiB before normal base kernel address in FVP (0x88000000)
+ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
+    PRELOADED_BL33_BASE ?= 0x80080000
+    ifeq (${RESET_TO_BL31},1)
+        ARM_PRELOADED_DTB_BASE ?= 0x87F00000
+    endif
+endif
 
 ifeq (${TRANSFER_LIST}, 1)
 FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp/fdts/,	\
