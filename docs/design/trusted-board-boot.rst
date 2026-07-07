@@ -325,13 +325,14 @@ The encrypted firmwares are also stored individually in the output build
 directory.
 
 The tool resides in the ``tools/encrypt_fw`` directory. It uses OpenSSL SSL
-library version 1.0.1 or later to do authenticated encryption operation.
+library to do authenticated encryption operation. The specific version of the
+library that is required is given in the :ref:`Prerequisites` document.
 Instructions for building and using the tool can be found in the
 :ref:`tools_build_enctool`.
 
 --------------
 
-*Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.*
 
 .. _X.509 v3: https://tools.ietf.org/rfc/rfc5280.txt
 .. _Trusted Board Boot Requirements (TBBR): https://developer.arm.com/docs/den0006/latest

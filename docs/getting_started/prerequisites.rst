@@ -33,7 +33,7 @@ CMake                    3.22
 Device Tree Compiler     1.6.1
 GNU Make                 4.3
 Node.js [#f2]_           20.11.1
-OpenSSL                  1.0.0
+OpenSSL [#f3]_           3.0 [#f4]_
 Poetry                   1.3.2
 QCBOR\ [#f2]_            1.2
 Sphinx\ [#f1]_           5.3.0
@@ -41,6 +41,8 @@ Sphinx\ [#f1]_           5.3.0
 
 .. [#f1] Required only for building TF-A documentation.
 .. [#f2] Required only when enabling DICE Protection Environment support.
+.. [#f3] Including development libraries (usually libssl-dev)
+.. [#f4] OpenSSL 4 is not supported
 
 Toolchain
 ^^^^^^^^^
@@ -70,13 +72,11 @@ OpenSSL
 
 OpenSSL is required to build the cert_create, encrypt_fw, and fiptool tools.
 
-If using OpenSSL 3, older Linux versions may require it to be built from
-source code, as it may not be available in the default package repositories.
-Please refer to the OpenSSL project documentation for more information.
-
 .. warning::
-    Versions 1.0.x and from v3.0.0 up to v3.0.6 are strongly advised against due
-    to concerns regarding security vulnerabilities!
+   It is recommended to selct an OpenSSL version that remains under maintenance
+   and receives security updates from either the OpenSSL project or a major
+   Linux distribution. This will typically be an OpenSSL LTS release or a
+   distribution-maintained version.
 
 Device Tree Compiler (DTC)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
