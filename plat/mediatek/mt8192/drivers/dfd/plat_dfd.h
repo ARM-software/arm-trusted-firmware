@@ -63,8 +63,4 @@
 #define	DFD_V35_TAP_EN_VAL			(0x43FF)
 #define	DFD_V35_SEQ0_0_VAL			(0x63668820)
 
-void dfd_resume(void);
-uint64_t dfd_smc_dispatcher(uint64_t arg0, uint64_t arg1,
-			    uint64_t arg2, uint64_t arg3);
-
 #endif /* PLAT_DFD_H */

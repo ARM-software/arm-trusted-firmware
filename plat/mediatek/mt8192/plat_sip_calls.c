@@ -6,10 +6,11 @@
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+
+#include <dfd.h>
+#include <mt_spm_vcorefs.h>
 #include <mtk_apusys.h>
 #include <mtk_sip_svc.h>
-#include <mt_spm_vcorefs.h>
-#include <plat_dfd.h>
 #include "plat_sip_calls.h"
 
 uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,

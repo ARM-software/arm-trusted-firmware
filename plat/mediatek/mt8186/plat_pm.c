@@ -5,15 +5,16 @@
  */
 
 #include <assert.h>
+
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/gpio.h>
 #include <lib/psci/psci.h>
+#include <plat/common/platform.h>
 
+#include <dfd.h>
 #include <mt_gic_v3.h>
 #include <mtspmc.h>
-#include <plat/common/platform.h>
-#include <plat_dfd.h>
 #include <plat_mtk_lpm.h>
 #include <plat_params.h>
 #include <plat_pm.h>

@@ -6,8 +6,8 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
+
 #include <dfd.h>
-#include <plat_dfd.h>
 
 struct dfd_mcu_ext_pair {
 	uint32_t reg;

@@ -6,8 +6,8 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
+
 #include <dfd.h>
-#include <plat_dfd.h>
 
 static uint64_t dfd_cache_dump;
 static bool dfd_enabled;
