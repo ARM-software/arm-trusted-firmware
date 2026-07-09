@@ -93,11 +93,8 @@ extern struct spmi_device *lowpower_sdev[SPMI_MAX_SLAVE_ID];
 
 #define PMIC_BUCK_SET_LP(_chip, _name, _user, _en, _mode, _cfg) \
 { \
-	uint8_t val = 0; \
 	struct spmi_device *sdev = lowpower_sdev[_chip##_SLAVE]; \
-	if (sdev && \
-	    !spmi_ext_register_readl(sdev, _chip##_RG_BUCK_##_name##_HW0_OP_CFG_ADDR, &val, 1) && \
-	    !(val & NORMAL_OP_CFG)) {\
+	if (sdev) {\
 		if ((_cfg) == HW_ONLV) { \
 			pmic_spmi_update_bits(sdev, \
 					      _chip##_RG_BUCK_##_name##_ONLV_EN_ADDR, \
@@ -126,11 +123,8 @@ extern struct spmi_device *lowpower_sdev[SPMI_MAX_SLAVE_ID];
 
 #define PMIC_LDO_SET_LP(_chip, _name, _user, _en, _mode, _cfg) \
 { \
-	uint8_t val = 0; \
 	struct spmi_device *sdev = lowpower_sdev[_chip##_SLAVE]; \
-	if (sdev && \
-	    !spmi_ext_register_readl(sdev, _chip##_RG_LDO_##_name##_HW0_OP_CFG_ADDR, &val, 1) && \
-	    !(val & NORMAL_OP_CFG)) {\
+	if (sdev) {\
 		if ((_cfg) == HW_ONLV) { \
 			pmic_spmi_update_bits(sdev, \
 					      _chip##_RG_LDO_##_name##_ONLV_EN_ADDR, \
