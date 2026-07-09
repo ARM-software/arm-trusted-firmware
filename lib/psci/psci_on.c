@@ -59,11 +59,14 @@ static int cpu_on_validate_state(aff_info_state_t aff_state)
  * The state of all the relevant power domains are changed after calling the
  * platform handler as it can return error.
  ******************************************************************************/
-int psci_cpu_on_start(u_register_t target_cpu)
+int psci_cpu_on_start(unsigned int target_idx, u_register_t target_cpu)
 {
 	int rc;
 	aff_info_state_t target_aff_state;
-	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
+
+	if (target_idx >= PLATFORM_CORE_COUNT) {
+		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/*
 	 * This function must only be called on platforms where the

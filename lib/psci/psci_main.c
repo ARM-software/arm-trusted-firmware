@@ -27,9 +27,24 @@ int psci_cpu_on(u_register_t target_cpu,
 		u_register_t context_id)
 
 {
+	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
+
+	return psci_cpu_on_by_core_pos(target_idx, target_cpu, entrypoint,
+				       context_id);
+}
+
+/*
+ * Variant for callers that already know the linear core position. The
+ * target_cpu argument must be the MPIDR that corresponds to target_idx; it is
+ * still needed by the platform CPU_ON hook.
+ */
+int psci_cpu_on_by_core_pos(unsigned int target_idx,
+			    u_register_t target_cpu,
+			    uintptr_t entrypoint,
+			    u_register_t context_id)
+{
 	int rc;
 	entry_point_info_t *ep = NULL;
-	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
 
 	/* Validate the target CPU */
 	if (!is_valid_mpidr(target_cpu)) {
@@ -47,7 +62,7 @@ int psci_cpu_on(u_register_t target_cpu,
 	 * To turn this cpu on, specify which power
 	 * levels need to be turned on
 	 */
-	return psci_cpu_on_start(target_cpu);
+	return psci_cpu_on_start(target_idx, target_cpu);
 }
 
 unsigned int psci_version(void)
