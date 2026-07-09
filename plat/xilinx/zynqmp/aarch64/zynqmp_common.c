@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -232,11 +232,14 @@ static const struct {
 
 #define SILICON_ID_XCK24	0x4712093U
 #define SILICON_ID_XCK26	0x4724093U
+/* length to safely hold device name with "EG/EV" suffix and '\0' */
+#define ZYNQMP_IDCODE_NAME_LEN	16U
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
+	static char idcode_name[ZYNQMP_IDCODE_NAME_LEN];
 	uint32_t id, ver, chipid[2];
-	size_t i, j, len;
+	size_t i;
 	const char *name = "EG/EV";
 
 	if (pm_get_chipid(chipid, SECURE) != PM_RET_SUCCESS) {
@@ -274,14 +277,12 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		return zynqmp_devices[i].name;
 	}
 
-	len = strlen(zynqmp_devices[i].name) - 2U;
-	for (j = 0; j < strlen(name); j++) {
-		zynqmp_devices[i].name[len] = name[j];
-		len++;
-	}
-	zynqmp_devices[i].name[len] = '\0';
+	/* Copy device name prefix (drop last 2 chars "EV"/"EG"), then append "EG/EV" */
+	strlcpy(idcode_name, zynqmp_devices[i].name,
+		strlen(zynqmp_devices[i].name) - 1U);
+	strlcat(idcode_name, name, sizeof(idcode_name));
 
-	return zynqmp_devices[i].name;
+	return idcode_name;
 }
 
 static unsigned int zynqmp_get_rtl_ver(void)
