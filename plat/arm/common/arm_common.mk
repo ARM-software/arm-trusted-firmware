@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -79,6 +79,18 @@ $(eval $(call add_define,ARM_CONFIG_CNTACR))
 ARM_BL31_IN_DRAM		:=	0
 $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
+
+# Process DSU_PDL2_SUPPORT
+ifeq (${DSU_PDL2_SUPPORT}, 1)
+  ifeq (${ARM_RECOM_STATE_ID_ENC}, 0)
+    $(error Build option ARM_RECOM_STATE_ID_ENC needs to be set if \
+            DSU_PDL2_SUPPORT is set)
+  endif
+  ifeq (${USE_DSU_DRIVER}, 0)
+    $(error Build option USE_DSU_DRIVER needs to be set if \
+            DSU_PDL2_SUPPORT is set)
+  endif
+endif
 
 # Macro to enable ACS SMC handler
 PLAT_ARM_ACS_SMC_HANDLER	:=	0
