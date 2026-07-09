@@ -604,6 +604,7 @@ $(DPRE): $(2) | $$$$(@D)/
 $(DOBJ): $(DPRE) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  DTC     $$<"
 	$$(q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $$<
+	$$($$@-after)
 
 -include $(DTBDEP)
 -include $(DTSDEP)
