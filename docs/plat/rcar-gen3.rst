@@ -106,10 +106,8 @@ the H3 SiP Salvator-X development system used in this port.
 Build Tested:
 ~~~~~~~~~~~~~
 RCAR_OPT="LSI=H3 RCAR_DRAM_SPLIT=1 RCAR_LOSSY_ENABLE=1"
-MBEDTLS_DIR=$mbedtls_src
 
-$ MBEDTLS_DIR=$mbedtls_src_tree make clean bl2 bl31 rcar_layout_tool \
-PLAT=rcar ${RCAR_OPT} SPD=opteed
+$ make clean bl2 bl31 rcar_layout_tool PLAT=rcar ${RCAR_OPT} SPD=opteed
 
 System Tested:
 ~~~~~~~~~~~~~~
@@ -173,8 +171,7 @@ TF-A Build Procedure
 
        RCAR_OPT="LSI=H3 RCAR_DRAM_SPLIT=1 RCAR_LOSSY_ENABLE=1"
 
-       MBEDTLS_DIR=$mbedtls_src_tree make clean bl2 bl31 rcar \
-       PLAT=rcar ${RCAR_OPT} SPD=opteed
+       make clean bl2 bl31 rcar PLAT=rcar ${RCAR_OPT} SPD=opteed
 
 -  Build optee-os
    Result: tee.srec

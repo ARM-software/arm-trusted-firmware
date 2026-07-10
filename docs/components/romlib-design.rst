@@ -151,7 +151,6 @@ to showcase the benefits of library at ROM - it's not mandatory.
 .. code:: shell
 
     make PLAT=fvp                                                   \
-    MBEDTLS_DIR=</path/to/mbedtls/>                                 \
     TRUSTED_BOARD_BOOT=1 GENERATE_COT=1                             \
     ARM_ROTPK_LOCATION=devel_rsa                                    \
     ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
