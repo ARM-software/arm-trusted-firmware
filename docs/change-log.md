@@ -3,6 +3,120 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.11..refs/tags/lts-v2.12.12) (2026-07-10)
+
+### ⚠ BREAKING CHANGES
+
+- **Build System**
+
+  - Mbed TLS is now included in the TF-A repository, and it
+      is no longer a requirement to pass `MBEDTLS_DIR` to the build system.
+      Please run `git submodule update --init --recursive` if you encounter
+      issues after migrating to the latest version of TF-A.
+
+
+    (cherry picked from commit bc9a699d9c2eb3d49945d66dc97f59311ee37794)
+
+    **See:** add Mbed TLS submodule ([205bad1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/205bad1d718320f751e73ad158f6bb6619b1ecf7))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - add initrd props to dtb at build time ([26033e0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/26033e010a6b5542aa7a67a23915d369e98fb46c))
+    - unify Linux kernel as BL33 handling ([fc394fa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fc394fa63ed6a3cd0614da853a3815ca2e72d779))
+
+    - **Common**
+
+      - add support for kernel DT handoff convention ([01b7d6f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/01b7d6f108f6cde606f66f46ed164d41c7108ed4))
+
+    - **FVP**
+
+      - enable kernel dt convention ([5cf93ee](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5cf93eedd0fd159c786808b2dfab05bdedd91e60))
+      - give bootargs on all configs ([90d44cc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/90d44cc6238a3d20897890f292d0c075203ca3d9))
+      - set defaults for build commandline ([1e193d1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1e193d112453c52eeb8e85f17a70e791f25cf0d1))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update mbedtls to version 3.6.4 ([8530b8c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8530b8c85ac50b03ddd4754b9225e5875c42c80f))
+      - update mbedtls to version 3.6.5 ([f7c4fb2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f7c4fb2c319a8e52f85c11c9bd40c100ef55fb84))
+      - update mbedTLS to version 3.6.6 ([8fcdb5f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8fcdb5ff40687947144937f10328062b3ecb5690))
+
+- **Build System**
+
+  - add Mbed TLS submodule ([205bad1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/205bad1d718320f751e73ad158f6bb6619b1ecf7))
+
+### Build System
+
+- **Build System**
+
+  - use parameters in calls to `MAKE_DEP` ([17a2b54](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/17a2b54e6698dacc70bd884a8cb708b65414b7e2))
+
+### Resolved Issues
+
+- **Architecture**
+
+  - **Trace Buffer Extension (FEAT_TRBE)**
+
+    - add a tsb before context switching ([ae544f8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ae544f877a0d0e28382110c0e9e9fe5e7e3b2f0f))
+
+- **Platforms**
+
+  - **Arm**
+
+    - increase reserved DRAM1 mem for NS images ([3072d0d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3072d0dc2b72b4f90c2b273c9eaacacfd024e0b4))
+
+  - **Broadcom**
+
+    - fix bad Mbed TLS check ([819b671](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/819b671eef268829b1f91e311c55940de565797e))
+
+  - **Marvell**
+
+    - provide a default compile target ([8199e1d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8199e1d02daa77f9d71b13fae3d5f876c2ea1b30))
+
+    - **Armada**
+
+      - don't race on the UART_IMAGE ([15b16e9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/15b16e9f36894adf923629ee87d1dc4213e0d700))
+      - mv_ddr path may not be a git repo ([524527e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/524527e1dfdf4aaca330a57e26e53c0e1922a956))
+
+      - **A8K**
+
+        - declare amb_memory_map as an array ([78a6825](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/78a6825eb7c4314ca1a3ec2f173673758817aad2))
+        - mv_ddr path may not be a git repo ([de1570c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/de1570c5a3dcab87378f77df235718b495d0088f))
+
+- **Services**
+
+  - **SPM**
+
+    - change the SMMUv3TestEngine being used ([10f7004](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10f70041d3a01341833e325ad753ef67c862b694))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - use correct workaround for erratum N1 3324349 ([9897b65](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9897b6561d204e855e84a55320e7af939d74c416))
+    - use hint instruction instead of the psb mnemonic ([b7a094f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b7a094f4bb761511cfe342252d2a55d958a45bb1))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - avoid CVE_2025_0647 for bl2 build ([f18d4a0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f18d4a043c740159cb002befd40d3d5c514c3baf))
+
+- **Documentation**
+
+  - use publicly accessible links for CVE-2023-49100 Advisory ([1067c23](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1067c234c452edeea7e6b61ff026c382ef785175))
+
+- **Build System**
+
+  - fix lib cflags use in build macros ([a407366](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a40736610e315c507ff8b4f6d4a5958b6f0dccee))
+
 ## [lts-2.12.11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.10..refs/tags/lts-v2.12.11) (2026-03-26)
 
 ### Performance Improvements
