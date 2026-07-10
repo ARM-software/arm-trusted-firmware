@@ -81,6 +81,8 @@ PLAT_INCLUDES		:=	-Iinclude/plat/common/					\
 PLAT_INCLUDES		+=	${QTI_EXTERNAL_INCLUDES}
 
 include lib/xlat_tables_v2/xlat_tables.mk
+include drivers/qti/chipinfo/chipinfo.mk
+include drivers/qti/smem/smem.mk
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}					\
 				plat/common/aarch64/crash_console_helpers.S    \
 				common/desc_image_load.c			\

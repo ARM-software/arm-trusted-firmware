@@ -14,6 +14,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/qti/accesscontrol/accesscontrol.h>
 #include <drivers/qti/accesscontrol/xpu.h>
+#include <drivers/qti/chipinfo/chipinfo.h>
 #include <drivers/qti/pdc/pdc.h>
 #include <drivers/qti/qtimer/qtimer.h>
 #include <drivers/qti/sec_core/sec_core.h>
@@ -102,6 +103,9 @@ void bl31_platform_setup(void)
 	plat_qti_gic_driver_init();
 	plat_qti_gic_init();
 	qti_pdc_init();
+	if (qti_chipinfo_init() != CHIPINFO_SUCCESS) {
+		WARN("ChipInfo initialization error\n");
+	}
 	qti_smmu_init();
 	qti_interrupt_svc_init(bl32_image_ep_info.pc != 0);
 	qti_sec_core_init();
