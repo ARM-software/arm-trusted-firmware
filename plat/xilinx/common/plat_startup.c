@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -239,24 +239,27 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 
 		target_cpu = get_xbl_cpu(&HandoffParams->partition[i]);
 		if (target_cpu != XBL_FLAGS_A53_0) {
-			WARN("BL31: invalid target CPU (%i)\n", target_cpu);
-			continue;
+			ERROR("BL31: invalid target CPU (%i)\n", target_cpu);
+			xbl_status = XBL_HANDOFF_INVAL_STRUCT;
+			break;
 		}
 
 		target_el = get_xbl_el(&HandoffParams->partition[i]);
 		if ((target_el == XBL_FLAGS_EL3) ||
 		    (target_el == XBL_FLAGS_EL0)) {
-			WARN("BL31: invalid target exception level(%i)\n",
-			     target_el);
-			continue;
+			ERROR("BL31: invalid target exception level(%i)\n",
+			      target_el);
+			xbl_status = XBL_HANDOFF_INVAL_STRUCT;
+			break;
 		}
 
 		target_secure = get_xbl_ss(&HandoffParams->partition[i]);
 		if ((target_secure == XBL_FLAGS_SECURE) &&
 		    (target_el == XBL_FLAGS_EL2)) {
-			WARN("BL31: invalid security state (%i) for exception level (%i)\n",
-			     target_secure, target_el);
-			continue;
+			ERROR("BL31: invalid security state (%i) for exception level (%i)\n",
+			      target_secure, target_el);
+			xbl_status = XBL_HANDOFF_INVAL_STRUCT;
+			break;
 		}
 
 		target_estate = get_xbl_estate(&HandoffParams->partition[i]);
