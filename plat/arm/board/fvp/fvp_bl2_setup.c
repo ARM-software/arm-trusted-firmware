@@ -82,7 +82,7 @@ struct bl_params *plat_get_next_bl_params(void)
 	assert(param_node != NULL);
 
 	/* Copy HW config from Secure address to NS address */
-	memcpy((void *)hw_config_info->ns_config_addr,
+	memcpy((void *)hw_config_info->secondary_config_addr,
 	       (void *)hw_config_info->config_addr,
 	       (size_t)param_node->image_info.image_size);
 
@@ -91,15 +91,27 @@ struct bl_params *plat_get_next_bl_params(void)
 	 * a possibility to use HW-config without cache and MMU enabled
 	 * at BL33
 	 */
-	flush_dcache_range(hw_config_info->ns_config_addr,
+	flush_dcache_range(hw_config_info->secondary_config_addr,
 			   param_node->image_info.image_size);
 
 	param_node = get_bl_mem_params_node(BL33_IMAGE_ID);
 	assert(param_node != NULL);
 
 	/* Update BL33's ep info with NS HW config address  */
-	param_node->ep_info.args.arg1 = hw_config_info->ns_config_addr;
+	param_node->ep_info.args.arg1 = hw_config_info->secondary_config_addr;
 #endif /* !BL2_AT_EL3 && !EL3_PAYLOAD_BASE */
 
 	return arm_bl_params;
+}
+
+uintptr_t plat_get_hw_dt_base(void)
+{
+	const struct dyn_cfg_dtb_info_t *hw_config_info;
+
+	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
+	if (hw_config_info == NULL) {
+		return 0U;
+	}
+
+	return hw_config_info->secondary_config_addr;
 }

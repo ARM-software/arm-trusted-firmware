@@ -1271,6 +1271,7 @@ $(eval $(call add_defines,\
         TWED_DELAY \
         ENABLE_FEAT_TWED \
 	CONDITIONAL_CMO \
+        HW_CONFIG_BASE \
 )))
 
 ifeq (${SANITIZE_UB},trap)

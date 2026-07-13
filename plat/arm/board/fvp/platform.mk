@@ -270,6 +270,8 @@ FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
 HW_CONFIG		:=	${FVP_HW_CONFIG}
 
+HW_CONFIG_BASE		?=	0x82000000
+
 # Set default initrd base 128MiB offset of the default kernel address in FVP
 INITRD_BASE		?=	0x90000000
 
@@ -282,7 +284,6 @@ ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
     endif
 endif
 
-ifeq (${TRANSFER_LIST}, 0)
 FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp/fdts/,	\
 					${PLAT}_fw_config.dts		\
 					${PLAT}_tb_fw_config.dts	\
@@ -325,7 +326,6 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FVP_SOC_FW_CONFIG},--soc-fw-config,${FVP_SOC_FW
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_NT_FW_CONFIG},--nt-fw-config,${FVP_NT_FW_CONFIG}))
 
-FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
 
 # Add the HW_CONFIG to FIP and specify the same to certtool
