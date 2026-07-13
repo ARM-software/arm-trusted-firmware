@@ -38,6 +38,7 @@ struct scmi_msg_channel *plat_scmi_get_channel(unsigned int agent_id)
  * as the corresponding backends are implemented.
  */
 static const uint8_t s32g_scmi_protocols[] = {
+	SCMI_PROTOCOL_ID_CLOCK,
 	0U /* Null termination */
 };
 
