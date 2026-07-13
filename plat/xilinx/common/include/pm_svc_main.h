@@ -29,8 +29,8 @@
  ******************************************************************************/
 #define SECURE_REDUNDANT_CALL(status, status_tmp, function, ...)   \
 	{ \
-		status = function(__VA_ARGS__); \
-		status_tmp = function(__VA_ARGS__); \
+		*(volatile __typeof__(status) *)&(status) = function(__VA_ARGS__); \
+		*(volatile __typeof__(status_tmp) *)&(status_tmp) = function(__VA_ARGS__); \
 	}
 
 bool pm_pwrdwn_req_status(void);
