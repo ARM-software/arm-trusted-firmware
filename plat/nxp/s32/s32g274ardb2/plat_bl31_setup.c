@@ -11,6 +11,7 @@
 #include <plat_console.h>
 
 #include <s32cc-bl-common.h>
+#include <s32g_scmi.h>
 
 static entry_point_info_t bl33_image_ep_info;
 
@@ -102,6 +103,8 @@ void bl31_platform_setup(void)
 	gicv3_distif_init();
 	gicv3_rdistif_init(pos);
 	gicv3_cpuif_enable(pos);
+
+	s32g_scmi_setup();
 }
 
 static unsigned int s32g2_mpidr_to_core_pos(unsigned long mpidr)

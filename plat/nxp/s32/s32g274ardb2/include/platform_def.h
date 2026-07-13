@@ -71,6 +71,10 @@
 #define UART_BAUDRATE			U(115200)
 #define UART_CLOCK_HZ			U(125000000)
 
+/* SCMI SMT mailbox, owned by BL31; the non-secure "arm,scmi-shmem" must match. */
+#define S32G_SCMI_SHMEM_BASE		UL(0xd0000000)
+#define S32G_SCMI_SHMEM_SIZE		UL(0x80)
+
 /* uSDHC */
 #define S32G_USDHC_BASE			UL(0x402F0000)
 
