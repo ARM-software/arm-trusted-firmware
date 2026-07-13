@@ -1077,6 +1077,7 @@ $(eval $(call assert_booleans,\
         TRUSTED_BOARD_BOOT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
+        USE_KERNEL_DT_CONVENTION \
         ARM_IO_IN_DTB \
         SDEI_IN_FCONF \
         SEC_INT_DESC_IN_FCONF \
@@ -1227,6 +1228,7 @@ $(eval $(call add_defines,\
 	ERRATA_NON_ARM_INTERCONNECT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
+        USE_KERNEL_DT_CONVENTION \
         ARM_IO_IN_DTB \
         SDEI_IN_FCONF \
         SEC_INT_DESC_IN_FCONF \

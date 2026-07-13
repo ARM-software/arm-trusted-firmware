@@ -934,6 +934,14 @@ Common build options
    exposing a virtual filesystem interface through BL31 as a SiP SMC function.
    Default is 0.
 
+-  ``USE_KERNEL_DT_CONVENTION``: When this option is enabled, the hardware
+   device tree is passed to BL33 using register x0, aligning with the expectations
+   of the Linux kernel on Arm platforms. If this option is disabled, a different
+   register, typically x1, may be used instead. This build option is
+   not necessary when firmware handoff is active (that is, when TRANSFER_LIST=1
+   is set), and it will be removed once all platforms have transitioned to that
+   convention.
+
 -  ``ARM_IO_IN_DTB``: This flag determines whether to use IO based on the
    firmware configuration framework. This will move the io_policies into a
    configuration device tree, instead of static structure in the code base.
