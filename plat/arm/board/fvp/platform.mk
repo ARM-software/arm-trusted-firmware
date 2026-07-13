@@ -28,6 +28,9 @@ FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 # the FVP platform. This option defaults to 256.
 FVP_TRUSTED_SRAM_SIZE	:= 256
 
+# Enable passing the DT to BL33 in x0 by default.
+USE_KERNEL_DT_CONVENTION	:= 1
+
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
