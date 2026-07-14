@@ -87,13 +87,6 @@ static void *scmi_handles[PLAT_ARM_SCMI_CHANNEL_COUNT];
 static scmi_channel_t scmi_channels[PLAT_ARM_SCMI_CHANNEL_COUNT];
 
 /*
- * Channel ID for the default SCMI channel.
- * The default channel is used to issue SYSTEM level SCMI requests and is
- * initialized to the channel which has the boot cpu as its resource.
- */
-static uint32_t default_scmi_channel_id;
-
-/*
  * TODO: Allow use of channel specific lock instead of using a single lock for
  * all the channels.
  */
@@ -122,8 +115,9 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 	if (css_system_pwr_state(target_state) == ARM_LOCAL_STATE_OFF) {
 		/* Issue SCMI command for SYSTEM_SUSPEND on all SCMI channels */
 		ret = scmi_sys_pwr_state_set(
-				scmi_handles[default_scmi_channel_id],
-				CSS_SCP_SUSPEND_REQ_FLAG, SCMI_SYS_PWR_SUSPEND);
+			scmi_handles[plat_css_core_pos_to_scmi_channel_id(
+				plat_my_core_pos(), SCMI_SYS_PWR_PROTO_ID)],
+			CSS_SCP_SUSPEND_REQ_FLAG, SCMI_SYS_PWR_SUSPEND);
 		if (ret != SCMI_E_SUCCESS) {
 			ERROR("SCMI system power domain suspend return 0x%x unexpected\n",
 					ret);
@@ -330,9 +324,10 @@ void css_scp_system_off(int state)
 	/*
 	 * Issue SCMI command.
 	 */
-	ret = scmi_sys_pwr_state_set(scmi_handles[default_scmi_channel_id],
-			CSS_SCP_SYSTEM_OFF_REQ_FLAG,
-			state);
+	ret = scmi_sys_pwr_state_set(
+		scmi_handles[plat_css_core_pos_to_scmi_channel_id(
+			core_pos, SCMI_SYS_PWR_PROTO_ID)],
+		CSS_SCP_SYSTEM_OFF_REQ_FLAG, state);
 	if (ret != SCMI_E_SUCCESS) {
 		ERROR("SCMI system power state set 0x%x returns unexpected 0x%x\n",
 			state, ret);
@@ -433,9 +428,6 @@ void __init plat_arm_pwrc_setup(void)
 			panic();
 		}
 	}
-
-	default_scmi_channel_id = plat_css_core_pos_to_scmi_channel_id(
-		plat_my_core_pos(), SCMI_SYS_PWR_PROTO_ID);
 }
 
 /******************************************************************************
@@ -469,7 +461,8 @@ const plat_psci_ops_t *css_scmi_override_pm_ops(plat_psci_ops_t *ops)
 	if (ret != SCMI_E_SUCCESS)
 		ops->get_node_hw_state = NULL;
 
-	scmi_handle = scmi_handles[default_scmi_channel_id];
+	scmi_handle = scmi_handles[plat_css_core_pos_to_scmi_channel_id(
+		plat_my_core_pos(), SCMI_SYS_PWR_PROTO_ID)];
 
 	/* Check if the SCMI SYSTEM_POWER_STATE_SET message is supported */
 	ret = scmi_proto_msg_attr(scmi_handle, SCMI_SYS_PWR_PROTO_ID,

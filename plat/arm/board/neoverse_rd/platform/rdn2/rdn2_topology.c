@@ -7,6 +7,8 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/css/common/css_pm.h>
 
+#include <drivers/arm/css/scmi.h>
+
 /******************************************************************************
  * The power domain tree descriptor.
  ******************************************************************************/
@@ -78,9 +80,13 @@ const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
 #endif
 
 unsigned int plat_css_core_pos_to_scmi_channel_id(unsigned int core_pos,
-						  uint32_t protocol_id __unused)
+						  uint32_t protocol_id)
 {
 #if NRD_PLATFORM_VARIANT == 2
+	if (protocol_id == SCMI_SYS_PWR_PROTO_ID) {
+		core_pos = 0U;
+	}
+
 	return core_pos / (PLATFORM_CORE_COUNT / NRD_CHIP_COUNT);
 #else
 	return 0U;
