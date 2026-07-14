@@ -54,6 +54,8 @@ PLAT_INCLUDES		:=	-Iinclude/plat/common/					\
 				-I${PLAT_PATH}/hoya/qtiseclib/inc/${CHIPSET}
 
 include lib/xlat_tables_v2/xlat_tables.mk
+include drivers/qti/chipinfo/chipinfo.mk
+include drivers/qti/smem/smem.mk
 
 PLAT_BL_COMMON_SOURCES	+=	common/desc_image_load.c				\
 				drivers/qti/crypto/rng.c				\
