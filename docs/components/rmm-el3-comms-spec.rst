@@ -52,7 +52,7 @@ are explained below:
   - ``RES0``: Bit 31 of the version number is reserved 0 as to maintain
     consistency with the versioning schemes used in other parts of RMM.
 
-This document specifies the 2.0 version of Boot Interface ABI and RMM-EL3
+This document specifies the 2.1 version of Boot Interface ABI and RMM-EL3
 services specification and the 0.5 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
@@ -1045,6 +1045,58 @@ a failure. The errors are ordered by condition check.
    ``E_RMM_UNK``,"if the SMC is not present, if interface version is <0.7"
    ``E_RMM_NOMEM``,"size of region is larger than the available memory"
    ``E_RMM_OK``,No errors detected
+
+
+RMM_LFA_ALLOW command
+=====================
+
+RMM uses this command to notify TF-A whether live firmware activation (LFA) of
+RMM is permitted. If any Realm disallows LFA, RMM notifies TF-A that LFA is
+disallowed. TF-A must then reject attempts to perform LFA of RMM until RMM
+explicitly allows it again. Once the last Realm that disallows LFA has been
+destroyed, RMM notifies TF-A that LFA is permitted again.
+
+The default state of EL3 on boot is to allow LFA of RMM.
+
+FID
+---
+
+``0xC40001BC``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_LFA_ALLOW
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   lfa_allowed,x1,[0],Boolean,"0: LFA is disallowed; 1: LFA is allowed"
+
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_LFA_ALLOW
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   Result,x0,[63:0],Error Code,Command return status.
+
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_LFA_ALLOW
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_UNK``,"if the SMC is not present, if interface version is <2.1"
+   ``E_RMM_OK``,No errors detected
+
 
 EL3–RMM Register Context Management Contract
 _____________________________________________

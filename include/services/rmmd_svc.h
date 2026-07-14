@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -280,6 +280,18 @@ typedef struct rp_ide_key_info {
  */
 #define RMM_RESERVE_MEMORY			SMC64_RMMD_EL3_FID(U(11))
 
+/* Starting RMM-EL3 interface version 2.1 */
+/*
+ * Receives notification from RMM which indicates whether LFA should be allowed
+ * or not and enables/disables LFA at EL3.
+ * The arguments to this SMC are:
+ *     arg0 - Function ID.
+ *     arg1 - Flag indicating whether LFA should be allowed (in bytes).
+ * The return arguments are:
+ *     ret0 - Status/error.
+ */
+#define RMM_LFA_ALLOW				SMC64_RMMD_EL3_FID(U(12))
+
 /*
  * RMM_BOOT_COMPLETE originates on RMM when the boot finishes (either cold
  * or warm boot). This is handled by the RMM-EL3 interface SMC handler.
@@ -311,7 +323,7 @@ typedef struct rp_ide_key_info {
  * Increase this when a bug is fixed, or a feature is added without
  * breaking compatibility.
  */
-#define RMM_EL3_IFC_VERSION_MINOR	(U(0))
+#define RMM_EL3_IFC_VERSION_MINOR	(U(1))
 #endif /* RMM_V1_COMPAT */
 
 #define RMM_EL3_INTERFACE_VERSION				\
