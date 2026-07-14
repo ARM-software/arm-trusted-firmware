@@ -568,6 +568,8 @@ this process up by using the ``new-cpu-feature`` agent skill.
   in exceptional cases. You should also update the list of features at the top
   of this file.
 
+   - Update the field in the table above.
+
 - Enable the feature for dynamic platforms in ``make_helpers/all_features.mk``,
   setting it to ``2`` (``FEAT_STATE_CHECKED``).
 
