@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2025-2026, Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,11 +14,13 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+#include <ti_device_pm.h>
 #include <ti_sci.h>
 #include <ti_sci_protocol.h>
 
 #include <k3_gicv3.h>
 #include <platform_def.h>
+#include <ti_devices.h>
 
 uintptr_t am62l_sec_entrypoint;
 uintptr_t am62l_sec_entrypoint_glob;
@@ -60,10 +62,34 @@ static int am62l_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
+	/* Power up device and enable clocks */
+	ti_device_id_enable_clocks(AM62LX_DEV_A53_0 + core);
+	ti_device_id_power_up(AM62LX_DEV_A53_0 + core);
+
+	return PSCI_E_SUCCESS;
+}
+
+static int am62l_pwr_domain_off_early(const psci_power_state_t *target_state)
+{
+	int32_t core;
+
+	/* At very least the local core should be powering down */
+	assert(((target_state)->pwr_domain_state[MPIDR_AFFLVL0]) == PLAT_MAX_OFF_STATE);
+
+	core = plat_my_core_pos();
+
 	/*
-	 * TODO: Add the actual PM operation call
-	 * to turn on the core here
+	 * Disable clocks while cache coherency is still active.
+	 * This allows atomic clock reference counting to work correctly.
+	 *
+	 * Clock operations use atomic instructions to safely handle concurrent
+	 * access from multiple cores. These atomic instructions require cache
+	 * coherency to function properly. The PSCI flow disables cache coherency
+	 * between pwr_domain_off() and pwr_domain_pwr_down(), so we must complete all
+	 * clock operations here in the early hook where atomic instructions still work.
 	 */
+	ti_device_id_disable_clocks(AM62LX_DEV_A53_0 + core);
+
 	return PSCI_E_SUCCESS;
 }
 
@@ -74,12 +100,20 @@ static void am62l_pwr_domain_off(const psci_power_state_t *target_state)
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	k3_gic_cpuif_disable();
-
 }
 
 static void am62l_pwr_down_domain(const psci_power_state_t *target_state)
 {
-	/* TODO: Add the actual pm operation call to turn off the core */
+	int32_t core;
+
+	core = plat_my_core_pos();
+
+	VERBOSE("%s: A53 CORE %d: OFF\n", __func__, core);
+	/*
+	 * Clocks already disabled in pwr_domain_off_early().
+	 * Only perform power domain operations here.
+	 */
+	ti_device_id_power_down(AM62LX_DEV_A53_0 + core);
 }
 
 void am62l_pwr_domain_on_finish(const psci_power_state_t *target_state)
@@ -102,6 +136,7 @@ static void am62l_system_reset(void)
 
 static plat_psci_ops_t am62l_plat_psci_ops = {
 	.pwr_domain_on = am62l_pwr_domain_on,
+	.pwr_domain_off_early = am62l_pwr_domain_off_early,
 	.pwr_domain_off = am62l_pwr_domain_off,
 	.pwr_domain_pwr_down = am62l_pwr_down_domain,
 	.pwr_domain_on_finish = am62l_pwr_domain_on_finish,

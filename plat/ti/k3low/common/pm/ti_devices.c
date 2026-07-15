@@ -960,13 +960,20 @@ __section(".const.devgroup.MAIN") = {
 		.depends = AM62LX_PSC_PD_PD_MAINIP,
 		.flags = TI_PSC_PD_EXISTS|TI_PSC_PD_DEPENDS,
 	},
+	/*
+	 * A53 cores(AM62LX_PSC_PD_PD_MPU_CLST0_CORE0, AM62LX_PSC_PD_PD_MPU_CLST0_CORE1)
+	 * use TI_PSC_PD_SKIP_WAIT to avoid deadlock during power-off.
+	 * The hardware requires the core to be in WFI for the PSC transition
+	 * to complete. Waiting for the PSC status would prevent the core from
+	 * entering WFI, creating a deadlock.
+	 */
 	[AM62LX_PSC_PD_PD_MPU_CLST0_CORE0] = {
 		.depends = AM62LX_PSC_PD_PD_MPU_CLST0,
-		.flags = TI_PSC_PD_EXISTS|TI_PSC_PD_DEPENDS,
+		.flags = TI_PSC_PD_EXISTS|TI_PSC_PD_DEPENDS|TI_PSC_PD_SKIP_WAIT,
 	},
 	[AM62LX_PSC_PD_PD_MPU_CLST0_CORE1] = {
 		.depends = AM62LX_PSC_PD_PD_MPU_CLST0,
-		.flags = TI_PSC_PD_EXISTS|TI_PSC_PD_DEPENDS,
+		.flags = TI_PSC_PD_EXISTS|TI_PSC_PD_DEPENDS|TI_PSC_PD_SKIP_WAIT,
 	},
 	[AM62LX_PSC_PD_PD_MPU_CLST0_CORE2] = {
 		.depends = AM62LX_PSC_PD_PD_MPU_CLST0,
