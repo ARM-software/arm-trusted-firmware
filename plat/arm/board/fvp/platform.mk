@@ -519,8 +519,7 @@ ifeq (${HANDLE_EA_EL3_FIRST_NS},1)
     ifeq (${PLATFORM_TEST_FFH_LSP_RAS_SP},1)
         BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_lsp_ras_sp.c
     endif
-    BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c	\
-					plat/arm/board/fvp/aarch64/fvp_ea.c
+    BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
 endif
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
@@ -603,14 +602,6 @@ BL31_SOURCES	+=	plat/arm/board/fvp/fvp_spmd.c
 endif
 
 # Test specific macros, keep them at bottom of this file
-$(eval $(call add_define,PLATFORM_TEST_EA_FFH))
-ifeq (${PLATFORM_TEST_EA_FFH}, 1)
-    ifeq (${FFH_SUPPORT}, 0)
-         $(error "PLATFORM_TEST_EA_FFH expects FFH_SUPPORT to be 1")
-    endif
-
-endif
-
 PLATFORM_TEST_RAS_FFH	?=	0
 $(eval $(call add_define,PLATFORM_TEST_RAS_FFH))
 ifeq (${PLATFORM_TEST_RAS_FFH}, 1)

@@ -40,7 +40,12 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 /* Handler for injecting UNDEF exception to lower EL */
 void inject_undef64(cpu_context_t *ctx);
 
-u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el);
+/* Handler for injecting SEA exception to lower EL */
+#ifdef __aarch64__
+void inject_sync_ea64(el3_state_t *state, u_register_t esr_el3);
+#endif
+
+u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el, u_register_t scr_el3);
 
 /* Prototypes for system register emulation handlers provided by platforms. */
 int plat_handle_impdef_trap(uint64_t esr_el3, cpu_context_t *ctx);

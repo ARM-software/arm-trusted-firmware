@@ -129,16 +129,6 @@ configurations for testing lower EL External aborts.
 
 All the tests are written in TF-A tests which runs as NS-EL2 payload.
 
-- **FFH without RAS extension**
-
-  *fvp-ea-ffh,fvp-ea-ffh:fvp-tftf-fip.tftf-aemv8a-debug*
-
-   Couple of tests, one each for sync EA and async EA from lower EL which gets handled in El3.
-   Inject External aborts(sync/async) which traps in EL3, FVP has a handler which gracefully
-   handles these errors and returns back to TF-A Tests
-
-   Build Configs : **HANDLE_EA_EL3_FIRST_NS** , **PLATFORM_TEST_EA_FFH**
-
 - **FFH with RAS extension**
 
   Three Tests :

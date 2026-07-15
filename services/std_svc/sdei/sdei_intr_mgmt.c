@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -266,15 +266,17 @@ static cpu_context_t *restore_and_resume_ns_context(void)
  * - Set the SPSR register by calling the common create_spsr() function
  */
 
-static void sdei_set_elr_spsr(sdei_entry_t *se, sdei_dispatch_context_t *disp_ctx)
+static void sdei_set_elr_spsr(sdei_entry_t *se, sdei_dispatch_context_t *disp_ctx, cpu_context_t *ctx)
 {
+	el3_state_t *state = get_el3state_ctx(ctx);
+	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
 	unsigned int client_el = sdei_client_el();
 	u_register_t sdei_spsr = SPSR_64(client_el, MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS);
 
 	u_register_t interrupted_pstate = disp_ctx->spsr_el3;
 
-	sdei_spsr = create_spsr(interrupted_pstate, client_el);
+	sdei_spsr = create_spsr(interrupted_pstate, client_el, scr_el3);
 
 	cm_set_elr_spsr_el3(NON_SECURE, (uintptr_t) se->ep, sdei_spsr);
 }
@@ -305,7 +307,7 @@ static void setup_ns_dispatch(sdei_ev_map_t *map, sdei_entry_t *se,
 	SMC_SET_GP(ctx, CTX_GPREG_X3, disp_ctx->spsr_el3);
 
 	/* Setup the elr and spsr register to prepare for ERET */
-	sdei_set_elr_spsr(se, disp_ctx);
+	sdei_set_elr_spsr(se, disp_ctx, ctx);
 
 #if DYNAMIC_WORKAROUND_CVE_2018_3639
 	cve_2018_3639_t *tgt_cve_2018_3639;

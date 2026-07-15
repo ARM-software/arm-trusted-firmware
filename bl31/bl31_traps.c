@@ -107,60 +107,6 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 	return TRAP_RET_UNHANDLED;
 }
 
-static bool is_tge_enabled(void)
-{
-	u_register_t hcr_el2 = read_hcr_el2();
-
-	return ((is_feat_vhe_present()) && ((hcr_el2 & HCR_TGE_BIT) != 0U));
-}
-
-/*
- * This function is to ensure that undef injection does not happen into
- * non-existent S-EL2. This could happen when trap happens from S-EL{1,0}
- * and non-secure world is running with TGE bit set, considering EL3 does
- * not save/restore EL2 registers if only one world has EL2 enabled.
- * So reading hcr_el2.TGE would give NS world value.
- */
-static bool is_secure_trap_without_sel2(u_register_t scr)
-{
-	return ((scr & (SCR_NS_BIT | SCR_EEL2_BIT)) == 0);
-}
-
-static unsigned int target_el(unsigned int from_el, u_register_t scr)
-{
-	if (from_el > MODE_EL1) {
-		return from_el;
-	} else if (is_tge_enabled() && !is_secure_trap_without_sel2(scr)) {
-		return MODE_EL2;
-	} else {
-		return MODE_EL1;
-	}
-}
-
-static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsigned int target_el)
-{
-	unsigned int outgoing_el = GET_EL(spsr_el3);
-	u_register_t elr_el3 = 0;
-
-	if (outgoing_el == target_el) {
-		/*
-		 * Target EL is either EL1 or EL2, lsb can tell us the SPsel
-		 *  Thread mode  : 0
-		 *  Handler mode : 1
-		 */
-		if ((spsr_el3 & (MODE_SP_MASK << MODE_SP_SHIFT)) == MODE_SP_ELX) {
-			elr_el3 = vbar + CURRENT_EL_SPX;
-		} else {
-			elr_el3 = vbar + CURRENT_EL_SP0;
-		}
-	} else {
-		/* Vector address for Lower EL using Aarch64 */
-		elr_el3 = vbar + LOWER_EL_AARCH64;
-	}
-
-	return elr_el3;
-}
-
 /*******************************************************************************
  * HARDWARE PSEUDOCODE
  *
@@ -181,10 +127,42 @@ static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsign
  ******************************************************************************/
 
 /*
+ * Return the effective value of HCR_EL2.TGE.
+ *
+ * NOTE: this has a dependency on EL2Enabled() having succeeded. That is omitted
+ * since it is checked many times and it's expected to have been done by the
+ * caller.
+ *
+ * Based on shared.functions.system.EffectiveTGE.
+ */
+static bool is_tge_enabled(void)
+{
+	return (read_hcr_el2() & HCR_TGE_BIT) != 0U;
+}
+
+/*
+ * Check if EL2 is enabled in the current security state.
+ * Based on shared.functions.system.EL2Enabled.
+ */
+static bool el2_enabled(u_register_t scr_el3)
+{
+	bool enabled = false;
+
+	if (el_implemented(2) != EL_IMPL_NONE) {
+		enabled |= (scr_el3 & SCR_NS_BIT) != 0;
+		if (is_feat_sel2_supported()) {
+			enabled |= (scr_el3 & SCR_EEL2_BIT) != 0;
+		}
+	}
+
+	return enabled;
+}
+
+/*
  * Explicitly create all bits of SPSR to get PSTATE at exception return. Based
  * on aarch64.exceptions.takeexception.AArch64_TakeException.
  */
-u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
+u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el, u_register_t scr_el3)
 {
 	u_register_t new_spsr = 0;
 	u_register_t sctlr;
@@ -235,8 +213,10 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 
 	/* Update PSTATE.PAN bit */
 	new_spsr |= old_spsr & SPSR_PAN_BIT;
+	/* FEAT_VHE being present is assumed to mean HCR_EL2.E2H == 1 */
 	if (is_feat_pan_present() &&
-	    ((target_el == MODE_EL1) || ((target_el == MODE_EL2) && is_tge_enabled())) &&
+	    ((target_el == MODE_EL1) || ((target_el == MODE_EL2) &&
+	     el2_enabled(scr_el3) && is_feat_vhe_supported() && is_tge_enabled())) &&
 	    ((sctlr & SCTLR_SPAN_BIT) == 0U)) {
 	    new_spsr |= SPSR_PAN_BIT;
 	}
@@ -295,9 +275,118 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 	return new_spsr;
 }
 
+/* based on aarch64.exceptions.traps.AArch64_Undefined */
+static unsigned int get_undef_target_el(u_register_t scr_el3, unsigned int from_el, u_register_t scr)
+{
+	if (from_el > MODE_EL1) {
+		return from_el;
+	} else if (from_el == MODE_EL0 && el2_enabled(scr_el3) && is_tge_enabled()) {
+		return MODE_EL2;
+	} else {
+		return MODE_EL1;
+	}
+}
+
+#if FFH_SUPPORT
+/* based on shared.exceptions.aborts.EffectiveHCRX_EL2_TMEA */
+static bool is_hcrx_el2_tmea_set(u_register_t scr_el3)
+{
+	return is_feat_doublefault2_supported() && el2_enabled(scr_el3) &&
+	       is_feat_hcx_supported() &&
+	       (read_hcrx_el2() & HCRX_EL2_TMEA_BIT) != 0U;
+}
+
+/*
+ * Get target EL for a Synchronous External Abort. Based on
+ * shared.exceptions.aborts.SyncExternalAbortTarget. Three branches of the
+ * pseudocode are ignored:
+ *   - EL3 routing - this already happened in HW
+ *   - FEAT_NV2 access type - cannot end up in EL3 (rule RYWCZS)
+ *   - Second stage faults - cannot be distinguished in SW
+ */
+static unsigned int target_el_sync_ea(el3_state_t *state)
+{
+	u_register_t spsr_el3 = read_ctx_reg(state, CTX_SPSR_EL3);
+	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	u_register_t hcr_el2 = read_hcr_el2();
+	uint8_t el = GET_EL(spsr_el3);
+	bool pstate_a = (EXTRACT(SPSR_DAIF, spsr_el3) & DAIF_ABT_BIT) != 0;
+
+	if (el2_enabled(scr_el3) && (el == MODE_EL1 || el == MODE_EL0) &&
+	   /* effective_tea */
+	   (is_feat_ras_supported() && ((hcr_el2 & HCR_TEA_BIT) != 0U)) &&
+	   ((el == 0) && is_tge_enabled())) {
+		return MODE_EL2;
+	} else if (is_hcrx_el2_tmea_set(scr_el3) && pstate_a && el == MODE_EL1) {
+			return MODE_EL2;
+	} else if (el == MODE_EL2) {
+		return MODE_EL2;
+	}
+
+	return MODE_EL1;
+}
+#endif
+
 /*******************************************************************************
  * END OF HARDWARE PSEUDOCODE
  ******************************************************************************/
+
+static u_register_t get_elr_el3(u_register_t spsr_el3, unsigned int target_el)
+{
+	unsigned int outgoing_el = GET_EL(spsr_el3);
+	u_register_t elr_el3 = 0;
+	u_register_t vbar;
+
+	if (target_el == MODE_EL2) {
+		vbar = read_vbar_el2();
+	} else {
+		vbar = read_vbar_el1();
+	}
+
+	if (outgoing_el == target_el) {
+		/*
+		 * Target EL is either EL1 or EL2, lsb can tell us the SPsel
+		 *  Thread mode  : 0
+		 *  Handler mode : 1
+		 */
+		if ((spsr_el3 & (MODE_SP_MASK << MODE_SP_SHIFT)) == MODE_SP_ELX) {
+			elr_el3 = vbar + CURRENT_EL_SPX;
+		} else {
+			elr_el3 = vbar + CURRENT_EL_SP0;
+		}
+	} else {
+		/* Vector address for Lower EL using Aarch64 */
+		elr_el3 = vbar + LOWER_EL_AARCH64;
+	}
+
+	return elr_el3;
+}
+
+/*
+ * Generic function to inject an exception into a lower EL. Callers are
+ * responsible for computing the details, this just does the writes.
+ */
+static void inject_exception(el3_state_t *state, u_register_t new_esr, unsigned int to_el)
+{
+	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	u_register_t elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
+	u_register_t spsr_el3 = read_ctx_reg(state, CTX_SPSR_EL3);
+
+	/* set the lower EL exception */
+	if (to_el == MODE_EL2) {
+		write_esr_el2(new_esr);
+		write_elr_el2(elr_el3);
+		write_spsr_el2(spsr_el3);
+	} else {
+		write_esr_el1(new_esr);
+		write_elr_el1(elr_el3);
+		write_spsr_el1(spsr_el3);
+	}
+
+	/* set our eret context for el3_exit */
+	write_ctx_reg(state, CTX_ELR_EL3, get_elr_el3(spsr_el3, to_el));
+	write_ctx_reg(state, CTX_SPSR_EL3, create_spsr(spsr_el3, to_el, scr_el3));
+}
 
 /*
  * Handler for injecting Undefined exception to lower EL which is caused by
@@ -313,34 +402,63 @@ void inject_undef64(cpu_context_t *ctx)
 	u_register_t scr_el3 = 0U;
 	unsigned int to_el = 0U;
 	u_register_t esr = 0U;
-	u_register_t elr_el3 = 0U;
-	u_register_t new_spsr = 0U;
 
 	if (is_feat_uinj_supported()) {
-		new_spsr = old_spsr | SPSR_UINJ_BIT;
-		write_ctx_reg(state, CTX_SPSR_EL3, new_spsr);
+		write_ctx_reg(state, CTX_SPSR_EL3, old_spsr | SPSR_UINJ_BIT);
 		return;
 	}
 
 	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
-	to_el = target_el(GET_EL(old_spsr), scr_el3);
+	to_el = get_undef_target_el(scr_el3, GET_EL(old_spsr), scr_el3);
 	esr = (EC_UNKNOWN << ESR_EC_SHIFT) | ESR_IL_BIT;
-	elr_el3 = read_ctx_reg(state, CTX_ELR_EL3);
 
-	if (to_el == MODE_EL2) {
-		write_elr_el2(elr_el3);
-		elr_el3 = get_elr_el3(old_spsr, read_vbar_el2(), to_el);
-		write_esr_el2(esr);
-		write_spsr_el2(old_spsr);
-	} else {
-		write_elr_el1(elr_el3);
-		elr_el3 = get_elr_el3(old_spsr, read_vbar_el1(), to_el);
-		write_esr_el1(esr);
-		write_spsr_el1(old_spsr);
+	inject_exception(state, esr, to_el);
+}
+
+#if FFH_SUPPORT
+/*
+ * Handler for injecting SEA to either EL2 or EL1 for
+ * Data abort exception or instruction abort exception.
+ */
+void inject_sync_ea64(el3_state_t *state, u_register_t esr_el3)
+{
+	u_register_t spsr_el3 = read_ctx_reg(state, CTX_SPSR_EL3);
+	u_register_t new_esr;
+	unsigned int to_el = 0;
+
+	to_el = target_el_sync_ea(state);
+
+	/*
+	 * create the lower EL syndrome. This hinges on the assumption that
+	 * ESR_EL3 for D/A aborts is a subset of ESR_ELx for the same. This
+	 * allows skipping the very complicated logic to recreate the ISS.
+	 */
+	new_esr = esr_el3;
+	/*
+	 * Uses the fact that the EC values for current EL D/A aborts are the
+	 * same as the values for lower EL D/A aborts with the lowermost bit
+	 * set. ESR_EL3 is expected to always contain a lower EL abort value.
+	 */
+	if (GET_EL(spsr_el3) == to_el) {
+		new_esr |= EC_ABORT_CUR_EL_BIT << ESR_EC_SHIFT;
 	}
 
-	new_spsr = create_spsr(old_spsr, to_el);
+	/*
+	 * Sync EAs will architecturally clear FnV (FAR not Valid) and set PFV
+	 * (PFAR Valid) in the ESR. So write those registers.
+	 */
+	if (to_el == MODE_EL2) {
+		write_far_el2(read_far_el3());
+		if (is_feat_pfar_supported()) {
+			write_pfar_el2(read_mfar_el3());
+		}
+	} else {
+		write_far_el1(read_far_el3());
+		if (is_feat_pfar_supported()) {
+			write_pfar_el1(read_mfar_el3());
+		}
+	}
 
-	write_ctx_reg(state, CTX_SPSR_EL3, new_spsr);
-	write_ctx_reg(state, CTX_ELR_EL3, elr_el3);
+	inject_exception(state, new_esr, to_el);
 }
+#endif

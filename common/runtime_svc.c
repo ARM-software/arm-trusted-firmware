@@ -276,7 +276,15 @@ void handler_sync_exception(cpu_context_t *ctx)
 			return plat_handle_uncontainable_ea();
 		}
 		/* Setup exception class and syndrome arguments for platform handler */
-		return ea_proceed(ERROR_EA_SYNC, esr_el3, scr_el3, ctx);
+		ea_proceed(ERROR_EA_SYNC, esr_el3, scr_el3, ctx);
+
+		/* Platforms that support SDEI should use that for lower EL
+		 * communication. This allows for SDEI to be omitted. */
+#if !SDEI_SUPPORT
+		inject_sync_ea64(state, esr_el3);
+#endif /* !SDEI_SUPPORT */
+
+		return;
 #endif /* FFH_SUPPORT */
 	}
 
