@@ -71,8 +71,8 @@ It is also assumed copy of mbedtls is available on the path path ../mbedtls
 
     make CROSS_COMPILE=${CROSS_COMPILE} PLAT=warp7 ARCH=aarch32 ARM_ARCH_MAJOR=7 \
          ARM_CORTEX_A7=yes AARCH32_SP=optee PLAT_WARP7_UART=1 GENERATE_COT=1 \
-         TRUSTED_BOARD_BOOT=1 USE_TBBR_DEFS=1 MBEDTLS_DIR=../mbedtls \
-         NEED_BL32=yes BL32=fiptool_images/tee-header_v2.bin \
+         TRUSTED_BOARD_BOOT=1 USE_TBBR_DEFS=1 NEED_BL32=yes \
+         BL32=fiptool_images/tee-header_v2.bin \
          BL32_EXTRA1=fiptool_images/tee-pager_v2.bin \
          BL32_EXTRA2=fiptool_images/tee-pageable_v2.bin \
          BL33=fiptool_images/u-boot.bin certificates all
