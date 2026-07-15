@@ -171,7 +171,9 @@ sync_error:
 	ldp	x4, x5, [sp], #16
 #endif /* ENABLE_FEAT_RME */
 
-	b report_unhandled_exception
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SYNC_EXCEPTION_SP_EL0
+	b	plat_report_unhandled_exception
 endfunc handle_el3_sync_exception
 
 vector_base runtime_exceptions
@@ -201,16 +203,22 @@ vector_entry irq_sp_el0
 	 * EL3 code is non-reentrant. Any asynchronous exception is a serious
 	 * error. Loop infinitely.
 	 */
-	b	report_unhandled_interrupt
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #IRQ_SP_EL0
+	b	plat_report_unhandled_interrupt
 end_vector_entry irq_sp_el0
 
 
 vector_entry fiq_sp_el0
-	b	report_unhandled_interrupt
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #FIQ_SP_EL0
+	b	plat_report_unhandled_interrupt
 end_vector_entry fiq_sp_el0
 
 
 vector_entry serror_sp_el0
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SERROR_SP_EL0
 	no_ret	plat_handle_el3_ea
 end_vector_entry serror_sp_el0
 
@@ -225,15 +233,21 @@ vector_entry sync_exception_sp_elx
 	 * synchronous exception. There is a high probability that SP_EL3 is
 	 * corrupted.
 	 */
-	b	report_unhandled_exception
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SYNC_EXCEPTION_SP_ELX
+	b	plat_report_unhandled_exception
 end_vector_entry sync_exception_sp_elx
 
 vector_entry irq_sp_elx
-	b	report_unhandled_interrupt
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #IRQ_SP_ELX
+	b	plat_report_unhandled_interrupt
 end_vector_entry irq_sp_elx
 
 vector_entry fiq_sp_elx
-	b	report_unhandled_interrupt
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #FIQ_SP_ELX
+	b	plat_report_unhandled_interrupt
 end_vector_entry fiq_sp_elx
 
 vector_entry serror_sp_elx
@@ -263,6 +277,8 @@ vector_entry serror_sp_elx
 1:
 	restore_x30
 #endif
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SERROR_SP_ELX
 	no_ret	plat_handle_el3_ea
 
 end_vector_entry serror_sp_elx
@@ -309,7 +325,9 @@ vector_entry serror_aarch64
 	sync_and_handle_pending_serror
 	handle_lower_el_async_ea
 #else
-	b	report_unhandled_exception
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SERROR_AARCH64
+	b	plat_report_unhandled_exception
 #endif
 end_vector_entry serror_aarch64
 
@@ -355,7 +373,9 @@ vector_entry serror_aarch32
 	sync_and_handle_pending_serror
 	handle_lower_el_async_ea
 #else
-	b	report_unhandled_exception
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SERROR_AARCH32
+	b	plat_report_unhandled_exception
 #endif
 end_vector_entry serror_aarch32
 
@@ -392,7 +412,9 @@ el3_handler_exit:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
 	restore_x30
-	no_ret	report_unhandled_exception
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #IMPL_DEF
+	no_ret	plat_report_unhandled_exception
 endfunc imp_def_el3_handler
 
 /*
