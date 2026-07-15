@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -199,28 +199,6 @@ void __dead2 sq_scmi_sys_reboot(void)
 	sq_scmi_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
-static int scmi_ap_core_init(scmi_channel_t *ch)
-{
-#if PROGRAMMABLE_RESET_ADDRESS
-	uint32_t version;
-	int ret;
-
-	ret = scmi_proto_version(ch, SCMI_AP_CORE_PROTO_ID, &version);
-	if (ret != SCMI_E_SUCCESS) {
-		WARN("SCMI AP core protocol version message failed\n");
-		return -1;
-	}
-
-	if (!is_scmi_version_compatible(SCMI_AP_CORE_PROTO_VER, version)) {
-		WARN("SCMI AP core protocol version 0x%x incompatible with driver version 0x%x\n",
-						version, SCMI_AP_CORE_PROTO_VER);
-		return -1;
-	}
-	INFO("SCMI AP core protocol version 0x%x detected\n", version);
-#endif
-	return 0;
-}
-
 void __init plat_sq_pwrc_setup(void)
 {
 	channel.info = &sq_scmi_plat_info;
@@ -230,10 +208,13 @@ void __init plat_sq_pwrc_setup(void)
 		ERROR("SCMI Initialization failed\n");
 		panic();
 	}
-	if (scmi_ap_core_init(&channel) < 0) {
+
+#if PROGRAMMABLE_RESET_ADDRESS
+	if (scmi_ap_core_init(&channel) != 0) {
 		ERROR("SCMI AP core protocol initialization failed\n");
 		panic();
 	}
+#endif
 }
 
 uint32_t sq_scmi_get_draminfo(struct draminfo *info)

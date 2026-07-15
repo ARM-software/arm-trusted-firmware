@@ -10,6 +10,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <drivers/arm/css/scmi.h>
+
 #define SCMI_CPU_SLEEP_RUN			0
 #define SCMI_CPU_SLEEP_WAIT			1
 #define SCMI_CPU_SLEEP_STOP			2
@@ -146,6 +148,7 @@ struct scmi_per_lpm_config {
 	uint32_t lpmSetting;
 };
 
+int scmi_core_init(scmi_channel_t *ch);
 int scmi_core_set_reset_addr(void *p, uint64_t reset_addr, uint32_t cpu_id, uint32_t attr);
 int scmi_core_start(void *p, uint32_t cpu_id);
 int scmi_core_stop(void *p, uint32_t cpu_id);

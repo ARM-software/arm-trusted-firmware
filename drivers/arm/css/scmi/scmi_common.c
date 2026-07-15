@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -179,7 +179,6 @@ int scmi_proto_msg_attr(void *p, uint32_t proto_id,
  */
 void *scmi_init(scmi_channel_t *ch)
 {
-	uint32_t version;
 	int ret;
 
 	assert(ch && ch->info);
@@ -194,34 +193,15 @@ void *scmi_init(scmi_channel_t *ch)
 
 	ch->is_initialized = 1;
 
-	ret = scmi_proto_version(ch, SCMI_PWR_DMN_PROTO_ID, &version);
-	if (ret != SCMI_E_SUCCESS) {
-		WARN("SCMI power domain protocol version message failed\n");
+	ret = scmi_pwr_init(ch);
+	if (ret != 0) {
 		goto error;
 	}
 
-	if (!is_scmi_version_compatible(SCMI_PWR_DMN_PROTO_VER, version)) {
-		WARN("SCMI power domain protocol version 0x%x incompatible with driver version 0x%x\n",
-			version, SCMI_PWR_DMN_PROTO_VER);
+	ret = scmi_sys_pwr_init(ch);
+	if (ret != 0) {
 		goto error;
 	}
-
-	VERBOSE("SCMI power domain protocol version 0x%x detected\n", version);
-
-	ret = scmi_proto_version(ch, SCMI_SYS_PWR_PROTO_ID, &version);
-	if ((ret != SCMI_E_SUCCESS)) {
-		WARN("SCMI system power protocol version message failed\n");
-		goto error;
-	}
-
-	if (!is_scmi_version_compatible(SCMI_SYS_PWR_PROTO_VER, version)) {
-		WARN("SCMI system power management protocol version 0x%x incompatible with driver version 0x%x\n",
-			version, SCMI_SYS_PWR_PROTO_VER);
-		goto error;
-	}
-
-	VERBOSE("SCMI system power management protocol version 0x%x detected\n",
-						version);
 
 	INFO("SCMI driver initialized\n");
 

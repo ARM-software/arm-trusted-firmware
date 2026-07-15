@@ -7,14 +7,13 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <platform_def.h>
+
 #include <drivers/arm/css/scmi.h>
 #include <drivers/scmi.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
-
-#include <platform_def.h>
-
-#define SCMI_CORE_PROTO_ID			0x82
+#include <scmi_imx9.h>
 
 void *imx9_scmi_handle;
 
@@ -40,22 +39,6 @@ static scmi_channel_plat_info_t sq_scmi_plat_info = {
 		.ring_doorbell = &mu_ring_doorbell,
 };
 
-static int scmi_ap_core_init(scmi_channel_t *ch)
-{
-	uint32_t version;
-	int ret;
-
-	ret = scmi_proto_version(ch, SCMI_CORE_PROTO_ID, &version);
-	if (ret != SCMI_E_SUCCESS) {
-		WARN("SCMI AP core protocol version message failed\n");
-		return -1;
-	}
-
-	INFO("SCMI AP core protocol version 0x%x detected\n", version);
-
-	return 0;
-}
-
 void plat_imx9_scmi_setup(void)
 {
 	channel.info = &sq_scmi_plat_info;
@@ -65,7 +48,8 @@ void plat_imx9_scmi_setup(void)
 		ERROR("SCMI Initialization failed\n");
 		panic();
 	}
-	if (scmi_ap_core_init(&channel) < 0) {
+
+	if (scmi_core_init(&channel) != 0) {
 		ERROR("SCMI AP core protocol initialization failed\n");
 		panic();
 	}

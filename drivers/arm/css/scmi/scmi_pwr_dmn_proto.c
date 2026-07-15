@@ -1,16 +1,45 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <errno.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/scmi.h>
 
 #include "scmi_private.h"
+
+/*
+ * Initialize the SCMI power domain protocol.
+ */
+int scmi_pwr_init(scmi_channel_t *ch)
+{
+	uint32_t version;
+	int ret;
+
+	ret = scmi_proto_version(ch, SCMI_PWR_DMN_PROTO_ID, &version);
+	if (ret != SCMI_E_SUCCESS) {
+		WARN("SCMI power domain protocol version message failed\n");
+
+		return (ret == SCMI_E_NOT_SUPPORTED) ? -EPROTONOSUPPORT :
+						       -EPROTO;
+	}
+
+	if (!is_scmi_version_compatible(SCMI_PWR_DMN_PROTO_VER, version)) {
+		WARN("SCMI power domain protocol version 0x%x incompatible with driver version 0x%x\n",
+		     version, SCMI_PWR_DMN_PROTO_VER);
+
+		return -EPROTONOSUPPORT;
+	}
+
+	VERBOSE("SCMI power domain protocol version 0x%x detected\n", version);
+
+	return 0;
+}
 
 /*
  * API to set the SCMI power domain power state.
