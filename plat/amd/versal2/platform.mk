@@ -40,7 +40,7 @@ endif
 
 TFA_NO_PM ?= 0
 
-VERSAL2_VARIANT ?= 42
+VERSAL2_VARIANT ?= 0
 $(eval $(call add_define_val,VERSAL2_VARIANT,$(VERSAL2_VARIANT)))
 
 CPU_PWRDWN_SGI ?= 6

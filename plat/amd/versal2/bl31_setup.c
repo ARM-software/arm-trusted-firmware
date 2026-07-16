@@ -153,6 +153,16 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	setup_console();
 
+#if (VERSAL2_VARIANT == 14)
+	if (!is_psxc(PSXC_2VM3654_IDCODE)) {
+		WARN("Variant 14 build running on non-2VM3654 platform\n");
+	}
+#elif (VERSAL2_VARIANT == 42)
+	if (!is_psxc(PSXC_VSLGEN2_IDCODE)) {
+		WARN("Variant 42 build running on non-VSL-GEN-2 platform\n");
+	}
+#endif
+
 	if (IS_TFA_IN_OCM(BL31_BASE) && (check_ocm_coherency() < 0)) {
 		NOTICE("OCM coherency check not supported\n");
 	}

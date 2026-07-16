@@ -9,8 +9,13 @@
 #ifndef PLAT_PRIVATE_H
 #define PLAT_PRIVATE_H
 
+#include <assert.h>
+#include <stdbool.h>
+
 #include <bl31/interrupt_mgmt.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+
+#include <def.h>
 
 #define SPP_PSXC_MMI_V2_0	U(6)
 #define SPP_PSXC_MMI_V3_0	U(8)
@@ -48,6 +53,14 @@ extern uint32_t plat_primary_cpu_core;
 
 extern uint32_t cpu_clock, platform_id, platform_version;
 extern uint32_t rtlversion, psversion, pmcversion;
+extern uint32_t idcode, version_type;
+
+static inline bool is_psxc(uint32_t chip_idcode)
+{
+	assert(idcode != 0U);
+	return ((idcode & PMC_TAP_IDCODE_MASK) == chip_idcode);
+}
+
 void board_detection(void);
 const char *board_name_decode(void);
 uint64_t smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,

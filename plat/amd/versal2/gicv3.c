@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,6 +72,18 @@ static const gicv3_driver_data_t _gic_data __unused = {
 	.mpidr_to_core_pos = _gicv3_mpidr_hash
 };
 
+static uintptr_t rdistif_base_addrs_2vm3654[PLATFORM_CORE_COUNT_2VM3654];
+
+static const gicv3_driver_data_t _gic_data_2vm3654 __unused = {
+	.gicd_base = PLAT_GICD_BASE_VALUE,
+	.gicr_base = PLAT_GICR_BASE_2VM3654,
+	.interrupt_props = _interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(_interrupt_props),
+	.rdistif_num = PLATFORM_CORE_COUNT_2VM3654,
+	.rdistif_base_addrs = rdistif_base_addrs_2vm3654,
+	.mpidr_to_core_pos = _gicv3_mpidr_hash
+};
+
 void __init plat_gic_driver_init(void)
 {
 	/*
@@ -81,7 +93,17 @@ void __init plat_gic_driver_init(void)
 	 * not need GIC interface base addresses to be configured.
 	 */
 #ifdef IMAGE_BL31
+#if VERSAL2_VARIANT == 42
 	gicv3_driver_init(&_gic_data);
+#elif VERSAL2_VARIANT == 14
+	gicv3_driver_init(&_gic_data_2vm3654);
+#else
+	if (is_psxc(PSXC_2VM3654_IDCODE)) {
+		gicv3_driver_init(&_gic_data_2vm3654);
+	} else {
+		gicv3_driver_init(&_gic_data);
+	}
+#endif
 #endif
 }
 

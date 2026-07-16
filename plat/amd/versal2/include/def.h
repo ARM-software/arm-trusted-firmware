@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,6 +50,10 @@
 # define RTL_VERSION			GENMASK(23U, 16U)
 # define PLATFORM_MASK			GENMASK(27U, 24U)
 # define PLATFORM_VERSION_MASK		GENMASK(31U, 28U)
+
+#define PMC_TAP_IDCODE_MASK		GENMASK_32(27U, 0U)
+#define PSXC_VSLGEN2_IDCODE		U(0x04DB0093)
+#define PSXC_2VM3654_IDCODE		U(0x04D98093)
 
 /* Global timer reset */
 #define PSX_CRF			U(0xEC200000)

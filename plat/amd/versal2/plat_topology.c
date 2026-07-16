@@ -23,17 +23,8 @@ uint32_t plat_primary_cpu_core = PLAT_INVALID_CPU_CORE;
 uint32_t plat_cluster_count = PLATFORM_CLUSTER_COUNT;
 uint32_t plat_cores_per_cluster = PLATFORM_CORE_COUNT_PER_CLUSTER;
 
-#if VERSAL2_VARIANT == 14
-static const uint8_t plat_power_domain_tree_desc[] = {
-	/* Number of root nodes */
-	1,
-	/* Number of clusters */
-	PLATFORM_CLUSTER_COUNT,
-	/* Number of children for the only cluster node */
-	PLATFORM_CORE_COUNT_PER_CLUSTER,
-};
-#elif VERSAL2_VARIANT == 42
-static const uint8_t plat_power_domain_tree_desc[] = {
+/* VSLGEN2 topology: 4 clusters, 2 cores each */
+static const uint8_t __unused plat_power_domain_tree_desc_vslgen2[] = {
 	/* Number of root nodes */
 	1,
 	/* Number of clusters */
@@ -47,9 +38,18 @@ static const uint8_t plat_power_domain_tree_desc[] = {
 	/* Number of children for the fourth cluster node */
 	PLATFORM_CORE_COUNT_PER_CLUSTER,
 };
-#endif
 
-#if VERSAL2_VARIANT == 42
+/* 2VM3654 topology: 1 cluster, 4 cores */
+static const uint8_t __unused plat_power_domain_tree_desc_2vm3654[] = {
+	/* Number of root nodes */
+	1,
+	/* Number of clusters */
+	PLATFORM_CLUSTER_COUNT_2VM3654,
+	/* Number of children for the only cluster node */
+	PLATFORM_CORE_COUNT_2VM3654,
+};
+
+#if (VERSAL2_VARIANT == 0)
 /* cluster and core updated at runtime */
 static uint8_t plat_power_domain_tree_dyn[PLATFORM_CLUSTER_COUNT + PLAT_PWR_DOMAIN_PREFIX_SIZE] = {0};
 
@@ -210,13 +210,19 @@ const uint8_t *plat_get_power_domain_tree_desc(void)
 {
 	const uint8_t *ret = NULL;
 
-#if VERSAL2_VARIANT == 14
-	ret = plat_power_domain_tree_desc;
-#elif VERSAL2_VARIANT == 42
+#if VERSAL2_VARIANT == 42
+	ret = plat_power_domain_tree_desc_vslgen2;
+#elif VERSAL2_VARIANT == 14
+	ret = plat_power_domain_tree_desc_2vm3654;
+#else
 	if (init_topology_from_dt() == 0) {
 		ret = plat_power_domain_tree_dyn;
+	} else if (is_psxc(PSXC_2VM3654_IDCODE)) {
+		plat_cluster_count = PLATFORM_CLUSTER_COUNT_2VM3654;
+		plat_cores_per_cluster = PLATFORM_CORE_COUNT_2VM3654;
+		ret = plat_power_domain_tree_desc_2vm3654;
 	} else {
-		ret = plat_power_domain_tree_desc;
+		ret = plat_power_domain_tree_desc_vslgen2;
 	}
 #endif
 
