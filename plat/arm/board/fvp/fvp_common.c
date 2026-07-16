@@ -608,16 +608,26 @@ int32_t plat_get_soc_name(char *soc_name)
 			plat_get_soc_revision());
 	return SMC_ARCH_CALL_SUCCESS;
 }
-#if ENABLE_RMM
 
+#if ENABLE_RMM
 /* BDF mappings for RP0 RC0 */
 static struct bdf_mapping_info rc0rp0_bdf_data[] = {
-	BDF_RANGE(0x0000U, 0x8000U, 0U, 0U),
+	/* BDF range [0x0000, 0x7FFF] (inclusive) */
+	{0U,		/* mapping_base */
+	 0x7FFFU,	/* mapping_top */
+	 0U,		/* mapping_off */
+	 0U		/* smmu_idx */
+	}
 };
 
 /* BDF mappings for RP1 RC0 */
 static struct bdf_mapping_info rc0rp1_bdf_data[] = {
-	BDF_RANGE(0x8000U, 0xFFFFU, 0U, 0U),
+	/* BDF range [0x8000, 0xFFFF] (inclusive) */
+	{0x8000U,	/* mapping_base */
+	 0xFFFFU,	/* mapping_top */
+	 0U,		/* mapping_off */
+	 0U		/* smmu_idx */
+	}
 };
 
 /* Root Port IDs for FVP */
