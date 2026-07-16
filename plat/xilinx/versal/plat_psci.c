@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -152,73 +152,6 @@ static void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
 }
 
 /**
- * versal_system_off() - This function sends the system off request to firmware.
- *                       This function does not return.
- *
- */
-static void __dead2 versal_system_off(void)
-{
-	/* Send the power down request to the PMC */
-	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
-				 pm_get_shutdown_scope(), NON_SECURE);
-
-	while (true) {
-		wfi();
-	}
-}
-
-/**
- * versal_system_reset() - This function sends the reset request to firmware
- *                         for the system to reset.  This function does not
- *			   return.
- *
- */
-static void __dead2 versal_system_reset(void)
-{
-	uint32_t ret, timeout = 10000U;
-
-	request_cpu_pwrdwn();
-
-	/*
-	 * Send the system reset request to the firmware if power down request
-	 * is not received from firmware.
-	 */
-	if (!pm_pwrdwn_req_status()) {
-		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-					 pm_get_shutdown_scope(), NON_SECURE);
-
-		/*
-		 * Wait for system shutdown request completed and idle callback
-		 * not received.
-		 */
-		do {
-			ret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
-						    apu_ipi.remote_ipi_id);
-			udelay(100);
-			timeout--;
-		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
-	}
-
-	(void)psci_cpu_off();
-
-	while (true) {
-		wfi();
-	}
-}
-
-static int32_t versal_validate_ns_entrypoint(uint64_t ns_entrypoint)
-{
-	int32_t ret = PSCI_E_SUCCESS;
-
-	if (((ns_entrypoint >= PLAT_DDR_LOWMEM_MAX) && (ns_entrypoint <= PLAT_DDR_HIGHMEM_MAX)) ||
-		((ns_entrypoint >= BL31_BASE) && (ns_entrypoint <= BL31_LIMIT))) {
-		ret = PSCI_E_INVALID_ADDRESS;
-	}
-
-	return ret;
-}
-
-/**
  * versal_pwr_domain_off() - This function performs actions to turn off core.
  * @target_state: Targated state.
  *
@@ -261,6 +194,106 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 					      NON_SECURE);
 		}
 	}
+}
+
+/**
+ * versal_system_off() - This function sends the system off request to firmware.
+ */
+static void versal_system_off(void)
+{
+	psci_power_state_t target_state;
+	uint32_t uret;
+	uint64_t timeout;
+	enum pm_ret_status ret;
+
+	request_cpu_pwrdwn();
+
+	/* Send the power down request to the PMC */
+	ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+				 pm_get_shutdown_scope(), NON_SECURE);
+
+	if (ret != PM_RET_SUCCESS) {
+		ERROR("System shutdown failed\n");
+	}
+
+	/*
+	 * Wait for system shutdown request completed and idle callback
+	 * not received.
+	 */
+	timeout = timeout_init_us(IDLE_CB_WAIT_TIMEOUT);
+	do {
+		uret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+					     apu_ipi.remote_ipi_id);
+		udelay(100);
+	} while ((uret != IPI_MB_STATUS_RECV_PENDING) && !timeout_elapsed(timeout));
+
+	if (uret != IPI_MB_STATUS_RECV_PENDING) {
+		WARN("Timed out waiting for system shutdown acknowledgment\n");
+	}
+
+	/*
+	 * Power off this core via the platform hook; the generic PSCI framework
+	 * completes the architectural power-down after this handler returns.
+	 */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+
+	versal_pwr_domain_off(&target_state);
+}
+
+/**
+ * versal_system_reset() - This function sends the reset request to firmware
+ *                         for the system to reset.
+ */
+static void versal_system_reset(void)
+{
+	psci_power_state_t target_state;
+	uint32_t ret, timeout = 10000U;
+
+	request_cpu_pwrdwn();
+
+	/*
+	 * Send the system reset request to the firmware if power down request
+	 * is not received from firmware.
+	 */
+	if (!pm_pwrdwn_req_status()) {
+		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
+					 pm_get_shutdown_scope(), NON_SECURE);
+
+		/*
+		 * Wait for system shutdown request completed and idle callback
+		 * not received.
+		 */
+		do {
+			ret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+						    apu_ipi.remote_ipi_id);
+			udelay(100);
+			timeout--;
+		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
+	}
+
+	/*
+	 * Power off this core via the platform hook; the generic PSCI framework
+	 * completes the architectural power-down after this handler returns.
+	 */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+
+	versal_pwr_domain_off(&target_state);
+}
+
+static int32_t versal_validate_ns_entrypoint(uint64_t ns_entrypoint)
+{
+	int32_t ret = PSCI_E_SUCCESS;
+
+	if (((ns_entrypoint >= PLAT_DDR_LOWMEM_MAX) && (ns_entrypoint <= PLAT_DDR_HIGHMEM_MAX)) ||
+		((ns_entrypoint >= BL31_BASE) && (ns_entrypoint <= BL31_LIMIT))) {
+		ret = PSCI_E_INVALID_ADDRESS;
+	}
+
+	return ret;
 }
 
 /**

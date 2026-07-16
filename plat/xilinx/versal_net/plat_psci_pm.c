@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -117,12 +117,10 @@ static int32_t versal_net_validate_ns_entrypoint(uint64_t ns_entrypoint)
  * versal_net_system_reset_scope() - Sends the reset request to firmware for
  * the system to reset.
  * @scope : scope of reset which could be SYSTEM/SUBSYSTEM/PS-ONLY
- *
- * Return:
- *     Does not return if system resets, none if there is a failure.
  */
-static void __dead2 versal_net_system_reset_scope(uint32_t scope)
+static void versal_net_system_reset_scope(uint32_t scope)
 {
+	psci_power_state_t target_state;
 	uint32_t ret, timeout = 10000U;
 
 	request_cpu_pwrdwn();
@@ -147,21 +145,22 @@ static void __dead2 versal_net_system_reset_scope(uint32_t scope)
 		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
 	}
 
-	(void)psci_cpu_off();
-
-	while (true) {
-		wfi();
+	/*
+	 * Power off this core via the platform hook; the generic PSCI framework
+	 * completes the architectural power-down after this handler returns.
+	 */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 	}
+
+	versal_net_pwr_domain_off(&target_state);
 }
 
 /**
  * versal_net_system_reset() - This function sends the reset request to firmware
- * for the system to reset in response to SYSTEM_RESET call
- *
- * Return:
- *     Does not return if system resets, none if there is a failure.
+ * for the system to reset in response to SYSTEM_RESET call.
  */
-static void __dead2 versal_net_system_reset(void)
+static void versal_net_system_reset(void)
 {
 	/*
 	 * Any platform-specific actions for handling a cold reset
@@ -181,9 +180,7 @@ static void __dead2 versal_net_system_reset(void)
  * This function initiates a controlled system reset by requesting it
  * through the PM firmware.
  *
- * Return:
- *	Does not return if system resets, PSCI_E_INTERN_FAIL
- *	if there is a failure.
+ * Return: PSCI_E_SUCCESS on successful reset request.
  */
 static int versal_net_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
 {
@@ -199,7 +196,8 @@ static int versal_net_system_reset2(int is_vendor, int reset_type, u_register_t 
 		versal_net_system_reset_scope(pm_get_shutdown_scope());
 	}
 
-	return PSCI_E_INTERN_FAIL;
+	/* Return success so framework calls psci_pwrdown_cpu_end_terminal() */
+	return PSCI_E_SUCCESS;
 }
 
 /**
@@ -281,18 +279,49 @@ exit_label:
 
 /**
  * versal_net_system_off() - This function sends the system off request
- *                           to firmware. This function does not return.
- *
+ *                           to firmware.
  */
-static void __dead2 versal_net_system_off(void)
+static void versal_net_system_off(void)
 {
+	psci_power_state_t target_state;
+	uint32_t uret;
+	uint64_t timeout;
+	enum pm_ret_status ret;
+
+	request_cpu_pwrdwn();
+
 	/* Send the power down request to the PMC */
-	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+	ret = pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
 				 pm_get_shutdown_scope(), NON_SECURE);
 
-	while (true) {
-		wfi();
+	if (ret != PM_RET_SUCCESS) {
+		ERROR("System shutdown failed\n");
 	}
+
+	/*
+	 * Wait for system shutdown request completed and idle callback
+	 * not received.
+	 */
+	timeout = timeout_init_us(IDLE_CB_WAIT_TIMEOUT);
+	do {
+		uret = ipi_mb_enquire_status(apu_ipi.local_ipi_id,
+					     apu_ipi.remote_ipi_id);
+		udelay(100);
+	} while ((uret != IPI_MB_STATUS_RECV_PENDING) && !timeout_elapsed(timeout));
+
+	if (uret != IPI_MB_STATUS_RECV_PENDING) {
+		WARN("Timed out waiting for system shutdown acknowledgment\n");
+	}
+
+	/*
+	 * Power off this core via the platform hook; the generic PSCI framework
+	 * completes the architectural power-down after this handler returns.
+	 */
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
+		target_state.pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+
+	versal_net_pwr_domain_off(&target_state);
 }
 
 /**

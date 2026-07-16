@@ -92,11 +92,8 @@ static void zynqmp_nopmu_pwr_domain_off(const psci_power_state_t *target_state)
 	plat_gic_cpuif_disable();
 }
 
-static void __dead2 zynqmp_nopmu_system_reset(void)
+static void zynqmp_nopmu_system_reset(void)
 {
-	while (ALWAYSTRUE) {
-		wfi();
-	}
 }
 
 static int32_t zynqmp_validate_ns_entrypoint(uint64_t ns_entrypoint)
@@ -118,11 +115,8 @@ static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	plat_gic_cpuif_enable();
 }
 
-static void __dead2 zynqmp_system_off(void)
+static void zynqmp_system_off(void)
 {
-	while (ALWAYSTRUE) {
-		wfi();
-	}
 }
 
 static int32_t zynqmp_validate_power_state(uint32_t power_state, psci_power_state_t *req_state)
