@@ -174,6 +174,10 @@ BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
 				${LIBFDT_SRCS} 				\
 				${FDT_WRAPPERS_SOURCES}
 endif
+
+ifneq (${ENABLE_FEAT_RNG_TRAP},0)
+BL31_SOURCES		+=	plat/qemu/qemu/qemu_sync_traps.c
+endif
 endif
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
