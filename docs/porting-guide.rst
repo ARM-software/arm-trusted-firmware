@@ -2456,7 +2456,7 @@ that the MECID fits within the common MECID width before calling this function.
 
 The function returns a FIRME status code. It should return ``FIRME_SUCCESS`` on
 success, or an appropriate negative FIRME error code such as
-``FIRME_INVALID_PARAMETERS``, ``FIRME_DENIED`` or ``FIRME_RETRY`` on failure.
+``FIRME_INVALID_PARAMETERS``, ``FIRME_DENIED`` or ``FIRME_BUSY`` on failure.
 
 This function needs to be implemented by a platform if it enables FIRME support
 and advertises the FIRME MECID management service.
