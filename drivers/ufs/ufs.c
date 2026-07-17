@@ -549,6 +549,7 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 	case QUERY_READ_DESC:
 		query_upiu->query_func = QUERY_FUNC_STD_READ;
 		query_upiu->ts.desc.length = htobe16(length);
+		utrd->size_resp_upiu = ALIGN_8(sizeof(query_resp_upiu_t) + length);
 		break;
 	case QUERY_WRITE_DESC:
 		query_upiu->query_func = QUERY_FUNC_STD_WRITE;
