@@ -87,7 +87,7 @@
 
 /* FIP placed after ROM to append it to BL1 with very little padding. */
 #define PLAT_RPI3_FIP_BASE		ULL(0x00020000)
-#define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x001E0000)
+#define PLAT_RPI3_FIP_MAX_SIZE	ULL(0x001E0000)
 
 /* We have 16M of memory reserved starting at 256M */
 #define SEC_SRAM_BASE			ULL(0x10000000)
@@ -103,9 +103,24 @@
 
 #if TRANSFER_LIST
 #define FW_NS_HANDOFF_BASE		NS_DRAM0_BASE
-#endif
+
+/* Define maximum size of sp manifest file. */
+#if defined(SPD_spmd)
+
+#define PLAT_RPI3_SPMC_SP_MANIFEST_SIZE	SZ_4K
+#define RPI3_SPMC_MANIFEST_LOAD_SIZE	SZ_4K
+#define PLAT_ARM_TB_FW_CONFIG_SIZE		UL(0x0)
+
+#else /* !SPD_spmd */
+
+#define PLAT_ARM_SPMC_SP_MANIFEST_SIZE	UL(0x0)
+#define RPI3_SPMC_MANIFEST_LOAD_SIZE	UL(0x0)
+#define PLAT_ARM_TB_FW_CONFIG_SIZE		UL(0x0)
+
+#endif /* SPD_spmd */
+#endif /* TRANSFER_LIST */
 /*
- * BL33 entrypoint.
+ * BL33 entrypoint (Must be aligned to 0x10000)
  */
 #define PLAT_RPI3_NS_IMAGE_OFFSET	NS_DRAM0_BASE + FW_HANDOFF_SIZE
 #define PLAT_RPI3_NS_IMAGE_MAX_SIZE	NS_DRAM0_SIZE - FW_HANDOFF_SIZE
@@ -214,7 +229,7 @@
 #if TRANSFER_LIST
 #define FW_HANDOFF_BASE			BL31_LIMIT
 #define FW_HANDOFF_LIMIT		(FW_HANDOFF_BASE + FW_HANDOFF_SIZE)
-#define FW_HANDOFF_SIZE			UL(0x1000)
+#define FW_HANDOFF_SIZE			SZ_8K
 #else
 #define FW_HANDOFF_SIZE			0
 #endif
@@ -228,12 +243,14 @@
 #define BL32_DRAM_BASE			SEC_DRAM0_BASE
 #define BL32_DRAM_LIMIT			(SEC_DRAM0_BASE + SEC_DRAM0_SIZE)
 
-#ifdef SPD_opteed
+#if defined(SPD_opteed) || defined(SPD_spmd)
+
 /* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
-#define RPI3_OPTEE_PAGEABLE_LOAD_SIZE	0x080000 /* 512KB */
+#define RPI3_OPTEE_PAGEABLE_LOAD_SIZE	SZ_512K
 #define RPI3_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - \
 					 RPI3_OPTEE_PAGEABLE_LOAD_SIZE)
-#endif
+
+#endif /* defined(SPD_opteed) || defined(SPD_spmd) */
 
 #define SEC_SRAM_ID			0
 #define SEC_DRAM_ID			1
@@ -263,7 +280,7 @@
 #define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 32)
 
-#define MAX_MMAP_REGIONS		8
+#define MAX_MMAP_REGIONS		12
 #define MAX_XLAT_TABLES			4
 
 #define MAX_IO_DEVICES			U(3)

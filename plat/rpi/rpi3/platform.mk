@@ -6,6 +6,7 @@
 
 include lib/libfdt/libfdt.mk
 include lib/xlat_tables_v2/xlat_tables.mk
+include common/fdt_wrappers.mk
 
 PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
 				-Iplat/rpi/rpi3/include			\
@@ -100,7 +101,6 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				plat/rpi/common/rpi3_io_storage.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
-				plat/common/plat_gicv2.c		\
 				plat/common/plat_psci_common.c		\
 				plat/rpi/rpi3/rpi3_bl31_setup.c		\
 				plat/rpi/common/rpi3_pm.c		\
@@ -223,6 +223,25 @@ endif
 ifeq (${SPD},opteed)
 BL2_SOURCES	+=							\
 		lib/optee/optee_utils.c
+endif
+
+ifeq (${SPD},spmd)
+
+ifeq ($(ARM_SPMC_MANIFEST_DTS),)
+ARM_SPMC_MANIFEST_DTS	:=	plat/rpi/rpi3/fdts/spmc_el1_partitions_manifest.dts
+endif
+
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c      \
+					${FDT_WRAPPERS_SOURCES}
+
+FDT_SOURCES		+=	${ARM_SPMC_MANIFEST_DTS}
+RPI3_TOS_FW_CONFIG	:=	\
+		${BUILD_PLAT}/fdts/$(notdir $(basename ${ARM_SPMC_MANIFEST_DTS})).dtb
+
+# Add the TOS_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${RPI3_TOS_FW_CONFIG},--tos-fw-config,${RPI3_TOS_FW_CONFIG}))
+
 endif
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
