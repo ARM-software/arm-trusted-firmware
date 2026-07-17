@@ -843,3 +843,6 @@ ENABLE_FEAT_IDTE3                       ?=      0
 
 # Flag to enable EL1 control register aliases and bitmasks (FEAT_SRMASK).
 ENABLE_FEAT_SRMASK			?=	0
+
+# Flag to enable reporting trace buffer events as profiling exceptions
+ENABLE_FEAT_TRBE_EXC			?=	0

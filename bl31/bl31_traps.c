@@ -242,9 +242,10 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el, u_regist
 	/* UINJ bit is unchanged */
 	new_spsr |= old_spsr & SPSR_UINJ_BIT;
 
-	/* If FEAT_EBEP is present set PM bit */
+	/* If FEAT_EBEP, FEAT_SPE_EXC, or TRBE_EXC are present, set PM bit */
 	new_spsr |= old_spsr & SPSR_PM_BIT_AARCH64;
-	if (is_feat_ebep_present()) {
+	if (is_feat_ebep_present() ||
+	    is_feat_spe_exc_present() || is_feat_trbe_exc_present()) {
 		new_spsr |= SPSR_PM_BIT_AARCH64;
 	}
 

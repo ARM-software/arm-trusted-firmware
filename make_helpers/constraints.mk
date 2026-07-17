@@ -387,6 +387,9 @@ ifeq (${ARCH},aarch32)
 	ifneq (${ENABLE_FEAT_SRMASK},0)
                 $(error "ENABLE_FEAT_SRMASK cannot be used with ARCH=aarch32")
 	endif
+	ifneq (${ENABLE_FEAT_TRBE_EXC},0)
+                $(error "ENABLE_FEAT_TRBE_EXC cannot be used with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
 
 ifneq (${ENABLE_FEAT_FPMR},0)
@@ -554,6 +557,12 @@ ifneq (${ENABLE_FEAT_BRBEV1P1},0)
                 $(error "ENABLE_FEAT_BRBEV1P1 requires ENABLE_BRBE_FOR_NS")
         endif
         $(warning ENABLE_FEAT_BRBEV1P1 is an experimental feature!)
+endif
+
+ifneq (${ENABLE_FEAT_TRBE_EXC},0)
+        ifeq (${ENABLE_FEAT_TRBE},0)
+                $(error "ENABLE_FEAT_TRBE_EXC requires ENABLE_FEAT_TRBE")
+        endif
 endif
 
 # Handle all deprecated build options.
