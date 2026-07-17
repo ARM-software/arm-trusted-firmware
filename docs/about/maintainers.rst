@@ -849,8 +849,8 @@ NXP SoC Part S32G274A and its platform port
 
 QEMU platform port
 ^^^^^^^^^^^^^^^^^^
-:|M|: Jens Wiklander <jens.wiklander@linaro.org>
-:|G|: `jenswi-linaro`_
+:|M|: Jens Wiklander <jens.wiklander@oss.qualcomm.com>
+:|G|: `jenswikl`_
 :|F|: docs/plat/qemu.rst
 :|F|: plat/qemu/
 
@@ -998,8 +998,8 @@ Secure Payloads and Dispatchers
 
 OP-TEE dispatcher
 ^^^^^^^^^^^^^^^^^
-:|M|: Jens Wiklander <jens.wiklander@linaro.org>
-:|G|: `jenswi-linaro`_
+:|M|: Jens Wiklander <jens.wiklander@oss.qualcomm.com>
+:|G|: `jenswikl`_
 :|F|: docs/components/spd/optee-dispatcher.rst
 :|F|: services/spd/opteed/
 
@@ -1139,7 +1139,7 @@ Conventional Changelog Extensions
 .. _javieralso-arm: https://github.com/javieralso-arm
 .. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
 .. _jcorbier: https://github.com/jcorbier
-.. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _jenswikl: https://github.com/jenswikl
 .. _jf549: https://github.com/jf549
 .. _JiafeiPan: https://github.com/JiafeiPan
 .. _joannafarley-arm: https://github.com/joannafarley-arm
