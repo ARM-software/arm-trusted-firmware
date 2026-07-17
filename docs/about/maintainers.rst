@@ -799,6 +799,13 @@ NXP SoC Part LX2160A and its platform port
 :|F|: plat/nxp/soc-lx2160a/lx2160aqds
 :|F|: plat/nxp/soc-lx2160a/lx2160ardb
 
+Freebox Nodebox
+^^^^^^^^^^^^^^^
+:|M|: Vincent Jardin <vjardin@free.fr>
+:|G|: `vjardin`_
+:|F|: plat/nxp/soc-lx2160a/nbxv3
+:|F|: docs/plat/nxp/nbxv3.rst
+
 NXP SoC Part LS1028A and its platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Jiafei Pan <jiafei.pan@nxp.com>
