@@ -16,7 +16,6 @@ endif
 include plat/st/common/common.mk
 
 ARM_CORTEX_A7		:=	yes
-ARM_WITH_NEON		:=	yes
 USE_COHERENT_MEM	:=	0
 
 # Default Device tree
@@ -91,10 +90,8 @@ endif
 PKA_USE_NIST_P256	?=	0
 PKA_USE_BRAINPOOL_P256T1 ?=	0
 
-ifeq ($(AARCH32_SP),sp_min)
-# Disable Neon support: sp_min runtime may conflict with non-secure world
+# Disable Neon support: runtime may conflict with non-secure world
 TF_CFLAGS		+=	-mfloat-abi=soft
-endif
 
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
