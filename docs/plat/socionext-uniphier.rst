@@ -85,7 +85,7 @@ Optional features
 
   To enable TBB, add the following options to the build command::
 
-      TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 MBEDTLS_DIR=<path-to-mbedtls>
+      TRUSTED_BOARD_BOOT=1 GENERATE_COT=1
 
 - System Control Processor (SCP)
 

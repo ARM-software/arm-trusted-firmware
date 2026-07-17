@@ -281,9 +281,7 @@ The following build options are supported:
   it. In order to use TBB, you might want to set ``GENERATE_COT=1`` to let the
   contents of the FIP automatically signed by the build process. The ROT key
   will be generated and output to ``rot_key.pem`` in the build directory. It is
-  able to set ROT_KEY to your own key in PEM format.  Also in order to build,
-  you need to clone mbed TLS from `here <https://github.com/ARMmbed/mbedtls>`__.
-  ``MBEDTLS_DIR`` must point at the mbed TLS source directory.
+  able to set ROT_KEY to your own key in PEM format.
 
 - ``ENABLE_STACK_PROTECTOR``: Disabled by default. It uses the hardware RNG of
   the board.

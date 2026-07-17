@@ -24,7 +24,7 @@ struct dyn_cfg_dtb_info_t {
 	 * memory (at config_addr) as well as in non-secure memory
 	 * - e.g. HW_CONFIG
 	 */
-	uintptr_t ns_config_addr;
+	uintptr_t secondary_config_addr;
 };
 
 unsigned int dyn_cfg_dtb_info_get_index(unsigned int config_id);
@@ -32,7 +32,7 @@ struct dyn_cfg_dtb_info_t *dyn_cfg_dtb_info_getter(unsigned int config_id);
 int fconf_populate_dtb_registry(uintptr_t config);
 
 /* Set config information in global DTB array */
-void set_config_info(uintptr_t config_addr, uintptr_t ns_config_addr,
+void set_config_info(uintptr_t config_addr, uintptr_t secondary_config_addr,
 		     uint32_t config_max_size,
 		     unsigned int config_id);
 

@@ -28,6 +28,9 @@ FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 # the FVP platform. This option defaults to 256.
 FVP_TRUSTED_SRAM_SIZE	:= 256
 
+# Enable passing the DT to BL33 in x0 by default.
+USE_KERNEL_DT_CONVENTION	:= 1
+
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
@@ -262,6 +265,25 @@ endif
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
 ifdef UNIX_MK
 FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
+
+FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
+$(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
+HW_CONFIG		:=	${FVP_HW_CONFIG}
+
+HW_CONFIG_BASE		?=	0x82000000
+
+# Set default initrd base 128MiB offset of the default kernel address in FVP
+INITRD_BASE		?=	0x90000000
+
+# Kernel base address supports Linux kernels before v5.7
+# DTB base 1MiB before normal base kernel address in FVP (0x88000000)
+ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
+    PRELOADED_BL33_BASE ?= 0x80080000
+    ifeq (${RESET_TO_BL31},1)
+        ARM_PRELOADED_DTB_BASE ?= 0x87F00000
+    endif
+endif
+
 FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp/fdts/,	\
 					${PLAT}_fw_config.dts		\
 					${PLAT}_tb_fw_config.dts	\
@@ -304,7 +326,6 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FVP_SOC_FW_CONFIG},--soc-fw-config,${FVP_SOC_FW
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_NT_FW_CONFIG},--nt-fw-config,${FVP_NT_FW_CONFIG}))
 
-FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
 
 # Add the HW_CONFIG to FIP and specify the same to certtool

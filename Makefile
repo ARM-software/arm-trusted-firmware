@@ -24,6 +24,8 @@ MAKE_HELPERS_DIRECTORY := make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
+MBEDTLS_DIR := contrib/mbed-tls
+
 ################################################################################
 # Default values for build configurations, and their dependencies
 ################################################################################
@@ -1077,6 +1079,7 @@ $(eval $(call assert_booleans,\
         TRUSTED_BOARD_BOOT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
+        USE_KERNEL_DT_CONVENTION \
         ARM_IO_IN_DTB \
         SDEI_IN_FCONF \
         SEC_INT_DESC_IN_FCONF \
@@ -1227,6 +1230,7 @@ $(eval $(call add_defines,\
 	ERRATA_NON_ARM_INTERCONNECT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
+        USE_KERNEL_DT_CONVENTION \
         ARM_IO_IN_DTB \
         SDEI_IN_FCONF \
         SEC_INT_DESC_IN_FCONF \
@@ -1269,6 +1273,7 @@ $(eval $(call add_defines,\
         TWED_DELAY \
         ENABLE_FEAT_TWED \
 	CONDITIONAL_CMO \
+        HW_CONFIG_BASE \
 )))
 
 ifeq (${SANITIZE_UB},trap)
@@ -1409,7 +1414,22 @@ endif
 # Expand build macros for the different images
 ifeq (${NEED_FDT},yes)
     $(eval $(call MAKE_DTBS,$(BUILD_PLAT)/fdts,$(FDT_SOURCES)))
-endif
+
+    ifneq (${INITRD_SIZE}${INITRD_PATH},)
+        ifndef INITRD_BASE
+            $(error INITRD_BASE must be set when inserting initrd properties to the DTB.)
+        endif
+
+        INITRD_SIZE ?= $(shell printf "0x%x\n" $$(stat -Lc %s $(INITRD_PATH)))
+        initrd_end = $(shell printf "0x%x\n" $$(expr $$(($(INITRD_BASE) + $(INITRD_SIZE)))))
+
+        define $(HW_CONFIG)-after +=
+            $(s)echo "  INITRD  $(HW_CONFIG)"
+            $(q)fdtput -t x $@ /chosen linux,initrd-start $(INITRD_BASE)
+            $(q)fdtput -t x $@ /chosen linux,initrd-end $(initrd_end)
+        endef
+    endif
+endif #(NEED_FDT)
 
 # Add Secure Partition packages
 ifeq (${NEED_SP_PKG},yes)

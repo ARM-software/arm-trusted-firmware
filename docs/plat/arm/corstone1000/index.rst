@@ -41,7 +41,6 @@ Build Procedure (TF-A only)
       SPD=spmd \
       SPMD_SPM_AT_SEL2=0 \
       DEBUG=1 \
-      MBEDTLS_DIR=mbedtls \
       OPENSSL_DIR=<path to openssl usr folder> \
       RUNTIME_SYSROOT=<path to the sysroot> \
       ARCH=aarch64 \
