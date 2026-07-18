@@ -3,6 +3,86 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.44](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.43..refs/tags/lts-v2.8.44) (2026-07-18)
+
+### ⚠ BREAKING CHANGES
+
+- **Build System**
+
+  - Mbed TLS is now included in the TF-A repository, and it
+      is no longer a requirement to pass `MBEDTLS_DIR` to the build system.
+      Please run `git submodule update --init --recursive` if you encounter
+      issues after migrating to the latest version of TF-A.
+
+
+    (cherry picked from commit bc9a699d9c2eb3d49945d66dc97f59311ee37794)
+    (cherry picked from commit 205bad1d718320f751e73ad158f6bb6619b1ecf7)
+
+    **See:** add Mbed TLS submodule ([63e3215](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/63e321558b9140556f8c14fe16891333539e0335))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - increase reserved DRAM1 mem for NS images ([4caaf6b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4caaf6bb2c28fe533d63c62a0b2fc3322aee5c45))
+
+  - **Marvell**
+
+    - provide a default compile target ([b8c8b3a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b8c8b3aba28cd1487e29df4b7d6d7b46f6c8ef01))
+
+    - **Armada**
+
+      - mv_ddr path may not be a git repo ([a9f43bb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a9f43bb50760d59eecca687bd09258469b5bab5d))
+
+      - **A8K**
+
+        - declare amb_memory_map as an array ([8eda154](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8eda1543f535b5c8528744769d332efebfcbbe9f))
+        - mv_ddr path may not be a git repo ([bab6976](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bab6976e68678ca45e538448ee4929c31c2329e6))
+
+- **Services**
+
+  - **FF-A**
+
+    - add NS memory node to fvp_spmc_optee_sp manifest ([c037569](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c037569fcc50bde95f7f2c1926558af3aaa31571))
+
+  - **SPM**
+
+    - add device-regions used in tf-a-tests ([950ad8d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/950ad8d8eb8017dcba26ba1e4c92e7c2d2d67075))
+    - change the SMMUv3TestEngine being used ([5d6ba54](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5d6ba544e21cb33b753f1346c688dae6c4d8d05a))
+
+### New Features
+
+- **common:** add support for kernel DT handoff convention ([c214e2f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c214e2f5a3c24694532bb9c90b1f5fe88e0cdb25))
+
+- **Platforms**
+
+  - **Arm**
+
+    - add initrd props to dtb at build time ([96b8511](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/96b85112833fc2808e4160010969e3412e762693))
+    - unify Linux kernel as BL33 handling ([9891862](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9891862319baa24ca536b612450105fc7ad102be))
+
+    - **FVP**
+
+      - define ns memory in the SPMC manifest ([c6b6e1c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c6b6e1c8158a935c303d960895b37065165e9045))
+      - enable kernel dt convention ([dcde3d3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dcde3d3beaaa240ef977da120cb8c526873e2c2e))
+      - give bootargs on all configs ([c7e2502](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7e250265f1fa3bf3a230abc9e315a3a366c326d))
+      - give bootargs on all configs ([970b6d9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/970b6d9e2e6a582cfeaa48fa83cc61be035dff57))
+      - set defaults for build commandline ([787e7db](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/787e7db3eb12e9be4e57afbb0c87566f03ee2ac3))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update mbedTLS to version 3.6.6 ([ae9ff80](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ae9ff807edf33c7cda8d87a9c82b2233a5eab198))
+
+- **Build System**
+
+  - add Mbed TLS submodule ([63e3215](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/63e321558b9140556f8c14fe16891333539e0335))
+
 ## [lts-2.8.43](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.42..refs/tags/lts-v2.8.43) (2026-02-06)
 
 ### Resolved Issues
