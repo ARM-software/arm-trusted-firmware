@@ -504,6 +504,7 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 	uint64_t image_pa;
 	uintptr_t image_va;
 	optee_image_t *curr_image;
+	uint32_t image_size;
 	uintptr_t target_va;
 	uint64_t target_size;
 	entry_point_info_t optee_ep_info;
@@ -544,10 +545,11 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 	}
 
 	curr_image = &image_header->optee_image_list[0];
+	image_size = curr_image->size;
 	image_pa = dual32to64(curr_image->load_addr_hi,
 			      curr_image->load_addr_lo);
 	image_va = image_pa;
-	target_end_pa = image_pa + curr_image->size;
+	target_end_pa = image_pa + image_size;
 
 	/* Now also map the memory we want to copy it to. */
 	target_pa = page_align(image_pa, DOWN);
@@ -562,9 +564,9 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 	}
 
 	INFO("Loaded OP-TEE via SMC: size %d addr 0x%" PRIx64 "\n",
-	     curr_image->size, image_va);
+	     image_size, image_va);
 
-	memcpy((void *)image_va, image_ptr, curr_image->size);
+	memcpy((void *)image_va, image_ptr, image_size);
 	flush_dcache_range(target_pa, target_size);
 
 	mmap_remove_dynamic_region(mapped_data_va, data_map_size);
