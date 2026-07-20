@@ -109,6 +109,12 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	/* Get a reference to this cpu's OPTEE context */
 	linear_id = plat_my_core_pos();
 	optee_ctx = &opteed_sp_context[linear_id];
+
+	if (get_optee_pstate(optee_ctx->state) ==
+	    OPTEE_PSTATE_UNKNOWN) {
+		opteed_cpu_on_finish_handler(0);
+	}
+
 	assert(&optee_ctx->cpu_ctx == cm_get_context(SECURE));
 
 	cm_set_elr_el3(SECURE, (uint64_t)&optee_vector_table->fiq_entry);
