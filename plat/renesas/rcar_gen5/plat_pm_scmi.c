@@ -199,6 +199,20 @@ void rcar_scmi_sys_suspend(void)
 	}
 }
 
+#if SET_SCMI_PARAM == 1
+static int rcar_scmi_protocol_init(scmi_channel_t *ch)
+{
+	int ret;
+
+	ret = scmi_pwr_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return scmi_sys_pwr_init(ch);
+}
+#endif
+
 void __init plat_rcar_scmi_setup(void)
 {
 	mailbox_mem_t *mbx_mem;
@@ -223,8 +237,8 @@ void __init plat_rcar_scmi_setup(void)
 	sscmi_channel.info = &scmi_plat_info;
 	sscmi_channel.lock = RCAR_SCMI_LOCK_GET_INSTANCE;
 
-#if (SET_SCMI_PARAM == 1)
-	scmi_handle = scmi_init(&sscmi_channel);
+#if SET_SCMI_PARAM == 1
+	scmi_handle = scmi_init(&sscmi_channel, rcar_scmi_protocol_init);
 
 	if (scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed on channel\n");

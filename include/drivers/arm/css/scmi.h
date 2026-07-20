@@ -160,8 +160,10 @@ typedef struct scmi_channel {
 	int is_initialized;
 } scmi_channel_t;
 
+typedef int (*scmi_protocol_init_fn_t)(scmi_channel_t *ch);
+
 /* External Common API */
-void *scmi_init(scmi_channel_t *ch);
+void *scmi_init(scmi_channel_t *ch, scmi_protocol_init_fn_t init_protocols);
 int scmi_proto_msg_attr(void *p, uint32_t proto_id, uint32_t command_id,
 						uint32_t *attr);
 int scmi_proto_version(void *p, uint32_t proto_id, uint32_t *version);

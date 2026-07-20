@@ -39,18 +39,26 @@ static scmi_channel_plat_info_t sq_scmi_plat_info = {
 		.ring_doorbell = &mu_ring_doorbell,
 };
 
+static int imx9_scmi_protocol_init(scmi_channel_t *ch)
+{
+	int ret;
+
+	ret = scmi_sys_pwr_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return scmi_core_init(ch);
+}
+
 void plat_imx9_scmi_setup(void)
 {
 	channel.info = &sq_scmi_plat_info;
 	channel.lock = IMX95_SCMI_LOCK_GET_INSTANCE;
-	imx9_scmi_handle = scmi_init(&channel);
+
+	imx9_scmi_handle = scmi_init(&channel, imx9_scmi_protocol_init);
 	if (imx9_scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed\n");
-		panic();
-	}
-
-	if (scmi_core_init(&channel) != 0) {
-		ERROR("SCMI AP core protocol initialization failed\n");
 		panic();
 	}
 }

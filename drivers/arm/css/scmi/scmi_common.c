@@ -174,13 +174,17 @@ int scmi_proto_msg_attr(void *p, uint32_t proto_id,
 }
 
 /*
- * SCMI Driver initialization API. Returns initialized channel on success
- * or NULL on error. The return type is an opaque void pointer.
+ * Initialize an SCMI channel.
+ *
+ * Initializes the SCMI channel provided by `ch`, with an optional callback
+ * responsible for initializing individual SCMI protocols. This callback is
+ * expected to retrun `0` on success, o a non-zero error code on failure.
+ *
+ * This function returns a handle to the initialized SCMI channel, or NULL if
+ * initialization failed for any reason.
  */
-void *scmi_init(scmi_channel_t *ch)
+void *scmi_init(scmi_channel_t *ch, scmi_protocol_init_fn_t init_protocols)
 {
-	int ret;
-
 	assert(ch && ch->info);
 	assert(ch->info->db_reg_addr);
 	assert(ch->info->db_modify_mask);
@@ -193,13 +197,7 @@ void *scmi_init(scmi_channel_t *ch)
 
 	ch->is_initialized = 1;
 
-	ret = scmi_pwr_init(ch);
-	if (ret != 0) {
-		goto error;
-	}
-
-	ret = scmi_sys_pwr_init(ch);
-	if (ret != 0) {
+	if ((init_protocols != NULL) && (init_protocols(ch) != 0)) {
 		goto error;
 	}
 

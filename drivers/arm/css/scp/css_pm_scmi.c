@@ -366,6 +366,30 @@ void css_scp_sys_reboot(void)
 	css_scp_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
+static int css_scmi_protocol_init(scmi_channel_t *ch)
+{
+	int ret;
+
+	ret = scmi_pwr_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = scmi_sys_pwr_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+
+#if PROGRAMMABLE_RESET_ADDRESS
+	ret = scmi_ap_core_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+
 void __init plat_arm_pwrc_setup(void)
 {
 	unsigned int composite_id, idx;
@@ -375,19 +399,14 @@ void __init plat_arm_pwrc_setup(void)
 
 		scmi_channels[idx].info = plat_css_get_scmi_info(idx);
 		scmi_channels[idx].lock = ARM_SCMI_LOCK_GET_INSTANCE;
-		scmi_handles[idx] = scmi_init(&scmi_channels[idx]);
+
+		scmi_handles[idx] =
+			scmi_init(&scmi_channels[idx], css_scmi_protocol_init);
 
 		if (scmi_handles[idx] == NULL) {
 			ERROR("SCMI Initialization failed on channel %d\n", idx);
 			panic();
 		}
-
-#if PROGRAMMABLE_RESET_ADDRESS
-		if (scmi_ap_core_init(&scmi_channels[idx]) != 0) {
-			ERROR("SCMI AP core protocol initialization failed\n");
-			panic();
-		}
-#endif
 	}
 
 	composite_id = plat_css_core_pos_to_scmi_dmn_id_map[plat_my_core_pos()];

@@ -199,22 +199,40 @@ void __dead2 sq_scmi_sys_reboot(void)
 	sq_scmi_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
+static int sq_scmi_protocol_init(scmi_channel_t *ch)
+{
+	int ret;
+
+	ret = scmi_pwr_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = scmi_sys_pwr_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+
+#if PROGRAMMABLE_RESET_ADDRESS
+	ret = scmi_ap_core_init(ch);
+	if (ret != 0) {
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+
 void __init plat_sq_pwrc_setup(void)
 {
 	channel.info = &sq_scmi_plat_info;
 	channel.lock = SQ_SCMI_LOCK_GET_INSTANCE;
-	sq_scmi_handle = scmi_init(&channel);
+
+	sq_scmi_handle = scmi_init(&channel, sq_scmi_protocol_init);
 	if (sq_scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed\n");
 		panic();
 	}
-
-#if PROGRAMMABLE_RESET_ADDRESS
-	if (scmi_ap_core_init(&channel) != 0) {
-		ERROR("SCMI AP core protocol initialization failed\n");
-		panic();
-	}
-#endif
 }
 
 uint32_t sq_scmi_get_draminfo(struct draminfo *info)
