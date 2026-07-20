@@ -43,12 +43,9 @@ gp_regs:
 		"x16", "x17", "x18", "x19", "x20", "x21", "x22",\
 		"x23", "x24", "x25", "x26", "x27", "x28", "x29", ""
 el3_sys_regs:
-	.asciz	"scr_el3", "sctlr_el3", "cptr_el3", "tcr_el3",\
-		"daif", "mair_el3", "spsr_el3", "elr_el3", "ttbr0_el3",\
-		"esr_el3", "far_el3", ""
-
-non_el3_sys_regs:
-	.asciz	"mpidr_el1", "sp_el0", "isr_el1", ""
+	.asciz	"elr_el3", "esr_el3", "mpidr_el1", "scr_el3", "tcr_el3",\
+		"daif", "mair_el3", "spsr_el3", "cptr_el3", "ttbr0_el3",\
+		"sctlr_el3", "far_el3", "sp_el0", "isr_el1", ""
 
 #if CTX_INCLUDE_AARCH32_REGS
 aarch32_regs:
@@ -371,28 +368,27 @@ do_crash_reporting:
 	stp	x28, x29, [x0, #REGSZ * 4]
 	bl	size_controlled_print
 
+	/* visually seperate GP and sys regs */
+	bl	asm_print_newline
+
 	/* Print the el3 sys registers */
 print_el3_sys_regs:
 	adr	x6, el3_sys_regs
-	mrs	x8, scr_el3
-	mrs	x9, sctlr_el3
-	mrs	x10, cptr_el3
-	mrs	x11, tcr_el3
+	mrs	x8, elr_el3
+	mrs	x9, esr_el3
+	mrs	x10, mpidr_el1
+	mrs	x11, scr_el3
 	mrs	x12, daif
 	mrs	x13, mair_el3
 	mrs	x14, spsr_el3
-	mrs	x15, elr_el3
+	mrs	x15, cptr_el3
 	bl	str_in_crash_buf_print
 	mrs	x8, ttbr0_el3
-	mrs	x9, esr_el3
+	mrs	x9, sctlr_el3
 	mrs	x10, far_el3
-	bl	str_in_crash_buf_print
-
-	/* Print the non el3 sys registers */
-	adr	x6, non_el3_sys_regs
-	mrs	x8, mpidr_el1
-	mrs	x9, sp_el0
-	mrs	x10, isr_el1
+	mrs	x11, tcr_el3
+	mrs	x12, sp_el0
+	mrs	x13, isr_el1
 	bl	str_in_crash_buf_print
 
 #if CTX_INCLUDE_AARCH32_REGS
