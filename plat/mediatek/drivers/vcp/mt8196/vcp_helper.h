@@ -10,8 +10,7 @@
 #define MTK_VCP_SRAM_SIZE		(0x60000)
 
 /* Export extern API */
-uint32_t get_mmup_fw_size(void);
-uint64_t get_mmup_l2tcm_offset(void);
+bool get_mmup_l2tcm_config(uint64_t *out_offset, uint32_t *out_size);
 
 /* SMC calls OPS */
 enum mtk_tinysys_vcp_kernel_op {
