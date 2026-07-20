@@ -516,7 +516,7 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 
 	mapped_data_pa = page_align(data_pa, DOWN);
 	mapped_data_va = mapped_data_pa;
-	data_map_size = page_align(data_size + (mapped_data_pa - data_pa), UP);
+	data_map_size = page_align(data_size + (data_pa - mapped_data_pa), UP);
 
 	/*
 	 * We do not validate the passed in address because we are trusting the
