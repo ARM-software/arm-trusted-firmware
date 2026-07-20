@@ -75,6 +75,25 @@ Security Advisories
 +-----------+------------------------------------------------------------------+
 |  |TFV-11| |  A Malformed SDEI SMC can cause out of bound memory read         |
 +-----------+------------------------------------------------------------------+
+|  |TFV-12| | When Hardware Page Aggregation (HPA) is enabled memory           |
+|           | accesses may be translated incorrectly.                          |
++-----------+------------------------------------------------------------------+
+|  |TFV-13| | An unprivileged context can trigger a data memory-dependent      |
+|           | prefetch engine to fetch the contents of a privileged location   |
+|           | and consume those contents as an address that is also            |
+|           | dereferenced.                                                    |
++-----------+------------------------------------------------------------------+
+|  |TFV-14| | BL1 FWU range-check mismatch in FWU_SMC_IMAGE_COPY can cause     |
+|           | out-of-range memory access.                                      |
++-----------+------------------------------------------------------------------+
+|  |TFV-15| | Insufficient validation of FIP ToC offsets in BL1/BL2 can        |
+|           | cause unintended reads and secure memory disclosure at boot.     |
++-----------+------------------------------------------------------------------+
+|  |TFV-16| | SME erratum in C1-Pro means memory accesses from the SME unit    |
+|           | can remain outstanding after another CPU issues TLBI+DSB         |
++-----------+------------------------------------------------------------------+
+|  |TFV-17| | TLBI+DSB might complete too early                                |
++-----------+------------------------------------------------------------------+
 
 .. _issue tracker: https://github.com/TrustedFirmware-A/trusted-firmware-a/issues
 .. _mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
@@ -90,9 +109,15 @@ Security Advisories
 .. |TFV-9| replace:: :ref:`Advisory TFV-9 (CVE-2022-23960)`
 .. |TFV-10| replace:: :ref:`Advisory TFV-10 (CVE-2022-47630)`
 .. |TFV-11| replace:: :ref:`Advisory TFV-11 (CVE-2023-49100)`
+.. |TFV-12| replace:: :ref:`Advisory TFV-12 (CVE-2024-5660)`
+.. |TFV-13| replace:: :ref:`Advisory TFV-13 (CVE-2024-7881)`
+.. |TFV-14| replace:: :ref:`Advisory TFV-14 (CVE-2026-34879)`
+.. |TFV-15| replace:: :ref:`Advisory TFV-15 (CVE-2026-34878)`
+.. |TFV-16| replace:: :ref:`Advisory TFV-16 (CVE-2026-0995)`
+.. |TFV-17| replace:: :ref:`Advisory TFV-17 (CVE-2025-10263)`
 
 .. _TrustedFirmware.org security incident process: https://trusted-firmware-docs.readthedocs.io/en/latest/security_center/
 
 --------------
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2026, Arm Limited. All rights reserved.*
