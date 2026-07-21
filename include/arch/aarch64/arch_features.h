@@ -94,7 +94,7 @@
 
 #define FEAT_TGRAN16K(gen)							\
 	gen(feat_tgran16K, id_aa64mmfr0_el1, FEAT_STATE_CHECKED,		\
-	    ID_AA64MMFR0_EL1_TGRAN16, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
+	    ID_AA64MMFR0_EL1_TGRAN16, 1U, 2U, FEAT_ENABLE_ALL_WORLDS)
 
 #define FEAT_AES(gen)								\
 	gen(feat_aes, id_aa64isar0_el1, ENABLE_FEAT_CRYPTO,			\
