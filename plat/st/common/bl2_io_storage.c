@@ -759,12 +759,28 @@ static void *stm32_get_image_spec(const struct efi_guid *img_type_guid)
 	return NULL;
 }
 
-void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
+/* Find and return the metadata entry for the FIP, or NULL if not found. */
+static const struct fwu_image_entry *stm32_get_fip_img_entry(const struct fwu_metadata *metadata)
 {
 	unsigned int i;
+	const struct efi_guid fip_type_guid = STM32MP_FIP_GUID;
+	const struct fwu_image_entry *img_entry = metadata->fw_desc.img_entry;
+	unsigned int num_entries = metadata->fw_desc.num_images;
+
+	for (i = 0U; i < num_entries; i++) {
+		if (guidcmp(&img_entry[i].img_type_guid, &fip_type_guid) == 0) {
+			return &img_entry[i];
+		}
+	}
+
+	return NULL;
+}
+
+void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
+{
 	uint32_t boot_idx;
 	const partition_entry_t *entry __maybe_unused;
-	const struct fwu_image_entry *img_entry;
+	const struct fwu_image_entry *fip_entry;
 	const void *img_type_guid;
 	const void *img_guid;
 	io_block_spec_t *image_spec;
@@ -774,61 +790,64 @@ void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 	assert(boot_idx < NR_OF_FW_BANKS);
 	VERBOSE("Selecting to boot from bank %u\n", boot_idx);
 
-	img_entry = (void *)&metadata->fw_desc.img_entry;
-	for (i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
-		img_type_guid = &img_entry[i].img_type_guid;
+	fip_entry = stm32_get_fip_img_entry(metadata);
+	if (fip_entry == NULL) {
+		ERROR("No FIP image type found in the FWU metadata\n");
+		panic();
+	}
 
-		img_guid = &img_entry[i].img_bank_info[boot_idx].img_guid;
+	img_type_guid = &fip_entry->img_type_guid;
+	img_guid = &fip_entry->img_bank_info[boot_idx].img_guid;
 
-		image_spec = stm32_get_image_spec(img_type_guid);
-		if (image_spec == NULL) {
-			ERROR("Unable to get image spec for the image in the metadata\n");
+	image_spec = stm32_get_image_spec(img_type_guid);
+	if (image_spec == NULL) {
+		ERROR("Unable to get image spec for the image in the metadata\n");
+		panic();
+	}
+
+	switch (boot_itf) {
+#if (STM32MP_SDMMC || STM32MP_EMMC)
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
+		entry = get_partition_entry_by_guid(img_guid);
+		if (entry == NULL) {
+			ERROR("No partition with the uuid mentioned in metadata\n");
 			panic();
 		}
 
-		switch (boot_itf) {
-#if (STM32MP_SDMMC || STM32MP_EMMC)
-		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
-		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
-			entry = get_partition_entry_by_guid(img_guid);
-			if (entry == NULL) {
-				ERROR("No partition with the uuid mentioned in metadata\n");
-				panic();
-			}
-
-			image_spec->offset = entry->start;
-			image_spec->length = entry->length;
-			break;
+		image_spec->offset = entry->start;
+		image_spec->length = entry->length;
+		break;
 #endif
 #if STM32MP_SPI_NOR
-		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_SPI:
-			if (guidcmp(img_guid, &STM32MP_NOR_FIP_A_GUID) == 0) {
-				image_spec->offset = STM32MP_NOR_FIP_A_OFFSET;
-			} else if (guidcmp(img_guid, &STM32MP_NOR_FIP_B_GUID) == 0) {
-				image_spec->offset = STM32MP_NOR_FIP_B_OFFSET;
-			} else {
-				ERROR("Invalid uuid mentioned in metadata\n");
-				panic();
-			}
-			break;
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_SPI:
+		if (guidcmp(img_guid, &STM32MP_NOR_FIP_A_GUID) == 0) {
+			image_spec->offset = STM32MP_NOR_FIP_A_OFFSET;
+		} else if (guidcmp(img_guid, &STM32MP_NOR_FIP_B_GUID) == 0) {
+			image_spec->offset = STM32MP_NOR_FIP_B_OFFSET;
+		} else {
+			ERROR("Invalid uuid mentioned in metadata\n");
+			panic();
+		}
+		break;
 #endif
 #if (STM32MP_RAW_NAND || STM32MP_SPI_NAND)
-		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
-		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_SPI:
-			if (guidcmp(img_guid, &STM32MP_NAND_FIP_A_GUID) == 0) {
-				image_spec->offset = STM32MP_NAND_FIP_A_OFFSET;
-			} else if (guidcmp(img_guid, &STM32MP_NAND_FIP_B_GUID) == 0) {
-				image_spec->offset = STM32MP_NAND_FIP_B_OFFSET;
-			} else {
-				ERROR("Invalid uuid mentioned in metadata\n");
-				panic();
-			}
-			break;
-#endif
-		default:
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_SPI:
+		if (guidcmp(img_guid, &STM32MP_NAND_FIP_A_GUID) == 0) {
+			image_spec->offset = STM32MP_NAND_FIP_A_OFFSET;
+		} else if (guidcmp(img_guid, &STM32MP_NAND_FIP_B_GUID) == 0) {
+			image_spec->offset = STM32MP_NAND_FIP_B_OFFSET;
+		} else {
+			ERROR("Invalid uuid mentioned in metadata\n");
 			panic();
-			break;
 		}
+		break;
+#endif
+	default:
+		ERROR("Unsupported boot interface selected\n");
+		panic();
+		break;
 	}
 }
 
