@@ -56,3 +56,7 @@ venv/
 
 # LLM helper output
 .codex
+
+# Nix flake output
+/result
+/result-*
