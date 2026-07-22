@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com/
  * k3low SoC specific bl31_setup
  *
  * SPDX-License-Identifier: BSD-3-Clause
