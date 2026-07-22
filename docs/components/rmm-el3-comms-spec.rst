@@ -1383,10 +1383,10 @@ for PCIe root port.
 +==============+========+==========+======================================================+
 | mapping_base |   0    | uint16_t | Base of BDF mapping (inclusive)                      |
 +--------------+--------+----------+------------------------------------------------------+
-| mapping_top  |   2    | uint16_t | Top of BDF mapping (exclusive)                       |
+| mapping_top  |   2    | uint16_t | Top of BDF mapping (inclusive)                       |
 +--------------+--------+----------+------------------------------------------------------+
 | mapping_off  |   4    | uint16_t | Mapping offset, as per Arm Base System Architecture: |
-|              |        |          | StreamID = RequesterID[N-1:0] + (1<<N)*Constant_B    |
+|              |        |          | StreamID = RequesterID[15:0] + (1<<16)*mapping_off   |
 +--------------+--------+----------+------------------------------------------------------+
 | smmu_idx     |   6    | uint16_t | SMMU index in 'smmu_info'[] array                    |
 +--------------+--------+----------+------------------------------------------------------+
