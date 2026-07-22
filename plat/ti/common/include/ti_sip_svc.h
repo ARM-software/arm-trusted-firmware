@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026, Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2026 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */

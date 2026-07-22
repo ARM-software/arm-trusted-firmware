@@ -2,7 +2,7 @@
  * Texas Instruments K3 Secure Proxy Driver
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018-2025 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2025 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
