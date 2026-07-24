@@ -26,6 +26,7 @@
 #include <common/runtime_svc.h>
 #include <lib/coreboot.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/el3_runtime/simd_ctx.h>
 #include <lib/optee_utils.h>
 #if TRANSFER_LIST
 #include <transfer_list.h>
@@ -102,6 +103,9 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	assert(handle == cm_get_context(NON_SECURE));
 
 	/* Save the non-secure context before entering the OPTEE */
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_save(NON_SECURE, false);
+#endif
 	cm_el1_sysregs_context_save(NON_SECURE);
 
 	/* Get a reference to this cpu's OPTEE context */
@@ -111,6 +115,9 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 
 	cm_set_elr_el3(SECURE, (uint64_t)&optee_vector_table->fiq_entry);
 	cm_el1_sysregs_context_restore(SECURE);
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_restore(SECURE);
+#endif
 	cm_set_next_eret_context(SECURE);
 
 	/*
@@ -685,6 +692,9 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		 */
 		assert(handle == cm_get_context(NON_SECURE));
 
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+		simd_ctx_save(NON_SECURE, false);
+#endif
 		cm_el1_sysregs_context_save(NON_SECURE);
 
 		/*
@@ -724,6 +734,9 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		}
 
 		cm_el1_sysregs_context_restore(SECURE);
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+		simd_ctx_restore(SECURE);
+#endif
 		cm_set_next_eret_context(SECURE);
 
 		write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
@@ -832,6 +845,9 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		 * and return to the non-secure state.
 		 */
 		assert(handle == cm_get_context(SECURE));
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+		simd_ctx_save(SECURE, false);
+#endif
 		cm_el1_sysregs_context_save(SECURE);
 
 		/* Get a reference to the non-secure context */
@@ -840,6 +856,9 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 
 		/* Restore non-secure state */
 		cm_el1_sysregs_context_restore(NON_SECURE);
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+		simd_ctx_restore(NON_SECURE);
+#endif
 		cm_set_next_eret_context(NON_SECURE);
 
 		SMC_RET4(ns_cpu_context, x1, x2, x3, x4);
@@ -849,6 +868,11 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 	 * should resume in the normal world.
 	 */
 	case TEESMC_OPTEED_RETURN_FIQ_DONE:
+		assert(handle == cm_get_context(SECURE));
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+		simd_ctx_save(SECURE, false);
+#endif
+
 		/* Get a reference to the non-secure context */
 		ns_cpu_context = cm_get_context(NON_SECURE);
 		assert(ns_cpu_context);
@@ -859,6 +883,9 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		 * to preserve it during S-EL1 interrupt handling.
 		 */
 		cm_el1_sysregs_context_restore(NON_SECURE);
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+		simd_ctx_restore(NON_SECURE);
+#endif
 		cm_set_next_eret_context(NON_SECURE);
 
 		SMC_RET0((uint64_t) ns_cpu_context);
