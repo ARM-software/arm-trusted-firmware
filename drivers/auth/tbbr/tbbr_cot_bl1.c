@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,7 +70,7 @@ static const auth_img_desc_t fwu_cert = {
 		[1] = {
 			.type_desc = &bl2u_hash,
 			.data = {
-				.ptr = (void *)tb_fw_hash_buf,
+				.ptr = (void *)bl2u_hash_buf,
 				.len = (unsigned int)HASH_DER_LEN
 			}
 		},

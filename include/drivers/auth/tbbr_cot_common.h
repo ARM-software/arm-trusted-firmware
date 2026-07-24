@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <drivers/auth/auth_mod.h>
 
 extern unsigned char tb_fw_hash_buf[HASH_DER_LEN];
+extern unsigned char bl2u_hash_buf[HASH_DER_LEN];
 extern unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 extern unsigned char nt_world_bl_hash_buf[HASH_DER_LEN];
 

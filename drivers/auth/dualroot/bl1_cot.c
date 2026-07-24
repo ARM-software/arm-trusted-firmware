@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,7 @@
  */
 static unsigned char fw_config_hash_buf[HASH_DER_LEN];
 static unsigned char tb_fw_hash_buf[HASH_DER_LEN];
+static unsigned char bl2u_hash_buf[HASH_DER_LEN];
 static unsigned char tb_fw_config_hash_buf[HASH_DER_LEN];
 static unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 static unsigned char nt_world_bl_hash_buf[HASH_DER_LEN];
@@ -170,7 +171,7 @@ static const auth_img_desc_t fwu_cert = {
 		[1] = {
 			.type_desc = &bl2u_hash,
 			.data = {
-				.ptr = (void *)tb_fw_hash_buf,
+				.ptr = (void *)bl2u_hash_buf,
 				.len = (unsigned int)HASH_DER_LEN
 			}
 		},
