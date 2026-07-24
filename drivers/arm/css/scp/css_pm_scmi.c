@@ -5,17 +5,19 @@
  */
 
 #include <assert.h>
+#include <stdbool.h>
 #include <string.h>
+
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
+#include <plat/common/platform.h>
+#include <platform_def.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_scp.h>
 #include <drivers/arm/css/scmi.h>
 #include <lib/mmio.h>
-#include <plat/arm/common/plat_arm.h>
-#include <plat/arm/css/common/css_pm.h>
-#include <plat/common/platform.h>
-#include <platform_def.h>
 
 /*
  * This file implements the SCP helper functions using SCMI protocol.
@@ -158,11 +160,11 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 
 	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
-	channel_id =
-		plat_css_core_pos_to_scmi_channel_id_map[plat_my_core_pos()];
+	channel_id = plat_css_core_pos_to_scmi_channel_id(
+		plat_my_core_pos(), SCMI_PWR_DMN_PROTO_ID);
 	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[plat_my_core_pos()];
-	ret = scmi_pwr_state_set(scmi_handles[channel_id],
-		domain_id, scmi_pwr_state);
+	ret = scmi_pwr_state_set(scmi_handles[channel_id], domain_id,
+				 scmi_pwr_state);
 
 	if (ret != SCMI_E_SUCCESS) {
 		ERROR("SCMI set power state command return 0x%x unexpected\n",
@@ -201,11 +203,11 @@ void css_scp_off(const struct psci_power_state *target_state)
 
 	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
-	channel_id =
-		plat_css_core_pos_to_scmi_channel_id_map[plat_my_core_pos()];
+	channel_id = plat_css_core_pos_to_scmi_channel_id(
+		plat_my_core_pos(), SCMI_PWR_DMN_PROTO_ID);
 	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[plat_my_core_pos()];
-	ret = scmi_pwr_state_set(scmi_handles[channel_id],
-		domain_id, scmi_pwr_state);
+	ret = scmi_pwr_state_set(scmi_handles[channel_id], domain_id,
+				 scmi_pwr_state);
 	if (ret != SCMI_E_QUEUED && ret != SCMI_E_SUCCESS) {
 		ERROR("SCMI set power state command return 0x%x unexpected\n",
 				ret);
@@ -232,10 +234,11 @@ void css_scp_on(u_register_t mpidr)
 	core_pos = (unsigned int)plat_core_pos_by_mpidr(mpidr);
 	assert(core_pos < PLATFORM_CORE_COUNT);
 
-	channel_id = plat_css_core_pos_to_scmi_channel_id_map[core_pos];
+	channel_id = plat_css_core_pos_to_scmi_channel_id(
+		core_pos, SCMI_PWR_DMN_PROTO_ID);
 	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[core_pos];
-	ret = scmi_pwr_state_set(scmi_handles[channel_id],
-		domain_id, scmi_pwr_state);
+	ret = scmi_pwr_state_set(scmi_handles[channel_id], domain_id,
+				 scmi_pwr_state);
 	if (ret != SCMI_E_QUEUED && ret != SCMI_E_SUCCESS) {
 		ERROR("SCMI set power state command return 0x%x unexpected\n",
 				ret);
@@ -264,10 +267,11 @@ int css_scp_get_power_state(u_register_t mpidr, unsigned int power_level)
 	cpu_idx = (unsigned int)plat_core_pos_by_mpidr(mpidr);
 	assert(cpu_idx < PLATFORM_CORE_COUNT);
 
-	channel_id = plat_css_core_pos_to_scmi_channel_id_map[cpu_idx];
+	channel_id = plat_css_core_pos_to_scmi_channel_id(
+		cpu_idx, SCMI_PWR_DMN_PROTO_ID);
 	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[cpu_idx];
-	ret = scmi_pwr_state_get(scmi_handles[channel_id],
-		domain_id, &scmi_pwr_state);
+	ret = scmi_pwr_state_get(scmi_handles[channel_id], domain_id,
+				 &scmi_pwr_state);
 
 	if (ret != SCMI_E_SUCCESS) {
 		WARN("SCMI get power state command return 0x%x unexpected\n",
@@ -354,24 +358,59 @@ void css_scp_sys_reboot(void)
 
 static int css_scmi_protocol_init(scmi_channel_t *ch)
 {
-	int ret;
+	struct scmi_protocol_init {
+		scmi_protocol_init_fn_t init;
+		uint32_t protocol_id;
+		bool matched;
+	};
 
-	ret = scmi_pwr_init(ch);
-	if (ret != 0) {
-		return ret;
-	}
-
-	ret = scmi_sys_pwr_init(ch);
-	if (ret != 0) {
-		return ret;
-	}
+	struct scmi_protocol_init protocols[] = {
+		{
+			.protocol_id = SCMI_PWR_DMN_PROTO_ID,
+			.init = scmi_pwr_init,
+		},
+		{
+			.protocol_id = SCMI_SYS_PWR_PROTO_ID,
+			.init = scmi_sys_pwr_init,
+		},
 
 #if PROGRAMMABLE_RESET_ADDRESS
-	ret = scmi_ap_core_init(ch);
-	if (ret != 0) {
-		return ret;
-	}
+		{
+			.protocol_id = SCMI_AP_CORE_PROTO_ID,
+			.init = scmi_ap_core_init,
+		},
 #endif
+	};
+
+	int ret;
+
+	size_t protocol_idx;
+	unsigned int core_pos;
+	unsigned int channel_id;
+
+	/* Discover protocols routed to this channel across all cores. */
+	for (protocol_idx = 0U; protocol_idx < ARRAY_SIZE(protocols);
+	     protocol_idx++) {
+		for (core_pos = 0U; core_pos < PLATFORM_CORE_COUNT;
+		     core_pos++) {
+			channel_id = plat_css_core_pos_to_scmi_channel_id(
+				core_pos, protocols[protocol_idx].protocol_id);
+			if (&scmi_channels[channel_id] == ch) {
+				protocols[protocol_idx].matched = true;
+			}
+		}
+	}
+
+	/* Initialize each routed protocol once for this channel. */
+	for (protocol_idx = 0U; protocol_idx < ARRAY_SIZE(protocols);
+	     protocol_idx++) {
+		if (protocols[protocol_idx].matched) {
+			ret = protocols[protocol_idx].init(ch);
+			if (ret != 0) {
+				return ret;
+			}
+		}
+	}
 
 	return 0;
 }
@@ -395,8 +434,8 @@ void __init plat_arm_pwrc_setup(void)
 		}
 	}
 
-	default_scmi_channel_id =
-		plat_css_core_pos_to_scmi_channel_id_map[plat_my_core_pos()];
+	default_scmi_channel_id = plat_css_core_pos_to_scmi_channel_id(
+		plat_my_core_pos(), SCMI_SYS_PWR_PROTO_ID);
 }
 
 /******************************************************************************
@@ -408,7 +447,8 @@ const plat_psci_ops_t *css_scmi_override_pm_ops(plat_psci_ops_t *ops)
 {
 	uint32_t msg_attr;
 	int ret;
-	void *scmi_handle = scmi_handles[default_scmi_channel_id];
+	void *scmi_handle = scmi_handles[plat_css_core_pos_to_scmi_channel_id(
+		plat_my_core_pos(), SCMI_PWR_DMN_PROTO_ID)];
 
 	assert(scmi_handle);
 
@@ -428,6 +468,8 @@ const plat_psci_ops_t *css_scmi_override_pm_ops(plat_psci_ops_t *ops)
 				SCMI_PWR_STATE_GET_MSG, &msg_attr);
 	if (ret != SCMI_E_SUCCESS)
 		ops->get_node_hw_state = NULL;
+
+	scmi_handle = scmi_handles[default_scmi_channel_id];
 
 	/* Check if the SCMI SYSTEM_POWER_STATE_SET message is supported */
 	ret = scmi_proto_msg_attr(scmi_handle, SCMI_SYS_PWR_PROTO_ID,
@@ -469,13 +511,30 @@ int css_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
 #if PROGRAMMABLE_RESET_ADDRESS
 void plat_arm_program_trusted_mailbox(uintptr_t address)
 {
-	int ret, i;
+	int ret;
 
-	for (i = 0; i < PLAT_ARM_SCMI_CHANNEL_COUNT; i++) {
-		assert(scmi_handles[i]);
+	unsigned int channel_id, core_pos;
+	bool routed_channels[PLAT_ARM_SCMI_CHANNEL_COUNT] = { false };
 
-		ret = scmi_ap_core_set_reset_addr(scmi_handles[i], address,
-				SCMI_AP_CORE_LOCK_ATTR);
+	/* Discover AP Core channels routed across all cores. */
+	for (core_pos = 0U; core_pos < PLATFORM_CORE_COUNT; core_pos++) {
+		channel_id = plat_css_core_pos_to_scmi_channel_id(
+			core_pos, SCMI_AP_CORE_PROTO_ID);
+		routed_channels[channel_id] = true;
+	}
+
+	/* Program the reset address once for each routed channel. */
+	for (channel_id = 0U; channel_id < PLAT_ARM_SCMI_CHANNEL_COUNT;
+	     channel_id++) {
+		if (!routed_channels[channel_id]) {
+			continue;
+		}
+
+		assert(scmi_handles[channel_id]);
+
+		ret = scmi_ap_core_set_reset_addr(scmi_handles[channel_id],
+						  address,
+						  SCMI_AP_CORE_LOCK_ATTR);
 		if (ret != SCMI_E_SUCCESS) {
 			ERROR("CSS: Failed to program reset address: %d\n", ret);
 			panic();

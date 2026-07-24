@@ -77,24 +77,12 @@ const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
 };
 #endif
 
+unsigned int plat_css_core_pos_to_scmi_channel_id(unsigned int core_pos,
+						  uint32_t protocol_id __unused)
+{
 #if NRD_PLATFORM_VARIANT == 2
-const uint32_t plat_css_core_pos_to_scmi_channel_id_map[] = {
-	0x0, 0x0, 0x0, 0x0,
-
-#if NRD_CHIP_COUNT > 1
-	0x1, 0x1, 0x1, 0x1,
-#endif
-
-#if NRD_CHIP_COUNT > 2
-	0x2, 0x2, 0x2, 0x2,
-#endif
-
-#if NRD_CHIP_COUNT > 3
-	0x3, 0x3, 0x3, 0x3,
-#endif
-};
+	return core_pos / (PLATFORM_CORE_COUNT / NRD_CHIP_COUNT);
 #else
-const uint32_t plat_css_core_pos_to_scmi_channel_id_map[PLATFORM_CORE_COUNT] = {
-	0
-};
+	return 0U;
 #endif
+}

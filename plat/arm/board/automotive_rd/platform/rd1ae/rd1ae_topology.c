@@ -50,9 +50,12 @@ const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
 	0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF,
 };
 
-const uint32_t plat_css_core_pos_to_scmi_channel_id_map[PLATFORM_CORE_COUNT] = {
-	0
-};
+unsigned int
+plat_css_core_pos_to_scmi_channel_id(unsigned int core_pos __unused,
+				     uint32_t protocol_id __unused)
+{
+	return 0U;
+}
 
 unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
 {

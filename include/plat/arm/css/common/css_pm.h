@@ -50,7 +50,8 @@ int css_reboot_interrupt_handler(uint32_t intr_raw, uint32_t flags,
  */
 extern const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[];
 
-/* This mapping array has to be exported by the platform. */
-extern const uint32_t plat_css_core_pos_to_scmi_channel_id_map[];
+/* This mapping function has to be exported by the platform. */
+unsigned int plat_css_core_pos_to_scmi_channel_id(unsigned int core_pos,
+						  uint32_t protocol_id);
 
 #endif /* CSS_PM_H */
