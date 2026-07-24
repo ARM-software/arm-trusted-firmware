@@ -47,6 +47,15 @@ Performing an Initial Build
 
        make CC=<path-to-clang>/bin/clang PLAT=<platform> all
 
+   Arm Toolchain for Embedded (ATfE) is also supported as an LLVM Clang
+   distribution. It provides the LLVM linker and binary utilities, so
+   ``CROSS_COMPILE`` need not be set when using ATfE. Point ``CC`` at the
+   ATfE ``clang`` executable in the same way as for LLVM Clang:
+
+   .. code:: shell
+
+       make CC=<path-to-atfe>/bin/clang PLAT=<platform> all
+
 -  Change to the root directory of the TF-A source tree and build.
 
    For AArch64:
@@ -115,4 +124,4 @@ Performing an Initial Build
 
 --------------
 
-*Copyright (c) 2020-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2026, Arm Limited. All rights reserved.*
