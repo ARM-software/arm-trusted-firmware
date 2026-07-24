@@ -12,30 +12,16 @@
 #ifdef MT8196_VCORE_SUPPORT
 #define VCORE_BASE_UV		0
 #define VCORE_STEP_UV		6250
-
-/* PMIC */
-#define VCORE_PMIC_TO_UV(pmic)	\
-	(((pmic) * VCORE_STEP_UV) + VCORE_BASE_UV)
-#define VCORE_UV_TO_PMIC(uv)	/* pmic >= uv */	\
-	((((uv) - VCORE_BASE_UV) + (VCORE_STEP_UV - 1)) / VCORE_STEP_UV)
 #else
 #define VCORE_BASE_UV		0
 #define VCORE_STEP_UV		5000
+#endif
 
 /* PMIC */
 #define VCORE_PMIC_TO_UV(pmic)	\
 	(((pmic) * VCORE_STEP_UV) + VCORE_BASE_UV)
 #define VCORE_UV_TO_PMIC(uv)	/* pmic >= uv */	\
 	((((uv) - VCORE_BASE_UV) + (VCORE_STEP_UV - 1)) / VCORE_STEP_UV)
-
-#ifndef v_min
-#define v_min(a, b)	MIN(a, b)
-#endif
-
-#ifndef v_max
-#define v_max(a, b)	MAZ(a, b)
-#endif
-#endif
 
 #define VCORE_VB_INFO0	(EFUSEC_BASE + 0xD24)
 #define VCORE_VB_INFO1	(EFUSEC_BASE + 0xD28)

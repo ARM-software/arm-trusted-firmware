@@ -19,8 +19,8 @@
 #define VCOREFS_E_SPMFW_NOT_READY	0
 
 #define TAG				"vcorefs: "
-#define v_min(a, b)	MAX(a, b)
-#define v_max(a, b)	MIN(a, b)
+#define v_min(a, b)	MIN(a, b)
+#define v_max(a, b)	MAX(a, b)
 
 /*******************************************************************
  *
