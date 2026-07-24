@@ -61,18 +61,8 @@ workaround_reset_start cortex_a75, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a75, CVE(2017, 5715)
 
-check_erratum_custom_start cortex_a75, CVE(2017, 5715)
-	cpu_check_csv2	x0, 1f
-#if WORKAROUND_CVE_2017_5715
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-check_erratum_custom_end cortex_a75, CVE(2017, 5715)
+/* r3p0 implements FEAT_CSV2 */
+check_erratum_ls cortex_a75, CVE(2017, 5715), CPU_REV(3, 0)
 
 workaround_reset_start cortex_a75, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 	sysreg_bit_set CORTEX_A75_CPUACTLR_EL1, CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE

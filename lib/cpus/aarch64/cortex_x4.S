@@ -35,6 +35,40 @@ add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
 
 check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(2302507), ERRATA_X4_2302507
+	sysreg_bit_set CORTEX_X4_CPUACTLR2_EL1, BIT(0)
+workaround_reset_end cortex_x4, ERRATUM(2302507)
+
+check_erratum_ls cortex_x4, ERRATUM(2302507), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x4, ERRATUM(2620954), ERRATA_X4_2620954
+	ldr x0, =0x0
+	msr s3_6_c15_c8_0, x0
+	ldr x0, =0xD5030020
+	msr s3_6_c15_c8_2, x0
+	ldr x0, =0xFFFFCFA0
+	msr s3_6_c15_c8_3, x0
+	ldr x0, =0x40000004003FF
+	msr s3_6_c15_c8_1, x0
+workaround_reset_end cortex_x4, ERRATUM(2620954)
+
+check_erratum_ls cortex_x4, ERRATUM(2620954), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x4, ERRATUM(2631888), ERRATA_X4_2631888
+	sysreg_bit_set CORTEX_X4_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x4, ERRATUM(2631888)
+
+check_erratum_ls cortex_x4, ERRATUM(2631888), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x4, ERRATUM(2646977), ERRATA_X4_2646977
+	sysreg_bitfield_insert CORTEX_X4_CPUACTLR5_EL1, \
+	CORTEX_X4_CPUACTLR5_EL1_BIT_55, \
+	CORTEX_X4_CPUACTLR5_EL1_BIT_55_SHIFT, \
+	CORTEX_X4_CPUACTLR5_EL1_BIT_55_WIDTH
+workaround_reset_end cortex_x4, ERRATUM(2646977)
+
+check_erratum_ls cortex_x4, ERRATUM(2646977), CPU_REV(0, 0)
+
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
 	dsb	sy
@@ -119,6 +153,12 @@ add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
 
 check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 
+workaround_reset_start cortex_x4, ERRATUM(3841338), ERRATA_X4_3841338
+	sysreg_bit_set CORTEX_X4_CPUACTLR_EL1, BIT(1)
+workaround_reset_end cortex_x4, ERRATUM(3841338)
+
+check_erratum_ls cortex_x4, ERRATUM(3841338), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x4, ERRATUM(3887999), ERRATA_X4_3887999
 	sysreg_bit_set CORTEX_X4_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end cortex_x4, ERRATUM(3887999)
@@ -168,6 +208,9 @@ func cortex_x4_impl_defined_el3_handler
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc cortex_x4_impl_defined_el3_handler
 #endif
+
+add_erratum_entry cortex_x4, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen cortex_x4, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 cpu_reset_func_start cortex_x4
 	/* Disable speculative loads */

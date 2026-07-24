@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -35,6 +36,7 @@
 
 typedef struct {
 	unsigned int file_pos;
+	size_t fip_size;
 	fip_toc_entry_t entry;
 } fip_file_state_t;
 
@@ -46,6 +48,7 @@ typedef struct {
  */
 typedef struct {
 	uintptr_t dev_spec;
+	size_t fip_size;
 	uint16_t plat_toc_flag;
 } fip_dev_state_t;
 
@@ -245,9 +248,27 @@ static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params)
 		goto fip_dev_init_exit;
 	}
 
+	result = io_size(backend_handle, &state->fip_size);
+	if (result != 0) {
+		ERROR("Failed to determine FIP size (%i)\n", result);
+		result = -EIO;
+		goto fip_dev_init_close;
+	}
+
+	if (state->fip_size < sizeof(fip_toc_header_t)) {
+		ERROR("FIP size too small (%zu)\n", state->fip_size);
+		result = -EINVAL;
+		goto fip_dev_init_close;
+	}
+
 	result = io_read(backend_handle, (uintptr_t)&header, sizeof(header),
 			&bytes_read);
 	if (result == 0) {
+		if (bytes_read != sizeof(header)) {
+			ERROR("Short read on FIP header\n");
+			result = -EIO;
+			goto fip_dev_init_close;
+		}
 		if (!is_valid_header(&header)) {
 			WARN("Firmware Image Package header check failed.\n");
 			result = -ENOENT;
@@ -261,6 +282,7 @@ static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params)
 		}
 	}
 
+fip_dev_init_close:
 	io_close(backend_handle);
 
  fip_dev_init_exit:
@@ -289,10 +311,25 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	const io_uuid_spec_t *uuid_spec = (io_uuid_spec_t *)spec;
 	static const uuid_t uuid_null = { {0} }; /* Double braces for clang */
 	size_t bytes_read;
+	size_t toc_offset;
+	size_t fip_size;
 	int found_file = 0;
+	fip_dev_state_t *state;
 
 	assert(uuid_spec != NULL);
 	assert(entity != NULL);
+	assert(dev_info != NULL);
+
+	state = (fip_dev_state_t *)dev_info->info;
+	fip_size = state->fip_size;
+	if (fip_size == 0U) {
+		ERROR("FIP size unknown\n");
+		return -EINVAL;
+	}
+	if (fip_size < (sizeof(fip_toc_header_t) + sizeof(fip_toc_entry_t))) {
+		ERROR("FIP size too small for ToC\n");
+		return -EINVAL;
+	}
 
 	/* Can only have one file open at a time for the moment. We need to
 	 * track state like file cursor position. We know the header lives at
@@ -324,12 +361,24 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	}
 
 	found_file = 0;
+	toc_offset = sizeof(fip_toc_header_t);
 	do {
+		if (toc_offset > (fip_size - sizeof(current_fip_file.entry))) {
+			ERROR("FIP ToC out of bounds\n");
+			result = -EINVAL;
+			goto fip_file_open_close;
+		}
+
 		result = io_read(backend_handle,
 				 (uintptr_t)&current_fip_file.entry,
 				 sizeof(current_fip_file.entry),
 				 &bytes_read);
 		if (result == 0) {
+			if (bytes_read != sizeof(current_fip_file.entry)) {
+				ERROR("Short read on FIP ToC entry\n");
+				result = -EIO;
+				goto fip_file_open_close;
+			}
 			if (compare_uuids(&current_fip_file.entry.uuid,
 					  &uuid_spec->uuid) == 0) {
 				found_file = 1;
@@ -338,16 +387,40 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			WARN("Failed to read FIP (%i)\n", result);
 			goto fip_file_open_close;
 		}
+
+		toc_offset += sizeof(current_fip_file.entry);
 	} while ((found_file == 0) &&
 			(compare_uuids(&current_fip_file.entry.uuid,
 				&uuid_null) != 0));
 
 	if (found_file == 1) {
+		uint64_t offset;
+		uint64_t size;
+		uint64_t fip_size64;
+
+		offset = current_fip_file.entry.offset_address;
+		size = current_fip_file.entry.size;
+		fip_size64 = (uint64_t)fip_size;
+
+		if ((size == 0U) ||
+		    (offset >= fip_size64) ||
+		    (size > fip_size64) ||
+		    (offset + size < offset) ||
+		    (offset + size > fip_size64) ||
+		    (offset > (uint64_t)SIZE_MAX) ||
+		    (size > (uint64_t)SIZE_MAX) ||
+		    (offset + size > (uint64_t)SIZE_MAX)) {
+			ERROR("FIP entry bounds invalid\n");
+			result = -EINVAL;
+			goto fip_file_open_close;
+		}
+
 		/* All fine. Update entity info with file state and return. Set
 		 * the file position to 0. The 'current_fip_file.entry' holds
 		 * the base and size of the file.
 		 */
 		current_fip_file.file_pos = 0;
+		current_fip_file.fip_size = fip_size;
 		entity->info = (uintptr_t)&current_fip_file;
 	} else {
 		/* Did not find the file in the FIP. */
@@ -359,6 +432,9 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	io_close(backend_handle);
 
  fip_file_open_exit:
+	if (result != 0) {
+		zeromem(&current_fip_file, sizeof(current_fip_file));
+	}
 	return result;
 }
 
@@ -381,9 +457,11 @@ static int fip_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 {
 	int result;
 	fip_file_state_t *fp;
-	size_t file_offset;
 	size_t bytes_read;
 	uintptr_t backend_handle;
+	size_t remaining;
+	uint64_t fip_size64;
+	uint64_t file_offset64;
 
 	assert(entity != NULL);
 	assert(length_read != NULL);
@@ -400,10 +478,33 @@ static int fip_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 
 	fp = (fip_file_state_t *)entity->info;
 
+	if (fp->file_pos > fp->entry.size) {
+		ERROR("FIP read: file position out of bounds\n");
+		result = -EINVAL;
+		goto fip_file_read_close;
+	}
+
+	remaining = (size_t)(fp->entry.size - fp->file_pos);
+	if (length > remaining) {
+		ERROR("FIP read: length out of bounds\n");
+		result = -EINVAL;
+		goto fip_file_read_close;
+	}
+
+	fip_size64 = (uint64_t)fp->fip_size;
+	file_offset64 = fp->entry.offset_address + fp->file_pos;
+	if ((file_offset64 < fp->entry.offset_address) ||
+	    (file_offset64 + length < file_offset64) ||
+	    (file_offset64 + length > fip_size64) ||
+	    (file_offset64 > (uint64_t)LLONG_MAX)) {
+		ERROR("FIP read: offset out of bounds\n");
+		result = -EINVAL;
+		goto fip_file_read_close;
+	}
+
 	/* Seek to the position in the FIP where the payload lives */
-	file_offset = fp->entry.offset_address + fp->file_pos;
 	result = io_seek(backend_handle, IO_SEEK_SET,
-			 (signed long long)file_offset);
+			 (signed long long)file_offset64);
 	if (result != 0) {
 		WARN("fip_file_read: failed to seek\n");
 		result = -ENOENT;
@@ -415,6 +516,10 @@ static int fip_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		/* We cannot read our data. Fail. */
 		WARN("Failed to read payload (%i)\n", result);
 		result = -ENOENT;
+		goto fip_file_read_close;
+	} else if (bytes_read != length) {
+		ERROR("Short read on FIP payload\n");
+		result = -EIO;
 		goto fip_file_read_close;
 	} else {
 		/* Set caller length and new file position. */

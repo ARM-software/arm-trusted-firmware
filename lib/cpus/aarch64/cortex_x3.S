@@ -33,6 +33,39 @@
 
 cpu_reset_prologue cortex_x3
 
+workaround_reset_start cortex_x3, ERRATUM(2138930), ERRATA_X3_2138930
+	sysreg_bit_set CORTEX_X3_CPUACTLR5_EL1, BIT(44)
+workaround_reset_end cortex_x3, ERRATUM(2138930)
+
+check_erratum_ls cortex_x3, ERRATUM(2138930), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x3, ERRATUM(2147714), ERRATA_X3_2147714
+	sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
+workaround_reset_end cortex_x3, ERRATUM(2147714)
+
+check_erratum_ls cortex_x3, ERRATUM(2147714), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x3, ERRATUM(2184829), ERRATA_X3_2184829
+	sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(14)
+workaround_reset_end cortex_x3, ERRATUM(2184829)
+
+check_erratum_ls cortex_x3, ERRATUM(2184829), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x3, ERRATUM(2214778), ERRATA_X3_2214778
+	sysreg_bit_set CORTEX_X3_CPUACTLR5_EL1, BIT(17)
+
+	ldr x0, =0x0
+	msr S3_6_C15_C8_0, x0
+	ldr x0, =0x005400000E
+	msr S3_6_C15_C8_2, x0
+	ldr x0, =0x00FF00001E
+	msr S3_6_C15_C8_3, x0
+	ldr x0, =0x80000000003FF
+	msr S3_6_C15_C8_1, x0
+workaround_reset_end cortex_x3, ERRATUM(2214778)
+
+check_erratum_ls cortex_x3, ERRATUM(2214778), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x3, ERRATUM(2266875), ERRATA_X3_2266875
         sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
 workaround_reset_end cortex_x3, ERRATUM(2266875)
@@ -146,7 +179,7 @@ workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X3_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_x3, CVE(2024, 5660)
 
-check_erratum_ls cortex_x3, CVE(2024, 5660), CPU_REV(1, 2)
+check_erratum_chosen cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 	/* --------------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for Cortex-X3 using erratum 3692984
@@ -184,6 +217,9 @@ func cortex_x3_impl_defined_el3_handler
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc cortex_x3_impl_defined_el3_handler
 #endif
+
+add_erratum_entry cortex_x3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen cortex_x3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 cpu_reset_func_start cortex_x3
 	/* Disable speculative loads */

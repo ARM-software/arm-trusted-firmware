@@ -34,6 +34,36 @@
 
 cpu_reset_prologue cortex_x2
 
+workaround_reset_start cortex_x2, ERRATUM(1785648), ERRATA_X2_1785648
+	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, BIT(2)
+workaround_reset_end cortex_x2, ERRATUM(1785648)
+
+check_erratum_ls cortex_x2, ERRATUM(1785648), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1793423), ERRATA_X2_1793423
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(10)
+workaround_reset_end cortex_x2, ERRATUM(1793423)
+
+check_erratum_ls cortex_x2, ERRATUM(1793423), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1863568), ERRATA_X2_1863568
+	sysreg_bit_set CORTEX_X2_CPUACTLR_EL1, BIT(21)
+workaround_reset_end cortex_x2, ERRATUM(1863568)
+
+check_erratum_ls cortex_x2, ERRATUM(1863568), CPU_REV(0, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1887102), ERRATA_X2_1887102
+	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, BIT(27)
+workaround_reset_end cortex_x2, ERRATUM(1887102)
+
+check_erratum_ls cortex_x2, ERRATUM(1887102), CPU_REV(1, 0)
+
+workaround_reset_start cortex_x2, ERRATUM(1887413), ERRATA_X2_1887413
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(10)
+workaround_reset_end cortex_x2, ERRATUM(1887413)
+
+check_erratum_ls cortex_x2, ERRATUM(1887413), CPU_REV(0, 0)
+
 workaround_reset_start cortex_x2, ERRATUM(1901946), ERRATA_X2_1901946
 	sysreg_bit_set CORTEX_X2_CPUACTLR4_EL1, BIT(15)
 workaround_reset_end cortex_x2, ERRATUM(1901946)
@@ -265,7 +295,7 @@ workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_x2, CVE(2024, 5660)
 
-check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
+check_erratum_chosen cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 
 /*
  * Instruction patch sequence to trap 'cpp rctx' instructions to EL3.
@@ -291,6 +321,9 @@ func cortex_x2_impl_defined_el3_handler
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc cortex_x2_impl_defined_el3_handler
 #endif
+
+add_erratum_entry cortex_x2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen cortex_x2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down

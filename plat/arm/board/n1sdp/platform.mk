@@ -109,6 +109,8 @@ HW_ASSISTED_COHERENCY			:=	1
 # use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
 USE_COHERENT_MEM			:=	0
 
+WORKAROUND_CVE_2025_10263		:=	1
+
 # Enable the flag since N1SDP has a system level cache
 NEOVERSE_Nx_EXTERNAL_LLC		:=	1
 include plat/arm/common/arm_common.mk

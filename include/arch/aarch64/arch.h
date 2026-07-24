@@ -458,6 +458,10 @@
 
 #define RNG_TRAP_IMPLEMENTED		ULL(0x1)
 
+/* ID_AA64PFR1_EL1.MTE field: MTE architecture presence (bits [11:8]) */
+#define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
+#define ID_AA64PFR1_EL1_MTE_WIDTH	U(4)
+
 /* ID_AA64PFR2_EL1 definitions */
 #define ID_AA64PFR2_EL1_MTEPERM_SHIFT		U(0)
 #define ID_AA64PFR2_EL1_MTEPERM_MASK		ULL(0xf)

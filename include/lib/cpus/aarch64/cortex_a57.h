@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -84,5 +84,10 @@
  * L2 Memory Error Syndrome register specific definitions.
  ******************************************************************************/
 #define CORTEX_A57_L2MERRSR_EL1			S3_1_C15_C2_3
+
+/*******************************************************************************
+ * L2 Auxiliary Control Register
+ ******************************************************************************/
+#define CORTEX_A57_L2ACTLR_EL1			S3_1_C15_C0_0
 
 #endif /* CORTEX_A57_H */

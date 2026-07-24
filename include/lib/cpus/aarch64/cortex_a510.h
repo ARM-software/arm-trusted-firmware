@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,6 +40,10 @@
 #define CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_DISABLE	U(3)
 #define CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_SHIFT		U(10)
 #define CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_WIDTH		U(2)
+#define CORTEX_A510_CMPXECTLR_EL1				S3_0_C15_C1_7
+#define CORTEX_A510_CMPXECTLR_EL1_FPDFTH_BIT		U(3)
+#define CORTEX_A510_CMPXECTLR_EL1_FPDFTH_SHIFT		U(8)
+#define CORTEX_A510_CMPXECTLR_EL1_FPDFTH_WIDTH		U(2)
 
 /*******************************************************************************
  * Auxiliary control register specific definitions

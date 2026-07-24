@@ -89,6 +89,8 @@ RPI3_USE_UEFI_MAP		:= 0
 # SMCCC PCI support (should be enabled for ACPI builds)
 SMC_PCI_SUPPORT			:= 0
 
+WORKAROUND_CVE_2025_10263	:= 1
+
 # Process platform flags
 # ----------------------
 

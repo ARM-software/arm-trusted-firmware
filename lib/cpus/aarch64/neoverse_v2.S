@@ -29,6 +29,12 @@
 
 cpu_reset_prologue neoverse_v2
 
+workaround_reset_start neoverse_v2, ERRATUM(2394277), ERRATA_V2_2394277
+	sysreg_bit_set NEOVERSE_V2_CPUACTLR2_EL1, BIT(40)
+workaround_reset_end neoverse_v2, ERRATUM(2394277)
+
+check_erratum_ls neoverse_v2, ERRATUM(2394277), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
         /* Disable retention control for WFI and WFE. */
         mrs     x0, NEOVERSE_V2_CPUPWRCTLR_EL1
@@ -115,7 +121,7 @@ workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 	 */
 	override_vector_table wa_cve_vbar_neoverse_v2
 #endif /* IMAGE_BL31 */
-workaround_reset_end neoverse_v2, CVE(2022,23960)
+workaround_reset_end neoverse_v2, CVE(2022, 23960)
 
 check_erratum_ls neoverse_v2, CVE(2022, 23960), CPU_REV(0, 0)
 
@@ -166,6 +172,9 @@ func neoverse_v2_impl_defined_el3_handler
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc neoverse_v2_impl_defined_el3_handler
 #endif
+
+add_erratum_entry neoverse_v2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen neoverse_v2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down

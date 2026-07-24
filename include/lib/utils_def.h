@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -167,6 +167,20 @@
  */
 #define check_u32_overflow(_u32, _inc) \
 	((_u32) > (UINT32_MAX - (_inc)))
+
+/*
+ * Evaluates to 1 if (u64 + inc) overflows, 0 otherwise.
+ * Both arguments must be 64-bit unsigned integers (i.e. effectively uint64_t).
+ */
+#define check_u64_overflow(_u64, _inc) \
+	((_u64) > (UINT64_MAX - (_inc)))
+
+/*
+ * Evaluates to 1 if (_size_t + _inc) overflows, 0 otherwise.
+ * Both arguments must be size_t (i.e. effectively unsigned long integers).
+ */
+#define check_size_t_overflow(_size_t, _inc) \
+	((_size_t) > (SIZE_MAX - (_inc)))
 
 /* Register size of the current architecture. */
 #ifdef __aarch64__

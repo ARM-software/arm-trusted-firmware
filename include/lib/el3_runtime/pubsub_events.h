@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,10 +12,12 @@
  */
 
 /*
- * Event published after a CPU has been powered up and finished its
- * initialization.
+ * psci_cpu_on_finish is published after CPU power-up has completed.
+ * psci_cpu_off_start is published during CPU-off handling, before the
+ * CPU is powered down and before its affinity state is updated to OFF.
  */
 REGISTER_PUBSUB_EVENT(psci_cpu_on_finish);
+REGISTER_PUBSUB_EVENT(psci_cpu_off_start);
 
 /*
  * These events are published before/after a CPU has been powered down/up

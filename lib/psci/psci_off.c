@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -11,6 +11,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <lib/el3_runtime/pubsub_events.h>
 #include <lib/pmf/pmf.h>
 #include <lib/runtime_instr.h>
 #include <plat/common/platform.h>
@@ -122,6 +123,8 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 		RT_INSTR_ENTER_CFLUSH,
 		PMF_CACHE_MAINT);
 #endif
+
+	PUBLISH_EVENT(psci_cpu_off_start);
 
 	/*
 	 * Arch. management. Initiate power down sequence.
