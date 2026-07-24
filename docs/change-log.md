@@ -3,6 +3,49 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.4..refs/tags/lts-v2.14.5) (2026-07-24)
+
+### Documentation
+
+- document lts candidate trailer ([58d7527](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/58d75276af5bc7860d4d4a78b2c944c34a172d08))
+- fill TFV advisory titles ([062859d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/062859d0e9158b872f243591075d9eb545d1583e))
+
+- **Documentation**
+
+  - **Changelog**
+
+    - display all sections ([3c862f8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3c862f8ef656b8febe615a1818fdde68cae69af3))
+
+### Resolved Issues
+
+- **Architecture**
+
+  - **CPU feature like FEAT_XXXX / ID register handling in general**
+
+    - enable FEAT_FGWTE3 after FEAT_CPA ([45c5b91](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/45c5b91464d92b6193bbe0dbfabc442e94fd3b79))
+
+- **Platforms**
+
+  - **NXP**
+
+    - move PLAT_FUSE_FIP_* to plat_default_def ([a2c3dba](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a2c3dbae353023fabc8af66bfd392ba69608f5c9))
+
+  - **ST**
+
+    - **STM32MP1**
+
+      - force soft float ABI and disable NEON ([23f9b65](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/23f9b65bbb28037109372d547d601d9002fda205))
+
+- **Drivers**
+
+  - **Arm**
+
+    - **GIC**
+
+      - **GICv3**
+
+        - use the correct IPRIORITYR accessor ([e4c5e33](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e4c5e33cb2e24e08c854f378e61fba00ad0da697))
+
 ## [lts-2.14.4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.3..refs/tags/lts-v2.14.4) (2026-06-26)
 
 ### Resolved Issues
