@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,15 +50,7 @@ int css_reboot_interrupt_handler(uint32_t intr_raw, uint32_t flags,
  */
 extern const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[];
 
-#define SCMI_DOMAIN_ID_MASK		U(0xFFFF)
-#define SCMI_CHANNEL_ID_MASK		U(0xFFFF)
-#define SCMI_CHANNEL_ID_SHIFT		U(16)
-
-#define SET_SCMI_CHANNEL_ID(n)		(((n) & SCMI_CHANNEL_ID_MASK) << \
-					 SCMI_CHANNEL_ID_SHIFT)
-#define SET_SCMI_DOMAIN_ID(n)		((n) & SCMI_DOMAIN_ID_MASK)
-#define GET_SCMI_CHANNEL_ID(n)		(((n) >> SCMI_CHANNEL_ID_SHIFT) & \
-					 SCMI_CHANNEL_ID_MASK)
-#define GET_SCMI_DOMAIN_ID(n)		((n) & SCMI_DOMAIN_ID_MASK)
+/* This mapping array has to be exported by the platform. */
+extern const uint32_t plat_css_core_pos_to_scmi_channel_id_map[];
 
 #endif /* CSS_PM_H */

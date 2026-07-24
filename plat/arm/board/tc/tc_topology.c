@@ -31,22 +31,15 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
  * to the SCMI power domain ID implemented by SCP.
  ******************************************************************************/
 const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x0)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x1)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x2)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x3)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x4)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x5)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x6)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x7)),
+	0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
+
 #if PLATFORM_CORE_COUNT == 14
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x8)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x9)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xA)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xB)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xC)),
-	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xD)),
+	0x8, 0x9, 0xA, 0xB, 0xC, 0xD,
 #endif /* PLATFORM_CORE_COUNT == 14 */
+};
+
+const uint32_t plat_css_core_pos_to_scmi_channel_id_map[PLATFORM_CORE_COUNT] = {
+	0
 };
 
 /*******************************************************************************

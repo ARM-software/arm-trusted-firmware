@@ -97,23 +97,6 @@ static uint32_t default_scmi_channel_id;
  */
 ARM_SCMI_INSTANTIATE_LOCK;
 
-/*
- * Function to obtain the SCMI Domain ID and SCMI Channel number from the linear
- * core position. The SCMI Channel number is encoded in the upper 16 bits and
- * the Domain ID is encoded in the lower 16 bits in each entry of the mapping
- * array exported by the platform.
- */
-static void css_scp_core_pos_to_scmi_channel(unsigned int core_pos,
-		unsigned int *scmi_domain_id, unsigned int *scmi_channel_id)
-{
-	unsigned int composite_id;
-
-	composite_id = plat_css_core_pos_to_scmi_dmn_id_map[core_pos];
-
-	*scmi_channel_id = GET_SCMI_CHANNEL_ID(composite_id);
-	*scmi_domain_id = GET_SCMI_DOMAIN_ID(composite_id);
-}
-
 static inline void css_scp_set_state_pwr_lvl(uint32_t *pwr_state, unsigned int lvl)
 {
     unsigned int max_lvl = (lvl == 0U) ? 0U : (lvl - 1U);
@@ -175,8 +158,9 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 
 	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
-	css_scp_core_pos_to_scmi_channel(plat_my_core_pos(),
-			&domain_id, &channel_id);
+	channel_id =
+		plat_css_core_pos_to_scmi_channel_id_map[plat_my_core_pos()];
+	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[plat_my_core_pos()];
 	ret = scmi_pwr_state_set(scmi_handles[channel_id],
 		domain_id, scmi_pwr_state);
 
@@ -217,8 +201,9 @@ void css_scp_off(const struct psci_power_state *target_state)
 
 	css_scp_set_state_pwr_lvl(&scmi_pwr_state, lvl);
 
-	css_scp_core_pos_to_scmi_channel(plat_my_core_pos(),
-			&domain_id, &channel_id);
+	channel_id =
+		plat_css_core_pos_to_scmi_channel_id_map[plat_my_core_pos()];
+	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[plat_my_core_pos()];
 	ret = scmi_pwr_state_set(scmi_handles[channel_id],
 		domain_id, scmi_pwr_state);
 	if (ret != SCMI_E_QUEUED && ret != SCMI_E_SUCCESS) {
@@ -247,8 +232,8 @@ void css_scp_on(u_register_t mpidr)
 	core_pos = (unsigned int)plat_core_pos_by_mpidr(mpidr);
 	assert(core_pos < PLATFORM_CORE_COUNT);
 
-	css_scp_core_pos_to_scmi_channel(core_pos, &domain_id,
-			&channel_id);
+	channel_id = plat_css_core_pos_to_scmi_channel_id_map[core_pos];
+	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[core_pos];
 	ret = scmi_pwr_state_set(scmi_handles[channel_id],
 		domain_id, scmi_pwr_state);
 	if (ret != SCMI_E_QUEUED && ret != SCMI_E_SUCCESS) {
@@ -279,7 +264,8 @@ int css_scp_get_power_state(u_register_t mpidr, unsigned int power_level)
 	cpu_idx = (unsigned int)plat_core_pos_by_mpidr(mpidr);
 	assert(cpu_idx < PLATFORM_CORE_COUNT);
 
-	css_scp_core_pos_to_scmi_channel(cpu_idx, &domain_id, &channel_id);
+	channel_id = plat_css_core_pos_to_scmi_channel_id_map[cpu_idx];
+	domain_id = plat_css_core_pos_to_scmi_dmn_id_map[cpu_idx];
 	ret = scmi_pwr_state_get(scmi_handles[channel_id],
 		domain_id, &scmi_pwr_state);
 
@@ -392,7 +378,7 @@ static int css_scmi_protocol_init(scmi_channel_t *ch)
 
 void __init plat_arm_pwrc_setup(void)
 {
-	unsigned int composite_id, idx;
+	unsigned int idx;
 
 	for (idx = 0; idx < PLAT_ARM_SCMI_CHANNEL_COUNT; idx++) {
 		INFO("Initializing SCMI driver on channel %d\n", idx);
@@ -409,8 +395,8 @@ void __init plat_arm_pwrc_setup(void)
 		}
 	}
 
-	composite_id = plat_css_core_pos_to_scmi_dmn_id_map[plat_my_core_pos()];
-	default_scmi_channel_id = GET_SCMI_CHANNEL_ID(composite_id);
+	default_scmi_channel_id =
+		plat_css_core_pos_to_scmi_channel_id_map[plat_my_core_pos()];
 }
 
 /******************************************************************************
