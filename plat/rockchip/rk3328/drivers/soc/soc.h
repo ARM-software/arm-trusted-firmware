@@ -50,13 +50,36 @@ enum plls_id {
 /* PLLn_CON0 */
 #define PLL_BYPASS		BITS_WITH_WMASK(1, 0x1, 15)
 #define PLL_NO_BYPASS		BITS_WITH_WMASK(0, 0x1, 15)
+
 /* CRU_MODE */
-#define PLL_SLOW_MODE(id)	((id) == NPLL_ID) ?		\
-				BITS_WITH_WMASK(0, 0x1, 1) :	\
-				BITS_WITH_WMASK(0, 0x1, ((id) * 4))
-#define PLL_NORM_MODE(id)	((id) == NPLL_ID) ?		\
-				BITS_WITH_WMASK(1, 0x1, 1) :	\
-				BITS_WITH_WMASK(1, 0x1, ((id) * 4))
+static inline uint32_t rk3328_pll_mode(uint32_t pll_id, uint32_t mode)
+{
+	uint32_t shift = pll_id * 4U;
+
+	if (pll_id == NPLL_ID) {
+		shift = 1U;
+	}
+
+	return BITS_WITH_WMASK(mode, 1U, shift);
+}
+
+static inline uint32_t rk3328_pll_mode_slow(uint32_t pll_id)
+{
+	return rk3328_pll_mode(pll_id, 0U);
+}
+
+static inline uint32_t rk3328_pll_mode_normal(uint32_t pll_id)
+{
+	return rk3328_pll_mode(pll_id, 1U);
+}
+
+static inline bool rk3328_pll_is_mode_normal(uint32_t mode_val, uint32_t pll_id)
+{
+	uint32_t mode_normal = rk3328_pll_mode_normal(pll_id);
+	uint32_t mask = 0xffff;
+
+	return mode_val & mode_normal & mask;
+}
 
 #define CRU_GATEID_CONS(ID)	(0x200 + (ID / 16) * 4)
 #define CRU_CONS_GATEID(i)	(16 * (i))
