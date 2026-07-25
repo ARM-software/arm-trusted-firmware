@@ -153,8 +153,8 @@ enum pll_type_sel {
 #define OPP_LENGTH_SHIFT		2
 #define OPP_LENGTH_LOW			BIT(2)
 
-#define PRATE(x) static const unsigned long const x[]
-#define PINFO(x) static const uint32_t const x[]
+#define PRATE(x) static const unsigned long x[]
+#define PINFO(x) static const uint32_t x[]
 
 PRATE(p_24m)			= { OSC_HZ };
 PRATE(p_100m_24m)		= { 100 * MHz, OSC_HZ };
