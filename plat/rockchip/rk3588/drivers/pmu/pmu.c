@@ -217,7 +217,7 @@ void clk_gate_con_disable(void)
 	for (i = 0; i < CRU_CLKGATE_CON_CNT; i++)
 		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(i), 0xffff0000);
 
-	 mmio_write_32(PHP_CRU_BASE + PHPCRU_CLKGATE_CON, 0xffff0000);
+	mmio_write_32(PHP_CRU_BASE + PHPCRU_CLKGATE_CON, 0xffff0000);
 
 	for (i = 0; i < SECURECRU_CLKGATE_CON_CNT; i++)
 		mmio_write_32(SCRU_BASE + SECURECRU_CLKGATE_CON(i), 0xffff0000);
