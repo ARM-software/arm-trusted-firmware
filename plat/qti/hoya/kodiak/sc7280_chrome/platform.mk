@@ -126,7 +126,7 @@ QTISECLIB_PATH ?=
 # include drivers/qti/accesscontrol/access_control.mk
 
 # QTISECLIB drivers
-BL31_SOURCES	+=		drivers/qti/accesscontrol/access_control_stub.c \
+BL31_SOURCES	+=		drivers/qti/accesscontrol/access_control_qtiseclib.c \
 				drivers/qti/sec_core/sec_core_stub.c \
 				drivers/qti/qtimer/qtimer_stub.c \
 				drivers/qti/watchdog/watchdog_stub.c

@@ -120,7 +120,7 @@ $(eval $(call add_define,QTI_XPU_BYPASS))
 BL31_SOURCES	+=	drivers/qti/sec_core/sec_core_stub.c			\
 			drivers/qti/qtimer/qtimer_stub.c			\
 			drivers/qti/watchdog/watchdog_stub.c			\
-			drivers/qti/accesscontrol/access_control_stub.c		\
+			drivers/qti/accesscontrol/access_control_qtiseclib.c		\
 			drivers/qti/accesscontrol/xpu.c
 LDFLAGS += -L $(dir $(QTISECLIB_PATH))
 LDLIBS += -l$(patsubst lib%.a,%,$(notdir $(QTISECLIB_PATH)))
