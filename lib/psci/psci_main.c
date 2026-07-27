@@ -44,25 +44,20 @@ int psci_cpu_on_by_core_pos(unsigned int target_idx,
 			    u_register_t context_id)
 {
 	int rc;
-	entry_point_info_t *ep = NULL;
+	entry_point_info_t ep;
 
 	/* Validate the target CPU */
 	if (!is_valid_mpidr(target_cpu)) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	ep = get_cpu_data_by_index(target_idx, warmboot_ep_info);
-	/* Validate the lower EL entry point and put it in the entry_point_info */
-	rc = psci_validate_entry_point(ep, entrypoint, context_id);
+	/* Validate the lower EL entry point into caller-local storage. */
+	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
 	if (rc != PSCI_E_SUCCESS) {
 		return rc;
 	}
 
-	/*
-	 * To turn this cpu on, specify which power
-	 * levels need to be turned on
-	 */
-	return psci_cpu_on_start(target_idx, target_cpu);
+	return psci_cpu_on_start(target_idx, target_cpu, &ep);
 }
 
 unsigned int psci_version(void)
