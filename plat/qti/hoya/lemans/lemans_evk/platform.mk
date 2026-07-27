@@ -94,8 +94,7 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c		\
 				$(PLAT_PATH)/common/src/spmi_arb.c			\
 				$(PLAT_PATH)/hoya/qtiseclib/src/qtiseclib_cb_interface.c
 
-BL31_SOURCES	+=		drivers/qti/sec_core/sec_core_stub.c \
-				drivers/qti/accesscontrol/access_control_stub.c
+BL31_SOURCES	+=		drivers/qti/sec_core/sec_core_stub.c
 
 include drivers/qti/smem/smem.mk
 include drivers/qti/chipinfo/chipinfo.mk
@@ -109,6 +108,7 @@ $(warning QTISECLIB_PATH is not provided while building, using stub implementati
 		Please refer to documentation for more details \
 		THIS FIRMWARE WILL NOT BOOT!)
 
+include drivers/qti/accesscontrol/access_control.mk
 include drivers/qti/smmu/smmu.mk
 include drivers/qti/pdc/pdc.mk
 
