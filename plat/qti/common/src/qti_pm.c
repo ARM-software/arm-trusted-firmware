@@ -17,9 +17,6 @@
 #include <platform_def.h>
 #include <qti_cpu.h>
 #include <qti_plat.h>
-#include <qtiseclib_cb_interface.h>
-#include <qtiseclib_defs_plat.h>
-#include <qtiseclib_interface.h>
 
 #define QTI_LOCAL_PSTATE_WIDTH		4
 #define QTI_LOCAL_PSTATE_MASK		((1 << QTI_LOCAL_PSTATE_WIDTH) - 1)
@@ -147,11 +144,11 @@ static int qti_cpu_power_on(u_register_t mpidr)
 	int core_pos = plat_core_pos_by_mpidr(mpidr);
 
 	/* If not valid mpidr, return error */
-	if (core_pos < 0 || core_pos >= QTISECLIB_PLAT_CORE_COUNT) {
+	if (core_pos < 0 || core_pos >= PLATFORM_CORE_COUNT) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	return qtiseclib_psci_node_power_on(mpidr);
+	return plat_qti_pwr_domain_on(mpidr, core_pos);
 }
 
 static bool is_cpu_off(const psci_power_state_t *target_state)
@@ -170,7 +167,8 @@ static void qti_cpu_power_on_finish(const psci_power_state_t *target_state)
 {
 	const uint8_t *pwr_states =
 	    (const uint8_t *)target_state->pwr_domain_state;
-	qtiseclib_psci_node_on_finish(pwr_states);
+
+	plat_qti_pwr_domain_on_finish(plat_my_core_pos(), pwr_states);
 
 	if (is_cpu_off(target_state)) {
 		plat_qti_gic_cpuif_enable();
@@ -183,8 +181,7 @@ static void qti_cpu_standby(plat_local_state_t cpu_state)
 
 static void qti_node_power_off(const psci_power_state_t *target_state)
 {
-	qtiseclib_psci_node_power_off((const uint8_t *)
-				      target_state->pwr_domain_state);
+	plat_qti_pwr_domain_off((const uint8_t *)target_state->pwr_domain_state);
 	if (is_cpu_off(target_state)) {
 		plat_qti_gic_cpuif_disable();
 		qti_set_cpupwrctlr_val();
@@ -193,8 +190,7 @@ static void qti_node_power_off(const psci_power_state_t *target_state)
 
 static void qti_node_suspend(const psci_power_state_t *target_state)
 {
-	qtiseclib_psci_node_suspend((const uint8_t *)target_state->
-				    pwr_domain_state);
+	plat_qti_pwr_domain_suspend((const uint8_t *)target_state->pwr_domain_state);
 	if (is_cpu_off(target_state)) {
 		plat_qti_gic_cpuif_disable();
 		qti_set_cpupwrctlr_val();
@@ -205,7 +201,7 @@ static void qti_node_suspend_finish(const psci_power_state_t *target_state)
 {
 	const uint8_t *pwr_states =
 	    (const uint8_t *)target_state->pwr_domain_state;
-	qtiseclib_psci_node_suspend_finish(pwr_states);
+	plat_qti_pwr_domain_suspend_finish(pwr_states);
 	if (is_cpu_off(target_state)) {
 		plat_qti_gic_cpuif_enable();
 	}
@@ -213,8 +209,10 @@ static void qti_node_suspend_finish(const psci_power_state_t *target_state)
 
 static __dead2 void assert_ps_hold(void)
 {
+#ifdef QTI_PS_HOLD_REG
 	mmio_write_32(QTI_PS_HOLD_REG, 0);
 	mdelay(1000);
+#endif
 
 	/* Should be dead before reaching this. */
 	panic();
@@ -288,7 +286,7 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 
 	qti_sec_core_remap((uintptr_t)bl31_warm_entrypoint);
 
-	err = qtiseclib_psci_init((uintptr_t)bl31_warm_entrypoint);
+	err = plat_qti_pwr_psci_init((uintptr_t)bl31_warm_entrypoint);
 	if (err == PSCI_E_SUCCESS) {
 		*psci_ops = &plat_qti_psci_pm_ops;
 	}

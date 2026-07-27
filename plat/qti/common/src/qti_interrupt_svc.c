@@ -17,7 +17,7 @@
 
 #include <platform.h>
 #include <qti_interrupt_svc.h>
-#include <qtiseclib_interface.h>
+#include <qti_plat.h>
 
 #define QTI_INTR_INVALID_INT_NUM		0xFFFFFFFFU
 #define ISR_TABLE_LEN				20
@@ -95,7 +95,7 @@ static void interrupt_svc_invoke_isr(uint32_t id, void *handle)
 
 	spin_lock(&isr_table.lock);
 	if (!isr_table.cnt)
-		goto qtiseclib_dispatch;
+		goto plat_dispatch;
 
 	for (size_t i = 0; i < ISR_TABLE_LEN; i++, p++) {
 		if (p->id != id) {
@@ -109,9 +109,9 @@ static void interrupt_svc_invoke_isr(uint32_t id, void *handle)
 		return;
 	}
 
-qtiseclib_dispatch:
+plat_dispatch:
 	spin_unlock(&isr_table.lock);
-	qtiseclib_invoke_isr(id, handle);
+	plat_qti_invoke_unhandled_isr(id, handle);
 }
 
 /*

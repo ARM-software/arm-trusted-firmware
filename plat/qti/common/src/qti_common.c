@@ -19,7 +19,6 @@
 #include <drivers/qti/chipinfo/chipinfo.h>
 #include <platform_def.h>
 #include <qti_plat.h>
-#include <qtiseclib_interface.h>
 
 /*
  * Table of regions for various BL stages to map using the MMU.
