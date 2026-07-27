@@ -8,6 +8,7 @@ Getting Started
    prerequisites
    docs-build
    initial-build
+   nix-flake
    tools-build
    build-options
    build-internals

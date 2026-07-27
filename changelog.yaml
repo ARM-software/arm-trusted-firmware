@@ -1519,6 +1519,9 @@ subsections:
       - Makefile
 
     subsections:
+      - title: Nix flake
+        scope: flake
+
       - title: Git Hooks
         scope: hooks
 
