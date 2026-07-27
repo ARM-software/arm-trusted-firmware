@@ -952,7 +952,7 @@ STMicroelectronics platform ports
 :|F|: drivers/st/
 :|F|: fdts/stm32\*
 :|F|: include/drivers/st/
-:|F|: include/dt-bindings/\*/stm32\*
+:|F|: include/dt-bindings/\*/\*stm32\*
 :|F|: plat/st/
 :|F|: tools/fiptool/plat_fiptool/st/
 :|F|: tools/stm32image/
