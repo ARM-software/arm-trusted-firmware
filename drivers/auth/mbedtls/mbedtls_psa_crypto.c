@@ -29,6 +29,8 @@
 
 #define LIB_NAME		"mbed TLS PSA"
 
+#define TF_MBEDTLS_USE_AES_AEAD (TF_MBEDTLS_USE_AES_CCM || TF_MBEDTLS_USE_AES_GCM)
+
 /* Minimum required size for a buffer containing a raw EC signature when using
  * a maximum curve size of 384 bits.
  * This is calculated as 2 * (384 / 8). */
@@ -506,13 +508,86 @@ static int calc_hash(enum crypto_md_algo md_algo, void *data_ptr,
 	* CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 	*/
 
-#if TF_MBEDTLS_USE_AES_GCM
+#if TF_MBEDTLS_USE_AES_AEAD
 /*
  * Stack based buffer allocation for decryption operation. It could
  * be configured to balance stack usage vs execution speed.
  */
 #define DEC_OP_BUF_SIZE		128
+#endif /* TF_MBEDTLS_USE_AES_AEAD */
 
+#if TF_MBEDTLS_USE_AES_CCM
+static int aes_ccm_decrypt(void *data_ptr, size_t len, const void *key,
+			unsigned int key_len, const void *iv,
+			unsigned int iv_len, const void *tag,
+			unsigned int tag_len)
+{
+	mbedtls_svc_key_id_t key_id = MBEDTLS_SVC_KEY_ID_INIT;
+	psa_aead_operation_t operation = PSA_AEAD_OPERATION_INIT;
+	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+	psa_status_t psa_status = PSA_ERROR_GENERIC_ERROR;
+	unsigned char buf[DEC_OP_BUF_SIZE];
+	unsigned char *pt = data_ptr;
+	size_t dec_len;
+	size_t output_length;
+
+	/* Load the key into the PSA key store. */
+	psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_DECRYPT);
+	psa_set_key_algorithm(&attributes, PSA_ALG_CCM);
+	psa_set_key_type(&attributes, PSA_KEY_TYPE_AES);
+
+	psa_status = psa_import_key(&attributes, key, key_len, &key_id);
+	if (psa_status != PSA_SUCCESS) {
+		return CRYPTO_ERR_DECRYPTION;
+	}
+
+	psa_status = psa_aead_decrypt_setup(&operation, key_id, PSA_ALG_CCM);
+	if (psa_status != PSA_SUCCESS) {
+		goto err;
+	}
+
+	psa_status = psa_aead_set_nonce(&operation, iv, iv_len);
+	if (psa_status != PSA_SUCCESS) {
+		goto err;
+	}
+
+	psa_status = psa_aead_set_lengths(&operation, 0, len);
+	if (psa_status != PSA_SUCCESS) {
+		goto err;
+	}
+
+	while (len > 0) {
+		dec_len = MIN(sizeof(buf), len);
+
+		/* Perform the decryption. */
+		psa_status = psa_aead_update(&operation, pt, dec_len, buf,
+					     sizeof(buf), &output_length);
+		if (psa_status != PSA_SUCCESS) {
+			goto err;
+		}
+
+		assert(dec_len == output_length);
+
+		memcpy(pt, buf, output_length);
+		pt += output_length;
+		len -= dec_len;
+	}
+
+	/* Verify the tag. */
+	psa_status = psa_aead_verify(&operation, NULL, 0, &output_length, tag, tag_len);
+	if (psa_status == PSA_SUCCESS) {
+		psa_destroy_key(key_id);
+		return CRYPTO_SUCCESS;
+	}
+
+err:
+	psa_aead_abort(&operation);
+	psa_destroy_key(key_id);
+	return CRYPTO_ERR_DECRYPTION;
+}
+#endif /* TF_MBEDTLS_USE_AES_CCM */
+
+#if TF_MBEDTLS_USE_AES_GCM
 static int aes_gcm_decrypt(void *data_ptr, size_t len, const void *key,
 			   unsigned int key_len, const void *iv,
 			   unsigned int iv_len, const void *tag,
@@ -574,7 +649,9 @@ err:
 	psa_destroy_key(key_id);
 	return CRYPTO_ERR_DECRYPTION;
 }
+#endif /* TF_MBEDTLS_USE_AES_GCM */
 
+#if TF_MBEDTLS_USE_AES_AEAD
 /*
  * Authenticated decryption of an image
  */
@@ -589,25 +666,35 @@ static int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 	assert((key_flags & ENC_KEY_IS_IDENTIFIER) == 0);
 
 	switch (dec_algo) {
+#if TF_MBEDTLS_USE_AES_CCM
+	case CRYPTO_CCM_DECRYPT:
+		rc = aes_ccm_decrypt(data_ptr, len, key, key_len, iv, iv_len,
+				     tag, tag_len);
+		if (rc != 0)
+			return rc;
+		break;
+#endif /* TF_MBEDTLS_USE_AES_CCM */
+#if TF_MBEDTLS_USE_AES_GCM
 	case CRYPTO_GCM_DECRYPT:
 		rc = aes_gcm_decrypt(data_ptr, len, key, key_len, iv, iv_len,
 				     tag, tag_len);
 		if (rc != 0)
 			return rc;
 		break;
+#endif /* TF_MBEDTLS_USE_AES_GCM */
 	default:
 		return CRYPTO_ERR_DECRYPTION;
 	}
 
 	return CRYPTO_SUCCESS;
 }
-#endif /* TF_MBEDTLS_USE_AES_GCM */
+#endif /* TF_MBEDTLS_USE_AES_AEAD */
 
 /*
  * Register crypto library descriptor
  */
 #if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
-#if TF_MBEDTLS_USE_AES_GCM
+#if TF_MBEDTLS_USE_AES_AEAD
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    auth_decrypt, NULL, finish);
 #else
@@ -615,7 +702,7 @@ REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    NULL, NULL, finish);
 #endif
 #elif CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY
-#if TF_MBEDTLS_USE_AES_GCM
+#if TF_MBEDTLS_USE_AES_AEAD
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, NULL,
 		    auth_decrypt, NULL, finish);
 #else

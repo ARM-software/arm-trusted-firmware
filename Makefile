@@ -438,6 +438,13 @@ ifneq (${GENERATE_COT},0)
 endif
 
 ifneq (${DECRYPTION_SUPPORT},none)
+	ifeq ($(filter ${DECRYPTION_SUPPORT},aes_ccm aes_gcm),)
+        $(error Unsupported DECRYPTION_SUPPORT=${DECRYPTION_SUPPORT})
+	endif
+	DECRYPTION_ALGO_aes_ccm := ccm
+	DECRYPTION_ALGO_aes_gcm := gcm
+
+	ENC_ARGS += -a ${DECRYPTION_ALGO_${DECRYPTION_SUPPORT}}
 	ENC_ARGS += -f ${FW_ENC_STATUS}
 	ENC_ARGS += -k ${ENC_KEY}
 	ENC_ARGS += -n ${ENC_NONCE}

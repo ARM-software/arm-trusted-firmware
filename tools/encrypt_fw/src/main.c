@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019, Linaro Limited. All rights reserved.
  * Author: Sumit Garg <sumit.garg@linaro.org>
  *
@@ -16,6 +16,8 @@
 
 #include <openssl/conf.h>
 
+#include "aes_ccm.h"
+#include "aes_gcm.h"
 #include "cmd_opt.h"
 #include "debug.h"
 #include "encrypt.h"
@@ -32,6 +34,7 @@ static const char build_msg[] = "Built : " __TIME__ ", " __DATE__;
 
 static char *key_algs_str[] = {
 	[KEY_ALG_GCM] = "gcm",
+	[KEY_ALG_CCM] = "ccm",
 };
 
 static void print_help(const char *cmd, const struct option *long_opt)
@@ -100,6 +103,22 @@ static void parse_fw_enc_status_flag(const char *arg,
 	*fw_enc_status = flag & FW_ENC_STATUS_FLAG_MASK;
 }
 
+static int encrypt_file(unsigned short fw_enc_status, int enc_alg,
+		const char *key_string, const char *nonce_string, const char *ip_name,
+		const char *op_name)
+{
+	switch (enc_alg) {
+	case KEY_ALG_GCM:
+		return gcm_encrypt(fw_enc_status, key_string, nonce_string, ip_name,
+				op_name);
+	case KEY_ALG_CCM:
+		return ccm_encrypt(fw_enc_status, key_string, nonce_string, ip_name,
+				op_name);
+	default:
+		return -1;
+	}
+}
+
 /* Common command line options */
 static const cmd_opt_t common_cmd_opt[] = {
 	{
@@ -112,7 +131,7 @@ static const cmd_opt_t common_cmd_opt[] = {
 	},
 	{
 		{ "key-alg", required_argument, NULL, 'a' },
-		"Encryption key algorithm: 'gcm' (default)"
+		"Encryption key algorithm: 'gcm' (default) or 'ccm'."
 	},
 	{
 		{ "key", required_argument, NULL, 'k' },

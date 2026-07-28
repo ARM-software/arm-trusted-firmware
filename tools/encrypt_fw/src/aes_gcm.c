@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019, Linaro Limited. All rights reserved.
  * Author: Sumit Garg <sumit.garg@linaro.org>
  *
@@ -9,19 +10,15 @@
 #include <openssl/evp.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "aes_gcm.h"
+#include "aes_parameters.h"
 #include "debug.h"
 #include "encrypt.h"
 
-#define BUFFER_SIZE		256
-#define IV_SIZE			12
-#define IV_STRING_SIZE		24
-#define TAG_SIZE		16
-#define KEY_SIZE		32
-#define KEY_STRING_SIZE		64
-
-static int gcm_encrypt(unsigned short fw_enc_status, char *key_string,
-		       char *nonce_string, const char *ip_name,
-		       const char *op_name)
+int gcm_encrypt(unsigned short fw_enc_status, const char *key_string,
+		const char *nonce_string, const char *ip_name,
+		const char *op_name)
 {
 	FILE *ip_file;
 	FILE *op_file;
@@ -152,16 +149,4 @@ out_file:
 		ret = 0;
 
 	return ret;
-}
-
-int encrypt_file(unsigned short fw_enc_status, int enc_alg, char *key_string,
-		 char *nonce_string, const char *ip_name, const char *op_name)
-{
-	switch (enc_alg) {
-	case KEY_ALG_GCM:
-		return gcm_encrypt(fw_enc_status, key_string, nonce_string,
-				   ip_name, op_name);
-	default:
-		return -1;
-	}
 }

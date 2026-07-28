@@ -106,18 +106,24 @@
 #define MBEDTLS_X509_USE_C
 #define MBEDTLS_X509_CRT_PARSE_C
 
-#if TF_MBEDTLS_USE_AES_GCM
+#if TF_MBEDTLS_USE_AES_CCM || TF_MBEDTLS_USE_AES_GCM
 #if (ENABLE_FEAT_CRYPTO == 1)
-    #define MBEDTLS_AESCE_C
-    /*
-     * only use the CPU-accelerated AES backend; do not keep the
-     * portable plain-C AES path around
-     */
-    #define MBEDTLS_AES_USE_HARDWARE_ONLY
+#define MBEDTLS_AESCE_C
+/*
+ * Only use the CPU-accelerated AES backend; do not keep the
+ * portable plain-C AES path around
+ */
+#define MBEDTLS_AES_USE_HARDWARE_ONLY
 #endif /* ENABLE_FEAT_CRYPTO */
+
 #define MBEDTLS_AES_C
 #define MBEDTLS_CIPHER_C
+
+#if TF_MBEDTLS_USE_AES_CCM
+#define MBEDTLS_CCM_C
+#elif TF_MBEDTLS_USE_AES_GCM
 #define MBEDTLS_GCM_C
+#endif
 #endif
 
 /* MPI / BIGNUM options */

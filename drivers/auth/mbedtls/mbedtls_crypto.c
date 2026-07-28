@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <string.h>
 
 /* mbed TLS headers */
+#include <mbedtls/ccm.h>
 #include <mbedtls/gcm.h>
 #include <mbedtls/md.h>
 #include <mbedtls/memory_buffer_alloc.h>
@@ -297,13 +298,103 @@ static int calc_hash(enum crypto_md_algo md_algo, void *data_ptr,
 #endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
 
-#if TF_MBEDTLS_USE_AES_GCM
+#define TF_MBEDTLS_USE_AES_AEAD (TF_MBEDTLS_USE_AES_CCM || TF_MBEDTLS_USE_AES_GCM)
+
+#if TF_MBEDTLS_USE_AES_AEAD
 /*
  * Stack based buffer allocation for decryption operation. It could
  * be configured to balance stack usage vs execution speed.
  */
 #define DEC_OP_BUF_SIZE		128
+#endif
 
+#if TF_MBEDTLS_USE_AES_CCM
+static int aes_ccm_decrypt(void *data_ptr, size_t len, const void *key,
+			   unsigned int key_len, const void *iv,
+			   unsigned int iv_len, const void *tag,
+			   unsigned int tag_len)
+{
+	mbedtls_ccm_context ctx;
+	mbedtls_cipher_id_t cipher = MBEDTLS_CIPHER_ID_AES;
+	unsigned char buf[DEC_OP_BUF_SIZE];
+	unsigned char tag_buf[CRYPTO_MAX_TAG_SIZE];
+	unsigned char *pt = data_ptr;
+	size_t dec_len;
+	int diff, i, rc;
+	size_t output_length;
+
+	mbedtls_ccm_init(&ctx);
+
+	rc = mbedtls_ccm_setkey(&ctx, cipher, key, key_len * 8);
+	if (rc != 0) {
+		rc = CRYPTO_ERR_DECRYPTION;
+		goto exit_ccm;
+	}
+
+	rc = mbedtls_ccm_set_lengths(&ctx, 0, len, tag_len);
+	if (rc != 0) {
+		rc = CRYPTO_ERR_DECRYPTION;
+		goto exit_ccm;
+	}
+
+#if (MBEDTLS_VERSION_MAJOR < 3)
+	rc = mbedtls_ccm_starts(&ctx, MBEDTLS_CCM_DECRYPT, iv, iv_len, NULL, 0);
+#else
+	rc = mbedtls_ccm_starts(&ctx, MBEDTLS_CCM_DECRYPT, iv, iv_len);
+#endif
+	if (rc != 0) {
+		rc = CRYPTO_ERR_DECRYPTION;
+		goto exit_ccm;
+	}
+
+	while (len > 0) {
+		dec_len = MIN(sizeof(buf), len);
+
+#if (MBEDTLS_VERSION_MAJOR < 3)
+		rc = mbedtls_ccm_update(&ctx, dec_len, pt, buf);
+#else
+		rc = mbedtls_ccm_update(&ctx, pt, dec_len, buf, sizeof(buf), &output_length);
+#endif
+
+		if (rc != 0) {
+			rc = CRYPTO_ERR_DECRYPTION;
+			goto exit_ccm;
+		}
+
+		assert(dec_len == output_length);
+
+		memcpy(pt, buf, dec_len);
+		pt += dec_len;
+		len -= dec_len;
+	}
+
+	rc = mbedtls_ccm_finish(&ctx, tag_buf, sizeof(tag_buf));
+
+	if (rc != 0) {
+		rc = CRYPTO_ERR_DECRYPTION;
+		goto exit_ccm;
+	}
+
+	/* Check tag in "constant-time" */
+	for (diff = 0, i = 0; i < tag_len; i++) {
+		diff |= ((const unsigned char *)tag)[i] ^ tag_buf[i];
+	}
+
+	if (diff != 0) {
+		rc = CRYPTO_ERR_DECRYPTION;
+		goto exit_ccm;
+	}
+
+	/* CCM decryption success */
+	rc = CRYPTO_SUCCESS;
+
+exit_ccm:
+	mbedtls_ccm_free(&ctx);
+	return rc;
+}
+#endif /* TF_MBEDTLS_USE_AES_CCM */
+
+#if TF_MBEDTLS_USE_AES_GCM
 static int aes_gcm_decrypt(void *data_ptr, size_t len, const void *key,
 			   unsigned int key_len, const void *iv,
 			   unsigned int iv_len, const void *tag,
@@ -382,7 +473,9 @@ exit_gcm:
 	mbedtls_gcm_free(&ctx);
 	return rc;
 }
+#endif /* TF_MBEDTLS_USE_AES_GCM */
 
+#if TF_MBEDTLS_USE_AES_AEAD
 /*
  * Authenticated decryption of an image
  */
@@ -397,25 +490,35 @@ static int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 	assert((key_flags & ENC_KEY_IS_IDENTIFIER) == 0);
 
 	switch (dec_algo) {
+#if TF_MBEDTLS_USE_AES_CCM
+	case CRYPTO_CCM_DECRYPT:
+		rc = aes_ccm_decrypt(data_ptr, len, key, key_len, iv, iv_len,
+				     tag, tag_len);
+		if (rc != 0)
+			return rc;
+		break;
+#endif /* TF_MBEDTLS_USE_AES_CCM */
+#if TF_MBEDTLS_USE_AES_GCM
 	case CRYPTO_GCM_DECRYPT:
 		rc = aes_gcm_decrypt(data_ptr, len, key, key_len, iv, iv_len,
 				     tag, tag_len);
 		if (rc != 0)
 			return rc;
 		break;
+#endif /* TF_MBEDTLS_USE_AES_GCM */
 	default:
 		return CRYPTO_ERR_DECRYPTION;
 	}
 
 	return CRYPTO_SUCCESS;
 }
-#endif /* TF_MBEDTLS_USE_AES_GCM */
+#endif /* TF_MBEDTLS_USE_AES_AEAD */
 
 /*
  * Register crypto library descriptor
  */
 #if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
-#if TF_MBEDTLS_USE_AES_GCM
+#if TF_MBEDTLS_USE_AES_AEAD
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    auth_decrypt, NULL, NULL);
 #else
@@ -423,7 +526,7 @@ REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    NULL, NULL, NULL);
 #endif
 #elif CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY
-#if TF_MBEDTLS_USE_AES_GCM
+#if TF_MBEDTLS_USE_AES_AEAD
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, NULL,
 		    auth_decrypt, NULL, NULL);
 #else

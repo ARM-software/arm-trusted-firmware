@@ -48,6 +48,7 @@ LIBMBEDTLS_SRCS		+= $(addprefix ${MBEDTLS_DIR}/library/,		\
 					platform_util.c			\
 					bignum.c			\
 					bignum_core.c			\
+					ccm.c 				\
 					gcm.c 				\
 					md.c				\
 					pk.c 				\
@@ -143,10 +144,13 @@ else
     $(error "TF_MBEDTLS_KEY_ALG=${TF_MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif
 
-ifeq (${DECRYPTION_SUPPORT}, aes_gcm)
+TF_MBEDTLS_USE_AES_CCM	:=	0
+TF_MBEDTLS_USE_AES_GCM	:=	0
+
+ifeq (${DECRYPTION_SUPPORT}, aes_ccm)
+    TF_MBEDTLS_USE_AES_CCM	:=	1
+else ifeq (${DECRYPTION_SUPPORT}, aes_gcm)
     TF_MBEDTLS_USE_AES_GCM	:=	1
-else
-    TF_MBEDTLS_USE_AES_GCM	:=	0
 endif
 
 # Needs to be set to drive mbed TLS configuration correctly
@@ -155,6 +159,7 @@ $(eval $(call add_defines,\
         TF_MBEDTLS_KEY_ALG_ID \
         TF_MBEDTLS_KEY_SIZE \
         TF_MBEDTLS_HASH_ALG_ID \
+        TF_MBEDTLS_USE_AES_CCM \
         TF_MBEDTLS_USE_AES_GCM \
 )))
 

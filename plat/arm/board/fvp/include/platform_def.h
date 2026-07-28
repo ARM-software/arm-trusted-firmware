@@ -287,15 +287,19 @@ defined(IMAGE_BL2) && MEASURED_BOOT
 /*
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
- * In case of PSA Crypto API, few algorithms like ECDSA needs bigger BL1 RW
- * area.
+ * In case of PSA Crypto API a few algorithms like ECDSA need bigger BL1 RW
+ * area. Currently, when DECRYPTION_SUPPORT is enabled, BL1 size increases
+ * because it includes code for doing FIP IO decryption.
+ *
+ * TODO: Make inclusion of FIO IO decryption code in BL1 optional and disable
+ * it in the FVP platform, therefore decreasing this size limit.
  */
 #define PLAT_ARM_PAGE_ROUND_UP(S) \
 	(((((S) + PAGE_SIZE_MASK) >> PAGE_SIZE_SHIFT)) << PAGE_SIZE_SHIFT)
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA || PSA_CRYPTO || \
-FVP_TRUSTED_SRAM_SIZE == 512
+!defined(DECRYPTION_SUPPORT_none) || FVP_TRUSTED_SRAM_SIZE == 512
 #define PLAT_ARM_MAX_BL1_RW_SIZE \
-	PLAT_ARM_PAGE_ROUND_UP(UL(0xD000) + PLAT_ARM_BL1_EXTRA_SIZE)
+	PLAT_ARM_PAGE_ROUND_UP(UL(0xE000) + PLAT_ARM_BL1_EXTRA_SIZE)
 #else
 #define PLAT_ARM_MAX_BL1_RW_SIZE \
 	PLAT_ARM_PAGE_ROUND_UP(UL(0xB000) + PLAT_ARM_BL1_EXTRA_SIZE)
