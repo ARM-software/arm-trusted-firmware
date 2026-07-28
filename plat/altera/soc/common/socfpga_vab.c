@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
+ * Copyright (c) 2019-2026, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2026, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024-2026, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 
 #include "../lib/sha/sha.h"
 
+#include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
@@ -83,7 +84,7 @@ int socfpga_vab_authentication(void **p_image, size_t *p_size)
 	img_addr = (uintptr_t)*p_image;
 	img_sz = get_img_size((uint8_t *)img_addr, *p_size);
 
-	if (!img_sz) {
+	if (img_sz == 0) {
 		ERROR("VAB certificate not found in image!\n");
 		return -ENOVABCERT;
 	}
@@ -138,7 +139,7 @@ int socfpga_vab_authentication(void **p_image, size_t *p_size)
 	/* Exclude the size of the VAB certificate from image size */
 	*p_size = img_sz;
 
-	if (ret) {
+	if (ret != 0) {
 		/*
 		 * Unsupported mailbox command or device not in the
 		 * owned/secure state
@@ -159,19 +160,14 @@ int socfpga_vab_authentication(void **p_image, size_t *p_size)
 			return -EPROCESS;
 		}
 		return -EAUTH;
-	} else {
-		/* If Certificate Process Status has error */
-		if (resp) {
-			ERROR("VAB certificate execution format error\n");
-			return -EIMGERR;
-		}
+	}
+
+	/* If Certificate Process Status has error */
+	if (resp != 0) {
+		ERROR("VAB certificate execution format error\n");
+		return -EIMGERR;
 	}
 
 	NOTICE("%s 0x%lx (%d bytes)\n", "Image Authentication passed at address", img_addr, img_sz);
 	return ret;
-}
-
-uint32_t get_unaligned_le32(const void *p)
-{
-	return le32_to_cpue((uint32_t *)p);
 }
