@@ -122,7 +122,8 @@ BL31_SOURCES	+=	plat/qti/hoya/qtiseclib/src/qtiseclib_interface_stub.c \
 else
 $(eval $(call add_define,QTISECLIB_PATH))
 # use library provided by QTISECLIB_PATH
-BL31_SOURCES	+=	drivers/qti/qtimer/qtimer_stub.c \
+BL31_SOURCES	+=	drivers/qti/accesscontrol/access_control_stub.c \
+			drivers/qti/qtimer/qtimer_stub.c \
 			drivers/qti/watchdog/watchdog_stub.c
 
 LDFLAGS += -L $(dir $(QTISECLIB_PATH))
