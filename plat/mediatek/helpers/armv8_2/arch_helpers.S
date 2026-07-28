@@ -79,6 +79,9 @@ endfunc plat_mediatek_calc_core_pos
 func plat_core_pos_by_mpidr
 	mov	x1, #MPIDR_AFFLVL_MASK
 	and	x0, x1, x0, lsr #MPIDR_AFF1_SHIFT
+	/* Defence-in-depth: clamp to [0, PLATFORM_CORE_COUNT) */
+	cmp	x0, #PLATFORM_CORE_COUNT
+	csel	x0, xzr, x0, hs
 	ret
 endfunc plat_core_pos_by_mpidr
 
