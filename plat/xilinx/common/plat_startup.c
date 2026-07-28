@@ -247,6 +247,16 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		target_el = get_xbl_el(&HandoffParams->partition[i]);
 		if ((target_el == XBL_FLAGS_EL3) ||
 		    (target_el == XBL_FLAGS_EL0)) {
+#if defined(PLAT_zynqmp)
+			/*
+			 * ZynqMP's XBL always includes a BL31 (EL3) partition
+			 * in the handoff structure, so skip it here and keep
+			 * looking for the next partition instead of failing.
+			 */
+			if (target_el == XBL_FLAGS_EL3) {
+				continue;
+			}
+#endif /* PLAT_zynqmp */
 			ERROR("BL31: invalid target exception level(%i)\n",
 			      target_el);
 			xbl_status = XBL_HANDOFF_INVAL_STRUCT;
