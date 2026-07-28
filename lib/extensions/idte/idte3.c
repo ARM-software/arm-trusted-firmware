@@ -104,11 +104,10 @@ void idte3_init_cached_idregs_per_world(size_t security_state)
 int handle_idreg_trap(uint8_t rt, uint64_t idreg, cpu_context_t *ctx, u_register_t flags)
 {
 	u_register_t value = 0ULL;
-	size_t security_state = GET_SECURITY_STATE(flags);
+	uint8_t security_state = get_cpu_context_index(GET_SECURITY_STATE(flags));
 	percpu_idregs_t *percpu_reg = &(get_cpu_data(idregs[security_state]));
 
-	per_world_context_t *per_world_ctx =
-		&per_world_context[get_cpu_context_index(security_state)];
+	per_world_context_t *per_world_ctx = &per_world_context[security_state];
 	perworld_idregs_t *perworld_reg = &(per_world_ctx->idregs);
 
 	switch (idreg) {
