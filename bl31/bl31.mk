@@ -247,6 +247,7 @@ $(eval BL31_CPPFLAGS += $(call make_defines, \
 $(eval $(call assert_booleans,\
     $(sort \
 	CRASH_REPORTING \
+	DSU_PDL2_SUPPORT \
 	EL3_EXCEPTION_HANDLING \
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
@@ -262,6 +263,7 @@ $(eval $(call assert_numerics,\
 $(eval $(call add_defines,\
     $(sort \
 	CRASH_REPORTING \
+	DSU_PDL2_SUPPORT \
 	EL3_EXCEPTION_HANDLING \
 	USE_DSU_DRIVER \
 	FIRME_SUPPORT \

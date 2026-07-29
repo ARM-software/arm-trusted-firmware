@@ -41,12 +41,32 @@
  *  within the power-state parameter.
  */
 /* Local power state for power domains in Run state. */
-#define ARM_LOCAL_STATE_RUN	U(0)
+#define ARM_LOCAL_STATE_RUN		U(0)
 /* Local power state for retention. Valid only for CPU power domains */
-#define ARM_LOCAL_STATE_RET	U(1)
-/* Local power state for OFF/power-down. Valid for CPU and cluster power
-   domains */
-#define ARM_LOCAL_STATE_OFF	U(2)
+
+
+/* Define the minimum and maximum off and retention states for PDs.
+ * MIN_OFF may only be valid for certain PDs, OFF is valid for all PDs.
+ */
+#if DSU_PDL2_SUPPORT
+
+/* Retention states are valid only for CPU power domains. */
+#define ARM_LOCAL_STATE_RETL1		U(1)
+#define ARM_LOCAL_STATE_MIN_RET		ARM_LOCAL_STATE_RETL1
+#define ARM_LOCAL_STATE_RET		U(2)
+
+#define ARM_LOCAL_STATE_OFFL1		U(3)
+#define ARM_LOCAL_STATE_MIN_OFF		ARM_LOCAL_STATE_OFFL1
+#define ARM_LOCAL_STATE_OFF		U(4)
+#else
+
+/* Retention states are valid only for CPU power domains. */
+#define ARM_LOCAL_STATE_MIN_RET		U(1)
+#define ARM_LOCAL_STATE_RET		U(1)
+
+#define ARM_LOCAL_STATE_MIN_OFF		U(2)
+#define ARM_LOCAL_STATE_OFF		U(2)
+#endif
 
 /* Memory location options for TSP */
 #define ARM_TRUSTED_SRAM_ID		0

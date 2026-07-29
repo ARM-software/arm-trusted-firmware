@@ -569,3 +569,11 @@ endif
 ifneq (${ENABLE_FEAT_IDTE3},0)
         $(info FEAT_IDTE3 is an experimental feature)
 endif #(ENABLE_FEAT_IDTE3)
+
+# Check DSU driver dependancies
+ifeq (${DSU_PDL2_SUPPORT}, 1)
+        ifeq (${USE_DSU_DRIVER}, 0)
+                $(error Build option USE_DSU_DRIVER needs to be set if \
+                DSU_PDL2_SUPPORT is set)
+        endif
+endif

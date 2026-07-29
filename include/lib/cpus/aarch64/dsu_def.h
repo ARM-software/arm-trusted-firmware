@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,6 +52,24 @@
 #define CLUSTERPWRDN_PWRDN_SHIFT	U(0)
 #define CLUSTERPWRDN_MEMRET_WIDTH	U(1)
 #define CLUSTERPWRDN_MEMRET_SHIFT	U(1)
+
+#if DSU_PDL2_SUPPORT
+/* L2PDPWRCTLR_EL1 register definitions */
+#define L2PDPWRCTLR_EL1			S3_0_C15_C7_1
+#define L2PDPWRCTLR_EL1_NOL2PWRDN_WIDTH	U(1)
+#define L2PDPWRCTLR_EL1_NOL2PWRDN_SHIFT	U(0)
+
+DEFINE_RENAME_SYSREG_RW_FUNCS(l2pdpwrctlr_el1, L2PDPWRCTLR_EL1)
+
+/* CPUPWRCTLR_EL1 register definitions */
+#define CPUPWRCTLR_EL1				S3_0_C15_C2_7
+#define CPUPWRCTLR_EL1_WFI_FULLRET_CTRL_WIDTH	U(3)
+#define CPUPWRCTLR_EL1_WFI_FULLRET_CTRL_SHIFT	U(4)
+#define CPUPWRCTLR_EL1_WFI_LOGICRET_CTRL_WIDTH	U(3)
+#define CPUPWRCTLR_EL1_WFI_LOGICRET_CTRL_SHIFT	U(13)
+
+DEFINE_RENAME_SYSREG_RW_FUNCS(cpupwrctlr_el1, CPUPWRCTLR_EL1)
+#endif
 
 /********************************************************************
  * Masks applied for DSU errata workarounds

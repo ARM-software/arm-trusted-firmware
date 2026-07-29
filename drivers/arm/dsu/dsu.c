@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2025-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -170,3 +170,65 @@ void dsu_driver_init(const dsu_driver_data_t *plat_driver_data)
 	write_clusterpwrdn_el1(pwrdn);
 }
 
+#if DSU_PDL2_SUPPORT
+
+/******************************************************************************
+ * dsu_configure_core_l2pd_power_required writes to the NOL2PWRDN bit for the
+ * core, which indicates to the power controller if the CPU L2 power domain can
+ * request power down when all its L1PD cores are powered down.
+ *
+ * Call this function during the plat_psci_ops hooks to configure whether
+ * the core L2 domain should turn off as part of a PSCI powerdown.
+ * power_required==0:
+ *     The L2 domain will turn OFF when the following are both satisfied:
+ *        1: The core's L2 domain is dynamically managed
+ *        2: The core's L1 domain turns off.
+ * power_required=1:
+ *     The L2 domain will remain ON, even if the core's L1 domain turns off.
+ *****************************************************************************/
+void dsu_configure_core_l2pd_power_required(bool power_required)
+{
+	uint64_t l2pd_pwr_ctrl = read_l2pdpwrctlr_el1();
+
+	UPDATE_REG_FIELD(L2PDPWRCTLR_EL1_NOL2PWRDN, l2pd_pwr_ctrl,
+			power_required);
+	write_l2pdpwrctlr_el1(l2pd_pwr_ctrl);
+}
+
+/******************************************************************************
+ * dsu_configure_core_wfi_logicret_ctrl writes to the WFI_LOGICRET_CTRL core
+ * register, setting a timer to enter retention dynamically upon a wfi.
+ *
+ * Call this function during the plat_psci_ops suspend hooks to configure
+ * the conditions under which the core L1 domain enters LOGIC_RET in a standby.
+ * After the suspend finishes, call again with argument 0 to disable the timer.
+ *****************************************************************************/
+void dsu_configure_core_wfi_logicret_ctrl(unsigned int logicret_ctrl)
+{
+	uint64_t cpu_pwr_ctrl = read_cpupwrctlr_el1();
+
+	UPDATE_REG_FIELD(CPUPWRCTLR_EL1_WFI_LOGICRET_CTRL, cpu_pwr_ctrl,
+			logicret_ctrl);
+	write_cpupwrctlr_el1(cpu_pwr_ctrl);
+	isb();
+}
+
+/******************************************************************************
+ * dsu_configure_core_wfi_fullret_ctrl writes to the WFI_FULLRET_CTRL core
+ * register, setting a timer to enter retention dynamically upon a wfi.
+ *
+ * Call this function during the plat_psci_ops suspend hooks to configure
+ * the conditions under which core domains (L1 and L2) enter FULL_RET in a
+ * standby.
+ * After the suspend finishes, call again with argument 0 to disable the timer.
+ *****************************************************************************/
+void dsu_configure_core_wfi_fullret_ctrl(unsigned int fullret_ctrl)
+{
+	uint64_t cpu_pwr_ctrl = read_cpupwrctlr_el1();
+
+	UPDATE_REG_FIELD(CPUPWRCTLR_EL1_WFI_FULLRET_CTRL, cpu_pwr_ctrl,
+			fullret_ctrl);
+	write_cpupwrctlr_el1(cpu_pwr_ctrl);
+	isb();
+}
+#endif /* DSU_PDL2_SUPPORT */

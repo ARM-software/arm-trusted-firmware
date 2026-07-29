@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -186,11 +186,13 @@
 /* Local power state for power domains in Run state. */
 #define ARM_LOCAL_STATE_RUN		U(0)
 /* Local power state for retention. Valid only for CPU power domains */
+#define ARM_LOCAL_STATE_MIN_RET		U(1)
 #define ARM_LOCAL_STATE_RET		U(1)
 /*
  * Local power state for OFF/power-down. Valid for CPU and cluster power
  * domains
  */
+#define ARM_LOCAL_STATE_MIN_OFF		U(2)
 #define ARM_LOCAL_STATE_OFF		U(2)
 /*
  * This macro defines the deepest retention state possible. A higher state

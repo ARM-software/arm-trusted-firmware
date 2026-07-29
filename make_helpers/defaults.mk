@@ -462,6 +462,9 @@ ENABLE_LFA_BL31			:= 0
 # Enable support for arm DSU driver.
 USE_DSU_DRIVER			:= 0
 
+# Enable support for CPUs with two power domains
+DSU_PDL2_SUPPORT			:= 0
+
 # Define the separation of BL2 flag, by default it is disabled.
 SEPARATE_BL2_FIP		:=	0
 

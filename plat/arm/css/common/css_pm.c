@@ -31,17 +31,21 @@
  *  The table must be terminated by a NULL entry.
  */
 const unsigned int arm_pm_idle_states[] = {
-	/* State-id - 0x001 */
+#if DSU_PDL2_SUPPORT
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
+		ARM_LOCAL_STATE_RETL1, ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
+#endif
 	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
 		ARM_LOCAL_STATE_RET, ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
-	/* State-id - 0x002 */
+#if DSU_PDL2_SUPPORT
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
+		ARM_LOCAL_STATE_OFFL1, ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
+#endif
 	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
 		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
-	/* State-id - 0x022 */
 	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_OFF,
 		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
 #if PLAT_MAX_PWR_LVL > ARM_PWR_LVL1
-	/* State-id - 0x222 */
 	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
 		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL2, PSTATE_TYPE_POWERDOWN),
 #endif
@@ -77,7 +81,7 @@ int css_pwr_domain_on(u_register_t mpidr)
 static void css_pwr_domain_on_finisher_common(
 		const psci_power_state_t *target_state)
 {
-	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
+	assert(CSS_CORE_PWR_STATE(target_state) >= ARM_LOCAL_STATE_MIN_OFF);
 
 	/*
 	 * Perform the common cluster specific operations i.e enable coherency
@@ -149,7 +153,7 @@ static void css_power_down_common(const psci_power_state_t *target_state)
  ******************************************************************************/
 void css_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
+	assert(CSS_CORE_PWR_STATE(target_state) >= ARM_LOCAL_STATE_MIN_OFF);
 	css_power_down_common(target_state);
 	css_scp_off(target_state);
 
@@ -166,21 +170,81 @@ void css_pwr_domain_off(const psci_power_state_t *target_state)
 #endif
 }
 
+#if DSU_PDL2_SUPPORT
+static inline void css_prepare_cpu_l2pd_for_suspend(plat_local_state_t cpu_state)
+{
+	if (cpu_state == ARM_LOCAL_STATE_OFFL1) {
+		/*
+		 * Indicate to the power controller that the CPU L2PD must
+		 * remain ON.
+		 */
+		dsu_configure_core_l2pd_power_required(1);
+	} else {
+		/*
+		 * Indicate to the power controller that the CPU L2PD can
+		 * request power down when all its L1PD cores are powered down.
+		 */
+		dsu_configure_core_l2pd_power_required(0);
+	}
+}
+
+static inline void css_enable_ret_ctrl(plat_local_state_t cpu_state)
+{
+	if (cpu_state == ARM_LOCAL_STATE_RETL1) {
+		/*
+		 * Set the LOGIC_RET control timer to 128 system counter ticks
+		 * required before retention entry.
+		 */
+		dsu_configure_core_wfi_logicret_ctrl(1);
+	} else {
+		/*
+		 * Set the FULL_RET control timer to 128 system counter ticks
+		 * required before retention entry.
+		 */
+		dsu_configure_core_wfi_fullret_ctrl(1);
+	}
+}
+
+static inline void css_disable_ret_ctrl(plat_local_state_t cpu_state)
+{
+	if (cpu_state == ARM_LOCAL_STATE_RETL1) {
+		/*
+		 * Unset the LOGIC_RET control timer to
+		 * disable dynamic retention.
+		 */
+		dsu_configure_core_wfi_logicret_ctrl(0);
+	} else {
+		/*
+		 * Unset the FULL_RET control timer to
+		 * disable dynamic retention.
+		 */
+		dsu_configure_core_wfi_fullret_ctrl(0);
+	}
+}
+#endif
+
 /*******************************************************************************
  * Handler called when a power domain is about to be suspended. The
  * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
 void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
+	const plat_local_state_t core_state = CSS_CORE_PWR_STATE(target_state);
 	/*
 	 * CSS currently supports retention only at cpu level. Just return
 	 * as nothing is to be done for retention.
 	 */
-	if (CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_RET)
+	if (core_state <= ARM_LOCAL_STATE_RET)
 		return;
 
 
-	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
+	assert(core_state >= ARM_LOCAL_STATE_MIN_OFF);
+
+#if DSU_PDL2_SUPPORT
+	/* Set the NOL2PWRDN bit to the required value. */
+	css_prepare_cpu_l2pd_for_suspend(core_state);
+#endif
+
 	css_power_down_common(target_state);
 
 	/* Perform system domain state saving if issuing system suspend */
@@ -205,7 +269,7 @@ void css_pwr_domain_suspend_finish(
 				const psci_power_state_t *target_state)
 {
 	/* Return as nothing is to be done on waking up from retention. */
-	if (CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_RET)
+	if (CSS_CORE_PWR_STATE(target_state) <= ARM_LOCAL_STATE_RET)
 		return;
 
 	/* Perform system domain restore if woken up from system suspend */
@@ -239,8 +303,7 @@ void css_system_reset(void)
 void css_cpu_standby(plat_local_state_t cpu_state)
 {
 	unsigned int scr;
-
-	assert(cpu_state == ARM_LOCAL_STATE_RET);
+	assert(cpu_state >= ARM_LOCAL_STATE_MIN_RET);
 
 	scr = read_scr_el3();
 	/*
@@ -250,6 +313,10 @@ void css_cpu_standby(plat_local_state_t cpu_state)
 	 * Enabling both the bits works for both GICv2 mode and GICv3 affinity
 	 * routing mode.
 	 */
+#if DSU_PDL2_SUPPORT
+	/* Set the retention control register to enter on WFI. */
+	css_enable_ret_ctrl(cpu_state);
+#endif
 	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
 	isb();
 	dsb();
@@ -260,6 +327,10 @@ void css_cpu_standby(plat_local_state_t cpu_state)
 	 * done by eret while el3_exit to save some execution cycles.
 	 */
 	write_scr_el3(scr);
+#if DSU_PDL2_SUPPORT
+	/* Unset the retention control register. */
+	css_disable_ret_ctrl(cpu_state);
+#endif
 }
 
 /*******************************************************************************
