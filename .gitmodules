@@ -17,3 +17,5 @@
 [submodule "contrib/mv-ddr"]
 	path = contrib/mv-ddr
 	url = https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+	# the repository autogenerates mv_ddr_build_message.c which is untracked
+	ignore = untracked
