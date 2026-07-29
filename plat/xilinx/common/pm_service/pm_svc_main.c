@@ -433,7 +433,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		return ret;
 	}
 
-	ret = eemi_psci_debugfs_handler(api_id, pm_arg, handle, flags);
+	ret = eemi_psci_debugfs_handler(api_id, pm_arg, handle,
+					security_flag);
 	if (ret !=  (uintptr_t)0) {
 		return ret;
 	}
