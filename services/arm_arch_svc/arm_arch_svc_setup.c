@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,20 @@ static int32_t smccc_version(void)
 	return MAKE_SMCCC_VERSION(SMCCC_MAJOR_VERSION, SMCCC_MINOR_VERSION);
 }
 
+static inline __unused int32_t smccc_check_for_wa_1(void)
+{
+#if WORKAROUND_CVE_2017_5715
+		switch (check_erratum_applies(CVE(2017, 5715))) {
+		case ERRATA_APPLIES:
+			return SMC_WA_DO;
+		case ERRATA_NOT_APPLIES:
+			return SMC_WA_DO_NOT;
+		}
+#endif
+		/* ERRATA_MISSING, CVE not compiled in, or not vulnerable */
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+}
+
 static int32_t smccc_arch_features(u_register_t arg1)
 {
 	switch (arg1) {
@@ -27,18 +41,12 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		return plat_is_smccc_feature_available(arg1);
 #ifdef __aarch64__
 	/* Workaround checks are currently only implemented for aarch64 */
-#if WORKAROUND_CVE_2017_5715
 	case SMCCC_ARCH_WORKAROUND_1:
-		if (check_erratum_applies(CVE(2017, 5715))
-			== ERRATA_NOT_APPLIES) {
-			return 1;
-		}
+		return smccc_check_for_wa_1();
 
-		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
-#endif
-
-#if WORKAROUND_CVE_2018_3639
+	/* see note for WA_3 */
 	case SMCCC_ARCH_WORKAROUND_2: {
+#if WORKAROUND_CVE_2018_3639
 #if DYNAMIC_WORKAROUND_CVE_2018_3639
 		unsigned long long ssbs;
 
@@ -57,52 +65,51 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		if (ssbs != SSBS_UNAVAILABLE)
 			return 1;
 
-		/*
-		 * On a platform where at least one CPU requires
-		 * dynamic mitigation but others are either unaffected
-		 * or permanently mitigated, report the latter as not
-		 * needing dynamic mitigation.
-		 */
-		if (check_erratum_applies(ERRATUM(ARCH_WORKAROUND_2))
-			== ERRATA_NOT_APPLIES)
-			return 1;
-
-		/*
-		 * If we get here, this CPU requires dynamic mitigation
-		 * so report it as such.
-		 */
-		return 0;
+		switch (check_erratum_applies(ERRATUM(ARCH_WORKAROUND_2))) {
+		case ERRATA_APPLIES:
+			return SMC_WA_DO;
+		case ERRATA_NOT_APPLIES:
+			return SMC_WA_DO_NOT;
+		}
 #else
 		/* Either the CPUs are unaffected or permanently mitigated */
 		return SMC_ARCH_CALL_NOT_REQUIRED;
 #endif
+#endif
+		/* ERRATA_MISSING, CVE not compiled in, or not vulnerable */
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
 	}
-#endif
 
-#if (WORKAROUND_CVE_2022_23960 || WORKAROUND_CVE_2017_5715)
+	/*
+	 * NOTE: this uses the ARCH_WORKAROUND_3 pseudo-erratum instead of the
+	 * one registered for CVE_2022_23960 on purpose. This is because not all
+	 * cores affected by the CVE need the SMC workaround. For newer cores,
+	 * it is assumed that lower EL software is capable of working around the
+	 * problem itself and so no firmware involvement is needed. Select cores
+	 * that do not have such software can register for the WA_3 SMC
+	 * explicitly.
+	 */
 	case SMCCC_ARCH_WORKAROUND_3:
-		/*
-		 * SMCCC_ARCH_WORKAROUND_3 should also take into account
-		 * CVE-2017-5715 since this SMC can be used instead of
-		 * SMCCC_ARCH_WORKAROUND_1.
-		 */
-		if ((check_erratum_applies(ERRATUM(ARCH_WORKAROUND_3))
-			== ERRATA_NOT_APPLIES) &&
-		    (check_erratum_applies(CVE(2017, 5715))
-			== ERRATA_NOT_APPLIES)) {
-			return 1;
+#if WORKAROUND_CVE_2022_23960
+		switch (check_erratum_applies(ERRATUM(ARCH_WORKAROUND_3))) {
+		case ERRATA_APPLIES:
+			return SMC_WA_DO;
+		case ERRATA_NOT_APPLIES:
+			return SMC_WA_DO_NOT;
 		}
+#endif /* WORKAROUND_CVE_2022_23960 */
+		/* WA_3 can be used instead of WA_1 */
+		return smccc_check_for_wa_1();
 
-		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
-#endif
-
-#if WORKAROUND_CVE_2024_7881
 	case SMCCC_ARCH_WORKAROUND_4:
-		if (check_erratum_applies(CVE(2024, 7881)) != ERRATA_APPLIES) {
-			return SMC_ARCH_CALL_NOT_SUPPORTED;
+#if WORKAROUND_CVE_2024_7881
+		/* WA_4 does not have a SMC_WA_DO_NOT */
+		if (check_erratum_applies(CVE(2024, 7881)) == ERRATA_APPLIES) {
+				return SMC_WA_DO;
 		}
-		return 0;
 #endif /* WORKAROUND_CVE_2024_7881 */
+		/* ERRATA_MISSING, CVE not compiled in, or not vulnerable */
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
 
 #endif /* __aarch64__ */
 

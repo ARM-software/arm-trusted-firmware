@@ -375,6 +375,10 @@
 #define ID_AA64PFR1_EL1_RNG_TRAP_SUPPORTED	ULL(0x1)
 #define ID_AA64PFR1_EL1_RNG_TRAP_NOT_SUPPORTED	ULL(0x0)
 
+/* ID_AA64PFR1_EL1.MTE field: MTE architecture presence (bits [11:8]) */
+#define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
+#define ID_AA64PFR1_EL1_MTE_WIDTH	U(4)
+
 /* Memory Tagging Extension is not implemented */
 #define MTE_UNIMPLEMENTED	U(0)
 /* FEAT_MTE: MTE instructions accessible at EL0 are implemented */
@@ -907,6 +911,7 @@
 #define EC_AARCH64_HVC			U(0x16)
 #define EC_AARCH64_SMC			U(0x17)
 #define EC_AARCH64_SYS			U(0x18)
+#define EC_IMP_DEF_EL3			U(0x1f)
 #define EC_IABORT_LOWER_EL		U(0x20)
 #define EC_IABORT_CUR_EL		U(0x21)
 #define EC_PC_ALIGN			U(0x22)

@@ -879,6 +879,11 @@ Common build options
    hardware will limit the effective VL to the maximum physically supported
    VL.
 
+-  ``TRANSFER_LIST``: Setting this to ``1`` enables support for Firmware
+   Handoff using Transfer List defined in `Firmware Handoff specification`_.
+   This defaults to ``0``. Please note that this is an experimental feature
+   based on Firmware Handoff specification v0.9.
+
 -  ``TRNG_SUPPORT``: Setting this to ``1`` enables support for True
    Random Number Generator Interface to BL31 image. This defaults to ``0``.
 
@@ -1202,3 +1207,4 @@ Firmware update options
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
 .. _PSA DRTM specification: https://developer.arm.com/documentation/den0113/a
+.. _Firmware Handoff specification: https://github.com/FirmwareHandoff/firmware_handoff/releases/tag/v0.9

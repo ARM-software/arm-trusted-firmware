@@ -122,8 +122,10 @@ check_erratum_ls neoverse_v3, CVE(2024, 7881), CPU_REV(0, 1)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start neoverse_v3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+#if IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
+#endif /* IMAGE_BL31 */
 workaround_reset_end neoverse_v3, CVE(2025, 647)
 
 check_erratum_chosen neoverse_v3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
@@ -139,6 +141,9 @@ func neoverse_v3_impl_defined_el3_handler
 	b	wa_cve_2025_0647_do_cpp_wa
 endfunc neoverse_v3_impl_defined_el3_handler
 #endif
+
+add_erratum_entry neoverse_v3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen neoverse_v3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -181,7 +186,7 @@ func neoverse_v3_cpu_reg_dump
 	ret
 endfunc neoverse_v3_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647
+#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
 declare_cpu_ops_eh neoverse_v3, NEOVERSE_V3_VNAE_MIDR, \
 	neoverse_v3_reset_func, \
 	neoverse_v3_impl_defined_el3_handler, \

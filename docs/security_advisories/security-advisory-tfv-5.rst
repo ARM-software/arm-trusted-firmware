@@ -52,6 +52,6 @@ whereas the EL3 was fixed in the later commits.
 
 .. _CVE-2017-15031: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15031
 .. _Pull Request #1127: https://github.com/ARM-software/arm-trusted-firmware/pull/1127
-.. _Commit e290a8fcbc: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=e290a8fcbc
-.. _Commit c3e8b0be9b: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=c3e8b0be9b
+.. _Commit e290a8fcbc: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/e290a8fcbc
+.. _Commit c3e8b0be9b: https://git.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a.git/+/c3e8b0be9b
 

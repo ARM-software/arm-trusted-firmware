@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,13 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue neoverse_n1
+
+workaround_reset_start neoverse_n1, ERRATUM(925373), ERRATA_N1_925373
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(33)
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(34)
+workaround_reset_end neoverse_n1, ERRATUM(925373)
+
+check_erratum_ls neoverse_n1, ERRATUM(925373), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n1, ERRATUM(936184), ERRATA_DSU_936184
 	errata_dsu_936184_wa_impl
@@ -131,6 +138,12 @@ workaround_reset_end neoverse_n1, ERRATUM(1542419)
 
 check_erratum_range neoverse_n1, ERRATUM(1542419), CPU_REV(3, 0), CPU_REV(4, 0)
 
+workaround_reset_start neoverse_n1, ERRATUM(1791580), ERRATA_N1_1791580
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, BIT(2)
+workaround_reset_end neoverse_n1, ERRATUM(1791580)
+
+check_erratum_ls neoverse_n1, ERRATUM(1791580), CPU_REV(4, 0)
+
 workaround_reset_start neoverse_n1, ERRATUM(1868343), ERRATA_N1_1868343
 	sysreg_bit_set NEOVERSE_N1_CPUACTLR_EL1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 workaround_reset_end neoverse_n1, ERRATUM(1868343)
@@ -175,10 +188,16 @@ workaround_runtime_end neoverse_n1, ERRATUM(2743102)
 check_erratum_ls neoverse_n1, ERRATUM(2743102), CPU_REV(4, 1)
 
 workaround_runtime_start  neoverse_n1, ERRATUM(3324349), ERRATA_N1_3324349
-	speculation_barrier
+	isb
 workaround_runtime_end neoverse_n1, ERRATUM(3324349)
 
 check_erratum_ls neoverse_n1, ERRATUM(3324349), CPU_REV(4, 1)
+
+workaround_reset_start neoverse_n1, ERRATUM(3888013), ERRATA_N1_3888013
+	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, BIT(22)
+workaround_reset_end neoverse_n1, ERRATUM(3888013)
+
+check_erratum_chosen neoverse_n1, ERRATUM(3888013), ERRATA_N1_3888013
 
 workaround_reset_start neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
@@ -191,6 +210,9 @@ workaround_reset_start neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end neoverse_n1, CVE(2022, 23960)
 
 check_erratum_chosen neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+add_erratum_entry neoverse_n1, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen neoverse_n1, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 /* --------------------------------------------------
  * Disable speculative loads if Neoverse N1 supports
@@ -264,6 +286,18 @@ func neoverse_n1_errata_ic_trap_handler
 	b.ne	1f
 	tlbi	vae3is, xzr
 	dsb	sy
+
+#if WORKAROUND_CVE_2025_10263
+	/*
+	 * Perform workaround for CVE-2025-10263
+	 *
+	 * This is sort of a special case where we don't use the workaround
+	 * function because N1 will always need to apply it so there's no
+	 * need to perform a check and incur the additional overhead.
+	 */
+	tlbi	vale3is, xzr
+	dsb	ish
+#endif /* WORKAROUND_CVE_2025_10263 */
 
 	# Skip the IC instruction itself
 	mrs     x3, elr_el3

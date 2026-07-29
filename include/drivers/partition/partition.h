@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,7 +29,7 @@ CASSERT((PLAT_PARTITION_BLOCK_SIZE == 512) ||
 
 #define LEGACY_PARTITION_BLOCK_SIZE	512
 
-#define DEFAULT_GPT_HEADER_SIZE 	92
+#define LBA(n) ((unsigned long long)(n) * PLAT_PARTITION_BLOCK_SIZE)
 
 typedef struct partition_entry {
 	uint64_t		start;

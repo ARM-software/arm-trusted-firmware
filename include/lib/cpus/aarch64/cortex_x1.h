@@ -21,7 +21,10 @@
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
+#define CORTEX_X1_CPUACTLR_EL1		S3_0_C15_C1_0
 #define CORTEX_X1_ACTLR2_EL1		S3_0_C15_C1_1
+#define CORTEX_X1_ACTLR3_EL1		S3_0_C15_C1_2
+#define CORTEX_X1_ACTLR5_EL1        S3_0_C15_C9_0
 
 /*******************************************************************************
  * CPU Power Control register specific definitions

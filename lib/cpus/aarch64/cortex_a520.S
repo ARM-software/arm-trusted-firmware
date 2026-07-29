@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,36 @@ workaround_reset_end cortex_a520, ERRATUM(2630792)
 
 check_erratum_ls cortex_a520, ERRATUM(2630792), CPU_REV(0, 1)
 
+workaround_reset_start cortex_a520, ERRATUM(2677201), ERRATA_A520_2677201
+	mrs x0, SCTLR_EL1
+	tbz x0, #42, #1f
+	ubfx x1, x0, #40, #2
+	cbz x1, #1f
+
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(10)
+
+	movz x1, #0x0000
+	msr S3_6_C15_C4_0, x1
+	movk x1, #0x0000, lsl #0
+	movk x1, #0x0850, lsl #16
+	movk x1, #0x0000, lsl #32
+	movk x1, #0x0000, lsl #48
+	msr S3_6_C15_C4_2, x1
+	movk x1, #0x0000, lsl #0
+	movk x1, #0x1F70, lsl #16
+	movk x1, #0x0008, lsl #32
+	movk x1, #0x0000, lsl #48
+	msr S3_6_C15_C4_3, x1
+	movk x1, #0x03F1, lsl #0
+	movk x1, #0x00C0, lsl #16
+	movk x1, #0x0000, lsl #32
+	movk x1, #0x0000, lsl #48
+	msr S3_6_C15_C4_1, x1
+1:
+workaround_reset_end cortex_a520, ERRATUM(2677201)
+
+check_erratum_ls cortex_a520, ERRATUM(2677201), CPU_REV(0, 0)
+
 workaround_reset_start cortex_a520, ERRATUM(2858100), ERRATA_A520_2858100
 	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(29)
 workaround_reset_end cortex_a520, ERRATUM(2858100)
@@ -50,6 +80,18 @@ check_erratum_custom_end cortex_a520, ERRATUM(2900952)
 add_erratum_entry cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996
 
 check_erratum_ls cortex_a520, ERRATUM(2938996), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a520, ERRATUM(3631357), ERRATA_A520_3631357
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(27)
+workaround_reset_end cortex_a520, ERRATUM(3631357)
+
+check_erratum_chosen cortex_a520, ERRATUM(3631357), ERRATA_A520_3631357
+
+workaround_reset_start cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(9)
+workaround_reset_end cortex_a520, ERRATUM(3685825)
+
+check_erratum_chosen cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
