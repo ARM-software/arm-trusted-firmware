@@ -100,7 +100,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +-----------------------+--------+
 | FEAT_TRBEv1p1         |   NA   |
 +-----------------------+--------+
-| FEAT_TRBE_EXC         |        |
+| FEAT_TRBE_EXC         |   OK   |
 +-----------------------+--------+
 | FEAT_SME_MOP4         |   NA   |
 +-----------------------+--------+

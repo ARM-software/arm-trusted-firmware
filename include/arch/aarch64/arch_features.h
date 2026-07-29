@@ -310,7 +310,7 @@
 /* === v9.0 features === */
 #define FEAT_TRBE(gen)								\
 	gen(feat_trbe, id_aa64dfr0_el1, ENABLE_TRBE_FOR_NS,			\
-	    ID_AA64DFR0_TRACEBUFFER, 1U, 1U, FEAT_ENABLE_NS)
+	    ID_AA64DFR0_TRACEBUFFER, 1U, 2U, FEAT_ENABLE_NS)
 
 /* === v9.2 features === */
 #define FEAT_RME(gen)								\
@@ -421,6 +421,10 @@
 	gen(feat_spe_nvm, id_aa64dfr2_el1, ENABLE_FEAT_SPEV1P5,			\
 	    ID_AA64DFR2_SPE_NVM, 1U, 1U, FEAT_ENABLE_NS)
 
+#define FEAT_TRBE_EXC(gen)							\
+	gen(feat_trbe_exc, id_aa64dfr2_el1, ENABLE_FEAT_TRBE_EXC,		\
+	    ID_AA64DFR2_TRBE_EXC, 1U, 1U, FEAT_ENABLE_NS)
+
 /* Auxiliary features. Don't relate to an architectural feature directly */
 #define FEAT_AMU_AUX(gen)							\
 	gen(feat_amu_aux, amcfgr_el0, ENABLE_AMU_AUXILIARY_COUNTERS,		\
@@ -513,6 +517,7 @@
 	FEAT_SPE_EXC(gen)							\
 	FEAT_SPE_NVM(gen)							\
 	FEAT_SRMASK(gen)							\
+	FEAT_TRBE_EXC(gen)							\
 	FEAT_MORELLO(gen)
 
 /*

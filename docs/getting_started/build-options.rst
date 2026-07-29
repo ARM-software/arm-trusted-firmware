@@ -1437,6 +1437,9 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
 - ``ENABLE_FEAT_SRMASK```: Enables alias and bitwise write masks for EL1 control
   registers and equivalent bitwise write masks for NS EL2. Default value is ``0``.
 
+- ``ENABLE_FEAT_TRBE_EXC``: Enables trace buffer management events to be
+  reported as profiling exceptions. Default value is ``0``.
+
 GIC driver options
 --------------------
 
