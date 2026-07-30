@@ -138,6 +138,8 @@ typedef struct scmi_channel_plat_info {
 	void *cookie;
 	/* Delay in micro-seconds while polling the channel status. */
 	uint32_t delay;
+	/* Timeout in micro-seconds for SCMI command completion. */
+	uint32_t timeout;
 } scmi_channel_plat_info_t;
 
 
