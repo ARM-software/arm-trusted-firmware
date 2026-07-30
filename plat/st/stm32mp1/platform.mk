@@ -5,7 +5,6 @@
 #
 
 ARM_CORTEX_A7		:=	yes
-ARM_WITH_NEON		:=	yes
 BL2_AT_EL3		:=	1
 USE_COHERENT_MEM	:=	0
 
@@ -92,10 +91,8 @@ endif
 # STM32 image header binary type for BL2
 STM32_HEADER_BL2_BINARY_TYPE:=	0x10
 
-ifeq ($(AARCH32_SP),sp_min)
-# Disable Neon support: sp_min runtime may conflict with non-secure world
+# Disable Neon support: runtime may conflict with non-secure world
 TF_CFLAGS		+=	-mfloat-abi=soft
-endif
 
 TF_CFLAGS		+=	-Wsign-compare
 TF_CFLAGS		+=	-Wformat-signedness

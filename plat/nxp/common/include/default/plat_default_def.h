@@ -138,6 +138,13 @@
 #define PLAT_FIP_MAX_SIZE	0x400000
 #endif
 
+#ifndef PLAT_FUSE_FIP_OFFSET
+#define PLAT_FUSE_FIP_OFFSET	0x880000
+#endif
+#ifndef PLAT_FUSE_FIP_MAX_SIZE
+#define PLAT_FUSE_FIP_MAX_SIZE	0x80000
+#endif
+
 /* Check if this size can be determined from array size */
 #if defined(IMAGE_BL2)
 #ifndef MAX_MMAP_REGIONS
