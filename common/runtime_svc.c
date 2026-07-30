@@ -271,8 +271,8 @@ void handler_sync_exception(cpu_context_t *ctx)
 		 * platform fatal error handler rather than the generic EA one.
 		 */
 		if (is_feat_ras_supported() &&
-		    (EXTRACT(EABORT_SET, esr_el3) == ERROR_STATUS_SET_UC ||
-		     EXTRACT(EABORT_DFSC, esr_el3) == SYNC_EA_FSC)) {
+		    (EXTRACT(EABORT_DFSC, esr_el3) == SYNC_EA_FSC &&
+		     EXTRACT(EABORT_SET, esr_el3) == ERROR_STATUS_SET_UC)) {
 			return plat_handle_uncontainable_ea();
 		}
 		/* Setup exception class and syndrome arguments for platform handler */
