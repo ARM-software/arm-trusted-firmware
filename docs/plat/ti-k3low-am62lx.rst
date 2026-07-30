@@ -55,6 +55,22 @@ Deploy Images
 
     cp tiboot3.bin tispl.bin u-boot.img /sdcard/boot/
 
+Board Porting
+-------------
+
+When porting a new board, the following must be defined in the board's ``board.mk``:
+
+-  **K3LOW_DDR_CFG_HEADER**
+
+    Board-specific DDR configuration header file used during BL1 initialization.
+
+    Example for ``plat/ti/k3low/board/am62lx-evm/board.mk``:
+
+    .. code:: makefile
+
+        K3LOW_DDR_CFG_HEADER := am62lx_skevm_lp4_50_800.h
+        $(eval $(call add_define_val,K3LOW_DDR_CFG_HEADER,'"$(K3LOW_DDR_CFG_HEADER)"'))
+
 AM62L Device/ SCMI ID List:
 ===========================
 

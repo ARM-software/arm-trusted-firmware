@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * AM62Lx SK-EVM DDR configuration instance
+ * AM62Lx DDR configuration instance
  *
  * Copyright (C) 2026 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <am62lx_ddr_config.h>
-#include <am62lx_skevm_lp4_50_800.h>
+#include K3LOW_DDR_CFG_HEADER
 
 const struct am62lx_ddr_config am62lx_ddr_cfg = {
 	.ddr_freq0    = DDRSS_PLL_FREQUENCY_0,

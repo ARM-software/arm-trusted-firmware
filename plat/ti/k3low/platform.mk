@@ -59,9 +59,13 @@ BUILD_PLAT := $(abspath ${BUILD_BASE})/${PLAT}/${TARGET_BOARD}/${BUILD_TYPE}
 
 ifeq (${IMAGE_BL1}, 1)
 override ENABLE_PIE := 0
+ifeq ($(K3LOW_DDR_CFG_HEADER),)
+$(error K3LOW_DDR_CFG_HEADER must be set in board.mk)
+endif
 endif
 
 PLAT_INCLUDES +=	\
+			-I${PLAT_PATH}/common \
 			-I${PLAT_PATH}/common/drivers/firewall \
 			-I${PLAT_PATH}/common/drivers/k3-ddrss \
 			-I${PLAT_PATH}/common/drivers/k3-ddrss/common \

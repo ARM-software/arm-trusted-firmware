@@ -30,17 +30,6 @@ static void uart_padconfig_setup(void)
 	pad_conf &= ~(PAD_MUXMODE_MASK | PAD_DRVDISABLE_MASK | PAD_INPUTACTIVE_MASK);
 	pad_conf |= FIELD_PREP(PAD_PULLUPDOWN_MASK, 1);
 	mmio_write_32(PADCONF_ADDR + PIN_MAIN_UART0_TXD, pad_conf);
-
-	/* Set WKUP UART pins */
-	pad_conf = mmio_read_32(PADCONF_ADDR + PIN_WKUP_UART0_RXD);
-	pad_conf &= ~(PAD_MUXMODE_MASK | PAD_DRVDISABLE_MASK);
-	pad_conf |= (FIELD_PREP(PAD_PULLUPDOWN_MASK, 1) | FIELD_PREP(PAD_INPUTACTIVE_MASK, 1));
-	mmio_write_32(PADCONF_ADDR + PIN_WKUP_UART0_RXD, pad_conf);
-
-	pad_conf = mmio_read_32(PADCONF_ADDR + PIN_WKUP_UART0_TXD);
-	pad_conf &= ~(PAD_MUXMODE_MASK | PAD_DRVDISABLE_MASK | PAD_INPUTACTIVE_MASK);
-	pad_conf |= FIELD_PREP(PAD_PULLUPDOWN_MASK, 1);
-	mmio_write_32(PADCONF_ADDR + PIN_WKUP_UART0_TXD, pad_conf);
 }
 
 void board_init(void)
