@@ -3,6 +3,36 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.5..refs/tags/lts-v2.14.6) (2026-07-31)
+
+### New Features
+
+- **Platforms**
+
+  - **MediaTek**
+
+    - **MT8196**
+
+      - add CPU errata workarounds ([3bd0e9a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3bd0e9acb72ec005a99d718c58df6d595e6cebc1))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **AMD**
+
+    - **Versal Gen 2**
+
+      - enable A78AE errata workarounds ([2c26998](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2c26998244f04a5870aa6db20cb62b0ec1fdcc5a))
+
+  - **Xilinx**
+
+    - pass security_flag to eemi_psci_debugfs_handler ([c731d41](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c731d419c4384f47bf01c4cb3b6da608c032ab02))
+
+    - **Versal NET**
+
+      - enable A78AE errata workarounds ([7a5b2b3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7a5b2b3a0a0e0cf0a7c5d7d2847300e50a6c4781))
+
 ## [lts-2.14.5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.4..refs/tags/lts-v2.14.5) (2026-07-24)
 
 ### Documentation
