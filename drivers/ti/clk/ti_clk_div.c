@@ -253,7 +253,7 @@ uint32_t ti_clk_div_set_freq_static_parent(struct ti_clk *clkp, uint32_t target_
 	div1_hz = 0U;
 	if (div1 <= n) {
 		div1_hz = parent_freq_hz / div1;
-		if (div1_hz >= min_hz) {
+		if ((div1_hz >= min_hz) && (div1_hz <= max_hz)) {
 			div1_ok = true;
 			div1_delta = target_hz - div1_hz;
 		} else {
