@@ -435,11 +435,20 @@ enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 			       uint32_t address_high, uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	uint32_t response = 0U;
+	enum pm_ret_status ret;
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, flag, PM_LOAD_PDI, src,
 			 address_high, address_low);
-	return pm_ipi_send_sync(payload, NULL, 0);
+	ret = pm_ipi_send_sync(payload, &response, 1U);
+
+	/* For load pdi API, the loader response is captured in response[1] */
+	if (ret == PM_RET_SUCCESS) {
+		ret = (enum pm_ret_status)response;
+	}
+
+	return ret;
 }
 
 /**
