@@ -85,7 +85,14 @@ static uint64_t res_id_to_u64(const char *res_id)
 	return val;
 }
 
-uint32_t cmd_db_query_addr(const char *res_id)
+/*
+ * Look up a resource entry by its identifier string. On success returns a
+ * pointer to the matching entry and, if @info_out is non-NULL, the owning
+ * slave ID info block. Returns NULL when the resource is not found.
+ */
+static const struct cmd_db_entry *cmd_db_find_entry(
+		const char *res_id,
+		const struct cmd_db_slv_id_info **info_out)
 {
 	uint64_t key;
 	unsigned int slv;
@@ -94,12 +101,12 @@ uint32_t cmd_db_query_addr(const char *res_id)
 	const struct cmd_db_entry *entry;
 
 	if (res_id == NULL) {
-		return 0U;
+		return NULL;
 	}
 
 	if (g_cmd_db == NULL) {
 		if (cmd_db_init() != 0) {
-			return 0U;
+			return NULL;
 		}
 	}
 
@@ -119,10 +126,53 @@ uint32_t cmd_db_query_addr(const char *res_id)
 				 idx * sizeof(struct cmd_db_entry));
 
 			if (entry->res_id == key) {
-				return entry->addr;
+				if (info_out != NULL) {
+					*info_out = info;
+				}
+				return entry;
 			}
 		}
 	}
 
-	return 0U;
+	return NULL;
+}
+
+uint32_t cmd_db_query_addr(const char *res_id)
+{
+	const struct cmd_db_entry *entry = cmd_db_find_entry(res_id, NULL);
+
+	return (entry != NULL) ? entry->addr : 0U;
+}
+
+uint32_t cmd_db_query_len(const char *res_id)
+{
+	const struct cmd_db_entry *entry = cmd_db_find_entry(res_id, NULL);
+
+	return (entry != NULL) ? (uint32_t)entry->len : 0U;
+}
+
+int cmd_db_query_aux_data(const char *res_id, uint8_t *len, uint8_t *data)
+{
+	const struct cmd_db_slv_id_info *info = NULL;
+	const struct cmd_db_entry *entry;
+	const uint8_t *src;
+	uint32_t copy_len;
+
+	if ((len == NULL) || (data == NULL)) {
+		return -1;
+	}
+
+	entry = cmd_db_find_entry(res_id, &info);
+	if ((entry == NULL) || (entry->len == 0U)) {
+		return -1;
+	}
+
+	/* Copy back at most what the caller's buffer can hold */
+	copy_len = (*len < entry->len) ? (uint32_t)*len : (uint32_t)entry->len;
+
+	src = g_cmd_db->data + info->data_offset + entry->offset;
+	memcpy(data, src, copy_len);
+
+	*len = (uint8_t)copy_len;
+	return 0;
 }
