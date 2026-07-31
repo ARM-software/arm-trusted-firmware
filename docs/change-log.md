@@ -3,6 +3,16 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.33](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.32..refs/tags/lts-v2.10.33) (2026-07-31)
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Xilinx**
+
+    - pass security_flag to eemi_psci_debugfs_handler ([0afda03](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0afda039348262b3df584cfd55ecc3e561929893))
+
 ## [lts-2.10.32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.31..refs/tags/lts-v2.10.32) (2026-07-24)
 
 ### ⚠ BREAKING CHANGES
