@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,14 +20,17 @@
 #include <platform_def.h>
 /*
  * The platform must allocate buffers to store the authentication parameters
- * extracted from the certificates. In this case, because of the way the CoT is
- * established, we can reuse some of the buffers on different stages
+ * extracted from the certificates. In most cases the CoT lets us reuse some of
+ * the buffers on different stages. BL1 is an exception for BL2/BL2U because
+ * the current FWU flow resets FWU_CERT_ID before BL2U authentication while the
+ * normal boot path still consumes TB_FW_HASH through the same stage.
  */
 
 static unsigned char fw_config_hash_buf[HASH_DER_LEN];
 static unsigned char tb_fw_config_hash_buf[HASH_DER_LEN];
 static unsigned char hw_config_hash_buf[HASH_DER_LEN];
 unsigned char tb_fw_hash_buf[HASH_DER_LEN];
+unsigned char bl2u_hash_buf[HASH_DER_LEN];
 unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 unsigned char nt_world_bl_hash_buf[HASH_DER_LEN];
 
