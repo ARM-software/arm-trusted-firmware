@@ -3,6 +3,43 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.14](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.13..refs/tags/lts-v2.12.14) (2026-07-31)
+
+### Documentation
+
+- fill TFV advisory titles ([78674e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/78674e3e9119c1be77618aeb84c9f77dc5bd5688))
+
+### Resolved Issues
+
+- **readme:** dummy commit for sandbox release ([6b3b3ea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6b3b3ea059de875a419e4304ecf39af534ea0e6c))
+
+- **Platforms**
+
+  - **NXP**
+
+    - imx_trdc.h header guard ([bfd109e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bfd109e39bd7b0052c651680add0414e8a411d9c))
+    - move PLAT_FUSE_FIP_* to plat_default_def ([327504e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/327504e3df0e2cf6609fd1b1e5c35ddec8be13e6))
+
+  - **ST**
+
+    - **STM32MP1**
+
+      - force soft float ABI and disable NEON ([d3fc9d6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d3fc9d67da26c5caef66b418758562e1fa2a3db7))
+
+  - **Xilinx**
+
+    - pass security_flag to eemi_psci_debugfs_handler ([e6f0750](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e6f0750c71b83348e65d7fa2dca10d7c0a4d6335))
+
+    - **Versal NET**
+
+      - enable A78AE errata workarounds ([50224b4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/50224b40e130d820633c9ea00c528aaaaf5ddc71))
+
+  - **AMD**
+
+    - **Versal Gen 2**
+
+      - enable A78AE errata workarounds ([80f4f28](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/80f4f28b89f07242840b65101817c46e51f30786))
+
 ## [lts-2.12.13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.12..refs/tags/lts-v2.12.13) (2026-07-24)
 
 ### Style
