@@ -5,7 +5,7 @@
  */
 
 #ifndef IMX_TRDC_H
-#define IMX_XRDC_H
+#define IMX_TRDC_H
 
 #define MBC_BLK_ALL	U(255)
 #define MRC_REG_ALL	U(16)
