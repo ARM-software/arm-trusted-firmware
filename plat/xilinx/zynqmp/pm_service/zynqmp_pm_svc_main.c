@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2023-2025, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -294,7 +294,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t result[RET_PAYLOAD_ARG_CNT] = {0};
 	uint32_t api_id;
 	uint32_t security_flag = NON_SECURE;
-	bool status = false, status_tmp = false;
+	volatile bool status = false, status_tmp = false;
 
 	/* Handle case where PM wasn't initialized properly */
 	if (pm_up == 0)
