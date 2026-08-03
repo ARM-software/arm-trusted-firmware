@@ -43,6 +43,7 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				common/runtime_svc.c				\
 				common/smc_validation.c				\
 				lib/cpus/errata_common.c			\
+				lib/cpus/errata_common_asm.S			\
 				lib/per_cpu/aarch64/per_cpu_asm.S		\
 				lib/per_cpu/per_cpu.c				\
 				plat/common/aarch64/platform_mp_stack.S		\
