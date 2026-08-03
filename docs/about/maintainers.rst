@@ -897,15 +897,16 @@ Raspberry Pi 4 platform port
 :|F|: drivers/rpi3/
 :|F|: include/drivers/rpi3/
 
-Renesas rcar-gen3 platform port
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Marek Vasut <marek.vasut@gmail.com>
+Renesas R-Car Gen3, Gen4, Gen5 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Marek Vasut <marek.vasut+renesas@mailbox.org>
 :|G|: `marex`_
 :|F|: docs/plat/rcar-gen3.rst
-:|F|: plat/renesas/common
-:|F|: plat/renesas/rcar
 :|F|: drivers/renesas/common
-:|F|: drivers/renesas/rcar
+:|F|: drivers/renesas/rcar\*
+:|F|: include/drivers/renesas/rcar\*
+:|F|: plat/renesas/common
+:|F|: plat/renesas/rcar\*
 :|F|: tools/renesas/rcar_layout_create
 
 Renesas RZ/A platform port
