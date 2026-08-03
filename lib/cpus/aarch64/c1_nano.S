@@ -112,6 +112,36 @@ workaround_runtime_end c1_nano, ERRATUM(3754876)
 
 check_erratum_ls c1_nano, ERRATUM(3754876), CPU_REV(0, 1)
 
+	.pushsection .data
+	.align	4
+safe_info:
+	.quad	0x1122334455667788
+	.quad	0x1122334455667788
+	.popsection
+
+.global erratum_c1_nano_4497400_wa
+workaround_runtime_start c1_nano, ERRATUM(4497400), ERRATA_C1NANO_4497400
+	adr_l	x1, safe_info
+	mov	x0, #4
+	.balign	16
+1:
+	sb_barrier_insn
+	ldp	x2, x3, [x1, #0]
+	ldp	x2, x3, [x1, #0]
+	subs	x0, x0, #1
+	sb_barrier_insn
+	nop
+	ldp	x2, x3, [x1, #0]
+	ldp	x2, x3, [x1, #0]
+	sb_barrier_insn
+	ldp	x2, x3, [x1, #0]
+	ldp	x2, x3, [x1, #0]
+	b.ne	1b
+	sb_barrier_insn
+workaround_runtime_end c1_nano, ERRATUM(4497400), NO_ISB
+
+check_erratum_ls c1_nano, ERRATUM(4497400), CPU_REV(0, 2)
+
 cpu_reset_func_start c1_nano
 	/* ----------------------------------------------------
 	 * Disable speculative loads

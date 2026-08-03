@@ -684,9 +684,9 @@ no_mpam:
 
 	restore_ptw_el1_sys_regs
 
-#if IMAGE_BL31 && (ERRATA_A510_4568615 || ERRATA_A520_4491980)
+#if IMAGE_BL31 && (ERRATA_A510_4568615 || ERRATA_A520_4491980 || ERRATA_C1NANO_4497400)
 	bl	apply_faulting_side_channel_wa
-#endif /* IMAGE_BL31 && (ERRATA_A510_4568615 || ERRATA_A520_4491980) */
+#endif /* IMAGE_BL31 && (ERRATA_A510_4568615 || ERRATA_A520_4491980 || ERRATA_C1NANO_4497400) */
 
 	/* ----------------------------------------------------------
 	 * Restore general purpose (including x30), PMCR_EL0 and

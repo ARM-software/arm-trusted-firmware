@@ -1844,6 +1844,10 @@ For C1-Nano, the following errata build flags are defined :
    C1-Nano CPU. This needs to be enabled for revisions r0p0 and r0p1, and
    is fixed in r0p2.
 
+-  ``ERRATA_C1NANO_4497400``: This applies errata 4497400 workaround to
+   C1-Nano CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2. It is
+   fixed in r0p3.
+
 DSU Errata Workarounds
 ----------------------
 
