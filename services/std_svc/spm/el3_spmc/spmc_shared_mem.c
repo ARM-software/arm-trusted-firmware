@@ -705,6 +705,11 @@ spmc_populate_ffa_v1_0_descriptor(void *dst, struct spmc_shmem_obj *orig_obj,
 			return FFA_ERROR_INVALID_PARAMETER;
 		}
 
+		if (offset >= v1_0_obj->desc_size) {
+			spmc_shmem_obj_free(&spmc_shmem_obj_state, v1_0_obj);
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
 		*copy_size = MIN(v1_0_obj->desc_size - offset, buf_size);
 		memcpy(dst, (uint8_t *) &v1_0_obj->desc + offset, *copy_size);
 

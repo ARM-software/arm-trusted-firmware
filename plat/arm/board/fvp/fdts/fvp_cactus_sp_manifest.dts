@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -16,7 +16,7 @@
 	#size-cells = <1>;
 
 	/* Properties */
-	ffa-version = <0x00010001>; /* 31:16 - Major, 15:0 - Minor */
+	ffa-version = <0x00010002>; /* 31:16 - Major, 15:0 - Minor */
 	id = <0x8001>;
 	uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
 	messaging-method = <3>; /* Direct messaging only */
