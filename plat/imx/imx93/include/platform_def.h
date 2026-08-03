@@ -107,6 +107,18 @@
 #define S400_MU_BASE			U(0x47520000)
 #define ELE_MU_BASE			S400_MU_BASE
 
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupt properties
+ * as per GICv3 terminology.
+ */
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(29U, GIC_HIGHEST_SEC_PRIORITY, grp,   \
+		       GIC_INTR_CFG_LEVEL)
+
+#define PLAT_ARM_G0_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(8U, GIC_HIGHEST_SEC_PRIORITY, \
+		       (grp), GIC_INTR_CFG_LEVEL)
+
 /* system memory map define */
 #define AIPS2_MAP	MAP_REGION_FLAT(AIPS2_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW | MT_NS)
 #define AIPS1_MAP	MAP_REGION_FLAT(AIPS1_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW)
