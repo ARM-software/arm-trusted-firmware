@@ -47,7 +47,7 @@ void trbe_enable_ns(cpu_context_t *ctx)
 	mdcr_el3_val |= MDCR_NSTB_EN_BIT | MDCR_NSTB_SS_BIT;
 	mdcr_el3_val &= ~(MDCR_NSTBE_BIT);
 
-	if (is_feat_trbe_exc_present()) {
+	if (is_feat_trbe_exc_supported()) {
 		mdcr_el3_val &= ~MDCR_TRBEE_EN_BIT;
 		mdcr_el3_val |= MDCR_TRBEE_EL3_BIT;
 	}
@@ -70,7 +70,7 @@ static void trbe_disable_all(cpu_context_t *ctx, bool ns)
 		mdcr_el3_val |= MDCR_NSTB_SS_BIT;
 	}
 
-	if (is_feat_trbe_exc_present()) {
+	if (is_feat_trbe_exc_supported()) {
 		mdcr_el3_val &= ~MDCR_TRBEE_EN_BIT;
 		mdcr_el3_val &= ~MDCR_TRBEE_EL3_BIT;
 	}
