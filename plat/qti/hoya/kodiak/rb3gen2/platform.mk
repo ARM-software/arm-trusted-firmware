@@ -82,7 +82,6 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c		\
 				plat/common/plat_gicv3.c				\
 				${GICV3_SOURCES}					\
 				plat/common/plat_psci_common.c				\
-				$(PLAT_PATH)/common/src/$(ARCH)/qti_helpers.S		\
 				$(PLAT_PATH)/common/src/pm_ps_hold.c			\
 				$(PLAT_PATH)/common/src/qti_bl31_setup.c		\
 				$(PLAT_PATH)/common/src/qti_gic_v3.c			\
@@ -91,6 +90,10 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c		\
 				$(PLAT_PATH)/common/src/qti_topology.c			\
 				$(PLAT_PATH)/common/src/qti_pm.c			\
 				$(PLAT_PATH)/common/src/spmi_arb.c			\
+				$(PLAT_PATH)/hoya/common/$(ARCH)/hoya_helpers.S		\
+				$(PLAT_PATH)/hoya/common/hoya_bl31_setup.c		\
+				$(PLAT_PATH)/hoya/common/hoya_gicv3.c		\
+				$(PLAT_PATH)/hoya/common/qtiseclib_pm.c			\
 				$(PLAT_PATH)/hoya/qtiseclib/src/qtiseclib_cb_interface.c
 
 # Override this on the command line to point to the qtiseclib library
@@ -120,7 +123,7 @@ $(eval $(call add_define,QTI_XPU_BYPASS))
 BL31_SOURCES	+=	drivers/qti/sec_core/sec_core_stub.c			\
 			drivers/qti/qtimer/qtimer_stub.c			\
 			drivers/qti/watchdog/watchdog_stub.c			\
-			drivers/qti/accesscontrol/access_control_stub.c		\
+			drivers/qti/accesscontrol/access_control_qtiseclib.c		\
 			drivers/qti/accesscontrol/xpu.c
 LDFLAGS += -L $(dir $(QTISECLIB_PATH))
 LDLIBS += -l$(patsubst lib%.a,%,$(notdir $(QTISECLIB_PATH)))

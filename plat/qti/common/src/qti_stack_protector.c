@@ -10,8 +10,6 @@
 #include <drivers/qti/crypto/rng.h>
 #include <platform.h>
 
-#include <qtiseclib_interface.h>
-
 u_register_t plat_get_stack_protector_canary(void)
 {
 	u_register_t random = 0x0;

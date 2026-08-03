@@ -5,12 +5,12 @@
  */
 
 #include <drivers/qti/accesscontrol/accesscontrol.h>
+#include <qtiseclib_interface.h>
 
 /*
- * Access-control stub for platforms that do not provide a memory-assignment
- * backend. The stub is intentionally free of any QTISECLIB dependency so it
- * can be reused by non-QTISECLIB architectures; the memory-assign request is
- * accepted as a no-op.
+ * QTISECLIB memory-assignment backend. The actual stage-2 protection is
+ * performed by QTISECLIB, so this glue forwards the request to
+ * qtiseclib_mem_assign().
  */
 uint64_t
 qti_accesscontrol_mem_assign(const qti_accesscontrol_mem_t *mem,
@@ -19,14 +19,14 @@ qti_accesscontrol_mem_assign(const qti_accesscontrol_mem_t *mem,
 			     const qti_accesscontrol_perm_t *perm,
 			     uint32_t perm_len)
 {
-	(void)mem;
-	(void)mem_len;
-	(void)src;
-	(void)src_len;
-	(void)perm;
-	(void)perm_len;
+	memprot_dst_vm_perm_info_t *dst;
+	memprot_info_t *mem_info;
 
-	return 0;
+	dst = (memprot_dst_vm_perm_info_t *)(void *)perm;
+	mem_info = (memprot_info_t *)(void *)mem;
+
+	return qtiseclib_mem_assign(mem_info, mem_len, src, src_len, dst,
+				    perm_len);
 }
 
 void qti_accesscontrol_init(void)
