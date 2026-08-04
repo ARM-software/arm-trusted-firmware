@@ -227,10 +227,16 @@ The following additional interfaces are forwarded from SPMD to support NS Client
 
 FFA_VERSION
 -----------
+For a normal-world endpoint, ``FFA_VERSION`` takes the caller's
+*requested_version*. The SPMD forwards the call to the SPMC, which returns
+its implemented version. If the requested version is compatible, the SPMC
+records it as the endpoint's negotiated version.
 
-``FFA_VERSION`` requires a *requested_version* parameter from the caller.
-SPMD forwards call to SPMC, the SPMC returns its own implemented version.
-SPMC asserts SP and SPMC are at same FF-A Version.
+Once an endpoint invokes any FF-A ABI other than ``FFA_VERSION``, version
+negotiation is complete and its version cannot be changed for the endpoint's
+lifetime. A normal-world endpoint must therefore successfully invoke
+``FFA_VERSION`` before invoking another FF-A ABI. An SP's initial version is
+obtained from and validated against its manifest.
 
 FFA_FEATURES
 ------------
