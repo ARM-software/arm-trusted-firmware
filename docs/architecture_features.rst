@@ -565,7 +565,7 @@ this process up by using the ``new-cpu-feature`` agent skill.
   in exceptional cases. You should also update the list of features at the top
   of this file.
 
-- Enable the feature for the FVP platform in ``plat/arm/board/fvp/platform.mk``,
+- Enable the feature for dynamic platforms in ``make_helpers/all_features.mk``,
   setting it to ``2`` (``FEAT_STATE_CHECKED``).
 
 - If the feature is optional, enable it in CI in the "allconfig" fragments.
