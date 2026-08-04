@@ -15,6 +15,26 @@
 #include <cper.h>
 #include <rdaspen_ras.h>
 
+static uint8_t cper_cpu_affinity_value(u_register_t mpidr)
+{
+	/*
+	 * Match plat_arm_calc_core_pos() semantics: if MT bit is clear,
+	 * treat MPIDR as if it encoded thread affinity so the returned
+	 * value maps CPUs consistently regardless of threading support.
+	 */
+	if ((mpidr & MPIDR_MT_MASK) == 0U)
+		mpidr <<= MPIDR_AFFINITY_BITS;
+
+	if (MPIDR_AFFLVL3_VAL(mpidr) != 0U)
+		return (uint8_t)MPIDR_AFFLVL3_VAL(mpidr);
+	if (MPIDR_AFFLVL2_VAL(mpidr) != 0U)
+		return (uint8_t)MPIDR_AFFLVL2_VAL(mpidr);
+	if (MPIDR_AFFLVL1_VAL(mpidr) != 0U)
+		return (uint8_t)MPIDR_AFFLVL1_VAL(mpidr);
+
+	return (uint8_t)MPIDR_AFFLVL0_VAL(mpidr);
+}
+
 /* Convert ERXSTATUS_EL1 bits to CPER severity */
 static inline uint32_t esb_severity_from_erx(uint64_t err_status)
 {
@@ -218,7 +238,7 @@ fill_ns_context_blocks(struct EFI_ARM_PROCESSOR_ERROR_RECORD_DATA *sec)
  *   - 1 ARM CPU section payload containing:
  *       * Section header (EFI_ARM_PROCESSOR_ERROR_SECTION_HEADER),
  *       * One error info (EFI_ARM_PROCESSOR_ERROR_INFORMATION),
- *       * One context info (EFI_ARM_PROCESSOR_ERROR_CONTEXT_INFORMATION), containing:
+ *       * One context info (EFI_ARM_PROCESSOR_CONTEXT_INFORMATION), containing:
  *           Type-4 (GPRs) and Type-5 (EL1) registers.
  */
 
@@ -235,18 +255,17 @@ size_t cper_write_cpu_record(void *buf, size_t buf_size)
 
 	uint32_t context_header_size =
 		sizeof(struct EFI_ARM_PROCESSOR_ERROR_CONTEXT_INFO_HEADER);
-	uint32_t context0_size = context_header_size +
-				 sizeof(struct EFI_ARM_AARCH64_CONTEXT_GPR);
+	uint32_t context0_size =
+		(uint32_t)sizeof(struct EFI_ARM_PROCESSOR_CONTEXT_INFORMATION);
 	uint32_t context1_size =
 		context_header_size +
-		sizeof(struct EFI_ARM_AARCH64_EL1_CONTEXT_SYSTEM_REGISTERS);
+		(uint32_t)sizeof(struct EFI_ARM_AARCH64_EL1_CONTEXT_SYSTEM_REGISTERS);
 	uint32_t contexts_total_size = context0_size + context1_size;
 
 	uint32_t section_size =
-		(uint32_t)sizeof(
-			struct EFI_ARM_PROCESSOR_ERROR_SECTION_HEADER) +
-		(uint32_t)sizeof(struct EFI_ARM_PROCESSOR_ERROR_INFORMATION) *
-			CPU_ERR_INFO_NUM + contexts_total_size;
+		(uint32_t)sizeof(struct EFI_ARM_PROCESSOR_ERROR_SECTION_HEADER) +
+		((uint32_t)sizeof(struct EFI_ARM_PROCESSOR_ERROR_INFORMATION) *
+		 CPU_ERR_INFO_NUM) + contexts_total_size;
 
 	/* Total size: ESB + DataEntry + CPU payload */
 	size_t size = sizeof(struct ACPI_GENERIC_ERROR_STATUS_BLOCK_HEADER) +
@@ -289,13 +308,22 @@ size_t cper_write_cpu_record(void *buf, size_t buf_size)
 	memset(sec, 0, section_size);
 
 	/*  ARM Processor Error Section */
-	sec->CpuInfo.ValidationBit = (EFI_ARM_PROC_ERROR_MPIDR_VALID |
-				      EFI_ARM_PROC_ERROR_RUNNING_STATE_VALID);
+	u_register_t mpidr = read_mpidr_el1();
+
+	sec->CpuInfo.ValidationBit =
+		(EFI_ARM_PROC_ERROR_MPIDR_VALID |
+		 EFI_ARM_PROC_ERROR_AFFINITY_LEVEL_VALID |
+		 EFI_ARM_PROC_ERROR_RUNNING_STATE_VALID);
 	sec->CpuInfo.ErrInfoNum = CPU_ERR_INFO_NUM;
 	sec->CpuInfo.ContextInfoNum = CPU_CONTEXT_INFO_NUM;
 	sec->CpuInfo.SectionLength = section_size;
-	sec->CpuInfo.AffinityLevel = 0;
-	sec->CpuInfo.MPIDR_EL1 = read_mpidr_el1();
+	/*
+	 * Record the affinity value from the highest populated MPIDR level.
+	 * Together with MPIDR_EL1, this describes the reporting PE within
+	 * the processor hierarchy for consumers of the error record.
+	 */
+	sec->CpuInfo.AffinityLevel = cper_cpu_affinity_value(mpidr);
+	sec->CpuInfo.MPIDR_EL1 = mpidr;
 	sec->CpuInfo.MIDR_EL1 = read_midr_el1();
 	sec->CpuInfo.RunState = 1;
 	sec->CpuInfo.PsciState = 0;
