@@ -27,6 +27,7 @@
 #include <lib/coreboot.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/optee_utils.h>
+#include <lib/spinlock.h>
 #if TRANSFER_LIST
 #include <transfer_list.h>
 #endif
@@ -58,6 +59,7 @@ optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];
 uint32_t opteed_rw;
 
 #if OPTEE_ALLOW_SMC_LOAD
+static spinlock_t opteed_lock;
 static bool opteed_allow_load;
 /* OP-TEE image loading service UUID */
 DEFINE_SVC_UUID2(optee_image_load_uuid,
@@ -651,17 +653,25 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 			SMC_UUID_RET(handle, optee_image_load_uuid);
 		}
 		if (smc_fid == NSSMC_OPTEED_CALL_LOAD_IMAGE) {
+			bool can_load = false;
+
 			/*
 			 * TODO: Consider wiping the code for SMC loading from
 			 * memory after it has been invoked similar to what is
 			 * done under RECLAIM_INIT, but extended to happen
 			 * later.
 			 */
-			if (!opteed_allow_load) {
+			spin_lock(&opteed_lock);
+			if (opteed_allow_load) {
+				opteed_allow_load = false;
+				can_load = true;
+			}
+			spin_unlock(&opteed_lock);
+
+			if (!can_load) {
 				SMC_RET1(handle, -EPERM);
 			}
 
-			opteed_allow_load = false;
 			uint64_t data_size = dual32to64(x1, x2);
 			uint64_t data_pa = dual32to64(x3, x4);
 			if (!data_size || !data_pa) {
