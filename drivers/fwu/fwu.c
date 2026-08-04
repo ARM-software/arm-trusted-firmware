@@ -73,26 +73,26 @@ static int fwu_metadata_sanity_check(void)
 	}
 
 	if (metadata.active_index >= NR_OF_FW_BANKS) {
-		WARN("Active Index value(%u) greater than the configured value(%d)",
+		WARN("Active Index value(%u) greater than the configured value(%d)\n",
 		     metadata.active_index, NR_OF_FW_BANKS);
 		return -EINVAL;
 	}
 
 	if (metadata.previous_active_index >= NR_OF_FW_BANKS) {
-		WARN("Previous Active Index value(%u) greater than the configured value(%d)",
+		WARN("Previous Active Index value(%u) greater than the configured value(%d)\n",
 		     metadata.previous_active_index, NR_OF_FW_BANKS);
 		return -EINVAL;
 	}
 
 #if PSA_FWU_METADATA_FW_STORE_DESC
 	if (metadata.fw_desc.num_banks != NR_OF_FW_BANKS) {
-		WARN("Number of Banks(%u) in FWU Metadata different from the configured value(%d)",
+		WARN("Number of Banks(%u) in FWU Metadata different from the configured value(%d)\n",
 		     metadata.fw_desc.num_banks, NR_OF_FW_BANKS);
 		return -EINVAL;
 	}
 
 	if (metadata.fw_desc.num_images != NR_OF_IMAGES_IN_FW_BANK) {
-		WARN("Number of Images(%u) in FWU Metadata different from the configured value(%d)",
+		WARN("Number of Images(%u) in FWU Metadata different from the configured value(%d)\n",
 		     metadata.fw_desc.num_images, NR_OF_IMAGES_IN_FW_BANK);
 		return -EINVAL;
 	}
