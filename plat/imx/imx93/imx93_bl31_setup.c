@@ -25,6 +25,7 @@
 #include <imx_cpu_off.h>
 #include <imx_intercore_svc.h>
 #include <imx_interrupt_mgmt.h>
+#include <imx_plat_common.h>
 #include <plat_common.h>
 #include <plat_imx8.h>
 #include <platform_def.h>
@@ -49,23 +50,6 @@ static const mmap_region_t imx_mmap[] = {
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
-/* get SPSR for BL33 entry */
-static uint32_t get_spsr_for_bl33_entry(void)
-{
-	unsigned long el_status;
-	unsigned long mode;
-	uint32_t spsr;
-
-	/* figure out what mode we enter the non-secure world */
-	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
-	el_status &= ID_AA64PFR0_ELX_MASK;
-
-	mode = (el_status) ? MODE_EL2 : MODE_EL1;
-
-	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
-	return spsr;
-}
-
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
 {
@@ -82,7 +66,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * and the entry state information.
 	 */
 	bl33_image_ep_info.pc = PLAT_NS_IMAGE_OFFSET;
-	bl33_image_ep_info.spsr = get_spsr_for_bl33_entry();
+	bl33_image_ep_info.spsr = plat_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 #if defined(SPD_opteed)
@@ -174,7 +158,3 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 	return NULL;
 }
 
-unsigned int plat_get_syscnt_freq2(void)
-{
-	return COUNTER_FREQUENCY;
-}

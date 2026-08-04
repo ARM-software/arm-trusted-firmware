@@ -1,10 +1,11 @@
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <imx_plat_common.h>
+#include <platform_def.h>
 
 uint32_t plat_get_spsr_for_bl33_entry(void)
 {
@@ -20,4 +21,9 @@ uint32_t plat_get_spsr_for_bl33_entry(void)
 
 	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	return spsr;
+}
+
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return COUNTER_FREQUENCY;
 }

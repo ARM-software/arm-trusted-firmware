@@ -18,6 +18,7 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				plat/common/plat_psci_common.c			\
 				plat/imx/imx9/common/aarch64/plat_helpers.S		\
 				plat/imx/common/imx_common.c			\
+				plat/imx/common/imx_bl31_common.c		\
 				plat/imx/common/imx_cpu_off.c			\
 				plat/imx/common/imx_intercore_svc.c		\
 				plat/imx/common/imx_interrupt_mgmt.c		\
@@ -31,8 +32,6 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				plat/imx/imx93/imx93_bl31_setup.c		\
 				plat/imx/imx93/imx93_psci.c			\
 				plat/imx/imx93/src.c			\
-				plat/imx/common/imx_sip_svc.c			\
-				plat/imx/common/imx_sip_handler.c			\
 				plat/imx/imx9/common/ele_api.c			\
 				lib/cpus/aarch64/cortex_a55.S			\
 				drivers/delay_timer/delay_timer.c		\
