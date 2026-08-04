@@ -181,6 +181,8 @@ static void rpi3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 #endif
 }
 
+void __dead2 plat_secondary_cold_boot_setup(void);
+
 static void __dead2 rpi3_pwr_down_wfi(
 		const psci_power_state_t *target_state)
 {
@@ -201,11 +203,29 @@ static void __dead2 rpi3_pwr_down_wfi(
 		isb();
 	}
 
-	write_rmr_el3(RMR_EL3_RR_BIT | RMR_EL3_AA64_BIT);
-
-	while (1) {
-		wfi();
-	}
+	/*
+	 * Setting RMR_EL3.RR only asserts the core's WARMRSTREQ output signal,
+	 * it is up to the SoC to turn that request into an actual core reset.
+	 * That does not happen on the BCM2711 (Raspberry Pi 4): the core just
+	 * keeps executing, ends up spinning in a WFI loop and never re-enters
+	 * the holding pen. Nobody is then watching the mailbox slot that
+	 * rpi3_pwr_domain_on() writes the "go" flag into, so PSCI_CPU_ON
+	 * reports success while the core never comes back. That breaks CPU
+	 * hotplug, and with it kexec, which offlines the secondary cores
+	 * before handing over to the next kernel.
+	 *
+	 * Enter the holding pen from software instead, which is what this
+	 * platform did before the warm reset was introduced. Everything the
+	 * reset would have taken care of has already been done by the PSCI
+	 * framework by the time we get here - this core's data cache has been
+	 * flushed and disabled and the core has left the coherency domain -
+	 * except for turning the MMU off, which both plat_wait_for_warm_boot()
+	 * and bl31_warm_entrypoint() expect. bl31_warm_entrypoint() runs the
+	 * CPU reset handler, so the core rejoins the coherency domain when it
+	 * is turned back on.
+	 */
+	disable_mmu_el3();
+	plat_secondary_cold_boot_setup(); /* does not return */
 }
 
 /*******************************************************************************
