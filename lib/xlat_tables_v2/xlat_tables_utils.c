@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -600,7 +600,9 @@ int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 		/*
 		 * The break-before-make sequence requires writing an invalid
 		 * descriptor and making sure that the system sees the change
-		 * before writing the new descriptor.
+		 * before writing the new descriptor. This is the ordering
+		 * required to avoid the stale-translation condition described
+		 * by C1 Ultra erratum 3683289.
 		 */
 		*entry = INVALID_DESC;
 #if !HW_ASSISTED_COHERENCY
