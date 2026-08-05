@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2023-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -458,6 +458,35 @@ ifndef toolchain-mk
                 echo $(call escape-shell,$(call toolchain-ld-prefix-arm-clang,$(2))))
         toolchain-ld-option-arm-link = $(shell $($(1)-ld) $(2) --help >/dev/null 2>&1 && $\
                 echo $(call escape-shell,$(2)))
+
+        #
+        # Discover whether a linker driver supports any given option.
+        #
+        # Returns the option unchanged if it is supported. Returns nothing when
+        # the configured linker is not a driver or the option is unsupported.
+        #
+        #   - $(1): The toolchain whose linker driver is being queried.
+        #   - $(2): The option to test.
+        #
+
+        toolchain-ld-driver-option = $\
+                $(call toolchain-ld-driver-option-$($(1)-ld-id),$(1),$(2))
+
+        toolchain-ld-driver-option-gnu-gcc = $(if $\
+                $(shell $($(1)-ld) $(2) -Werror -nostdlib -Xlinker --help $\
+                        -o /dev/null >/dev/null 2>&1 && echo 1),$(2))
+
+        toolchain-ld-driver-option-llvm-clang = $(if $\
+                $(shell $($(1)-ld) $(target-flag-$(1)-llvm-clang) $(2) -Werror -nostdlib $\
+                        -Xlinker --help -o /dev/null >/dev/null 2>&1 && echo 1),$(2))
+
+        toolchain-ld-driver-option-arm-clang = $(if $\
+                $(shell $($(1)-ld) $(target-flag-$(1)-arm-clang) $(2) -Werror -nostdlib $\
+                        -Xlinker --help -o /dev/null >/dev/null 2>&1 && echo 1),$(2))
+
+        toolchain-ld-driver-option-gnu-ld =
+        toolchain-ld-driver-option-llvm-lld =
+        toolchain-ld-driver-option-arm-link =
 
         #
         # Configure a toolchain.
