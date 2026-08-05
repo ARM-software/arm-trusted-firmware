@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -189,12 +189,19 @@ bool errata_ich_vmcr_el2_applies(void)
 		break;
 #endif /* ERRATA_C1ULTRA_3658374 */
 
-#if ERRATA_C1PRO_3300099
+#if ERRATA_C1PRO_3300099 || ERRATA_C1PRO_3773617
 	case EXTRACT_PARTNUM(C1_PRO_MIDR):
+#if ERRATA_C1PRO_3300099
 		if (check_erratum_c1_pro_3300099(cpu_get_rev_var()) == ERRATA_APPLIES)
 			return true;
-		break;
 #endif /* ERRATA_C1PRO_3300099 */
+
+#if ERRATA_C1PRO_3773617
+		if (check_erratum_c1_pro_3773617(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+#endif /* ERRATA_C1PRO_3773617 */
+		break;
+#endif /* ERRATA_C1PRO_3300099 || ERRATA_C1PRO_3773617 */
 
 	default:
 		break;

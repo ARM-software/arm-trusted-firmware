@@ -98,6 +98,10 @@ add_erratum_entry c1_pro, ERRATUM(3300099), ERRATA_C1PRO_3300099
 .global check_erratum_c1_pro_3300099
 check_erratum_ls c1_pro, ERRATUM(3300099), CPU_REV(1, 0)
 
+add_erratum_entry c1_pro, ERRATUM(3773617), ERRATA_C1PRO_3773617
+.global check_erratum_c1_pro_3773617
+check_erratum_range c1_pro, ERRATUM(3773617), CPU_REV(1, 1), CPU_REV(1, 1)
+
 	/* -----------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for C1-Pro using erratum 3684268
 	 * workaround by disabling the affected prefetcher

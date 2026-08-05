@@ -35,6 +35,7 @@
 
 #ifndef __ASSEMBLER__
 long check_erratum_c1_pro_3300099(long cpu_rev);
+long check_erratum_c1_pro_3773617(long cpu_rev);
 
 #if WORKAROUND_CVE_2026_0995
 #include <stdbool.h>
