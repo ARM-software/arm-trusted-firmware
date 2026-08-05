@@ -205,12 +205,12 @@ else
 	# AArch64-only cores
 	# TODO: add all cores to the appropriate lists
 		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a65.S		\
-					lib/cpus/aarch64/cortex_a65ae.S		\
+					lib/cpus/aarch64/cortex_a65ae.S	\
 					lib/cpus/aarch64/cortex_a76.S		\
-					lib/cpus/aarch64/cortex_a76ae.S		\
+					lib/cpus/aarch64/cortex_a76ae.S	\
 					lib/cpus/aarch64/cortex_a77.S		\
 					lib/cpus/aarch64/cortex_a78.S		\
-					lib/cpus/aarch64/cortex_a78_ae.S	\
+					lib/cpus/aarch64/cortex_a78ae.S	\
 					lib/cpus/aarch64/cortex_a78c.S		\
 					lib/cpus/aarch64/cortex_a710.S		\
 					lib/cpus/aarch64/cortex_a715.S		\
