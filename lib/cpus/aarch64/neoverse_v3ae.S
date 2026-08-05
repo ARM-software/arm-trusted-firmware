@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/107734/latest
- * SDEN: https://developer.arm.com/documentation/109231/latest
+ * TRM: https://developer.arm.com/documentation/101595/latest
+ * SDEN: https://developer.arm.com/documentation/109704/latest
  */
 
 #include <arch.h>
@@ -28,11 +28,11 @@
 #error "Neoverse V3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-cpu_reset_prologue neoverse_v3
+cpu_reset_prologue neoverse_v3ae
 
-.global check_erratum_neoverse_v3_3701767
+.global check_erratum_neoverse_v3ae_3701767
 
-workaround_reset_start neoverse_v3, ERRATUM(2970647), ERRATA_V3_2970647
+workaround_reset_start neoverse_v3ae, ERRATUM(2970647), ERRATA_V3_2970647
 	/* Add ISB before MRS reads of MPIDR_EL1/MIDR_EL1 */
 	ldr x0, =0x1
 	msr S3_6_c15_c8_0, x0 	/* msr CPUPSELR_EL3, X0 */
@@ -43,27 +43,27 @@ workaround_reset_start neoverse_v3, ERRATUM(2970647), ERRATA_V3_2970647
 	ldr x0, =0x000080010033f
 	msr S3_6_c15_c8_1, x0	/* msr CPUPCR_EL3, X0 */
 	isb
-workaround_reset_end neoverse_v3, ERRATUM(2970647)
+workaround_reset_end neoverse_v3ae, ERRATUM(2970647)
 
-check_erratum_ls neoverse_v3, ERRATUM(2970647), CPU_REV(0, 0)
+check_erratum_ls neoverse_v3ae, ERRATUM(2970647), CPU_REV(0, 0)
 
-workaround_runtime_start neoverse_v3, ERRATUM(3312417), ERRATA_V3_3312417
+workaround_runtime_start neoverse_v3ae, ERRATUM(3312417), ERRATA_V3_3312417
 	speculation_barrier
-workaround_runtime_end neoverse_v3, ERRATUM(3312417)
+workaround_runtime_end neoverse_v3ae, ERRATUM(3312417)
 
-check_erratum_ls neoverse_v3, ERRATUM(3312417), CPU_REV(0, 1)
+check_erratum_ls neoverse_v3ae, ERRATUM(3312417), CPU_REV(0, 1)
 
-workaround_reset_start neoverse_v3, ERRATUM(3696307), ERRATA_V3_3696307
+workaround_reset_start neoverse_v3ae, ERRATUM(3696307), ERRATA_V3_3696307
 	sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
-workaround_reset_end neoverse_v3, ERRATUM(3696307)
+workaround_reset_end neoverse_v3ae, ERRATUM(3696307)
 
-check_erratum_ls neoverse_v3, ERRATUM(3696307), CPU_REV(0, 1)
+check_erratum_ls neoverse_v3ae, ERRATUM(3696307), CPU_REV(0, 1)
 
-add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767
+add_erratum_entry neoverse_v3ae, ERRATUM(3701767), ERRATA_V3_3701767
 
-check_erratum_ls neoverse_v3, ERRATUM(3701767), CPU_REV(0, 2)
+check_erratum_ls neoverse_v3ae, ERRATUM(3701767), CPU_REV(0, 2)
 
-workaround_reset_start neoverse_v3, ERRATUM(3734562), ERRATA_V3_3734562
+workaround_reset_start neoverse_v3ae, ERRATUM(3734562), ERRATA_V3_3734562
 	mov	x0, #2
 	msr	NEOVERSE_V3_CPUPSELR_EL3, x0
 	ldr	x0, =0xD503225F
@@ -72,11 +72,11 @@ workaround_reset_start neoverse_v3, ERRATUM(3734562), ERRATA_V3_3734562
 	msr	NEOVERSE_V3_CPUPMR_EL3, x0
 	ldr	x0, =0x404003FD
 	msr	NEOVERSE_V3_CPUPCR_EL3, x0
-workaround_reset_end neoverse_v3, ERRATUM(3734562)
+workaround_reset_end neoverse_v3ae, ERRATUM(3734562)
 
-check_erratum_ls neoverse_v3, ERRATUM(3734562), CPU_REV(0, 1)
+check_erratum_ls neoverse_v3ae, ERRATUM(3734562), CPU_REV(0, 1)
 
-workaround_reset_start neoverse_v3, ERRATUM(3782181), ERRATA_V3_3782181
+workaround_reset_start neoverse_v3ae, ERRATUM(3782181), ERRATA_V3_3782181
         /* Disable retention control for WFI and WFE. */
         mrs     x0, NEOVERSE_V3_CPUPWRCTLR_EL1
         bfi     x0, xzr, #NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
@@ -84,29 +84,29 @@ workaround_reset_start neoverse_v3, ERRATUM(3782181), ERRATA_V3_3782181
         bfi     x0, xzr, #NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
 		#NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
         msr     NEOVERSE_V3_CPUPWRCTLR_EL1, x0
-workaround_reset_end neoverse_v3, ERRATUM(3782181)
+workaround_reset_end neoverse_v3ae, ERRATUM(3782181)
 
-check_erratum_range neoverse_v3, ERRATUM(3782181), CPU_REV(0, 1), \
+check_erratum_range neoverse_v3ae, ERRATUM(3782181), CPU_REV(0, 1), \
 	CPU_REV(0, 1)
 
-workaround_reset_start neoverse_v3, ERRATUM(3864536), ERRATA_V3_3864536
+workaround_reset_start neoverse_v3ae, ERRATUM(3864536), ERRATA_V3_3864536
 	sysreg_bit_set NEOVERSE_V3_CPUACTLR2_EL1, BIT(22)
-workaround_reset_end neoverse_v3, ERRATUM(3864536)
+workaround_reset_end neoverse_v3ae, ERRATUM(3864536)
 
-check_erratum_ls neoverse_v3, ERRATUM(3864536), CPU_REV(0, 2)
+check_erratum_ls neoverse_v3ae, ERRATUM(3864536), CPU_REV(0, 2)
 
-workaround_reset_start neoverse_v3, ERRATUM(3878291), ERRATA_V3_3878291
+workaround_reset_start neoverse_v3ae, ERRATUM(3878291), ERRATA_V3_3878291
 	sysreg_bit_set NEOVERSE_V3_CPUACTLR4_EL1, BIT(57)
-workaround_reset_end neoverse_v3, ERRATUM(3878291)
+workaround_reset_end neoverse_v3ae, ERRATUM(3878291)
 
-check_erratum_ls neoverse_v3, ERRATUM(3878291), CPU_REV(0, 2)
+check_erratum_ls neoverse_v3ae, ERRATUM(3878291), CPU_REV(0, 2)
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+workaround_reset_start neoverse_v3ae, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
-workaround_reset_end neoverse_v3, CVE(2024, 5660)
+workaround_reset_end neoverse_v3ae, CVE(2024, 5660)
 
-check_erratum_ls neoverse_v3, CVE(2024, 5660), CPU_REV(0, 1)
+check_erratum_ls neoverse_v3ae, CVE(2024, 5660), CPU_REV(0, 1)
 
 	/* ----------------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for Neoverse-V3 / Neoverse-V3AE
@@ -114,27 +114,27 @@ check_erratum_ls neoverse_v3, CVE(2024, 5660), CPU_REV(0, 1)
 	 * affected prefetcher setting CPUACTLR6_EL1[41].
 	 * ----------------------------------------------------------------
 	 */
-workaround_reset_start neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+workaround_reset_start neoverse_v3ae, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
        sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
-workaround_reset_end neoverse_v3, CVE(2024, 7881)
+workaround_reset_end neoverse_v3ae, CVE(2024, 7881)
 
-check_erratum_ls neoverse_v3, CVE(2024, 7881), CPU_REV(0, 1)
+check_erratum_ls neoverse_v3ae, CVE(2024, 7881), CPU_REV(0, 1)
 
 	/*
 	 * Instruction patch sequence to trap 'cpp rctx' instructions to EL3.
 	 * Enables mitigation for CVE-2025-0647.
 	 */
-workaround_reset_start neoverse_v3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+workaround_reset_start neoverse_v3ae, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
-workaround_reset_end neoverse_v3, CVE(2025, 647)
+workaround_reset_end neoverse_v3ae, CVE(2025, 647)
 
-check_erratum_chosen neoverse_v3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
+check_erratum_chosen neoverse_v3ae, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 
 #if WORKAROUND_CVE_2025_0647
-func neoverse_v3_impl_defined_el3_handler
+func neoverse_v3ae_impl_defined_el3_handler
 	mov	x0, #0
 
 	/* See if this call came from trap handler. */
@@ -142,17 +142,17 @@ func neoverse_v3_impl_defined_el3_handler
 	bne	wa_cve_2025_0647_do_cpp_wa
 	orr	x0, x0, #WA_IS_TRAP_HANDLER
 	b	wa_cve_2025_0647_do_cpp_wa
-endfunc neoverse_v3_impl_defined_el3_handler
+endfunc neoverse_v3ae_impl_defined_el3_handler
 #endif
 
-add_erratum_entry neoverse_v3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
-check_erratum_chosen neoverse_v3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+add_erratum_entry neoverse_v3ae, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
+check_erratum_chosen neoverse_v3ae, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
 	 */
-func neoverse_v3_core_pwr_dwn
+func neoverse_v3ae_core_pwr_dwn
 	/* ---------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
@@ -162,13 +162,13 @@ func neoverse_v3_core_pwr_dwn
 
 	isb
 	ret
-endfunc neoverse_v3_core_pwr_dwn
+endfunc neoverse_v3ae_core_pwr_dwn
 
-cpu_reset_func_start neoverse_v3
+cpu_reset_func_start neoverse_v3ae
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	apply_erratum neoverse_v3, ERRATUM(3312417), ERRATA_V3_3312417
-cpu_reset_func_end neoverse_v3
+	apply_erratum neoverse_v3ae, ERRATUM(3312417), ERRATA_V3_3312417
+cpu_reset_func_end neoverse_v3ae
 
 	/* ---------------------------------------------
 	 * This function provides Neoverse V3 specific
@@ -179,23 +179,23 @@ cpu_reset_func_end neoverse_v3
 	 * reported.
 	 * ---------------------------------------------
 	 */
-.section .rodata.neoverse_v3_regs, "aS"
-neoverse_v3_regs:  /* The ascii list of register names to be reported */
+.section .rodata.neoverse_v3ae_regs, "aS"
+neoverse_v3ae_regs:  /* The ascii list of register names to be reported */
 	.asciz	"cpuectlr_el1", ""
 
-func neoverse_v3_cpu_reg_dump
-	adr	x6, neoverse_v3_regs
+func neoverse_v3ae_cpu_reg_dump
+	adr	x6, neoverse_v3ae_regs
 	mrs	x8, NEOVERSE_V3_CPUECTLR_EL1
 	ret
-endfunc neoverse_v3_cpu_reg_dump
+endfunc neoverse_v3ae_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
-declare_cpu_ops_eh neoverse_v3, NEOVERSE_V3_MIDR, \
-	neoverse_v3_reset_func, \
-	neoverse_v3_impl_defined_el3_handler, \
-	neoverse_v3_core_pwr_dwn
+declare_cpu_ops_eh neoverse_v3ae, NEOVERSE_V3_VNAE_MIDR, \
+	neoverse_v3ae_reset_func, \
+	neoverse_v3ae_impl_defined_el3_handler, \
+	neoverse_v3ae_core_pwr_dwn
 #else
-declare_cpu_ops neoverse_v3, NEOVERSE_V3_MIDR, \
-	neoverse_v3_reset_func, \
-	neoverse_v3_core_pwr_dwn
+declare_cpu_ops neoverse_v3ae, NEOVERSE_V3_VNAE_MIDR, \
+	neoverse_v3ae_reset_func, \
+	neoverse_v3ae_core_pwr_dwn
 #endif

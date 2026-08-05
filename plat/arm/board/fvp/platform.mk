@@ -244,7 +244,8 @@ ifeq (${ENABLE_ERRATA_ALL},1)
 				lib/cpus/aarch64/cortex_x925.S          \
 				lib/cpus/aarch64/neoverse_n3.S          \
 				lib/cpus/aarch64/neoverse_v2.S          \
-				lib/cpus/aarch64/neoverse_v3.S
+				lib/cpus/aarch64/neoverse_v3.S		\
+				lib/cpus/aarch64/neoverse_v3ae.S
 endif
 
 #Build AArch64-only CPUs with no FVP model yet.
