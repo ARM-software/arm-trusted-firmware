@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,3 +76,10 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
  */
 const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[PLATFORM_CORE_COUNT] = {
 			2, 3, 4, 5, 0, 1 };
+
+unsigned int
+plat_css_core_pos_to_scmi_channel_id(unsigned int core_pos __unused,
+				     uint32_t protocol_id __unused)
+{
+	return 0U;
+}

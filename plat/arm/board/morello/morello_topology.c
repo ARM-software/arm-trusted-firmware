@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <lib/cassert.h>
 #include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
+
+#include <lib/cassert.h>
 
 /* Compile time assertion to ensure the core count is 4 */
 CASSERT(PLATFORM_CORE_COUNT == 4U, assert_invalid_platform_core_count);
@@ -58,3 +60,10 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
  ******************************************************************************/
 const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[PLATFORM_CORE_COUNT] = {
 	0, 1, 2, 3};
+
+unsigned int
+plat_css_core_pos_to_scmi_channel_id(unsigned int core_pos __unused,
+				     uint32_t protocol_id __unused)
+{
+	return 0U;
+}

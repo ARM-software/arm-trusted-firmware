@@ -1,16 +1,45 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <errno.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/scmi.h>
 
 #include "scmi_private.h"
+
+/*
+ * Initialize the SCMI AP core protocol.
+ */
+int scmi_ap_core_init(scmi_channel_t *ch)
+{
+	uint32_t version;
+	int ret;
+
+	ret = scmi_proto_version(ch, SCMI_AP_CORE_PROTO_ID, &version);
+	if (ret != SCMI_E_SUCCESS) {
+		WARN("SCMI AP core protocol version message failed\n");
+
+		return (ret == SCMI_E_NOT_SUPPORTED) ? -EPROTONOSUPPORT :
+						       -EPROTO;
+	}
+
+	if (!is_scmi_version_compatible(SCMI_AP_CORE_PROTO_VER, version)) {
+		WARN("SCMI AP core protocol version 0x%x incompatible with driver version 0x%x\n",
+		     version, SCMI_AP_CORE_PROTO_VER);
+
+		return -EPROTONOSUPPORT;
+	}
+
+	INFO("SCMI AP core protocol version 0x%x detected\n", version);
+
+	return 0;
+}
 
 /*
  * API to set the SCMI AP core reset address and attributes

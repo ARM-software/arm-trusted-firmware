@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -160,8 +160,10 @@ typedef struct scmi_channel {
 	int is_initialized;
 } scmi_channel_t;
 
+typedef int (*scmi_protocol_init_fn_t)(scmi_channel_t *ch);
+
 /* External Common API */
-void *scmi_init(scmi_channel_t *ch);
+void *scmi_init(scmi_channel_t *ch, scmi_protocol_init_fn_t init_protocols);
 int scmi_proto_msg_attr(void *p, uint32_t proto_id, uint32_t command_id,
 						uint32_t *attr);
 int scmi_proto_version(void *p, uint32_t proto_id, uint32_t *version);
@@ -178,6 +180,7 @@ int scmi_base_reset_agent_config(void *p, uint32_t agent_id, uint32_t flags);
  * Power domain protocol commands. Refer to the SCMI specification for more
  * details on these commands.
  */
+int scmi_pwr_init(scmi_channel_t *ch);
 int scmi_pwr_state_set(void *p, uint32_t domain_id, uint32_t scmi_pwr_state);
 int scmi_pwr_state_get(void *p, uint32_t domain_id, uint32_t *scmi_pwr_state);
 
@@ -185,10 +188,12 @@ int scmi_pwr_state_get(void *p, uint32_t domain_id, uint32_t *scmi_pwr_state);
  * System power management protocol commands. Refer SCMI specification for more
  * details on these commands.
  */
+int scmi_sys_pwr_init(scmi_channel_t *ch);
 int scmi_sys_pwr_state_set(void *p, uint32_t flags, uint32_t system_state);
 int scmi_sys_pwr_state_get(void *p, uint32_t *system_state);
 
 /* SCMI AP core configuration protocol commands. */
+int scmi_ap_core_init(scmi_channel_t *ch);
 int scmi_ap_core_set_reset_addr(void *p, uint64_t reset_addr, uint32_t attr);
 int scmi_ap_core_get_reset_addr(void *p, uint64_t *reset_addr, uint32_t *attr);
 

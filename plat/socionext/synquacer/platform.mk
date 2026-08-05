@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -109,6 +109,7 @@ BL31_SOURCES		+=	$(PLAT_PATH)/drivers/scpi/sq_scpi.c	\
 				$(PLAT_PATH)/drivers/mhu/sq_mhu.c
 else
 BL31_SOURCES		+=	$(PLAT_PATH)/drivers/scp/sq_scmi.c		\
+				drivers/arm/css/scmi/scmi_ap_core_proto.c	\
 				drivers/arm/css/scmi/scmi_common.c		\
 				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
 				drivers/arm/css/scmi/scmi_sys_pwr_proto.c	\

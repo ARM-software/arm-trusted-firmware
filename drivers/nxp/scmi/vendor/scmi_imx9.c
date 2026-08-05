@@ -5,12 +5,35 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/scmi.h>
-#include "scmi_imx9.h"
 #include <scmi_private.h>
+
+#include "scmi_imx9.h"
+
+/*
+ * Initialize the i.MX9 SCMI core protocol.
+ */
+int scmi_core_init(scmi_channel_t *ch)
+{
+	uint32_t version;
+	int ret;
+
+	ret = scmi_proto_version(ch, IMX9_SCMI_CORE_PROTO_ID, &version);
+	if (ret != SCMI_E_SUCCESS) {
+		WARN("SCMI AP core protocol version message failed\n");
+
+		return (ret == SCMI_E_NOT_SUPPORTED) ? -EPROTONOSUPPORT :
+						       -EPROTO;
+	}
+
+	INFO("SCMI core protocol version 0x%x detected\n", version);
+
+	return 0;
+}
 
 /*
  * API to set the SCMI AP core reset address and attributes
