@@ -270,6 +270,14 @@ int ti_sci_enter_sleep(uint8_t proc_id,
 		       uint8_t mode,
 		       uint64_t core_resume_addr);
 int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode);
+
+/*
+ * Low power mode identifiers as defined by the TISCI Firmware API Documentation
+ * Chapter 2: Power Management: TISCI PM Low Power Mode API Documentation
+ */
+
+#define TI_K3_SLEEP_MODE_RTC_ONLY 0x7U
+
 int ti_sci_encrypt_tfa(uint64_t src_tfa_addr, size_t src_tfa_len);
 
 /**
