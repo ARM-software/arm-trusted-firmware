@@ -6,7 +6,7 @@
 # RD-Aspen platform.
 
 RDASPEN_BASE		 =	plat/arm/board/automotive_rd/platform/rdaspen
-RDASPEN_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_a720_ae.S
+RDASPEN_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_a720ae.S
 
 PLAT_INCLUDES		+=	-I${RDASPEN_BASE}/include/
 

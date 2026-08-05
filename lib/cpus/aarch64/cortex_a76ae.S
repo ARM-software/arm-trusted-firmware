@@ -24,56 +24,56 @@
 cpu_reset_prologue cortex_a76ae
 
 #if WORKAROUND_CVE_2022_23960
-	wa_cve_2022_23960_bhb_vector_table CORTEX_A76AE_BHB_LOOP_COUNT, cortex_a76ae
+	wa_cve_2022_23960_bhb_vector_table CORTEX_A76_AE_BHB_LOOP_COUNT, cortex_a76ae
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 check_erratum_chosen cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a76ae, ERRATUM(1931427), ERRATA_A76AE_1931427
-	sysreg_bit_set CORTEX_A76AE_CPUACTLR2_EL1, BIT(2)
+	sysreg_bit_set CORTEX_A76_AE_CPUACTLR2_EL1, BIT(2)
 workaround_reset_end cortex_a76ae, ERRATUM(1931427)
 
 check_erratum_ls cortex_a76ae, ERRATUM(1931427), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a76ae, ERRATUM(1931435), ERRATA_A76AE_1931435
-	sysreg_bit_set CORTEX_A76AE_CPUACTLR_EL1, BIT(13)
+	sysreg_bit_set CORTEX_A76_AE_CPUACTLR_EL1, BIT(13)
 workaround_reset_end cortex_a76ae, ERRATUM(1931435)
 
 check_erratum_ls cortex_a76ae, ERRATUM(1931435), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a76ae, ERRATUM(1969401), ERRATA_A76AE_1969401
 	ldr x0,=0x3
-	msr CORTEX_A76AE_CPUPSELR_EL3,x0
+	msr CORTEX_A76_AE_CPUPSELR_EL3,x0
 	ldr x0,=0x10E3900002
-	msr CORTEX_A76AE_CPUPOR_EL3,x0
+	msr CORTEX_A76_AE_CPUPOR_EL3,x0
 	ldr x0,=0x10FFF00083
-	msr CORTEX_A76AE_CPUPMR_EL3,x0
+	msr CORTEX_A76_AE_CPUPMR_EL3,x0
 	ldr x0,=0x2001003FF
-	msr CORTEX_A76AE_CPUPCR_EL3,x0
+	msr CORTEX_A76_AE_CPUPCR_EL3,x0
 
 	ldr x0,=0x4
-	msr CORTEX_A76AE_CPUPSELR_EL3,x0
+	msr CORTEX_A76_AE_CPUPSELR_EL3,x0
 	ldr x0,=0x10E3800082
-	msr CORTEX_A76AE_CPUPOR_EL3,x0
+	msr CORTEX_A76_AE_CPUPOR_EL3,x0
 	ldr x0,= 0x10FFF00083
-	msr CORTEX_A76AE_CPUPMR_EL3,x0
+	msr CORTEX_A76_AE_CPUPMR_EL3,x0
 	ldr x0,=0x2001003FF
-	msr CORTEX_A76AE_CPUPCR_EL3,x0
+	msr CORTEX_A76_AE_CPUPCR_EL3,x0
 
 	ldr x0,=0x5
-	msr CORTEX_A76AE_CPUPSELR_EL3,x0
+	msr CORTEX_A76_AE_CPUPSELR_EL3,x0
 	ldr x0,=0x10E3800200
-	msr CORTEX_A76AE_CPUPOR_EL3,x0
+	msr CORTEX_A76_AE_CPUPOR_EL3,x0
 	ldr x0,=0x10FFF003E0
-	msr CORTEX_A76AE_CPUPMR_EL3,x0
+	msr CORTEX_A76_AE_CPUPMR_EL3,x0
 	ldr x0,=0x2001003FF
-	msr CORTEX_A76AE_CPUPCR_EL3,x0
+	msr CORTEX_A76_AE_CPUPCR_EL3,x0
 workaround_reset_end cortex_a76ae, ERRATUM(1969401)
 
 check_erratum_ls cortex_a76ae, ERRATUM(1969401), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a76ae, ERRATUM(2371140), ERRATA_A76AE_2371140
-	sysreg_bit_set CORTEX_A76AE_CPUACTLR2_EL1, BIT(0)
+	sysreg_bit_set CORTEX_A76_AE_CPUACTLR2_EL1, BIT(0)
 workaround_reset_end cortex_a76ae, ERRATUM(2371140)
 
 check_erratum_ls cortex_a76ae, ERRATUM(2371140), CPU_REV(1, 1)
@@ -85,7 +85,7 @@ workaround_runtime_end cortex_a76ae, ERRATUM(2753838)
 check_erratum_ls cortex_a76ae, ERRATUM(2753838), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a76ae, ERRATUM(3888014), ERRATA_A76AE_3888014
-	sysreg_bit_set CORTEX_A76AE_CPUACTLR2_EL1, BIT(22)
+	sysreg_bit_set CORTEX_A76_AE_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end cortex_a76ae, ERRATUM(3888014)
 
 check_erratum_chosen cortex_a76ae, ERRATUM(3888014), ERRATA_A76AE_3888014
@@ -112,7 +112,7 @@ cpu_reset_func_end cortex_a76ae
 	 * ----------------------------------------------------
 	 */
 func cortex_a76ae_core_pwr_dwn
-	sysreg_bit_set CORTEX_A76AE_CPUPWRCTLR_EL1, CORTEX_A76AE_CORE_PWRDN_EN_MASK
+	sysreg_bit_set CORTEX_A76_AE_CPUPWRCTLR_EL1, CORTEX_A76_AE_CORE_PWRDN_EN_MASK
 	apply_erratum cortex_a76ae, ERRATUM(2753838), ERRATA_A76AE_2753838
 	isb
 	ret
@@ -133,9 +133,9 @@ cortex_a76ae_regs:  /* The ASCII list of register names to be reported */
 
 func cortex_a76ae_cpu_reg_dump
 	adr	x6, cortex_a76ae_regs
-	mrs	x8, CORTEX_A76AE_CPUECTLR_EL1
+	mrs	x8, CORTEX_A76_AE_CPUECTLR_EL1
 	ret
 endfunc cortex_a76ae_cpu_reg_dump
 
-declare_cpu_ops cortex_a76ae, CORTEX_A76AE_MIDR, cortex_a76ae_reset_func, \
+declare_cpu_ops cortex_a76ae, CORTEX_A76_AE_MIDR, cortex_a76ae_reset_func, \
 	cortex_a76ae_core_pwr_dwn

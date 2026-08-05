@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <cortex_a720_ae.h>
+#include <cortex_a720ae.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
@@ -21,33 +21,33 @@
 #error "Cortex-A720AE supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-cpu_reset_prologue cortex_a720_ae
+cpu_reset_prologue cortex_a720ae
 
-.global check_erratum_cortex_a720_ae_3699562
+.global check_erratum_cortex_a720ae_3699562
 
-workaround_runtime_start cortex_a720_ae, ERRATUM(3456103), ERRATA_A720_AE_3456103
+workaround_runtime_start cortex_a720ae, ERRATUM(3456103), ERRATA_A720_AE_3456103
 	speculation_barrier
-workaround_runtime_end cortex_a720_ae, ERRATUM(3456103)
+workaround_runtime_end cortex_a720ae, ERRATUM(3456103)
 
-check_erratum_ls cortex_a720_ae, ERRATUM(3456103), CPU_REV(0, 1)
+check_erratum_ls cortex_a720ae, ERRATUM(3456103), CPU_REV(0, 1)
 
-add_erratum_entry cortex_a720_ae, ERRATUM(3699562), ERRATA_A720_AE_3699562
+add_erratum_entry cortex_a720ae, ERRATUM(3699562), ERRATA_A720_AE_3699562
 
-check_erratum_ls cortex_a720_ae, ERRATUM(3699562), CPU_REV(0, 0)
+check_erratum_ls cortex_a720ae, ERRATUM(3699562), CPU_REV(0, 0)
 
-cpu_reset_func_start cortex_a720_ae
+cpu_reset_func_start cortex_a720ae
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	apply_erratum cortex_a720_ae, ERRATUM(3456103), ERRATA_A720_AE_3456103
+	apply_erratum cortex_a720ae, ERRATUM(3456103), ERRATA_A720_AE_3456103
 
 	enable_mpmm
-cpu_reset_func_end cortex_a720_ae
+cpu_reset_func_end cortex_a720ae
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
 	 */
-func cortex_a720_ae_core_pwr_dwn
+func cortex_a720ae_core_pwr_dwn
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
@@ -56,7 +56,7 @@ func cortex_a720_ae_core_pwr_dwn
 
 	isb
 	ret
-endfunc cortex_a720_ae_core_pwr_dwn
+endfunc cortex_a720ae_core_pwr_dwn
 
 	/* ---------------------------------------------
 	 * This function provides Cortex-A720AE specific
@@ -67,16 +67,16 @@ endfunc cortex_a720_ae_core_pwr_dwn
 	 * reported.
 	 * ---------------------------------------------
 	 */
-.section .rodata.cortex_a720_ae_regs, "aS"
-cortex_a720_ae_regs:  /* The ascii list of register names to be reported */
+.section .rodata.cortex_a720ae_regs, "aS"
+cortex_a720ae_regs:  /* The ascii list of register names to be reported */
 	.asciz	"cpuectlr_el1", ""
 
-func cortex_a720_ae_cpu_reg_dump
-	adr	x6, cortex_a720_ae_regs
+func cortex_a720ae_cpu_reg_dump
+	adr	x6, cortex_a720ae_regs
 	mrs	x8, CORTEX_A720_AE_CPUECTLR_EL1
 	ret
-endfunc cortex_a720_ae_cpu_reg_dump
+endfunc cortex_a720ae_cpu_reg_dump
 
-declare_cpu_ops cortex_a720_ae, CORTEX_A720_AE_MIDR, \
-	cortex_a720_ae_reset_func, \
-	cortex_a720_ae_core_pwr_dwn
+declare_cpu_ops cortex_a720ae, CORTEX_A720_AE_MIDR, \
+	cortex_a720ae_reset_func, \
+	cortex_a720ae_core_pwr_dwn
