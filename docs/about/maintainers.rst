@@ -87,6 +87,13 @@ Armv7-A architecture port
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Etienne Carriere <etienne.carriere@linaro.org>
 
+Common platform code
+^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|F|: plat/common/
+:|F|: include/plat/common/
+
 Software Delegated Exception Interface (SDEI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
@@ -408,6 +415,15 @@ Translation tables (``xlat_tables``) library
 :|F|: lib/xlat_tables\_.\*/.\*
 :|F|: include/lib/xlat_tables\_.\*/.\*
 
+Firmware Interface for RME (FIRME)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|M|: Arunachalam Ganapathy <arunachalam.ganapathy@arm.com>
+:|F|: services/std_svc/firme/
+:|F|: include/services/firme/
+:|F|: include/services/firme_svc.h
+
 Platform Ports
 ~~~~~~~~~~~~~~
 
@@ -419,6 +435,13 @@ Allwinner ARMv8 platform port
 :|F|: plat/allwinner/
 :|F|: drivers/allwinner/
 :|F|: include/drivers/allwinner/
+
+Amlogic common code
+^^^^^^^^^^^^^^^^^^^
+:|M|: Carlo Caione <ccaione@baylibre.com>
+:|F|: plat/amlogic/common/
+:|F|: tools/amlogic/Makefile
+:|F|: tools/amlogic/doimage.c
 
 Amlogic Meson S905 (GXBB) platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -445,6 +468,21 @@ Amlogic Meson A113D (AXG) platform port
 :|M|: Carlo Caione <ccaione@baylibre.com>
 :|F|: docs/plat/meson-axg.rst
 :|F|: plat/amlogic/axg/
+
+Arm common code
+^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|C|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|F|: plat/arm/common/
+:|F|: plat/arm/css/common/
+:|F|: plat/arm/soc/common/
+:|F|: plat/arm/board/common/
+:|F|: include/plat/arm/common/
+:|F|: include/plat/arm/css/common/
+:|F|: include/plat/arm/soc/common/
+:|F|: include/plat/arm/board/common/
+:|F|: docs/plat/arm/index.rst
+:|F|: docs/plat/arm/arm-build-options.rst
 
 Arm FPGA platform port
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -742,6 +780,12 @@ Raspberry Pi 4 platform port
 :|F|: drivers/rpi3/
 :|F|: include/drivers/rpi3/
 
+Raspberry Pi 5 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Mario Bălănică <mariobalanica02@gmail.com>
+:|F|: docs/plat/rpi5.rst
+:|F|: plat/rpi/rpi5
+
 Renesas R-Car Gen3, Gen4, Gen5 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Marek Vasut <marek.vasut+renesas@mailbox.org>
@@ -832,6 +876,17 @@ AMD-Xilinx platform port
 :|F|: plat/amd/
 :|F|: plat/xilinx/
 
+Altera common code
+^^^^^^^^^^^^^^^^^^
+:|M|: Benjamin Jit Loon Lim <jit.loon.lim@altera.com>
+:|C|: Jit Loon Lim <jit.loon.lim@altera.com>
+:|F|: plat/altera/soc/common
+
+Altera agilex3 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Benjamin Jit Loon Lim <jit.loon.lim@altera.com>
+:|C|: Jit Loon Lim <jit.loon.lim@altera.com>
+:|F|: plat/altera/soc/agilex3
 
 Secure Payloads and Dispatchers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -928,6 +983,16 @@ Sptool
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|F|: tools/sptool/
 
+cot-dt2c
+^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|F|: tools/cot_dt2c/
+
+memory
+^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|F|: tools/memory/
+
 Build system
 ^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
@@ -935,6 +1000,14 @@ Build system
 :|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: Makefile
 :|F|: make_helpers/
+
+Third party libraries
+^^^^^^^^^^^^^^^^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|F|: lib/compiler-rt/
+:|F|: include/lib/zlib/
+:|F|: lib/zlib/
 
 Threat Model
 ~~~~~~~~~~~~~
