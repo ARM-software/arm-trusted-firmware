@@ -163,7 +163,6 @@ void bl2_early_platform_setup2(u_register_t x0 __unused,
 
 void bl2_plat_arch_setup(void)
 {
-	handoff reverse_handoff_ptr;
 	unsigned long offset = 0;
 
 	struct cdns_sdmmc_params params = EMMC_INIT_PARAMS((uintptr_t) &cdns_desc,
@@ -198,7 +197,7 @@ void bl2_plat_arch_setup(void)
 
 	case BOOT_SOURCE_NAND:
 		NOTICE("SOCFPGA: SOCFPGA: NAND boot\n");
-		nand_init(&reverse_handoff_ptr);
+		nand_init();
 		socfpga_io_setup(boot_source, PLAT_NAND_DATA_BASE);
 		break;
 

@@ -129,6 +129,14 @@ int cdns_program_phy_reg(struct cdns_sdmmc_combo_phy *combo_phy_reg,
 	} while (((mmio_read_32(cdns_params.reg_base + SDHC_CDNS_HRS00) &
 		SDHC_CDNS_HRS00_SWR) == 1));
 
+	/*
+	 * Targets without a modelled combo-PHY (e.g. Simics km-hps-sdmmc) cannot
+	 * program or read back the HRS04/HRS05 PHY registers, so skip PHY setup.
+	 */
+	if ((cdns_params.quirks & CDNS_SDMMC_QUIRK_NO_PHY_INIT) != 0U) {
+		return 0;
+	}
+
 	/* Step 1, switch on DLL_RESET */
 	value = mmio_read_32(cdns_params.reg_base + SDHC_CDNS_HRS09);
 	value &= ~SDHC_PHY_SW_RESET;
@@ -482,22 +490,28 @@ int cdns_reset(void)
 	return 0;
 }
 
-void sdmmc_host_init(bool uhs2_enable)
+static int sdmmc_host_init(bool uhs2_enable)
 {
 	uint32_t timeout;
 
 	/* SRS11 - Host Control  default value set */
 	mmio_write_32(cdns_params.reg_base + SDHC_CDNS_SRS11, 0x0);
 
-	/* Waiting for detect card */
-	timeout = TIMEOUT;
-	do {
-		udelay(250);
-		if (--timeout <= 0) {
-			NOTICE(" SDHC Card Detecion failed!!!\n");
-			panic();
-		}
-	} while (((mmio_read_32(cdns_params.reg_base + SDHC_CDNS_SRS09) & CHECK_CARD) == 0));
+	/*
+	 * Wait for card detect, unless the target has no card-detect line
+	 * (e.g. Simics presents the SD image without SRS09 card-insert status).
+	 */
+	if ((cdns_params.quirks & CDNS_SDMMC_QUIRK_NO_CARD_DETECT) == 0U) {
+		timeout = TIMEOUT;
+		do {
+			udelay(250);
+			if (--timeout <= 0) {
+				ERROR("SDHC card detection timed out\n");
+				return -ETIMEDOUT;
+			}
+		} while (((mmio_read_32(cdns_params.reg_base +
+					SDHC_CDNS_SRS09) & CHECK_CARD) == 0));
+	}
 
 	/* UHS2 Host setting */
 	if (uhs2_enable == true) {
@@ -510,6 +524,8 @@ void sdmmc_host_init(bool uhs2_enable)
 	/* Enable Interrupt Flags*/
 	mmio_write_32((cdns_params.reg_base + SDHC_CDNS_SRS13), ~0);
 	high_speed_enable(true);
+
+	return 0;
 }
 
 int cdns_sd_host_init(struct cdns_sdmmc_combo_phy *mmc_combo_phy_reg,
@@ -528,7 +544,11 @@ int cdns_sd_host_init(struct cdns_sdmmc_combo_phy *mmc_combo_phy_reg,
 		ERROR("Program phy reg init failed");
 		return ret;
 	}
-	sdmmc_host_init(0);
+	ret = sdmmc_host_init(0);
+	if (ret != 0) {
+		ERROR("SDMMC host init failed\n");
+		return ret;
+	}
 	cdns_host_set_clk(100000);
 
 	sd_host_oper_mode(SD_HOST_OPR_MODE_HV4E_0_ADMA_64);

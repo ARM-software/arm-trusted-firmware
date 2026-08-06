@@ -18,6 +18,7 @@
 		.desc_base = (base),			\
 		.desc_size = EMMC_DESC_SIZE,		\
 		.flags = 0,				\
+		.quirks = 0,				\
 		.reg_base = SOCFPGA_MMC_REG_BASE	\
 	}
 
@@ -28,6 +29,7 @@ typedef enum {
 	BOOT_SOURCE_FPGA = 0,
 	BOOT_SOURCE_SDMMC,
 	BOOT_SOURCE_NAND,
+	BOOT_SOURCE_OSPI,
 	BOOT_SOURCE_QSPI,
 	BOOT_SOURCE_RSVD
 } boot_source_type;
@@ -72,6 +74,15 @@ void plat_secondary_cpus_bl31_entry(void);
 void setup_clusterectlr_el1(void);
 
 int socfpga_memcpy_s(void *dst, size_t dsize, void *src, size_t ssize);
+
+/*
+ * Platform-provided flash I/O hooks used by the s10_memmap_qspi storage
+ * driver.  A weak default (Cadence QSPI SPI controller) is defined in the
+ * driver itself; platforms with a different flash access method (memcpy_s)
+ * override these with a strong definition.
+ */
+int altera_plat_flash_read(void *buf, unsigned long addr, size_t len);
+int altera_plat_flash_write(void *addr, const void *buf, size_t len);
 
 /******************************************************************************
  * Macro for generic poling function

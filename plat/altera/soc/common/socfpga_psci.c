@@ -22,18 +22,47 @@
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
 #include "agilex3_cache.h"
 #include "agilex3_power_manager.h"
+#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
+#include "agilex72_cache.h"
+#include "agilex72_power_manager.h"
 #endif
 #include "ccu/ncore_ccu.h"
-#include "socfpga_mailbox.h"
+#include "mailbox/socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
 #include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
 #include "socfpga_system_manager.h"
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3 || PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
 void socfpga_wakeup_secondary_cpu(unsigned int cpu_id);
 extern void plat_secondary_cold_boot_setup(void);
+#endif
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
+static uintptr_t socfpga_psci_warm_entry;
+
+static void __dead2 socfpga_pwr_domain_pwr_down(const psci_power_state_t *target_state)
+{
+	(void)target_state;
+
+	/*
+	 * Redirect the core to the SMP holding pen (mimicking the cold boot
+	 * path) instead of the default PSCI WFI loop.
+	 *
+	 * RMR_EL3 is not used: a full EL3 RMR reset would re-enter BL31 from
+	 * reset without running the Agilex72 PWRMGR PCHCTL / secondary entry
+	 * handshake required for CPU hotplug. The holding-pen path keeps the
+	 * core parked until socfpga_pwr_release_core() programs the warm
+	 * entry and triggers PCH.
+	 */
+	bl31_plat_set_secondary_cpu_off();
+	mmio_write_64(PLAT_SEC_ENTRY, 0);
+	dsb();
+	plat_secondary_cold_boot_setup();
+
+	panic();
+}
 #endif
 
 /*******************************************************************************
@@ -54,22 +83,11 @@ void socfpga_cpu_standby(plat_local_state_t cpu_state)
  * plat handler called when a power domain is about to be turned on. The
  * mpidr determines the CPU to be turned on.
  ******************************************************************************/
-int socfpga_pwr_domain_on(u_register_t mpidr)
+static void socfpga_pwr_pre_on(unsigned int cpu_id)
 {
-	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
-	unsigned int pch_cpu = 0x0;
-	/* TODO: Add in CPU FUSE from SDM */
-#else
+#if (PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3) && (PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72)
 	uint32_t psci_boot = 0x00;
 
-	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
-#endif
-
-	if (cpu_id == -1)
-		return PSCI_E_INTERN_FAIL;
-
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
 	if (cpu_id == 0x00) {
 		psci_boot = mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_8));
 		psci_boot |= 0x80000; /* bit 19 */
@@ -78,21 +96,48 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
 
 	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
 #endif
+}
 
-	/* release core reset */
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
-	pch_cpu = mmio_read_32(AGX3_PWRMGR(MPU_PCHCTLR)) &
-		  AGX3_PWRMGR_CPU_POWER_STATE_MASK;
+static void socfpga_pwr_release_core(unsigned int cpu_id)
+{
+#if (PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3) || (PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72)
+	unsigned int pch_cpu = mmio_read_32(PWRMGR_MPU_PCHCTLR) &
+			       PWRMGR_CPU_POWER_STATE_MASK;
 
-	/* Check if the CPU ON Request is post POR */
-	if (AGX3_PWRMGR_MPU_TRIGGER_PCH_CPU(1 << cpu_id) & (pch_cpu))
+	if (PWRMGR_MPU_TRIGGER_PCH_CPU(1 << cpu_id) & pch_cpu) {
 		bl31_plat_reset_secondary_cpu(cpu_id);
+	}
 
+#if (PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72)
+	if (cpu_id >= 2U) {
+		bl31_enable_a720_cluster_clocks();
+	}
+
+	if (socfpga_psci_warm_entry != 0U) {
+		mmio_write_64(PLAT_SEC_ENTRY, socfpga_psci_warm_entry);
+	}
+#endif
 	bl31_plat_set_secondary_cpu_entrypoint(cpu_id);
 #else
 	mmio_setbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
 #endif
+}
+
+int socfpga_pwr_domain_on(u_register_t mpidr)
+{
+	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
+
+	if (cpu_id == -1) {
+		return PSCI_E_INTERN_FAIL;
+	}
+
+#if (PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3) && (PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72)
+	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
+#endif
+
+	socfpga_pwr_pre_on(cpu_id);
+	socfpga_pwr_release_core(cpu_id);
 
 	return PSCI_E_SUCCESS;
 }
@@ -141,7 +186,7 @@ void socfpga_pwr_domain_off(const psci_power_state_t *target_state)
  ******************************************************************************/
 void socfpga_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3 && PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72
 	unsigned int cpu_id = plat_my_core_pos();
 #endif
 
@@ -149,7 +194,7 @@ void socfpga_pwr_domain_suspend(const psci_power_state_t *target_state)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3 && PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72
 	/* assert core reset */
 	mmio_setbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 #endif
@@ -189,7 +234,7 @@ void socfpga_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 void socfpga_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3 && PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72
 	unsigned int cpu_id = plat_my_core_pos();
 #endif
 
@@ -197,7 +242,7 @@ void socfpga_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3 && PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72
 	/* release core reset */
 	mmio_clrbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 #endif
@@ -266,7 +311,7 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 	mmio_clrsetbits_32(L2_RESET_DONE_REG, BS_REG_MAGIC_KEYS_MASK,
 			   L2_RESET_DONE_STATUS);
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3 || PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
 	mailbox_reset_warm(reset_type);
 #else
 	if (cold_reset_for_ecc_dbe()) {
@@ -284,13 +329,15 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 	gicv2_cpuif_disable();
 #endif
 
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72
 	/* Increase timeout */
 	mmio_write_32(SOCFPGA_RSTMGR(HDSKTIMEOUT), 0xffffff);
 
 	/* Enable handshakes */
 	mmio_setbits_32(SOCFPGA_RSTMGR(HDSKEN), RSTMGR_HDSKEN_SET);
+#endif
 
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3 && PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX72
 	/* Reset L2 module */
 	mmio_setbits_32(SOCFPGA_RSTMGR(COLDMODRST), 0x100);
 #endif
@@ -334,7 +381,10 @@ const plat_psci_ops_t socfpga_psci_pm_ops = {
 	.system_reset2 = socfpga_system_reset2,
 	.validate_power_state = socfpga_validate_power_state,
 	.validate_ns_entrypoint = socfpga_validate_ns_entrypoint,
-	.get_sys_suspend_power_state = socfpga_get_sys_suspend_power_state
+	.get_sys_suspend_power_state = socfpga_get_sys_suspend_power_state,
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
+	.pwr_domain_pwr_down = socfpga_pwr_domain_pwr_down,
+#endif
 };
 
 /*******************************************************************************
@@ -343,6 +393,9 @@ const plat_psci_ops_t socfpga_psci_pm_ops = {
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **psci_ops)
 {
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
+	socfpga_psci_warm_entry = sec_entrypoint;
+#endif
 	/* Save warm boot entrypoint.*/
 	mmio_write_64(PLAT_SEC_ENTRY, sec_entrypoint);
 	*psci_ops = &socfpga_psci_pm_ops;

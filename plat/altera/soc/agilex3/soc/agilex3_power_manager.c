@@ -13,6 +13,7 @@
 #include <lib/mmio.h>
 
 #include "agilex3_power_manager.h"
+#include "socfpga_handoff.h"
 #include "socfpga_reset_manager.h"
 
 static int wait_verify_fsm(uint16_t timeout, uint32_t peripheral_handoff)

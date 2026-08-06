@@ -7,6 +7,7 @@
  */
 
 #include <assert.h>
+#include <string.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -68,6 +69,29 @@ static int check_dev(const uintptr_t spec);
 
 static io_block_dev_spec_t boot_dev_spec;
 static int (*register_io_dev)(const io_dev_connector_t **);
+
+#if SOCFPGA_BOOT_SOURCE_OSPI
+/*
+ * Strong overrides for the weak altera_plat_flash_read/write stubs in
+ * s10_memmap_qspi.c.  On platforms that route OSPI (and QSPI) through the
+ * Cadence xSPI controller, flash is exposed via the SDMA window as directly
+ * addressable memory, so a byte-accurate copy suffices.
+ *
+ * socfpga_private.h remaps memcpy_s to socfpga_memcpy_s (word-aligned,
+ * SDMMC-safe).  Undo that remap here so the standard string.h memcpy_s is
+ * used instead — xSPI SDMA window access does not require word alignment.
+ */
+#undef memcpy_s
+int altera_plat_flash_read(void *buf, unsigned long addr, size_t len)
+{
+	return memcpy_s(buf, len, (void *)(uintptr_t)addr, len);
+}
+
+int altera_plat_flash_write(void *addr, const void *buf, size_t len)
+{
+	return memcpy_s(addr, len, (void *)(uintptr_t)buf, len);
+}
+#endif /* SOCFPGA_BOOT_SOURCE_OSPI */
 
 static io_block_spec_t fip_spec = {
 	.offset		= PLAT_FIP_BASE,
@@ -163,7 +187,16 @@ void socfpga_io_setup(int boot_source, unsigned long offset)
 		register_io_dev = &register_io_dev_memmap;
 		break;
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
+	case BOOT_SOURCE_OSPI:
+		register_io_dev = &register_io_dev_memmap;
+		boot_dev_spec.buffer.offset = PLAT_XSPI_DATA_BASE;
+		boot_dev_spec.buffer.length = PLAT_FIP_MAX_SIZE;
+		fip_spec.offset = PLAT_XSPI_DATA_BASE;
+		break;
+#endif
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3 || PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
 	case BOOT_SOURCE_NAND:
 		register_io_dev = &register_io_dev_mtd;
 		nand_dev_spec.ops.init = cdns_nand_init_mtd;
@@ -187,6 +220,10 @@ void socfpga_io_setup(int boot_source, unsigned long offset)
 	if (boot_source == BOOT_SOURCE_NAND) {
 		result = io_dev_open(boot_dev_con, (uintptr_t)&nand_dev_spec,
 								&boot_dev_handle);
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
+	} else if ((boot_source == BOOT_SOURCE_QSPI) || (boot_source == BOOT_SOURCE_OSPI)) {
+		result = io_dev_open(boot_dev_con, 0, &boot_dev_handle);
+#endif
 	} else {
 		result = io_dev_open(boot_dev_con, (uintptr_t)&boot_dev_spec,
 								&boot_dev_handle);

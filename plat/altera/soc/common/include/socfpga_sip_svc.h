@@ -360,6 +360,11 @@ uintptr_t sip_smc_handler_v2(uint32_t smc_fid,
 #define ALTERA_SIP_SMC_ASYNC_FCS_HKDF_REQUEST					(0x42000166)
 #define ALTERA_SIP_SMC_ASYNC_FCS_CREATE_CS_KEY					(0x42000167)
 
+/* Config DMA Services */
+#define ALTERA_SIP_SMC_CONFIG_DMA_INIT						(0x42000168)
+#define ALTERA_SIP_SMC_CONFIG_DMA_TRANSFER					(0x42000169)
+#define ALTERA_SIP_SMC_CONFIG_DMA_DEINIT					(0x4200016A)
+
 #define GET_CLIENT_ID(x)							(((x) & 0xF0) >> 4)
 #define GET_JOB_ID(x)								((x) & 0x0F)
 #define GET_ADDR64(high, low)							(((uint64_t)(high) \

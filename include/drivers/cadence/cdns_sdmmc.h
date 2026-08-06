@@ -545,6 +545,22 @@ enum sdmmc_device_mode {
 	EMMC_HS400es, /* High speed 200Mhz in SDR with enhanced strobe*/
 };
 
+/*
+ * Quirks describe targets whose Cadence SDHCI/combo-PHY behaviour deviates
+ * from real silicon (e.g. simulator models). They are set by the platform in
+ * struct cdns_sdmmc_params so the shared driver stays free of target-specific
+ * compile-time conditionals.
+ *
+ * Backward compatibility: quirks == 0 preserves the pre-existing full silicon
+ * PHY program/readback and card-detect path. Platforms that do not set any
+ * quirk bits (Agilex3/5 and others via EMMC_INIT_PARAMS .quirks = 0) keep
+ * unchanged behaviour. Only platforms that explicitly OR quirk bits opt in.
+ */
+/* no combo-PHY HRS04/HRS05 program/readback */
+#define CDNS_SDMMC_QUIRK_NO_PHY_INIT		BIT(0)
+/* no SRS09 card-insert line to poll */
+#define CDNS_SDMMC_QUIRK_NO_CARD_DETECT		BIT(1)
+
 struct cdns_sdmmc_params {
 	uintptr_t	reg_base;
 	uintptr_t	reg_pinmux;
@@ -555,6 +571,7 @@ struct cdns_sdmmc_params {
 	uint32_t	sdmclk;
 	int		bus_width;
 	unsigned int	flags;
+	uint32_t	quirks;	/* 0 = full silicon path; see CDNS_SDMMC_QUIRK_* */
 	enum sdmmc_device_mode	cdn_sdmmc_dev_mode;
 	enum mmc_device_type	cdn_sdmmc_dev_type;
 	uint32_t	combophy;

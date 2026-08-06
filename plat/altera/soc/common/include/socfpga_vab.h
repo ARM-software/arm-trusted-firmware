@@ -21,6 +21,7 @@
 #define VAB_CERT_FIT_SHA384_OFFSET	offsetof(struct fcs_hps_vab_certificate_data, fcs_sha384[0])
 #define SDM_CERT_MAGIC_NUM		0x25D04E7F
 #define CHUNKSZ_PER_WD_RESET		(256 * 1024)
+#define CCERT_CMD_TEST_PGM_MASK		0x80000000
 
 /* SHA related return Macro */
 #define ENOVABCERT			1 /* VAB certificate not available */

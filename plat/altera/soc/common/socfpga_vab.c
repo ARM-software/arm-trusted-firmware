@@ -22,7 +22,7 @@
 #include <plat/common/platform.h>
 #include <tools_share/firmware_image_package.h>
 
-#include "socfpga_mailbox.h"
+#include "mailbox/socfpga_mailbox.h"
 #include "socfpga_private.h"
 #include "socfpga_vab.h"
 

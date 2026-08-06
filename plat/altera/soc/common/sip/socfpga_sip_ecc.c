@@ -11,8 +11,8 @@
 #include <lib/mmio.h>
 #include <tools_share/uuid.h>
 
+#include "mailbox/socfpga_mailbox.h"
 #include "socfpga_fcs.h"
-#include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"

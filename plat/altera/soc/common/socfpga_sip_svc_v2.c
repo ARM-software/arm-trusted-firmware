@@ -12,7 +12,7 @@
 #include <lib/mmio.h>
 
 #include "lib/utils/alignment_utils.h"
-#include "socfpga_mailbox.h"
+#include "mailbox/socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
 static uint32_t intel_v2_mbox_send_cmd(uint32_t req_header,
@@ -82,7 +82,7 @@ static uint32_t intel_v2_mbox_poll_resp(uint64_t req_header,
 
 	resp_len = (*data_size / MBOX_WORD_BYTE) - 1;
 	status = mailbox_read_response_async(&job_id, &data[0], &data[1],
-				&resp_len, 1);
+					     &resp_len, 1);
 
 	if (status == MBOX_BUSY) {
 		status = INTEL_SIP_SMC_STATUS_BUSY;
