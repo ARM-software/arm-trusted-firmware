@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -786,6 +787,11 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 {
 	int rc;
 	const struct plat_io_policy *policy;
+
+	/* Generic code may request IDs absent from the policy table, e.g. BKUP_GPT_IMAGE_ID */
+	if (image_id >= MAX_NUMBER_IDS) {
+		return -EINVAL;
+	}
 
 	policy = FCONF_GET_PROPERTY(stm32mp, io_policies, image_id);
 	rc = policy->check(policy->image_spec);
