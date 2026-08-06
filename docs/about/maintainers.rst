@@ -60,6 +60,14 @@ LTS Maintainers
 Code owners
 -----------
 
+This section is the authoritative map of who is a code owner for any particular
+file. Gerrit will notify people listed under these rules whenever a patch
+modifies a relevant file. Entries are either files, directories, or regular
+expressions.
+
+Please use ``scripts/generate_reviewers_config.py`` whenever modifying this list
+to sync it to Gerrit's configuration.
+
 Common Code
 ~~~~~~~~~~~
 
@@ -220,8 +228,8 @@ Firmware Configuration Framework (FCONF)
 :|F|: lib/fconf/
 :|F|: plat/arm/common/fconf/
 :|F|: include/lib/fconf/
-:|F|: include/plat/arm/common/arm_fconf\_\*
-:|F|: include/plat/arm/common/fconf\_\*
+:|F|: include/plat/arm/common/arm_fconf\_.\*
+:|F|: include/plat/arm/common/fconf\_.\*
 
 Firmware Encryption Framework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -304,7 +312,7 @@ Measured Boot
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
 :|F|: docs/components/measured_boot
-:|F|: plat/arm/board/fvp/fvp\*_measured_boot.c
+:|F|: plat/arm/board/fvp/fvp.\*_measured_boot.c
 
 Memory Partitioning And Monitoring (MPAM) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -401,14 +409,15 @@ System Control and Management Interface (SCMI) Server
 :|M|: Etienne Carriere <etienne.carriere@st.com>
 :|M|: Peng Fan <peng.fan@nxp.com>
 :|F|: drivers/scmi-msg
-:|F|: include/drivers/scmi\*
+:|F|: include/drivers/scmi.\*
 
 Translation tables (``xlat_tables``) library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
 :|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
-:|F|: lib/xlat\_tables_\*/
+:|F|: lib/xlat_tables\_.\*/.\*
+:|F|: include/lib/xlat_tables\_.\*/.\*
 
 Platform Ports
 ~~~~~~~~~~~~~~
@@ -457,6 +466,7 @@ Arm FVP Platform port
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
 :|F|: plat/arm/board/fvp
+:|F|: fdts/fvp.\*
 
 Arm Juno Platform port
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -479,6 +489,7 @@ Arm Rich IoT Platform ports
 :|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: plat/arm/board/corstone700
 :|F|: plat/arm/board/corstone1000
+:|F|: fdts/corstone700.\*
 
 Arm Reference Design platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -496,6 +507,7 @@ Arm Total Compute platform port
 :|M|: Oleksandr Tarhunakov <Oleksandr.Tarhunakov@arm.com>
 :|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: plat/arm/board/tc
+:|F|: fdts/tc.\*
 
 Arm Automotive RD platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -505,6 +517,8 @@ Arm Automotive RD platform port
 :|M|: Ahmed Azeem <ahmed.azeem@arm.com>
 :|F|: plat/arm/board/automotive_rd
 :|F|: plat/arm/board/automotive_rd/rdaspen
+:|F|: fdts/rd1ae.dts
+:|F|: fdts/rdaspen.\*
 
 Aspeed platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -556,7 +570,7 @@ MediaTek platform ports
 :|M|: Jason-CH Chen <jason-ch.chen@mediatek.com>
 :|M|: Yidi Lin <yidilin@chromium.org>
 :|C|: Olivier Deprez <olivier.deprez@arm.com>
-:|F|: docs/plat/mt\*.rst
+:|F|: docs/plat/mt.\*.rst
 :|F|: plat/mediatek/
 
 Nuvoton npcm845x platform port
@@ -725,10 +739,10 @@ Renesas R-Car Gen3, Gen4, Gen5 platform port
 :|C|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|F|: docs/plat/rcar-gen3.rst
 :|F|: drivers/renesas/common
-:|F|: drivers/renesas/rcar\*
-:|F|: include/drivers/renesas/rcar\*
+:|F|: drivers/renesas/rcar.\*
+:|F|: include/drivers/renesas/rcar.\*
 :|F|: plat/renesas/common
-:|F|: plat/renesas/rcar\*
+:|F|: plat/renesas/rcar.\*
 :|F|: tools/renesas/rcar_layout_create
 
 Renesas RZ/A platform port
@@ -764,14 +778,14 @@ STMicroelectronics platform ports
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|M|: Maxime Méré <maxime.mere@foss.st.com>
 :|C|: Manish Pandey <manish.pandey2@arm.com>
-:|F|: docs/plat/st/\*
+:|F|: docs/plat/st/.\*
 :|F|: docs/plat/stm32mp1.rst
 :|F|: drivers/st/
-:|F|: fdts/stm32\*
 :|F|: include/drivers/st/
-:|F|: include/dt-bindings/\*/\*stm32\*
 :|F|: plat/st/
 :|F|: tools/fiptool/plat_fiptool/st/
+:|F|: fdts/stm32.\*
+:|F|: include/dt-bindings/.\*/.\*stm32.\*
 :|F|: tools/stm32image/
 
 Synquacer platform port
@@ -799,8 +813,8 @@ AMD-Xilinx platform port
 :|M|: Akshay Belsare <akshay.belsare@amd.com>
 :|M|: Maheedhar Sai Bollapalli <maheedharsai.bollapalli@amd.com>
 :|C|: Joanna Farley <joanna.farley@arm.com>
-:|F|: docs/plat/amd\*
-:|F|: docs/plat/xilinx\*
+:|F|: docs/plat/amd.\*
+:|F|: docs/plat/xilinx.\*
 :|F|: plat/amd/
 :|F|: plat/xilinx/
 
