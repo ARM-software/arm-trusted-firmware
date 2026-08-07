@@ -140,6 +140,12 @@
 #define SCR_FEAT_RAS (0)
 #endif
 
+#if !FAULT_INJECTION_SUPPORT
+#define SCR_FEAT_RAS_2 SCR_FIEN_BIT
+#else
+#define SCR_FEAT_RAS_2 (0)
+#endif
+
 #if ENABLE_FEAT_MEC
 #define SCR_FEAT_MEC SCR_MECEn_BIT
 #else
@@ -235,6 +241,7 @@
 	SCR_FEAT_CSV2_2		|						\
 	SCR_APK_BIT		| /* FEAT_Pauth */				\
 	SCR_TERR_BIT		|						\
+	SCR_FIEN_BIT		|						\
 	SCR_FEAT_AIE		|						\
 	SCR_FEAT_PFAR		|						\
 	SCR_FEAT_IDTE3		|						\
@@ -244,6 +251,7 @@
 	SCR_PLAT_FEATS)
 #define SCR_EL3_FLIPPED (							\
 	SCR_FEAT_RAS		|						\
+	SCR_FEAT_RAS_2		|						\
 	SCR_PLAT_FLIPPED)
 #define SCR_EL3_IGNORED (							\
 	SCR_API_BIT		|						\
