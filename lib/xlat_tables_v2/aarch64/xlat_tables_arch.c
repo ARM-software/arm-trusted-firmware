@@ -25,12 +25,12 @@ bool xlat_arch_is_granule_size_supported(size_t size)
 {
 	if (size == PAGE_SIZE_4KB) {
 		/* MSB of TGRAN4 field will be '1' for unsupported feature */
-		return is_feat_tgran4K_present();
+		return is_feat_tgran4K_supported();
 	} else if (size == PAGE_SIZE_16KB) {
-		return is_feat_tgran16K_present();
+		return is_feat_tgran16K_supported();
 	} else if (size == PAGE_SIZE_64KB) {
 		/* MSB of TGRAN64 field will be '1' for unsupported feature */
-		return is_feat_tgran64K_present();
+		return is_feat_tgran64K_supported();
 	} else {
 		return false;
 	}
@@ -181,7 +181,7 @@ uintptr_t xlat_get_min_virt_addr_space_size(void)
 {
 	uintptr_t ret;
 
-	if (is_feat_ttst_present())
+	if (is_feat_ttst_supported())
 		ret = MIN_VIRT_ADDR_SPACE_SIZE_TTST;
 	else
 		ret = MIN_VIRT_ADDR_SPACE_SIZE;
@@ -371,7 +371,7 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	/* Set TTBR bits as well */
 	ttbr0 = (uint64_t) base_table;
 
-	if (is_feat_ttcnp_present()) {
+	if (is_feat_ttcnp_supported()) {
 		/* Enable CnP bit so as to share page tables with all PEs. */
 		ttbr0 |= TTBR_CNP_BIT;
 	}

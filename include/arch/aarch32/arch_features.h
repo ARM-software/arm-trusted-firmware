@@ -23,12 +23,13 @@
 	CREATE_FEATURE_SUPPORTED(name, idreg, field, min, guard)
 
 __attribute__((always_inline))
-static inline bool is_armv7_gentimer_present(void)
+static inline bool is_armv7_gentimer_supported(void)
 {
 	return EXTRACT(ID_PFR1_GENTIMER, read_id_pfr1()) != 0U;
 }
 
-CREATE_FEATURE_PRESENT(feat_ttcnp, id_mmfr4, ID_MMFR4_CNP, 1U)
+CREATE_FEATURE_FUNCS(feat_ttcnp, id_mmfr4, ID_MMFR4_CNP,
+		    1U, FEAT_STATE_CHECKED)
 
 CREATE_FEATURE_FUNCS(feat_amu, id_pfr0, ID_PFR0_AMU,
 		    ID_PFR0_AMU_V1, ENABLE_FEAT_AMU)
@@ -51,9 +52,11 @@ CREATE_FEATURE_FUNCS(feat_dit, id_pfr0, ID_PFR0_DIT,
 CREATE_FEATURE_FUNCS(feat_pan, id_mmfr3, ID_MMFR3_PAN,
 		    1U, ENABLE_FEAT_PAN)
 
-CREATE_FEATURE_PRESENT(feat_ssbs, id_pfr2, ID_PFR2_SSBS, 1U)
+CREATE_FEATURE_FUNCS(feat_ssbs, id_pfr2, ID_PFR2_SSBS,
+		    1U, FEAT_STATE_CHECKED)
 
-CREATE_FEATURE_PRESENT(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON, 3U)
+CREATE_FEATURE_FUNCS(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON,
+		    3U, FEAT_STATE_CHECKED)
 
 CREATE_FEATURE_FUNCS(feat_mtpmu, id_dfr1, ID_DFR1_MTPMU,
 		    1U, DISABLE_MTPMU)

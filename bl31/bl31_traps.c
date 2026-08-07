@@ -249,22 +249,25 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el, u_regist
 		new_spsr |= SPSR_PM_BIT_AARCH64;
 	}
 
-	/* If FEAT_SEBEP is present clear PPEND bit */
-	new_spsr |= old_spsr & SPSR_PPEND_BIT;
-	if (is_feat_sebep_present()) {
-		new_spsr &= ~SPSR_PPEND_BIT;
-	}
-
 	/* If FEAT_GCS is present, update EXLOCK bit */
 	new_spsr |= old_spsr & SPSR_EXLOCK_BIT_AARCH64;
 	if (is_feat_gcs_present()) {
-		u_register_t gcscr;
-		if (target_el == MODE_EL2) {
-			gcscr = read_gcscr_el2();
-		} else {
-			gcscr = read_gcscr_el1();
+		/* RWTXBY: If taking an exception to a higher EL, set
+		 * EXLOCK == 0. Otherwise set it to GCSCR_ELx.EXLOCKEN */
+		new_spsr &= ~SPSR_EXLOCK_BIT_AARCH64;
+
+		if (GET_EL(old_spsr) == target_el) {
+			u_register_t gcscr;
+
+			if (target_el == MODE_EL2) {
+				gcscr = read_gcscr_el2();
+			} else {
+				gcscr = read_gcscr_el1();
+			}
+
+			new_spsr |= (gcscr & GCSCR_EXLOCK_EN_BIT) ?
+				     SPSR_EXLOCK_BIT_AARCH64 : 0;
 		}
-		new_spsr |= (gcscr & GCSCR_EXLOCK_EN_BIT) ? SPSR_EXLOCK_BIT_AARCH64 : 0;
 	}
 
 	/* If FEAT_PAUTH_LR present then zero the PACM bit. */

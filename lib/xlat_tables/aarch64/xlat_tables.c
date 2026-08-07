@@ -86,7 +86,7 @@ static uintptr_t xlat_get_min_virt_addr_space_size(void)
 {
 	uintptr_t ret;
 
-	if (is_feat_ttst_present())
+	if (is_feat_ttst_supported())
 		ret = MIN_VIRT_ADDR_SPACE_SIZE_TTST;
 	else
 		ret = MIN_VIRT_ADDR_SPACE_SIZE;

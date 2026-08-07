@@ -337,7 +337,7 @@ static bool is_gpi_valid(unsigned int gpi)
 	case GPT_GPI_ANY:
 		return true;
 	case GPT_GPI_NSO:
-		return is_feat_rme_gpc2_present();
+		return is_feat_rme_gpc2_supported();
 	case GPT_GPI_SA:
 	case GPT_GPI_NSP:
 		return is_feat_rme_gdi_supported();
@@ -1156,7 +1156,7 @@ int gpt_enable(void)
 	gpccr_el3 |= GPCCR_GPC_BIT;
 
 	/* Enable NSO encoding if FEAT_RME_GPC2 is supported. */
-	if (is_feat_rme_gpc2_present()) {
+	if (is_feat_rme_gpc2_supported()) {
 		gpccr_el3 |= GPCCR_NSO_BIT;
 
 		/* Enable NSO in NS transition policies. */

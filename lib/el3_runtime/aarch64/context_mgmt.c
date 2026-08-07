@@ -978,7 +978,6 @@ void cm_init_percpu_once_regs(void)
 static void manage_extensions_nonsecure(cpu_context_t *ctx)
 {
 #ifdef IMAGE_BL31
-	/* NOTE: registers are not context switched */
 	if (is_feat_amu_supported()) {
 		amu_enable(ctx);
 	}

@@ -308,7 +308,7 @@ versions (8.X, 9.X) to which they apply can be found in `Feature_description`_
 +--------------------------+--------+
 | FEAT_EBEP                |   OK   |
 +--------------------------+--------+
-| FEAT_SEBEP               |   OK   |
+| FEAT_SEBEP               |   NO   |
 +--------------------------+--------+
 | FEAT_PMUv3_SS            |        |
 +--------------------------+--------+
@@ -546,6 +546,9 @@ this process up by using the ``new-cpu-feature`` agent skill.
    ``test_smccc_arch_feature_availability`` test in TFTF, otherwise CI will
    fail.
 
+ - If the feature introduces any bits in ``PSTATE``, those should be added to
+   ``create_spsr()`` in ``bl31/bl31_traps.c``.
+
  - If the feature comes with lower EL registers:
 
    - those should be context switched if enabling the feature for multiple worlds.
@@ -567,6 +570,11 @@ this process up by using the ``new-cpu-feature`` agent skill.
 
 - Enable the feature for dynamic platforms in ``make_helpers/all_features.mk``,
   setting it to ``2`` (``FEAT_STATE_CHECKED``).
+
+- Finally, do all of this in a single commit. Include the following information:
+  - a brief description of the feature
+  - any tradeoffs that the implementation makes that aren't just the obvious
+  - the version of the Arm ARM used (and link if another document)
 
 - If the feature is optional, enable it in CI in the "allconfig" fragments.
   Those currently happens in a list at the top of

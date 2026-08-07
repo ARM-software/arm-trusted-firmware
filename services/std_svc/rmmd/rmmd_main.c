@@ -168,8 +168,7 @@ int rmmd_setup(void)
 	struct rmm_manifest *manifest;
 	int rc;
 
-	/* Make sure RME is supported. */
-	if (is_feat_rme_present() == 0U) {
+	if (!is_feat_rme_supported()) {
 		/* Mark the RMM boot as failed for all the CPUs */
 		rmm_boot_failed = true;
 		return -ENOTSUP;

@@ -330,9 +330,11 @@ ifeq (${ARCH},aarch32)
                 $(error "ENABLE_FEAT_SPEV1P5 cannot be used with ARCH=aarch32")
 	endif
 
-	# BRBE is not supported in AArch32
 	ifneq (${ENABLE_BRBE_FOR_NS},0)
                 $(error "ENABLE_BRBE_FOR_NS cannot be used with ARCH=aarch32")
+	endif
+	ifneq ($(or $(ENABLE_TRBE_FOR_NS),0),0)
+               $(error ENABLE_TRBE_FOR_NS is not supported for AArch32)
 	endif
 
 	# FEAT_RNG_TRAP is not supported in AArch32
