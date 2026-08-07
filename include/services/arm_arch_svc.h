@@ -234,7 +234,7 @@
 	SCR_FEAT_MTE2		|						\
 	SCR_FEAT_CSV2_2		|						\
 	SCR_APK_BIT		| /* FEAT_Pauth */				\
-	SCR_FEAT_RAS		|						\
+	SCR_TERR_BIT		|						\
 	SCR_FEAT_AIE		|						\
 	SCR_FEAT_PFAR		|						\
 	SCR_FEAT_IDTE3		|						\
