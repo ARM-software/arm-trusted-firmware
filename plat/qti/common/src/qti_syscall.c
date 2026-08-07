@@ -12,6 +12,7 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <context.h>
+#include <drivers/qti/accesscontrol/accesscontrol.h>
 #include <lib/coreboot.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
