@@ -465,7 +465,7 @@ void stpmic2_dump_regulators(struct pmic_handle_s *pmic)
 
 	for (i = 0U; i < ARRAY_SIZE(regul_table); i++) {
 		uint16_t val;
-		bool state;
+		bool state = false;
 
 		if (!regul_table[i].volt_cr) {
 			continue;
