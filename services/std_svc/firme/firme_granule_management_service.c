@@ -84,6 +84,39 @@ firme_granule_mgmt_service_get_feature_reg(firme_instance_e instance __unused,
 	return FIRME_SUCCESS;
 }
 
+/*
+ * This temporarily calls legacy lib/gpt helpers to set one granule until FIRME
+ * granule management supports native GPI transistion for multiple granules with
+ * stateful long running operations.
+ */
+static uint32_t gm_gpi_set(uint64_t base, uint64_t gcnt, uint64_t attrs,
+			   uint64_t flags, uint64_t *gcnt_ret)
+{
+	uint32_t ret;
+	uint8_t target_gpi;
+	uint32_t src_sec_state = caller_sec_state(flags);
+
+	/* gpi set currently supports one granule  */
+	if (gcnt != 1U) {
+		return -EINVAL;
+	}
+
+	/* Extract target GPI value from attributes in x3. */
+	target_gpi = (attrs >> FIRME_GM_GPI_SET_TGT_GPI_SHIFT) &
+		FIRME_GM_GPI_SET_TGT_GPI_MASK;
+
+	/*
+	 * Invoke GPI set implementation in legacy lib GPT until FIRME supports
+	 * native granule transition.
+	 */
+	ret = gpt_firme_gpi_set(base, target_gpi, src_sec_state);
+	if (ret == 0) {
+		*gcnt_ret = 1U;
+	}
+
+	return ret;
+}
+
 u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 						uint32_t smc_fid, uint64_t x1,
 						uint64_t x2, uint64_t x3,
@@ -96,22 +129,13 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 
 	switch (smc_fid) {
 	case FIRME_GM_GPI_SET_FID: {
-		/* Extract target GPI value from attributes in x3. */
-		uint8_t target_gpi = (x3 >> FIRME_GM_GPI_SET_TGT_GPI_SHIFT) &
-				     FIRME_GM_GPI_SET_TGT_GPI_MASK;
-		/*
-		 * Granule count is the number of granules to transition, and
-		 * will be overwritten to contain the number of granules
-		 * actually transitioned by gpt_transition_pas.
-		 */
-		uint64_t granule_count = x2;
-		uint32_t ret = gpt_transition_pas(x1, &granule_count,
-						  target_gpi,
-						  caller_sec_state(flags));
+		uint32_t ret;
+		uint64_t gcnt = 0;
 
+		ret = gm_gpi_set(x1, x2, x3, flags, &gcnt);
 		switch (ret) {
 		case 0:
-			SMC_RET2(handle, FIRME_SUCCESS, granule_count);
+			SMC_RET2(handle, FIRME_SUCCESS, gcnt);
 		case -EINVAL:
 			SMC_RET2(handle, FIRME_INVALID_PARAMETERS, 0);
 		case -EPERM:

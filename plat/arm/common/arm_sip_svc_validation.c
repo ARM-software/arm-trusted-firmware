@@ -96,15 +96,13 @@ uintptr_t arm_sip_protect_mem_handler(void *handle, bool protect,
 
 	/* Perform PAS delegation using protected EL3-local parameters */
 	for (uintptr_t it = base; it < (base + size); it += PAGE_SIZE_4KB) {
-		uint64_t granule_count = 1;
 		uint64_t ret;
 
 		if (protect) {
-			ret = gpt_transition_pas(it, &granule_count,
-						 GPT_GPI_SECURE,
-						 SMC_FROM_SECURE);
+			ret = gpt_delegate_pas(it, PAGE_SIZE_4KB,
+					       SMC_FROM_SECURE);
 		} else {
-			ret = gpt_transition_pas(it, &granule_count, GPT_GPI_NS,
+			ret = gpt_undelegate_pas(it, PAGE_SIZE_4KB,
 						 SMC_FROM_SECURE);
 		}
 

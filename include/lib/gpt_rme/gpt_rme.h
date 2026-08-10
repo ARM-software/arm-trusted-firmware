@@ -34,18 +34,6 @@ typedef struct pas_region {
 	unsigned int	attrs;		/* PAS GPI and entry type. */
 } pas_region_t;
 
-/*
- * Lookup table used to speed up granule transitions by associating GPIs and
- * relevant information such as descriptors, NSE fields, and transition
- * policies.
- */
-typedef struct {
-	uint64_t desc;
-	uint8_t nse;
-	uint8_t nse2;
-	uint16_t policy[3];
-} gpi_lookup_t;
-
 /* GPT GPI definitions */
 #define GPT_GPI_NO_ACCESS		U(0x0)
 #define GPT_GPI_SA			U(0x4)
@@ -305,6 +293,24 @@ static inline int gpt_runtime_init(uintptr_t l1_bitlocks_base, size_t l1_bitlock
 int gpt_enable(void);
 
 /*
+ * This function is the core of the granule transition service. When a granule
+ * transition request occurs it is routed to this function where the request is
+ * validated then fulfilled if possible.
+ *
+ * Parameters
+ *   base: Base address of the region to transition, must be aligned to granule
+ *         size.
+ *   size: Size of region to transition, must be aligned to granule size.
+ *   src_sec_state: Security state of the originating SMC invoking the API.
+ *
+ * Return
+ *    Negative Linux error code in the event of a failure, 0 for success.
+ */
+int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state);
+int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state);
+
+#if FIRME_SUPPORT
+/*
  * This function is the core of the granule transition service, including both
  * delegate and undelegate operations. When a granule transition request occurs
  * it is routed to this function which will determine if it is valid and fulfill
@@ -313,18 +319,11 @@ int gpt_enable(void);
  * Parameters
  *   base               Base address of the first granule to transition, aligned
  *                      to granule size.
- *   *granule_count     Pointer to a variable containing the number of granules
- *                      to be transitioned. This value will be overwritten with
- *                      the number of granules actually transitioned once this
- *                      function returns. It is possible to return an error part
- *                      way through the process and have a non-zero number of
- *                      granules transitioned. TODO is this acceptable?
  *   target_gpi         GPI to transition the granules to.
  *   src_sec_state      Security state of the requesting entity. This will be
  *                      combined with target_gpi to determine whether a
  *                      transition is allowed.
  */
-int gpt_transition_pas(uint64_t base, uint64_t *granule_count,
-		       uint8_t target_gpi, uint8_t src_sec_state);
-
+int gpt_firme_gpi_set(uint64_t base, uint8_t target_gpi, uint8_t src_sec_state);
+#endif /* FIRME_SUPPORT */
 #endif /* GPT_RME_H */

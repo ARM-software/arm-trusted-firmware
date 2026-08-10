@@ -43,18 +43,21 @@ static const gpt_t_val_e gpt_t_lookup[] = {PPS_4GB_T, PPS_64GB_T,
 					   PPS_4PB_T};
 
 /*
- * Lookup P from PGS
- *
- *   PGS    Size    P
- *   0b00   4KB     12
- *   0b10   16KB    14
- *   0b01   64KB    16
- *
- * Note that pgs=0b10 is 16KB and pgs=0b01 is 64KB, this is not a typo.
- *
- * See section 15.1.27 of the RME specification.
+ * The code block in FIRME_SUPPORT will be removed once FIRME service have natvie
+ * granule transition functionality
  */
-static const gpt_p_val_e gpt_p_lookup[] = {PGS_4KB_P, PGS_64KB_P, PGS_16KB_P};
+#if FIRME_SUPPORT
+/*
+ * Lookup table used to speed up granule transitions by associating GPIs and
+ * relevant information such as descriptors, NSE fields, and transition
+ * policies defined by FIRME rules.
+ */
+typedef struct {
+	uint64_t desc;
+	uint8_t nse;
+	uint8_t nse2;
+	uint16_t policy[3];
+} gpi_lookup_t;
 
 /*
  * This table allows us to easily look up GPI-specific information such as
@@ -97,6 +100,27 @@ static gpi_lookup_t gpi_config[] = {
 	{ 0 },
 	{ 0 },
 };
+
+/* Get the descriptor or NSE bits from GPI encoding. */
+#define GPI_TO_DESC(_gpi)	(gpi_config[_gpi].desc)
+#define GPI_TO_NSE(_gpi)	\
+	(((uint64_t)gpi_config[_gpi].nse << GPT_NSE_SHIFT) | \
+	 ((uint64_t)gpi_config[_gpi].nse2 << GPT_NSE2_SHIFT))
+#endif /* FIRME_SUPPORT */
+
+/*
+ * Lookup P from PGS
+ *
+ *   PGS    Size    P
+ *   0b00   4KB     12
+ *   0b10   16KB    14
+ *   0b01   64KB    16
+ *
+ * Note that pgs=0b10 is 16KB and pgs=0b01 is 64KB, this is not a typo.
+ *
+ * See section 15.1.27 of the RME specification.
+ */
+static const gpt_p_val_e gpt_p_lookup[] = {PGS_4KB_P, PGS_64KB_P, PGS_16KB_P};
 
 static void shatter_2mb(uintptr_t base, const gpi_info_t *gpi_info,
 				uint64_t l1_desc);
@@ -164,18 +188,11 @@ static uint64_t gpt_l1_index_mask;
 #define GPT_L1_INDEX(_pa)	\
 	(((_pa) >> (unsigned int)GPT_L1_IDX_SHIFT(gpt_config.p)) & gpt_l1_index_mask)
 
-/* Get the descriptor or NSE bits from GPI encoding. */
-#define GPI_TO_DESC(_gpi)	(gpi_config[_gpi].desc)
-#define GPI_TO_NSE(_gpi)	\
-	(((uint64_t)gpi_config[_gpi].nse << GPT_NSE_SHIFT) | \
-	 ((uint64_t)gpi_config[_gpi].nse2 << GPT_NSE2_SHIFT))
-
 /* This variable is used during initialization of the L1 tables */
 static uintptr_t gpt_l1_tbl;
 
 /* These variables are used during runtime */
 #if (RME_GPT_BITLOCK_BLOCK == 0)
-
 /*
  * The GPTs are protected by a global spinlock to ensure
  * that multiple CPUs do not attempt to change the descriptors at once.
@@ -1067,24 +1084,6 @@ static void flush_l0_for_pas_array(pas_region_t *pas, unsigned int pas_count)
 			   ((end_idx + 1UL) - start_idx) * sizeof(uint64_t));
 }
 
-static inline bool is_gpi_transition_permitted(uint8_t caller,
-					       uint8_t current_gpi,
-					       uint8_t target_gpi)
-{
-	/*
-	 * So we can use a small lookup table, change caller security state 0x21
-	 * (from realm) to 0x2 so it can be an index.
-	 */
-	if (caller == SMC_FROM_REALM) {
-		caller = 0x2;
-	}
-
-	assert(caller <= 0x2);
-	assert(current_gpi <= GPT_GPI_ANY);
-
-	return (gpi_config[current_gpi].policy[caller] >> target_gpi) & 0x1;
-}
-
 /*
  * Public API to enable granule protection checks once the tables have all been
  * initialized. This function is called at first initialization and then again
@@ -1132,7 +1131,11 @@ int gpt_enable(void)
 		gpccr_el3 |= GPCCR_NSP_BIT;
 		gpccr_el3 |= GPCCR_SA_BIT;
 
-		/* Enable these GPIs in NS transition policies. */
+#if FIRME_SUPPORT
+		/*
+		 * Enable these GPIs in NSO/NSP transition policies used by
+		 * FIRME GPI set.
+		 */
 		gpi_config[GPT_GPI_NS].policy[SMC_FROM_NON_SECURE] |=
 			((1 << GPT_GPI_NSP) | (1 << GPT_GPI_SA));
 		gpi_config[GPT_GPI_NSO].policy[SMC_FROM_NON_SECURE] |=
@@ -1141,6 +1144,7 @@ int gpt_enable(void)
 			((1 << GPT_GPI_NS) | (1 << GPT_GPI_NSO));
 		gpi_config[GPT_GPI_SA].policy[SMC_FROM_NON_SECURE] |=
 			((1 << GPT_GPI_NS) | (1 << GPT_GPI_NSO));
+#endif
 	}
 
 	/* Prepopulate GPCCR_EL3 but don't enable GPC yet */
@@ -1159,11 +1163,13 @@ int gpt_enable(void)
 	if (is_feat_rme_gpc2_supported()) {
 		gpccr_el3 |= GPCCR_NSO_BIT;
 
-		/* Enable NSO in NS transition policies. */
+#if FIRME_SUPPORT
+		/* Enable NSO in NS transition policies used by FIRME GPI set. */
 		gpi_config[GPT_GPI_NS].policy[SMC_FROM_NON_SECURE] |=
 			(1 << GPT_GPI_NSO);
 		gpi_config[GPT_GPI_NSO].policy[SMC_FROM_NON_SECURE] |=
 			(1 << GPT_GPI_NS);
+#endif
 	}
 
 	/* TODO: Configure GPCCR_EL3_GPCP for Fault control */
@@ -1763,6 +1769,307 @@ __unused static void shatter_block(uint64_t base, gpi_info_t *gpi_info,
 	gpi_info->gpt_l1_desc = l1_desc;
 }
 
+/*
+ * This function is the granule transition delegate service. When a granule
+ * transition request occurs it is routed to this function to have the request,
+ * if valid, fulfilled following A1.1.1 Delegate of RME supplement.
+ *
+ * TODO: implement support for transitioning multiple granules at once.
+ *
+ * Parameters
+ *   base		Base address of the region to transition, must be
+ *			aligned to granule size.
+ *   size		Size of region to transition, must be aligned to granule
+ *			size.
+ *   src_sec_state	Security state of the caller.
+ *
+ * Return
+ *   Negative Linux error code in the event of a failure, 0 for success.
+ */
+int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
+{
+	gpi_info_t gpi_info;
+	uint64_t nse, __unused l1_desc;
+	unsigned int target_pas;
+	int res;
+
+	/* Ensure that the tables have been set up before taking requests */
+	assert(gpt_config.plat_gpt_l0_base != 0UL);
+
+	/* Ensure that caches are enabled */
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
+
+	/* See if this is a single or a range of granule transition */
+	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
+		return -EINVAL;
+	}
+
+	/* Check that base and size are valid */
+	if ((ULONG_MAX - base) < size) {
+		VERBOSE("GPT: Transition request address overflow!\n");
+		VERBOSE("      Base=0x%"PRIx64"\n", base);
+		VERBOSE("      Size=0x%lx\n", size);
+		return -EINVAL;
+	}
+
+	/* Make sure base and size are valid */
+	if (((base & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) != 0UL) ||
+	    ((size & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) != 0UL) ||
+	    (size == 0UL) ||
+	    ((base + size) >= GPT_PPS_ACTUAL_SIZE(gpt_config.t))) {
+		VERBOSE("GPT: Invalid granule transition address range!\n");
+		VERBOSE("      Base=0x%"PRIx64"\n", base);
+		VERBOSE("      Size=0x%lx\n", size);
+		return -EINVAL;
+	}
+
+	/* Delegate request can only come from REALM or SECURE */
+	if ((src_sec_state != SMC_FROM_REALM) &&
+	    (src_sec_state != SMC_FROM_SECURE)) {
+		VERBOSE("GPT: Invalid caller security state 0x%x\n",
+							src_sec_state);
+		return -EINVAL;
+	}
+
+	if (src_sec_state == SMC_FROM_REALM) {
+		target_pas = GPT_GPI_REALM;
+		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
+		l1_desc = GPT_L1_REALM_DESC;
+	} else {
+		target_pas = GPT_GPI_SECURE;
+		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
+		l1_desc = GPT_L1_SECURE_DESC;
+	}
+
+	res = get_gpi_params(base, &gpi_info);
+	if (res != 0) {
+		return res;
+	}
+
+	/*
+	 * Access to GPT is controlled by a lock to ensure that no more
+	 * than one CPU is allowed to make changes at any given time.
+	 */
+	GPT_LOCK;
+	read_gpi(&gpi_info);
+
+	/* Check that the current address is in NS state */
+	if (gpi_info.gpi != GPT_GPI_NS) {
+		VERBOSE("GPT: Only Granule in NS state can be delegated.\n");
+		VERBOSE("      Caller: %u, Current GPI: %u\n", src_sec_state,
+			gpi_info.gpi);
+		GPT_UNLOCK;
+		return -EPERM;
+	}
+
+#if (RME_GPT_MAX_BLOCK != 0)
+	/* Check for Contiguous descriptor */
+	if ((gpi_info.gpt_l1_desc & GPT_L1_TYPE_CONT_DESC_MASK) ==
+					GPT_L1_TYPE_CONT_DESC) {
+		shatter_block(base, &gpi_info, GPT_L1_NS_DESC);
+	}
+#endif
+	/*
+	 * In order to maintain mutual distrust between Realm and Secure
+	 * states, remove any data speculatively fetched into the target
+	 * physical address space.
+	 * Issue DC CIPAPA or DC_CIGDPAPA on implementations with FEAT_MTE2.
+	 */
+	flush_page_to_popa(base | nse);
+
+	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
+		  gpi_info.gpi_shift, gpi_info.idx, target_pas);
+
+	/* Ensure that all agents observe the new configuration */
+	tlbi_page_dsbosh(base);
+
+	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
+
+	/* Ensure that the scrubbed data have made it past the PoPA */
+	flush_page_to_popa(base | nse);
+
+#if (RME_GPT_MAX_BLOCK != 0)
+	if (gpi_info.gpt_l1_desc == l1_desc) {
+		/* Try to fuse */
+		fuse_block(base, &gpi_info, l1_desc);
+	}
+#endif
+
+	/* Unlock the lock to GPT */
+	GPT_UNLOCK;
+
+	/*
+	 * The isb() will be done as part of context
+	 * synchronization when returning to lower EL.
+	 */
+	VERBOSE("GPT: Granule 0x%"PRIx64" GPI 0x%x->0x%x\n",
+		base, gpi_info.gpi, target_pas);
+
+	return 0;
+}
+
+/*
+ * This function is the granule transition undelegate service. When a granule
+ * transition request occurs it is routed to this function where the request is
+ * validated then fulfilled if possible.
+ *
+ * TODO: implement support for transitioning multiple granules at once.
+ *
+ * Parameters
+ *   base		Base address of the region to transition, must be
+ *			aligned to granule size.
+ *   size		Size of region to transition, must be aligned to granule
+ *			size.
+ *   src_sec_state	Security state of the caller.
+ *
+ * Return
+ *    Negative Linux error code in the event of a failure, 0 for success.
+ */
+int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
+{
+	gpi_info_t gpi_info;
+	uint64_t nse, __unused l1_desc;
+	int res;
+
+	/* Ensure that the tables have been set up before taking requests */
+	assert(gpt_config.plat_gpt_l0_base != 0UL);
+
+	/* Ensure that MMU and caches are enabled */
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
+
+	/* See if this is a single or a range of granule transition */
+	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
+		return -EINVAL;
+	}
+
+	/* Check that base and size are valid */
+	if ((ULONG_MAX - base) < size) {
+		VERBOSE("GPT: Transition request address overflow!\n");
+		VERBOSE("      Base=0x%"PRIx64"\n", base);
+		VERBOSE("      Size=0x%lx\n", size);
+		return -EINVAL;
+	}
+
+	/* Make sure base and size are valid */
+	if (((base & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) != 0UL) ||
+	    ((size & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) != 0UL) ||
+	    (size == 0UL) ||
+	    ((base + size) >= GPT_PPS_ACTUAL_SIZE(gpt_config.t))) {
+		VERBOSE("GPT: Invalid granule transition address range!\n");
+		VERBOSE("      Base=0x%"PRIx64"\n", base);
+		VERBOSE("      Size=0x%lx\n", size);
+		return -EINVAL;
+	}
+
+	res = get_gpi_params(base, &gpi_info);
+	if (res != 0) {
+		return res;
+	}
+
+	/*
+	 * Access to GPT is controlled by a lock to ensure that no more
+	 * than one CPU is allowed to make changes at any given time.
+	 */
+	GPT_LOCK;
+	read_gpi(&gpi_info);
+
+	/* Check that the current address is in the delegated state */
+	if ((src_sec_state == SMC_FROM_REALM) &&
+		(gpi_info.gpi == GPT_GPI_REALM)) {
+		l1_desc = GPT_L1_REALM_DESC;
+		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
+	} else if ((src_sec_state == SMC_FROM_SECURE) &&
+		(gpi_info.gpi == GPT_GPI_SECURE)) {
+		l1_desc = GPT_L1_SECURE_DESC;
+		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
+	} else {
+		VERBOSE("GPT: Only Granule in REALM or SECURE state can be undelegated\n");
+		VERBOSE("      Caller: %u Current GPI: %u\n", src_sec_state,
+			gpi_info.gpi);
+		GPT_UNLOCK;
+		return -EPERM;
+	}
+
+#if (RME_GPT_MAX_BLOCK != 0)
+	/* Check for Contiguous descriptor */
+	if ((gpi_info.gpt_l1_desc & GPT_L1_TYPE_CONT_DESC_MASK) ==
+					GPT_L1_TYPE_CONT_DESC) {
+		shatter_block(base, &gpi_info, l1_desc);
+	}
+#endif
+	/*
+	 * In order to maintain mutual distrust between Realm and Secure
+	 * states, remove access now, in order to guarantee that writes
+	 * to the currently-accessible physical address space will not
+	 * later become observable.
+	 */
+	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
+		  gpi_info.gpi_shift, gpi_info.idx, GPT_GPI_NO_ACCESS);
+
+	/* Ensure that all agents observe the new NO_ACCESS configuration */
+	tlbi_page_dsbosh(base);
+
+	/* Ensure that the scrubbed data have made it past the PoPA */
+	flush_page_to_popa(base | nse);
+
+	/*
+	 * Remove any data loaded speculatively in NS space from before
+	 * the scrubbing.
+	 */
+	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
+
+	flush_page_to_popa(base | nse);
+
+	/* Clear existing GPI encoding and transition granule */
+	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
+		  gpi_info.gpi_shift, gpi_info.idx, GPT_GPI_NS);
+
+	/* Ensure that all agents observe the new NS configuration */
+	tlbi_page_dsbosh(base);
+
+#if (RME_GPT_MAX_BLOCK != 0)
+	if (gpi_info.gpt_l1_desc == GPT_L1_NS_DESC) {
+		/* Try to fuse */
+		fuse_block(base, &gpi_info, GPT_L1_NS_DESC);
+	}
+#endif
+	/* Unlock the lock to GPT */
+	GPT_UNLOCK;
+
+	/*
+	 * The isb() will be done as part of context
+	 * synchronization when returning to lower EL.
+	 */
+	VERBOSE("GPT: Granule 0x%"PRIx64" GPI 0x%x->0x%x\n",
+		base, gpi_info.gpi, GPT_GPI_NS);
+
+	return 0;
+}
+
+/*
+ * The code block in FIRME_SUPPORT will be removed once FIRME service have natvie
+ * granule transition functionality that aligns with FIRME spec that supports
+ * range delegation along with long running sementatics.
+ */
+#if FIRME_SUPPORT
+static inline bool is_gpi_transition_permitted(uint8_t caller,
+					       uint8_t current_gpi,
+					       uint8_t target_gpi)
+{
+	/*
+	 * So we can use a small lookup table, change caller security state 0x21
+	 * (from realm) to 0x2 so it can be an index.
+	 */
+	if (caller == SMC_FROM_REALM) {
+		caller = 0x2;
+	}
+
+	assert(caller <= 0x2);
+	assert(current_gpi <= GPT_GPI_ANY);
+
+	return (gpi_config[current_gpi].policy[caller] >> target_gpi) & 0x1;
+}
+
 static inline void gpt_write_entry(uint64_t base, uint8_t target_gpi,
 				   gpi_info_t *gpi_info)
 {
@@ -1818,26 +2125,21 @@ static inline void gpt_undelegate(uint64_t base, uint8_t target_gpi,
 }
 
 /*
- * This function is the core of the granule transition service, including both
- * delegate and undelegate operations. When a granule transition request occurs
- * it is routed to this function which will determine if it is valid and fulfill
- * it.
+ * This function is for firme handler to set GPI encoding to 'target_gpi'
+ * based on current_gpi and src_sec_state.
+ *
+ * The transition of GPI from source to target are based on FIRME rules
  *
  * Parameters
  *   base               Base address of the first granule to transition, aligned
  *                      to granule size.
- *   *granule_count     Pointer to a nonzero number of granules requested. Only
- *                      the first granule is processed per call. Returns a count
- *                      of one on success or zero on error; the caller retries
- *                      the remaining range after successful partial progress.
  *   target_gpi         GPI to transition the granules to.
  *   src_sec_state      Security state of the requesting entity. This will be
  *                      combined with target_gpi to determine whether a
  *                      transition is allowed.
  * Return zero on success or a negative error code. GPT locking is internal.
  */
-int gpt_transition_pas(uint64_t base, uint64_t *granule_count,
-		       uint8_t target_gpi, uint8_t src_sec_state)
+int gpt_firme_gpi_set(uint64_t base, uint8_t target_gpi, uint8_t src_sec_state)
 {
 	gpi_info_t gpi_info = { 0, NULL, 0, 0, 0 };
 	int res;
@@ -1849,14 +2151,8 @@ int gpt_transition_pas(uint64_t base, uint64_t *granule_count,
 	/* Ensure that MMU and caches are enabled */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
 
-	if (*granule_count == 0UL) {
-		VERBOSE("GPT: Invalid zero granule count!\n");
-		return -EINVAL;
-	}
-
 	/* Process one granule and let the caller retry the remaining range. */
 	size = GPT_PGS_ACTUAL_SIZE(gpt_config.p);
-	*granule_count = 0U;
 
 	/* Make sure target GPI is valid. */
 	if (!is_gpi_valid(target_gpi)) {
@@ -1933,8 +2229,6 @@ int gpt_transition_pas(uint64_t base, uint64_t *granule_count,
 
 	GPT_UNLOCK;
 
-	/* Increment granule counter only once everything is complete. */
-	(*granule_count)++;
-
 	return 0;
 }
+#endif /* FIRME_SUPPORT */
