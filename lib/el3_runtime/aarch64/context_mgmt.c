@@ -622,7 +622,13 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	write_ctx_reg(state, CTX_ELR_EL3, ep->pc);
 	write_ctx_reg(state, CTX_SPSR_EL3, ep->spsr);
 
-	/* Start with a clean MDCR_EL3 copy as all relevant values are set */
+	/*
+	 * Start with a clean MDCR_EL3 copy as all relevant values are set.
+	 * Future feature enablement code must only set ETADE, EDADE, and EPMADE
+	 * when FEAT_RME is implemented and enabled. This preserves access to
+	 * externally accessible debug registers as required by C1-Ultra erratum
+	 * 4015814.
+	 */
 	mdcr_el3 = MDCR_EL3_RESET_VAL;
 
 	/* ---------------------------------------------------------------------

@@ -91,6 +91,10 @@ feat_sctlr2_not_supported\@:
 	/* ---------------------------------------------------------------------
 	 * Initialise MDCR_EL3, setting all fields rather than relying on hw.
 	 * Some fields are architecturally UNKNOWN on reset.
+	 * Future feature enablement code must only set ETADE, EDADE, and EPMADE
+	 * when FEAT_RME is implemented and enabled. This preserves access to
+	 * externally accessible debug registers as required by C1-Ultra erratum
+	 * 4015814.
 	 */
 	mov_imm	x0, MDCR_EL3_RESET_VAL
 	msr	mdcr_el3, x0
