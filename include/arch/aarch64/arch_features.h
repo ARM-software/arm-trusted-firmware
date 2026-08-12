@@ -289,7 +289,7 @@
 
 #define FEAT_SCTLR2(gen)							\
 	gen(feat_sctlr2, id_aa64mmfr3_el1, ENABLE_FEAT_SCTLR2,			\
-	    ID_AA64MMFR3_EL1_SCTLR2, 1U, 1U, FEAT_ENABLE_NS | FEAT_ENABLE_REALM)
+	    ID_AA64MMFR3_EL1_SCTLR2, 1U, 1U, FEAT_ENABLE_ALL_WORLDS)
 
 #define FEAT_AIE(gen)								\
 	gen(feat_aie, id_aa64mmfr3_el1, ENABLE_FEAT_AIE,			\
