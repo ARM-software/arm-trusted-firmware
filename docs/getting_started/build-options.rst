@@ -1184,9 +1184,9 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
    Note that Pointer Authentication is enabled for Non-secure world
    irrespective of the value of this option if the CPU supports it.
 
--  ``ENABLE_FEAT_PAUTH_LR``: Enables the ``FEAT_PAUTH_LR``
-   extension. ``FEAT_PAUTH_LR`` is an optional feature available from Arm v9.4
-   onwards. This feature requires PAUTH to be enabled via the
+-  ``ENABLE_FEAT_PAUTH_LR``: Enables the use of ``FEAT_PAUTH_LR`` extension at
+   EL3. ``FEAT_PAUTH_LR`` is an optional feature available from Arm v9.4
+   onwards. This feature requires ``FEAT_PAuth`` to be enabled via the
    ``BRANCH_PROTECTION`` flag. Default value is ``0``.
 
 -  ``ENABLE_FEAT_RNG``: Enables the ``FEAT_RNG`` extension.
