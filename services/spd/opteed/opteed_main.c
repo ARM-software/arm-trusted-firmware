@@ -109,6 +109,12 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	/* Get a reference to this cpu's OPTEE context */
 	linear_id = plat_my_core_pos();
 	optee_ctx = &opteed_sp_context[linear_id];
+
+	if (get_optee_pstate(optee_ctx->state) ==
+	    OPTEE_PSTATE_UNKNOWN) {
+		opteed_cpu_on_finish_handler(0);
+	}
+
 	assert(&optee_ctx->cpu_ctx == cm_get_context(SECURE));
 
 	cm_set_elr_el3(SECURE, (uint64_t)&optee_vector_table->fiq_entry);
@@ -498,6 +504,9 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 	uint64_t image_pa;
 	uintptr_t image_va;
 	optee_image_t *curr_image;
+	uint32_t image_size;
+	const uint64_t hdr_size = sizeof(optee_header_t) +
+				  sizeof(optee_image_t);
 	uintptr_t target_va;
 	uint64_t target_size;
 	entry_point_info_t optee_ep_info;
@@ -510,7 +519,11 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 
 	mapped_data_pa = page_align(data_pa, DOWN);
 	mapped_data_va = mapped_data_pa;
-	data_map_size = page_align(data_size + (mapped_data_pa - data_pa), UP);
+	data_map_size = page_align(data_size + (data_pa - mapped_data_pa), UP);
+
+	if (data_size < hdr_size) {
+		return -EINVAL;
+	}
 
 	/*
 	 * We do not validate the passed in address because we are trusting the
@@ -529,8 +542,7 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 		return -EINVAL;
 	}
 
-	image_ptr = (uint8_t *)data_va + sizeof(optee_header_t) +
-			sizeof(optee_image_t);
+	image_ptr = (uint8_t *)data_va + hdr_size;
 	if (image_header->arch == 1) {
 		opteed_rw = OPTEE_AARCH64;
 	} else {
@@ -538,10 +550,22 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 	}
 
 	curr_image = &image_header->optee_image_list[0];
+	image_size = curr_image->size;
 	image_pa = dual32to64(curr_image->load_addr_hi,
 			      curr_image->load_addr_lo);
+
+	/*
+	 * Verify that the payload size fits inside the source buffer and check
+	 * that adding image_size to image_pa does not result in unsigned overflow.
+	 */
+	if ((image_size > (data_size - hdr_size)) ||
+	    (image_pa + image_size < image_pa)) {
+		mmap_remove_dynamic_region(mapped_data_va, data_map_size);
+		return -EINVAL;
+	}
+
 	image_va = image_pa;
-	target_end_pa = image_pa + curr_image->size;
+	target_end_pa = image_pa + image_size;
 
 	/* Now also map the memory we want to copy it to. */
 	target_pa = page_align(image_pa, DOWN);
@@ -556,9 +580,9 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint64_t data_pa)
 	}
 
 	INFO("Loaded OP-TEE via SMC: size %d addr 0x%" PRIx64 "\n",
-	     curr_image->size, image_va);
+	     image_size, image_va);
 
-	memcpy((void *)image_va, image_ptr, curr_image->size);
+	memcpy((void *)image_va, image_ptr, image_size);
 	flush_dcache_range(target_pa, target_size);
 
 	mmap_remove_dynamic_region(mapped_data_va, data_map_size);
