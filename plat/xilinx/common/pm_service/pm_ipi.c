@@ -224,6 +224,10 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 				IPI_BUFFER_REQ_OFFSET;
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 
+	if (count > (size_t)IPI_BUFFER_MAX_WORDS) {
+		return PM_RET_ERROR_ARGS;
+	}
+
 	for (i = 0; i < count; i++) {
 		value[i] = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 	}
