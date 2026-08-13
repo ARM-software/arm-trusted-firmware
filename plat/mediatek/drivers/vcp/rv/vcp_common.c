@@ -54,14 +54,28 @@ static bool get_vcp_pwr_status(void)
 	return true;
 }
 
-uint32_t get_mmup_fw_size(void)
+bool get_mmup_l2tcm_config(uint64_t *out_offset, uint32_t *out_size)
 {
-	return g_mmup_fw_size;
-}
+	uint64_t offset = g_l2tcm_offset;
+	uint32_t size = g_mmup_fw_size;
 
-uint64_t get_mmup_l2tcm_offset(void)
-{
-	return g_l2tcm_offset;
+	if (out_offset == NULL || out_size == NULL) {
+		return false;
+	}
+
+	if (offset == 0 || size == 0 ||
+	    offset > MTK_VCP_SRAM_SIZE ||
+	    size > MTK_VCP_SRAM_SIZE - offset) {
+		ERROR("%s: [%s] mmup invalid config "
+		      "(offset: 0x%" PRIx64 ", size: 0x%" PRIx32 ")\n",
+		      MODULE_TAG, __func__, offset, size);
+		return false;
+	}
+
+	*out_offset = offset;
+	*out_size = size;
+
+	return true;
 }
 
 static bool vcp_cold_boot_reset(void)
@@ -82,25 +96,24 @@ static bool mmup_cold_boot_reset(void)
 
 static bool vcp_set_mmup_l2tcm_offset(uint64_t l2tcm_offset)
 {
-	g_l2tcm_offset = l2tcm_offset;
-
-	if (g_l2tcm_offset > MTK_VCP_SRAM_SIZE) {
-		g_l2tcm_offset = 0;
+	if (l2tcm_offset > MTK_VCP_SRAM_SIZE) {
 		return false;
 	}
 
+	g_l2tcm_offset = l2tcm_offset;
 	return true;
 }
 
 static bool vcp_set_mmup_fw_size(uint64_t fw_size)
 {
-	g_mmup_fw_size = fw_size;
+	uint64_t l2tcm_offset = g_l2tcm_offset;
 
-	if (g_mmup_fw_size > MTK_VCP_SRAM_SIZE - g_l2tcm_offset) {
-		g_mmup_fw_size = 0;
+	if (l2tcm_offset > MTK_VCP_SRAM_SIZE ||
+	    fw_size > MTK_VCP_SRAM_SIZE - l2tcm_offset) {
 		return false;
 	}
 
+	g_mmup_fw_size = fw_size;
 	return true;
 }
 

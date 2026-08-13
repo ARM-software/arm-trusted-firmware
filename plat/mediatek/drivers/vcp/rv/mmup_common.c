@@ -53,13 +53,15 @@ bool mmup_smc_rstn_set(bool boot_ok)
 
 bool mmup_smc_rstn_clr(void)
 {
+	uint64_t l2tcm_offset;
+	uint32_t fw_size;
+
 	if ((mmio_read_32(VCP_R_CORE1_SW_RSTN_SET) & BIT(0)) == 1) {
 		ERROR("%s: [%s] mmup not reset set !\n", MODULE_TAG, __func__);
 		return false;
 	}
 
-	if ((get_mmup_fw_size() == 0) || get_mmup_l2tcm_offset() == 0) {
-		ERROR("%s: [%s] mmup no enough l2tcm to run !\n", MODULE_TAG, __func__);
+	if (!get_mmup_l2tcm_config(&l2tcm_offset, &fw_size)) {
 		return false;
 	}
 
@@ -74,8 +76,8 @@ bool mmup_smc_rstn_clr(void)
 	/* l2tcm offset*/
 	mmio_setbits_32(VCP_R_SEC_CTRL, VCP_OFFSET_ENABLE_P | VCP_OFFSET_ENABLE_B);
 	mmio_write_32(R_L2TCM_OFFSET_RANGE_0_LOW, 0x0);
-	mmio_write_32(R_L2TCM_OFFSET_RANGE_0_HIGH, round_up(get_mmup_fw_size(), PAGE_SIZE));
-	mmio_write_32(R_L2TCM_OFFSET, get_mmup_l2tcm_offset());
+	mmio_write_32(R_L2TCM_OFFSET_RANGE_0_HIGH, round_up(fw_size, PAGE_SIZE));
+	mmio_write_32(R_L2TCM_OFFSET, l2tcm_offset);
 
 	/* start vcp-mmup */
 	mmio_write_32(VCP_R_CORE1_SW_RSTN_CLR, BIT(0));
