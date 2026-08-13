@@ -22,8 +22,8 @@ USE_GIC_DRIVER			:=	3
 USE_DSU_DRIVER			:=	1
 GIC_ENABLE_V4_EXTN		:=      1
 GICV3_SUPPORT_GIC600		:=	1
-override NEED_BL2U		:=	no
-override ARM_PLAT_MT		:=	1
+NEED_BL2U			:=	no
+ARM_PLAT_MT			:=	1
 
 # CPU setup
 ARM_ARCH_MINOR			:=	7

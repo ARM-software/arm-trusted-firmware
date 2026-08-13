@@ -458,11 +458,11 @@ endif #(DECRYPTION_SUPPORT)
 ################################################################################
 
 ifdef BL1_SOURCES
-	NEED_BL1 := yes
+	NEED_BL1 ?= yes
 endif #(BL1_SOURCES)
 
 ifdef BL2_SOURCES
-	NEED_BL2 := yes
+	NEED_BL2 ?= yes
 
 	# Using BL2 implies that a BL33 image also needs to be supplied for the FIP and
 	# Certificate generation tools. This flag can be overridden by the platform.
@@ -482,7 +482,7 @@ ifdef BL2_SOURCES
 endif #(BL2_SOURCES)
 
 ifdef BL2U_SOURCES
-	NEED_BL2U := yes
+	NEED_BL2U ?= yes
 endif #(BL2U_SOURCES)
 
 # If SCP_BL2 is given, we always want FIP to include it.
@@ -496,7 +496,7 @@ ifneq (${ARCH},aarch32)
 	# When booting an EL3 payload, there is no need to compile the BL31
 	# image nor put it in the FIP.
 		ifndef EL3_PAYLOAD_BASE
-			NEED_BL31 := yes
+			NEED_BL31 ?= yes
 		endif
 	endif
 endif #(ARCH=aarch64)
