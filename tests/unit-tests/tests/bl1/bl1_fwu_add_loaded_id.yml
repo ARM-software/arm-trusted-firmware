@@ -1,0 +1,19 @@
+#
+# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
+elements:
+- file: bl1/bl1_fwu.c
+  type: variable
+  name: bl1_fwu_loaded_ids
+  options: [remove_static]
+- file: bl1/bl1_fwu.c
+  type: function
+  name: bl1_fwu_add_loaded_id
+  options: [remove_static]
+- file: bl1/bl1_fwu.c
+  type: function
+  name: bl1_fwu_remove_loaded_id
+  options: [remove_static]

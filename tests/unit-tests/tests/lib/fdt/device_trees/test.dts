@@ -1,0 +1,97 @@
+/*
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	dev1@184090000 {
+		compatible = "acme,device1";
+		reg = <0x1 0x84090000 0 0x10000>;
+		address = <0x1 0x84090000 0 0x10000>;
+	};
+	dev2@40000 {
+		compatible = "acme,device2";
+		reg = <0 0x40000 0 0x10000>;
+		address = <0 0x40000 0 0x10000>;
+	};
+	transparent-bus {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		dev3@1c00000 {
+			compatible = "acme,device3";
+			reg = <0 0x1c00000 0x0 0x40000>;
+			address = <0 0x1c00000 0x0 0x40000>;
+		};
+		dev4@901300000 {
+			compatible = "acme,device4";
+			reg = <9 0x1300000 0x0 0x40000>;
+			address = <9 0x1300000 0x0 0x40000>;
+		};
+	};
+	legacy-bus@40000000 {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0x0 0 0x40000000 0x10000000>;
+		dev5@0 {
+			compatible = "acme,device5";
+			reg = <0x0 0x10000>;
+			address = <0x0 0x40000000 0x0 0x10000>;
+		};
+
+		dev6@90000 {
+			compatible = "acme,device6";
+			reg = <0x90000 0x10000>;
+			address = <0x0 0x40090000 0x0 0x10000>;
+		};
+		large-bus@8000000 {
+			compatible = "simple-bus";
+			#address-cells = <2>;
+			#size-cells = <1>;
+			ranges = <0x0 0x1000000 0x8000000 0x8000000>;
+			/* outside of any mapping entry */
+			dev7@800000 {
+				compatible = "acme,device7";
+				reg = <0 0x800000 0x1000>;
+				address = <0xffffffff 0xffffffff 0x0 0x1000>;
+			};
+			dev8@1400000 {
+				compatible = "acme,device8";
+				reg = <0 0x1400000 0x1000>;
+				address = <0 0x48400000 0x0 0x1000>;
+			};
+		};
+	};
+	high-bus@c0000000 {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges = <0 0x0 0 0xc0000000 0x10000000>,
+			 <1 0x0 2 0x80000000 0x10000000>,
+			 <3 0x0 4 0xc0000000 0x10000000>,
+			 <9 0x0 3 0x40000000 0x10000000>,
+			 <5 0x0 9 0xd0000000 0x10000000>;
+		dev9@100030000 {
+			compatible = "acme,device9";
+			reg = <1 0x30000 0x10000>;
+			address = <0x2 0x80030000 0x0 0x10000>;
+		};
+		dev10@300180000 {
+			compatible = "acme,device10";
+			reg = <3 0x180000 0x10000>;
+			address = <4 0xc0180000 0 0x10000>;
+		};
+		/* not actually mapped */
+		dev11@400080000 {
+			compatible = "acme,device11";
+			reg = <4 0x80000 0x10000>;
+			address = <0xffffffff 0xffffffff 0x0 0x10000>;
+		};
+	};
+};
