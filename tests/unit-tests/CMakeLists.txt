@@ -90,5 +90,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include(tests/bl1/test_bl1_fwu.cmake)
 include(tests/lib/libc/test_libc.cmake)
 include(tests/lib/object_pool/test_object_pool.cmake)
-include(tests/lib/fdt/test_fdt.cmake)
+# FIXME: Test is currenlty disabled as it has binary dependencies that are not
+# present in the repository. This needs to be resolved to run the test
+# include(tests/lib/fdt/test_fdt.cmake)
 include(tests/lib/gpt/test_gpt.cmake)

@@ -28,6 +28,7 @@ unit_test_add_suite(
 		${PROJECT_SOURCE_DIR}/mocks/include/lib/libc/
 		${UNIT_TEST_PROJECT_PATH}/include/
 		${UNIT_TEST_PROJECT_PATH}/include/lib/libfdt/
+		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/
 	COMPILE_DEFINITIONS
 		# Several additional DTB files from the Linux kernel and the TFA source
 		# are needed to run these tests.  They cannot be included here due to
