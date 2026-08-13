@@ -15,7 +15,7 @@ static inline bool is_feat_mte2_supported(void)
     return false;
 }
 
-static inline bool is_feat_rme_gpc2_present(void)
+static inline bool is_feat_rme_gpc2_supported(void)
 {
     return false;
 }
