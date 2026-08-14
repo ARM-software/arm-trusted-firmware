@@ -206,7 +206,8 @@ endif
 ifeq (${FIRME_SUPPORT},1)
 BL31_SOURCES		+=	services/std_svc/firme/firme_svc.c \
 				services/std_svc/firme/firme_base_service.c \
-				services/std_svc/firme/firme_granule_management_service.c \
+				services/std_svc/firme/firme_gm_service.c \
+				services/std_svc/firme/firme_gm_gpi.c \
 				services/std_svc/firme/firme_mecid.c
 
 ifeq (${FIRME_SUPPORT_ATTESTATION},1)

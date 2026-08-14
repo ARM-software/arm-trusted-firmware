@@ -43,72 +43,6 @@ static const gpt_t_val_e gpt_t_lookup[] = {PPS_4GB_T, PPS_64GB_T,
 					   PPS_4PB_T};
 
 /*
- * The code block in FIRME_SUPPORT will be removed once FIRME service have natvie
- * granule transition functionality
- */
-#if FIRME_SUPPORT
-/*
- * Lookup table used to speed up granule transitions by associating GPIs and
- * relevant information such as descriptors, NSE fields, and transition
- * policies defined by FIRME rules.
- */
-typedef struct {
-	uint64_t desc;
-	uint8_t nse;
-	uint8_t nse2;
-	uint16_t policy[3];
-} gpi_lookup_t;
-
-/*
- * This table allows us to easily look up GPI-specific information such as
- * descriptors, nse/nse2 fields, and allowed transitions without using large
- * blocks of nested conditionals which both take up a lot of space and are
- * very slow.
- *
- * This array contains an entry for each valid GPI, unused values are all zeros.
- * GPIs such as SA, NSP, and NSO are not part of base FEAT_RME so those policy
- * flags are set at runtime when FEAT_RME_GDI and FEAT_RME_GPC2 are enabled.
- *
- * uint64_t desc       The L1 descriptor associated with a GPI
- * uint8_t nse         NSE bits
- * uint8_t nse2        NSE2 bits
- * uint16_t policy[3] Contains bit fields representing which GPIs a given
- *                     security state can transition this GPI to. 0=s, 1=ns, and
- *                     0x2=realm.
- */
-static gpi_lookup_t gpi_config[] = {
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ GPT_L1_SA_DESC, 0, GPT_NSE2_SA, { 0x0, 0x0, 0x0 } },
-	{ GPT_L1_NSP_DESC, 0, GPT_NSE2_NSP, { 0x0, 0x0, 0x0 } },
-	{ 0 },
-	{ 0 },
-	{ GPT_L1_SECURE_DESC,
-	  GPT_NSE_SECURE,
-	  0,
-	  { (1 << GPT_GPI_NS), 0x0, 0x0 } },
-	{ GPT_L1_NS_DESC,
-	  GPT_NSE_NS,
-	  0,
-	  { (1 << GPT_GPI_SECURE), 0x0, (1 << GPT_GPI_REALM) } },
-	{ GPT_L1_ROOT_DESC, GPT_NSE_ROOT, 0, { 0x0, 0x0, 0x0 } },
-	{ GPT_L1_REALM_DESC, GPT_NSE_REALM, 0, { 0x0, 0x0, (1 << GPT_GPI_NS) } },
-	{ 0 },
-	{ GPT_L1_NSO_DESC, GPT_NSE_NS, 0, { 0x0, 0x0, 0x0 } },
-	{ 0 },
-	{ 0 },
-};
-
-/* Get the descriptor or NSE bits from GPI encoding. */
-#define GPI_TO_DESC(_gpi)	(gpi_config[_gpi].desc)
-#define GPI_TO_NSE(_gpi)	\
-	(((uint64_t)gpi_config[_gpi].nse << GPT_NSE_SHIFT) | \
-	 ((uint64_t)gpi_config[_gpi].nse2 << GPT_NSE2_SHIFT))
-#endif /* FIRME_SUPPORT */
-
-/*
  * Lookup P from PGS
  *
  *   PGS    Size    P
@@ -1130,21 +1064,6 @@ int gpt_enable(void)
 	if (is_feat_rme_gdi_supported()) {
 		gpccr_el3 |= GPCCR_NSP_BIT;
 		gpccr_el3 |= GPCCR_SA_BIT;
-
-#if FIRME_SUPPORT
-		/*
-		 * Enable these GPIs in NSO/NSP transition policies used by
-		 * FIRME GPI set.
-		 */
-		gpi_config[GPT_GPI_NS].policy[SMC_FROM_NON_SECURE] |=
-			((1 << GPT_GPI_NSP) | (1 << GPT_GPI_SA));
-		gpi_config[GPT_GPI_NSO].policy[SMC_FROM_NON_SECURE] |=
-			((1 << GPT_GPI_NSP) | (1 << GPT_GPI_SA));
-		gpi_config[GPT_GPI_NSP].policy[SMC_FROM_NON_SECURE] |=
-			((1 << GPT_GPI_NS) | (1 << GPT_GPI_NSO));
-		gpi_config[GPT_GPI_SA].policy[SMC_FROM_NON_SECURE] |=
-			((1 << GPT_GPI_NS) | (1 << GPT_GPI_NSO));
-#endif
 	}
 
 	/* Prepopulate GPCCR_EL3 but don't enable GPC yet */
@@ -1162,14 +1081,6 @@ int gpt_enable(void)
 	/* Enable NSO encoding if FEAT_RME_GPC2 is supported. */
 	if (is_feat_rme_gpc2_supported()) {
 		gpccr_el3 |= GPCCR_NSO_BIT;
-
-#if FIRME_SUPPORT
-		/* Enable NSO in NS transition policies used by FIRME GPI set. */
-		gpi_config[GPT_GPI_NS].policy[SMC_FROM_NON_SECURE] |=
-			(1 << GPT_GPI_NSO);
-		gpi_config[GPT_GPI_NSO].policy[SMC_FROM_NON_SECURE] |=
-			(1 << GPT_GPI_NS);
-#endif
 	}
 
 	/* TODO: Configure GPCCR_EL3_GPCP for Fault control */
@@ -2046,189 +1957,40 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	return 0;
 }
 
-/*
- * The code block in FIRME_SUPPORT will be removed once FIRME service have natvie
- * granule transition functionality that aligns with FIRME spec that supports
- * range delegation along with long running sementatics.
- */
 #if FIRME_SUPPORT
-static inline bool is_gpi_transition_permitted(uint8_t caller,
-					       uint8_t current_gpi,
-					       uint8_t target_gpi)
+void firme_gpt_lock(uint64_t base)
 {
-	/*
-	 * So we can use a small lookup table, change caller security state 0x21
-	 * (from realm) to 0x2 so it can be an index.
-	 */
-	if (caller == SMC_FROM_REALM) {
-		caller = 0x2;
-	}
+#if (RME_GPT_BITLOCK_BLOCK == 0)
+	spin_lock(&gpt_lock);
+#else
+	unsigned int block_idx;
+	bitlock_t *lock;
+	LOCK_TYPE mask;
 
-	assert(caller <= 0x2);
-	assert(current_gpi <= GPT_GPI_ANY);
+	block_idx = (unsigned int)(base / (RME_GPT_BITLOCK_BLOCK * SZ_512M));
 
-	return (gpi_config[current_gpi].policy[caller] >> target_gpi) & 0x1;
-}
+	lock = (bitlock_t *)&gpt_bitlock[block_idx / LOCK_BITS];
+	mask = 1U << (block_idx & (LOCK_BITS - 1U));
 
-static inline void gpt_write_entry(uint64_t base, uint8_t target_gpi,
-				   gpi_info_t *gpi_info)
-{
-	/* Update the GPI entry to the new state. */
-	write_gpt(&gpi_info->gpt_l1_desc, gpi_info->gpt_l1_addr,
-		  gpi_info->gpi_shift, gpi_info->idx, target_gpi);
-
-	/* Ensure all agents observe new state. */
-	tlbi_page_dsbosh(base);
-}
-
-static inline void gpt_delegate(uint64_t base, uint8_t target_gpi,
-				gpi_info_t *gpi_info)
-{
-	uint8_t source_gpi = gpi_info->gpi;
-
-	/*
-	 * In order to maintain mutual distrust between states, remove any data
-	 * speculatively fetched into the target physical address space.
-	 */
-	flush_page_to_popa(base | GPI_TO_NSE(target_gpi));
-
-	gpt_write_entry(base, target_gpi, gpi_info);
-
-	/* Ensure scrubbed data has made it past PoPA */
-	flush_page_to_popa(base | GPI_TO_NSE(source_gpi));
-}
-
-static inline void gpt_undelegate(uint64_t base, uint8_t target_gpi,
-				  gpi_info_t *gpi_info)
-{
-	uint8_t source_gpi = gpi_info->gpi;
-
-	/*
-	 * In order to maintain mutual distrust between states, remove access
-	 * now, in order to guarantee that writes to the currently-accessible
-	 * physical address space will not later become observable.
-	 */
-	write_gpt(&gpi_info->gpt_l1_desc, gpi_info->gpt_l1_addr,
-		  gpi_info->gpi_shift, gpi_info->idx, GPT_GPI_NO_ACCESS);
-
-	/* Ensure all agents observe NO ACCESS state. */
-	tlbi_page_dsbosh(base);
-
-	/*
-	 * Ensure that the scrubbed data have made it past the PoPA for both
-	 * old and new security states.
-	 */
-	flush_page_to_popa(base | GPI_TO_NSE(source_gpi));
-	flush_page_to_popa(base | GPI_TO_NSE(target_gpi));
-
-	gpt_write_entry(base, target_gpi, gpi_info);
-}
-
-/*
- * This function is for firme handler to set GPI encoding to 'target_gpi'
- * based on current_gpi and src_sec_state.
- *
- * The transition of GPI from source to target are based on FIRME rules
- *
- * Parameters
- *   base               Base address of the first granule to transition, aligned
- *                      to granule size.
- *   target_gpi         GPI to transition the granules to.
- *   src_sec_state      Security state of the requesting entity. This will be
- *                      combined with target_gpi to determine whether a
- *                      transition is allowed.
- * Return zero on success or a negative error code. GPT locking is internal.
- */
-int gpt_firme_gpi_set(uint64_t base, uint8_t target_gpi, uint8_t src_sec_state)
-{
-	gpi_info_t gpi_info = { 0, NULL, 0, 0, 0 };
-	int res;
-	size_t size;
-
-	/* Ensure that the tables have been set up before taking requests */
-	assert(gpt_config.plat_gpt_l0_base != 0UL);
-
-	/* Ensure that MMU and caches are enabled */
-	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
-
-	/* Process one granule and let the caller retry the remaining range. */
-	size = GPT_PGS_ACTUAL_SIZE(gpt_config.p);
-
-	/* Make sure target GPI is valid. */
-	if (!is_gpi_valid(target_gpi)) {
-		VERBOSE("GPT: Invalid target GPI value in request: %u\n",
-			target_gpi);
-		return -EPERM;
-	}
-
-	/* Check that base and size are valid */
-	if ((ULONG_MAX - base) < size) {
-		VERBOSE("GPT: Transition request address overflow!\n");
-		VERBOSE("      Base=0x%" PRIx64 "\n", base);
-		VERBOSE("      Size=%lu\n", size);
-		return -EINVAL;
-	}
-
-	/* Make sure base and size are valid */
-	if (((base & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) != 0UL) ||
-	    ((size & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) != 0UL) ||
-	    (size == 0UL) ||
-	    ((base + size) >= GPT_PPS_ACTUAL_SIZE(gpt_config.t))) {
-		VERBOSE("GPT: Invalid granule transition address range!\n");
-		VERBOSE("      Base=0x%" PRIx64 "\n", base);
-		VERBOSE("      Size=%lu\n", size);
-		return -EINVAL;
-	}
-
-	/* Get GPI info for next granule to transition. */
-	res = get_gpi_params(base, &gpi_info);
-	if (res != 0) {
-		return res;
-	}
-
-	GPT_LOCK;
-
-	read_gpi(&gpi_info);
-
-	/* Verify that transition of this granule is allowed. */
-	if (!is_gpi_transition_permitted(src_sec_state, gpi_info.gpi,
-					 target_gpi)) {
-		VERBOSE("(%s) Sec state %u is not allowed to transition %u to %u!\n",
-			__func__, src_sec_state, gpi_info.gpi, target_gpi);
-		console_flush();
-		GPT_UNLOCK;
-		return -EPERM;
-	}
-
-#if (RME_GPT_MAX_BLOCK != 0)
-	/* Check for Contiguous descriptor */
-	if ((gpi_info.gpt_l1_desc & GPT_L1_TYPE_CONT_DESC_MASK) ==
-	    GPT_L1_TYPE_CONT_DESC) {
-		shatter_block(base, &gpi_info, GPI_TO_DESC(gpi_info.gpi));
-	}
+	bit_lock(lock, mask);
 #endif
+}
 
-	if (((target_gpi == GPT_GPI_NS) && (gpi_info.gpi == GPT_GPI_NSO)) ||
-	    ((target_gpi == GPT_GPI_NSO) && (gpi_info.gpi == GPT_GPI_NS))) {
-		/* Handle NS/NSO transition. */
-		gpt_write_entry(base, target_gpi, &gpi_info);
-	} else if ((target_gpi == GPT_GPI_NS) || (target_gpi == GPT_GPI_NSO)) {
-		/* Handle undelegate transition. */
-		gpt_undelegate(base, target_gpi, &gpi_info);
-	} else {
-		/* Handle delegate transition. */
-		gpt_delegate(base, target_gpi, &gpi_info);
-	}
+void firme_gpt_unlock(uint64_t base)
+{
+#if (RME_GPT_BITLOCK_BLOCK == 0)
+	spin_unlock(&gpt_lock);
+#else
+	unsigned int block_idx;
+	bitlock_t *lock;
+	LOCK_TYPE mask;
 
-#if (RME_GPT_MAX_BLOCK != 0)
-	if (gpi_info.gpt_l1_desc == GPI_TO_DESC(target_gpi)) {
-		/* Try to fuse */
-		fuse_block(base, &gpi_info, GPI_TO_DESC(target_gpi));
-	}
+	block_idx = (unsigned int)(base / (RME_GPT_BITLOCK_BLOCK * SZ_512M));
+
+	lock = (bitlock_t *)&gpt_bitlock[block_idx / LOCK_BITS];
+	mask = 1U << (block_idx & (LOCK_BITS - 1U));
+
+	bit_unlock(lock, mask);
 #endif
-
-	GPT_UNLOCK;
-
-	return 0;
 }
 #endif /* FIRME_SUPPORT */

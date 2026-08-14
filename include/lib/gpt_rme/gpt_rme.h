@@ -188,19 +188,10 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state);
 
 #if FIRME_SUPPORT
 /*
- * This function is the core of the granule transition service, including both
- * delegate and undelegate operations. When a granule transition request occurs
- * it is routed to this function which will determine if it is valid and fulfill
- * it.
- *
- * Parameters
- *   base               Base address of the first granule to transition, aligned
- *                      to granule size.
- *   target_gpi         GPI to transition the granules to.
- *   src_sec_state      Security state of the requesting entity. This will be
- *                      combined with target_gpi to determine whether a
- *                      transition is allowed.
+ * The existing bitlocks are used by FIRME to synchorize GPT updates. This
+ * will removed once FIRME supports native locks on PA range.
  */
-int gpt_firme_gpi_set(uint64_t base, uint8_t target_gpi, uint8_t src_sec_state);
+void firme_gpt_lock(uint64_t base);
+void firme_gpt_unlock(uint64_t base);
 #endif /* FIRME_SUPPORT */
 #endif /* GPT_RME_H */
