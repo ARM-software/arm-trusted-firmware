@@ -24,7 +24,7 @@
 #include <lib/el3_runtime/context_debug.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/pauth.h>
-#include <lib/gpt_rme/gpt_rme.h>
+#include <lib/extensions/rme.h>
 #include <lib/pmf/pmf.h>
 #include <lib/runtime_instr.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
@@ -259,7 +259,7 @@ void __no_pauth bl31_warmboot(void)
 	 */
 #if ENABLE_FEAT_RME
 	if (is_feat_rme_supported()) {
-		if (gpt_enable() != 0) {
+		if (rme_gpc_enable() != 0) {
 			panic();
 		}
 	}

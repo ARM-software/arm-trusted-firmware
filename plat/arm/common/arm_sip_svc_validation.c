@@ -17,6 +17,7 @@
 #include <common/smc_validation_framework.h>
 #include <lib/el3_runtime/aarch64/context.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
 #include <plat/arm/common/arm_sip_svc.h>
 #include <plat/arm/common/plat_arm.h>

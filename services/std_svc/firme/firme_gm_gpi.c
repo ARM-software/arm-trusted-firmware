@@ -15,6 +15,7 @@
 #include <arch.h>
 #include <arch_features.h>
 #include <common/debug.h>
+#include <lib/extensions/rme.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>

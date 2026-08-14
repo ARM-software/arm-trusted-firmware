@@ -16,9 +16,9 @@
 #include <common/desc_image_load.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/partition/partition.h>
+#include <lib/extensions/rme.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
-#include <lib/gpt_rme/gpt_rme.h>
 #if TRANSFER_LIST
 #include <transfer_list.h>
 #endif

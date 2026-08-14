@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,7 +63,7 @@ unsigned long int pgs_values[] = {
 };
 
 /*
- * TEST GROUP: gpt_init_l0_tables
+ * TEST GROUP: rme_init_gpt_l0_tables
  *	Test whether L0 tables are properly handled.
  */
 TEST_GROUP(gpt_l0_tables) {
@@ -148,7 +148,7 @@ TEST(gpt_l0_tables, init_and_walk) {
 	/* Allocate memory for L0 */
 	CHECK_TEXT(l0_table = allocate_l0_table_mem(l0_mem_size),
 		"Unable to allocate L0 table.");
-	CHECK(gpt_init_l0_tables(pps_encoding, l0_table, l0_mem_size) == 0);
+	CHECK(rme_init_gpt_l0_tables(pps_encoding, l0_table, l0_mem_size) == 0);
 	walk_l0_table(l0_table, l0_mem_size, false);
 }
 
@@ -178,7 +178,7 @@ TEST(gpt_l0_tables, unaligned){
 		FAIL("Could not allocate L0 table\n");
 	}
 
-	CHECK(gpt_init_l0_tables(pps_encoding, l0_table, l0_mem_size)
+	CHECK(rme_init_gpt_l0_tables(pps_encoding, l0_table, l0_mem_size)
 		== -EFAULT);
 }
 
@@ -204,7 +204,7 @@ TEST(gpt_l0_tables, size_lt_4K){
 		FAIL("Could not allocate L0 table\n");
 	}
 
-	CHECK(gpt_init_l0_tables(pps_encoding, l0_table,
+	CHECK(rme_init_gpt_l0_tables(pps_encoding, l0_table,
 		l0_mem_size) == -EFAULT);
 }
 
@@ -240,7 +240,7 @@ TEST(gpt_l0_tables, size_gt_4K){
 	if (l0_table % l0_mem_size == 0){
 		actual_table = l0_table + (SIZE_4KB/sizeof(uintptr_t));
 	}
-	CHECK(gpt_init_l0_tables(pps_encoding, actual_table,
+	CHECK(rme_init_gpt_l0_tables(pps_encoding, actual_table,
 		l0_mem_size) == -EFAULT);
 }
 
@@ -273,11 +273,11 @@ TEST(gpt_l0_tables, not_enough_memory) {
 		FAIL("Unable to allocate L0 table\n");
 	}
 
-	CHECK(gpt_init_l0_tables(pps_encoding, l0_table,
+	CHECK(rme_init_gpt_l0_tables(pps_encoding, l0_table,
 		wrong_l0_mem_size) == -ENOMEM);
 }
 
-TEST_GROUP(gpt_init_pas_l1_tables) {
+TEST_GROUP(rme_init_gpt_l1_tables) {
 	TEST_SETUP() {
 		int i, j, k;
 
@@ -367,16 +367,16 @@ TEST_GROUP(gpt_init_pas_l1_tables) {
 	pas_region_t *pas_regions;
 };
 
-TEST(gpt_init_pas_l1_tables, init) {
+TEST(rme_init_gpt_l1_tables, init) {
 
-	if (gpt_init_l0_tables(pps_encoding, l0_table,
+	if (rme_init_gpt_l0_tables(pps_encoding, l0_table,
 		l0_mem_size) != 0) {
 		printf("Failed to init l0 table for pps %lu, l0gptsz %lu",
 			pps, l0gptsz);
 		FAIL("\n");
 	}
 	walk_l0_table(l0_table, l0_mem_size, false);
-	if (gpt_init_pas_l1_tables(pgs_encoding, l1_table, l1_mem_size,
+	if (rme_init_gpt_l1_tables(pgs_encoding, l1_table, l1_mem_size,
 		pas_regions, counts.pas_count) != 0) {
 		printf("Failed to init l1 table for pps %lu, l0gptsz %lu",
 			pps, l0gptsz);
@@ -485,12 +485,12 @@ TEST(misaligned_l1_table, unaligned){
 	};
 	unsigned int pas_region_count = 6;
 
-	if (gpt_init_l0_tables(pps_encoding, l0_table, l0_mem_size) != 0){
+	if (rme_init_gpt_l0_tables(pps_encoding, l0_table, l0_mem_size) != 0){
 		printf("Failed to init l0 table for pps %lu, l0gptsz %lu", pps, l0gptsz);
 		FAIL("\n");
 	}
 	walk_l0_table(l0_table, l0_mem_size, false);
-	if (gpt_init_pas_l1_tables(pgs_encoding, l1_table, l1_mem_size, pas_regions, pas_region_count) == 0){
+	if (rme_init_gpt_l1_tables(pgs_encoding, l1_table, l1_mem_size, pas_regions, pas_region_count) == 0){
 		printf("Misaligned L1 test failed.\n");
 		FAIL("\n");
 	}

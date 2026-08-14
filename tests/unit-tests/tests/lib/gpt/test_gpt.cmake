@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,7 @@ include(UnitTest)
 unit_test_add_suite(
 	NAME gpt
 	SOURCES
-		${UNIT_TEST_PROJECT_PATH}/lib/gpt_rme/gpt_rme.c
+		${UNIT_TEST_PROJECT_PATH}/lib/extensions/rme/rme.c
 		${PROJECT_SOURCE_DIR}/mocks/lib/locks/exclusive/spinlock.c
 		${PROJECT_SOURCE_DIR}/mocks/lib/xlat_tables_v2/aarch64/xlat_tables_arch.c
 		${PROJECT_SOURCE_DIR}/mocks/lib/aarch64/cache_helpers.c

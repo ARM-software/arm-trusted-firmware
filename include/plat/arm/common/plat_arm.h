@@ -16,7 +16,7 @@
 #include <lib/bakery_lock.h>
 #include <lib/cassert.h>
 #include <lib/el3_runtime/cpu_data.h>
-#include <lib/gpt_rme/gpt_rme.h>
+#include <lib/extensions/rme.h>
 #include <lib/spinlock.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>

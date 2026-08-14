@@ -160,6 +160,7 @@ BL31_SOURCES		+=	services/std_svc/pci_svc.c
 endif
 
 ifneq (${ENABLE_FEAT_RME},0)
+BL31_SOURCES		+=	lib/extensions/rme/rme.c
 include lib/gpt_rme/gpt_rme.mk
 
 BL31_SOURCES		+=	${GPT_LIB_SRCS}

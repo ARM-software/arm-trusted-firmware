@@ -14,6 +14,7 @@
 #include <drivers/console.h>
 #include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
+#include <lib/extensions/rme.h>
 #include <lib/fconf/fconf.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/mmio.h>
@@ -535,12 +536,6 @@ void __init arm_bl31_plat_arch_setup(void)
 
 	enable_mmu_el3(0);
 
-	/*
-	 * Initialise Granule Protection library and enable GPC for the primary
-	 * processor. The tables have already been initialized by a previous BL
-	 * stage, so there is no need to provide any PAS here. This function
-	 * sets up pointers to those tables.
-	 */
 	if (is_feat_rme_supported()) {
 
 #if RESET_TO_BL31
@@ -548,6 +543,21 @@ void __init arm_bl31_plat_arch_setup(void)
 		arm_gpt_setup();
 #endif /* RESET_TO_BL31 */
 
+		/*
+		 * Initialise Granule Protection library and enable GPC for the
+		 * primary processor. The tables have already been initialized
+		 * by a previous BL stage, so there is no need to provide any
+		 * PAS here. This function sets up pointers to those tables.
+		 */
+		if (rme_sync_gpt_config_for_warmboot() < 0) {
+			ERROR("rme_sync_gpt_config_for_warmboot() failed!\n");
+			panic();
+		}
+
+		/*
+		 * Initialze locks for runtime services that handle granule
+		 * transition using legacy delegate/undelegate calls.
+		 */
 		if (gpt_runtime_init(BITLOCK_BASE, BITLOCK_SIZE) < 0) {
 			ERROR("gpt_runtime_init() failed!\n");
 			panic();

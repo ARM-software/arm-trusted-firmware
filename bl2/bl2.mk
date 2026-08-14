@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,9 +15,8 @@ BL2_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
 ifneq (${ENABLE_FEAT_RME},0)
-include lib/gpt_rme/gpt_rme.mk
-
-BL2_SOURCES		+=	${GPT_LIB_SRCS}
+# Include only the RME init library code for BL2
+BL2_SOURCES		+=	lib/extensions/rme/rme.c
 endif
 
 ifeq (${BL2_RUNS_AT_EL3},1)
