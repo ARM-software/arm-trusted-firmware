@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef FIRME_GRANULE_MGMT_H
+#define FIRME_GRANULE_MGMT_H
+
+#include <services/firme/firme_abi.h>
+
+#define FIRME_GRANULE_MGMT_VERSION_MAJOR	U(1)
+#define FIRME_GRANULE_MGMT_VERSION_MINOR	U(0)
+
+/* FIRME Granule Transition bit fields. */
+#define FIRME_GM_GPI_SET_TGT_GPI_SHIFT		U(0)
+#define FIRME_GM_GPI_SET_TGT_GPI_MASK		U(0xF)
+
+/* Granule management service feature register definitions. */
+#define FIRME_GRANULE_MGMT_FEATURE_REG_COUNT	U(2)
+#define FIRME_GM_GPI_SET_BIT			BIT(0)
+#define FIRME_GM_GPI_OP_CONTINUE_BIT		BIT(1)
+#define FIRME_GM_L1_CREATE_BIT			BIT(2)
+#define FIRME_GM_L1_DESTROY_BIT			BIT(3)
+#define FIRME_GM_PPS_SHIFT			U(6)
+#define FIRME_GM_PPS_MASK			U(0x7)
+#define FIRME_GM_L0GPTSZ_SHIFT			U(2)
+#define FIRME_GM_L0GPTSZ_MASK			U(0xF)
+#define FIRME_GM_PGS_SHIFT			U(0)
+#define FIRME_GM_PGS_MASK			U(0x3)
+
+#define FIRME_GM_FNUM_GPI_SET			U(0x2)
+#define FIRME_GM_FNUM_L1_GPT_CREATE		U(0xE)
+#define FIRME_GM_FNUM_L1_GPT_DESTROY		U(0xF)
+#define FIRME_GM_FNUM_GPI_OP_CONTINUE		U(0x12)
+
+#define FIRME_GM_GPI_SET_FID			FIRME_FID(FIRME_GM_FNUM_GPI_SET)
+#define FIRME_GM_L1_GPT_CREATE_FID		FIRME_FID(FIRME_GM_FNUM_L1_GPT_CREATE)
+#define FIRME_GM_L1_GPT_DESTROY_FID		FIRME_FID(FIRME_GM_FNUM_L1_GPT_DESTROY)
+#define FIRME_GM_GPI_OP_CONTINUE_FID		FIRME_FID(FIRME_GM_FNUM_GPI_OP_CONTINUE)
+
+#endif /* FIRME_GRANULE_MGMT_H */

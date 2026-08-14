@@ -3,16 +3,17 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include "trp_private.h"
+
 #include <common/build_message.h>
 #include <common/debug.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <plat/common/platform.h>
-#include <services/firme_svc.h>
+#include <services/firme/firme_granule_mgmt.h>
 #include <services/rmm_core_manifest.h>
 #include <services/rmmd_svc.h>
 #include <services/trp/platform_trp.h>
 #include <trp_helpers.h>
-#include "trp_private.h"
 
 #include <platform_def.h>
 

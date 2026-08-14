@@ -12,54 +12,76 @@
 #include <common/debug.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
+#include <services/firme/firme_granule_mgmt.h>
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
 
+#include "firme_private.h"
+
 /* Only supported ABI is GPI_SET for now. */
-#define FEAT_REG_0_DEFAULT (FIRME_GM_GPI_SET_BIT)
-
-/* Reg 1 is built at runtime based on hardware config. */
-#define FEAT_REG_1_DEFAULT 0
-
-static firme_service_info_t granule_mgmt_info = {
-	.version = FIRME_VERSION(FIRME_GRANULE_MGMT_VERSION_MAJOR,
-				 FIRME_GRANULE_MGMT_VERSION_MINOR),
-#if ENABLE_RMM
-	.instance_support =
-		(BIT(FIRME_SECURE) | BIT(FIRME_NONSECURE) | BIT(FIRME_REALM)),
-#else
-	.instance_support = (BIT(FIRME_SECURE) | BIT(FIRME_NONSECURE)),
-#endif
-	.num_feature_regs = 2,
-	.feature_reg = { FEAT_REG_0_DEFAULT, FEAT_REG_1_DEFAULT },
+static uint64_t registers[FIRME_GRANULE_MGMT_FEATURE_REG_COUNT] = {
+	FIRME_GM_GPI_SET_BIT, 0U
 };
 
-firme_service_info_t *firme_granule_mgmt_service_get_info(void)
+
+#if ENABLE_RMM
+#define GRANULE_MGMT_INSTANCE_SUPPORT \
+	(BIT(FIRME_SECURE) | BIT(FIRME_NONSECURE) | BIT(FIRME_REALM))
+#else
+#define GRANULE_MGMT_INSTANCE_SUPPORT \
+	(BIT(FIRME_SECURE) | BIT(FIRME_NONSECURE))
+#endif /* ENABLE_RMM */
+
+
+static int32_t firme_granule_mgmt_service_init(void)
 {
 	/* Build feat reg 1 value from GPCCR value. */
 	uint64_t gpccr;
 
-	if (!is_feat_rme_supported()) {
-		return NULL;
+	registers[1] = 0U;
+
+	if (is_feat_rme_supported()) {
+		gpccr = read_gpccr_el3();
+
+		registers[1] |= ((gpccr >> GPCCR_PGS_SHIFT) & GPCCR_PGS_MASK)
+				<< FIRME_GM_PGS_SHIFT;
+		registers[1] |=
+			((gpccr >> GPCCR_L0GPTSZ_SHIFT) & GPCCR_L0GPTSZ_MASK)
+			<< FIRME_GM_L0GPTSZ_SHIFT;
+		registers[1] |= ((gpccr >> GPCCR_PPS_SHIFT) & GPCCR_PPS_MASK)
+				<< FIRME_GM_PPS_SHIFT;
 	}
 
-	/*
-	 * todo: FIRME must have a init routine to perform one time
-	 * initialization during boot for all supported services.
-	 */
-	gpccr = read_gpccr_el3();
+	return FIRME_SUCCESS;
+}
 
-	granule_mgmt_info.feature_reg[1] |=
-		((gpccr >> GPCCR_PGS_SHIFT) & GPCCR_PGS_MASK)
-		<< FIRME_GM_PGS_SHIFT;
-	granule_mgmt_info.feature_reg[1] |=
-		((gpccr >> GPCCR_L0GPTSZ_SHIFT) & GPCCR_L0GPTSZ_MASK)
-		<< FIRME_GM_L0GPTSZ_SHIFT;
-	granule_mgmt_info.feature_reg[1] |=
-		((gpccr >> GPCCR_PPS_SHIFT) & GPCCR_PPS_MASK)
-		<< FIRME_GM_PPS_SHIFT;
+static int32_t
+firme_granule_mgmt_service_version(firme_instance_e instance __unused)
+{
+	return FIRME_VERSION(FIRME_GRANULE_MGMT_VERSION_MAJOR,
+			     FIRME_GRANULE_MGMT_VERSION_MINOR);
+}
 
-	return &granule_mgmt_info;
+static bool firme_granule_mgmt_service_is_supported(firme_instance_e instance)
+{
+	return is_feat_rme_supported() &&
+	       (GRANULE_MGMT_INSTANCE_SUPPORT & BIT(instance)) != 0U;
+}
+
+static int32_t
+firme_granule_mgmt_service_get_feature_reg(firme_instance_e instance __unused,
+					   uint8_t reg_index, uint64_t *reg)
+{
+	if (reg == NULL) {
+		return FIRME_INVALID_PARAMETERS;
+	}
+
+	if (reg_index >= FIRME_GRANULE_MGMT_FEATURE_REG_COUNT) {
+		return FIRME_NOT_SUPPORTED;
+	}
+
+	*reg = registers[reg_index];
+	return FIRME_SUCCESS;
 }
 
 u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
@@ -104,3 +126,12 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 		SMC_RET1(handle, FIRME_NOT_SUPPORTED);
 	}
 }
+
+const struct firme_service firme_granule_mgmt_service = {
+	.id = FIRME_GRANULE_MGMT_ID,
+	.init = firme_granule_mgmt_service_init,
+	.version = firme_granule_mgmt_service_version,
+	.is_supported = firme_granule_mgmt_service_is_supported,
+	.get_feature_reg = firme_granule_mgmt_service_get_feature_reg,
+	.call = firme_granule_mgmt_service_handler,
+};

@@ -23,8 +23,8 @@
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <platform_def.h>
 #include <services/arm_arch_svc.h>
+#include <services/firme/firme_mecid.h>
 #include <services/rmm_core_manifest.h>
-#include <services/firme_svc.h>
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
