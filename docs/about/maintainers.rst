@@ -451,6 +451,15 @@ Amlogic common code
 :|F|: tools/amlogic/Makefile
 :|F|: tools/amlogic/doimage.c
 
+Altera SocFPGA platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Sieu Mun Tang <sieumun93@gmail.com>
+:|M|: Benjamin Jit Loon Lim <jit.loon.lim@altera.com>
+:|F|: docs/plat/altera-agilex3.rst
+:|F|: docs/plat/altera-agilex72.rst
+:|F|: plat/altera/soc/
+:|F|: drivers/altera/soc/
+
 Amlogic Meson S905 (GXBB) platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Andre Przywara <andre.przywara@arm.com>
@@ -590,12 +599,13 @@ HiSilicon Poplar platform port
 
 Intel SocFPGA platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Sieu Mun Tang <sieu.mun.tang@intel.com>
-:|M|: Benjamin Jit Loon Lim <jit.loon.lim@intel.com>
+:|M|: Sieu Mun Tang <sieumun93@gmail.com>
+:|M|: Benjamin Jit Loon Lim <jit.loon.lim@altera.com>
+:|F|: docs/plat/intel-agilex.rst
+:|F|: docs/plat/intel-agilex5.rst
+:|F|: docs/plat/intel-stratix10.rst
 :|F|: plat/intel/soc/
 :|F|: drivers/intel/soc/
-:|F|: docs/plat/intel-agilex.rst
-:|F|: docs/plat/intel-stratix10.rst
 
 Marvell platform ports and SoC drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
