@@ -11,6 +11,7 @@ Performance & Testing
    psci-performance-methodology
    tsp
    performance-monitoring-unit
+   unit-tests
 
 --------------
 

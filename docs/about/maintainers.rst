@@ -889,6 +889,10 @@ Conventional Changelog Extensions
 :|M|: Chris Kay <chris.kay@arm.com>
 :|F|: tools/conventional-changelog-tf-a
 
+Unit tests
+~~~~~~~~~~
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|M|: Juan Pablo Conde <juanpablo.conde@arm.com>
 
 --------------
 
