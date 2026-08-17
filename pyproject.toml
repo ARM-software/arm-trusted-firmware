@@ -26,3 +26,9 @@ sphinxcontrib-svg2pdfconverter = "^1.2.2"
 [tool.poetry.group.ci.dependencies]
 click = "^8.1.3"
 fdt = "^0.3.0"
+
+[tool.poetry.group.unit-tests]
+optional = true
+
+[tool.poetry.group.unit-tests.dependencies]
+c-picker = { git = "https://git.trustedfirmware.org/TS/trusted-services.git", branch = "topics/c-picker" }
