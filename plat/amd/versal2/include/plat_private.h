@@ -34,6 +34,7 @@ extern uint32_t plat_cluster_count;
 extern uint32_t plat_cores_per_cluster;
 
 void config_setup(void);
+void sys_counter_config(void);
 uint32_t get_uart_clk(void);
 
 const mmap_region_t *plat_get_mmap(void);
