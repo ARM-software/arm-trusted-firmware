@@ -101,12 +101,11 @@ endfunc rme_gpf_safe_return
 
 /*
  * Find the safe resume PC for the current EL3 exception if it is a
- * recoverable GPF raised by a GPF-tolerant RME helper.
+ * recoverable GPF raised by a GPF-tolerant RME helper. If the exception
+ * is recoverable, this address will be written to ELR_EL3. Otherwise,
+ * this function will panic.
  *
- * Returns:
- * x0 - Resume PC if the current exception is recoverable, otherwise 0.
- *
- * Clobbers: x1-x4
+ * Clobbers: x0-x4
  */
 func get_el3_gpf_resume_pc
 	mrs	x1, esr_el3
@@ -133,7 +132,7 @@ func get_el3_gpf_resume_pc
 	cmp	x0, x3
 	b.ne	2f
 
-	mov	x0, x4
+	msr	elr_el3, x4
 	ret
 
 2:
@@ -142,6 +141,5 @@ func get_el3_gpf_resume_pc
 	b.lo	1b
 
 3:
-	mov	x0, xzr
-	ret
+	bl	el3_panic
 endfunc get_el3_gpf_resume_pc

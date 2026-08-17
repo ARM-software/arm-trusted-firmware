@@ -156,19 +156,12 @@ func handle_el3_sync_exception
 	 * GPF raised by one of the GPF-tolerant RME helpers.
 	 */
 	bl	get_el3_gpf_resume_pc
-	cbz	x0, sync_error
 
-	msr	elr_el3, x0
 	ldp	x0, x1, [sp], #16
 	ldp	x2, x3, [sp], #16
 	ldp	x4, x5, [sp], #16
 	isb
 	eret
-
-sync_error:
-	ldp	x0, x1, [sp], #16
-	ldp	x2, x3, [sp], #16
-	ldp	x4, x5, [sp], #16
 #endif /* ENABLE_FEAT_RME */
 
 	msr	TPIDRRO_EL0, x0
