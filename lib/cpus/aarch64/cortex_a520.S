@@ -93,6 +93,28 @@ workaround_reset_end cortex_a520, ERRATUM(3685825)
 
 check_erratum_chosen cortex_a520, ERRATUM(3685825), ERRATA_A520_3685825
 
+.global erratum_cortex_a520_4491980_wa
+workaround_runtime_start cortex_a520, ERRATUM(4491980), ERRATA_A520_4491980
+	/*
+	 * the workaround is expected to be called with sp_el3 which points to a
+	 * context structure. Switch to sp_el0 to use dynamically
+	 */
+	mrs	x0, spsel
+	msr	spsel, #MODE_SP_EL0
+
+	/* in order to not affect context, push two Q registers to the stack */
+	stp	q0, q1, [sp, #-32]
+	/* use the lower EL Q registers to perfom the workaround */
+	ldp	q0, q1, [sp, #-32]
+	ldp	q0, q1, [sp, #-32]
+	ldp	q0, q1, [sp, #-32]
+
+	msr	spsel, x0
+workaround_runtime_end cortex_a520, ERRATUM(4491980), NO_ISB
+
+check_erratum_chosen cortex_a520, ERRATUM(4491980), ERRATA_A520_4491980
+
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
