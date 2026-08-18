@@ -576,6 +576,23 @@ defined:
    PLAT_PCIE_ROOT_COMPLEX_MAX := 2
    $(eval $(call add_define,PLAT_PCIE_ROOT_COMPLEX_MAX))
 
+If the platform port supports delegating the responsibility for IDE key
+management to a Trusted subsystem via an IMPLEMENTATION DEFINED interface, then
+the following flag and maximum pending IDE KM operation per Root Complex must be
+defined:
+
+-  **PLAT_IDE_KM_PENDING_OPS_MAX**
+   EL3 firmware completes the invocation of the IDE key management ABI after
+   delegating the operation to the Trusted subsystem. This parameter
+   specifies the maximum number of outstanding IDE key management operations
+   that the platform supports per Root Complex.
+   Valid range: 1-16
+   Default value: 1
+
+   For example, define the build flag in ``platform.mk``:
+   PLAT_IDE_KM_PENDING_OPS_MAX := 4
+   $(eval $(call add_define,PLAT_IDE_KM_PENDING_OPS_MAX))
+
 If the platform port uses the Arm® Ethos™-N NPU driver, the following
 configuration must be performed:
 
@@ -2770,6 +2787,7 @@ The function returns:
 -EINVAL       For invalid ECAM address or keyset_id or flag arguments
 -EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
 -EINPROGRESS  An operation for the specified keyset ID is already in progress.
+-EAGAIN       The caller should poll for completion of the operation for the specified keyset ID.
 
 Function : plat_ide_km_keyset_go() [mandatory when FIRME_SUPPORT_IDE_KM == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2806,6 +2824,7 @@ The function returns:
 -EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
 -EINPROGRESS  An operation for the specified keyset ID is already in progress.
 -EACCES       No key was programmed for the specified keyset ID.
+-EAGAIN       The caller should poll for completion of the operation for the specified keyset ID.
 
 Function : plat_ide_km_keyset_stop() [mandatory when FIRME_SUPPORT_IDE_KM == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2841,6 +2860,76 @@ The function returns:
 -EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
 -EINPROGRESS  An operation for the specified keyset ID is already in progress.
 -EACCES       No key was programmed for the specified keyset ID.
+-EAGAIN       The caller should poll for completion of the operation for the specified keyset ID.
+
+Function : plat_ide_km_keyset_poll() [mandatory when (FIRME_SUPPORT_IDE_KM == 1 or ENABLE_RMM == 1) and PLAT_IDE_KM_PENDING_OPS_MAX != 0]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t
+    Return   : int
+
+This function is used to poll the status of a IDE key management operation at a
+Root port for the given keyset_id. If the platform have delegated the operation
+to a Trusted subsystem, then this function if used to check the status of the
+delegated IDE operation.
+
+The parameters of the function are:
+
+    arg0 - The ECAM address space of a Root port defines the namespace for
+    keyset IDs.
+
+    arg1 - keyset_id. A 64 bitmap encoded in format
+    Bits[37:30]: Segment number.
+    Bits[29:14]: Root port ID.
+    Bits[13:6]: Stream ID.
+    Bits[5:2]: Substream ID.
+    Bits[1]: Direction.
+    Bits[0]: Key set.
+
+The function returns:
+0             On success
+-ENOTSUP      If this functionality is not supported
+-EINVAL       For invalid ECAM address or keyset_id or flag arguments
+-EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
+-EACCES       There is no non-blocking operation in progress for the specified keyset ID.
+-ECANCELED    The non-blocking operation for the specified keyset ID could not complete because of an error.
+-EAGAIN       The non-blocking operation for the specified keyset ID is not complete.
+
+Function : plat_ide_km_poll() [mandatory when (FIRME_SUPPORT_IDE_KM == 1 or ENABLE_RMM == 1) and PLAT_IDE_KM_PENDING_OPS_MAX != 0]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t *
+    Return   : int
+
+This function is used to poll the status of a IDE key management operation at a
+Root port for any keyset_id. If the platform have delegated the operation to a
+Trusted subsystem, then this function if used to check the status of the
+delegated IDE operation.
+
+The parameters of the function are:
+
+    arg0 - The ECAM address space of a Root port defines the namespace for keyset IDs.
+
+    arg1 - Return address of the keyset_id. keyset_id is a 64 bitmap encoded in format:
+    Bits[37:30]: Segment number.
+    Bits[29:14]: Root port ID.
+    Bits[13:6]: Stream ID.
+    Bits[5:2]: Substream ID.
+    Bits[1]: Direction.
+    Bits[0]: Key set.
+
+The function returns:
+0             On success
+-ENOTSUP      If this functionality is not supported
+-EINVAL       For invalid ECAM address or keyset_id or flag arguments
+-EBUSY        If key management service at the Root port is busy and the caller must retry the operation.
+-EACCES       There is no non-blocking operation in progress for any keyset ID.
+-ECANCELED    The non-blocking operation for the specified keyset ID could not complete because of an error.
+-EAGAIN       The non-blocking operation for the specified keyset ID is not complete.
 
 Function : bl31_plat_enable_mmu [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
