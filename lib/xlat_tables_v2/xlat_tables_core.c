@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,6 +120,10 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 	/*
 	 * There are different translation table descriptors for level 3 and the
 	 * rest.
+	 *
+	 * Keep descriptors independent. This library does not set the
+	 * contiguous hint, which avoids one of the conditions described by
+	 * C1 Ultra erratum 3683289.
 	 */
 	desc |= (level == XLAT_TABLE_LEVEL_MAX) ? PAGE_DESC : BLOCK_DESC;
 	/*
@@ -387,6 +391,11 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
 
+			/*
+			 * Remove the mapping before invalidating the TLB entry.
+			 * Keeping this ordering avoids the stale-translation
+			 * condition described by C1 Ultra erratum 3683289.
+			 */
 			table_base[table_idx] = INVALID_DESC;
 			xlat_arch_tlbi_va(table_idx_va, ctx->xlat_regime);
 
@@ -406,6 +415,10 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			 * If the subtable is now empty, remove its reference.
 			 */
 			if (xlat_table_is_empty(ctx, subtable)) {
+				/*
+				 * Remove the table reference before invalidating
+				 * the TLB entry, as above.
+				 */
 				table_base[table_idx] = INVALID_DESC;
 				xlat_arch_tlbi_va(table_idx_va,
 						  ctx->xlat_regime);
@@ -487,6 +500,11 @@ static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 				 * There's nothing mapped here, create a new
 				 * entry.
 				 *
+				 * Dynamic mappings must not replace an existing
+				 * block/page descriptor. Mapping only invalid
+				 * entries avoids the block-size replacement
+				 * condition described by C1 Ultra erratum 3683289.
+				 *
 				 * Check if the destination granularity allows
 				 * us to use a block descriptor or we need a
 				 * finer table for it.
@@ -505,7 +523,9 @@ static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 			} else {
 				/*
 				 * There's another region mapped here, don't
-				 * overwrite.
+				 * overwrite. In particular, do not replace an
+				 * existing block descriptor with a different
+				 * block/page mapping without break-before-make.
 				 */
 				assert(desc_type == BLOCK_DESC);
 
