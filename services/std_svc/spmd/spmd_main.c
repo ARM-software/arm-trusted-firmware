@@ -1367,6 +1367,23 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_RXTX_MAP_SMC64:
 	case FFA_RXTX_UNMAP:
 	case FFA_PARTITION_INFO_GET:
+#if MAKE_FFA_VERSION(1, 3) <= FFA_VERSION_COMPILED
+	case FFA_NOTIFICATION_BIND2_SMC64:
+	case FFA_NOTIFICATION_UNBIND2_SMC64:
+	case FFA_NOTIFICATION_SET2_SMC64:
+	case FFA_NOTIFICATION_GET2_SMC64:
+	/*
+	 * Extended notification interfaces were introduced in FF-A v1.3.
+	 * Forward them only when both security states support v1.3 or later.
+	 */
+		if (get_common_ffa_version(secure_ffa_version) <
+			MAKE_FFA_VERSION(U(1), U(3))) {
+			return spmd_ffa_error_return(
+				handle, FFA_ERROR_NOT_SUPPORTED);
+		}
+		/* Reuse the existing Normal-world-only forwarding path. */
+		__fallthrough;
+#endif
 #if MAKE_FFA_VERSION(1, 1) <= FFA_VERSION_COMPILED
 	case FFA_NOTIFICATION_BITMAP_CREATE:
 	case FFA_NOTIFICATION_BITMAP_DESTROY:
