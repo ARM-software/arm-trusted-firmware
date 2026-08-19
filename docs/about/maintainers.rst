@@ -99,23 +99,6 @@ Trusted Boot
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: drivers/auth/
 
-Secure Partition Manager Core (EL3 FF-A SPMC)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Marc Bonnici <marc.bonnici@arm.com>
-:|F|: services/std_svc/spm/el3_spmc/\*
-:|F|: include/services/el3_spmc\_\*
-:|F|: include/services/spmc_svc.h
-
-Secure Partition Manager Dispatcher (SPMD)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|F|: services/std_svc/spmd/\*
-:|F|: plat/common/plat_spmd_manifest.c
-:|F|: include/services/ffa_svc.h
-:|F|: include/services/el3_spmd_logical_sp.h
-:|F|: include/services/spmd_svc.h
-
 Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
@@ -131,28 +114,8 @@ Runtime Exceptions and Interrupt Management
 :|F|: bl31/interrupt_mgmt.c
 :|F|: include/bl31/interrupt_mgmt.h
 
-Realm Management Monitor Dispatcher (RMMD)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|F|: services/std_svc/rmmd/\*
-:|F|: include/services/rmmd_svc.h
-:|F|: include/services/rmm_core_manifest.h
-
-Realm Management Extension (RME)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-
 Drivers, Libraries and Framework Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Activity Monitors Unit (AMU) extensions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|M|: Chris Kay <chris.kay@arm.com>
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|F|: lib/extensions/amu/
 
 Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
@@ -196,6 +159,13 @@ Context Management
 :|F|: bl31/bl31_context_mgmt.c
 :|F|: lib/el3_runtime/
 :|F|: include/lib/el3_runtime/
+
+Reliability Availability Serviceabilty (RAS) framework
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|M|: Olivier Deprez <olivier.deprez@arm.com>
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|F|: lib/extensions/ras/
 
 coreboot support libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -326,12 +296,6 @@ Measured Boot
 :|F|: docs/components/measured_boot
 :|F|: plat/arm/board/fvp/fvp.\*_measured_boot.c
 
-Memory Partitioning And Monitoring (MPAM) extensions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|F|: lib/extensions/mpam/
-
 Message Handling Unit (MHU) driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: David Vincze <david.vincze@arm.com>
@@ -360,12 +324,6 @@ Platform Security Architecture (PSA) APIs
 :|F|: include/lib/psa
 :|F|: lib/psa
 
-Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|F|: lib/extensions/pauth/
-
 Power State Coordination Interface (PSCI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
@@ -380,13 +338,6 @@ PSA Firmware Update
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|F|: drivers/fwu
 :|F|: include/drivers/fwu
-
-Reliability Availability Serviceabilty (RAS) framework
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|F|: lib/extensions/ras/
 
 Runtime Security Engine (RSE) comms driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -409,12 +360,6 @@ Standard C library
 :|M|: Chris Kay <chris.kay@arm.com>
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|F|: lib/libc/
-
-Statistical Profiling Extension (SPE)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
-:|F|: lib/extensions/spe/
 
 System Control and Management Interface (SCMI) Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -867,6 +812,31 @@ ProvenCore Secure Payload Dispatcher
 :|M|: Jérémie Corbier <jeremie.corbier@provenrun.com>
 :|F|: docs/components/spd/pnc-dispatcher.rst
 :|F|: services/spd/pncd/
+
+Secure Partition Manager Core (EL3 FF-A SPMC)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Marc Bonnici <marc.bonnici@arm.com>
+:|F|: services/std_svc/spm/el3_spmc/\*
+:|F|: include/services/el3_spmc\_\*
+:|F|: include/services/spmc_svc.h
+
+Secure Partition Manager Dispatcher (SPMD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Olivier Deprez <olivier.deprez@arm.com>
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|F|: services/std_svc/spmd/\*
+:|F|: plat/common/plat_spmd_manifest.c
+:|F|: include/services/ffa_svc.h
+:|F|: include/services/el3_spmd_logical_sp.h
+:|F|: include/services/spmd_svc.h
+
+Realm Management Monitor Dispatcher (RMMD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
+:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
+:|F|: services/std_svc/rmmd/\*
+:|F|: include/services/rmmd_svc.h
+:|F|: include/services/rmm_core_manifest.h
 
 Tools
 ~~~~~
