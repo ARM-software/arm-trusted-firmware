@@ -92,12 +92,15 @@ Software Delegated Exception Interface (SDEI)
 :|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|F|: services/std_svc/sdei/
+:|F|: include/services/sdei.h
+:|F|: include/services/sdei_flags.h
 
 Trusted Boot
 ^^^^^^^^^^^^
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: drivers/auth/
+:|F|: include/drivers/auth/
 
 Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -105,6 +108,7 @@ Exception Handling Framework (EHF)
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: bl31/ehf.c
+:|F|: include/bl31/ehf.h
 
 Runtime Exceptions and Interrupt Management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -148,6 +152,7 @@ Console API framework
 :|M|: Julius Werner <jwerner@chromium.org>
 :|F|: drivers/console/
 :|F|: include/drivers/console.h
+:|F|: include/drivers/console_assertions.h
 :|F|: plat/common/aarch64/crash_console_helpers.S
 
 Context Management
@@ -159,6 +164,9 @@ Context Management
 :|F|: bl31/bl31_context_mgmt.c
 :|F|: lib/el3_runtime/
 :|F|: include/lib/el3_runtime/
+:|F|: lib/extensions/
+:|F|: include/lib/extensions/
+:|F|: lib/locks/
 
 Reliability Availability Serviceabilty (RAS) framework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -166,6 +174,8 @@ Reliability Availability Serviceabilty (RAS) framework
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|F|: lib/extensions/ras/
+:|F|: include/lib/extensions/ras.h
+:|F|: include/lib/extensions/ras_arch.h
 
 coreboot support libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -193,6 +203,7 @@ eMMC/UFS drivers
 ^^^^^^^^^^^^^^^^
 :|M|: Haojian Zhuang <haojian.zhuang@linaro.org>
 :|F|: drivers/partition/
+:|F|: include/drivers/partition/
 :|F|: drivers/synopsys/emmc/
 :|F|: drivers/synopsys/ufs/
 :|F|: drivers/ufs/
@@ -203,6 +214,8 @@ eMMC/UFS drivers
 Errata Management
 ^^^^^^^^^^^^^^^^^
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|F|: services/std_svc/errata_abi/
+:|F|: include/services/errata_abi_svc.h
 
 Firmware Configuration Framework (FCONF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -234,11 +247,19 @@ GIC driver
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|F|: drivers/arm/gic/
+:|F|: include/drivers/arm/gic.h
+:|F|: include/drivers/arm/gic600_multichip.h
+:|F|: include/drivers/arm/gic600ae_fmu.h
+:|F|: include/drivers/arm/gic_common.h
+:|F|: include/drivers/arm/arm_gicv3_common.h
+:|F|: include/drivers/arm/gicv2.h
+:|F|: include/drivers/arm/gicv3.h
 
 GICv5 driver
 ^^^^^^^^^^^^
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|F|: drivers/arm/gicv5
+:|F|: include/drivers/arm/gicv5.h
 :|F|: plat/common/plat_gicv5.c
 :|F|: plat/arm/board/fvp/gicv5_config.yaml
 
@@ -254,6 +275,7 @@ IO abstraction layer
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|F|: drivers/io/
+:|F|: include/drivers/io/
 
 JTAG DCC console driver
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,10 +285,13 @@ JTAG DCC console driver
 :|F|: drivers/arm/dcc/
 :|F|: include/drivers/arm/dcc.h
 
-Libfdt wrappers
-^^^^^^^^^^^^^^^
+Libfdt
+^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: common/fdt_wrappers.c
+:|F|: common/fdt_fixup.c
+:|F|: common/fdt_wrappers.mk
+:|F|: lib/libfdt
 
 Library At ROM (ROMlib)
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -278,6 +303,8 @@ Live Firmware Activation Service
 :|F|: services/std_svc/lfa
 :|F|: include/plat/common/plat_lfa.h
 :|F|: include/services/lfa_svc.h
+:|F|: include/services/lfa_component_desc.h
+:|F|: include/services/lfa_holding_pen.h
 
 Max Power Mitigation Mechanism (MPMM)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -293,6 +320,8 @@ Measured Boot
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
+:|F|: common/measured_boot_helpers.c
+:|F|: include/common/measured_boot.h
 :|F|: docs/components/measured_boot
 :|F|: plat/arm/board/fvp/fvp.\*_measured_boot.c
 
@@ -316,6 +345,7 @@ Performance Measurement Framework (PMF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
 :|F|: lib/pmf/
+:|F|: include/lib/pmf/
 
 Platform Security Architecture (PSA) APIs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -354,12 +384,14 @@ Runtime Services
 :|F|: include/common/runtime_svc.h
 :|F|: include/services/arm_arch_svc.h
 :|F|: include/services/std_svc.h
+:|F|: services/arm_arch_svc/
 
 Standard C library
 ^^^^^^^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|F|: lib/libc/
+:|F|: include/lib/libc/
 
 System Control and Management Interface (SCMI) Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -386,12 +418,14 @@ Allwinner ARMv8 platform port
 :|F|: docs/plat/allwinner.rst
 :|F|: plat/allwinner/
 :|F|: drivers/allwinner/
+:|F|: include/drivers/allwinner/
 
 Amlogic Meson S905 (GXBB) platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Andre Przywara <andre.przywara@arm.com>
 :|F|: docs/plat/meson-gxbb.rst
 :|F|: drivers/amlogic/
+:|F|: include/drivers/amlogic/
 :|F|: plat/amlogic/gxbb/
 
 Amlogic Meson S905x (GXL) platform port
@@ -417,6 +451,8 @@ Arm FPGA platform port
 :|M|: Andre Przywara <andre.przywara@arm.com>
 :|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
 :|F|: plat/arm/board/arm_fpga
+:|F|: docs/plat/arm/arm_fpga/
+:|F|: fdts/arm_fpga.dts
 
 Arm FVP Platform port
 ^^^^^^^^^^^^^^^^^^^^^
@@ -424,12 +460,15 @@ Arm FVP Platform port
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
 :|F|: plat/arm/board/fvp
 :|F|: fdts/fvp.\*
+:|F|: docs/plat/arm/fvp/
 
 Arm Juno Platform port
 ^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|M|: Chris Kay <chris.kay@arm.com>
 :|F|: plat/arm/board/juno
+:|F|: docs/plat/arm/juno/
+:|F|: fdts/juno.dts
 
 Arm Morello and N1SDP Platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -438,6 +477,9 @@ Arm Morello and N1SDP Platform ports
 :|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: plat/arm/board/morello
 :|F|: plat/arm/board/n1sdp
+:|F|: docs/plat/arm/morello/
+:|F|: fdts/morello/
+:|F|: fdts/n1sdp/
 
 Arm Rich IoT Platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -447,6 +489,7 @@ Arm Rich IoT Platform ports
 :|F|: plat/arm/board/corstone700
 :|F|: plat/arm/board/corstone1000
 :|F|: fdts/corstone700.\*
+:|F|: docs/plat/arm/corstone1000/
 
 Arm Reference Design platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -465,6 +508,7 @@ Arm Total Compute platform port
 :|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: plat/arm/board/tc
 :|F|: fdts/tc.\*
+:|F|: docs/plat/arm/tc/
 
 Arm Automotive RD platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -473,9 +517,9 @@ Arm Automotive RD platform port
 :|M|: Divin Raj <divin.raj@arm.com>
 :|M|: Ahmed Azeem <ahmed.azeem@arm.com>
 :|F|: plat/arm/board/automotive_rd
-:|F|: plat/arm/board/automotive_rd/rdaspen
 :|F|: fdts/rd1ae.dts
 :|F|: fdts/rdaspen.\*
+:|F|: docs/plat/arm/automotive_rd/
 
 Aspeed platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -504,6 +548,8 @@ Intel SocFPGA platform ports
 :|M|: Benjamin Jit Loon Lim <jit.loon.lim@intel.com>
 :|F|: plat/intel/soc/
 :|F|: drivers/intel/soc/
+:|F|: docs/plat/intel-agilex.rst
+:|F|: docs/plat/intel-stratix10.rst
 
 Marvell platform ports and SoC drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -512,7 +558,9 @@ Marvell platform ports and SoC drivers
 :|C|: Vincent Jardin <vjardin@free.fr>
 :|F|: docs/plat/marvell/
 :|F|: plat/marvell/
+:|F|: include/plat/marvell/
 :|F|: drivers/marvell/
+:|F|: include/drivers/marvell/
 :|F|: tools/marvell/
 
 Marvell Armada a80x0_nbx platform port
@@ -593,6 +641,7 @@ NXP QorIQ Layerscape common code for platform ports
 :|F|: docs/plat/nxp/
 :|F|: plat/nxp/
 :|F|: drivers/nxp/
+:|F|: include/drivers/nxp/
 :|F|: tools/nxp/
 
 NXP SoC Part LX2160A and its platform port
@@ -649,6 +698,7 @@ QEMU platform port
 ^^^^^^^^^^^^^^^^^^
 :|M|: Jens Wiklander <jens.wiklander@oss.qualcomm.com>
 :|F|: docs/plat/qemu.rst
+:|F|: docs/plat/qemu-sbsa.rst
 :|F|: plat/qemu/
 
 QTI platform port and SoC drivers
@@ -658,6 +708,7 @@ QTI platform port and SoC drivers
 :|M|: Sreevyshanavi Kare <skare@qti.qualcomm.com>
 :|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: docs/plat/qti/
+:|F|: docs/plat/qti.rst
 :|F|: plat/qti/
 :|F|: drivers/qti/
 :|F|: include/drivers/qti/
@@ -668,6 +719,7 @@ QTI MSM8916 platform port
 :|M|: Stephan Gerhold <stephan@gerhold.net>
 :|M|: Nikita Travkin <nikita@trvn.ru>
 :|F|: docs/plat/qti/msm8916.rst
+:|F|: docs/plat/qti-msm8916.rst
 :|F|: plat/qti/bear/
 
 Raspberry Pi 3 platform port
@@ -708,6 +760,7 @@ Renesas RZ/A platform port
 :|F|: docs/plat/rz-a3.rst
 :|F|: plat/renesas/rza
 :|F|: drivers/renesas/rza
+:|F|: include/drivers/renesas/rza/
 :|F|: tools/renesas/rza
 
 Renesas RZ/G2 platform port
@@ -728,6 +781,7 @@ RockChip platform port
 :|M|: Tony Xie <tony.xie@rock-chips.com>
 :|M|: Heiko Stuebner <heiko@sntech.de>
 :|C|: Olivier Deprez <olivier.deprez@arm.com>
+:|F|: docs/plat/rockchip.rst
 :|F|: plat/rockchip/
 
 STMicroelectronics platform ports
@@ -757,7 +811,10 @@ Texas Instruments platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Nishanth Menon <nm@ti.com>
 :|F|: docs/plat/ti-k3.rst
+:|F|: docs/plat/ti-k3low-am62lx.rst
 :|F|: plat/ti/
+:|F|: drivers/ti/
+:|F|: include/drivers/ti/
 
 UniPhier platform port
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -784,6 +841,9 @@ OP-TEE dispatcher
 :|M|: Jens Wiklander <jens.wiklander@oss.qualcomm.com>
 :|F|: docs/components/spd/optee-dispatcher.rst
 :|F|: services/spd/opteed/
+:|F|: bl32/optee/optee.mk
+:|F|: include/lib/optee_utils.h
+:|F|: lib/optee/optee_utils.c
 
 TLK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -800,18 +860,19 @@ Trusty secure payloads
 :|F|: docs/components/spd/trusty-dispatcher.rst
 :|F|: services/spd/trusty/
 
-
 Test Secure Payload (TSP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: bl32/tsp/
 :|F|: services/spd/tspd/
+:|F|: include/bl32/tsp/
 
 ProvenCore Secure Payload Dispatcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Jérémie Corbier <jeremie.corbier@provenrun.com>
 :|F|: docs/components/spd/pnc-dispatcher.rst
 :|F|: services/spd/pncd/
+:|F|: include/bl32/pnc/pnc.h
 
 Secure Partition Manager Core (EL3 FF-A SPMC)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -819,12 +880,14 @@ Secure Partition Manager Core (EL3 FF-A SPMC)
 :|F|: services/std_svc/spm/el3_spmc/\*
 :|F|: include/services/el3_spmc\_\*
 :|F|: include/services/spmc_svc.h
+:|F|: include/services/spm_core_manifest.h
 
 Secure Partition Manager Dispatcher (SPMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|F|: services/std_svc/spmd/\*
+:|F|: services/std_svc/spm/common/
 :|F|: plat/common/plat_spmd_manifest.c
 :|F|: include/services/ffa_svc.h
 :|F|: include/services/el3_spmd_logical_sp.h
@@ -837,6 +900,7 @@ Realm Management Monitor Dispatcher (RMMD)
 :|F|: services/std_svc/rmmd/\*
 :|F|: include/services/rmmd_svc.h
 :|F|: include/services/rmm_core_manifest.h
+:|F|: include/services/rmmd_rmm_lfa.h
 
 Tools
 ~~~~~
@@ -879,6 +943,7 @@ Threat Model
 :|M|: Raghu Krishnamurthy <raghuoss@raghushome.com>
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|F|: docs/threat_model/
+:|F|: docs/security_advisories/
 
 Conventional Changelog Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
