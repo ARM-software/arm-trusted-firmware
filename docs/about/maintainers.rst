@@ -48,7 +48,6 @@ Maintainers
 LTS Maintainers
 ---------------
 
-:|M|: Bipin Ravi <bipin.ravi@arm.com>
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 
 v2.14 branch
@@ -131,6 +130,7 @@ Drivers, Libraries and Framework Code
 Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|M|: Manish Pandey <manish.pandey2@arm.com>
 :|F|: lib/cpus/
 :|F|: include/lib/cpus/
 
@@ -251,7 +251,6 @@ GIC driver
 ^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|F|: drivers/arm/gic/
 :|F|: include/drivers/arm/gic.h
@@ -302,6 +301,7 @@ Libfdt
 
 Library At ROM (ROMlib)
 ^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: lib/romlib/
 
 Live Firmware Activation Service
@@ -396,7 +396,6 @@ Runtime Services
 Standard C library
 ^^^^^^^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|F|: lib/libc/
 :|F|: include/lib/libc/
 
@@ -612,7 +611,6 @@ MediaTek platform ports
 :|M|: Leon Chen <leon.chen@mediatek.com>
 :|M|: Jason-CH Chen <jason-ch.chen@mediatek.com>
 :|M|: Yidi Lin <yidilin@chromium.org>
-:|C|: Olivier Deprez <olivier.deprez@arm.com>
 :|F|: docs/plat/mt.\*.rst
 :|F|: plat/mediatek/
 
@@ -763,7 +761,6 @@ QTI MSM8916 platform port
 Raspberry Pi 3 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
-:|C|: Joanna Farley <joanna.farley@arm.com>
 :|F|: docs/plat/rpi3.rst
 :|F|: plat/rpi/rpi3/
 :|F|: plat/rpi/common/
@@ -773,7 +770,6 @@ Raspberry Pi 3 platform port
 Raspberry Pi 4 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Andre Przywara <andre.przywara@arm.com>
-:|C|: Joanna Farley <joanna.farley@arm.com>
 :|F|: docs/plat/rpi4.rst
 :|F|: plat/rpi/rpi4/
 :|F|: plat/rpi/common/
@@ -824,7 +820,6 @@ RockChip platform port
 ^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Tony Xie <tony.xie@rock-chips.com>
 :|M|: Heiko Stuebner <heiko@sntech.de>
-:|C|: Olivier Deprez <olivier.deprez@arm.com>
 :|F|: docs/plat/rockchip.rst
 :|F|: plat/rockchip/
 
@@ -870,7 +865,6 @@ AMD-Xilinx platform port
 :|M|: Michal Simek <michal.simek@amd.com>
 :|M|: Akshay Belsare <akshay.belsare@amd.com>
 :|M|: Maheedhar Sai Bollapalli <maheedharsai.bollapalli@amd.com>
-:|C|: Joanna Farley <joanna.farley@arm.com>
 :|F|: docs/plat/amd.\*
 :|F|: docs/plat/xilinx.\*
 :|F|: plat/amd/
@@ -1012,7 +1006,6 @@ Third party libraries
 Threat Model
 ~~~~~~~~~~~~~
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
-:|M|: Joanna Farley <joanna.farley@arm.com>
 :|M|: Raghu Krishnamurthy <raghuoss@raghushome.com>
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|F|: docs/threat_model/
