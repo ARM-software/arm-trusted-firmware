@@ -510,6 +510,15 @@ Arm common code
 :|F|: docs/plat/arm/index.rst
 :|F|: docs/plat/arm/arm-build-options.rst
 
+Arm BaseV2 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Alcaeus Lam <alcaeus.lam@arm.com>
+:|M|: Nathan Dunn <nathan.dunn@arm.com>
+:|F|: docs/plat/arm/basev2/
+:|F|: fdts/basev2\*
+:|F|: plat/arm/board/basev2
+:|F|: tools/fiptool/plat_fiptool/arm/board/basev2/
+
 Arm FPGA platform port
 ^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Andre Przywara <andre.przywara@arm.com>

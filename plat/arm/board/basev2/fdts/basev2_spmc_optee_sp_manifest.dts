@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/dts-v1/;
+
+#include <basev2_spmc_manifest.dtsi>
+#include <basev2_spmc_common_sp_manifest.dtsi>
+
+&hafnium {
+	vm1 {
+		debug_name = "op-tee";
+		load_address = <0xfd280000>;
+		mem_size = <0xb00000>; /* 11MB TZC DRAM */
+	};
+};

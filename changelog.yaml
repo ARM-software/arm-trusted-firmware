@@ -166,6 +166,9 @@ subsections:
           - plat/arm
 
         subsections:
+          - title: BaseV2
+            scope: basev2
+
           - title: Common
             scope: common
 

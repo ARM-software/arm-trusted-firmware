@@ -5,6 +5,7 @@ Arm Development Platforms
    :maxdepth: 1
    :caption: Contents
 
+   basev2/index
    juno/index
    fvp/index
    fvp-ve/index
