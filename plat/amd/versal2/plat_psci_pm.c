@@ -261,6 +261,15 @@ static void versal2_pwr_domain_suspend_finish(const psci_power_state_t *target_s
 		plat_gic_resume();
 	}
 
+	/*
+	 * On system suspend the FPD can be powered off, so the FPD system counter
+	 * (frequency register and enable bit) lost its state. Re-program it
+	 * here.
+	 */
+	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] == PLAT_MAX_OFF_STATE) {
+		sys_counter_config();
+	}
+
 	plat_gic_cpuif_enable();
 
 err:

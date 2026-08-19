@@ -113,13 +113,26 @@ uint32_t get_uart_clk(void)
 	return uart_clock;
 }
 
+/*
+ * sys_counter_config() - Program the FPD system counter frequency register and
+ *                        enable the counter.
+ */
+void sys_counter_config(void)
+{
+	uintptr_t iou_scntrs_base = IOU_SCNTRS_BASE;
+
+	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_BASE_FREQ_OFFSET,
+		      cpu_clock);
+	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
+		      IOU_SCNTRS_CONTROL_EN);
+}
+
 void config_setup(void)
 {
 	uint32_t val;
-	uintptr_t crl_base, iou_scntrs_base, psx_base;
+	uintptr_t crl_base, psx_base;
 
 	crl_base = CRL;
-	iou_scntrs_base = IOU_SCNTRS_BASE;
 	psx_base = PSX_CRF;
 
 	/* Reset for system timestamp generator in FPX */
@@ -134,10 +147,7 @@ void config_setup(void)
 	mmio_write_32(crl_base + CRL_RST_TIMESTAMP_OFFSET, 0);
 
 	/* Program freq register in System counter and enable system counter. */
-	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_BASE_FREQ_OFFSET,
-		      cpu_clock);
-	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
-		      IOU_SCNTRS_CONTROL_EN);
+	sys_counter_config();
 
 	/* set cntfrq_el0 value so that software can discover the frequency of the system counter */
 	set_cnt_freq();
