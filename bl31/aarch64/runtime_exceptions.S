@@ -8,6 +8,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
 #include <bl31/ea_handle.h>
 #include <bl31/interrupt_mgmt.h>
 #include <common/runtime_svc.h>
@@ -15,6 +16,7 @@
 #include <cpu_macros.S>
 #include <el3_common_macros.S>
 #include <lib/el3_runtime/cpu_data.h>
+#include <lib/extensions/brbe.h>
 #include <lib/smccc.h>
 
 	.globl	runtime_exceptions
@@ -173,6 +175,24 @@ vector_entry sync_exception_sp_el0
 	bl	get_el3_gpf_resume_pc
 	b	handle_end
 _fall_through_rme:
+#endif
+#if ENABLE_FEAT_BRBEV1P1
+#if ENABLE_FEAT_BRBEV1P1 == 2
+	is_feat_brbe_present_asm x29
+	cbz	x29, _fall_through_brbe
+#endif /* ENABLE_FEAT_BRBEV1P1 == 2 */
+	cmp	x1, #EC_PMU
+	b.ne	_fall_through_brbe
+
+	/* Extract FSC from PMU ISS */
+	ubfx	x1, x0, #ISS_FSC_SHIFT, #ISS_FSC_WIDTH
+	cmp	x1, #FSC_PMU
+	b.ne	_fall_through_brbe
+
+	/* Triaged to handler */
+	bl	brbe_buffer_overflow_handler
+	b	handle_end
+_fall_through_brbe:
 #endif
 
 	/* If we've reached here, the exception has not been handled */
@@ -523,3 +543,47 @@ func brk_handler
 	no_ret	plat_panic_handler
 endfunc brk_handler
 #endif /* MONITOR_TRAPS */
+
+#if ENABLE_FEAT_BRBEV1P1
+func brbe_buffer_overflow_handler
+	/* Compute which counter has overflowed and store it in x0 */
+	mrs	x0, PMOVSCLR_EL0
+	mrs	x1, pmcntenclr_el0
+	and	x0, x0, x1
+	clz	x0, x0
+	mov	x1, #63
+	sub	x0, x1, x0
+
+#if ENABLE_ASSERTIONS
+	/* Ensure that recording is active and owned */
+	mov	w1, #DEFAULT_BRBE_SELECTED_PMU_COUNTER
+	cmp	x0, x1
+	ASM_ASSERT(eq)
+#endif /* ENABLE_ASSERTIONS */
+
+	sub	sp, sp, #CTX_GPREGS_END
+	push_runtime_regs
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+	/*
+	 * Switch to runtime stack before calling C code. This uses the
+	 * pre-empted stack, but brbe_reset_buffer will allocate a
+	 * compiler-generated frame above that of the interrupted caller.
+	 * Hence, the existing stack frames remain intact and unmodified by
+	 * this C call.
+	 */
+	msr 	spsel, #MODE_SP_EL0
+	bl	brbe_reset_buffer
+	msr 	spsel, #MODE_SP_ELX
+
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	pop_runtime_regs
+	add	sp, sp, #CTX_GPREGS_END
+
+	mrs 	x1, BRBFCR_EL1
+	and 	x1, x1, #~(BRBFCR_EL1_PAUSED_BIT)
+	msr 	BRBFCR_EL1, x1
+	isb
+	ret
+endfunc brbe_buffer_overflow_handler
+#endif /* ENABLE_FEAT_BRBEV1P1 */
