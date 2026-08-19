@@ -128,47 +128,6 @@
 	no_ret	el3_exit
 .endm
 
-
-/* -----------------------------------------------------------------------------
- * This handler implements a limited EL3 Granule Protection Fault (GPF) fixup
- * mechanism (it is not intended for EL3 preemption or general exception
- * handling). It only handles synchronous EL3 Data Aborts triggered by GPFs.
- *
- * The implementation depends on a trap table that specifies both the
- * faulting region and the corresponding recovery address. Recovery
- * targets must reside within local, static BL31 text and must not be
- * dynamically computed or external.
- *
- * No partial or best-effort recovery is allowed; the handler fails
- * closed if syndrome validation or trap table lookup does not succeed.
- *
- * Clobbers: x0–x5, ELR_EL3
- * -----------------------------------------------------------------------------
- */
-func handle_el3_sync_exception
-#if ENABLE_FEAT_RME
-	stp	x4, x5, [sp, #-16]!
-	stp	x2, x3, [sp, #-16]!
-	stp	x0, x1, [sp, #-16]!
-
-	/*
-	 * Safely resume only when the current exception is a recoverable EL3
-	 * GPF raised by one of the GPF-tolerant RME helpers.
-	 */
-	bl	get_el3_gpf_resume_pc
-
-	ldp	x0, x1, [sp], #16
-	ldp	x2, x3, [sp], #16
-	ldp	x4, x5, [sp], #16
-	isb
-	eret
-#endif /* ENABLE_FEAT_RME */
-
-	msr	TPIDRRO_EL0, x0
-	mov	x0, #SYNC_EXCEPTION_SP_EL0
-	b	plat_report_unhandled_exception
-endfunc handle_el3_sync_exception
-
 vector_base runtime_exceptions
 
 	/* ---------------------------------------------------------------------
@@ -176,19 +135,58 @@ vector_base runtime_exceptions
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry sync_exception_sp_el0
+	/* ---------------------------------------------------------------------
+	 * This function acts as a triage system for synchronous EL3 exceptions.
+	 * It will match the reported exception to a handler function. These
+	 * handler functions must always succeed.
+	 *
+	 * If no handler can be matched, this function will report an unhandled
+	 * exception.
+	 *
+	 * Clobbers: ELR_EL3
+	 * ---------------------------------------------------------------------
+	 */
+
+	stp	x30, x29, [sp, #-16]!
+	stp	x0, x1, [sp, #-16]!
+
+	/* Store ESR_EL3 in x0 and EC in x1 */
+	mrs	x0, esr_el3
+	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+
 #ifdef MONITOR_TRAPS
-	stp x29, x30, [sp, #-16]!
-
-	mrs	x30, esr_el3
-	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-
 	/* Check for BRK */
-	cmp	x30, #EC_BRK
+	cmp	x1, #EC_BRK
 	b.eq	brk_handler
-
-	ldp x29, x30, [sp], #16
 #endif /* MONITOR_TRAPS */
-	b handle_el3_sync_exception
+
+#if ENABLE_FEAT_RME
+	cmp	x1, #EC_DABORT_CUR_EL
+	b.ne	_fall_through_rme
+
+	/* Extract DFSC from Data Abort ISS */
+	ubfx	x1, x0, #ISS_DFSC_SHIFT, #ISS_DFSC_WIDTH
+	cmp	x1, #DFSC_GPF_DABORT
+	b.ne	_fall_through_rme
+
+	/* Triaged to handler, clobbers ELR_EL3 */
+	bl	get_el3_gpf_resume_pc
+	b	handle_end
+_fall_through_rme:
+#endif
+
+	/* If we've reached here, the exception has not been handled */
+	ldp	x0, x1, [sp], #16
+	ldp 	x30, x29, [sp], #16
+	msr	TPIDRRO_EL0, x0
+	mov	x0, #SYNC_EXCEPTION_SP_EL0
+	b	plat_report_unhandled_exception
+
+handle_end:
+	/* Exception has been handled, restore context and eret */
+	ldp	x0, x1, [sp], #16
+	ldp 	x30, x29, [sp], #16
+	eret
 end_vector_entry sync_exception_sp_el0
 
 vector_entry irq_sp_el0

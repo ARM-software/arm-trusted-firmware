@@ -105,18 +105,20 @@ endfunc rme_gpf_safe_return
  * is recoverable, this address will be written to ELR_EL3. Otherwise,
  * this function will panic.
  *
+ * The implementation depends on a trap table that specifies both the
+ * faulting region and the corresponding recovery address. Recovery
+ * targets must reside within local, static BL31 text and must not be
+ * dynamically computed or external.
+ *
+ * No partial or best-effort recovery is allowed; the handler fails
+ * closed if syndrome validation or trap table lookup does not succeed.
+ *
  * Clobbers: x0-x4
  */
 func get_el3_gpf_resume_pc
-	mrs	x1, esr_el3
-	ubfx	x2, x1, #ESR_EC_SHIFT, #6
-	cmp	x2, #EC_DABORT_CUR_EL
-	b.ne	3f
-
-	and	x2, x1, #ISS_DFSC_MASK
-	cmp	x2, #DFSC_GPF_DABORT
-	b.ne	3f
-
+	stp	x0, x1, [sp, #-16]!
+	stp	x2, x3, [sp, #-16]!
+	stp	x4, x5, [sp, #-16]!
 	mrs	x0, elr_el3
 
 	adrp	x1, __GPC_GPF_TRAPS_START__
@@ -133,6 +135,9 @@ func get_el3_gpf_resume_pc
 	b.ne	2f
 
 	msr	elr_el3, x4
+	ldp	x4, x5, [sp], #16
+	ldp	x2, x3, [sp], #16
+	ldp	x0, x1, [sp], #16
 	ret
 
 2:
