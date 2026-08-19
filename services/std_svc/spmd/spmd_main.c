@@ -1367,22 +1367,29 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_RXTX_MAP_SMC64:
 	case FFA_RXTX_UNMAP:
 	case FFA_PARTITION_INFO_GET:
+		/*
+		 * Reuse the Normal-world-only forwarding path without
+		 * applying the Notification2 version check.
+		 */
+		goto nw_only_forward;
+
 #if MAKE_FFA_VERSION(1, 3) <= FFA_VERSION_COMPILED
 	case FFA_NOTIFICATION_BIND2_SMC64:
 	case FFA_NOTIFICATION_UNBIND2_SMC64:
 	case FFA_NOTIFICATION_SET2_SMC64:
 	case FFA_NOTIFICATION_GET2_SMC64:
-	/*
-	 * Extended notification interfaces were introduced in FF-A v1.3.
-	 * Forward them only when both security states support v1.3 or later.
-	 */
+		/*
+		 * Extended notification interfaces were introduced in FF-A
+		 * v1.3. Forward them only when both security states support
+		 * v1.3 or later.
+		 */
 		if (get_common_ffa_version(secure_ffa_version) <
 			MAKE_FFA_VERSION(U(1), U(3))) {
 			return spmd_ffa_error_return(
 				handle, FFA_ERROR_NOT_SUPPORTED);
 		}
-		/* Reuse the existing Normal-world-only forwarding path. */
-		__fallthrough;
+
+		goto nw_only_forward;
 #endif
 #if MAKE_FFA_VERSION(1, 1) <= FFA_VERSION_COMPILED
 	case FFA_NOTIFICATION_BITMAP_CREATE:
@@ -1398,8 +1405,9 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_NS_RES_INFO_GET_SMC64:
 #endif
 	case FFA_MSG_RUN:
+nw_only_forward:
 		/*
-		 * Above calls should be invoked only by the Normal world and
+		 * These interfaces must be invoked only by the Normal world and
 		 * must not be forwarded from Secure world to Normal world.
 		 */
 		if (secure_origin) {
@@ -1407,8 +1415,9 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 						     FFA_ERROR_NOT_SUPPORTED);
 		}
 
-		/* Forward the call to the other world */
-		/* fallthrough */
+		/* Reuse the common cross-world forwarding path below. */
+		goto forward_to_other_world;
+
 	case FFA_MSG_SEND:
 	case FFA_MEM_DONATE_SMC32:
 	case FFA_MEM_DONATE_SMC64:
@@ -1425,6 +1434,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_MEM_FRAG_RX:
 	case FFA_SUCCESS_SMC32:
 	case FFA_SUCCESS_SMC64:
+forward_to_other_world:
 		/*
 		 * If there is an ongoing direct request from an SPMD logical
 		 * partition, return an error.
