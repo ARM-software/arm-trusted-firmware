@@ -12,7 +12,6 @@
 #include <arch.h>
 #include <arch_features.h>
 #include <common/debug.h>
-#include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
 #include <services/firme/firme_attestation.h>
 #include <services/firme/firme_granule_mgmt.h>

@@ -8,11 +8,12 @@
 #define GPT_RME_H
 
 #include <stdint.h>
-#include <lib/spinlock.h>
+#include <lib/extensions/rme.h>
 #include <lib/gpt_rme/gpc_fault.h>
+#include <lib/spinlock.h>
 
 /******************************************************************************/
-/* GPT helper macros and definitions                                          */
+/* GPT helper macros and definitions for locks                                */
 /******************************************************************************/
 
 #if (RME_GPT_BITLOCK_BLOCK != 0)
@@ -22,6 +23,10 @@
 
 CASSERT((UL(1) == LOCK_SIZE), assert_bitlock_type_not_uint8_t);
 #endif /* RME_GPT_BITLOCK_BLOCK */
+
+/******************************************************************************/
+/* GPT helper macros and definitions for pas mappings                         */
+/******************************************************************************/
 
 /*
  * Structure for specifying a mapping range and it's properties. This should not
@@ -33,30 +38,6 @@ typedef struct pas_region {
 	size_t		size;		/* Size of the PAS. */
 	unsigned int	attrs;		/* PAS GPI and entry type. */
 } pas_region_t;
-
-/* GPT GPI definitions */
-#define GPT_GPI_NO_ACCESS		U(0x0)
-#define GPT_GPI_SA			U(0x4)
-#define GPT_GPI_NSP			U(0x5)
-#define GPT_GPI_SECURE			U(0x8)
-#define GPT_GPI_NS			U(0x9)
-#define GPT_GPI_ROOT			U(0xA)
-#define GPT_GPI_REALM			U(0xB)
-#define GPT_GPI_NSO			U(0xD)
-#define GPT_GPI_ANY			U(0xF)
-#define GPT_GPI_VAL_MASK		UL(0xF)
-
-#define GPT_NSE_SECURE			U(0b00)
-#define GPT_NSE_ROOT			U(0b01)
-#define GPT_NSE_NS			U(0b10)
-#define GPT_NSE_REALM			U(0b11)
-
-#define GPT_NSE_SHIFT                   U(62)
-
-#define GPT_NSE2_SA			U(0b001)
-#define GPT_NSE2_NSP			U(0b101)
-
-#define GPT_NSE2_SHIFT			U(61)
 
 /* PAS attribute GPI definitions. */
 #define GPT_PAS_ATTR_GPI_SHIFT		U(0)
@@ -109,110 +90,6 @@ typedef struct pas_region {
 		.size = (_sz),						\
 		.attrs = GPT_PAS_ATTR(GPT_PAS_ATTR_MAP_TYPE_GRANULE, (_gpi)), \
 	}
-
-/******************************************************************************/
-/* GPT register field definitions                                             */
-/******************************************************************************/
-
-/* NSO bit definitions */
-#define GPCCR_NSO_SHIFT		U(19)
-#define GPCCR_NSO_BIT		(ULL(1) << GPCCR_NSO_SHIFT)
-
-/* SA bit definitions */
-#define GPCCR_NSP_SHIFT		U(26)
-#define GPCCR_NSP_BIT		(ULL(1) << GPCCR_NSP_SHIFT)
-
-/* SA bit definitions */
-#define GPCCR_SA_SHIFT		U(25)
-#define GPCCR_SA_BIT		(ULL(1) << GPCCR_SA_SHIFT)
-
-/*
- * Least significant address bits protected by each entry in level 0 GPT. This
- * field is read-only.
- */
-#define GPCCR_L0GPTSZ_SHIFT	U(20)
-#define GPCCR_L0GPTSZ_MASK	U(0xF)
-
-typedef enum {
-	GPCCR_L0GPTSZ_30BITS	= U(0x0),
-	GPCCR_L0GPTSZ_34BITS	= U(0x4),
-	GPCCR_L0GPTSZ_36BITS	= U(0x6),
-	GPCCR_L0GPTSZ_39BITS	= U(0x9)
-} gpccr_l0gptsz_e;
-
-/* Granule protection check priority bit definitions */
-#define GPCCR_GPCP_SHIFT	U(17)
-#define GPCCR_GPCP_BIT		(ULL(1) << GPCCR_EL3_GPCP_SHIFT)
-
-/* Granule protection check bit definitions */
-#define GPCCR_GPC_SHIFT		U(16)
-#define GPCCR_GPC_BIT		(ULL(1) << GPCCR_GPC_SHIFT)
-
-/* Physical granule size bit definitions */
-#define GPCCR_PGS_SHIFT		U(14)
-#define GPCCR_PGS_MASK		U(0x3)
-#define SET_GPCCR_PGS(x)	(((x) & GPCCR_PGS_MASK) << GPCCR_PGS_SHIFT)
-
-typedef enum {
-	GPCCR_PGS_4K		= U(0x0),
-	GPCCR_PGS_64K		= U(0x1),
-	GPCCR_PGS_16K		= U(0x2)
-} gpccr_pgs_e;
-
-/* GPT fetch shareability attribute bit definitions */
-#define GPCCR_SH_SHIFT		U(12)
-#define GPCCR_SH_MASK		U(0x3)
-#define SET_GPCCR_SH(x)		(((x) & GPCCR_SH_MASK) << GPCCR_SH_SHIFT)
-
-typedef enum {
-	GPCCR_SH_NS		= U(0x0),
-	GPCCR_SH_OS		= U(0x2),
-	GPCCR_SH_IS		= U(0x3)
-} gpccr_sh_e;
-
-/* GPT fetch outer cacheability attribute bit definitions */
-#define GPCCR_ORGN_SHIFT	U(10)
-#define GPCCR_ORGN_MASK		U(0x3)
-#define SET_GPCCR_ORGN(x)	(((x) & GPCCR_ORGN_MASK) << GPCCR_ORGN_SHIFT)
-
-typedef enum {
-	GPCCR_ORGN_NC		= U(0x0),
-	GPCCR_ORGN_WB_RA_WA	= U(0x1),
-	GPCCR_ORGN_WT_RA_NWA	= U(0x2),
-	GPCCR_ORGN_WB_RA_NWA	= U(0x3)
-} gpccr_orgn_e;
-
-/* GPT fetch inner cacheability attribute bit definitions */
-#define GPCCR_IRGN_SHIFT	U(8)
-#define GPCCR_IRGN_MASK		U(0x3)
-#define SET_GPCCR_IRGN(x)	(((x) & GPCCR_IRGN_MASK) << GPCCR_IRGN_SHIFT)
-
-typedef enum {
-	GPCCR_IRGN_NC		= U(0x0),
-	GPCCR_IRGN_WB_RA_WA	= U(0x1),
-	GPCCR_IRGN_WT_RA_NWA	= U(0x2),
-	GPCCR_IRGN_WB_RA_NWA	= U(0x3)
-} gpccr_irgn_e;
-
-/* Protected physical address size bit definitions */
-#define GPCCR_PPS_SHIFT		U(0)
-#define GPCCR_PPS_MASK		U(0x7)
-#define SET_GPCCR_PPS(x)	(((x) & GPCCR_PPS_MASK) << GPCCR_PPS_SHIFT)
-
-typedef enum {
-	GPCCR_PPS_4GB		= U(0x0),
-	GPCCR_PPS_64GB		= U(0x1),
-	GPCCR_PPS_1TB		= U(0x2),
-	GPCCR_PPS_4TB		= U(0x3),
-	GPCCR_PPS_16TB		= U(0x4),
-	GPCCR_PPS_256TB		= U(0x5),
-	GPCCR_PPS_4PB		= U(0x6)
-} gpccr_pps_e;
-
-/* Base Address for the GPT bit definitions */
-#define GPTBR_BADDR_SHIFT	U(0)
-#define GPTBR_BADDR_VAL_SHIFT	U(12)
-#define GPTBR_BADDR_MASK	ULL(0xffffffffff)
 
 /******************************************************************************/
 /* GPT public APIs                                                            */
