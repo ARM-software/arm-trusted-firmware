@@ -73,7 +73,7 @@ define MAKE_MODULE
         $(eval MODULE_OBJS += $(OBJS_TEMP))
         $(eval BL         := $(call uppercase,$(3)))
 
-$(eval $(call MAKE_OBJS,$(BUILD_DIR)/$(MODULE),$(SOURCES),${3},$(BL)))
+$(call MAKE_OBJS,$(BUILD_DIR)/$(MODULE),$(SOURCES),${3},$(BL))
 
 libraries: $(OBJS_TEMP)
 endef

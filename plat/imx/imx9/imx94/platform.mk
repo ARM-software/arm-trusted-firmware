@@ -55,5 +55,5 @@ SYS_PWR_FULL_CTRL ?= 0
 $(eval $(call add_define,SYS_PWR_FULL_CTRL))
 
 HAS_XSPI_SUPPORT := 1
-$(eval $(call assert_boolean,HAS_XSPI_SUPPORT))
+$(call assert_boolean,HAS_XSPI_SUPPORT)
 $(eval $(call add_define,HAS_XSPI_SUPPORT))

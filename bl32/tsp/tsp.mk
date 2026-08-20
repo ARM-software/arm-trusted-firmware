@@ -36,17 +36,17 @@ $(eval BL32_CPPFLAGS += $(call make_defines, \
 )))
 
 # Numeric_Flags
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
     $(sort \
 	CRYPTO_SUPPORT \
-)))
+))
 
 # This flag determines if the TSPD initializes BL32 in tspd_init() (synchronous
 # method) or configures BL31 to pass control to BL32 instead of BL33
 # (asynchronous method).
 TSP_INIT_ASYNC         :=      0
 
-$(eval $(call assert_boolean,TSP_INIT_ASYNC))
+$(call assert_boolean,TSP_INIT_ASYNC)
 $(eval $(call add_define,TSP_INIT_ASYNC))
 
 # Include the platform-specific TSP Makefile

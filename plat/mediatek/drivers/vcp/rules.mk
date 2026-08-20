@@ -10,4 +10,4 @@ MODULE := vcp
 
 SUB_RULES-y := $(LOCAL_DIR)/rv
 
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
+$(call INCLUDE_MAKEFILE,$(SUB_RULES-y))

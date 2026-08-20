@@ -20,10 +20,10 @@ else
 endif #DPE_HASH_ALG
 
 # Set definitions for DICE Protection Environment
-$(eval $(call add_defines,\
+$(call add_defines,\
     $(sort \
         DPE_ALG_ID \
         DPE_DIGEST_SIZE \
-)))
+))
 
 DPE_SOURCES	+=	drivers/measured_boot/rse/dice_prot_env.c

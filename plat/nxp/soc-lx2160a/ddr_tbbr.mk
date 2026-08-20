@@ -80,9 +80,10 @@ DDR_FIP_DEPS += ddr_certificates
 ifneq (${GENERATE_COT},0)
         # Common cert_create options
         ifneq (${CREATE_KEYS},0)
-                $(eval DDR_CRT_ARGS += -n)
+                DDR_CRT_ARGS += -n
+
                 ifneq (${SAVE_KEYS},0)
-                       $(eval DDR_CRT_ARGS += -k)
+                       DDR_CRT_ARGS += -k
                 endif
         endif
 endif

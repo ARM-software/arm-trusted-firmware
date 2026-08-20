@@ -37,7 +37,7 @@ endif
 # Process flags
 # Process ARM_BL31_IN_DRAM flag
 ARM_BL31_IN_DRAM	:=	0
-$(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+$(call assert_boolean,ARM_BL31_IN_DRAM)
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 else
 ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_SRAM_ID
@@ -60,7 +60,7 @@ endif
 endif
 
 # Process ARM_RECOM_STATE_ID_ENC flag
-$(eval $(call assert_boolean,ARM_RECOM_STATE_ID_ENC))
+$(call assert_boolean,ARM_RECOM_STATE_ID_ENC)
 $(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
 
 # Process ARM_DISABLE_TRUSTED_WDOG flag
@@ -69,32 +69,32 @@ ARM_DISABLE_TRUSTED_WDOG	:=	0
 ifeq (${SPIN_ON_BL1_EXIT}, 1)
 ARM_DISABLE_TRUSTED_WDOG	:=	1
 endif
-$(eval $(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG))
+$(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG)
 $(eval $(call add_define,ARM_DISABLE_TRUSTED_WDOG))
 
 # Process ARM_CONFIG_CNTACR
 ARM_CONFIG_CNTACR	:=	1
-$(eval $(call assert_boolean,ARM_CONFIG_CNTACR))
+$(call assert_boolean,ARM_CONFIG_CNTACR)
 $(eval $(call add_define,ARM_CONFIG_CNTACR))
 
 # Process ARM_BL31_IN_DRAM flag
 ARM_BL31_IN_DRAM	:=	0
-$(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+$(call assert_boolean,ARM_BL31_IN_DRAM)
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
 # Process ARM_PLAT_MT flag
 ARM_PLAT_MT	:=	0
-$(eval $(call assert_boolean,ARM_PLAT_MT))
+$(call assert_boolean,ARM_PLAT_MT)
 $(eval $(call add_define,ARM_PLAT_MT))
 
 # Use translation tables library v2 by default
 ARM_XLAT_TABLES_LIB_V1	:=	0
-$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
+$(call assert_boolean,ARM_XLAT_TABLES_LIB_V1)
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
 # Don't have the Linux kernel as a BL33 image by default
 ARM_LINUX_KERNEL_AS_BL33	:=	0
-$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33)
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
 ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
@@ -160,7 +160,7 @@ endif
 
 # Disable ARM Cryptocell by default
 ARM_CRYPTOCELL_INTEG	:=	0
-$(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))
+$(call assert_boolean,ARM_CRYPTOCELL_INTEG)
 $(eval $(call add_define,ARM_CRYPTOCELL_INTEG))
 
 # Enable PIE support for RESET_TO_BL31 case

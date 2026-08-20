@@ -13,5 +13,5 @@ PLATFORM_DIR_EXIST := $(shell test -f $(LOCAL_SOC_DIR)/rules.mk && echo yes)
 
 ifeq ($(PLATFORM_DIR_EXIST), yes)
 SUB_RULES-y := $(LOCAL_SOC_DIR)
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
+$(call INCLUDE_MAKEFILE,$(SUB_RULES-y))
 endif

@@ -27,5 +27,5 @@ $(eval $(call add_defined_option,CONFIG_MTK_PMIC_SHUTDOWN_CFG))
 ifneq (${PMIC_CHIP},)
 SUB_RULES-y := $(LOCAL_DIR)/$(PMIC_CHIP)
 #Expand sub rules.mk
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
+$(call INCLUDE_MAKEFILE,$(SUB_RULES-y))
 endif

@@ -32,7 +32,7 @@ ifeq (${ARCH}, aarch64)
   # Process flags
   # Process ARM_BL31_IN_DRAM flag
   ARM_BL31_IN_DRAM		:=	0
-  $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+  $(call assert_boolean,ARM_BL31_IN_DRAM)
   $(eval $(call add_define,ARM_BL31_IN_DRAM))
 else
   ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_SRAM_ID
@@ -56,7 +56,7 @@ ifeq (${PSCI_EXTENDED_STATE_ID}, 1)
 endif
 
 # Process ARM_RECOM_STATE_ID_ENC flag
-$(eval $(call assert_boolean,ARM_RECOM_STATE_ID_ENC))
+$(call assert_boolean,ARM_RECOM_STATE_ID_ENC)
 $(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
 
 # Process ARM_DISABLE_TRUSTED_WDOG flag
@@ -67,17 +67,17 @@ else
 ARM_DISABLE_TRUSTED_WDOG	:=	0
 endif
 
-$(eval $(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG))
+$(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG)
 $(eval $(call add_define,ARM_DISABLE_TRUSTED_WDOG))
 
 # Process ARM_CONFIG_CNTACR
 ARM_CONFIG_CNTACR		:=	1
-$(eval $(call assert_boolean,ARM_CONFIG_CNTACR))
+$(call assert_boolean,ARM_CONFIG_CNTACR)
 $(eval $(call add_define,ARM_CONFIG_CNTACR))
 
 # Process ARM_BL31_IN_DRAM flag
 ARM_BL31_IN_DRAM		:=	0
-$(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+$(call assert_boolean,ARM_BL31_IN_DRAM)
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
 # Process DSU_PDL2_SUPPORT
@@ -111,17 +111,17 @@ endif
 
 # Process ARM_PLAT_MT flag
 ARM_PLAT_MT			?=	0
-$(eval $(call assert_boolean,ARM_PLAT_MT))
+$(call assert_boolean,ARM_PLAT_MT)
 $(eval $(call add_define,ARM_PLAT_MT))
 
 # Use translation tables library v2 by default
 ARM_XLAT_TABLES_LIB_V1		:=	0
-$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
+$(call assert_boolean,ARM_XLAT_TABLES_LIB_V1)
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
 # Don't have the Linux kernel as a BL33 image by default
 ARM_LINUX_KERNEL_AS_BL33	:=	0
-$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33)
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
 ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
@@ -198,7 +198,7 @@ endif
 
 # On Arm platform, disable ARM_FW_CONFIG_LOAD_ENABLE by default.
 ARM_FW_CONFIG_LOAD_ENABLE		:= 0
-$(eval $(call assert_boolean,ARM_FW_CONFIG_LOAD_ENABLE))
+$(call assert_boolean,ARM_FW_CONFIG_LOAD_ENABLE)
 $(eval $(call add_define,ARM_FW_CONFIG_LOAD_ENABLE))
 
 # In order to enable ARM_FW_CONFIG_LOAD_ENABLE for the Arm platform, the
@@ -217,7 +217,7 @@ endif
 
 # Disable GPT parser support, use FIP image by default
 ARM_GPT_SUPPORT			:=	0
-$(eval $(call assert_boolean,ARM_GPT_SUPPORT))
+$(call assert_boolean,ARM_GPT_SUPPORT)
 $(eval $(call add_define,ARM_GPT_SUPPORT))
 
 # Include necessary sources to parse GPT image

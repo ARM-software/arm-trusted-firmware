@@ -107,6 +107,6 @@ $(ELF_PMU) : $(OBJS_COMMON) $(OBJS_PMU) $(LINKERFILE)
 	$(s)echo "  LD      $@"
 	$(q)$($(ARCH)-ld) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
 
-$(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES_COMMON),$(1)))
-$(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1)))
-$(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES_PMU),$(1)))
+$(call MAKE_OBJS,$(BUILD),$(SOURCES_COMMON),$(1))
+$(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1))
+$(call MAKE_OBJS,$(BUILD),$(SOURCES_PMU),$(1))

@@ -20,12 +20,12 @@ else
 endif #MBOOT_RSE_HASH_ALG
 
 # Set definitions for Measured Boot driver.
-$(eval $(call add_defines,\
+$(call add_defines,\
     $(sort \
         MBOOT_ALG_ID \
         MBOOT_DIGEST_SIZE \
         MBOOT_RSE_BACKEND \
-)))
+))
 
 MEASURED_BOOT_SRC_DIR	:= drivers/measured_boot/rse/
 

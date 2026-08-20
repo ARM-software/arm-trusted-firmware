@@ -38,8 +38,8 @@ BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
 SUNXI_PSCI_USE_NATIVE	?=	1
 SUNXI_PSCI_USE_SCPI	?=	1
 
-$(eval $(call assert_boolean,SUNXI_PSCI_USE_NATIVE))
-$(eval $(call assert_boolean,SUNXI_PSCI_USE_SCPI))
+$(call assert_boolean,SUNXI_PSCI_USE_NATIVE)
+$(call assert_boolean,SUNXI_PSCI_USE_SCPI)
 $(eval $(call add_define,SUNXI_PSCI_USE_NATIVE))
 $(eval $(call add_define,SUNXI_PSCI_USE_SCPI))
 
@@ -59,11 +59,11 @@ BL31_SOURCES		+=	drivers/allwinner/sunxi_msgbox.c	\
 endif
 
 SUNXI_SETUP_REGULATORS	?=	1
-$(eval $(call assert_boolean,SUNXI_SETUP_REGULATORS))
+$(call assert_boolean,SUNXI_SETUP_REGULATORS)
 $(eval $(call add_define,SUNXI_SETUP_REGULATORS))
 
 SUNXI_BL31_IN_DRAM	?=	0
-$(eval $(call assert_boolean,SUNXI_BL31_IN_DRAM))
+$(call assert_boolean,SUNXI_BL31_IN_DRAM)
 
 ifeq (${SUNXI_BL31_IN_DRAM},1)
 SUNXI_AMEND_DTB		:=	1
@@ -71,7 +71,7 @@ $(eval $(call add_define,SUNXI_BL31_IN_DRAM))
 endif
 
 SUNXI_AMEND_DTB		?=	0
-$(eval $(call assert_boolean,SUNXI_AMEND_DTB))
+$(call assert_boolean,SUNXI_AMEND_DTB)
 $(eval $(call add_define,SUNXI_AMEND_DTB))
 
 ifeq (${SUNXI_AMEND_DTB},1)

@@ -6,7 +6,7 @@
 include common/fdt_wrappers.mk
 
 # TARGET_PLATFORM must be defined as a pre-requisite
-$(eval $(call assert_numerics,TARGET_PLATFORM))
+$(call assert_numerics,TARGET_PLATFORM)
 
 TARGET_FLAVOUR			:=	fvp
 # DPU with SCMI may not necessarily work, so allow its independence
@@ -103,7 +103,7 @@ TC_FPGA_FIP_IMG_IN_RAM := 0
 # Use simple panel instead of vencoder with DPU
 TC_DPU_USE_SIMPLE_PANEL := 0
 
-$(eval $(call add_defines, \
+$(call add_defines, \
 	TARGET_PLATFORM \
 	TARGET_FLAVOUR_$(call uppercase,${TARGET_FLAVOUR}) \
 	TC_RESOLUTION_$(call uppercase,${TC_RESOLUTION}) \
@@ -114,7 +114,7 @@ $(eval $(call add_defines, \
 	TC_FPGA_FS_IMG_IN_RAM \
 	TC_FPGA_FIP_IMG_IN_RAM \
 	TC_DPU_USE_SIMPLE_PANEL \
-))
+)
 
 CSS_LOAD_SCP_IMAGES	:=	1
 

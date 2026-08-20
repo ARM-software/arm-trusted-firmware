@@ -27,5 +27,5 @@ ifeq (${ARCH},aarch32)
         endif
 endif
 
-$(eval $(call assert_boolean,ENABLE_BACKTRACE))
+$(call assert_boolean,ENABLE_BACKTRACE)
 $(eval $(call add_define,ENABLE_BACKTRACE))

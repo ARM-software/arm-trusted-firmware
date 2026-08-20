@@ -67,7 +67,7 @@ SEPARATE_CODE_AND_RODATA	:= 1
 USE_COHERENT_MEM		:= 1
 
 AML_USE_ATOS			:= 0
-$(eval $(call assert_boolean,AML_USE_ATOS))
+$(call assert_boolean,AML_USE_ATOS)
 $(eval $(call add_define,AML_USE_ATOS))
 
 # Verify build config

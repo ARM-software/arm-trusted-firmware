@@ -15,10 +15,10 @@ NEED_BL32		:=	yes
 # The following constants need to be defined:
 #   - SPD_PNCD_NS_IRQ: IRQ number used to notify NS world when SMC_ACTION_FROM_S is received
 #   - SPD_PNCD_S_IRQ: IRQ number used to notify S world when SMC_ACTION_FROM_NS is received
-$(eval $(call assert_numerics, SPD_PNCD_NS_IRQ SPD_PNCD_S_IRQ))
+$(call assert_numerics, SPD_PNCD_NS_IRQ SPD_PNCD_S_IRQ)
 
-$(eval $(call add_defines,\
+$(call add_defines,\
     $(sort \
         SPD_PNCD_NS_IRQ \
         SPD_PNCD_S_IRQ \
-)))
+))

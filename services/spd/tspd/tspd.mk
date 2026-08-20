@@ -42,5 +42,5 @@ $(error When EL3_EXCEPTION_HANDLING=1, TSP_NS_INTR_ASYNC_PREEMPT must also be 1)
 endif
 endif
 
-$(eval $(call assert_boolean,TSP_NS_INTR_ASYNC_PREEMPT))
+$(call assert_boolean,TSP_NS_INTR_ASYNC_PREEMPT)
 $(eval $(call add_define,TSP_NS_INTR_ASYNC_PREEMPT))

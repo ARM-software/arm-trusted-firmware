@@ -103,7 +103,7 @@ ARM_DISABLE_TRUSTED_WDOG	:=	0
 ifeq (${SPIN_ON_BL1_EXIT}, 1)
 ARM_DISABLE_TRUSTED_WDOG	:=	1
 endif
-$(eval $(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG))
+$(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG)
 $(eval $(call add_define,ARM_DISABLE_TRUSTED_WDOG))
 
 # Use translation tables library v1 if using Cortex-A5
@@ -112,7 +112,7 @@ ARM_XLAT_TABLES_LIB_V1		:=	1
 else
 ARM_XLAT_TABLES_LIB_V1		:=	0
 endif
-$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
+$(call assert_boolean,ARM_XLAT_TABLES_LIB_V1)
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)

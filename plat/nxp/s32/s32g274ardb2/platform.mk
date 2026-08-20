@@ -103,6 +103,6 @@ BL31_SOURCES += \
 	plat/common/plat_psci_common.c \
 
 # process all errata flags
-$(eval $(call default_zeros, $(S32_ERRATA_LIST)))
-$(eval $(call add_defines, $(S32_ERRATA_LIST)))
-$(eval $(call assert_booleans, $(S32_ERRATA_LIST)))
+$(call default_zeros, $(S32_ERRATA_LIST))
+$(call add_defines, $(S32_ERRATA_LIST))
+$(call assert_booleans, $(S32_ERRATA_LIST))

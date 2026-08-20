@@ -10,7 +10,7 @@ ifneq ($(NRD_PLATFORM_VARIANT),						\
 	"currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
-$(eval $(call CREATE_SEQ,SEQ,4))
+$(call CREATE_SEQ,SEQ,4)
 ifneq ($(NRD_CHIP_COUNT),$(filter $(NRD_CHIP_COUNT),$(SEQ)))
 	$(error  "Chip count for RD-V3-MC should be either $(SEQ) \
 	currently it is set to ${NRD_CHIP_COUNT}.")

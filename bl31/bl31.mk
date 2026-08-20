@@ -245,7 +245,7 @@ $(eval BL31_CPPFLAGS += $(call make_defines, \
         CRYPTO_SUPPORT \
 )))
 
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
     $(sort \
 	CRASH_REPORTING \
 	DSU_PDL2_SUPPORT \
@@ -253,15 +253,15 @@ $(eval $(call assert_booleans,\
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
 	USE_DSU_DRIVER \
-)))
+))
 
 # Numeric_Flags
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
     $(sort \
 	CRYPTO_SUPPORT \
-)))
+))
 
-$(eval $(call add_defines,\
+$(call add_defines,\
     $(sort \
 	CRASH_REPORTING \
 	DSU_PDL2_SUPPORT \
@@ -269,4 +269,4 @@ $(eval $(call add_defines,\
 	USE_DSU_DRIVER \
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
-)))
+))
