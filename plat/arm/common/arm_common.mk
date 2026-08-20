@@ -110,7 +110,7 @@ ifeq (${ARM_BL31_IN_DRAM},1)
 endif
 
 # Process ARM_PLAT_MT flag
-ARM_PLAT_MT			:=	0
+ARM_PLAT_MT			?=	0
 $(eval $(call assert_boolean,ARM_PLAT_MT))
 $(eval $(call add_define,ARM_PLAT_MT))
 
