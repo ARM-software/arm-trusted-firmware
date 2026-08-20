@@ -23,7 +23,7 @@ Maintainers
 
 :|M|: Dan Handley <dan.handley@arm.com>
 :|M|: Soby Mathew <soby.mathew@arm.com>
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|M|: Mark Dykes <mark.dykes@arm.com>
@@ -103,7 +103,7 @@ Software Delegated Exception Interface (SDEI)
 
 Trusted Boot
 ^^^^^^^^^^^^
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: drivers/auth/
 :|F|: include/drivers/auth/
@@ -324,7 +324,7 @@ Measured Boot
 :|M|: Harrison Mutai <harrison.mutai@arm.com>
 :|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
 :|F|: common/measured_boot_helpers.c
@@ -356,7 +356,7 @@ Performance Measurement Framework (PMF)
 
 Platform Security Architecture (PSA) APIs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: include/lib/psa
 :|F|: lib/psa
@@ -372,7 +372,7 @@ Power State Coordination Interface (PSCI)
 PSA Firmware Update
 ^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|F|: drivers/fwu
 :|F|: include/drivers/fwu
 
@@ -785,7 +785,7 @@ Raspberry Pi 5 platform port
 Renesas R-Car Gen3, Gen4, Gen5 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Marek Vasut <marek.vasut+renesas@mailbox.org>
-:|C|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|C|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|F|: docs/plat/rcar-gen3.rst
 :|F|: drivers/renesas/common
 :|F|: drivers/renesas/rcar.\*
@@ -808,7 +808,7 @@ Renesas RZ/G2 platform port
 :|M|: Biju Das <biju.das.jz@bp.renesas.com>
 :|M|: Marek Vasut <marek.vasut@gmail.com>
 :|M|: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-:|C|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|C|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|F|: docs/plat/rz-g2.rst
 :|F|: plat/renesas/common
 :|F|: plat/renesas/rzg
@@ -962,7 +962,7 @@ Fiptool
 
 Cert_create tool
 ^^^^^^^^^^^^^^^^
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: tools/cert_create/
 
@@ -1005,7 +1005,7 @@ Third party libraries
 
 Threat Model
 ~~~~~~~~~~~~~
-:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|M|: Sandrine Afsa <sandrine.afsa@arm.com>
 :|M|: Raghu Krishnamurthy <raghuoss@raghushome.com>
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|F|: docs/threat_model/
