@@ -89,8 +89,8 @@ $(PLAT_PARTITION_MAX_ENTRIES)")
 endif
 endif
 
-$(eval DTC_V = $(shell $($(ARCH)-dtc) -v | awk '{print $$NF}'))
-$(eval DTC_VERSION = $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g" | grep -o "[0-9]*")))
+DTC_V := $(shell $($(ARCH)-dtc) -v | awk '{print $$NF}')
+DTC_VERSION := $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g" | grep -o "[0-9]*"))
 DTC_CPPFLAGS			+=	${INCLUDES}
 DTC_FLAGS			+=	-Wno-unit_address_vs_reg
 ifeq ($(shell test $(DTC_VERSION) -ge 10601; echo $$?),0)
@@ -128,7 +128,7 @@ $(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
 endif
 
 # Enable flags for C files
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
 	$(sort \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32MP_EMMC \
@@ -143,15 +143,15 @@ $(eval $(call assert_booleans,\
 		STM32MP_SUPPORT_PM \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
-)))
+))
 
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
 	$(sort \
 		STM32_TF_VERSION \
 		STM32MP_UART_BAUDRATE \
-)))
+))
 
-$(eval $(call add_defines,\
+$(call add_defines,\
 	$(sort \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_VERSION \
@@ -168,7 +168,7 @@ $(eval $(call add_defines,\
 		STM32MP_UART_BAUDRATE \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
-)))
+))
 
 # Include paths and source files
 PLAT_INCLUDES			+=	-Iplat/st/common/include/

@@ -38,7 +38,7 @@ PLAT_XLAT_TABLES_DYNAMIC	:=	1
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 
 QTI_SDI_BUILD := 0
-$(eval $(call assert_boolean,QTI_SDI_BUILD))
+$(call assert_boolean,QTI_SDI_BUILD)
 $(eval $(call add_define,QTI_SDI_BUILD))
 
 #disable CTX_INCLUDE_AARCH32_REGS to support sc7180 gold cores

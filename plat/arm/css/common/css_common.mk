@@ -40,7 +40,7 @@ BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
 endif
 
 # Process CSS_LOAD_SCP_IMAGES flag
-$(eval $(call assert_boolean,CSS_LOAD_SCP_IMAGES))
+$(call assert_boolean,CSS_LOAD_SCP_IMAGES)
 $(eval $(call add_define,CSS_LOAD_SCP_IMAGES))
 
 ifeq (${CSS_LOAD_SCP_IMAGES},1)
@@ -68,7 +68,7 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
     CSS_DETECT_PRE_1_7_0_SCP	:=	1
 
     # Process CSS_DETECT_PRE_1_7_0_SCP flag
-    $(eval $(call assert_boolean,CSS_DETECT_PRE_1_7_0_SCP))
+    $(call assert_boolean,CSS_DETECT_PRE_1_7_0_SCP)
     $(eval $(call add_define,CSS_DETECT_PRE_1_7_0_SCP))
   endif
 endif
@@ -78,7 +78,7 @@ ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
 endif
 
 # Process CSS_USE_SCMI_SDS_DRIVER flag
-$(eval $(call assert_boolean,CSS_USE_SCMI_SDS_DRIVER))
+$(call assert_boolean,CSS_USE_SCMI_SDS_DRIVER)
 $(eval $(call add_define,CSS_USE_SCMI_SDS_DRIVER))
 
 # Process CSS_NON_SECURE_UART flag
@@ -86,7 +86,7 @@ $(eval $(call add_define,CSS_USE_SCMI_SDS_DRIVER))
 # from non secure code, which is useful on some platforms.
 # Default (obviously) is off.
 CSS_NON_SECURE_UART		:= 0
-$(eval $(call assert_boolean,CSS_NON_SECURE_UART))
+$(call assert_boolean,CSS_NON_SECURE_UART)
 $(eval $(call add_define,CSS_NON_SECURE_UART))
 
 # Process CSS_SYSTEM_GRACEFUL_RESET flag

@@ -155,7 +155,7 @@ ERRATA_A53_855873	:=	1
 ERRATA_A53_1530924	:=	1
 
 IMX_DRAM_RETENTION	?=	1
-$(eval $(call assert_boolean,IMX_DRAM_RETENTION))
+$(call assert_boolean,IMX_DRAM_RETENTION)
 $(eval $(call add_define,IMX_DRAM_RETENTION))
 
 ifeq (${IMX_DRAM_RETENTION},1)

@@ -17,20 +17,20 @@ $(eval $(call add_define,WA_PLAT_GIC64BIT))
 
 USE_SDRAM				?= 1
 USE_SPI_NOR				?= 0
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
 	$(sort \
 		USE_SDRAM \
 		USE_SPI_NOR \
-)))
+))
 
-$(eval $(call add_defines,\
+$(call add_defines,\
 	$(sort \
 		USE_SDRAM \
 		USE_SPI_NOR \
-)))
+))
 
 ifeq (${USE_SPI_NOR},1)
-$(eval $(call assert_numeric,RZ_FLASH_SIZE))
+$(call assert_numeric,RZ_FLASH_SIZE)
 $(eval $(call add_define,RZ_FLASH_SIZE))
 endif
 

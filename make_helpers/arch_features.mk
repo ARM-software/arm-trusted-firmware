@@ -149,4 +149,4 @@ endif
 
 # Force all FEAT_* in FEAT_LIST to FEAT_STATE_ALWAYS (1), overriding any
 # previous settings from platform makefiles.
-$(eval $(call set_ones, ${sort ${FEAT_LIST}}))
+$(call set_ones, ${sort ${FEAT_LIST}})

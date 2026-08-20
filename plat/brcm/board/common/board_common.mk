@@ -48,14 +48,14 @@ ifeq (${SPIN_ON_BL1_EXIT}, 1)
 BRCM_DISABLE_TRUSTED_WDOG	:=	1
 endif
 
-$(eval $(call assert_boolean,BRCM_DISABLE_TRUSTED_WDOG))
+$(call assert_boolean,BRCM_DISABLE_TRUSTED_WDOG)
 $(eval $(call add_define,BRCM_DISABLE_TRUSTED_WDOG))
 
 # Process ARM_BL31_IN_DRAM flag
 ifeq (${ARM_BL31_IN_DRAM},)
 ARM_BL31_IN_DRAM		:=	0
 endif
-$(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+$(call assert_boolean,ARM_BL31_IN_DRAM)
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
 ifeq (${STANDALONE_BL2},yes)
@@ -287,7 +287,7 @@ endif
 # Use translation tables library v1 by default
 ARM_XLAT_TABLES_LIB_V1		:=	1
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
-$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
+$(call assert_boolean,ARM_XLAT_TABLES_LIB_V1)
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/aarch64/xlat_tables.c \
 				lib/xlat_tables/xlat_tables_common.c

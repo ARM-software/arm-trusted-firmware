@@ -144,18 +144,18 @@ endif
 # Ultratronik Specific Boards
 ifeq ($(findstring ultra-fly,$(DTB_FILE_NAME)),ultra-fly)
 ULTRA_FLY := 1
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
 	$(sort \
 		ULTRA_FLY \
-	)))
-$(eval $(call add_defines,\
+	))
+$(call add_defines,\
 	$(sort \
 		ULTRA_FLY \
-	)))
+	))
 endif
 
 # Enable flags for C files
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
 	$(sort \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
@@ -171,9 +171,9 @@ $(eval $(call assert_booleans,\
 		STM32MP25 \
 		STM32MP2X \
 		STM32MP_BL33_EL1 \
-)))
+))
 
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
 	$(sort \
 		PLAT_PARTITION_MAX_ENTRIES \
 		STM32_HASH_VER \
@@ -181,9 +181,9 @@ $(eval $(call assert_numerics,\
 		STM32_RNG_VER \
 		STM32_RNG_VER_MINOR \
 		STM32_TF_A_COPIES \
-)))
+))
 
-$(eval $(call add_defines,\
+$(call add_defines,\
 	$(sort \
 		DWL_BUFFER_BASE \
 		PLAT_DEF_FIP_UUID \
@@ -207,7 +207,7 @@ $(eval $(call add_defines,\
 		STM32MP25 \
 		STM32MP2X \
 		STM32MP_BL33_EL1 \
-)))
+))
 
 # STM32MP2x is based on Cortex-A35, which is Armv8.0, and does not support BTI
 # Disable mbranch-protection to avoid adding useless code

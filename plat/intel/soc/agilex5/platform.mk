@@ -115,7 +115,7 @@ WORKAROUND_CVE_2025_10263 := 1
 
 # Don't have the Linux kernel as a BL33 image by default
 ARM_LINUX_KERNEL_AS_BL33	:=	0
-$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33)
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
 
@@ -124,22 +124,22 @@ SOCFPGA_BOOT_SOURCE_SDMMC		?=	0
 SOCFPGA_BOOT_SOURCE_QSPI		?=	0
 SOCFPGA_BOOT_SOURCE_NAND		?=	0
 
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
 	$(sort \
 		SOCFPGA_BOOT_SOURCE_SDMMC \
 		SOCFPGA_BOOT_SOURCE_QSPI \
 		SOCFPGA_BOOT_SOURCE_NAND \
-)))
-$(eval $(call add_defines,\
+))
+$(call add_defines,\
 	$(sort \
 		SOCFPGA_BOOT_SOURCE_SDMMC \
 		SOCFPGA_BOOT_SOURCE_QSPI \
 		SOCFPGA_BOOT_SOURCE_NAND \
-)))
+))
 
 # Configs for VAB Authentication
 SOCFPGA_SECURE_VAB_AUTH  := 	0
-$(eval $(call assert_boolean,SOCFPGA_SECURE_VAB_AUTH))
+$(call assert_boolean,SOCFPGA_SECURE_VAB_AUTH)
 $(eval $(call add_define,SOCFPGA_SECURE_VAB_AUTH))
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0

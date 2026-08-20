@@ -505,13 +505,14 @@ endif #(ARCH=aarch64)
 ifneq (${GENERATE_COT},0)
     # Common cert_create options
     ifneq (${CREATE_KEYS},0)
-        $(eval CRT_ARGS += -n)
-        $(eval FWU_CRT_ARGS += -n)
-        $(eval BL2_CRT_ARGS += -n)
+        CRT_ARGS += -n
+        FWU_CRT_ARGS += -n
+        BL2_CRT_ARGS += -n
+
         ifneq (${SAVE_KEYS},0)
-            $(eval CRT_ARGS += -k)
-            $(eval FWU_CRT_ARGS += -k)
-            $(eval BL2_CRT_ARGS += -k)
+            CRT_ARGS += -k
+            FWU_CRT_ARGS += -k
+            BL2_CRT_ARGS += -k
         endif
     endif
     # Include TBBR makefile (unless the platform indicates otherwise)
@@ -563,7 +564,7 @@ endif
 ################################################################################
 
 # Boolean_Flags
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
     $(sort \
 	ALLOW_RO_XLAT_TABLES \
 	BL2_ENABLE_SP_LOAD \
@@ -667,10 +668,10 @@ $(eval $(call assert_booleans,\
 	TEST_IO_SHORT_READ_FI \
 	SDEI_SUPPORT \
 	SMC_PCI_SUPPORT \
-)))
+))
 
 # Numeric_Flags
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
     $(sort \
 	ARM_ARCH_MAJOR \
 	ARM_ARCH_MINOR \
@@ -755,10 +756,10 @@ $(eval $(call assert_numerics,\
 	W \
 	TEST_IO_SHORT_READ_FI_IMAGE_ID \
 	USE_GIC_DRIVER \
-)))
+))
 
 ifdef KEY_SIZE
-        $(eval $(call assert_numeric,KEY_SIZE))
+        $(call assert_numeric,KEY_SIZE)
 endif
 
 ifeq ($(filter $(SANITIZE_UB), on off trap),)
@@ -771,7 +772,7 @@ endif
 # platform to overwrite the default options
 ################################################################################
 
-$(eval $(call add_defines,\
+$(call add_defines,\
     $(sort \
 	ALLOW_RO_XLAT_TABLES \
 	ARM_ARCH_MAJOR \
@@ -959,7 +960,7 @@ $(eval $(call add_defines,\
 	SDEI_SUPPORT \
 	USE_GIC_DRIVER \
 	SMC_PCI_SUPPORT \
-)))
+))
 
 ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)
 ifeq (${DEBUG}, 0)

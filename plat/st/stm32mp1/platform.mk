@@ -157,7 +157,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_TOS_FW_CONFIG},--tos-fw-config))
 endif
 
 # Enable flags for C files
-$(eval $(call assert_booleans,\
+$(call assert_booleans,\
 	$(sort \
 		PKA_USE_BRAINPOOL_P256T1 \
 		PKA_USE_NIST_P256 \
@@ -174,9 +174,9 @@ $(eval $(call assert_booleans,\
 		STM32MP23 \
 		STM32MP25 \
 		STM32MP2X \
-)))
+))
 
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
 	$(sort \
 		PLAT_PARTITION_MAX_ENTRIES \
 		STM32_HASH_VER \
@@ -184,9 +184,9 @@ $(eval $(call assert_numerics,\
 		STM32_RNG_VER \
 		STM32_RNG_VER_MINOR \
 		STM32_TF_A_COPIES \
-)))
+))
 
-$(eval $(call add_defines,\
+$(call add_defines,\
 	$(sort \
 		DWL_BUFFER_BASE \
 		PKA_USE_BRAINPOOL_P256T1 \
@@ -211,7 +211,7 @@ $(eval $(call add_defines,\
 		STM32MP23 \
 		STM32MP25 \
 		STM32MP2X \
-)))
+))
 
 # Include paths and source files
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/

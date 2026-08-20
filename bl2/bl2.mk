@@ -53,7 +53,7 @@ $(eval BL2_CPPFLAGS += $(call make_defines, \
 )))
 
 # Numeric_Flags
-$(eval $(call assert_numerics,\
+$(call assert_numerics,\
     $(sort \
 	CRYPTO_SUPPORT \
-)))
+))

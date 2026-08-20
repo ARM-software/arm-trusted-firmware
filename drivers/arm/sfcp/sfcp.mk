@@ -30,18 +30,18 @@ SFCP_SOURCES	+=	$(addprefix drivers/arm/mhu/,			\
 					mhu_v3_x.c				\
 				)
 
-$(eval $(call add_defines, \
+$(call add_defines, \
 	PLAT_MHU_VERSION=3	\
-))
+)
 
 else ifeq (${PLAT_MHU}, MHUv2)
 SFCP_SOURCES	+=	$(addprefix drivers/arm/mhu/,			\
 					mhu_v2_x.c				\
 				)
 
-$(eval $(call add_defines, \
+$(call add_defines, \
 	PLAT_MHU_VERSION=2	\
-))
+)
 
 else
 $(error Unsupported MHU version)
@@ -54,7 +54,7 @@ PLAT_INCLUDES		+=	-Iinclude/lib/psa		\
 						-Idrivers/arm/sfcp/sfcp_core	\
 						-Idrivers/arm/sfcp/sfcp_psa/sfcp_psa_protocol
 
-$(eval $(call add_defines, \
+$(call add_defines, \
 	SFCP_PROTOCOL_EMBED_ENABLED	\
 	SFCP_PROTOCOL_POINTER_ACCESS_ENABLED	\
-))
+)

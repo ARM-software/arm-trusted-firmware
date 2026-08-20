@@ -15,4 +15,4 @@ PLAT_INCLUDES += -I${MTK_PLAT}/include/drivers/thermal/${MTK_SOC}
 
 SUB_RULES-y := ${LOCAL_DIR}/${MTK_SOC}
 
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
+$(call INCLUDE_MAKEFILE,$(SUB_RULES-y))

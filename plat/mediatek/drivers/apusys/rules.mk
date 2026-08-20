@@ -26,4 +26,4 @@ SUB_RULES-y += ${LOCAL_DIR}/devapc
 SUB_RULES-y += ${LOCAL_DIR}/apusys_rv/2.0
 SUB_RULES-${CONFIG_MTK_APUSYS_SEC_CTRL} += $(LOCAL_DIR)/security_ctrl
 
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
+$(call INCLUDE_MAKEFILE,$(SUB_RULES-y))

@@ -5,7 +5,7 @@
 #
 
 COREBOOT := 0
-$(eval $(call assert_boolean,COREBOOT))
+$(call assert_boolean,COREBOOT)
 $(eval $(call add_define,COREBOOT))
 
 ifeq (${COREBOOT},1)

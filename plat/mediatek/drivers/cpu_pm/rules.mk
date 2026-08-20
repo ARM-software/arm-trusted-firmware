@@ -18,4 +18,4 @@ else
 SUB_RULES-${CONFIG_MTK_CPU_PM_SUPPORT} += $(LOCAL_DIR)/topology/default
 endif
 
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
+$(call INCLUDE_MAKEFILE,$(SUB_RULES-y))

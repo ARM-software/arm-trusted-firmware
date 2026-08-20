@@ -504,7 +504,7 @@ CPU_FLAG_LIST += ERRATA_DSU_2900952
 
 # process all flags
 ifeq (${ENABLE_ERRATA_ALL},1)
-$(eval $(call set_ones, $(CPU_FLAG_LIST)))
+$(call set_ones, $(CPU_FLAG_LIST))
 else
-$(eval $(call default_zeros, $(CPU_FLAG_LIST)))
+$(call default_zeros, $(CPU_FLAG_LIST))
 endif

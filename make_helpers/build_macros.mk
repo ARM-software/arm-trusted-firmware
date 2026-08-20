@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Report an error if the eval make function is not available.
-$(eval eval_available := T)
-ifneq (${eval_available},T)
-    $(error This makefile only works with a Make program that supports $$(eval))
-endif
-
 # A user defined function to recursively search for a filename below a directory
 #    $1 is the directory root of the recursive search (blank for current directory).
 #    $2 is the file name to search for.
@@ -96,7 +90,7 @@ endef
 # Convenience function for verifying options have boolean values
 # $(eval $(call assert_booleans,FOO BOO)) will assert FOO and BOO for 0 or 1 values
 define assert_booleans
-    $(foreach bool,$1,$(eval $(call assert_boolean,$(bool))))
+    $(foreach bool,$1,$(call assert_boolean,$(bool)))
 endef
 
 0-9 := 0 1 2 3 4 5 6 7 8 9
@@ -112,7 +106,7 @@ endef
 # Convenience function for verifying options have numeric values
 # $(eval $(call assert_numerics,FOO BOO)) will assert FOO and BOO contain numeric values
 define assert_numerics
-    $(foreach num,$1,$(eval $(call assert_numeric,$(num))))
+    $(foreach num,$1,$(call assert_numeric,$(num)))
 endef
 
 # Convenience function to check for a given linker option. A call to
@@ -538,7 +532,7 @@ define MAKE_LIB
         $(eval SOURCES    := $(LIB$(BL)_SRCS))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
 
-$(eval $(call MAKE_LIB_OBJS,$(BUILD_DIR),$(SOURCES),$(1),$(BL),$(2)))
+$(call MAKE_LIB_OBJS,$(BUILD_DIR),$(SOURCES),$(1),$(BL),$(2))
 
 libraries: ${LIB_DIR}/lib$(1).a
 ifeq ($($(ARCH)-ld-id),arm-link)
@@ -595,7 +589,7 @@ define MAKE_BL
         $(eval LINKER_SCRIPTS := $(call linker_script_path,$(LINKER_SCRIPT_SOURCES)))
         $(eval GNU_LINKER_ARGS := $(call ld_prefix,-Map=$(MAPFILE)) $(foreach script,$(LINKER_SCRIPTS) $(DEFAULT_LINKER_SCRIPT), $(call ld_prefix,--script $(script))))
 
-$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1),$(BL)))
+$(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1),$(BL))
 
 # Generate targets to preprocess each required linker script
 $(eval $(foreach source,$(DEFAULT_LINKER_SCRIPT_SOURCE) $(LINKER_SCRIPT_SOURCES), \

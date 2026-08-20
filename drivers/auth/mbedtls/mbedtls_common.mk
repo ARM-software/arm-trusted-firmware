@@ -154,14 +154,14 @@ else ifeq (${DECRYPTION_SUPPORT}, aes_gcm)
 endif
 
 # Needs to be set to drive mbed TLS configuration correctly
-$(eval $(call add_defines,\
+$(call add_defines,\
     $(sort \
         TF_MBEDTLS_KEY_ALG_ID \
         TF_MBEDTLS_KEY_SIZE \
         TF_MBEDTLS_HASH_ALG_ID \
         TF_MBEDTLS_USE_AES_CCM \
         TF_MBEDTLS_USE_AES_GCM \
-)))
+))
 
 ifeq ($(filter 1,$(ENABLE_FEAT_CRYPTO)),1)
     REMOVED_CFLAGS		:=	-nostdinc -mgeneral-regs-only
