@@ -99,7 +99,8 @@ int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_size,
 		return err;
 	}
 
-	if ((c_size != SHA256_DIGEST_SIZE) &&
+	if ((c_size != 0) &&
+		(c_size != SHA256_DIGEST_SIZE) &&
 	    (c_size != SHA384_DIGEST_SIZE) &&
 	    (c_size != SHA512_DIGEST_SIZE)) {
 		ERROR("Invalid hash size: %lu\n", c_size);
@@ -108,13 +109,17 @@ int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_size,
 
 	spin_lock(&lock);
 
-	(void)memcpy(temp_buf, (void *)buf_pa, c_size);
+	uintptr_t hash_ptr = (uintptr_t)NULL;
 
-	print_challenge((uint8_t *)temp_buf, c_size);
+	if (c_size != 0) {
+		(void)memcpy(temp_buf, (void *)buf_pa, c_size);
+		print_challenge((uint8_t *)temp_buf, c_size);
+		hash_ptr = (uintptr_t)temp_buf;
+	}
 
 	/* Get the platform token. */
 	err = plat_rmmd_get_cca_attest_token((uintptr_t)buf_pa,
-		buf_size, (uintptr_t)temp_buf, c_size, remaining_len);
+		buf_size, hash_ptr, c_size, remaining_len);
 
 	switch (err) {
 	case 0:
