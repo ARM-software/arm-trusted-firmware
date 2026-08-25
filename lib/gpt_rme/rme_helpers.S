@@ -13,6 +13,7 @@
 
 RME_GPF_TRAP_ENTRY(read_fault_ldr, rme_gpf_safe_return)
 RME_GPF_TRAP_ENTRY(write_fault_str, rme_gpf_safe_return)
+RME_GPF_TRAP_ENTRY(write_fault_strb, rme_gpf_safe_return)
 
 /*
  * Copy data from a lower EL buffer into Root memory.
@@ -55,19 +56,39 @@ endfunc rme_gpf_safe_read
  * x0 - The address of buffer in lower EL to write into
  * x1 - The address of buffer in Root memory to read from.
  * x2 - The number of bytes to write.
- * All arguments must be aligned to 8 bytes.
+ * The arguments do not need to be aligned. Aligned buffers are copied in
+ * 8-byte units, with any tail copied byte-by-byte.
  */
 func rme_gpf_safe_write
-	cbz	x2, 2f
 	mov	x3, #0
+	cbz	x2, 3f
+
+	/* Use the wider loop only when both buffer addresses are aligned. */
+	orr	x4, x0, x1
+	tst	x4, #7
+	b.ne	2f
+
+	and x5, x2, #~7
 1:
-	ldr	x4, [x1], #8
+	cmp x3, x5
+	b.hs 2f
+	ldr x4, [x1], #8
+
 write_fault_str:
-	str	x4, [x0], #8
-	add	x3, x3, #8
-	cmp	x3, x2
-	bne	1b
+	str x4, [x0], #8
+	add x3, x3, #8
+	b 1b
+
 2:
+	cmp	x3, x2
+	b.eq	3f
+	ldrb	w4, [x1], #1
+write_fault_strb:
+	strb	w4, [x0], #1
+	add	x3, x3, #1
+	b	2b
+
+3:
 	mov	x0, x2
 	ret
 endfunc rme_gpf_safe_write
