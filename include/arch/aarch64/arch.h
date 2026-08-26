@@ -1323,7 +1323,7 @@
 
 /* Data Fault Status code, not all error codes listed */
 #define ISS_DFSC_SHIFT 			U(0)
-#define ISS_DFSC_WIDTH			U(5)
+#define ISS_DFSC_WIDTH			U(6)
 #define ISS_DFSC_MASK			GENMASK(ISS_DFSC_WIDTH, ISS_DFSC_SHIFT)
 #define DFSC_GPF_DABORT			U(0x28)
 
