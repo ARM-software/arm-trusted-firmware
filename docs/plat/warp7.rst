@@ -87,7 +87,7 @@ FIP
     cp /path/to/uboot/u-boot.bin fiptool_images
     cp /path/to/linux/arch/boot/dts/imx7s-warp.dtb fiptool_images
 
-    tools/cert_create/cert_create -n --rot-key "build/warp7/debug/rot_key.pem" \
+    ./build/warp7/debug/tools/cert_create/cert_create -n --rot-key "build/warp7/debug/rot_key.pem" \
                --tfw-nvctr 0 \
                --ntfw-nvctr 0 \
                --trusted-key-cert fiptool_images/trusted-key-cert.key-crt \
@@ -103,7 +103,7 @@ FIP
                --nt-fw-key-cert fiptool_images/u-boot.bin.key-crt \
                --hw-config fiptool_images/imx7s-warp.dtb
 
-    tools/fiptool/fiptool create --tos-fw fiptool_images/tee-header_v2.bin \
+    ./build/warp7/debug/tools/fiptool/fiptool create --tos-fw fiptool_images/tee-header_v2.bin \
               --tos-fw-extra1 fiptool_images/tee-pager_v2.bin \
               --tos-fw-extra2 fiptool_images/tee-pageable_v2.bin \
               --nt-fw fiptool_images/u-boot.bin \

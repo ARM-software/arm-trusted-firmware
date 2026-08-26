@@ -186,7 +186,7 @@ __________________
 
 .. code:: shell
 
-    tools/cert_create/cert_create -n --rot-key build/stm32mp1/release/rot_key.pem \
+    ./build/stm32mp1/release/tools/cert_create/cert_create -n --rot-key build/stm32mp1/release/rot_key.pem \
         --tfw-nvctr 0 \
         --ntfw-nvctr 0 \
         --key-alg ecdsa --hash-alg sha256 \
@@ -203,7 +203,7 @@ __________________
         --fw-config build/stm32mp1/release/fdts/fw-config.dtb \
         --stm32mp-cfg-cert build/stm32mp1/release/stm32mp_cfg_cert.crt
 
-    tools/fiptool/fiptool create --tos-fw <optee_directory>/tee-header_v2.bin \
+   ./build/stm32mp1/release/tools/fiptool/fiptool create --tos-fw <optee_directory>/tee-header_v2.bin \
         --tos-fw-extra1 <optee_directory>/tee-pager_v2.bin \
         --tos-fw-extra2 <optee_directory>/tee-pageable_v2.bin \
         --nt-fw <u-boot_directory>/u-boot-nodtb.bin \

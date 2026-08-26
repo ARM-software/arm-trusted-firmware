@@ -66,7 +66,7 @@ include plat/nxp/soc-lx2160a/ddr_tbbr.mk
 
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH	?=	tools/cert_create
-CRTTOOL		?=	${CRTTOOLPATH}/cert_create$(.exe)
+CRTTOOL		?=	${BUILD_PLAT}/${CRTTOOLPATH}/cert_create$(.exe)
 
 ifneq (${GENERATE_COT},0)
 ddr_certificates: ${DDR_CRT_DEPS} ${CRTTOOL}
@@ -83,7 +83,7 @@ endif
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH	?=	tools/fiptool
-FIPTOOL		?=	${FIPTOOLPATH}/fiptool$(.exe)
+FIPTOOL		?=	${BUILD_PLAT}/${FIPTOOLPATH}/fiptool$(.exe)
 
 ${BUILD_PLAT}/${DDR_FIP_NAME}: ${DDR_FIP_DEPS} ${FIPTOOL}
 	$(eval ${CHECK_DDR_FIP_CMD})

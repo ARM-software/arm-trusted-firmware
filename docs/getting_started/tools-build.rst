@@ -63,7 +63,7 @@ The tool binary can be located in:
 
 ::
 
-    ./tools/fiptool/fiptool
+    ./build/<platform>/<build-type>/tools/fiptool/fiptool
 
 Invoking the tool with ``help`` will print a help message with all available
 options.
@@ -72,7 +72,7 @@ Example 1: create a new Firmware package ``fip.bin`` that contains BL2 and BL31:
 
 .. code:: shell
 
-    ./tools/fiptool/fiptool create \
+    ./build/<platform>/<build-type>/tools/fiptool/fiptool create \
         --tb-fw build/<platform>/<build-type>/bl2.bin \
         --soc-fw build/<platform>/<build-type>/bl31.bin \
         fip.bin
@@ -81,14 +81,14 @@ Example 2: view the contents of an existing Firmware package:
 
 .. code:: shell
 
-    ./tools/fiptool/fiptool info <path-to>/fip.bin
+    ./build/<platform>/<build-type>/tools/fiptool/fiptool info <path-to>/fip.bin
 
 Example 3: update the entries of an existing Firmware package:
 
 .. code:: shell
 
     # Change the BL2 from Debug to Release version
-    ./tools/fiptool/fiptool update \
+    ./build/<platform>/<build-type>/tools/fiptool/fiptool update \
         --tb-fw build/<platform>/release/bl2.bin \
         build/<platform>/debug/fip.bin
 
@@ -97,13 +97,13 @@ Example 4: unpack all entries from an existing Firmware package:
 .. code:: shell
 
     # Images will be unpacked to the working directory
-    ./tools/fiptool/fiptool unpack <path-to>/fip.bin
+    ./build/<platform>/<build-type>/tools/fiptool/fiptool unpack <path-to>/fip.bin
 
 Example 5: remove an entry from an existing Firmware package:
 
 .. code:: shell
 
-    ./tools/fiptool/fiptool remove \
+    ./build/<platform>/<build-type>/tools/fiptool/fiptool remove \
         --tb-fw build/<platform>/debug/fip.bin
 
 Note that if the destination FIP file exists, the create, update and
@@ -142,7 +142,7 @@ verbose. The following command should be used to obtain help about the tool:
 
 .. code:: shell
 
-    ./tools/cert_create/cert_create -h
+    ./build/<platform>/<build-type>/tools/cert_create/cert_create -h
 
 .. _tools_build_enctool:
 

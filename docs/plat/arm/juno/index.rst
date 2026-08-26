@@ -72,7 +72,7 @@ installed.
        make [DEBUG=1] [V=1] fiptool
 
        # Unpack firmware images from Linaro FIP
-       ./tools/fiptool/fiptool unpack <path-to-linaro-release>/[SOFTWARE]/fip.bin
+       ./<path-to-build>/tools/fiptool/fiptool unpack <path-to-linaro-release>/[SOFTWARE]/fip.bin
 
    The unpack operation will result in a set of binary images extracted to the
    current working directory. BL33 corresponds to ``nt-fw.bin``.
@@ -241,7 +241,7 @@ configure it.
 
 --------------
 
-*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2026, Arm Limited. All rights reserved.*
 
 .. _Linaro release software stack: http://releases.linaro.org/members/arm/platforms/
 .. _Juno platform software user guide: https://git.linaro.org/plugins/gitiles/landing-teams/working/arm/arm-reference-platforms/+/refs/heads/master/docs/juno/user-guide.rst

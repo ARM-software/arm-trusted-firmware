@@ -165,7 +165,7 @@ echo ""
 echo "5. Checking OP-TEE integration..."
 echo "   ----------------------------------------"
 FIP_BIN="${BUILD_DIR}/fip.bin"
-FIPTOOL="tools/fiptool/fiptool"
+FIPTOOL="${BUILD_DIR}/tools/fiptool/fiptool"
 
 # Check if opteed is compiled into BL31
 OPTEE_ENABLED=false

@@ -1148,9 +1148,7 @@ clean:
 	$(s)echo "  CLEAN"
 	$(q)rm -rf $(BUILD_PLAT)
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${FIPTOOLPATH} clean
-	$(q)rm -rf ${FIPTOOLPATH}/fiptool
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
-	$(q)rm -rf ${CRTTOOLPATH}/cert_create
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
@@ -1159,9 +1157,7 @@ realclean distclean:
 	$(q)rm -rf $(BUILD_BASE)
 	$(q)rm -rf $(CURDIR)/cscope.*
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${FIPTOOLPATH} clean
-	$(q)rm -rf ${FIPTOOLPATH}/fiptool
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
-	$(q)rm -rf ${CRTTOOLPATH}/cert_create
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
@@ -1202,7 +1198,6 @@ certtool: ${CRTTOOL}
 
 ${CRTTOOL}: FORCE | $$(@D)/
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) USE_TBBR_DEFS=${USE_TBBR_DEFS} COT=${COT} OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${CRTTOOLPATH} all
-	$(q)ln -sf ${CRTTOOL} ${CRTTOOLPATH}/cert_create
 	$(s)echo
 	$(s)echo "Built $@ successfully"
 	$(s)echo
@@ -1272,7 +1267,6 @@ fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 # symlink for compatibility before tools were in the build directory
 ${FIPTOOL}: FORCE | $$(@D)/
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${FIPTOOLPATH} all
-	$(q)ln -sf ${FIPTOOL} ${FIPTOOLPATH}/fiptool
 
 $(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB) | $$(@D)/
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_LIB=$(CRYPTO_LIB) ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
