@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -62,23 +62,40 @@ psa_status_t rse_protocol_embed_deserialize_reply(psa_outvec *out_vec,
 						  const struct rse_embed_reply_t *reply,
 						  size_t reply_size)
 {
-	uint32_t payload_offset = 0;
+	size_t header_size = sizeof(*reply) - sizeof(reply->trailer);
+	size_t payload_offset = 0U;
+	size_t payload_size;
+	size_t output_size;
 	uint32_t i;
 
 	assert(reply != NULL);
 	assert(return_val != NULL);
+	assert((out_len == 0U) || (out_vec != NULL));
 
+	if (reply_size < header_size) {
+		return PSA_ERROR_INVALID_ARGUMENT;
+	}
+
+	payload_size = reply_size - header_size;
+
+	/* Validate the complete reply before copying any output data. */
 	for (i = 0U; i < out_len; ++i) {
-		if ((sizeof(*reply) - sizeof(reply->trailer) + payload_offset)
-		    > reply_size) {
+		output_size = reply->out_size[i];
+		if ((output_size > out_vec[i].len) ||
+		    (output_size > payload_size - payload_offset)) {
 			return PSA_ERROR_INVALID_ARGUMENT;
 		}
 
-		memcpy(out_vec[i].base,
-		       reply->trailer + payload_offset,
-		       reply->out_size[i]);
-		out_vec[i].len = reply->out_size[i];
-		payload_offset += reply->out_size[i];
+		payload_offset += output_size;
+	}
+
+	payload_offset = 0U;
+	for (i = 0U; i < out_len; ++i) {
+		output_size = reply->out_size[i];
+		memcpy(out_vec[i].base, reply->trailer + payload_offset,
+		       output_size);
+		out_vec[i].len = output_size;
+		payload_offset += output_size;
 	}
 
 	*return_val = reply->return_val;

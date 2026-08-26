@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -57,8 +57,17 @@ psa_status_t rse_protocol_deserialize_reply(psa_outvec *out_vec,
 					    const struct serialized_rse_comms_reply_t *reply,
 					    size_t reply_size)
 {
+	size_t header_size = sizeof(reply->header);
+
 	assert(reply != NULL);
 	assert(return_val != NULL);
+	assert((out_len == 0U) || (out_vec != NULL));
+
+	if (reply_size < header_size) {
+		return PSA_ERROR_INVALID_ARGUMENT;
+	}
+
+	reply_size -= header_size;
 
 	switch (reply->header.protocol_ver) {
 	case RSE_COMMS_PROTOCOL_EMBED:
