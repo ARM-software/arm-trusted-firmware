@@ -30,6 +30,7 @@ After this script creates the commit, push it for review with:
 """
 DIRECTIVE_RE = re.compile(r"^:\|([MCF])\|:\s*(.*)$")
 EMAIL_RE = re.compile(r"<([^<>]+)>")
+LTS_BRANCH_RE = re.compile(r"^v(\d+\.\d+) branch$")
 HEADING_CHARS = frozenset("=-~^\"`:+*#<>")
 
 
@@ -87,6 +88,34 @@ def parse_directive(line, line_num):
     return (directive, value,)
 
 
+def parse_lts_maintainers(lines):
+    lts_start = lines.index(".. _lts maintainers:")
+    code_owner_start = lines.index(".. _code owners:")
+    branches = {}
+
+    for index in range(lts_start, code_owner_start):
+        line = lines[index]
+        line_num = index + 1
+
+        if line_num < code_owner_start and is_heading_underline(lines[index + 1]):
+            heading = line.strip()
+            branch_match = LTS_BRANCH_RE.match(heading)
+            current_branch = branch_match.group(1) if branch_match else None
+            if current_branch is not None:
+                branches[current_branch] = []
+            continue
+
+        directive, value = parse_directive(line, line_num)
+        if not directive:
+            continue
+        if directive != "M":
+            continue
+        if current_branch is not None:
+            branches[current_branch].append(parse_email(value, line_num))
+
+    return branches
+
+
 def parse_code_owners(lines, source_root):
     code_owner_start = lines.index(".. _code owners:")
 
@@ -132,8 +161,14 @@ def render_config(maintainers_path, source_root):
     lines = maintainers_path.read_text(encoding="utf-8").splitlines()
 
     output = []
+    lts_maintainers = parse_lts_maintainers(lines)
+    for version, reviewers in lts_maintainers.items():
+        output.append(f'[filter "branch:lts-v{version}"]')
+        output.extend(f"    reviewer = {reviewer}" for reviewer in reviewers)
+        output.append("")
+
     for filter_path, reviewers, filter_ccs in parse_code_owners(lines, source_root):
-        output.append(f'[filter "file:^{filter_path}"]')
+        output.append(f'[filter "branch:integration file:^{filter_path}"]')
         output.extend(f"    reviewer = {reviewer}" for reviewer in reviewers)
         output.extend(f"    cc = {cc}" for cc in filter_ccs)
         output.append("")

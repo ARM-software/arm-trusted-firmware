@@ -50,10 +50,22 @@ LTS Maintainers
 
 :|M|: Bipin Ravi <bipin.ravi@arm.com>
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|M|: Jamie Fox <jamiefox@google.com>
-:|M|: Varun Wadekar <vwadekar@nvidia.com>
-:|M|: Yann Gautier <yann.gautier@st.com>
+
+v2.14 branch
+~~~~~~~~~~~~
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+
+v2.12 branch
+~~~~~~~~~~~~
+:|M|: Jamie Fox <jamiefox@google.com>
+
+v2.10 branch
+~~~~~~~~~~~~
+:|M|: Yann Gautier <yann.gautier@st.com>
+
+v2.8 branch
+~~~~~~~~~~~~
+:|M|: Varun Wadekar <vwadekar@nvidia.com>
 
 .. _code owners:
 
