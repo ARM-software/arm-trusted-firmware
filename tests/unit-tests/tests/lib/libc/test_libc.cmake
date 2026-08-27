@@ -56,3 +56,18 @@ unit_test_add_suite(
 )
 
 target_compile_options(memcpy PRIVATE -fno-builtin-snprintf)
+
+unit_test_add_suite(
+	NAME memmove
+	SOURCES
+		${UNIT_TEST_PROJECT_PATH}/lib/libc/memmove.c
+		${CMAKE_CURRENT_LIST_DIR}/test_memmove.cpp
+	INCLUDE_DIRECTORIES
+		${PROJECT_SOURCE_DIR}/mocks/include/
+		${PROJECT_SOURCE_DIR}/mocks/include/lib/libc/
+)
+
+target_compile_options(memmove PRIVATE -fno-builtin-memmove)
+# Need to intercept memcpy calls for some test-cases
+set_property(SOURCE ${UNIT_TEST_PROJECT_PATH}/lib/libc/memmove.c APPEND
+	PROPERTY COMPILE_DEFINITIONS memcpy=mock_memcpy)
