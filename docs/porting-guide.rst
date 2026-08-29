@@ -2607,7 +2607,7 @@ The parameters of the function are:
     mode.
 
 The function returns E_RMM_OK on success, E_RMM_INVAL if arguments are invalid, E_RMM_FAULT
-if the key programming is unsuccesful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
+if the key programming is unsuccessful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
 only for non-blocking mode if the IDE-KM interface is busy or the request queue is full.
 E_RMM_INPROGRESS returned if the request is queued successfully and used only in non-blocking
 mode.
@@ -2645,7 +2645,7 @@ The parameters of the function are:
     mode.
 
 The function returns E_RMM_OK on success, E_RMM_INVAL if arguments are invalid, E_RMM_FAULT
-if the key programming is unsuccesful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
+if the key programming is unsuccessful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
 only for non-blocking mode if the IDE-KM interface is busy or the request queue is full.
 E_RMM_INPROGRESS returned if the request is queued successfully and used only in non-blocking
 mode.
@@ -2683,7 +2683,7 @@ The parameters of the function are:
     mode.
 
 The function returns E_RMM_OK on success, E_RMM_INVAL if arguments are invalid, E_RMM_FAULT
-if the key programming is unsuccesful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
+if the key programming is unsuccessful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
 only for non-blocking mode if the IDE-KM interface is busy or the request queue is full.
 E_RMM_INPROGRESS returned if the request is queued successfully and used only in non-blocking
 mode.
