@@ -35,7 +35,8 @@ ifneq ($(CRYPTO_LIB),)
 
     $(shell mkdir -p $(BUILD_DIR) && cat $(CRYPTO_JMPTBL) > $(PROCESSED_JMPTBL))
 
-    LIBS += $(LIB_DIR)/libmbedtls.a
+    LIBS += $(BUILD_PLAT)/mbedtls-install/lib/libmbedx509.a
+    LIBS += $(BUILD_PLAT)/mbedtls-install/lib/libmbedcrypto.a
 endif
 
 ifneq ($(PLAT_DIR),)
