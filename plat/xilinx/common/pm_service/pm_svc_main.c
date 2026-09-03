@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -402,7 +402,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t pm_arg[PAYLOAD_ARG_CNT] = {0};
 	uint32_t security_flag = NON_SECURE_FLAG;
 	uint32_t api_id;
-	bool status = false, status_tmp = false;
+	volatile bool status = false, status_tmp = false;
 
 	/* Handle case where PM wasn't initialized properly */
 	if (pm_up == false) {
