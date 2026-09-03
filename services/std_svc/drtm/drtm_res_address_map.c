@@ -38,6 +38,57 @@ static int compare_regions(const void *a, const void *b)
 	}
 }
 
+static void coalesce_regions(drtm_memory_region_descriptor_table_t *map)
+{
+	const uint64_t page_count_mask =
+		ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_MASK <<
+		ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_SHIFT;
+	unsigned int read_index;
+	unsigned int write_index = 0U;
+
+	for (read_index = 0U; read_index < map->num_regions; read_index++) {
+		drtm_mem_region_t *current = &map->region[read_index];
+
+		/* Check if write index can be coalesced */
+		if (write_index != 0U) {
+			drtm_mem_region_t *previous = &map->region[write_index - 1U];
+			uint64_t previous_pages =
+				(previous->region_size_type & page_count_mask) >>
+				ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_SHIFT;
+			uint64_t current_pages =
+				(current->region_size_type & page_count_mask) >>
+				ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_SHIFT;
+
+			/* Can be coalesced if the types match, and the regions are contiguous.
+			 * Checking for overflows before comparing. */
+			if ((previous_pages <=
+			     (UINT64_MAX - previous->region_address) /
+			     PAGE_SIZE_4KB) &&
+			    (previous->region_address +
+			     (previous_pages * PAGE_SIZE_4KB) ==
+			     current->region_address) &&
+			    ((previous->region_size_type & ~page_count_mask) ==
+			     (current->region_size_type & ~page_count_mask)) &&
+			    (current_pages <=
+			     ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_MASK -
+			     previous_pages)) {
+				ARM_DRTM_REGION_SIZE_TYPE_SET_4K_PAGE_NUM(
+					previous->region_size_type,
+					previous_pages + current_pages);
+
+				continue;
+			}
+		}
+
+		if (write_index != read_index) {
+			map->region[write_index] = *current;
+		}
+		write_index++;
+	}
+
+	map->num_regions = write_index;
+}
+
 drtm_memory_region_descriptor_table_t *drtm_build_address_map(void)
 {
 	/* Set up pointer to DRTM memory map. */
@@ -93,9 +144,13 @@ drtm_memory_region_descriptor_table_t *drtm_build_address_map(void)
 	qsort(map->region, map->num_regions, sizeof(drtm_mem_region_t),
 	     compare_regions);
 
+	/* Coalesce regions to satisfy DRTM requirement R314120. */
+	coalesce_regions(map);
+
 	/* Store total size of address map. */
 	drtm_address_map_size = sizeof(drtm_memory_region_descriptor_table_t);
-	drtm_address_map_size += (i * sizeof(drtm_mem_region_t));
+	drtm_address_map_size +=
+		(map->num_regions * sizeof(drtm_mem_region_t));
 
 	return map;
 }
