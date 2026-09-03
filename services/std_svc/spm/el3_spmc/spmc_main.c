@@ -47,8 +47,6 @@
 
 /* Declare the maximum number of SPs and El3 LPs. */
 #define MAX_SP_LP_PARTITIONS (SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT)
-#define FFA_VERSION_NULL U(0)
-
 #define FFA_VERSION_SPMC_MAJOR U(1)
 #define FFA_VERSION_SPMC_MINOR U(2)
 

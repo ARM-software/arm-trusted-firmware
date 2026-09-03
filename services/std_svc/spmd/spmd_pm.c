@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -127,7 +127,7 @@ static int32_t spmd_cpu_off_handler(u_register_t unused)
 
 	/* Build an SPMD to SPMC direct message request. */
 	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
-	spmd_build_spmc_message(gpregs, FFA_FWK_MSG_PSCI, PSCI_CPU_OFF);
+	spmd_build_spmc_message(gpregs, FFA_FWK_MSG_PSCI, PSCI_CPU_OFF, FFA_PARAM_MBZ);
 
 	/* Clear remaining x8 - x17 at EL3/SEL2 or EL3/SEL1 boundary. */
 	write_ctx_reg(gpregs, CTX_GPREG_X8, 0);

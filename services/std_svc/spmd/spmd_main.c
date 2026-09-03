@@ -162,17 +162,18 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
  * Builds an SPMD to SPMC direct message request.
  *****************************************************************************/
 void spmd_build_spmc_message(gp_regs_t *gpregs, uint8_t target_func,
-			     unsigned long long message)
+			     unsigned long long x3_payload,
+			     unsigned long long x4_payload)
 {
 	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_MSG_SEND_DIRECT_REQ_SMC32);
 	write_ctx_reg(gpregs, CTX_GPREG_X1,
 		(SPMD_DIRECT_MSG_ENDPOINT_ID << FFA_DIRECT_MSG_SOURCE_SHIFT) |
 		 spmd_spmc_id_get());
 	write_ctx_reg(gpregs, CTX_GPREG_X2, BIT(31) | target_func);
-	write_ctx_reg(gpregs, CTX_GPREG_X3, message);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, x3_payload);
+	write_ctx_reg(gpregs, CTX_GPREG_X4, x4_payload);
 
-	/* Zero out x4-x7 for the direct request emitted towards the SPMC. */
-	write_ctx_reg(gpregs, CTX_GPREG_X4, 0);
+	/* Zero out x5-x7 for the direct request emitted towards the SPMC. */
 	write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
 	write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
 	write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
@@ -1020,11 +1021,13 @@ static uint64_t spmd_forward_ffa_version(uint64_t x1,
 	gp_regs_t *gpregs;
 	bool secure_origin = is_caller_secure(flags);
 	int ret;
+	uint32_t input_flags;
 	uint32_t input_version;
 	uint32_t nwd_version;
 	uint64_t rc;
 
 	input_version = (uint32_t)(0xFFFFFFFFUL & x1);
+	input_flags = (uint32_t)(0xFFFFFFFFUL & x2);
 	spmd_try_set_nonsecure_ffa_version(input_version);
 
 	/*
@@ -1072,13 +1075,13 @@ static uint64_t spmd_forward_ffa_version(uint64_t x1,
 #endif
 
 	/*
-	 * The incoming call has FFA_VERSION in X0 and the requested version in
-	 * X1. Build the framework direct request with the function ID in X2 and
-	 * the requested version in X3.
+	 * The incoming call has FFA_VERSION in X0, the requested version in X1,
+	 * and query flags in X2. Build the framework direct request with the
+	 * function ID in X2, requested version in X3, and query flags in X4.
 	 */
 	spmd_build_spmc_message(gpregs,
 				SPMD_FWK_MSG_FFA_VERSION_REQ,
-				input_version);
+				input_version, input_flags);
 
 	/*
 	 * Ensure x8-x17 NS GP register values are untouched when returning from
