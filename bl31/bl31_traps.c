@@ -76,10 +76,18 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		return TRAP_RET_CONTINUE;
 	}
 
+	/*
+	* S3_0_C0_C1_{0..7} is fully populated. The SCR_EL3.TID3 definition
+	* also lists S3_0_C0_C{2..7}_{0..7} so match
+	* S3_0_C0_C{1..7}_{0..7}. There is a single group 5 register.
+	*/
 	if (is_feat_idte3_supported() &&
-	    ((opcode >= ISS_SYSREG_OPCODE_IDREG_MIN &&
-	      opcode <= ISS_SYSREG_OPCODE_IDREG_MAX) ||
-	      opcode == ISS_SYSREG_OPCODE_GMID_EL1)) {
+	    (((EXTRACT(ISS_SYS64_OP0, opcode) == 3) &&
+	      (EXTRACT(ISS_SYS64_OP1, opcode) == 0) &&
+	      (EXTRACT(ISS_SYS64_CRN, opcode) == 0) &&
+	      (EXTRACT(ISS_SYS64_CRM, opcode) >= 1) &&
+	      (EXTRACT(ISS_SYS64_CRM, opcode) <= 7)) ||
+	     (opcode == ISS_SYSREG_OPCODE_GMID_EL1))) {
 		return handle_idreg_trap(rt, opcode, ctx, flags);
 	}
 
