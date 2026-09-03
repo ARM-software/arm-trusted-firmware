@@ -13,13 +13,6 @@
 #include <lib/utils_def.h>
 #include <smccc_helpers.h>
 
-#pragma weak plat_is_valid_ns_address_range
-
-bool plat_is_valid_ns_address_range(uintptr_t base, size_t size)
-{
-	return true;
-}
-
 int smc_get_arg(void *handle, unsigned int arg_idx, u_register_t *val)
 {
 #ifdef __aarch64__

@@ -15,7 +15,23 @@
 #include <lib/utils_def.h>
 
 /**
- * Platform Hook: Verify range belongs to Non-Secure world (GPT/DRAM).
+ * plat_is_valid_ns_address_range() - Verify a range lies in Non-Secure memory.
+ * @base: Base address of the range.
+ * @size: Size of the range, in bytes.
+ *
+ * Mandatory platform porting interface; the framework provides no default.
+ * Only the platform knows which physical ranges are Non-Secure, so a generic
+ * implementation could only either reject valid ranges or accept Secure ones.
+ * A platform that uses this framework must implement this function, and the
+ * build fails if it does not.
+ *
+ * Implementations may assume that @base + @size does not overflow:
+ * smc_validate_mem_range() rejects overflowing ranges before calling this
+ * function. All other validation, including checking the range against the
+ * Granule Protection Tables or the platform memory map, is the platform's
+ * responsibility.
+ *
+ * Return: true if the entire range lies in Non-Secure memory, false otherwise.
  */
 bool plat_is_valid_ns_address_range(uintptr_t base, size_t size);
 
