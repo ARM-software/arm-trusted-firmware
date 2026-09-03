@@ -254,7 +254,9 @@ void drtm_dma_prot_serialise_table(uint8_t *dst, size_t *size_out)
 				sizeof(((struct descr_table_1 *)NULL)->regions[0])
 		},
 		.regions = {
-			{.region_address = 0, PAGES_AND_TYPE(UINT64_MAX, 0x3)},
+			{.region_address = 0,
+			 PAGES_AND_TYPE(UINT64_MAX,
+				ARM_DRTM_REGION_SIZE_TYPE_REGION_TYPE_NORMAL)},
 		}
 	};
 
