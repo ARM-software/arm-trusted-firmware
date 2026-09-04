@@ -4232,6 +4232,9 @@ The return value indicates how to proceed:
 This function needs to be implemented by a platform if it enables
 IMPDEF_SYSREG_TRAP.
 
+NOTE that this function must handle writes to XZR to prevent out of bounds
+memory accesses.
+
 Build flags
 -----------
 

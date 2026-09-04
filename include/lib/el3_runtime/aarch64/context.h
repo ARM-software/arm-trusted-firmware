@@ -69,6 +69,8 @@
 #define CTX_GPREG_SP_EL0	U(0xf8)
 #define CTX_GPREGS_END		U(0x100)
 
+#define XZR_REG_NUM		U(31)
+
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'el3_state'
  * structure at their correct offsets. Note that some of the registers are only

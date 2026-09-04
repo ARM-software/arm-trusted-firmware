@@ -1232,9 +1232,6 @@
 #define ISS_SYS64_DIR_SHIFT		U(0)
 #define ISS_SYS64_DIR_WIDTH		U(1)
 
-/* The RT field encodes general purpose registers in sequence and xzr as #31 */
-#define ISS_SYSREG_RT_XZR		31
-
 #define SYSREG_ESR(op0, op1, crn, crm, op2) \
 		(((op0) << ISS_SYS64_OP0_SHIFT) | \
 		 ((op1) << ISS_SYS64_OP1_SHIFT) | \

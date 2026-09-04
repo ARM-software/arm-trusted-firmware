@@ -16,7 +16,7 @@
 
 static int access_raz_wi(bool is_read, uint8_t rt, cpu_context_t *ctx)
 {
-	if (is_read && rt != XZR_REG_NUM) {
+	if (is_read) {
 		ctx->gpregs_ctx.ctx_regs[rt] = 0UL;
 	}
 	return TRAP_RET_CONTINUE;
@@ -28,13 +28,6 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 	uint8_t rt = EXTRACT(ISS_SYS64_RT, esr_el3);
 	bool is_read = EXTRACT(ISS_SYS64_DIR, esr_el3);
 
-	if (is_feat_idte3_supported() &&
-	    ((opcode >= ISS_SYSREG_OPCODE_IDREG_MIN &&
-	      opcode <= ISS_SYSREG_OPCODE_IDREG_MAX) ||
-	      opcode == ISS_SYSREG_OPCODE_GMID_EL1)) {
-		return handle_idreg_trap(rt, opcode, ctx, flags);
-	}
-
 	if (is_feat_rng_trap_supported() &&
 	    (opcode == ISS_SYSREG_OPCODE_RNDR ||
 	     opcode == ISS_SYSREG_OPCODE_RNDRRS)) {
@@ -44,7 +37,7 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		int ret = TRAP_RET_CONTINUE;
 
 		/* Only expect reads, write shouldn't be possible. */
-		assert(EXTRACT(ISS_SYS64_DIR, esr_el3) != 0);
+		assert(is_read);
 
 		/* Successful reads should have NZCV == 0 */
 		new_spsr = read_ctx_reg(state, CTX_SPSR_EL3);
@@ -56,7 +49,7 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		 * also be logical but C6.1.4.1 doesn't make this clear and
 		 * success is simpler for now.
 		 */
-		if (rt != ISS_SYSREG_RT_XZR) {
+		if (rt != XZR_REG_NUM) {
 			data = &(ctx->gpregs_ctx.ctx_regs[rt]);
 
 			ret = plat_handle_rng_trap(data, opcode == ISS_SYSREG_OPCODE_RNDRRS);
@@ -73,6 +66,21 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		assert(ret == TRAP_RET_CONTINUE);
 
 		return ret;
+	}
+
+	/*
+	 * `mrs xzr, <register>` is always a NOP. Catch this early for traps
+	 * that don't have special behaviour.
+	 */
+	if (is_read && (rt == XZR_REG_NUM)) {
+		return TRAP_RET_CONTINUE;
+	}
+
+	if (is_feat_idte3_supported() &&
+	    ((opcode >= ISS_SYSREG_OPCODE_IDREG_MIN &&
+	      opcode <= ISS_SYSREG_OPCODE_IDREG_MAX) ||
+	      opcode == ISS_SYSREG_OPCODE_GMID_EL1)) {
+		return handle_idreg_trap(rt, opcode, ctx, flags);
 	}
 
 	if (is_feat_ras_supported() && !FAULT_INJECTION_SUPPORT &&
