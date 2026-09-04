@@ -185,6 +185,9 @@ feat_sctlr2_not_supported\@:
 		 *
 		 * SCTLR.DSSBS: Set to zero to disable speculation store bypass
 		 *  safe behaviour upon exception entry to EL3.
+		 *
+		 * SCTLR_EL3.NMI: Set/left to zero as required by the workaround
+		 * for Arm C1-Pro erratum 3679375
 		 * -------------------------------------------------------------
 		 */
 		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \

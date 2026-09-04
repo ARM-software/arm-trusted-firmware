@@ -49,6 +49,14 @@ workaround_reset_end c1_pro, ERRATUM(3619847)
 
 check_erratum_ls c1_pro, ERRATUM(3619847), CPU_REV(0, 0)
 
+/*
+ * TF-A routes FIQs to EL3 and initializes SCTLR_EL3.NMI to 0.
+ * Therefore, TF-A satisfies the workaround requirements without
+ * additional CPU-specific programming.
+ */
+add_erratum_entry c1_pro, ERRATUM(3679375), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_pro, ERRATUM(3679375), CPU_REV(1, 0)
+
 workaround_reset_start c1_pro, ERRATUM(3684268), ERRATA_C1PRO_3684268
 	sysreg_bit_set C1_PRO_CPUECTLR2_EL1, BIT(49)
 	dsb sy
@@ -96,6 +104,10 @@ workaround_reset_start c1_pro, ERRATUM(3706576), ERRATA_C1PRO_3706576
 workaround_reset_end c1_pro, ERRATUM(3706576)
 
 check_erratum_ls c1_pro, ERRATUM(3706576), CPU_REV(1, 0)
+
+/* It depends on non-default settings CORE<n>_ASYNC_BRIDGE = FALSE */
+add_erratum_entry c1_pro, ERRATUM(3806276), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_pro, ERRATUM(3806276), CPU_REV(1, 1)
 
 add_erratum_entry c1_pro, ERRATUM(3300099), ERRATA_C1PRO_3300099
 .global check_erratum_c1_pro_3300099
