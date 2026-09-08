@@ -19,6 +19,22 @@
 #include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
+static int validate_gpt_entry_array(const gpt_header_t *header)
+{
+	assert(header != NULL);
+
+	if ((header->list_num == 0U) ||
+	    (header->part_size != sizeof(gpt_entry_t))) {
+		return -EINVAL;
+	}
+
+	if ((size_t)header->list_num > (SIZE_MAX / (size_t)header->part_size)) {
+		return -EOVERFLOW;
+	}
+
+	return 0;
+}
+
 static uint8_t mbr_sector[PLAT_PARTITION_BLOCK_SIZE];
 static partition_entry_list_t list;
 
@@ -132,6 +148,12 @@ static int load_gpt_header(uintptr_t image_handle, size_t header_offset,
 	}
 
 	header->header_crc = header_crc;
+
+	result = validate_gpt_entry_array(header);
+	if (result != 0) {
+		ERROR("Invalid GPT partition entry layout\n");
+		return result;
+	}
 
 	/* partition numbers can't exceed PLAT_PARTITION_MAX_ENTRIES */
 	list.entry_count = header->list_num;
@@ -248,8 +270,13 @@ static int load_partition_gpt(uintptr_t image_handle, gpt_header_t header)
 			return result;
 		}
 
-		result = parse_gpt_entry(&entry, &list.list[i]);
+		result = parse_gpt_entry(&header, &entry, &list.list[i]);
 		if (result != 0) {
+			if (result != -ENOENT) {
+				VERBOSE("Invalid GPT entry %u\n", i);
+				return result;
+			}
+
 			result = io_seek(image_handle, IO_SEEK_SET,
 					(gpt_entry_offset + (i * sizeof(gpt_entry_t))));
 			if (result != 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,6 +45,7 @@ typedef struct gpt_header {
 	unsigned int		part_crc;
 } __packed gpt_header_t;
 
-int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry);
+int parse_gpt_entry(const gpt_header_t *header, const gpt_entry_t *gpt_entry,
+		    partition_entry_t *entry);
 
 #endif /* GPT_H */
