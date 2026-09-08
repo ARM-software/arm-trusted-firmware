@@ -136,6 +136,51 @@ static bool arm_dyn_cfg_overlap(uintptr_t base1, uint32_t size1,
 	return (base1 < limit2) && (base2 < end1);
 }
 
+static bool arm_dyn_cfg_validate_addr(uintptr_t image_base, uint32_t image_size,
+				      unsigned int config_id,
+				      const char *addr_name)
+{
+	if (check_uptr_overflow(image_base, image_size)) {
+		VERBOSE("%s=%d as its %s is overflowing uptr\n",
+			"skip loading of firmware config",
+			config_id, addr_name);
+		return false;
+	}
+
+#ifdef	BL31_BASE
+	/* Ensure the configs don't overlap with BL31 */
+	if (arm_dyn_cfg_overlap(image_base, image_size, BL31_BASE, BL31_LIMIT)) {
+		VERBOSE("%s=%d as its %s is overlapping BL31\n",
+			"skip loading of firmware config",
+			config_id, addr_name);
+		return false;
+	}
+#endif
+
+	/* Ensure the configs are loaded in a valid address */
+	if (image_base < ARM_BL_RAM_BASE) {
+		VERBOSE("%s=%d as its %s is invalid\n",
+			"skip loading of firmware config",
+			config_id, addr_name);
+		return false;
+	}
+
+#ifdef BL32_BASE
+	/*
+	 * If BL32 is present, ensure that the configs don't
+	 * overlap with it.
+	 */
+	if (arm_dyn_cfg_overlap(image_base, image_size, BL32_BASE, BL32_LIMIT)) {
+		VERBOSE("%s=%d as its %s is overlapping BL32\n",
+			"skip loading of firmware config",
+			config_id, addr_name);
+		return false;
+	}
+#endif
+
+	return true;
+}
+
 /*
  * BL2 utility function to initialize dynamic configuration specified by
  * FW_CONFIG. Populate the bl_mem_params_node_t of other FW_CONFIGs if
@@ -177,58 +222,19 @@ void arm_bl2_dyn_cfg_init(void)
 		image_base = dtb_info->config_addr;
 		image_size = dtb_info->config_max_size;
 
-		/*
-		 * Do some runtime checks on the load addresses of soc_fw_config,
-		 * tos_fw_config, nt_fw_config. This is not a comprehensive check
-		 * of all invalid addresses but to prevent trivial porting errors.
-		 */
-		if (config_ids[i] != HW_CONFIG_ID) {
-			if (check_uptr_overflow(image_base, image_size)) {
-				VERBOSE("%s=%d as its %s is overflowing uptr\n",
-					"skip loading of firmware config",
-					config_ids[i],
-					"load-address");
-				error_config_id = config_ids[i];
-				continue;
-			}
+		if (!arm_dyn_cfg_validate_addr(image_base, image_size,
+					       config_ids[i],
+					       "load-address")) {
+			error_config_id = config_ids[i];
+			continue;
+		}
 
-#ifdef	BL31_BASE
-			/* Ensure the configs don't overlap with BL31 */
-			if (arm_dyn_cfg_overlap(image_base, image_size,
-						BL31_BASE, BL31_LIMIT)) {
-				VERBOSE("%s=%d as its %s is overlapping BL31\n",
-					"skip loading of firmware config",
-					config_ids[i],
-					"load-address");
-				error_config_id = config_ids[i];
-				continue;
-			}
-#endif
-
-			/* Ensure the configs are loaded in a valid address */
-			if (image_base < ARM_BL_RAM_BASE) {
-				VERBOSE("%s=%d as its %s is invalid\n",
-					"skip loading of firmware config",
-					config_ids[i],
-					"load-address");
-				error_config_id = config_ids[i];
-				continue;
-			}
-#ifdef BL32_BASE
-			/*
-			 * If BL32 is present, ensure that the configs don't
-			 * overlap with it.
-			 */
-			if (arm_dyn_cfg_overlap(image_base, image_size,
-						BL32_BASE, BL32_LIMIT)) {
-				VERBOSE("%s=%d as its %s is overlapping BL32\n",
-					"skip loading of firmware config",
-					config_ids[i],
-					"load-address");
-				error_config_id = config_ids[i];
-				continue;
-			}
-#endif
+		if ((dtb_info->secondary_config_addr != ~0UL) &&
+		    !arm_dyn_cfg_validate_addr(dtb_info->secondary_config_addr,
+					       image_size, config_ids[i],
+					       "secondary-load-address")) {
+			error_config_id = config_ids[i];
+			continue;
 		}
 
 		cfg_mem_params->image_info.image_base = image_base;
