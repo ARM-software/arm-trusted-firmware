@@ -33,6 +33,8 @@ static uint32_t grf_ddr_con3;
 static struct psram_data_t *psram_sleep_cfg =
 	(struct psram_data_t *)&sys_sleep_flag_sram;
 
+static int cpus_power_domain_off(uint32_t cpu_id, uint32_t pd_cfg);
+
 /*
  * These are wrapper macros to the powe domain Bakery Lock API.
  */
@@ -377,11 +379,42 @@ void rockchip_plat_mmu_el3(void)
 
 int rockchip_soc_cores_pwr_dm_suspend(void)
 {
+	uint32_t cpu_id = plat_my_core_pos();
+
+	assert(cpu_id < PLATFORM_CORE_COUNT);
+
+	/*
+	 * The GIC CPU interface has already been disabled by
+	 * rockchip_pwr_domain_suspend(), so the core can only be woken by the
+	 * PMU's auto power-management logic. Enable it with interrupt wakeup
+	 * enabled and record where the core should resume, otherwise the core
+	 * enters WFI with no wakeup source and never comes back.
+	 */
+	cpuson_flags[cpu_id] = PMU_CPU_AUTO_PWRDN;
+	cpuson_entry_point[cpu_id] = plat_get_sec_entrypoint();
+	flush_dcache_range((uintptr_t)cpuson_flags, sizeof(cpuson_flags));
+	flush_dcache_range((uintptr_t)cpuson_entry_point,
+			   sizeof(cpuson_entry_point));
+	dsb();
+
+	cpus_power_domain_off(cpu_id, core_pwr_wfi_int);
+
 	return 0;
 }
 
 int rockchip_soc_cores_pwr_dm_resume(void)
 {
+	uint32_t cpu_id = plat_my_core_pos();
+	uint32_t offset, idx;
+
+	assert(cpu_id < PLATFORM_CORE_COUNT);
+
+	/* Disable core_pm */
+	idx = cpu_id / 2;
+	offset = (cpu_id % 2) << 3;
+	mmio_write_32(PMU_BASE + PMU_CPUAPM_CON(idx),
+		      BITS_WITH_WMASK(0, 0xf, offset));
+
 	return 0;
 }
 
