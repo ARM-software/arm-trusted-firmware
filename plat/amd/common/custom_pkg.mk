@@ -125,7 +125,7 @@ CUSTOM_PKG_LD_PPFLAGS = -D__LINKER__ $(CUSTOM_PKG_BL31_LD_CPPFLAGS) \
 # Rule 1: Preprocess individual custom_pkg.ld.S files
 # Use TF-A's standard .ld.S preprocessing flow so armclang picks up the
 # configured target triple and BL31 linker-script defines.
-%.ld.pp: %.ld.S
+%.ld.pp: %.ld.S $(config-header)
 	@echo "  PP      $<"
 	$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp \
 		$(TF_CFLAGS) \
@@ -144,7 +144,7 @@ $(CUSTOM_PKG_LD_WRAPPER): $(CUSTOM_PKG_LD_SCRIPTS_PP)
 	done; \
 	mv $$tmp $@
 
-$(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_WRAPPER)
+$(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_WRAPPER) $(config-header)
 	@echo "  GEN     $@"
 	$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp \
 		'-DCUSTOM_PKG_LD_WRAPPER="$(CUSTOM_PKG_LD_WRAPPER)"' \
