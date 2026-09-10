@@ -18,9 +18,6 @@
 extern struct pdc_interrupt_mapping	g_pdc_interrupt_mapping[];
 extern const uint32_t			g_pdc_interrupt_table_size;
 
-extern struct pdc_gpio_inputs		g_pdc_gpio_inputs[];
-extern const uint32_t			g_pdc_gpio_input_size;
-
 extern struct pdc_gpio_mapping		g_pdc_gpio_mapping[];
 extern const uint32_t			g_pdc_gpio_mapping_size;
 
@@ -39,13 +36,6 @@ static void pdc_set_owner(uint32_t pdc_bit_num, uint32_t num_int,
 static void pdc_target_init(void)
 {
 	uint32_t i;
-
-	if (g_pdc_gpio_mapping_size == g_pdc_gpio_input_size) {
-		for (i = 0U; i < g_pdc_gpio_mapping_size; i++) {
-			g_pdc_gpio_mapping[i].gpio_tbl_ptr = &g_pdc_gpio_inputs[i];
-			g_pdc_gpio_inputs[i].mux_idx_num   = (uint16_t)i;
-		}
-	}
 
 	for (i = 0U; i < g_pdc_interrupt_table_size; i++) {
 		pdc_set_owner(i, g_pdc_interrupt_table_size, PDC_IRQ,

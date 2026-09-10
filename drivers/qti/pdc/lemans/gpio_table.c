@@ -7,155 +7,156 @@
 #include <drivers/qti/pdc/pdc_internal.h>
 #include <lib/utils_def.h>
 
-/* Valid GPIO mux input numbers for lemans (qcs9075) APSS */
-struct pdc_gpio_inputs g_pdc_gpio_inputs[] = {
-	/* Input 0 */
-	{ 145, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_145_mx */
-	{   0, PDC_GPIO_INVALID }, /* open */
-	{ 112, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_112_mx */
-	{  39, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_39_mx */
+/* GPIO mapping for lemans (qcs9075) APSS */
+struct pdc_gpio_mapping g_pdc_gpio_mapping[] = {
+	/* { trig_config,                  subsystem_irq } */
+	/* Mux 0 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 552 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 553 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 554 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 555 },
 
-	/* Input 4 */
-	{  86, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_86_mx */
-	{  48, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_48_mx */
-	{  91, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_91_mx */
-	{  34, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_34_mx */
+	/* Mux 4 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 556 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 557 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 558 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 559 },
 
-	/* Input 8 */
-	{  12, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_12_mx */
-	{  15, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_15_mx */
-	{  16, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_16_mx */
-	{  18, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_18_mx */
+	/* Mux 8 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 560 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 561 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 562 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 563 },
 
-	/* Input 12 */
-	{  20, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_20_mx */
-	{  21, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_21_mx */
-	{  55, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_55_mx */
-	{  43, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_43_mx */
+	/* Mux 12 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 564 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 565 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 566 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 567 },
 
-	/* Input 16 */
-	{  24, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_24_mx */
-	{ 150, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_150_mx */
-	{ 151, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_151_mx */
-	{ 153, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_153_mx */
+	/* Mux 16 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 568 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 569 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 570 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 571 },
 
-	/* Input 20 */
-	{  31, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_31_mx */
-	{   0, PDC_GPIO_INVALID }, /* wlan2host_sol_aoss_wkp */
-	{  35, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_35_mx */
-	{  11, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_11_mx */
+	/* Mux 20 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 572 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 573 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 574 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 575 },
 
-	/* Input 24 */
-	{ 130, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_130_mx */
-	{  25, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_25_mx */
-	{ 102, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_102_mx */
-	{  40, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_40_mx */
+	/* Mux 24 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 576 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 577 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 578 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 579 },
 
-	/* Input 28 */
-	{  41, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_41_mx */
-	{  23, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_23_mx */
-	{  44, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_44_mx */
-	{  45, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_45_mx */
+	/* Mux 28 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 580 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 581 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 582 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 583 },
 
-	/* Input 32 */
-	{  47, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_47_mx */
-	{   7, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_7_mx */
-	{  63, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_63_mx */
-	{  78, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_78_mx */
+	/* Mux 32 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 584 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 585 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 586 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 587 },
 
-	/* Input 36 */
-	{  79, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_79_mx */
-	{  22, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_22_mx */
-	{  56, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_56_mx */
-	{   0, PDC_GPIO_INVALID }, /* core_bi_px_core_in_mx_sdc1_data_1 */
+	/* Mux 36 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 588 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 589 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 590 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 591 },
 
-	/* Input 40 */
-	{  59, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_59_mx */
-	{  60, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_60_mx */
-	{  51, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_51_mx */
-	{ 142, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_142_mx */
+	/* Mux 40 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 592 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 593 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 594 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 595 },
 
-	/* Input 44 */
-	{ 104, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_104_mx */
-	{ 141, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_141_mx */
-	{ 103, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_103_mx */
-	{  54, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_54_mx */
+	/* Mux 44 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 596 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 597 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 598 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 599 },
 
-	/* Input 48 */
-	{  80, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_80_mx */
-	{  81, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_81_mx */
-	{ 158, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_158_mx */
-	{   4, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_4_mx */
+	/* Mux 48 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 600 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 601 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 602 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 603 },
 
-	/* Input 52 */
-	{  83, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_83_mx */
-	{ 143, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_143_mx */
-	{  89, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_89_mx */
-	{  77, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_77_mx */
+	/* Mux 52 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 604 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 605 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 641 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 642 },
 
-	/* Input 56 */
-	{ 101, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_101_mx */
-	{  92, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_92_mx */
-	{  93, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_93_mx */
-	{ 156, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_156_mx */
+	/* Mux 56 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 643 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 644 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 645 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 646 },
 
-	/* Input 60 */
-	{ 145, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_145_mx */
-	{   3, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_3_mx */
-	{ 148, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_148_mx */
-	{  75, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_75_mx */
+	/* Mux 60 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 647 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 648 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 649 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 650 },
 
-	/* Input 64 */
-	{   0, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_0_mx */
-	{ 116, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_116_mx */
-	{ 161, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_161_mx */
-	{ 119, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_119_mx */
+	/* Mux 64 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 651 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 652 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 653 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 654 },
 
-	/* Input 68 */
-	{ 121, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_121_mx */
-	{ 123, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_123_mx */
-	{ 125, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_125_mx */
-	{ 127, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_127_mx */
+	/* Mux 68 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 655 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 656 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 657 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 658 },
 
-	/* Input 72 */
-	{ 163, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_163_mx */
-	{ 129, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_129_mx */
-	{  32, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_32_mx */
-	{ 131, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_131_mx */
+	/* Mux 72 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 659 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 660 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 661 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 662 },
 
-	/* Input 76 */
-	{ 133, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_133_mx */
-	{ 136, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_136_mx */
-	{ 140, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_140_mx */
-	{  90, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_90_mx */
+	/* Mux 76 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 663 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 664 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 665 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 666 },
 
-	/* Input 80 */
-	{  72, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_72_mx */
-	{   0, PDC_GPIO_INVALID }, /* core_bi_px_core_in_mx_sdc2_cmd */
-	{   0, PDC_GPIO_INVALID }, /* core_bi_px_core_in_mx_sdc2_data_1 */
-	{   0, PDC_GPIO_INVALID }, /* core_bi_px_core_in_mx_sdc2_data_3 */
+	/* Mux 80 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 667 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 668 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 669 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 670 },
 
-	/* Input 84 */
-	{  88, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_88_mx */
-	{   8, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_8_mx */
-	{  52, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_52_mx */
-	{  36, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_36_mx */
+	/* Mux 84 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 671 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 },  95 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 748 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 749 },
 
-	/* Input 88 */
-	{  27, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_27_mx */
-	{  28, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_28_mx */
-	{  95, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_95_mx */
-	{ 157, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_157_mx */
+	/* Mux 88 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 750 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 751 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 752 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 753 },
 
-	/* Input 92 */
-	{  82, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_82_mx */
-	{ 117, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_117_mx */
-	{ 167, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_167_mx */
-	{ 128, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_128_mx */
+	/* Mux 92 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 754 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 755 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 756 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 757 },
 
-	/* Input 96 */
-	{ 172, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_172_mx */
-	{ 174, PDC_GPIO_INVALID }, /* to_aoss_core_in_mx_gpio_174_mx */
+	/* Mux 96 */
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 758 },
+	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 759 },
 };
 
-const uint32_t g_pdc_gpio_input_size = ARRAY_SIZE(g_pdc_gpio_inputs);
+const uint32_t g_pdc_gpio_mapping_size = ARRAY_SIZE(g_pdc_gpio_mapping);
