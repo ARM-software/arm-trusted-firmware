@@ -299,6 +299,11 @@ int32_t pm_setup(void)
 		WARN("BL31: Failed to get primary proc\n");
 	}
 
+#if defined(PLAT_versal)
+	NOTICE("Reset scope via PM_SYSTEM_SHUTDOWN will be deprecated.\n");
+	NOTICE("Use PSCI SYSTEM_RESET or SYSTEM_RESET2 instead.\n");
+#endif /* PLAT_versal */
+
 	return ret;
 }
 
