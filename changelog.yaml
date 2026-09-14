@@ -440,6 +440,9 @@ subsections:
                   - title: i.MX95
                     scope: imx95
 
+                  - title: i.MX952
+                    scope: imx952
+
           - title: Layerscape
             scope: layerscape
 
