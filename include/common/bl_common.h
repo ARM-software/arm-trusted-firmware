@@ -201,7 +201,7 @@ struct crypto_heap_info {
  ******************************************************************************/
 int load_auth_image(unsigned int image_id, image_info_t *image_data);
 
-#if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
+#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH
 /*
  * API to dynamically disable authentication. Only meant for development
  * systems.

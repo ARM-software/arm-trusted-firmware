@@ -22,7 +22,7 @@
 #include <plat/common/platform.h>
 
 #if TRUSTED_BOARD_BOOT
-# ifdef DYN_DISABLE_AUTH
+# if DYN_DISABLE_AUTH
 static int disable_auth;
 
 /******************************************************************************
@@ -41,7 +41,7 @@ void dyn_disable_auth(void)
  *****************************************************************************/
 static int dyn_is_auth_disabled(void)
 {
-# ifdef DYN_DISABLE_AUTH
+# if DYN_DISABLE_AUTH
 	return disable_auth;
 # else
 	return 0;
