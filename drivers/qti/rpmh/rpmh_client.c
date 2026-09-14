@@ -20,6 +20,7 @@
 
 #include <common/debug.h>
 #include <drivers/qti/rpmh/rpmh_client.h>
+#include <lib/mmio_poll.h>
 
 #include "rsc_regs.h"
 
@@ -33,6 +34,9 @@
 
 /* AMC completion poll bound; the AMC normally completes in microseconds. */
 #define RPMH_AMC_POLL_COUNT	1000000U
+
+#define RPMH_AOP_BOOT_COOKIE		0xa0c00c1eU
+#define RPMH_AOP_INIT_TIMEOUT_US	100000U
 
 struct rpmh_client {
 	uint32_t		drv_id;
@@ -58,8 +62,30 @@ static void rpmh_validate_handle(const struct rpmh_client *handle)
 	assert(handle->in_use);
 }
 
+static bool wait_for_aop_ready(void)
+{
+	uint32_t offset;
+	uint32_t val;
+	uintptr_t aop_rdy;
+
+	offset = mmio_read_32(RPMH_AOP_MSG_RAM_DICT_BASE +
+			      offsetof(struct rpmh_msg_ram_dict,
+				       boot_cookie_offset));
+	aop_rdy = RPMH_AOP_MSG_RAM_BASE + offset;
+
+	return mmio_read_32_poll_timeout(aop_rdy, val,
+					 val == RPMH_AOP_BOOT_COOKIE,
+					 RPMH_AOP_INIT_TIMEOUT_US) == 0;
+}
+
 void qti_rpmh_init(void)
 {
+	if (!wait_for_aop_ready()) {
+		ERROR("RPMh: AOP boot did not complete in %u us\n",
+		      RPMH_AOP_INIT_TIMEOUT_US);
+		return;
+	}
+
 	rpmh_drv_state = RPMH_STATE_INIT;
 }
 
