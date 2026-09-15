@@ -831,7 +831,7 @@ rcar_pwrc_go_suspend_to_ram(void)
 #endif
 
 #if PMIC_RAA271003
-	uint8_t data = 0;
+	uint8_t data = SYSTEM_RST_BIT_RST_RST;
 	int32_t rc;
 
 	/* Check bit(1) = 1 or not for detect WRM_RST or MEM_RET */
