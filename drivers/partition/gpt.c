@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include <common/debug.h>
@@ -13,9 +14,9 @@
 #include <drivers/partition/gpt.h>
 #include <lib/utils.h>
 
-static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)
+static int unicode_to_ascii(const unsigned short *str_in, unsigned char *str_out)
 {
-	uint8_t *name;
+	const uint8_t *name;
 	int i;
 
 	assert((str_in != NULL) && (str_out != NULL));
@@ -40,13 +41,49 @@ static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)
 	return 0;
 }
 
-int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry)
+static bool is_zero_guid(const struct efi_guid *guid)
+{
+	static const struct efi_guid null_guid = NULL_GUID;
+
+	return guidcmp(guid, &null_guid) == 0;
+}
+
+static bool gpt_entry_name_is_empty(const unsigned short *name)
+{
+	int i;
+
+	for (i = 0; i < EFI_NAMELEN; i++) {
+		if (name[i] != 0U) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+int parse_gpt_entry(const gpt_header_t *header, const gpt_entry_t *gpt_entry,
+		    partition_entry_t *entry)
 {
 	int result;
 
-	assert((gpt_entry != NULL) && (entry != NULL));
+	assert((header != NULL) && (gpt_entry != NULL) && (entry != NULL));
 
-	if ((gpt_entry->first_lba == 0) && (gpt_entry->last_lba == 0)) {
+	if (is_zero_guid(&gpt_entry->type_uuid) &&
+	    is_zero_guid(&gpt_entry->unique_uuid) &&
+	    (gpt_entry->first_lba == 0U) &&
+	    (gpt_entry->last_lba == 0U) &&
+	    (gpt_entry->attr == 0U) &&
+	    gpt_entry_name_is_empty(gpt_entry->name)) {
+		return -ENOENT;
+	}
+
+	if (is_zero_guid(&gpt_entry->type_uuid) ||
+	    is_zero_guid(&gpt_entry->unique_uuid) ||
+	    (gpt_entry->first_lba == 0U) ||
+	    (gpt_entry->last_lba == 0U) ||
+	    (gpt_entry->first_lba > gpt_entry->last_lba) ||
+	    (gpt_entry->first_lba < header->first_lba) ||
+	    (gpt_entry->last_lba > header->last_lba)) {
 		return -EINVAL;
 	}
 
