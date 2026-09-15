@@ -50,8 +50,7 @@ PLAT_INCLUDES		:=	-Iinclude/plat/common/					\
 				-I${PLAT_PATH}/hoya/${CHIPSET}/${PLAT}/inc			\
 				-I${PLAT_PATH}/common/inc				\
 				-I${PLAT_PATH}/common/inc/$(ARCH)			\
-				-I${PLAT_PATH}/hoya/qtiseclib/inc				\
-				-I${PLAT_PATH}/hoya/qtiseclib/inc/${CHIPSET}
+				-I${PLAT_PATH}/hoya/qtiseclib/inc
 
 include lib/xlat_tables_v2/xlat_tables.mk
 include drivers/qti/chipinfo/chipinfo.mk
