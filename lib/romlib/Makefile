@@ -14,7 +14,7 @@ LIB_DIR     = $(BUILD_PLAT)/lib
 WRAPPER_DIR = $(BUILD_PLAT)/libwrapper
 LIBS        = $(LIB_DIR)/libfdt.a $(LIB_DIR)/libc.a
 INC         = $(INCLUDES:-I%=-I../../%)
-PPFLAGS     = $(INC) $(DEFINES) -P -x assembler-with-cpp -D__LINKER__ -MD -MP -MT $(BUILD_DIR)/romlib.ld
+PPFLAGS     = $(INC) -include $(call shell-quote,$(config-header)) -P -x assembler-with-cpp -D__LINKER__ -MD -MP -MT $(BUILD_DIR)/romlib.ld
 OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
 MAPFILE     = $(BUILD_PLAT)/romlib/romlib.map
 
@@ -69,7 +69,7 @@ $(BUILD_DIR)/jmptbl.o: $(BUILD_DIR)/jmptbl.s | $$(@D)/
 	$(s)echo "  AS      $@"
 	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
 
-$(BUILD_DIR)/romlib.ld: romlib.ld.S | $$(@D)/
+$(BUILD_DIR)/romlib.ld: romlib.ld.S $(config-header) | $$(@D)/
 	$(s)echo "  PP      $@"
 	$(q)$(aarch64-cpp) -E $(PPFLAGS) -o $@ romlib.ld.S
 
