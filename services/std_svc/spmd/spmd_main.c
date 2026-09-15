@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,17 +55,12 @@ static spmc_manifest_attribute_t spmc_attrs;
 static uint32_t nonsecure_ffa_version;
 
 /*******************************************************************************
- * Whether the normal world finished negotiating its version.
+ * Whether version negotiation with a pre-v1.3 SPMC is locked.
  ******************************************************************************/
-static bool nonsecure_version_negotiated;
+static bool nonsecure_ffa_version_locked;
 
 /*******************************************************************************
- * FFA version used by SPMC, as seen by the normal world.
- ******************************************************************************/
-static uint32_t spmc_nwd_ffa_version;
-
-/*******************************************************************************
- * Spinlock serialising concurrent accesses to the three version globals above.
+ * Spinlock serialising concurrent accesses to the version globals above.
  ******************************************************************************/
 static spinlock_t spmd_version_lock;
 
@@ -79,43 +74,79 @@ static uint32_t spmd_get_nonsecure_ffa_version(void)
 	return version;
 }
 
-/*
- * Per FF-A spec, version negotiation ends on the first non-FFA_VERSION call.
- * Multiple FFA_VERSION calls before that point are permitted (e.g. different
- * software components sharing an endpoint ID during early boot). The last
- * caller wins under the lock. Callers are expected to agree on a version;
- * the SPMD does not enforce single-write semantics here.
- */
-static void spmd_try_set_nonsecure_ffa_version(uint32_t version)
+static bool spmd_ffa_versions_are_compatible(uint32_t caller, uint32_t callee)
 {
+	/*
+	 * A caller version is compatible with a callee version when their major
+	 * versions match and the caller's minor version does not exceed the callee's.
+	 * For example, caller v1.1 is compatible with callee v1.3.
+	 */
+	return (((caller >> FFA_VERSION_MAJOR_SHIFT) &
+		 FFA_VERSION_MAJOR_MASK) ==
+		((callee >> FFA_VERSION_MAJOR_SHIFT) &
+		 FFA_VERSION_MAJOR_MASK)) &&
+	       ((caller & FFA_VERSION_MINOR_MASK) <=
+	       (callee & FFA_VERSION_MINOR_MASK));
+}
+
+static bool spmd_spmc_uses_legacy_version_negotiation(void)
+{
+	uint32_t spmc_version = MAKE_FFA_VERSION(spmc_attrs.major_version,
+						 spmc_attrs.minor_version);
+
+	return spmc_version < MAKE_FFA_VERSION(1U, 3U);
+}
+
+/*
+ * A successful negotiation must return a non-Null, non-error version that is
+ * compatible with the requested version.
+ */
+static bool spmd_ffa_version_response_is_compatible(
+						uint32_t requested_version,
+						uint32_t returned_version)
+{
+	return (returned_version != FFA_VERSION_NULL) &&
+	       ((returned_version & FFA_VERSION_BIT31_MASK) == 0U) &&
+	       spmd_ffa_versions_are_compatible(requested_version,
+						returned_version);
+}
+
+static void spmd_try_set_nonsecure_ffa_version(uint32_t query_type,
+						  uint32_t requested_version,
+						  uint32_t returned_version)
+{
+	/* Only a negotiation query can change the negotiated version. */
+	if (query_type != FFA_VERSION_QUERY_TYPE_NEGOTIATE) {
+		return;
+	}
+
+	if (!spmd_ffa_version_response_is_compatible(requested_version,
+						     returned_version)) {
+		return;
+	}
+
 	spin_lock(&spmd_version_lock);
-	if (!nonsecure_version_negotiated) {
-		nonsecure_ffa_version = version;
+	if (!spmd_spmc_uses_legacy_version_negotiation() ||
+	    !nonsecure_ffa_version_locked) {
+		nonsecure_ffa_version = requested_version;
 	}
 	spin_unlock(&spmd_version_lock);
 }
 
-static void spmd_set_version_negotiated(void)
+/*
+ * Before FF-A v1.3, an SPMC does not use the Null version to report failed
+ * renegotiation after the first non-FFA_VERSION ABI. The response alone
+ * therefore cannot show whether negotiation succeeded, so track the lock in
+ * the SPMD.
+ */
+static void spmd_legacy_lock_nonsecure_ffa_version(void)
 {
-	spin_lock(&spmd_version_lock);
-	nonsecure_version_negotiated = true;
-	spin_unlock(&spmd_version_lock);
-}
-
-static uint32_t spmd_get_spmc_nwd_ffa_version(void)
-{
-	uint32_t version;
+	if (!spmd_spmc_uses_legacy_version_negotiation()) {
+		return;
+	}
 
 	spin_lock(&spmd_version_lock);
-	version = spmc_nwd_ffa_version;
-	spin_unlock(&spmd_version_lock);
-	return version;
-}
-
-static void spmd_set_spmc_nwd_ffa_version(uint32_t version)
-{
-	spin_lock(&spmd_version_lock);
-	spmc_nwd_ffa_version = version;
+	nonsecure_ffa_version_locked = true;
 	spin_unlock(&spmd_version_lock);
 }
 
@@ -162,23 +193,22 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
  * Builds an SPMD to SPMC direct message request.
  *****************************************************************************/
 void spmd_build_spmc_message(gp_regs_t *gpregs, uint8_t target_func,
-			     unsigned long long message)
+			     unsigned long long x3_payload,
+			     unsigned long long x4_payload)
 {
 	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_MSG_SEND_DIRECT_REQ_SMC32);
 	write_ctx_reg(gpregs, CTX_GPREG_X1,
 		(SPMD_DIRECT_MSG_ENDPOINT_ID << FFA_DIRECT_MSG_SOURCE_SHIFT) |
 		 spmd_spmc_id_get());
 	write_ctx_reg(gpregs, CTX_GPREG_X2, BIT(31) | target_func);
-	write_ctx_reg(gpregs, CTX_GPREG_X3, message);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, x3_payload);
+	write_ctx_reg(gpregs, CTX_GPREG_X4, x4_payload);
 
-	/* Zero out x4-x7 for the direct request emitted towards the SPMC. */
-	write_ctx_reg(gpregs, CTX_GPREG_X4, 0);
+	/* Zero out x5-x7 for the direct request emitted towards the SPMC. */
 	write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
 	write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
 	write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
 }
-
-
 /*******************************************************************************
  * This function takes an SPMC context pointer and performs a synchronous
  * SPMC entry.
@@ -968,7 +998,7 @@ uint64_t spmd_ffa_smc_handler(uint32_t smc_fid,
 			      void *handle,
 			      uint64_t flags)
 {
-	uint32_t nwd_version;
+	uint32_t spmc_version;
 
 	if (is_spmc_at_el3()) {
 		/*
@@ -983,9 +1013,10 @@ uint64_t spmd_ffa_smc_handler(uint32_t smc_fid,
 		}
 	}
 
-	nwd_version = spmd_get_spmc_nwd_ffa_version();
+	spmc_version = MAKE_FFA_VERSION(spmc_attrs.major_version,
+					spmc_attrs.minor_version);
 	return spmd_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
-				handle, flags, nwd_version);
+				handle, flags, spmc_version);
 }
 
 static uint32_t get_common_ffa_version(uint32_t secure_ffa_version)
@@ -996,6 +1027,242 @@ static uint32_t get_common_ffa_version(uint32_t secure_ffa_version)
 		return secure_ffa_version;
 	}
 	return ns_version;
+}
+
+static bool spmd_ffa_version_response_is_valid(gp_regs_t *gpregs,
+						uint64_t rc)
+{
+	return (rc == 0ULL) &&
+	       (SMC_GET_GP(gpregs, CTX_GPREG_X0) ==
+			FFA_MSG_SEND_DIRECT_RESP_SMC32) &&
+	       (SMC_GET_GP(gpregs, CTX_GPREG_X2) ==
+			(FFA_FWK_MSG_BIT | SPMD_FWK_MSG_FFA_VERSION_RESP));
+}
+
+static uint64_t spmd_forward_ffa_version(uint64_t x1,
+					 uint64_t x2,
+					 uint64_t x3,
+					 uint64_t x4,
+					 void *cookie,
+					 void *handle,
+					 uint64_t flags)
+{
+	spmd_spm_core_context_t *ctx;
+	gp_regs_t *gpregs;
+	bool secure_origin = is_caller_secure(flags);
+	int ret;
+	uint32_t input_flags;
+	uint32_t input_version;
+	uint32_t query_type;
+	uint32_t spmc_version;
+	uint64_t rc;
+
+	input_version = (uint32_t)(0xFFFFFFFFUL & x1);
+	input_flags = (uint32_t)(0xFFFFFFFFUL & x2);
+	query_type = input_flags & FFA_VERSION_QUERY_TYPE_MASK;
+	spmc_version = MAKE_FFA_VERSION(spmc_attrs.major_version,
+					spmc_attrs.minor_version);
+
+	/*
+	 * A co-resident EL3 SPMC can handle the original FFA_VERSION call
+	 * directly.
+	 */
+	if (is_spmc_at_el3()) {
+		(void)spmc_smc_handler(FFA_VERSION, secure_origin,
+				       x1, x2, x3, x4, cookie,
+				       handle, flags);
+		ret = (int)SMC_GET_GP(handle, CTX_GPREG_X0);
+		spmd_try_set_nonsecure_ffa_version(query_type, input_version,
+						   (uint32_t)ret);
+
+		SMC_RET8(handle, (uint32_t)ret,
+			 FFA_TARGET_INFO_MBZ,
+			 FFA_TARGET_INFO_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ);
+	}
+
+	/*
+	 * FF-A v1.0 does not support the framework version message. Return the
+	 * version advertised by the lower-EL SPMC instead.
+	 */
+	if ((spmc_attrs.major_version == 1U) &&
+	    (spmc_attrs.minor_version == 0U)) {
+		ret = (int)spmc_version;
+		spmd_try_set_nonsecure_ffa_version(query_type, input_version,
+						   (uint32_t)ret);
+
+		SMC_RET8(handle, (uint32_t)ret,
+			 FFA_TARGET_INFO_MBZ,
+			 FFA_TARGET_INFO_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ);
+	}
+
+	/*
+	 * Forward the request to a later lower-EL SPMC using the framework
+	 * version message.
+	 */
+	ctx = spmd_get_context();
+	gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+
+	/* Save non-secure system registers context. */
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_save(NON_SECURE);
+	cm_el2_sysregs_context_save_gic(NON_SECURE);
+#else
+	cm_el1_sysregs_context_save(NON_SECURE);
+#endif
+
+	/*
+	 * The incoming call has FFA_VERSION in X0, the requested version in X1,
+	 * and query flags in X2. Build the framework direct request with the
+	 * function ID in X2, requested version in X3, and query flags in X4.
+	 */
+	spmd_build_spmc_message(gpregs,
+				SPMD_FWK_MSG_FFA_VERSION_REQ,
+				input_version, input_flags);
+
+	/*
+	 * Ensure x8-x17 NS GP register values are untouched when returning from
+	 * the SPMC.
+	 */
+	write_ctx_reg(gpregs, CTX_GPREG_X8, SMC_GET_GP(handle, CTX_GPREG_X8));
+	write_ctx_reg(gpregs, CTX_GPREG_X9, SMC_GET_GP(handle, CTX_GPREG_X9));
+	write_ctx_reg(gpregs, CTX_GPREG_X10, SMC_GET_GP(handle, CTX_GPREG_X10));
+	write_ctx_reg(gpregs, CTX_GPREG_X11, SMC_GET_GP(handle, CTX_GPREG_X11));
+	write_ctx_reg(gpregs, CTX_GPREG_X12, SMC_GET_GP(handle, CTX_GPREG_X12));
+	write_ctx_reg(gpregs, CTX_GPREG_X13, SMC_GET_GP(handle, CTX_GPREG_X13));
+	write_ctx_reg(gpregs, CTX_GPREG_X14, SMC_GET_GP(handle, CTX_GPREG_X14));
+	write_ctx_reg(gpregs, CTX_GPREG_X15, SMC_GET_GP(handle, CTX_GPREG_X15));
+	write_ctx_reg(gpregs, CTX_GPREG_X16, SMC_GET_GP(handle, CTX_GPREG_X16));
+	write_ctx_reg(gpregs, CTX_GPREG_X17, SMC_GET_GP(handle, CTX_GPREG_X17));
+
+	rc = spmd_spm_core_sync_entry(ctx);
+
+	if (!spmd_ffa_version_response_is_valid(gpregs, rc)) {
+		ERROR("Failed to forward FFA_VERSION\n");
+		ret = FFA_ERROR_NOT_SUPPORTED;
+	} else {
+		ret = (int)SMC_GET_GP(gpregs, CTX_GPREG_X3);
+		spmd_try_set_nonsecure_ffa_version(query_type, input_version,
+						   (uint32_t)ret);
+	}
+
+	/*
+	 * x0-x4 are updated by spmd_smc_forward below. Zero out x5-x7 in the
+	 * FFA_VERSION response.
+	 */
+	write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
+
+	/*
+	 * Return the FFA_VERSION result received from the SPMC in X3 to the
+	 * non-secure caller in X0.
+	 */
+	return spmd_smc_forward(ret, true, FFA_PARAM_MBZ,
+				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				FFA_PARAM_MBZ, cookie, gpregs,
+				flags, spmc_version);
+}
+
+
+/*******************************************************************************
+ * Handle an FFA_VERSION request.
+ ******************************************************************************/
+static uint64_t spmd_ffa_version_handler(uint64_t x1,
+					 uint64_t x2,
+					 uint64_t x3,
+					 uint64_t x4,
+					 void *cookie,
+					 void *handle,
+					 uint64_t flags)
+{
+	spmd_spm_core_context_t *ctx = spmd_get_context();
+	bool secure_origin = is_caller_secure(flags);
+	int ret;
+	uint32_t input_flags;
+	uint32_t input_version;
+	uint32_t query_type;
+	uint32_t spmc_version;
+
+	input_version = (uint32_t)(0xFFFFFFFFUL & x1);
+	input_flags = (uint32_t)(0xFFFFFFFFUL & x2);
+	query_type = input_flags & FFA_VERSION_QUERY_TYPE_MASK;
+	spmc_version = MAKE_FFA_VERSION(spmc_attrs.major_version,
+					spmc_attrs.minor_version);
+
+	/* Validate the input before considering the SPMC state. */
+	if (((input_version & FFA_VERSION_BIT31_MASK) != 0U) ||
+	    (query_type > FFA_VERSION_QUERY_TYPE_GET_NEGOTIATED)) {
+		ret = SMC_ARCH_CALL_INVAL_PARAM;
+		goto out;
+	}
+
+	/* The SPMC state is not used when the SPMC resides at EL3. */
+	if (!is_spmc_at_el3() && (ctx->state == SPMC_STATE_RESET)) {
+		ret = FFA_ERROR_NOT_SUPPORTED;
+		goto out;
+	}
+
+	switch (query_type) {
+	case FFA_VERSION_QUERY_TYPE_NEGOTIATE:
+		/*
+		 * Negotiation between secure endpoints was completed at SPMC
+		 * startup. A subsequent secure request is a nop.
+		 */
+		if (secure_origin) {
+			ret = (int)spmc_version;
+			break;
+		}
+
+		return spmd_forward_ffa_version(x1, x2, x3, x4, cookie,
+						handle, flags);
+
+	case FFA_VERSION_QUERY_TYPE_COMPATIBILITY:
+		if (secure_origin) {
+			/* The secure caller is querying the SPMD. */
+			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
+					       FFA_VERSION_MINOR);
+		} else if (spmd_ffa_versions_are_compatible(input_version,
+							    spmc_version)) {
+			/* The advertised SPMC version is compatible. */
+			ret = (int)spmc_version;
+		} else if (spmd_spmc_uses_legacy_version_negotiation()) {
+			/*
+			 * Before v1.3, the negotiated version is treated as the only
+			 * supported version, so this query need not be forwarded.
+			 */
+			ret = (int)spmc_version;
+		} else {
+			/* The SPMC may implement another compatible version. */
+			return spmd_forward_ffa_version(x1, x2, x3, x4,
+							cookie, handle, flags);
+		}
+		break;
+
+	case FFA_VERSION_QUERY_TYPE_GET_NEGOTIATED:
+		/*
+		 * Return the version negotiated at SPMC startup to a secure
+		 * caller, or the normal world's negotiated version otherwise.
+		 */
+		ret = secure_origin ?
+			(int)spmc_version :
+			(int)spmd_get_nonsecure_ffa_version();
+		break;
+
+	default:
+		/* The query type was validated above. */
+		assert(false);
+		ret = SMC_ARCH_CALL_INVAL_PARAM;
+		break;
+	}
+
+out:
+	SMC_RET8(handle, (uint32_t)ret, FFA_TARGET_INFO_MBZ,
+		 FFA_TARGET_INFO_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+		 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 }
 
 /*******************************************************************************
@@ -1015,8 +1282,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	bool secure_origin;
 	int ret;
-	uint32_t input_version;
-	uint32_t nwd_version;
 
 	/* Determine which security state this SMC originated from */
 	secure_origin = is_caller_secure(flags);
@@ -1039,11 +1304,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	}
 
 	if ((!secure_origin) && (smc_fid != FFA_VERSION)) {
-		/*
-		 * Once the caller invokes any FF-A ABI other than FFA_VERSION,
-		 * the version negotiation phase is complete.
-		 */
-		spmd_set_version_negotiated();
+		spmd_legacy_lock_nonsecure_ffa_version();
 	}
 
 	switch (smc_fid) {
@@ -1077,130 +1338,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		break; /* not reached */
 
 	case FFA_VERSION:
-		input_version = (uint32_t)(0xFFFFFFFFUL & x1);
-		/*
-		 * If caller is secure and SPMC was initialized,
-		 * return FFA_VERSION of SPMD.
-		 * If caller is non secure and SPMC was initialized,
-		 * forward to the EL3 SPMC if enabled, otherwise send a
-		 * framework message to the SPMC at the lower EL to
-		 * negotiate a version that is compatible between the
-		 * normal world and the SPMC.
-		 * Sanity check to "input_version".
-		 * If the EL3 SPMC is enabled, ignore the SPMC state as
-		 * this is not used.
-		 */
-		if (((input_version & FFA_VERSION_BIT31_MASK) != 0U) ||
-		    (!is_spmc_at_el3() && (ctx->state == SPMC_STATE_RESET))) {
-			ret = FFA_ERROR_NOT_SUPPORTED;
-		} else if (!secure_origin) {
-			spmd_try_set_nonsecure_ffa_version(input_version);
-
-			if (is_spmc_at_el3()) {
-				/*
-				 * Forward the call directly to the EL3 SPMC, if
-				 * enabled, as we don't need to wrap the call in
-				 * a direct request.
-				 */
-				spmd_set_spmc_nwd_ffa_version(
-					MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
-							 FFA_VERSION_MINOR));
-				return spmc_smc_handler(smc_fid, secure_origin,
-							x1, x2, x3, x4, cookie,
-							handle, flags);
-			}
-
-			gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
-			uint64_t rc;
-
-			if ((spmc_attrs.major_version == 1U) &&
-			    (spmc_attrs.minor_version == 0U)) {
-				ret = MAKE_FFA_VERSION(spmc_attrs.major_version,
-						       spmc_attrs.minor_version);
-				spmd_set_spmc_nwd_ffa_version((uint32_t)ret);
-				SMC_RET8(handle, (uint32_t)ret,
-					 FFA_TARGET_INFO_MBZ,
-					 FFA_TARGET_INFO_MBZ,
-					 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-					 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-					 FFA_PARAM_MBZ);
-				break;
-			}
-			/* Save non-secure system registers context */
-#if SPMD_SPM_AT_SEL2
-			cm_el2_sysregs_context_save(NON_SECURE);
-			cm_el2_sysregs_context_save_gic(NON_SECURE);
-#else
-			cm_el1_sysregs_context_save(NON_SECURE);
-#endif
-
-			/*
-			 * The incoming request has FFA_VERSION as X0 smc_fid
-			 * and requested version in x1. Prepare a direct request
-			 * from SPMD to SPMC with FFA_VERSION framework function
-			 * identifier in X2 and requested version in X3.
-			 */
-			spmd_build_spmc_message(gpregs,
-						SPMD_FWK_MSG_FFA_VERSION_REQ,
-						input_version);
-
-			/*
-			 * Ensure x8-x17 NS GP register values are untouched when returning
-			 * from the SPMC.
-			 */
-			write_ctx_reg(gpregs, CTX_GPREG_X8, SMC_GET_GP(handle, CTX_GPREG_X8));
-			write_ctx_reg(gpregs, CTX_GPREG_X9, SMC_GET_GP(handle, CTX_GPREG_X9));
-			write_ctx_reg(gpregs, CTX_GPREG_X10, SMC_GET_GP(handle, CTX_GPREG_X10));
-			write_ctx_reg(gpregs, CTX_GPREG_X11, SMC_GET_GP(handle, CTX_GPREG_X11));
-			write_ctx_reg(gpregs, CTX_GPREG_X12, SMC_GET_GP(handle, CTX_GPREG_X12));
-			write_ctx_reg(gpregs, CTX_GPREG_X13, SMC_GET_GP(handle, CTX_GPREG_X13));
-			write_ctx_reg(gpregs, CTX_GPREG_X14, SMC_GET_GP(handle, CTX_GPREG_X14));
-			write_ctx_reg(gpregs, CTX_GPREG_X15, SMC_GET_GP(handle, CTX_GPREG_X15));
-			write_ctx_reg(gpregs, CTX_GPREG_X16, SMC_GET_GP(handle, CTX_GPREG_X16));
-			write_ctx_reg(gpregs, CTX_GPREG_X17, SMC_GET_GP(handle, CTX_GPREG_X17));
-
-			rc = spmd_spm_core_sync_entry(ctx);
-
-			if ((rc != 0ULL) ||
-			    (SMC_GET_GP(gpregs, CTX_GPREG_X0) !=
-				FFA_MSG_SEND_DIRECT_RESP_SMC32) ||
-			    (SMC_GET_GP(gpregs, CTX_GPREG_X2) !=
-				(FFA_FWK_MSG_BIT |
-				 SPMD_FWK_MSG_FFA_VERSION_RESP))) {
-				ERROR("Failed to forward FFA_VERSION\n");
-				ret = FFA_ERROR_NOT_SUPPORTED;
-			} else {
-				ret = SMC_GET_GP(gpregs, CTX_GPREG_X3);
-				spmd_set_spmc_nwd_ffa_version((uint32_t)ret);
-			}
-
-			/*
-			 * x0-x4 are updated by spmd_smc_forward below.
-			 * Zero out x5-x7 in the FFA_VERSION response.
-			 */
-			write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
-			write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
-			write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
-
-			/*
-			 * Return here after SPMC has handled FFA_VERSION.
-			 * The returned SPMC version is held in X3.
-			 * Forward this version in X0 to the non-secure caller.
-			 */
-			nwd_version = spmd_get_spmc_nwd_ffa_version();
-			return spmd_smc_forward(ret, true, FFA_PARAM_MBZ,
-						FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-						FFA_PARAM_MBZ, cookie, gpregs,
-						flags, nwd_version);
-		} else {
-			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
-					       FFA_VERSION_MINOR);
-		}
-
-		SMC_RET8(handle, (uint32_t)ret, FFA_TARGET_INFO_MBZ,
-			 FFA_TARGET_INFO_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ);
-		break; /* not reached */
+		return spmd_ffa_version_handler(x1, x2, x3, x4, cookie,
+						handle, flags);
 
 	case FFA_FEATURES:
 		/*
