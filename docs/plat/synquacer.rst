@@ -66,7 +66,7 @@ Build Procedure
 
        cd $WORKSPACE/arm-trusted-firmware
        make -j`nproc` PLAT=synquacer PRELOADED_BL33_BASE=0x8200000 bl31 fiptool
-       tools/fiptool/fiptool create \
+       ./build/synquacer/release/tools/fiptool/fiptool create \
              --tb-fw ./build/synquacer/release/bl31.bin \
              --soc-fw ./build/synquacer/release/bl31.bin \
              --scp-fw ./build/synquacer/release/bl31.bin \
