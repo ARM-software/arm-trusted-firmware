@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,6 +47,14 @@ int fdtw_for_each_cpu(const void *fdt,
 		      int (*callback)(const void *dtb, int node, uintptr_t mpidr));
 
 int fdtw_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
+
+/*
+ * fdt_read_prop_cells() accumulates cells into a uint64_t, so it consumes at
+ * most this many. A larger #address-cells or #size-cells cannot be represented
+ * and would be read back as a wrong value.
+ */
+#define FDT_READ_PROP_MAX_CELLS	\
+	((int32_t)sizeof(uint64_t) / (int32_t)sizeof(fdt32_t))
 
 static inline uint32_t fdt_blob_size(const void *dtb)
 {
