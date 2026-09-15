@@ -220,4 +220,33 @@
 #define QTI_SMEM_BASE				0x90900000
 #define QTI_SMEM_SIZE				0x00200000
 /*----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------*/
+/* Secure interrupt number/ID definitions for the GIC configuration.          */
+/*----------------------------------------------------------------------------*/
+#define PLAT_INT_ID_RESET_SGI			(0xf)
+#define PLAT_INT_ID_CPU_WAKEUP_SGI		(0x8)
+
+#define PLAT_INT_ID_SEC_WDOG_BARK		(0x204)
+#define PLAT_INT_ID_NON_SEC_WDOG_BITE		(0x21)
+
+#define PLAT_INT_ID_VMIDMT_ERR_CLT_SEC		(0xE6)
+#define PLAT_INT_ID_VMIDMT_ERR_CLT_NONSEC	(0xE7)
+#define PLAT_INT_ID_VMIDMT_ERR_CFG_SEC		(0xE8)
+#define PLAT_INT_ID_VMIDMT_ERR_CFG_NONSEC	(0xE9)
+
+#define PLAT_INT_ID_XPU_SEC			(0xE3)
+#define PLAT_INT_ID_XPU_NON_SEC			(0xE4)
+
+/* NOC error interrupts */
+#define PLAT_INT_ID_A1_NOC_ERROR		(0xC9)
+#define PLAT_INT_ID_A2_NOC_ERROR		(0xEA)
+#define PLAT_INT_ID_CONFIG_NOC_ERROR		(0xE2)
+#define PLAT_INT_ID_DC_NOC_ERROR		(0x122)
+#define PLAT_INT_ID_MEM_NOC_ERROR		(0x6C)
+#define PLAT_INT_ID_SYSTEM_NOC_ERROR		(0xC8)
+#define PLAT_INT_ID_MMSS_NOC_ERROR		(0xBA)
+#define PLAT_INT_ID_LPASS_AGNOC_ERROR		(0x143)
+#define PLAT_INT_ID_NSP_NOC_ERROR		(0x1CE)
+
 #endif /* LEMANS_DEF_H */
