@@ -21,6 +21,9 @@
 
 #include <arch_helpers.h>
 #include <bl31/bl31.h>
+#if EL3_EXCEPTION_HANDLING
+#include <bl31/ehf.h>
+#endif
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
@@ -765,6 +768,17 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		} else {
 			cm_set_elr_el3(SECURE, (uint64_t)
 					&optee_vector_table->yield_smc_entry);
+#if EL3_EXCEPTION_HANDLING
+			/*
+			 * Group 1 Non-secure interrupts are signalled as FIQ
+			 * while executing in Secure state on GICv3. Let OP-TEE
+			 * receive the FIQ as a foreign interrupt so it can
+			 * suspend the current thread and return an RPC cookie
+			 * that remains valid if Linux migrates the task.
+			 */
+			disable_intr_rm_local(INTR_TYPE_EL3, SECURE);
+			ehf_allow_ns_preemption(0);
+#endif
 		}
 
 		cm_el1_sysregs_context_restore(SECURE);
@@ -883,6 +897,14 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 		simd_ctx_save(SECURE, false);
 #endif
 		cm_el1_sysregs_context_save(SECURE);
+
+#if EL3_EXCEPTION_HANDLING
+		/*
+		 * Restore EL3 FIQ routing while Normal world is running. It is
+		 * disabled again if Linux resumes the yielding OP-TEE call.
+		 */
+		enable_intr_rm_local(INTR_TYPE_EL3, SECURE);
+#endif
 
 		/* Get a reference to the non-secure context */
 		ns_cpu_context = cm_get_context(NON_SECURE);
