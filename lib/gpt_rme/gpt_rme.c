@@ -1826,16 +1826,15 @@ static inline void gpt_undelegate(uint64_t base, uint8_t target_gpi,
  * Parameters
  *   base               Base address of the first granule to transition, aligned
  *                      to granule size.
- *   *granule_count     Pointer to a variable containing the number of granules
- *                      to be transitioned. This value will be overwritten with
- *                      the number of granules actually transitioned once this
- *                      function returns. It is possible to return an error part
- *                      way through the process and have a non-zero number of
- *                      granules transitioned. TODO is this acceptable?
+ *   *granule_count     Pointer to a nonzero number of granules requested. Only
+ *                      the first granule is processed per call. Returns a count
+ *                      of one on success or zero on error; the caller retries
+ *                      the remaining range after successful partial progress.
  *   target_gpi         GPI to transition the granules to.
  *   src_sec_state      Security state of the requesting entity. This will be
  *                      combined with target_gpi to determine whether a
  *                      transition is allowed.
+ * Return zero on success or a negative error code. GPT locking is internal.
  */
 int gpt_transition_pas(uint64_t base, uint64_t *granule_count,
 		       uint8_t target_gpi, uint8_t src_sec_state)
@@ -1850,14 +1849,13 @@ int gpt_transition_pas(uint64_t base, uint64_t *granule_count,
 	/* Ensure that MMU and caches are enabled */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
 
-	/* Only one granule supported per call at this point. */
-	if ((*granule_count) != 1U) {
-		VERBOSE("GPT: Invalid granule count! Only one allowed per transition request.\n");
+	if (*granule_count == 0UL) {
+		VERBOSE("GPT: Invalid zero granule count!\n");
 		return -EINVAL;
 	}
 
-	/* Calculate total region size and zero out granule count. */
-	size = *granule_count * GPT_PGS_ACTUAL_SIZE(gpt_config.p);
+	/* Process one granule and let the caller retry the remaining range. */
+	size = GPT_PGS_ACTUAL_SIZE(gpt_config.p);
 	*granule_count = 0U;
 
 	/* Make sure target GPI is valid. */
