@@ -13,6 +13,17 @@
 #define PLAT_ARM_USING_EVENT_LOG
 #include <event_log_def.h>
 #endif
+
+/*
+ * Override ARM_EL3_TZC_DRAM1_SIZE when firmware update is supported
+ * with StandaloneMm with SPMC_AT_EL3
+ */
+#if !ENABLE_FEAT_RME
+#if SPMC_AT_EL3 && PSA_FWU_SUPPORT
+#define PLAT_ARM_TZC_DRAM1_SIZE			UL(0x04000000) /* 64MB */
+#endif
+#endif /* !ENABLE_FEAT_RME */
+
 #include <drivers/arm/tzc400.h>
 #include <lib/utils_def.h>
 #include <plat/arm/board/common/v2m_def.h>
@@ -235,7 +246,11 @@
 #  define PLAT_ARM_MMAP_ENTRIES		13
 #  define MAX_XLAT_TABLES		11
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	31
-#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	13
+#  if PSA_FWU_SUPPORT
+#   define PLAT_SP_IMAGE_MAX_XLAT_TABLES	37
+#  else
+#   define PLAT_SP_IMAGE_MAX_XLAT_TABLES	13
+#  endif
 # else
 #  if ENABLE_LFA_BL31
 #   define PLAT_ARM_MMAP_ENTRIES	12
