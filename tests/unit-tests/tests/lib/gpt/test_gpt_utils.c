@@ -382,7 +382,6 @@ pas_regions_info_t create_pas_regions(pas_region_t *pas_regions,
 						l0gptsz, attrs);
 				entry_added = true;
 			}
-		}
 		} else { /* TABLE DESC, yes L1 */
 			unsigned long int available_space =
 				remaining_space > l0gptsz ? l0gptsz : remaining_space;
