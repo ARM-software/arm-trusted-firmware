@@ -134,6 +134,9 @@ PYTHON			?=	python3
 # Variables for use with documentation build using Sphinx tool
 DOCS_PATH		?=	docs
 
+# Variables for use with unit tests
+UNIT_TEST_BUILD_BASE	?=	${BUILD_BASE}/unit-tests
+
 # Process Debug flag
 ifneq (${DEBUG}, 0)
 	BUILD_TYPE	:=	debug
@@ -1026,7 +1029,7 @@ include lib/compiler-rt/compiler-rt.mk
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp tl fwu_fip certtool dtbs memmap doc enctool
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp tl fwu_fip certtool dtbs memmap doc unit-tests enctool
 
 all: msg_start
 
@@ -1309,6 +1312,16 @@ doc:
 	$(if $(host-poetry),$(q)$(host-poetry) -q install --with docs --no-root)
 	$(q)$(if $(host-poetry),$(host-poetry) run )${MAKE} --no-print-directory -C ${DOCS_PATH} BUILDDIR=$(abspath ${BUILD_BASE}/docs) html
 
+unit-tests:
+	$(eval TFUT_BUILD_BASE := $(call shell-quote,$(UNIT_TEST_BUILD_BASE)))
+	$(s)echo "  BUILD UNIT TESTS"
+	$(q)cmake -S tests/unit-tests -B $(TFUT_BUILD_BASE)			\
+		-DUNIT_TEST_PROJECT_PATH=$(call shell-quote,$(CURDIR))		\
+		-G"Unix Makefiles"
+	$(q)cmake --build $(TFUT_BUILD_BASE)
+	$(q)cmake --build $(TFUT_BUILD_BASE) --target test			\
+		-- CTEST_OUTPUT_ON_FAILURE=1
+
 enctool: ${ENCTOOL}
 
 ${ENCTOOL}: FORCE | $$(@D)/
@@ -1360,6 +1373,7 @@ help:
 	$(s)echo "  dtbs           Build the Device Tree Blobs (if required for the platform)"
 	$(s)echo "  memmap         Print the memory map of the built binaries"
 	$(s)echo "  doc            Build html based documentation using Sphinx tool"
+	$(s)echo "  unit-tests     Build the unit tests"
 	$(s)echo ""
 	$(s)echo "Note: most build targets require PLAT to be set to a specific platform."
 	$(s)echo ""
