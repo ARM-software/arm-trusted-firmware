@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <limits.h>
 
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/tbbr/cot_def.h>
 #include <drivers/clk.h>
@@ -16,6 +17,7 @@
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/fconf/fconf_tbbr_getter.h>
 #include <lib/mmio.h>
+#include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
@@ -189,18 +191,51 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 {
+	static void *heap_addr_static;
+	static size_t heap_size_static;
+	int err __maybe_unused;
+
 	assert(heap_addr != NULL);
 	assert(heap_size != NULL);
 
+	if (heap_addr_static == NULL) {
 #if STM32MP_USE_EXTERNAL_HEAP
-	/* Retrieve the already allocated heap's info from DTB */
-	*heap_addr = FCONF_GET_PROPERTY(tbbr, dyn_config, mbedtls_heap_addr);
-	*heap_size = FCONF_GET_PROPERTY(tbbr, dyn_config, mbedtls_heap_size);
+		/* Retrieve the already allocated heap's info from DTB, once */
+		heap_addr_static = FCONF_GET_PROPERTY(tbbr, dyn_config, mbedtls_heap_addr);
+		heap_size_static = FCONF_GET_PROPERTY(tbbr, dyn_config, mbedtls_heap_size);
 
-	/* We expect heap already statically mapped */
+		if (heap_addr_static == NULL) {
+			ERROR("Bad mbedtls heap address\n");
+			panic();
+		}
+
+		/* We expect heap already statically mapped */
+#else
+		err = get_mbedtls_heap_helper(&heap_addr_static, &heap_size_static);
+
+		if (err != 0) {
+			return err;
+		}
+#endif
+	}
+
+	*heap_addr = heap_addr_static;
+	*heap_size = heap_size_static;
 
 	return 0;
-#else
-	return get_mbedtls_heap_helper(heap_addr, heap_size);
+}
+
+void stm32mp_erase_mbedtls_heap(void)
+{
+	void *heap_addr;
+	size_t heap_size;
+
+	if ((plat_get_mbedtls_heap(&heap_addr, &heap_size) != 0) || (heap_size == 0U)) {
+		return;
+	}
+
+	zeromem(heap_addr, heap_size);
+#if STM32MP_USE_EXTERNAL_HEAP
+	flush_dcache_range((uintptr_t)heap_addr, heap_size);
 #endif
 }
