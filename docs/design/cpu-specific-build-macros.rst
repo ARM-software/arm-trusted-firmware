@@ -1749,6 +1749,14 @@ For C1-Ultra, the following errata build flags are defined :
    C1-Ultra CPU. This needs to be enabled for revisions r0p0 and r1p0 and
    is still open.
 
+- ``ERRATA_C1ULTRA_4302962``: This applies erratum 4302962 workaround to the
+   C1-ULTRA CPU. This needs to be enabled for revisions r0p0, r1p0 of the CPU. It
+   is fixed in r1p1.
+
+- ``ERRATA_C1ULTRA_4623386``: This applies erratum 4623386 workaround to the
+   C1-ULTRA CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 of the
+   CPU. It is still open.
+
 For C1-Premium, the following errata build flags are defined :
 
 -  ``ERRATA_C1PREMIUM_3324333``: This applies errata 3324333 workaround to
