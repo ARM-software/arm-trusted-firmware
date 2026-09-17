@@ -123,6 +123,19 @@ safe_info:
 	.popsection
 
 .global erratum_c1_nano_4497400_wa
+
+/* It depends on non-default settings CORE<n>_ASYNC_BRIDGE = FALSE */
+add_erratum_entry c1_nano, ERRATUM(3806270), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_nano, ERRATUM(3806270), CPU_REV(0, 1)
+
+/*
+ * Arm recommends keeping the prefetchers enabled in production.
+ * CPUECTLR_EL1.ALLPFDIS left at its reset value of 0.
+ * It should only be set to 1 in controlled test or pre-production environments.
+ */
+add_erratum_entry c1_nano, ERRATUM(4394104), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_nano, ERRATUM(4394104), CPU_REV(0, 2)
+
 workaround_runtime_start c1_nano, ERRATUM(4497400), ERRATA_C1NANO_4497400
 	adr_l	x1, safe_info
 	mov	x0, #4
