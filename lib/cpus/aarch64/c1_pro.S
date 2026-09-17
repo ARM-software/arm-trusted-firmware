@@ -38,19 +38,19 @@ workaround_runtime_end c1_pro, ERRATUM(3338470)
 check_erratum_ls c1_pro, ERRATUM(3338470), CPU_REV(0, 0)
 
 workaround_reset_start c1_pro, ERRATUM(3362007), ERRATA_C1PRO_3362007
-	sysreg_bit_set C1_PRO_IMP_CPUACTLR2_EL1, BIT(27)
+	sysreg_bit_set C1_PRO_CPUACTLR2_EL1, BIT(27)
 workaround_reset_end c1_pro, ERRATUM(3362007)
 
 check_erratum_ls c1_pro, ERRATUM(3362007), CPU_REV(0, 0)
 
 workaround_reset_start c1_pro, ERRATUM(3619847), ERRATA_C1PRO_3619847
-	sysreg_bit_set C1_PRO_IMP_CPUACTLR2_EL1, BIT(42)
+	sysreg_bit_set C1_PRO_CPUACTLR2_EL1, BIT(42)
 workaround_reset_end c1_pro, ERRATUM(3619847)
 
 check_erratum_ls c1_pro, ERRATUM(3619847), CPU_REV(0, 0)
 
 workaround_reset_start c1_pro, ERRATUM(3684268), ERRATA_C1PRO_3684268
-	sysreg_bit_set C1_PRO_IMP_CPUECTLR2_EL1, BIT(49)
+	sysreg_bit_set C1_PRO_CPUECTLR2_EL1, BIT(49)
 	dsb sy
 workaround_reset_end c1_pro, ERRATUM(3684268)
 
@@ -63,7 +63,7 @@ workaround_runtime_start c1_pro, ERRATUM(3686597), ERRATA_C1PRO_3686597
 	beq 1f
 #endif
 
-	sysreg_bit_set C1_PRO_IMP_CPUECTLR_EL1, BIT(57)
+	sysreg_bit_set C1_PRO_CPUECTLR_EL1, BIT(57)
 	dsb sy
 
 1:
@@ -74,25 +74,25 @@ check_erratum_ls c1_pro, ERRATUM(3686597), CPU_REV(1, 0)
 
 workaround_reset_start c1_pro, ERRATUM(3694158), ERRATA_C1PRO_3694158
 	mov x0, #5
-	msr C1_PRO_IMP_CPUPSELR_EL3, x0
+	msr C1_PRO_CPUPSELR_EL3, x0
 	isb
 	ldr x0, =0xd503329f
-	msr C1_PRO_IMP_CPUPOR_EL3, x0
+	msr C1_PRO_CPUPOR_EL3, x0
 	ldr x0, =0xfffff3ff
-	msr C1_PRO_IMP_CPUPMR_EL3, x0
+	msr C1_PRO_CPUPMR_EL3, x0
 	mov x1, #0
 	orr x1, x1, #1<<0
 	orr x1, x1, #3<<4
 	orr x1, x1, #0xf<<6
 	orr x1, x1, #1<<22
 	orr x1, x1, #1<<32
-	msr C1_PRO_IMP_CPUPCR_EL3, x1
+	msr C1_PRO_CPUPCR_EL3, x1
 workaround_reset_end c1_pro, ERRATUM(3694158)
 
 check_erratum_ls c1_pro, ERRATUM(3694158), CPU_REV(1, 1)
 
 workaround_reset_start c1_pro, ERRATUM(3706576), ERRATA_C1PRO_3706576
-	sysreg_bit_set C1_PRO_IMP_CPUACTLR2_EL1, BIT(37)
+	sysreg_bit_set C1_PRO_CPUACTLR2_EL1, BIT(37)
 workaround_reset_end c1_pro, ERRATUM(3706576)
 
 check_erratum_ls c1_pro, ERRATUM(3706576), CPU_REV(1, 0)
@@ -108,11 +108,11 @@ check_erratum_range c1_pro, ERRATUM(3773617), CPU_REV(1, 1), CPU_REV(1, 1)
 	/* -----------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for C1-Pro using erratum 3684268
 	 * workaround by disabling the affected prefetcher
-	 * via IMP_CPUECTLR_EL1[49].
+	 * via CPUECTLR_EL1[49].
 	 * -----------------------------------------------------------
 	 */
 workaround_reset_start c1_pro, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-	sysreg_bit_set C1_PRO_IMP_CPUECTLR2_EL1, BIT(49)
+	sysreg_bit_set C1_PRO_CPUECTLR2_EL1, BIT(49)
 	dsb	sy
 workaround_reset_end c1_pro, CVE(2024, 7881)
 
@@ -126,8 +126,8 @@ cpu_reset_func_start c1_pro
 	msr	SSBS, xzr
 	apply_erratum c1_pro, ERRATUM(3338470), ERRATA_C1PRO_3338470
 	/* model bug: not cleared on reset */
-	sysreg_bit_clear 	C1_PRO_IMP_CPUPWRCTLR_EL1, \
-		C1_PRO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	sysreg_bit_clear C1_PRO_CPUPWRCTLR_EL1, \
+		C1_PRO_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	enable_mpmm
 cpu_reset_func_end c1_pro
 
@@ -159,8 +159,8 @@ func c1_pro_core_pwr_dwn
 	 * ---------------------------------------------------
 	 */
 	apply_erratum c1_pro, ERRATUM(3686597), ERRATA_C1PRO_3686597
-	sysreg_bit_toggle C1_PRO_IMP_CPUPWRCTLR_EL1, \
-		C1_PRO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	sysreg_bit_toggle C1_PRO_CPUPWRCTLR_EL1, \
+		C1_PRO_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 c1_pro_skip_pwr_dwn:
 	signal_pabandon_handled
@@ -182,7 +182,7 @@ c1_pro_regs: /* The ASCII list of register names to be reported */
 
 func c1_pro_cpu_reg_dump
 	adr	x6, c1_pro_regs
-	mrs	x8, C1_PRO_IMP_CPUECTLR_EL1
+	mrs	x8, C1_PRO_CPUECTLR_EL1
 	ret
 endfunc c1_pro_cpu_reg_dump
 
