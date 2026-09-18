@@ -1,7 +1,10 @@
 /*
- * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/100048/latest
+ * SDEN: https://developer.arm.com/documentation/epm086451/latest
  */
 #include <arch.h>
 #include <asm_macros.S>
@@ -41,7 +44,7 @@ workaround_reset_end cortex_a73, ERRATUM(855423)
 check_erratum_ls cortex_a73, ERRATUM(855423), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a73, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_bpiall_vbar
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a73, CVE(2017, 5715)
@@ -66,7 +69,7 @@ workaround_reset_end cortex_a73, CVE(2018, 3639)
 check_erratum_chosen cortex_a73, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a73, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* Skip installing vector table again for CVE_2022_23960 */
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	mrs	x1, vbar_el3

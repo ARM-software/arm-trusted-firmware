@@ -1,7 +1,10 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/100095/latest
+ * SDEN: https://developer.arm.com/documentation/epm012079/latest
  */
 #include <arch.h>
 #include <asm_macros.S>
@@ -88,7 +91,7 @@ check_erratum_chosen cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367
 add_erratum_entry cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367
 
 workaround_reset_start cortex_a72, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a72, CVE(2017, 5715)
@@ -114,7 +117,7 @@ workaround_reset_end cortex_a72, CVE(2018, 3639)
 check_erratum_chosen cortex_a72, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a72, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* Skip installing vector table again if already done for CVE(2017, 5715) */
 	/*
 	 * The Cortex-A72 generic vectors are overridden to apply the

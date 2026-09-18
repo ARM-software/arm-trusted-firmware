@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -41,7 +41,7 @@ RESET_TO_BL2				:=	1
 SVE_VECTOR_LEN				:=	128
 USE_COHERENT_MEM			:=	0
 
-RD1AE_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3.S
+RD1AE_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3ae.S
 
 PLAT_BL_COMMON_SOURCES	+=	${RD1AE_BASE}/rd1ae_plat.c	\
 				${RD1AE_BASE}/include/rd1ae_helpers.S

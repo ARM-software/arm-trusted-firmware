@@ -2,6 +2,9 @@
  * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/102226/latest
+ * SDEN: https://developer.arm.com/documentation/SDEN-1707916/latest
  */
 
 #include <arch.h>
@@ -180,7 +183,7 @@ check_erratum_chosen cortex_a78c, ERRATUM(4302974), ERRATA_A78C_4302974
 check_erratum_chosen cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A78c generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.

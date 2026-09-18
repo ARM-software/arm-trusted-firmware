@@ -3,6 +3,9 @@
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/ddi0488/latest
+ * SDEN: https://developer.arm.com/documentation/epm049219/latest
  */
 #include <arch.h>
 #include <asm_macros.S>
@@ -162,7 +165,7 @@ check_erratum_chosen cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
 add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
 
 workaround_reset_start cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a57, CVE(2017, 5715)
@@ -178,7 +181,7 @@ workaround_reset_end cortex_a57, CVE(2018, 3639)
 check_erratum_chosen cortex_a57, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a57, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a57, CVE(2022, 23960)
