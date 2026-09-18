@@ -384,6 +384,32 @@ void stm32_display_board_info(uint32_t board_id)
 	       BOARD_ID2BOM(board_id));
 }
 
+void stm32mp_print_cpuinfo(void)
+{
+	char name[STM32_SOC_NAME_SIZE];
+
+	stm32mp_get_soc_name(name);
+	NOTICE("CPU: %s\n", name);
+}
+
+void stm32mp_print_boardinfo(void)
+{
+	uint32_t board_id = 0U;
+
+	/* The board ID OTP is optional */
+	if (!dt_has_otp_name(BOARD_ID_OTP)) {
+		return;
+	}
+
+	if (stm32_get_otp_value(BOARD_ID_OTP, &board_id) != 0) {
+		return;
+	}
+
+	if (board_id != 0U) {
+		stm32_display_board_info(board_id);
+	}
+}
+
 int stm32_save_boot_info(boot_api_context_t *boot_context)
 {
 	uint32_t auth_status;

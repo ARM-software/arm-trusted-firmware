@@ -448,32 +448,6 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 		 "STM32MP%s%s Rev.%s", cpu_s, pkg, cpu_r);
 }
 
-void stm32mp_print_cpuinfo(void)
-{
-	char name[STM32_SOC_NAME_SIZE];
-
-	stm32mp_get_soc_name(name);
-	NOTICE("CPU: %s\n", name);
-}
-
-void stm32mp_print_boardinfo(void)
-{
-	uint32_t board_id = 0U;
-
-	/* The board ID OTP is optional */
-	if (!dt_has_otp_name(BOARD_ID_OTP)) {
-		return;
-	}
-
-	if (stm32_get_otp_value(BOARD_ID_OTP, &board_id) != 0) {
-		return;
-	}
-
-	if (board_id != 0U) {
-		stm32_display_board_info(board_id);
-	}
-}
-
 /* Return true when SoC provides a single Cortex-A35 core, and false otherwise */
 bool stm32mp_is_single_core(void)
 {
