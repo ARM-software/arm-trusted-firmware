@@ -9,11 +9,18 @@
 #include <platform_def.h>
 
 const unsigned char rdaspen_pd_tree_desc[] = {
+	ARM_SYSTEM_COUNT,
 	PLAT_ARM_CLUSTER_COUNT,
 	PLATFORM_CLUSTER_0_CORE_COUNT,
+#if (PLAT_ARM_CLUSTER_COUNT > 1)
 	PLATFORM_CLUSTER_1_CORE_COUNT,
+#endif
+#if (PLAT_ARM_CLUSTER_COUNT > 2)
 	PLATFORM_CLUSTER_2_CORE_COUNT,
+#endif
+#if (PLAT_ARM_CLUSTER_COUNT > 3)
 	PLATFORM_CLUSTER_3_CORE_COUNT,
+#endif
 };
 
 static const unsigned char cluster_id_core_count_map[] = {
