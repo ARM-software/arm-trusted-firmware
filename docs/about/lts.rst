@@ -269,6 +269,14 @@ or candidate patch selection.
 
 Playbook for new releases
 -------------------------
+To create a new LTS major release branch (e.g. ``lts-v2.14``), first update
+``.github/dependabot.yml`` on the main development branch to add the
+corresponding ``target-branch`` entries for that new LTS branch. Once this
+change is merged through ``review.trustedfirmware.org`` and mirrored to GitHub
+``master``, Dependabot can open branch-specific dependency update pull requests
+for the new LTS branch. Mirror the dependency ecosystems and directories used
+by the other active LTS branches as appropriate for the new release.
+
 To make a new minor release (e.g. 2.x.y → 2.x.y+1), follow these steps.
 
 #. Every Friday, LTS maintainers receive a triage report email (subject: “TF-A
