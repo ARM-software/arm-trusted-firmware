@@ -3,6 +3,83 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.7..refs/tags/lts-v2.14.8) (2026-09-18)
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - align AE variant core names ([23a043e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/23a043ecf0b19975005631aa3fa1a1184290c027))
+    - factor out Neoverse V3AE from the base Neoverse V3 file ([d88a86d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d88a86de0abb5fe36a48c90ea5c4e281277fd7cc))
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add links to each core's TRM and SDEN ([06e6a11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06e6a11cdfb98fdadf0feb23727f581e6b6a4711))
+
+  - **PSCI**
+
+    - add hierarchical power state consistency check ([9bf7047](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9bf7047a4f8f56012441f09bc6e81d5b47070a98))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - validate last_at_pwrlvl before forwarding it ([35bb2bf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/35bb2bf984458908d9989edfe95623964fe4c917))
+
+    - **Automotive RD**
+
+      - **RD-Aspen**
+
+        - enable A720AE erratum 3456103 ([b1636c3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b1636c3476d3ee8d9cba69439be8e632e6bd9b44))
+
+  - **Rockchip**
+
+    - **RK3568**
+
+      - implement CPU core suspend/resume power domain hooks ([ffd31a2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ffd31a2bc09b235ab8e66665bdca22e908171021))
+
+- **Services**
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - harden composite MRD validation ([dc4d9fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dc4d9feab7424c7295c40393495b786be35bddc0))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - use #ifdef for IMAGE_BL flags ([e808eff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e808effb200feae99f177f9f6026df0cc6fee637))
+
+  - **PSCI**
+
+    - validate last_at_pwrlvl bounds before use ([71d0777](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/71d0777fd29da5c5127c09ad4f5950da105e4339))
+
+- **Miscellaneous**
+
+  - **FDT Wrappers**
+
+    - reject negative cell counts ([e5d0846](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e5d0846788cf0accbb1e4d9815d3f60479b477d9))
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - add LTS-v2.14 Dependabot configuration ([d502f6d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d502f6dd99031c61dc7e38bd4e9c3409ca42a628))
+
+### Documentation
+
+- add LTS Dependabot release step ([68d99c6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/68d99c69b463bfc8547bf2bea0512d740fae092c))
+
 ## [lts-2.14.7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.6..refs/tags/lts-v2.14.7) (2026-09-11)
 
 ### Resolved Issues
