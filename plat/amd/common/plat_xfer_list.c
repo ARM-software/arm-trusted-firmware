@@ -93,18 +93,18 @@ static bool setup_dynamic_transfer_list(void)
 {
 	entry_point_info_t bl32_ep_info = {0};
 	entry_point_info_t bl33_ep_info = {0};
-	void *dtb = (void *)FW_HANDOFF_BASE;
+	void *dtb = (void *)secure_tl_region.base;
 	uint32_t __unused mfst_sz = 0U;
 	void __unused *mfst_dtb;
 	uint32_t dtb_sz = 0U;
 	bool ret = false;
 
 	/* Add 2MB MAX DT size offset for Dynamic TL */
-	tl_hdr = transfer_list_init((void *)(FW_HANDOFF_BASE + XILINX_OF_BOARD_DTB_MAX_SIZE),
-			(FW_HANDOFF_SIZE - XILINX_OF_BOARD_DTB_MAX_SIZE));
+	tl_hdr = transfer_list_init((void *)(secure_tl_region.base + XILINX_OF_BOARD_DTB_MAX_SIZE),
+				    (FW_HANDOFF_SIZE - XILINX_OF_BOARD_DTB_MAX_SIZE));
 	if (tl_hdr == NULL) {
 		NOTICE("Failed to initialize Transfer List at 0x%lx\n",
-				(unsigned long)(FW_HANDOFF_BASE + XILINX_OF_BOARD_DTB_MAX_SIZE));
+		       (unsigned long)(secure_tl_region.base + XILINX_OF_BOARD_DTB_MAX_SIZE));
 		goto exit_on_failure;
 	}
 
@@ -181,7 +181,7 @@ static bool validate_transfer_list_ops(void)
 {
 	bool ret = true;
 
-	tl_hdr = (struct transfer_list_header *)FW_HANDOFF_BASE;
+	tl_hdr = (struct transfer_list_header *)secure_tl_region.base;
 	tl_ops_holder = transfer_list_check_header(tl_hdr);
 
 	if ((tl_ops_holder != TL_OPS_ALL) && (tl_ops_holder != TL_OPS_RO)) {
@@ -193,7 +193,7 @@ static bool validate_transfer_list_ops(void)
 
 bool init_transfer_list_from_fdt_or_static(void)
 {
-	void *blob_magic_addr = (void *)FW_HANDOFF_BASE;
+	void *blob_magic_addr;
 	bool ret = true;
 	int32_t map_ret;
 
@@ -201,6 +201,8 @@ bool init_transfer_list_from_fdt_or_static(void)
 	secure_tl_region.base = FW_HANDOFF_BASE;
 	secure_tl_region.size = FW_HANDOFF_SIZE;
 	secure_tl_region.is_mapped = false;
+
+	blob_magic_addr = (void *)secure_tl_region.base;
 
 	/* Map secure transfer list region */
 	map_ret = map_xfer_list_region(&secure_tl_region, MT_MEMORY | MT_RW | MT_SECURE);
