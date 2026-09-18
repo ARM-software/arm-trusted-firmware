@@ -3,6 +3,91 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.35](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.34..refs/tags/lts-v2.10.35) (2026-09-18)
+
+### Build System
+
+- **Dependencies**
+
+  - bump the npm_and_yarn group across 1 directory with 5 updates ([0958da9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0958da97967415049f7f2434d72596ca7c032a9d))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - align AE variant core names ([81eab6d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81eab6d80040d98a5ce9796e26f5d59a3aefd889))
+    - factor out Neoverse V3AE from the base Neoverse V3 file ([d4cfb4d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d4cfb4dc55470177b3d7d6372452eef7efce7c97))
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add links to each core's TRM and SDEN ([6f951de](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6f951de8762ec7a46a6d27e29836c64121bb4f69))
+
+  - **PSCI**
+
+    - add hierarchical power state consistency check ([cc5495c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cc5495c5dbd7605ae82161ecc812ce272a5ca079))
+
+### Documentation
+
+- add LTS Dependabot release step ([9b53aab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9b53aab022e3ded95e13c672cd647e0b85895984))
+
+### Resolved Issues
+
+- **tools:** change data type to size_t for doimage ([5b1aa78](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5b1aa78b63b62e7af1bf1a98cacc5b95878da9b0))
+
+- **Platforms**
+
+  - **Arm**
+
+    - validate last_at_pwrlvl before forwarding it ([0830093](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/08300935542d9d2cf11805c515c6fcf9ebed3ac8))
+
+  - **Intel**
+
+    - update fcs crypto init code to check for mode ([48ae48d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/48ae48d0c2c1d4baf405328198e1a62668212b9a))
+
+  - **NXP**
+
+    - **i.MX**
+
+      - **i.MX 8M**
+
+        - don't reconfigure default region0 ([6e6cc3e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6e6cc3ec205694816891276db0cc696fa074905f))
+
+  - **Xilinx**
+
+    - enforce volatile call status vars ([f60721c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f60721cab54c7eb76ca086d644f492cb639964b9))
+
+- **Services**
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - harden composite MRD validation ([8103639](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8103639858a2a342578430257f40b371157a21f5))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - use #ifdef for IMAGE_BL flags ([2fe5d6a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2fe5d6a71de89c7522dc0fc8672e29582baede7d))
+
+  - **PSCI**
+
+    - add missing curly braces ([511450d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/511450d3cce1616989b4e3f3f89ebe98c92ddf94))
+    - modify variable conflicting with external function ([289e785](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/289e785d9e2732211cb60ad6e9c16f0ad3693e10))
+    - validate last_at_pwrlvl bounds before use ([cd82948](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cd829487816813a95ca41e85580a179c6b2a1f8f))
+
+- **Miscellaneous**
+
+  - **FDT Wrappers**
+
+    - reject negative cell counts ([353c4fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/353c4fe1d2d11a38902ad8ce4b87aa12b0237280))
+
 ## [lts-2.10.34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.33..refs/tags/lts-v2.10.34) (2026-09-04)
 
 ### Documentation
