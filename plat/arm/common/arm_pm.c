@@ -103,6 +103,9 @@ int arm_validate_power_state(unsigned int power_state,
 	}
 #if PSCI_OS_INIT_MODE
 	req_state->last_at_pwrlvl = state_id & ARM_LOCAL_PSTATE_MASK;
+	if (req_state->last_at_pwrlvl > PLAT_MAX_PWR_LVL) {
+		return PSCI_E_INVALID_PARAMS;
+	}
 #endif /* __PSCI_OS_INIT_MODE__ */
 
 	return PSCI_E_SUCCESS;

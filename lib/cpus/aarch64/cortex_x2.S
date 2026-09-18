@@ -2,6 +2,9 @@
  * Copyright (c) 2021-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/101803/latest
+ * SDEN: https://developer.arm.com/documentation/SDEN-1775100/latest
  */
 
 #include <arch.h>
@@ -279,7 +282,7 @@ workaround_reset_end cortex_x2, ERRATUM(4302969)
 check_erratum_ls cortex_x2, ERRATUM(4302969), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-X2 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -302,7 +305,7 @@ check_erratum_chosen cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
  * Enables mitigation for CVE-2025-0647.
  */
 workaround_reset_start cortex_x2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -370,7 +373,7 @@ func cortex_x2_cpu_reg_dump
 	ret
 endfunc cortex_x2_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x2, CORTEX_X2_MIDR, \
 	cortex_x2_reset_func, \
 	cortex_x2_impl_defined_el3_handler, \

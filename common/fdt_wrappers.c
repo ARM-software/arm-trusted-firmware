@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2026, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -283,13 +284,32 @@ int fdt_get_reg_props_by_index(const void *dtb, int node, int index,
 	int ac, sc;
 	int cell;
 
+	if (index < 0) {
+		return -FDT_ERR_BADVALUE;
+	}
+
 	parent = fdt_parent_offset(dtb, node);
 	if (parent < 0) {
 		return -FDT_ERR_BADOFFSET;
 	}
 
 	ac = fdt_address_cells(dtb, parent);
+	if (ac < 0) {
+		return ac;
+	}
+
+	if (ac > FDT_READ_PROP_MAX_CELLS) {
+		return -FDT_ERR_BADNCELLS;
+	}
+
 	sc = fdt_size_cells(dtb, parent);
+	if (sc < 0) {
+		return sc;
+	}
+
+	if (sc > FDT_READ_PROP_MAX_CELLS) {
+		return -FDT_ERR_BADNCELLS;
+	}
 
 	cell = index * (ac + sc);
 

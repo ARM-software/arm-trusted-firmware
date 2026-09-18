@@ -2,6 +2,9 @@
  * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/102807/latest
+ * SDEN: https://developer.arm.com/documentation/109180/latest/
  */
 
 #include <arch.h>
@@ -123,7 +126,7 @@ check_erratum_ls cortex_x925, CVE(2024, 7881), CPU_REV(0, 1)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start cortex_x925, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -186,7 +189,7 @@ func cortex_x925_cpu_reg_dump
 	ret
 endfunc cortex_x925_cpu_reg_dump
 
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x925, CORTEX_X925_MIDR, \
 	cortex_x925_reset_func, \
 	cortex_x925_impl_defined_el3_handler, \

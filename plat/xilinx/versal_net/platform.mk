@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
 # Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
 #
@@ -97,7 +97,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 				${PLAT_PATH}/aarch64/versal_net_common.c
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
-				lib/cpus/aarch64/cortex_a78_ae.S		\
+				lib/cpus/aarch64/cortex_a78ae.S		\
 				lib/cpus/aarch64/cortex_a78.S			\
 				plat/common/plat_psci_common.c
 ifeq ($(TFA_NO_PM), 0)

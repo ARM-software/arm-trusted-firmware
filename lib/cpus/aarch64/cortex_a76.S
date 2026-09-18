@@ -2,6 +2,9 @@
  * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: https://developer.arm.com/documentation/100798/latest
+ * SDEN: https://developer.arm.com/documentation/SDEN-885749/latest
  */
 
 #include <arch.h>
@@ -520,7 +523,7 @@ cpu_reset_func_start cortex_a76
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 #endif /* WORKAROUND_CVE_2018_3639 */
 
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2022_23960
 	/*
 	 * The Cortex-A76 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs. This will be bypassed
