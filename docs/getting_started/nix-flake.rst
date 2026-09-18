@@ -72,7 +72,7 @@ The following commands inspect and validate the flake or format its Nix files:
 
    nix flake show
    nix flake check
-   nix fmt **/*.nix
+   nix fmt
 
 Add ``--print-build-logs`` to ``nix build`` to display the complete build log.
 
