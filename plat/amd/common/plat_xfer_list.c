@@ -16,6 +16,7 @@
 #include <plat_fdt.h>
 #include <plat_xfer_list.h>
 #include <platform_def.h>
+#include <pm_tl_client.h>
 
 static struct transfer_list_header *tl_hdr;
 static struct transfer_list_header *ns_tl_hdr;
@@ -191,6 +192,18 @@ static bool validate_transfer_list_ops(void)
 	return ret;
 }
 
+/*
+ * Default weak implementation: platforms whose PLM cannot report the runtime
+ * transfer list address leave the static TL FW base address in place.
+ * Platforms whose PLM implements the query (e.g. Versal Gen 2) override this
+ * with the real IPI call.
+ */
+#pragma weak plat_get_tl_fw_base_address
+void plat_get_tl_fw_base_address(uintptr_t *tl_base)
+{
+	(void)tl_base;
+}
+
 bool init_transfer_list_from_fdt_or_static(void)
 {
 	void *blob_magic_addr;
@@ -201,6 +214,11 @@ bool init_transfer_list_from_fdt_or_static(void)
 	secure_tl_region.base = FW_HANDOFF_BASE;
 	secure_tl_region.size = FW_HANDOFF_SIZE;
 	secure_tl_region.is_mapped = false;
+
+	/* Platforms able to query the PLM override the static base address */
+	plat_get_tl_fw_base_address(&secure_tl_region.base);
+
+	INFO("Resolved TL FW base address: 0x%lx\n", (unsigned long)secure_tl_region.base);
 
 	blob_magic_addr = (void *)secure_tl_region.base;
 
