@@ -939,22 +939,41 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	return 0;
 }
 
-static int rockchip_reboot_is_rbrom(void)
+static uint32_t rockchip_reboot_brom_request(void)
 {
-	return mmio_read_32(PMU0_GRF_BASE + PMU0GRF_OS_REG(16)) ==
-	       BOOT_BROM_DOWNLOAD;
+	uint32_t req = mmio_read_32(PMU0_GRF_BASE + PMU0GRF_OS_REG(16));
+	uint32_t mode = req & ~BOOT_BROM_BOOT_MODE_MASK;
+
+	if (req == BOOT_BROM_DOWNLOAD) {
+		return req;
+	}
+
+	/*
+	 * The boot ROM uses the requested boot mode as an index into its boot
+	 * device table without validating it, so only pass on the modes that
+	 * are known to exist.
+	 */
+	if (((req & BOOT_BROM_BOOT_MODE_MASK) == BOOT_BROM_BOOT_MODE) &&
+	    (mode >= BOOT_BROM_BOOT_MODE_MIN) &&
+	    (mode <= BOOT_BROM_BOOT_MODE_MAX)) {
+		return req;
+	}
+
+	return 0U;
 }
 
 static void rockchip_soc_soft_reset_check_rstout(void)
 {
+	uint32_t req = rockchip_reboot_brom_request();
+
 	/*
-	 * Maskrom enter maskrom-usb mode according to os_reg0 which
+	 * Boot ROM takes the requested boot mode from os_reg0 which
 	 * will be reset by NPOR. So disable tsadc_shut_m0 if we want
-	 * to maskrom-usb mode.
+	 * the request to reach it.
 	 */
-	if (rockchip_reboot_is_rbrom() != 0) {
-		/* write BOOT_BROM_DOWNLOAD to os_reg0 */
-		mmio_write_32(PMU1_GRF_BASE + PMU1GRF_OS_REG(0), BOOT_BROM_DOWNLOAD);
+	if (req != 0U) {
+		/* pass the request on to the boot ROM through os_reg0 */
+		mmio_write_32(PMU1_GRF_BASE + PMU1GRF_OS_REG(0), req);
 
 		/* disable first/tsadc/wdt reset output */
 		mmio_write_32(PMU1SGRF_BASE + PMU1SGRF_SOC_CON(0), 0x00070000);
