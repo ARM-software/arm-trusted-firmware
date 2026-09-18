@@ -69,12 +69,6 @@
                 "BUILD_MESSAGE_TIMESTAMP=\"1970-01-01T00:00:00Z\""
               ]}
             )
-
-            buildFlagsArray+=(
-              "''${PWD}/build/fvp/release/bl1.bin"
-              "''${PWD}/build/fvp/release/bl2.bin"
-              "''${PWD}/build/fvp/release/bl31.bin"
-            )
           '';
 
           installPhase = ''
