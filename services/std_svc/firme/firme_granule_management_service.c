@@ -95,7 +95,7 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 	}
 
 	switch (smc_fid) {
-	case FIRME_GM_GPI_SET_FID:
+	case FIRME_GM_GPI_SET_FID: {
 		/* Extract target GPI value from attributes in x3. */
 		uint8_t target_gpi = (x3 >> FIRME_GM_GPI_SET_TGT_GPI_SHIFT) &
 				     FIRME_GM_GPI_SET_TGT_GPI_MASK;
@@ -120,6 +120,7 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 			SMC_RET2(handle, FIRME_NOT_SUPPORTED, 0);
 		}
 		break;
+	}
 	default:
 		ERROR("FIRME Granule Management Service FID 0x%X not implemented\n",
 		      smc_fid);
