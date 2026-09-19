@@ -10,6 +10,17 @@
 #include <stdint.h>
 
 /*
+ * qti_cmd_db_init - validate and cache the RPMh command DB header.
+ */
+#if QTI_CMD_DB_ENABLED
+void qti_cmd_db_init(void);
+#else
+static inline void qti_cmd_db_init(void)
+{
+}
+#endif
+
+/*
  * cmd_db_query_addr - look up a resource address in the RPMh command DB.
  *
  * @res_id: null-terminated resource identifier string (max 8 chars, e.g.

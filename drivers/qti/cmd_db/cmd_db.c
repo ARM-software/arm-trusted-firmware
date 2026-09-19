@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <common/debug.h>
 #include <drivers/qti/cmd_db/cmd_db.h>
 
 #include <platform_def.h>
@@ -56,18 +57,18 @@ struct cmd_db_header {
 
 static struct cmd_db_header *g_cmd_db;
 
-static int cmd_db_init(void)
+void qti_cmd_db_init(void)
 {
 	struct cmd_db_header *hdr =
 		(struct cmd_db_header *)(uintptr_t)QTI_AOP_CMD_DB_BASE;
 
 	if ((hdr->version != CMD_DB_VERSION) ||
 	    (hdr->magic_num != CMD_DB_MAGIC_NUM)) {
-		return -1;
+		WARN("Cmd DB initialization error\n");
+		return;
 	}
 
 	g_cmd_db = hdr;
-	return 0;
 }
 
 static uint64_t res_id_to_u64(const char *res_id)
@@ -100,14 +101,8 @@ static const struct cmd_db_entry *cmd_db_find_entry(
 	const struct cmd_db_slv_id_info *info;
 	const struct cmd_db_entry *entry;
 
-	if (res_id == NULL) {
+	if ((res_id == NULL) || (g_cmd_db == NULL)) {
 		return NULL;
-	}
-
-	if (g_cmd_db == NULL) {
-		if (cmd_db_init() != 0) {
-			return NULL;
-		}
 	}
 
 	key = res_id_to_u64(res_id);

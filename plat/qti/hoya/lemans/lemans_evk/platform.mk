@@ -108,6 +108,7 @@ QTI_CLOCK_RAIL_VOTE := 1
 
 include drivers/qti/accesscontrol/access_control.mk
 include drivers/qti/smmu/smmu.mk
+include drivers/qti/cmd_db/cmd_db.mk
 include drivers/qti/pdc/pdc.mk
 include drivers/qti/pwr_utils/pwr_utils.mk
 include drivers/qti/rpmh/rpmh.mk
