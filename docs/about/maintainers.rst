@@ -396,6 +396,7 @@ Runtime Services
 Standard C library
 ^^^^^^^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
+:|M|: Dávid Danyi <david.danyi@arm.com>
 :|F|: lib/libc/
 :|F|: include/lib/libc/
 
