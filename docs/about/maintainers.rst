@@ -750,6 +750,16 @@ QTI platform port and SoC drivers
 :|F|: include/drivers/qti/
 :|F|: tools/qti/
 
+QTI chipinfo, clock and platform info drivers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Naresh Nunna <nnunna@qti.qualcomm.com>
+:|M|: Vinod Amanaganti <vinoda@qti.qualcomm.com>
+:|F|: drivers/qti/chipinfo/
+:|F|: include/drivers/qti/chipinfo/
+:|F|: drivers/qti/clock/
+:|F|: include/drivers/qti/clock/
+:|F|: include/drivers/qti/platforminfo/
+
 QTI MSM8916 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Stephan Gerhold <stephan@gerhold.net>
