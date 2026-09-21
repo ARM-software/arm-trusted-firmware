@@ -995,6 +995,7 @@ cot-dt2c
 
 memory
 ^^^^^^
+:|M|: Antal Bánovics <antal.banovics@arm.com>
 :|M|: Chris Kay <chris.kay@arm.com>
 :|F|: tools/memory/
 
