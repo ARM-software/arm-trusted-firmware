@@ -47,6 +47,11 @@
 /* Loader API ids */
 #define PM_LOAD_PDI			0x701U
 #define PM_LOAD_GET_HANDOFF_PARAMS	0x70BU
+/*
+ * Query the runtime transfer list (tlbin partition) load address.
+ * Defined by the PLM loader module (xilloader).
+ */
+#define PM_GET_TLBIN_LOAD_ADDR		0x716U
 
 /* Boot mode id */
 #define CRP_BOOT_MODE_REG_NODE          0x30000001U

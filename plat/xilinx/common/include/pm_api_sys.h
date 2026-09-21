@@ -8,6 +8,7 @@
 #ifndef PM_API_SYS_H
 #define PM_API_SYS_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include "pm_defs.h"
 

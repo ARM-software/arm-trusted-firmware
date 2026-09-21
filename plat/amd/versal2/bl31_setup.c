@@ -139,18 +139,22 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
+	uart_clock = get_uart_clk();
+
+	/*
+	 * Initialize the platform config for future decision making. This also
+	 * initializes the IPI configuration table, which the transfer list
+	 * setup below will rely on once it queries the transfer list base
+	 * address from the PLM over IPI.
+	 */
+	config_setup();
+
 #if (TRANSFER_LIST == 1)
 	tl_status = init_transfer_list_from_fdt_or_static();
 	if (tl_status != true) {
 		WARN("Invalid transfer list\n");
 	}
 #endif
-
-	uart_clock = get_uart_clk();
-
-	/* Initialize the platform config for future decision making */
-	config_setup();
-
 	setup_console();
 
 #if (VERSAL2_VARIANT == 14)
