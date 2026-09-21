@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (c) 2017-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2026, STMicroelectronics - All Rights Reserved
  * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
  */
 #include <dt-bindings/interrupt-controller/arm-gic.h>
@@ -522,9 +522,46 @@
 
 		tamp: tamp@5c00a000 {
 			compatible = "st,stm32-tamp", "syscon", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0x5c00a000 0x400>;
-			secure-interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&rcc RTCAPB>;
+			ranges;
+
+			nvram: nvram@5c00a100 {
+				compatible = "st,stm32mp15-tamp-nvram";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x5c00a100 0x80>;
+
+				magic_number: tamp-bkp@10 {
+					/* see ddr and cpu wake up management feature */
+					reg = <0x10 0x4>;
+				};
+
+				branch_address: tamp-bkp@14 {
+					/* see ddr and cpu wake up management feature */
+					reg = <0x14 0x4>;
+				};
+
+				fwu_info: tamp-bkp@28 {
+					/* see firmware update info feature */
+					reg = <0x28 0x4>;
+				};
+
+				boot_mode: tamp-bkp@50 {
+					/* see boot mode selection feature */
+					reg = <0x50 0x4>;
+				};
+
+			};
+
+			boot_info: boot-info {
+				compatible = "st,stm32mp-bootinfo";
+				nvmem-cells = <&magic_number>, <&branch_address>,
+					      <&boot_mode>, <&fwu_info>;
+				nvmem-cell-names = "magic-number", "core1-branch-address",
+						   "boot-mode", "fwu-info";
+			};
 		};
 
 		/*

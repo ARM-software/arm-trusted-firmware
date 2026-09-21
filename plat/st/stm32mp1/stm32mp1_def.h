@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -523,16 +523,12 @@ enum ddr_type {
  * STM32MP1 TAMP
  ******************************************************************************/
 #define TAMP_BASE			U(0x5C00A000)
-#define TAMP_BKP_REGISTER_BASE		(TAMP_BASE + U(0x100))
 #define TAMP_BKP_REG_CLK		RTCAPB
 #define TAMP_COUNTR			U(0x40)
 
-#if !(defined(__LINKER__) || defined(__ASSEMBLER__))
-static inline uintptr_t tamp_bkpr(uint32_t idx)
-{
-	return TAMP_BKP_REGISTER_BASE + (idx << 2);
-}
-#endif
+/* TAMP BACKUP REGISTER */
+#define PLAT_NB_NVMEM_DEVS		U(1)
+#define MAX_TAMP_BACKUP_REGS_ZONES	U(3)
 
 /*******************************************************************************
  * STM32MP1 USB
@@ -655,6 +651,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define DT_RCC_SEC_CLK_COMPAT		"st,stm32mp1-rcc-secure"
 #endif
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
+#define DT_TAMP_NVRAM_COMPAT		"st,stm32mp15-tamp-nvram"
 #define DT_UART_COMPAT			"st,stm32h7-uart"
 
 #endif /* STM32MP1_DEF_H */

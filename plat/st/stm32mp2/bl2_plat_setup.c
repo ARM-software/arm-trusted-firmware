@@ -191,13 +191,19 @@ void bl2_plat_arch_setup(void)
 	mmio_write_32(RISAB3_BASE + RISAB_CR, RISAB_CR_SRWIAD);
 #endif
 
+	if (stm32_tamp_nvram_init() < 0) {
+		panic();
+	}
+
 	if (stm32_iwdg_init() < 0) {
 		panic();
 	}
 
 	stm32_iwdg_refresh();
 
-	stm32_save_boot_info(boot_context);
+	if (stm32_save_boot_info(boot_context) != 0) {
+		panic();
+	}
 
 	if (stm32mp_uart_console_setup() != 0) {
 		goto skip_console_init;
@@ -369,6 +375,15 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			}
 		}
 
+#if PSA_FWU_SUPPORT
+		/* This must be done before the device tree unmapped */
+		err = stm32_fwu_set_boot_idx();
+		if (err != 0) {
+			ERROR("FWU: Failed to set boot index\n");
+			panic();
+		}
+#endif /* PSA_FWU_SUPPORT */
+
 		/*
 		 * After this step, the BL2 device tree area will be overwritten
 		 * with BL31 binary, no other data should be read from BL2 DT.
@@ -397,12 +412,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			bl_mem_params->ep_info.args.arg1 = 0U; /* Unused */
 			bl_mem_params->ep_info.args.arg2 = 0U; /* No DT supported */
 		}
-		break;
-
-	case BL33_IMAGE_ID:
-#if PSA_FWU_SUPPORT
-		stm32_fwu_set_boot_idx();
-#endif /* PSA_FWU_SUPPORT */
 		break;
 
 	default:

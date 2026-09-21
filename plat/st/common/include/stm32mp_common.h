@@ -9,6 +9,8 @@
 
 #include <stdbool.h>
 
+#include <drivers/st/nvmem.h>
+
 #include <platform_def.h>
 
 #define JEDEC_ST_BKID U(0x0)
@@ -18,7 +20,7 @@
 #define STM32MP_CHIP_SEC_OPEN		U(0xA764D182)
 
 /* FWU configuration (max supported value is 15) */
-#define FWU_MAX_TRIAL_REBOOT		U(3)
+#define FWU_MAX_TRIAL_REBOOT		U(4)
 
 /* Define maximum page size for NAND devices */
 #define PLATFORM_MTD_MAX_PAGE_SIZE	U(0x1000)
@@ -126,21 +128,29 @@ int stm32mp_map_retram(void);
 int stm32mp_unmap_retram(void);
 
 /* Function to save boot info */
-void stm32_save_boot_info(boot_api_context_t *boot_context);
+int stm32_save_boot_info(boot_api_context_t *boot_context);
 /* Function to get boot peripheral info */
-void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
-/* Function to get BOOT_MODE backup register address */
-uintptr_t stm32_get_bkpr_boot_mode_addr(void);
+int stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
 
 /* Display board information from the value found in OTP fuse */
 void stm32_display_board_info(uint32_t board_id);
 
+int stm32_tamp_nvram_init(void);
+int stm32_tamp_nvram_update_rights(void);
+
+int stm32_get_fwu_info_cell(struct nvmem_cell *fwu_info);
+int stm32_get_boot_mode_cell(struct nvmem_cell *boot_mode);
+
+#if STM32MP15
+int stm32_get_magic_number_cell(struct nvmem_cell *magic_number);
+int stm32_get_core1_branch_address_cell(struct nvmem_cell *core1_branch_address);
+#endif
+
 #if PSA_FWU_SUPPORT
-uintptr_t stm32_get_bkpr_fwu_info_addr(void);
-void stm32_fwu_set_boot_idx(void);
-uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void);
-void stm32_set_max_fwu_trial_boot_cnt(void);
-void stm32_clear_fwu_trial_boot_cnt(void);
+int stm32_fwu_set_boot_idx(void);
+int stm32_get_and_dec_fwu_trial_boot_cnt(uint32_t *cnt);
+int stm32_set_max_fwu_trial_boot_cnt(void);
+int stm32_clear_fwu_trial_boot_cnt(void);
 #endif /* PSA_FWU_SUPPORT */
 
 #endif /* STM32MP_COMMON_H */

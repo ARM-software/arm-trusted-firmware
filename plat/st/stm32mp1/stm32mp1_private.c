@@ -16,20 +16,6 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#if STM32MP13
-#define TAMP_BOOT_MODE_BACKUP_REG_ID	U(30)
-#endif
-#if STM32MP15
-#define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
-#endif
-
-/*
- * Backup register to store fwu update information.
- * It should be writeable only by secure world, but also readable by non secure
- * (so it should be in Zone 2).
- */
-#define TAMP_BOOT_FWU_INFO_REG_ID	U(10)
-
 #if defined(IMAGE_BL2)
 #define MAP_SEC_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
 					STM32MP_SYSRAM_SIZE, \
@@ -624,15 +610,3 @@ bool stm32mp_is_wakeup_from_standby(void)
 	/* TODO add source code to determine if platform is waking up from standby mode */
 	return false;
 }
-
-uintptr_t stm32_get_bkpr_boot_mode_addr(void)
-{
-	return tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
-}
-
-#if PSA_FWU_SUPPORT
-uintptr_t stm32_get_bkpr_fwu_info_addr(void)
-{
-	return tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID);
-}
-#endif /* PSA_FWU_SUPPORT */

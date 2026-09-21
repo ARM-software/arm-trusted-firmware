@@ -250,6 +250,8 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/st/pmic/stm32mp_pmic.c				\
 				drivers/st/pmic/stpmic1.c
 endif
 
+PLAT_BL_COMMON_SOURCES  +=	drivers/st/nvmem/stm32mp_tamp_nvram_mp1.c
+
 ifeq ($(STM32MP13),1)
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/clk-stm32-core.c				\
 				drivers/st/clk/clk-stm32mp13.c				\

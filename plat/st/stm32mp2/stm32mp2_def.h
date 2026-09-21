@@ -475,17 +475,13 @@ enum ddr_type {
 #define PLAT_MAX_TAMP_EXT			U(3)
 #define TAMP_BASE				U(0x46010000)
 #define TAMP_SMCR				(TAMP_BASE + U(0x20))
-#define TAMP_BKP_REGISTER_BASE			(TAMP_BASE + U(0x100))
 #define TAMP_BKP_REG_CLK			CK_BUS_RTC
 #define TAMP_BKP_SEC_NUMBER			U(10)
 #define TAMP_COUNTR				U(0x40)
 
-#if !(defined(__LINKER__) || defined(__ASSEMBLER__))
-static inline uintptr_t tamp_bkpr(uint32_t idx)
-{
-	return TAMP_BKP_REGISTER_BASE + (idx << 2);
-}
-#endif
+/* TAMP BACKUP REGISTER */
+#define PLAT_NB_NVMEM_DEVS			U(1)
+#define MAX_TAMP_BACKUP_REGS_ZONES		U(7)
 
 /*******************************************************************************
  * STM32MP2 USB
@@ -635,6 +631,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define DT_RCC_CLK_COMPAT			"st,stm32mp25-rcc"
 #endif
 #define DT_SDMMC2_COMPAT			"st,stm32mp25-sdmmc2"
+#define DT_TAMP_NVRAM_COMPAT			"st,stm32mp25-tamp-nvram"
 #define DT_UART_COMPAT				"st,stm32h7-uart"
 
 #endif /* STM32MP2_DEF_H */
