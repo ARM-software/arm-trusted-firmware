@@ -235,6 +235,18 @@ The following build options are supported:
   to be able to run Windows on ARM64. This option, which is disabled by
   default, results in the following memory mappings:
 
+- ``RPI3_PROVISION_TPM``: Disabled by default. When ``DISCRETE_TPM=1``,
+  BL1 validates that the TPM has the PCRs required by the Raspberry Pi 3
+  measured boot metadata for the algorithm selected by ``MBOOT_TPM_HASH_ALG``
+  before the measured boot event log is initialized. If the selected PCRs are
+  not available, BL1 panics and reports that the platform should use a
+  different hash algorithm or provision the TPM.
+
+  Set ``RPI3_PROVISION_TPM=1`` to let BL1 reallocate the TPM PCR banks so that
+  the required PCRs are enabled for the selected ``MBOOT_TPM_HASH_ALG``. This
+  is a debug-only provisioning aid: it requires ``DEBUG=1`` and changes the
+  TPM's persistent PCR allocation.
+
 ::
 
     0x00000000 +-----------------+

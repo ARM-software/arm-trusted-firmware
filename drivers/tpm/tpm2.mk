@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025, Arm Limited. All rights reserved.
+# Copyright (c) 2025-2026, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -20,10 +20,14 @@ LIBTPM2_BUILD_TYPE	:= Release
 endif
 
 # TPM Hash algorithm, used during Measured Boot
-# currently only accepts SHA-256
+# currently accepts SHA-256 and SHA-384
 ifeq (${MBOOT_TPM_HASH_ALG}, sha256)
     TPM_ALG_ID			:=	TPM_ALG_SHA256
     TCG_DIGEST_SIZE		:=	32U
+else ifeq (${MBOOT_TPM_HASH_ALG}, sha384)
+    TPM_ALG_ID			:=	TPM_ALG_SHA384
+    TCG_DIGEST_SIZE		:=	48U
+
 else
     $(error "The selected MBOOT_TPM_HASH_ALG is invalid.")
 endif #MBOOT_TPM_HASH_ALG
@@ -59,4 +63,3 @@ $(LIBTPM2_TARGET): $(LIB_DIR)/libc.a
 	$(q)cmake --build $(LIBTPM2_BUILD_DIR) -- $(if $(V),,-s) > /dev/null
 
 libraries: $(LIBTPM2_TARGET)
-

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -26,6 +26,9 @@ ifeq (${DISCRETE_TPM},1)
 TPM2_MK := drivers/tpm/tpm2.mk
 $(info Including ${TPM2_MK})
 include ${TPM2_MK}
+ifeq (${RPI3_PROVISION_TPM},1)
+$(eval $(call add_define,RPI3_PROVISION_TPM))
+endif
 endif
 
 ifeq (${TPM_INTERFACE},FIFO_SPI)

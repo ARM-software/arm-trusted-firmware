@@ -442,7 +442,8 @@ Common build options
       FIFO_SPI
 
 -  ``MBOOT_TPM_HASH_ALG``: Build flag to select the TPM hash algorithm used during
-   Measured Boot. Currently only accepts ``sha256`` as a valid algorithm.
+   Measured Boot. Currently accepts ``sha256`` and ``sha384`` as valid
+   algorithms.
 
 -  ``MARCH_DIRECTIVE``: used to pass a -march option from the platform build
    options to the compiler. An example usage:
