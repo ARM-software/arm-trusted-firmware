@@ -396,6 +396,7 @@ Runtime Services
 Standard C library
 ^^^^^^^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
+:|M|: Dávid Danyi <david.danyi@arm.com>
 :|F|: lib/libc/
 :|F|: include/lib/libc/
 
@@ -994,6 +995,7 @@ cot-dt2c
 
 memory
 ^^^^^^
+:|M|: Antal Bánovics <antal.banovics@arm.com>
 :|M|: Chris Kay <chris.kay@arm.com>
 :|F|: tools/memory/
 
@@ -1023,6 +1025,7 @@ Threat Model
 
 Conventional Changelog Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:|M|: Antal Bánovics <antal.banovics@arm.com>
 :|M|: Chris Kay <chris.kay@arm.com>
 :|F|: tools/conventional-changelog-tf-a
 
