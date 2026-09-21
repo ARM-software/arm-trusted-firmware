@@ -1025,6 +1025,7 @@ Threat Model
 
 Conventional Changelog Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:|M|: Antal Bánovics <antal.banovics@arm.com>
 :|M|: Chris Kay <chris.kay@arm.com>
 :|F|: tools/conventional-changelog-tf-a
 
