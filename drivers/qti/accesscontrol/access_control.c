@@ -446,15 +446,15 @@ static int xpu_register_interrupts(void)
 {
 	int err = 0;
 
-	err = qti_interrupt_svc_register(QTISECLIB_INT_ID_XPU_SEC, xpu_isr,
+	err = qti_interrupt_svc_register(PLAT_INT_ID_XPU_SEC, xpu_isr,
 					 &xpu_err_sec_ctx);
 	if (err)
 		return err;
 
-	err = qti_interrupt_svc_register(QTISECLIB_INT_ID_XPU_NON_SEC, xpu_isr,
+	err = qti_interrupt_svc_register(PLAT_INT_ID_XPU_NON_SEC, xpu_isr,
 					 &xpu_err_non_sec_ctx);
 	if (err)
-		qti_interrupt_svc_unregister(QTISECLIB_INT_ID_XPU_SEC);
+		qti_interrupt_svc_unregister(PLAT_INT_ID_XPU_SEC);
 
 	return err;
 }

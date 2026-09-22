@@ -52,8 +52,7 @@ QTI_EXTERNAL_INCLUDES	:=	-I${QTI_PLAT_PATH}/hoya/${CHIPSET}/inc			\
 				-I${QTI_PLAT_PATH}/hoya/${CHIPSET}/${PLAT}/inc		\
 				-I${QTI_PLAT_PATH}/common/inc				\
 				-I${QTI_PLAT_PATH}/common/inc/$(ARCH)			\
-				-I${QTI_PLAT_PATH}/hoya/qtiseclib/inc			\
-				-I${QTI_PLAT_PATH}/hoya/qtiseclib/inc/${CHIPSET}
+				-I${QTI_PLAT_PATH}/hoya/qtiseclib/inc
 
 QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo6_silver.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo6_gold.S	\

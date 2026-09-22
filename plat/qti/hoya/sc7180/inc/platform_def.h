@@ -10,7 +10,6 @@
 #include <common_def.h>
 
 #include <qti_board_def.h>
-#include <qtiseclib_defs_plat.h>
 
 /*----------------------------------------------------------------------------*/
 
@@ -174,6 +173,8 @@
  * Put BL31 at DDR as per memory map. BL31_BASE is calculated using the
  * current BL31 debug size plus a little space for growth.
  */
+#define BL31_BASE				0x80b00000
+#define BL31_SIZE				0x00100000
 #define BL31_LIMIT				(BL31_BASE + BL31_SIZE)
 
 /*----------------------------------------------------------------------------*/
@@ -202,5 +203,30 @@
 #define PON_PS_HOLD_RESET_CTL			0x85a
 #define PON_PS_HOLD_RESET_CTL2			0x85b
 /*----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------*/
+/* Secure interrupt number/ID definitions for the GIC configuration.          */
+/*----------------------------------------------------------------------------*/
+#define PLAT_INT_ID_RESET_SGI			(0xf)
+#define PLAT_INT_ID_CPU_WAKEUP_SGI		(0x8)
+
+#define PLAT_INT_ID_SEC_WDOG_BARK		(0x204)
+#define PLAT_INT_ID_NON_SEC_WDOG_BITE		(0x21)
+
+#define PLAT_INT_ID_VMIDMT_ERR_CLT_SEC		(0xE6)
+#define PLAT_INT_ID_VMIDMT_ERR_CLT_NONSEC	(0xE7)
+#define PLAT_INT_ID_VMIDMT_ERR_CFG_SEC		(0xE8)
+#define PLAT_INT_ID_VMIDMT_ERR_CFG_NONSEC	(0xE9)
+
+#define PLAT_INT_ID_XPU_SEC			(0xE3)
+#define PLAT_INT_ID_XPU_NON_SEC			(0xE4)
+
+/* NOC error interrupts */
+#define PLAT_INT_ID_A2_NOC_ERROR		(0x194)
+#define PLAT_INT_ID_CONFIG_NOC_ERROR		(0xE2)
+#define PLAT_INT_ID_DC_NOC_ERROR		(0x122)
+#define PLAT_INT_ID_MEM_NOC_ERROR		(0x6C)
+#define PLAT_INT_ID_SYSTEM_NOC_ERROR		(0xC6)
+#define PLAT_INT_ID_MMSS_NOC_ERROR		(0xBA)
 
 #endif /* PLATFORM_DEF_H */

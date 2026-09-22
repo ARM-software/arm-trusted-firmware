@@ -281,23 +281,23 @@ static int32_t register_interrupts(void)
 	const uint32_t enable = 0xFFFFFFFF;
 	int ret = 0;
 
-	ret = qti_interrupt_svc_register(QTISECLIB_INT_ID_VMIDMT_ERR_CLT_SEC,
+	ret = qti_interrupt_svc_register(PLAT_INT_ID_VMIDMT_ERR_CLT_SEC,
 					 error_handler, &vmidmt_err[CLT_SEC]);
 	if (ret)
 		return ret;
 
-	ret = qti_interrupt_svc_register(QTISECLIB_INT_ID_VMIDMT_ERR_CLT_NONSEC,
+	ret = qti_interrupt_svc_register(PLAT_INT_ID_VMIDMT_ERR_CLT_NONSEC,
 					 error_handler,
 					 &vmidmt_err[CLT_NONSEC]);
 	if (ret)
 		goto error3;
 
-	ret = qti_interrupt_svc_register(QTISECLIB_INT_ID_VMIDMT_ERR_CFG_SEC,
+	ret = qti_interrupt_svc_register(PLAT_INT_ID_VMIDMT_ERR_CFG_SEC,
 					 error_handler, &vmidmt_err[CFG_SEC]);
 	if (ret)
 		goto error2;
 
-	ret = qti_interrupt_svc_register(QTISECLIB_INT_ID_VMIDMT_ERR_CFG_NONSEC,
+	ret = qti_interrupt_svc_register(PLAT_INT_ID_VMIDMT_ERR_CFG_NONSEC,
 					 error_handler,
 					 &vmidmt_err[CFG_NONSEC]);
 	if (ret)
@@ -312,11 +312,11 @@ static int32_t register_interrupts(void)
 	return 0;
 
 error1:
-	qti_interrupt_svc_unregister(QTISECLIB_INT_ID_VMIDMT_ERR_CFG_SEC);
+	qti_interrupt_svc_unregister(PLAT_INT_ID_VMIDMT_ERR_CFG_SEC);
 error2:
-	qti_interrupt_svc_unregister(QTISECLIB_INT_ID_VMIDMT_ERR_CLT_NONSEC);
+	qti_interrupt_svc_unregister(PLAT_INT_ID_VMIDMT_ERR_CLT_NONSEC);
 error3:
-	qti_interrupt_svc_unregister(QTISECLIB_INT_ID_VMIDMT_ERR_CLT_SEC);
+	qti_interrupt_svc_unregister(PLAT_INT_ID_VMIDMT_ERR_CLT_SEC);
 
 	return -1;
 }

@@ -27,10 +27,6 @@ typedef uintptr_t u_register_t;
 #define QTI_GICV3_IRM_PE		0
 #define QTI_GICV3_IRM_ANY		1
 
-/* Common interrupt number/ID defs. */
-#define QTISECLIB_INT_ID_RESET_SGI			(0xf)
-#define QTISECLIB_INT_ID_CPU_WAKEUP_SGI			(0x8)
-
 #define	QTISECLIB_INT_INVALID_INT_NUM			(0xFFFFFFFFU)
 
 typedef struct qtiseclib_cb_spinlock {
