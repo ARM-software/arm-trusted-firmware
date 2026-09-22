@@ -103,9 +103,28 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
  ******************************************************************************/
 void socfpga_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+#if CACHE_FLUSH
+	/*
+	 * Cache flushing sequence for L1 L2 only:
+	 * i. Disable MMU + caches (prevent refilling)
+	 * ii. Flush and Invalidate D-cache (write back dirty lines to memory)
+	 * iii. Invalidate I-cache
+	 * iv. Invalidate TLBs
+	 */
+	/* Disable MMU (M-bit), D-cache(C-bit) and I-cache(I-bit) */
+	disable_mmu_icache_el3();
+	/* Flush and Invalidate L1/L2 D-cache only. */
+	dcsw_op_all(DCCISW);
+	/* Invalidate L1 I-cache after disabling */
+	invalidate_l1_i_cache();
+	/* Invalidate all TLBs from EL3 to EL1 */
+	invalidate_all_tlbs();
+#endif
+
+	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 #ifdef GICV3_SUPPORT_GIC600
@@ -207,9 +226,14 @@ static void __dead2 socfpga_system_reset(void)
 		mailbox_rsu_update(addr_buf);
 	} else {
 #if CACHE_FLUSH
-		/* ATF Flush and Invalidate Cache */
+		/*
+		 * ATF Flush and Invalidate Caches.
+		 * This flushes all L1, L2 and L3 caches.
+		 */
+		disable_mmu_icache_el3();
 		dcsw_op_all(DCCISW);
-		invalidate_cache_low_el();
+		invalidate_l1_i_cache();
+		invalidate_all_tlbs();
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
 		flush_l3_dcache();
 #endif
@@ -224,14 +248,18 @@ static void __dead2 socfpga_system_reset(void)
 static int socfpga_system_reset2(int is_vendor, int reset_type,
 					u_register_t cookie)
 {
-
 #if CACHE_FLUSH
 	/*
-	 * ATF Flush and Invalidate Cache due to hardware limitation
-	 * of auto Flush and Invalidate Cache.
+	 * ATF Flush and Invalidate Caches.
+	 * This flushes all L1, L2 and L3 caches.
 	 */
+	disable_mmu_icache_el3();
 	dcsw_op_all(DCCISW);
-	invalidate_cache_low_el();
+	invalidate_l1_i_cache();
+	invalidate_all_tlbs();
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+	flush_l3_dcache();
+#endif
 #endif
 
 	/* Set warm reset request bit before issuing the command to SDM. */
