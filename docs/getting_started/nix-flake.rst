@@ -62,6 +62,11 @@ On success, the ``result`` symbolic link should contain:
    result/bl1.bin
    result/bl2.bin
    result/bl31.bin
+   result/dtbs/fvp-base-gicv3-psci.dtb
+   result/dtbs/fvp_fw_config.dtb
+   result/dtbs/fvp_tb_fw_config.dtb
+   result/dtbs/fvp_soc_fw_config.dtb
+   result/dtbs/fvp_nt_fw_config.dtb
 
 Useful commands
 ---------------

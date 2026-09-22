@@ -87,9 +87,12 @@
           installPhase = ''
             runHook preInstall
 
-            install -D -m0644 "''${PWD}/build/fvp/release/bl1.bin" "''${out}/bl1.bin"
-            install -D -m0644 "''${PWD}/build/fvp/release/bl2.bin" "''${out}/bl2.bin"
-            install -D -m0644 "''${PWD}/build/fvp/release/bl31.bin" "''${out}/bl31.bin"
+            install -D -m 0644 -t "''${out}" \
+              build/fvp/release/{bl1,bl2,bl31}.bin
+
+            install -D -m 0644 -t "''${out}/dtbs" \
+              build/fvp/release/fdts/fvp-base-gicv3-psci.dtb \
+              build/fvp/release/fdts/fvp_{fw,tb_fw,soc_fw,nt_fw}_config.dtb
 
             runHook postInstall
           '';
