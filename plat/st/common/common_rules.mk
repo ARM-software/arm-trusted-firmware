@@ -49,7 +49,7 @@ ${BUILD_PLAT}/fdts/%-bl2.dtb: ${BUILD_PLAT}/fdts/%-bl2.dts
 
 ${BUILD_PLAT}/$(PLAT)-%.o: ${BUILD_PLAT}/fdts/%-bl2.dtb $(STM32_BINARY_MAPPING) bl2
 	$(s)echo "  AS      $${PLAT}.S"
-	$(q)$($(ARCH)-as) -x assembler-with-cpp $(TF_CFLAGS_$(ARCH)) ${ASFLAGS} ${TF_CFLAGS} \
+	$(q)$($(ARCH)-cc) -x assembler-with-cpp $(TF_CFLAGS_$(ARCH)) ${ASFLAGS} ${TF_CFLAGS} \
 		-DDTB_BIN_PATH=\"$<\" \
 		-c $(word 2,$^) -o $@
 

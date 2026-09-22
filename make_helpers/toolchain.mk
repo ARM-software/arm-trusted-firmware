@@ -21,7 +21,7 @@ ifndef toolchain-mk
         include $(dir $(toolchain-mk))utilities.mk
 
         #
-        # Make assigns generic default values to `CC`, `CPP`, `AS`, etc. if they
+        # Make assigns generic default values to `CC`, `CPP`, `LD`, etc. if they
         # are not explicitly assigned values by the user. These are usually okay
         # for very simple programs when building for the host system, but we
         # need greater control over the toolchain flow.
@@ -36,10 +36,6 @@ ifndef toolchain-mk
 
         ifeq ($(origin CPP),default)
                 undefine CPP
-        endif
-
-        ifeq ($(origin AS),default)
-                undefine AS
         endif
 
         ifeq ($(origin AR),default)
@@ -98,9 +94,6 @@ ifndef toolchain-mk
 
         toolchain-tool-classes += cpp
         toolchain-tool-class-name-cpp := C preprocessor
-
-        toolchain-tool-classes += as
-        toolchain-tool-class-name-as := assembler
 
         toolchain-tool-classes += ld
         toolchain-tool-class-name-ld := linker
@@ -192,9 +185,6 @@ ifndef toolchain-mk
         # C-related tools
         toolchain-tools-cc := arm-clang llvm-clang gnu-gcc # C compilers
         toolchain-tools-cpp := arm-clang llvm-clang gnu-gcc # C preprocessors
-
-        # Assembly-related tools
-        toolchain-tools-as := arm-clang llvm-clang gnu-gcc # Assemblers
 
         # Linking and object-handling tools
         toolchain-tools-ld := arm-clang arm-link llvm-clang llvm-lld gnu-gcc gnu-ld # Linkers
@@ -370,21 +360,18 @@ ifndef toolchain-mk
         toolchain-from-parameter = $($($(1)-$(2)-parameter))
 
         toolchain-from-cc-arm-clang-cpp = $(1)
-        toolchain-from-cc-arm-clang-as = $(1)
         toolchain-from-cc-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
         toolchain-from-cc-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
         toolchain-from-cc-arm-clang-od = # Fall back to `$(toolchain)-od-default`
         toolchain-from-cc-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
 
         toolchain-from-cc-llvm-clang-cpp = $(1)
-        toolchain-from-cc-llvm-clang-as = $(1)
         toolchain-from-cc-llvm-clang-ld = $(1)
         toolchain-from-cc-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>/dev/null)
         toolchain-from-cc-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>/dev/null)
         toolchain-from-cc-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>/dev/null)
 
         toolchain-from-cc-gnu-gcc-cpp = $(1)
-        toolchain-from-cc-gnu-gcc-as = $(1)
         toolchain-from-cc-gnu-gcc-ld = $(1)
         toolchain-from-cc-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>/dev/null)
         toolchain-from-cc-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>/dev/null)

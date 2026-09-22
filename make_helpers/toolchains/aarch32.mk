@@ -14,10 +14,6 @@ aarch32-cpp-parameter := CPP
 aarch32-cpp-default-id := gnu-gcc
 aarch32-cpp-default := $(or $(CROSS_COMPILE),arm-none-eabi-)gcc
 
-aarch32-as-parameter := AS
-aarch32-as-default-id := gnu-gcc
-aarch32-as-default := $(or $(CROSS_COMPILE),arm-none-eabi-)gcc
-
 aarch32-ld-parameter := LD
 aarch32-ld-default-id := gnu-gcc
 aarch32-ld-default := $(or $(CROSS_COMPILE),arm-none-eabi-)gcc

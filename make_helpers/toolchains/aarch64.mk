@@ -16,11 +16,6 @@ aarch64-cpp-default-id := gnu-gcc
 aarch64-cpp-default := $(or $(CROSS_COMPILE),aarch64-none-elf-)gcc
 aarch64-cpp-default += $(if $(CROSS_COMPILE),,aarch64-linux-gnu-gcc)
 
-aarch64-as-parameter := AS
-aarch64-as-default-id := gnu-gcc
-aarch64-as-default := $(or $(CROSS_COMPILE),aarch64-none-elf-)gcc
-aarch64-as-default += $(if $(CROSS_COMPILE),,aarch64-linux-gnu-gcc)
-
 aarch64-ld-parameter := LD
 aarch64-ld-default-id := gnu-gcc
 aarch64-ld-default := $(or $(CROSS_COMPILE),aarch64-none-elf-)gcc

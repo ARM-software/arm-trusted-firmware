@@ -64,11 +64,11 @@ all: $(BUILD_DIR)/romlib.bin $(BUILD_DIR)/romlib.ldflags $(LIB_DIR)/libwrappers.
 
 $(filter-out %/jmptbl.o,$(OBJS)): $(BUILD_DIR)/%.o: %.s | $$(@D)/
 	$(s)echo "  AS      $@"
-	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
+	$(q)$(aarch64-cc) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/jmptbl.o: $(BUILD_DIR)/jmptbl.s | $$(@D)/
 	$(s)echo "  AS      $@"
-	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
+	$(q)$(aarch64-cc) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/romlib.ld: romlib.ld.S $(config-header) | $$(@D)/
 	$(s)echo "  PP      $@"
@@ -88,7 +88,7 @@ $(WRAPPER_DIR)/jmpvar.s: $(BUILD_DIR)/romlib.elf | $$(@D)/
 
 $(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s | $$(@D)/
 	$(s)echo "  AS      $@"
-	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
+	$(q)$(aarch64-cc) -c $(ASFLAGS) -o $@ $<
 
 $(LIB_DIR)/libwrappers.a: $(WRAPPER_OBJS) | $$(@D)/
 	@echo "  AR      $@"

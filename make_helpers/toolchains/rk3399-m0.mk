@@ -12,9 +12,6 @@ rk3399-m0-cc-default := $(or $(M0_CROSS_COMPILE),arm-none-eabi-)gcc
 rk3399-m0-cpp-default-id := gnu-gcc
 rk3399-m0-cpp-default := $(or $(M0_CROSS_COMPILE),arm-none-eabi-)gcc
 
-rk3399-m0-as-default-id := gnu-gcc
-rk3399-m0-as-default := $(or $(M0_CROSS_COMPILE),arm-none-eabi-)gcc
-
 rk3399-m0-ld-default-id := gnu-gcc
 rk3399-m0-ld-default := $(or $(M0_CROSS_COMPILE),arm-none-eabi-)gcc
 
