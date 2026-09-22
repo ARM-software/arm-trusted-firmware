@@ -93,11 +93,19 @@ BL2_SOURCES += \
 ARM_ARCH_FEATURE := crc
 
 BL31_SOURCES += \
+	${CLK_SOURCES} \
 	${GICV3_SOURCES} \
 	${PLAT_S32G274ARDB2}/plat_bl31_setup.c \
 	${PLAT_S32G274ARDB2}/s32g2_psci.c \
 	${PLAT_S32G274ARDB2}/s32g2_soc.c \
+	${PLAT_S32G274ARDB2}/s32g_scmi.c \
+	${PLAT_S32G274ARDB2}/s32g_scmi_clock.c \
+	${PLAT_S32G274ARDB2}/s32g_svc.c \
 	${XLAT_TABLES_LIB_SRCS} \
+	drivers/scmi-msg/base.c \
+	drivers/scmi-msg/clock.c \
+	drivers/scmi-msg/entry.c \
+	drivers/scmi-msg/smt.c \
 	lib/cpus/aarch64/cortex_a53.S \
 	plat/common/plat_gicv3.c \
 	plat/common/plat_psci_common.c \

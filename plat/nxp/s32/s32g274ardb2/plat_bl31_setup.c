@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,8 @@
 #include <plat_console.h>
 
 #include <s32cc-bl-common.h>
+#include <s32cc-clk-utils.h>
+#include <s32g_scmi.h>
 
 static entry_point_info_t bl33_image_ep_info;
 
@@ -18,8 +20,11 @@ static unsigned int s32g2_mpidr_to_core_pos(unsigned long mpidr);
 
 static uint32_t get_spsr_for_bl33_entry(void)
 {
-	unsigned long mode = MODE_EL1;
+	unsigned long mode;
 	uint32_t spsr;
+
+	/* Figure out what mode we enter the non-secure world in */
+	mode = (el_implemented(2) != EL_IMPL_NONE) ? MODE_EL2 : MODE_EL1;
 
 	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
@@ -99,6 +104,13 @@ void bl31_platform_setup(void)
 	gicv3_distif_init();
 	gicv3_rdistif_init(pos);
 	gicv3_cpuif_enable(pos);
+
+	ret = s32cc_clk_register_drv(true);
+	if (ret != 0) {
+		panic();
+	}
+
+	s32g_scmi_setup();
 }
 
 static unsigned int s32g2_mpidr_to_core_pos(unsigned long mpidr)
