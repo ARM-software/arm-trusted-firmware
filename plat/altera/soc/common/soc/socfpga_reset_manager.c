@@ -841,35 +841,23 @@ int socfpga_bridges_enable(uint32_t mask)
 	return ret;
 }
 
-int socfpga_bridge_nongraceful_disable(uint32_t mask)
+int socfpga_bridge_nongraceful_disable(uint32_t f2s_force_drain,
+				       uint32_t f2s_respempty)
 {
 	int ret = 0;
-	int timeout = 1000;
-	uint32_t brg_mask = 0;
-	uint32_t f2s_idlereq = 0;
-	uint32_t f2s_force_drain = 0;
-	uint32_t f2s_en = 0;
-	uint32_t f2s_idleack = 0;
-	uint32_t f2s_respempty = 0;
-	uint32_t f2s_cmdidle = 0;
-
-	socfpga_f2s_bridge_mask(mask, &brg_mask, &f2s_idlereq,
-				&f2s_force_drain, &f2s_en,
-				&f2s_idleack, &f2s_respempty, &f2s_cmdidle);
-
-	mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
-			f2s_idlereq);
+	int timeout = 300;
+	uint32_t idle_status = 0;
 
 	/* Time out Error - Bus is still active */
 	/* Performing a non-graceful shutdown with Force drain */
 	mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 			f2s_force_drain);
+	udelay(5);
 
 	ret = -ETIMEDOUT;
-	do {
-		/* Read response queue status to ensure it is empty */
-		uint32_t idle_status;
 
+	/* Read response queue status to ensure it is empty */
+	do {
 		idle_status = mmio_read_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGINSTATUS0));
 		if ((idle_status & f2s_respempty) != 0U) {
 			idle_status = mmio_read_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGINSTATUS0));
@@ -880,7 +868,7 @@ int socfpga_bridge_nongraceful_disable(uint32_t mask)
 			}
 		}
 
-		asm("nop");
+		udelay(1000);
 
 	} while (timeout-- > 0);
 
@@ -1198,7 +1186,8 @@ int socfpga_bridges_disable(uint32_t mask)
 				f2s_en);
 		udelay(5);
 
-		ret = socfpga_bridge_nongraceful_disable(mask);
+		ret = socfpga_bridge_nongraceful_disable(f2s_force_drain,
+							 f2s_respempty);
 
 		/* Bridge reset */
 #if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
