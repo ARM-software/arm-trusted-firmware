@@ -42,26 +42,46 @@
           enableParallelBuilding = false; # TF-A's build system is not reliably parallel-safe
           hardeningDisable = [ "all" ]; # TF-A's build system blindly overrides hardening options
 
-          nativeBuildInputs = [
-            pkgs.dtc
-            pkgs.gnumake
+          depsBuildBuild = [
+            pkgs.stdenv.cc # Nix-wrapped C compiler targeting the host system
+          ];
 
-            stdenv.cc
+          nativeBuildInputs = [
+            pkgs.dtc # Device Tree Compiler
+            pkgs.gnumake # GNU Make
+
+            stdenv.cc # Nix-wrapped C compiler targeting the target system
           ];
 
           makeFlags = [
-            "AS=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-            "CPP=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-            "CC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-
-            "AR=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}ar"}"
-            "LD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-
-            "OC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objcopy"}"
-            "OD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objdump"}"
-
-            "BUILD_STRING=nix-flake" # For reproducibility
+            # Override TF-A's default build message with a static one to preserve
+            # byte-for-byte reproducibility in generated firmware binaries.
+            "BUILD_STRING=nix-flake" # `.git/` is not copied with the source tree
             "BUILD_MESSAGE_TIMESTAMP=\"1970-01-01T00:00:00Z\""
+
+            # TF-A discovers toolchain tools by asking the C compiler for their
+            # paths, but these paths can bypass Nix's wrappers, which supply
+            # toolchain flags. Use the tools selected by `stdenv` instead.
+            #
+            # Make expands `$(...)` in these arguments; the variables they refer to
+            # are provided automatically by `stdenv`.
+            #
+            # TODO: Align TF-A with GNU variable naming conventions, which Nix is
+            # already aligned with: `{AS,LD}`, `CC{AS,LD}`, and `OBJ{COPY,DUMP}`.
+            "AS=$(CC)"
+            "CPP=$(CC)"
+            "LD=$(CC)"
+
+            "OC=$(OBJCOPY)"
+            "OD=$(OBJDUMP)"
+
+            "HOSTAS=$(CC_FOR_BUILD)"
+            "HOSTCPP=$(CC_FOR_BUILD)"
+            "HOSTCC=$(CC_FOR_BUILD)"
+            "HOSTLD=$(CC_FOR_BUILD)"
+
+            "HOSTOC=$(OBJCOPY_FOR_BUILD)"
+            "HOSTOD=$(OBJDUMP_FOR_BUILD)"
           ];
 
           installPhase = ''
