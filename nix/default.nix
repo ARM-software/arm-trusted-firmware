@@ -37,7 +37,6 @@
           inherit version;
           inherit src;
 
-          strictDeps = true;
           dontConfigure = true;
 
           enableParallelBuilding = false; # TF-A's build system is not reliably parallel-safe
@@ -60,8 +59,6 @@
 
             "OC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objcopy"}"
             "OD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objdump"}"
-
-            "DTC=${lib.getExe pkgs.dtc}"
 
             "BUILD_STRING=nix-flake" # For reproducibility
             "BUILD_MESSAGE_TIMESTAMP=\"1970-01-01T00:00:00Z\""
