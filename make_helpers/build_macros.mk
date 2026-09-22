@@ -449,7 +449,7 @@ $(eval DEP := $(3))
 $(eval CUSTOM_FLAGS := $(4))
 $(OUT): $(SRC) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CPP     $$<"
-	$$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp $$(TF_CFLAGS) $(CUSTOM_FLAGS) $(call MAKE_DEP,$(DEP),$(OUT)) -o $$@ $$<
+	$$(q)$($(ARCH)-cc) -E -P -x assembler-with-cpp $$(TF_CFLAGS) $(CUSTOM_FLAGS) $(call MAKE_DEP,$(DEP),$(OUT)) -o $$@ $$<
 endef
 
 # MAKE_LD generate the linker script using the C preprocessor

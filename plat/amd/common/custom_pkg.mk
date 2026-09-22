@@ -96,7 +96,7 @@ endif
 # Two-stage preprocessing using TF-A's linker-script preprocessing flow:
 # Stage 1: Preprocess custom_pkg.ld.S files
 #   Input: custom_pkg.ld.S (contains package-specific macros)
-#   Process: $($(ARCH)-cpp) -E -P -x assembler-with-cpp with BL31 linker-script
+#   Process: $($(ARCH)-cc) -E -P -x assembler-with-cpp with BL31 linker-script
 #            flags plus package macro definitions from ASFLAGS
 #   Output: custom_pkg.ld.pp (macros expanded)
 #
@@ -127,7 +127,7 @@ CUSTOM_PKG_LD_PPFLAGS = -D__LINKER__ $(CUSTOM_PKG_BL31_LD_CPPFLAGS) \
 # configured target triple and BL31 linker-script defines.
 %.ld.pp: %.ld.S $(config-header)
 	@echo "  PP      $<"
-	$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp \
+	$(q)$($(ARCH)-cc) -E -P -x assembler-with-cpp \
 		$(TF_CFLAGS) \
 		$(CUSTOM_PKG_LD_PPFLAGS) \
 		-o $@ $<
@@ -146,7 +146,7 @@ $(CUSTOM_PKG_LD_WRAPPER): $(CUSTOM_PKG_LD_SCRIPTS_PP)
 
 $(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_WRAPPER) $(config-header)
 	@echo "  GEN     $@"
-	$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp \
+	$(q)$($(ARCH)-cc) -E -P -x assembler-with-cpp \
 		'-DCUSTOM_PKG_LD_WRAPPER="$(CUSTOM_PKG_LD_WRAPPER)"' \
 		$(TF_CFLAGS) \
 		$(CUSTOM_PKG_LD_PPFLAGS) \

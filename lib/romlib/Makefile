@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -72,7 +72,7 @@ $(BUILD_DIR)/jmptbl.o: $(BUILD_DIR)/jmptbl.s | $$(@D)/
 
 $(BUILD_DIR)/romlib.ld: romlib.ld.S $(config-header) | $$(@D)/
 	$(s)echo "  PP      $@"
-	$(q)$(aarch64-cpp) -E $(PPFLAGS) -o $@ romlib.ld.S
+	$(q)$(aarch64-cc) -E $(PPFLAGS) -o $@ romlib.ld.S
 
 $(BUILD_DIR)/romlib.elf: $(OBJS) $(BUILD_DIR)/romlib.ld | $$(@D)/
 	$(s)echo "  LD      $@"
