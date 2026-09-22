@@ -5,16 +5,37 @@
     { pkgs, lib, ... }:
 
     let
+      src = self.outPath;
       stdenv = pkgs.pkgsCross.aarch64-embedded.stdenvNoLibs;
+
+      # Compute the package version by extracting the `VERSION_*` variable
+      # assignment values in the TF-A `Makefile`.
+      versionSource = builtins.readFile "${src}/Makefile";
+      versionComponent =
+        component:
+
+        builtins.head (
+          # `builtins.match` uses POSIX extended regexes, so this pattern is
+          # unfortunately a bit verbose. Multiline mode is also disabled so we
+          # don't have access to the usual `^`/`$` anchors; use `.*\n` instead.
+          builtins.match ".*\nVERSION_${component}[[:blank:]]*:=[[:blank:]]*([0-9]+)[[:blank:]]*\n.*"
+            versionSource
+        );
+
+      version = lib.concatMapStringsSep "." versionComponent [
+        "MAJOR"
+        "MINOR"
+        "PATCH"
+      ];
     in
 
     {
       packages = {
         default = stdenv.mkDerivation {
           pname = "trusted-firmware-a";
-          version = "experimental";
 
-          src = self.outPath;
+          inherit version;
+          inherit src;
 
           strictDeps = true;
           dontConfigure = true;
