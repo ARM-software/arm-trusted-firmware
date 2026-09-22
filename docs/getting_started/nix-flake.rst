@@ -55,18 +55,31 @@ From the root of the |TF-A| repository, run:
 
    nix build
 
-On success, the ``result`` symbolic link should contain:
+By convention, TF-A packages provide an ``out`` output containing the artifacts
+that all consumers of |TF-A| need to build a complete software stack, and a
+``debug`` output containing artifacts useful for debugging the firmware.
 
-.. code:: text
+Nix selects the ``out`` output by default. When the build succeeds, you can
+access these artifacts through a symbolic link called ``result``.
 
-   result/bl1.bin
-   result/bl2.bin
-   result/bl31.bin
-   result/dtbs/fvp-base-gicv3-psci.dtb
-   result/dtbs/fvp_fw_config.dtb
-   result/dtbs/fvp_tb_fw_config.dtb
-   result/dtbs/fvp_soc_fw_config.dtb
-   result/dtbs/fvp_nt_fw_config.dtb
+If you need a package's debugging artifacts, you can explicitly request them
+by building its ``debug`` output:
+
+.. code:: shell
+
+   nix build '.#default^debug'
+
+You can then access these artifacts through the ``result-debug`` symbolic
+link. If you need both the firmware and its debugging artifacts, you can select
+all outputs together:
+
+.. code:: shell
+
+   nix build '.#default^*'
+
+Both outputs come from the same firmware build. Selecting ``debug`` makes the
+debugging artifacts available, but it does not enable the TF-A ``DEBUG`` build
+option - that is dictated by the package's firmware configuration.
 
 Useful commands
 ---------------

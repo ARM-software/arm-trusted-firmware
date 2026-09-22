@@ -37,7 +37,13 @@
           inherit version;
           inherit src;
 
+          outputs = [
+            "out" # Artifacts required to boot and run TF-A
+            "debug" # Artifacts used to debug TF-A
+          ];
+
           dontConfigure = true;
+          dontStrip = true; # TF-A owns binary stripping
 
           enableParallelBuilding = false; # TF-A's build system is not reliably parallel-safe
           hardeningDisable = [ "all" ]; # TF-A's build system blindly overrides hardening options
@@ -93,6 +99,11 @@
             install -D -m 0644 -t "''${out}/dtbs" \
               build/fvp/release/fdts/fvp-base-gicv3-psci.dtb \
               build/fvp/release/fdts/fvp_{fw,tb_fw,soc_fw,nt_fw}_config.dtb
+
+            for stage in bl1 bl2 bl31; do
+              install -D -m 0644 -t "''${debug}/''${stage}" \
+                "build/fvp/release/''${stage}/''${stage}".{dump,elf,map}
+            done
 
             runHook postInstall
           '';
