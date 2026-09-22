@@ -50,26 +50,22 @@
             stdenv.cc
           ];
 
-          preBuild = ''
-            makeFlagsArray+=(
-              ${lib.escapeShellArgs [
-                "AS=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-                "CPP=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-                "CC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
+          makeFlags = [
+            "AS=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
+            "CPP=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
+            "CC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
 
-                "AR=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}ar"}"
-                "LD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
+            "AR=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}ar"}"
+            "LD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
 
-                "OC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objcopy"}"
-                "OD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objdump"}"
+            "OC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objcopy"}"
+            "OD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objdump"}"
 
-                "DTC=${lib.getExe pkgs.dtc}"
+            "DTC=${lib.getExe pkgs.dtc}"
 
-                "BUILD_STRING=nix-flake" # For reproducibility
-                "BUILD_MESSAGE_TIMESTAMP=\"1970-01-01T00:00:00Z\""
-              ]}
-            )
-          '';
+            "BUILD_STRING=nix-flake" # For reproducibility
+            "BUILD_MESSAGE_TIMESTAMP=\"1970-01-01T00:00:00Z\""
+          ];
 
           installPhase = ''
             runHook preInstall
@@ -80,6 +76,16 @@
 
             runHook postInstall
           '';
+
+          # The `__structuredAttrs` attribute is a special built-in Nix
+          # attribute which allows Nixpkgs' standard builder to receive lists
+          # as Bash arrays instead of as space-separated strings.
+          #
+          # In this derivation, we enable it in order to preserve whitespace in
+          # values passed to `makeFlags`, so they aren't split along by word.
+          #
+          # See: https://nix.dev/manual/nix/stable/language/advanced-attributes.html#adv-attr-structuredAttrs
+          __structuredAttrs = true;
         };
       };
 
