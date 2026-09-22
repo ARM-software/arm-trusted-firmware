@@ -1,59 +1,59 @@
 Experimental Nix flake
 ======================
 
-The repository contains an experimental `Nix flake`_ for reproducibly building
-the default |TF-A| configuration, which currently builds an AArch64 release for
-the FVP platform, and supports AArch64 and x86-64 hosts running Linux or macOS.
+The |TF-A| repository includes an experimental `Nix flake`_ that you can use to
+build known-good configurations of |TF-A|.
 
 .. note::
    The flake's interface is preliminary and is likely to change.
 
-Installing Nix
---------------
+Prerequisites
+-------------
 
-On Linux and macOS, a multi-user installation can be performed with the
-official installer:
+Before using the flake, follow the instructions on the `Nix download page`_ to
+install Nix for your system. You will also need to enable the ``nix-command``
+and ``flakes`` experimental features; `Nix's flake documentation`_ explains how
+to do this for individual commands, and its `configuration reference`_ covers
+persistent settings.
 
-.. code:: shell
+Discovering configurations
+--------------------------
 
-   curl -L https://nixos.org/nix/install | sh -s -- --daemon
-
-Start a new shell after the installer finishes, then confirm that Nix is
-available:
-
-.. code:: shell
-
-   nix --version
-
-See the `Nix download page`_ for other installation methods and platform-
-specific instructions.
-
-Enabling flakes
----------------
-
-Enable the ``nix-command`` and ``flakes`` experimental features by adding the
-following line to ``~/.config/nix/nix.conf``:
-
-.. code:: text
-
-   experimental-features = nix-command flakes
-
-The same setting can instead be added to ``/etc/nix/nix.conf`` for all users.
-To try the flake without changing either configuration file, pass the features
-on the command line:
+A good place to start is ``nix flake show``, which lists the outputs that the
+flake provides. Run it from the root of the |TF-A| repository:
 
 .. code:: shell
 
-   nix build --extra-experimental-features "nix-command flakes"
+   nix flake show
+
+Look under ``packages`` for your host system to choose a firmware configuration
+to build. The host system is the machine on which you will run the build tools;
+the firmware's target platform and architecture are selected separately by each
+configuration.
+
+The examples below assume that you are working from the repository root.
+Wherever you see ``<package>``, replace it with a package name from the listing
+for your host system.
 
 Building TF-A
 -------------
 
-From the root of the |TF-A| repository, run:
+Once you have chosen a package, pass its name to ``nix build`` to build that
+firmware configuration:
 
 .. code:: shell
 
-   nix build
+   nix build '.#<package>'
+
+Here, ``.`` refers to your current checkout, and the name after ``#`` selects
+the package.
+
+When it is asked to build a package, Nix takes a snapshot of the source tree
+and builds it in a separate directory. When you are working in a local Git
+checkout, this snapshot includes your changes to tracked files, but does not
+include untracked files. If you add new files, make sure to use ``git add`` to
+include them in the snapshot too; you can build your changes without committing
+them first.
 
 By convention, TF-A packages provide an ``out`` output containing the artifacts
 that all consumers of |TF-A| need to build a complete software stack, and a
@@ -67,7 +67,7 @@ by building its ``debug`` output:
 
 .. code:: shell
 
-   nix build '.#default^debug'
+   nix build '.#<package>^debug'
 
 You can then access these artifacts through the ``result-debug`` symbolic
 link. If you need both the firmware and its debugging artifacts, you can select
@@ -75,36 +75,14 @@ all outputs together:
 
 .. code:: shell
 
-   nix build '.#default^*'
+   nix build '.#<package>^*'
 
 Both outputs come from the same firmware build. Selecting ``debug`` makes the
 debugging artifacts available, but it does not enable the TF-A ``DEBUG`` build
 option - that is dictated by the package's firmware configuration.
 
-Useful commands
----------------
-
-The following commands inspect and validate the flake or format its Nix files:
-
-.. code:: shell
-
-   nix flake show
-   nix flake check
-   nix fmt
-
-Add ``--print-build-logs`` to ``nix build`` to display the complete build log.
-
-Updating the pinned dependencies with ``nix flake update`` changes
-``flake.lock`` and should be committed and reviewed like any other source
-change.
-
-Some Git worktree configurations cannot currently be read by Nix's Git
-implementation. If Nix reports an unsupported Git repository extension, use an
-explicit path flake reference:
-
-.. code:: shell
-
-   nix build "path:${PWD}"
+If you want to follow the build in more detail, add ``--print-build-logs`` when
+running ``nix build`` to show log output while it runs.
 
 --------------
 
@@ -112,3 +90,5 @@ explicit path flake reference:
 
 .. _Nix flake: https://nix.dev/concepts/flakes.html
 .. _Nix download page: https://nixos.org/download/
+.. _Nix's flake documentation: https://nix.dev/concepts/flakes.html#running-commands
+.. _configuration reference: https://nix.dev/manual/nix/stable/command-ref/conf-file.html#conf-experimental-features

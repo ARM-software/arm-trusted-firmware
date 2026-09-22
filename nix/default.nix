@@ -1,11 +1,15 @@
 { self, ... }:
 
 {
+  # For each system configured in `flake.nix`, `flake-parts` evaluates this
+  # module and supplies it with a system-specific Nixpkgs package set (`pkgs`).
   perSystem =
     { pkgs, lib, ... }:
 
     let
       mkFirmware = import ./builders/mk-firmware.nix {
+        # Use the flake's source snapshot from the Nix store. Note that this
+        # does *not* include `.gitignore`'d files or the `.git/` directory.
         src = self.outPath;
 
         # TF-A is a freestanding firmware, and provides its own C standard

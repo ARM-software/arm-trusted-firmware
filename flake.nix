@@ -15,6 +15,8 @@
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      # Machines on which the build tools run. The firmware architecture is
+      # selected separately by the cross-toolchain in `nix/default.nix`.
       systems = [
         "aarch64-darwin"
         "aarch64-linux"
