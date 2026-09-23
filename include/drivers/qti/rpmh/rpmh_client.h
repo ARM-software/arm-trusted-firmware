@@ -53,6 +53,12 @@ struct rpmh_command_set {
 /* Opaque per-client handle. */
 struct rpmh_client;
 
+struct rpmh_msg_ram_dict {
+	uint32_t	boot_cookie_offset;
+	uint32_t	sleep_stats_offset;
+	uint32_t	reserved_addrs[14];
+};
+
 /*
  * rpmh_create_handle - create a client handle for the given RSC+DRV mapping.
  *
