@@ -674,6 +674,8 @@ $(call assert_booleans,\
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
 	PFDI_SUPPORT \
+	DSU_PDL2_SUPPORT \
+	USE_DSU_DRIVER \
 ))
 
 # Numeric_Flags
@@ -969,6 +971,8 @@ $(call add_defines,\
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
 	PFDI_SUPPORT \
+	DSU_PDL2_SUPPORT \
+	USE_DSU_DRIVER \
 ))
 
 ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)
