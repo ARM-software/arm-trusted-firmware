@@ -12,7 +12,6 @@ XLAT_TABLES_LIB_SRCS	:=	$(addprefix lib/xlat_tables_v2/,	\
 				xlat_tables_utils.c)
 
 XLAT_TABLES_LIB_V2	:=	1
-$(eval $(call add_define,XLAT_TABLES_LIB_V2))
 
 ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
     include lib/xlat_tables_v2/ro_xlat_tables.mk

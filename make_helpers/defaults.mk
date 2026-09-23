@@ -329,6 +329,11 @@ SEC_INT_DESC_IN_FCONF		:= 0
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
 
+# Build option to choose the version2 of translation table lib. This flag is
+# enabled when including lib/xlat_tables_v2/xlat_tables.mk file from platforms'
+# platform.mk files. The flag itself shouldn't be used in the platform.mk files.
+XLAT_TABLES_LIB_V2		:= 0
+
 # Build option to choose whether the xlat tables of BL images can be read-only.
 # Note that this only serves as a higher level option to PLAT_RO_XLAT_TABLES,
 # which is the per BL-image option that actually enables the read-only tables
