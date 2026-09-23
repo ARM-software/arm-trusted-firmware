@@ -46,6 +46,7 @@ DYNAMIC_WORKAROUND_CVE_2018_3639	:=      1
 ENABLE_STACK_PROTECTOR := strong
 
 PLAT_INCLUDES		:=	-Iinclude/plat/common/					\
+				-I${PLAT_PATH}/hoya/inc					\
 				-I${PLAT_PATH}/hoya/${CHIPSET}/inc				\
 				-I${PLAT_PATH}/hoya/${CHIPSET}/${PLAT}/inc			\
 				-I${PLAT_PATH}/common/inc				\
