@@ -22,5 +22,4 @@ BL31_SOURCES += \
 	$(PDC_DRV_PATH)/$(CHIPSET)/pdc_seq_cfg.c		\
 	$(PDC_DRV_PATH)/$(CHIPSET)/interrupt_table.c		\
 	$(PDC_DRV_PATH)/$(CHIPSET)/gpio_table.c			\
-	$(PDC_DRV_PATH)/$(CHIPSET)/mux_table.c			\
 	$(PDC_DRV_PATH)/$(CHIPSET)/tcs_resource.c
