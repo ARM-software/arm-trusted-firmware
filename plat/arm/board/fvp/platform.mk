@@ -237,7 +237,7 @@ else
 					lib/cpus/aarch64/c1_nano.S		\
 					lib/cpus/aarch64/c1_ultra.S		\
 					lib/cpus/aarch64/c1_premium.S		\
-					lib/cpus/aarch64/canyon.S		\
+					lib/cpus/aarch64/c2_ultra.S		\
 					lib/cpus/aarch64/caddo.S		\
 					lib/cpus/aarch64/veymont.S		\
 					lib/cpus/aarch64/dionysus.S		\
