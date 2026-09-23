@@ -19,7 +19,7 @@ image_desc_t bl1_tbbr_image_descs[] = {
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
 		    VERSION_1, entry_point_info_t, SECURE),
     },
-#if NS_BL1U_BASE
+#if defined(NS_BL1U_BASE) && NS_BL1U_BASE
     {
 	    .image_id = NS_BL1U_IMAGE_ID,
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
@@ -27,7 +27,7 @@ image_desc_t bl1_tbbr_image_descs[] = {
 	    .ep_info.pc = NS_BL1U_BASE,
     },
 #endif
-#if SCP_BL2U_BASE
+#if defined(SCP_BL2U_BASE) && SCP_BL2U_BASE
     {
 	    .image_id = SCP_BL2U_IMAGE_ID,
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
@@ -38,7 +38,7 @@ image_desc_t bl1_tbbr_image_descs[] = {
 		    VERSION_1, entry_point_info_t, SECURE),
     },
 #endif
-#if BL2U_BASE
+#if defined(BL2U_BASE) && BL2U_BASE
     {
 	    .image_id = BL2U_IMAGE_ID,
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
@@ -50,7 +50,7 @@ image_desc_t bl1_tbbr_image_descs[] = {
 	    .ep_info.pc = BL2U_BASE,
     },
 #endif
-#if NS_BL2U_BASE
+#if defined(NS_BL2U_BASE) && NS_BL2U_BASE
     {
 	    .image_id = NS_BL2U_IMAGE_ID,
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
