@@ -104,7 +104,7 @@ cc-flags-llvm-clang	+=	$(LTO_CFLAGS)
 # arm-clang has the same flags
 cc-flags-arm-clang	+=	$(cc-flags-llvm-clang)
 
-cflags-common		+=	-include $(call shell-quote,$(config-header)) ${INCLUDES} ${MBEDTLS_INC} -nostdinc
+cflags-common		+=	-include $(call shell-quote,$(config-header)) ${INCLUDES} -nostdinc
 
 cflags-common		+=	-ffunction-sections -fdata-sections		\
 				-ffreestanding -fno-common			\

@@ -13,7 +13,17 @@ ifeq (${MBEDTLS_DIR},)
   $(error Error: MBEDTLS_DIR not set)
 endif
 
-MBEDTLS_INC		=	-I${MBEDTLS_DIR}/include
+MBEDTLS_NAME		:= mbedtls
+
+MBEDTLS_BUILD_DIR	:= $(BUILD_PLAT)/lib$(MBEDTLS_NAME)
+MBEDTLS_INSTALL_DIR	:= $(BUILD_PLAT)/$(MBEDTLS_NAME)-install
+MBEDTLS_TARGETS		:= $(MBEDTLS_INSTALL_DIR)/lib/libmbedx509.a \
+                           $(MBEDTLS_INSTALL_DIR)/lib/libmbedcrypto.a
+
+MBEDTLS_BUILD_TYPE	:= MinSizeRel
+
+MBEDTLS_LIBS		:= $(MBEDTLS_TARGETS)
+MBEDTLS_INCLUDE_DIRS	:= $(MBEDTLS_INSTALL_DIR)/include
 
 MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
 MBEDTLS_MINOR=$(shell grep -hP "define MBEDTLS_VERSION_MINOR" ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
@@ -34,52 +44,8 @@ $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
 
 MBEDTLS_SOURCES	+=		drivers/auth/mbedtls/mbedtls_common.c
 
-LIBMBEDTLS_SRCS		+= $(addprefix ${MBEDTLS_DIR}/library/,		\
-					aes.c 				\
-					aesce.c				\
-					asn1parse.c 			\
-					asn1write.c 			\
-					cipher.c 			\
-					cipher_wrap.c 			\
-					constant_time.c			\
-					memory_buffer_alloc.c		\
-					oid.c 				\
-					platform.c 			\
-					platform_util.c			\
-					bignum.c			\
-					bignum_core.c			\
-					ccm.c 				\
-					gcm.c 				\
-					md.c				\
-					pk.c 				\
-					pk_ecc.c 			\
-					pk_wrap.c 			\
-					pkparse.c 			\
-					pkwrite.c 			\
-					sha256.c            		\
-					sha512.c            		\
-					ecdsa.c				\
-					ecp_curves.c			\
-					ecp.c				\
-					rsa.c				\
-					rsa_alt_helpers.c		\
-					x509.c 				\
-					x509_crt.c 			\
-					)
-
-ifeq (${PSA_CRYPTO},1)
-LIBMBEDTLS_SRCS         += $(addprefix ${MBEDTLS_DIR}/library/,    	\
-					psa_crypto.c                   	\
-					psa_crypto_client.c            	\
-					psa_crypto_hash.c              	\
-					psa_crypto_rsa.c               	\
-					psa_crypto_ecp.c               	\
-					psa_crypto_slot_management.c   	\
-					psa_crypto_aead.c               \
-					psa_crypto_cipher.c             \
-					psa_util.c			\
-					)
-endif
+LIBMBEDTLS_CFLAGS ?= $(filter-out -I%,$(TF_CFLAGS))
+LIBMBEDTLS_CFLAGS += $(patsubst %,-I%,$(call include-dirs,$(TF_CFLAGS)))
 
 # This is a temporary workaround due to changes in the locations of helper
 # function declarations in Mbed-TLS version 3.6.4
@@ -154,6 +120,14 @@ else ifeq (${DECRYPTION_SUPPORT}, aes_gcm)
 endif
 
 # Needs to be set to drive mbed TLS configuration correctly
+
+MBEDTLS_DEFINES := \
+        -DTF_MBEDTLS_KEY_ALG_ID=$(TF_MBEDTLS_KEY_ALG_ID) \
+        -DTF_MBEDTLS_KEY_SIZE=$(TF_MBEDTLS_KEY_SIZE) \
+        -DTF_MBEDTLS_HASH_ALG_ID=$(TF_MBEDTLS_HASH_ALG_ID) \
+        -DTF_MBEDTLS_USE_AES_CCM=$(TF_MBEDTLS_USE_AES_CCM) \
+        -DTF_MBEDTLS_USE_AES_GCM=$(TF_MBEDTLS_USE_AES_GCM)
+
 $(call add_defines,\
     $(sort \
         TF_MBEDTLS_KEY_ALG_ID \
@@ -163,11 +137,30 @@ $(call add_defines,\
         TF_MBEDTLS_USE_AES_GCM \
 ))
 
+LIBMBEDTLS_CFLAGS += $(MBEDTLS_DEFINES)
+
 ifeq ($(filter 1,$(ENABLE_FEAT_CRYPTO)),1)
     REMOVED_CFLAGS		:=	-nostdinc -mgeneral-regs-only
-    $(eval $(call MAKE_LIB,mbedtls,${REMOVED_CFLAGS}))
-else
-    $(eval $(call MAKE_LIB,mbedtls))
 endif #(ENABLE_FEAT_CRYPTO)
 
+FILTERED_LIBMBEDTLS_CFLAGS = $(filter-out $(REMOVED_CFLAGS),$(LIBMBEDTLS_CFLAGS))
+
+$(MBEDTLS_INSTALL_DIR)/% $(MBEDTLS_INSTALL_DIR)/%/: $(MBEDTLS_TARGETS) ;
+$(MBEDTLS_TARGETS) $(MBEDTLS_INSTALL_DIR)/ &: $(BUILD_PLAT)/lib/libc.a
+	$(s)echo "  CM      $@"
+	$(q)cmake -S $(MBEDTLS_DIR) -B $(MBEDTLS_BUILD_DIR) \
+		-DCMAKE_BUILD_TYPE=$(MBEDTLS_BUILD_TYPE) \
+		-DCMAKE_SYSTEM_NAME=Generic \
+		-DCMAKE_SYSTEM_VERSION= \
+		-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY \
+		-DCMAKE_C_COMPILER=$(call shell-quote,$(call shell-join,$($(ARCH)-cc-program),;)) \
+		$(if $($(ARCH)-cc-wrapper),-DCMAKE_C_COMPILER_LAUNCHER=$(call shell-quote,$(call shell-join,$($(ARCH)-cc-wrapper),;))) \
+		-DCMAKE_C_FLAGS=$(call escape-shell,$(FILTERED_LIBMBEDTLS_CFLAGS)) \
+		-DENABLE_TESTING=OFF \
+		-DENABLE_PROGRAMS=OFF \
+		$(if $(V),, --log-level=ERROR) > /dev/null
+	$(q)cmake --build $(MBEDTLS_BUILD_DIR) -- $(if $(V),,-s) > /dev/null
+	$(q)cmake --install $(MBEDTLS_BUILD_DIR) \
+		--prefix $(MBEDTLS_INSTALL_DIR) \
+		--config $(MBEDTLS_BUILD_TYPE) > /dev/null
 endif

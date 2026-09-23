@@ -46,6 +46,9 @@ NEED_AUTH := $(if $(filter 1,$(TRUSTED_BOARD_BOOT)),1,)
 NEED_HASH := $(if $(filter 1,$(MEASURED_BOOT) $(DRTM_SUPPORT)),1,)
 $(eval $(call set_crypto_support,NEED_AUTH,NEED_HASH))
 
+BL2_LIBS += $(MBEDTLS_LIBS)
+BL2_INCLUDE_DIRS += $(MBEDTLS_INCLUDE_DIRS)
+
 # BL2_CPPFLAGS
 $(eval BL2_CPPFLAGS += $(call make_defines, \
     $(sort \

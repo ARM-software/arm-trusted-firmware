@@ -47,8 +47,8 @@ define set_crypto_support
 	else
 		CRYPTO_SUPPORT := 0
 	endif
-	MBEDTLS_LIB ?= $(BUILD_PLAT)/lib/libmbedtls.a
-	CRYPTO_LIB := $(if $(filter-out 0,$(CRYPTO_SUPPORT)),$(MBEDTLS_LIB),)
+	MBEDCRYPTO_LIB ?= $(BUILD_PLAT)/mbedtls-install/lib/libmbedcrypto.a
+	CRYPTO_LIB := $(if $(filter-out 0,$(CRYPTO_SUPPORT)),$(MBEDCRYPTO_LIB),)
 endef
 
 # Convenience function for creating a build definition
