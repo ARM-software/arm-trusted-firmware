@@ -29,6 +29,7 @@
 #include <lib/runtime_instr.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <plat/common/platform.h>
+#include <services/pfdi.h>
 #include <services/std_svc.h>
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
@@ -270,6 +271,14 @@ void __no_pauth bl31_warmboot(void)
 #endif
 
 	psci_warmboot_entrypoint(core_pos);
+
+	/*
+	 * Platform Fault Detection Interface (PFDI) Out-of-Reset (OoR) tests
+	 * are executed on secondary cores. These are triggered by the primary
+	 * core after it finishes runtime initialization, provided the PFDI
+	 * service is enabled and has registered a callback.
+	 */
+	pfdi_enable();
 }
 
 /*******************************************************************************

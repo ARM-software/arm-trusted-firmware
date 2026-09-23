@@ -229,6 +229,11 @@ endif
 
 endif # (FIRME_SUPPORT)
 
+ifeq (${PFDI_SUPPORT},1)
+BL31_SOURCES		+=	services/std_svc/pfdi/pfdi_svc.c \
+				services/std_svc/pfdi/pfdi_main.c
+endif
+
 BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S
 
 # CRYPTO_SUPPORT

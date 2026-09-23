@@ -70,6 +70,12 @@ ERRATA_A720_AE_3456103			:=	1
 ERRATA_A720_AE_3699562			:=	1
 
 include ${RSE_COMMS_BOOT_MK}
+ifeq (${PFDI_SUPPORT}, 1)
+# Override PFDI_SOURCE to provide a real platform self-test implementation.
+PFDI_SOURCE	?=	${RDASPEN_BASE}/cpu_self_test.c
+BL31_SOURCES	+=	${RDASPEN_BASE}/rdaspen_sbist.c \
+			${PFDI_SOURCE}
+endif
 
 PLAT_BL_COMMON_SOURCES	+=	${RDASPEN_BASE}/rdaspen_plat.c	\
 				${RDASPEN_BASE}/include/rdaspen_helpers.S

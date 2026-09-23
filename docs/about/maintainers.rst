@@ -354,6 +354,14 @@ Performance Measurement Framework (PMF)
 :|F|: lib/pmf/
 :|F|: include/lib/pmf/
 
+Platform Fault Detection Interface (PFDI)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Ahmed Azeem <ahmed.azeem@arm.com>
+:|F|: services/std_svc/pfdi/
+:|F|: include/services/pfdi.h
+:|F|: include/services/pfdi_svc.h
+:|F|: docs/components/pfdi.rst
+
 Platform Security Architecture (PSA) APIs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Sandrine Afsa <sandrine.afsa@arm.com>

@@ -338,7 +338,7 @@ int psci_spd_migrate_info(u_register_t *mpidr);
 void apply_cpu_pwr_dwn_errata(void);
 
 /* Private exported functions from psci_on.c */
-int psci_cpu_on_start(u_register_t target_cpu);
+int psci_cpu_on_start(unsigned int target_idx, u_register_t target_cpu);
 
 void psci_cpu_on_finish(unsigned int cpu_idx, const psci_power_state_t *state_info);
 

@@ -19,6 +19,8 @@
 #include <services/firme_svc.h>
 #include <services/lfa_svc.h>
 #include <services/pci_svc.h>
+#include <services/pfdi.h>
+#include <services/pfdi_svc.h>
 #include <services/rmmd_svc.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
@@ -54,6 +56,15 @@ static int32_t std_svc_setup(void)
 	if (psci_setup((const psci_lib_args_t *)svc_arg) != PSCI_E_SUCCESS) {
 		ret = 1;
 	}
+
+#if PFDI_SUPPORT
+	/*
+	 * Initialize Platform Fault Detection Interface before
+	 * from being invoked from TF-A.
+	 * SPM is initialized, as it would prevent PSCI operations
+	 */
+	pfdi_init();
+#endif
 
 #if SPM_MM
 	if (spm_mm_setup() != 0) {
@@ -234,6 +245,13 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 				       flags);
 	}
 #endif
+
+#if PFDI_SUPPORT
+	if (is_pfdi_fid(smc_fid)) {
+		return pfdi_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
+						flags);
+	}
+#endif /* PFDI_SUPPORT */
 
 #if DRTM_SUPPORT
 	if (is_drtm_fid(smc_fid)) {

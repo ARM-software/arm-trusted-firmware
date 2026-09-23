@@ -673,6 +673,7 @@ $(call assert_booleans,\
 	SMC_PCI_SUPPORT \
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
+	PFDI_SUPPORT \
 ))
 
 # Numeric_Flags
@@ -967,6 +968,7 @@ $(call add_defines,\
 	SMC_PCI_SUPPORT \
 	FIRME_SUPPORT \
 	FIRME_SUPPORT_IDE_KM \
+	PFDI_SUPPORT \
 ))
 
 ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)

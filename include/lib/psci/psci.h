@@ -371,6 +371,10 @@ unsigned int psci_version(void);
 int psci_cpu_on(u_register_t target_cpu,
 		uintptr_t entrypoint,
 		u_register_t context_id);
+int psci_cpu_on_by_core_pos(unsigned int target_idx,
+			    u_register_t target_cpu,
+			    uintptr_t entrypoint,
+			    u_register_t context_id);
 int psci_cpu_suspend(unsigned int power_state,
 		     uintptr_t entrypoint,
 		     u_register_t context_id);
