@@ -9,8 +9,6 @@
 $(eval $(call add_define,QTI_PWR_UTILS_ENABLED))
 
 PWR_UTILS_DRV_PATH := drivers/qti/pwr_utils
-CMD_DB_DRV_PATH := drivers/qti/cmd_db
 
 BL31_SOURCES += \
-	$(PWR_UTILS_DRV_PATH)/pwr_utils.c			\
-	$(CMD_DB_DRV_PATH)/cmd_db.c
+	$(PWR_UTILS_DRV_PATH)/pwr_utils.c
