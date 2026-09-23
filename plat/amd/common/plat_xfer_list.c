@@ -189,6 +189,12 @@ static bool validate_transfer_list_ops(void)
 		ret = false;
 	}
 
+	if (tl_hdr->max_size > FW_HANDOFF_SIZE) {
+		WARN("TL max_size (0x%x) exceeds handoff region\n",
+		     tl_hdr->max_size);
+		ret = false;
+	}
+
 	return ret;
 }
 
@@ -271,6 +277,13 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 		while ((te = transfer_list_next(tl_hdr, te)) != NULL) {
 			ep = transfer_list_entry_data(te);
 			if (te->tag_id == TL_TAG_EXEC_EP_INFO64) {
+				if (te->data_size != sizeof(entry_point_info_t)) {
+					WARN("EXEC_EP entry data_size 0x%x != expected 0x%zx; skipping\n",
+					     te->data_size, sizeof(entry_point_info_t));
+					ret = TL_OPS_NON;
+					continue;
+				}
+
 				switch (GET_SECURITY_STATE(ep->h.attr)) {
 				case NON_SECURE:
 					*bl33 = *ep;
@@ -313,7 +326,7 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 				/*
 				 * Clearing the transfer list handoff entry data.
 				 */
-				memset(ep, 0, te->data_size);
+				memset(ep, 0, sizeof(entry_point_info_t));
 
 				if (transfer_list_rem(tl_hdr, te) == false) {
 					INFO("Failed to remove handoff info\n");
