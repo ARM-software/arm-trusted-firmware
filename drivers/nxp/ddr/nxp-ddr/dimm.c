@@ -19,6 +19,12 @@
 #include <i2c.h>
 #include <lib/utils.h>
 
+#pragma weak plat_get_cached_spd
+int plat_get_cached_spd(unsigned char chip, void *buf, int len)
+{
+	return -ENOENT;
+}
+
 int read_spd(unsigned char chip, void *buf, int len)
 {
 	unsigned char dummy = 0U;
@@ -27,6 +33,10 @@ int read_spd(unsigned char chip, void *buf, int len)
 	if (len < 256) {
 		ERROR("Invalid SPD length\n");
 		return -EINVAL;
+	}
+
+	if (plat_get_cached_spd(chip, buf, len) == 0) {
+		return 0;
 	}
 
 	i2c_write(SPD_SPA0_ADDRESS, 0, 1, &dummy, 1);
