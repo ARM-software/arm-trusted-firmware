@@ -10,6 +10,31 @@
 void configure_mmu(void);
 
 uint32_t stm32mp_syscfg_get_chip_dev_id(void);
+size_t stm32mp_syscfg_get_mm_size(uint8_t bank);
+int stm32mp_syscfg_dlyb_init(uint8_t bank, bool bypass_mode,
+			     uint32_t period_ps);
+int stm32mp_syscfg_dlyb_find_tap(uint8_t bank, int (*check_transfer)(void),
+				 bool rx_only, uint8_t *window_len);
+int stm32mp_syscfg_dlyb_set_cr(uint8_t bank, uint32_t dlyb_cr);
+void stm32mp_syscfg_dlyb_get_cr(uint8_t bank, uint32_t *dlyb_cr);
+void stm32mp_syscfg_dlyb_stop(uint8_t bank);
+
+/* IO compensation identifiers */
+enum syscfg_io_ids {
+	SYSFG_VDDIO1_ID,
+	SYSFG_VDDIO2_ID,
+	SYSFG_VDDIO3_ID,
+#if !STM32MP21
+	SYSFG_VDDIO4_ID,
+#endif /* !STM32MP21 */
+	SYSFG_VDD_IO_ID,
+	SYSFG_NB_IO_ID
+};
+
+void stm32mp_syscfg_enable_io_comp(enum syscfg_io_ids id);
+void stm32mp_syscfg_fixed_io_comp(enum syscfg_io_ids id, uint32_t pmos, uint32_t nmos);
+
+int stm32mp2_pwr_init_io_domains(void);
 
 /* Get RISAF platform instance ID from peripheral IO memory base address */
 int stm32_risaf_get_instance(uintptr_t base);

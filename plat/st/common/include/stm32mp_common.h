@@ -119,6 +119,9 @@ void stm32mp_print_boardinfo(void);
 /* Initialise the IO layer and register platform IO devices */
 void stm32mp_io_setup(void);
 
+/* Deinitialise the IO layer */
+void stm32mp_io_exit(void);
+
 /* Functions to map DDR in MMU with non-cacheable attribute, and unmap it */
 int stm32mp_map_ddr_non_cacheable(void);
 int stm32mp_unmap_ddr(void);

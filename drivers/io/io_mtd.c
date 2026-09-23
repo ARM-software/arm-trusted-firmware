@@ -293,6 +293,20 @@ static int mtd_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info)
 
 static int mtd_dev_close(io_dev_info_t *dev_info)
 {
+	mtd_dev_state_t *cur;
+	io_mtd_ops_t *ops;
+	int result;
+
+	cur = (mtd_dev_state_t *)dev_info->info;
+	ops = &(cur->dev_spec->ops);
+
+	if (ops->reset != NULL) {
+		result = ops->reset();
+		if (result != 0) {
+			return result;
+		}
+	}
+
 	return free_dev_info(dev_info);
 }
 

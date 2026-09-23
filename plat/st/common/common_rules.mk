@@ -19,6 +19,7 @@ check_boot_device:
 	    [ ${STM32MP_RAW_NAND} != 1 ] && \
 	    [ ${STM32MP_SPI_NAND} != 1 ] && \
 	    [ ${STM32MP_SPI_NOR} != 1 ] && \
+	    [ ${STM32MP_HYPERFLASH} != 1 ] && \
 	    [ ${STM32MP_UART_PROGRAMMER} != 1 ] && \
 	    [ ${STM32MP_USB_PROGRAMMER} != 1 ]; then \
 		echo "No boot device driver is enabled"; \

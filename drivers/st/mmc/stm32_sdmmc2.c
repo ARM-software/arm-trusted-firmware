@@ -116,7 +116,7 @@
 
 #define TIMEOUT_US_1_MS			1000U
 #define TIMEOUT_US_10_MS		10000U
-#define TIMEOUT_US_1_S			1000000U
+#define TIMEOUT_10_MS			10U
 
 /* Power cycle delays in ms */
 #define VCC_POWER_OFF_DELAY		2
@@ -233,6 +233,7 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 	uint64_t timeout;
 	uint32_t flags_cmd, status;
 	uint32_t flags_data = 0;
+	uint32_t timeout_msecs = TIMEOUT_10_MS;
 	int err = 0;
 	uintptr_t base = sdmmc2_params.reg_base;
 	unsigned int cmd_reg, arg_reg;
@@ -320,6 +321,15 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 		break;
 	default:
 		break;
+	}
+
+	if (flags_data != 0U) {
+		timeout_msecs = mmio_read_32(base + SDMMC_DLENR) >> 8U;
+
+		/* At least, a timeout of 2 seconds is set */
+		if (timeout_msecs < 2000U) {
+			timeout_msecs = 2000U;
+		}
 	}
 
 	next_cmd_is_acmd = (cmd->cmd_idx == MMC_CMD(55));
@@ -412,12 +422,12 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 
 	status = mmio_read_32(base + SDMMC_STAR);
 
-	timeout = timeout_init_us(TIMEOUT_US_10_MS);
+	timeout = timeout_init_us(timeout_msecs * 1000U);
 
 	while ((status & flags_data) == 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("%s: timeout 10ms (cmd = %u,status = %x)\n",
-			      __func__, cmd->cmd_idx, status);
+			ERROR("%s: timeout %ums (cmd = %u,status = %x)\n",
+			      __func__, timeout_msecs, cmd->cmd_idx, status);
 			err = -ETIMEDOUT;
 			goto err_exit;
 		}
@@ -603,6 +613,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 	uintptr_t base = sdmmc2_params.reg_base;
 	uintptr_t fifo_reg = base + SDMMC_FIFOR;
 	uint64_t timeout;
+	uint32_t timeout_msecs;
 	int ret;
 
 	/* Assert buf is 4 bytes aligned */
@@ -620,7 +631,14 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 		flags |= SDMMC_STAR_DBCKEND;
 	}
 
-	timeout = timeout_init_us(TIMEOUT_US_1_S);
+	timeout_msecs = (uint32_t)(size >> 8U);
+
+	/* At least, a timeout of 2 seconds is set */
+	if (timeout_msecs < 2000U) {
+		timeout_msecs = 2000U;
+	}
+
+	timeout = timeout_init_us(timeout_msecs * 1000U);
 
 	do {
 		status = mmio_read_32(base + SDMMC_STAR);
@@ -643,8 +661,8 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 		}
 
 		if (timeout_elapsed(timeout)) {
-			ERROR("%s: timeout 1s (status = %x)\n",
-			      __func__, status);
+			ERROR("%s: timeout %ums (status = %x)\n",
+			      __func__, timeout_msecs, status);
 			mmio_write_32(base + SDMMC_ICR,
 				      SDMMC_STATIC_FLAGS);
 

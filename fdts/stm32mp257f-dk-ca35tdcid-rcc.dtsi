@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2025 - All Rights Reserved
+ * Copyright (C) 2025-2026, STMicroelectronics - All Rights Reserved
  * Author: Loic Pallardy loic.pallardy@foss.st.com for STMicroelectronics.
  */
 
@@ -47,7 +47,6 @@
 		FLEXGEN_CFG(4, XBAR_SRC_PLL4, 0, 3)
 		FLEXGEN_CFG(5, XBAR_SRC_PLL4, 0, 2)
 		FLEXGEN_CFG(8, XBAR_SRC_HSI_KER, 0, 0)
-		FLEXGEN_CFG(48, XBAR_SRC_PLL5, 0, 3)
 		FLEXGEN_CFG(51, XBAR_SRC_PLL4, 0, 5)
 		FLEXGEN_CFG(52, XBAR_SRC_PLL4, 0, 5)
 		FLEXGEN_CFG(58, XBAR_SRC_HSE_KER, 0, 1)

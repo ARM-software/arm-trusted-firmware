@@ -232,6 +232,7 @@ PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/stm32mp2_private.c
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c					\
 					drivers/st/iwdg/stm32_iwdg.c				\
 					drivers/st/reset/stm32mp2_reset.c			\
+					plat/st/stm32mp2/stm32mp2_pwr.c				\
 					plat/st/stm32mp2/stm32mp2_syscfg.c
 
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/clk/clk-stm32-core.c				\
@@ -252,6 +253,18 @@ BL2_SOURCES			+=	drivers/st/rif/stm32_rifsc.c 				\
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c
+endif
+
+ifeq (${STM32MP_RAW_NAND},1)
+BL2_SOURCES			+=	drivers/st/fmc/stm32_fmc2_nand.c
+endif
+
+ifneq ($(filter 1,${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR} ${STM32MP_HYPERFLASH}),)
+BL2_SOURCES			+=	drivers/st/spi/stm32_ospi.c
+endif
+
+ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR} ${STM32MP_HYPERFLASH}),)
+BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_boot_device.c
 endif
 
 ifeq (${STM32MP_USB_PROGRAMMER},1)

@@ -7,7 +7,7 @@
 
 / {
 	soc@0 {
-#if !STM32MP_SPI_NAND && !STM32MP_SPI_NOR
+#if !STM32MP_SPI_NAND && !STM32MP_SPI_NOR && !STM32MP_HYPERFLASH
 		bus@42080000 {
 			/delete-node/ spi@40430000;
 		};

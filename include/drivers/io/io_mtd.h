@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,6 +54,13 @@ typedef struct io_mtd_ops {
 	 * Return 0 on success, a negative error code otherwise.
 	 */
 	int (*seek)(uintptr_t base, unsigned int offset, size_t *extra_offset);
+
+	/*
+	 * Reset the device.
+	 *
+	 * Return 0 on success, a negative error code otherwise.
+	 */
+	int (*reset)(void);
 } io_mtd_ops_t;
 
 typedef struct io_mtd_dev_spec {

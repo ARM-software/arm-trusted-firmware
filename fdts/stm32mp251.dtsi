@@ -84,6 +84,41 @@
 		interrupt-parent = <&intc>;
 		ranges = <0x0 0x0 0x0 0x80000000>;
 
+		ommanager: ommanager@40500000 {
+			compatible = "st,stm32mp25-omm";
+			reg = <0x40500000 0x400>, <0x60000000 0x10000000>;
+			reg-names = "regs", "memory_map";
+			ranges = <0 0 0x40430000 0x400>,
+				 <1 0 0x40440000 0x400>;
+			clocks = <&rcc CK_BUS_OSPIIOM>,
+				 <&rcc CK_KER_OSPI1>,
+				 <&rcc CK_KER_OSPI2>;
+			clock-names = "omm", "ospi1", "ospi2";
+			resets = <&rcc OSPIIOM_R>,
+				 <&rcc OSPI1_R>,
+				 <&rcc OSPI2_R>;
+			reset-names = "omm", "ospi1", "ospi2";
+			#address-cells = <2>;
+			#size-cells = <1>;
+			status = "disabled";
+
+			ospi1: spi@0 {
+				compatible = "st,stm32mp25-ospi";
+				reg = <0 0 0x400>;
+				clocks = <&rcc CK_KER_OSPI1>;
+				resets = <&rcc OSPI1_R>, <&rcc OSPI1DLL_R>;
+				status = "disabled";
+			};
+
+			ospi2: spi@1 {
+				compatible = "st,stm32mp25-ospi";
+				reg = <1 0 0x400>;
+				clocks = <&rcc CK_KER_OSPI2>;
+				resets = <&rcc OSPI2_R>, <&rcc OSPI2DLL_R>;
+				status = "disabled";
+			};
+		};
+
 		rifsc: rifsc@42080000 {
 			compatible = "st,stm32mp25-rifsc";
 			reg = <0x42080000 0x1000>;
@@ -334,22 +369,27 @@
 
 			vddio1: vddio1 {
 				regulator-name = "vddio1";
+				st,iocomp = <8 7>;
 			};
 
 			vddio2: vddio2 {
 				regulator-name = "vddio2";
+				st,iocomp = <8 7>;
 			};
 
 			vddio3: vddio3 {
 				regulator-name = "vddio3";
+				st,iocomp = <8 7>;
 			};
 
 			vddio4: vddio4 {
 				regulator-name = "vddio4";
+				st,iocomp = <8 7>;
 			};
 
 			vddio: vddio {
 				regulator-name = "vddio";
+				st,iocomp = <8 7>;
 			};
 		};
 
@@ -398,6 +438,42 @@
 			reg = <0x48040000 0x10000>,
 			      <0x48c00000 0x400000>;
 			status = "okay";
+		};
+
+		fmc: memory-controller@48200000 {
+			#address-cells = <2>;
+			#size-cells = <1>;
+			compatible = "st,stm32mp25-fmc2-ebi";
+			reg = <0x48200000 0x400>;
+			clocks = <&rcc CK_KER_FMC>;
+			resets = <&rcc FMC_R>;
+			status = "disabled";
+
+			ranges = <0 0 0x70000000 0x04000000>, /* EBI CS 1 */
+				 <1 0 0x74000000 0x04000000>, /* EBI CS 2 */
+				 <2 0 0x78000000 0x04000000>, /* EBI CS 3 */
+				 <3 0 0x7c000000 0x04000000>, /* EBI CS 4 */
+				 <4 0 0x48810000 0x00001000>; /* NAND */
+
+			nand-controller@4,0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "st,stm32mp25-fmc2-nfc";
+				reg = <4 0x0000 0x10>,
+				      <4 0x0090 0x10>,
+				      <4 0x00a0 0x10>,
+				      <4 0x0400 0x10>,
+				      <4 0x0490 0x10>,
+				      <4 0x04a0 0x10>,
+				      <4 0x0800 0x10>,
+				      <4 0x0890 0x10>,
+				      <4 0x08a0 0x10>,
+				      <4 0x0c00 0x10>,
+				      <4 0x0c90 0x10>,
+				      <4 0x0ca0 0x10>;
+				interrupts = <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
+				status = "disabled";
+			};
 		};
 
 		pinctrl: pinctrl@44240000 {

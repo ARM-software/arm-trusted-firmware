@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,22 +33,31 @@ static struct spi_slave spi_slave;
 
 static bool spi_mem_check_buswidth_req(uint8_t buswidth, bool tx)
 {
+	unsigned int mode = spi_slave.mode;
+
 	switch (buswidth) {
 	case 1U:
 		return true;
 
 	case 2U:
-		if ((tx && (spi_slave.mode & (SPI_TX_DUAL | SPI_TX_QUAD)) !=
-		     0U) ||
-		    (!tx && (spi_slave.mode & (SPI_RX_DUAL | SPI_RX_QUAD)) !=
-		     0U)) {
+		if ((tx &&
+		     (mode & (SPI_TX_DUAL | SPI_TX_QUAD | SPI_TX_OCTAL)) != 0U) ||
+		    (!tx &&
+		     (mode & (SPI_RX_DUAL | SPI_RX_QUAD | SPI_RX_OCTAL)) != 0U)) {
 			return true;
 		}
 		break;
 
 	case 4U:
-		if ((tx && (spi_slave.mode & SPI_TX_QUAD) != 0U) ||
-		    (!tx && (spi_slave.mode & SPI_RX_QUAD) != 0U)) {
+		if ((tx && (mode & (SPI_TX_QUAD | SPI_TX_OCTAL)) != 0U) ||
+		    (!tx && (mode & (SPI_RX_QUAD | SPI_RX_OCTAL)) != 0U)) {
+			return true;
+		}
+		break;
+
+	case 8U:
+		if ((tx && (mode & SPI_TX_OCTAL) != 0U) ||
+		    (!tx && (mode & SPI_RX_OCTAL) != 0U)) {
 			return true;
 		}
 		break;
@@ -60,7 +69,7 @@ static bool spi_mem_check_buswidth_req(uint8_t buswidth, bool tx)
 	return false;
 }
 
-static bool spi_mem_supports_op(const struct spi_mem_op *op)
+static bool spi_mem_check_buswidth(const struct spi_mem_op *op)
 {
 	if (!spi_mem_check_buswidth_req(op->cmd.buswidth, true)) {
 		return false;
@@ -83,6 +92,49 @@ static bool spi_mem_supports_op(const struct spi_mem_op *op)
 	}
 
 	return true;
+}
+
+bool spi_mem_dtr_supports_op(const struct spi_mem_op *op)
+{
+	if ((op->cmd.buswidth == 8U) && ((op->cmd.nbytes % 2U) != 0U)) {
+		return false;
+	}
+
+	if ((op->addr.nbytes != 0U) && (op->addr.buswidth == 8U) &&
+	    ((op->addr.nbytes % 2U) != 0U)) {
+		return false;
+	}
+
+	if ((op->dummy.nbytes != 0U) && (op->dummy.buswidth == 8U) &&
+	    ((op->dummy.nbytes % 2U) != 0U)) {
+		return false;
+	}
+
+	return spi_mem_check_buswidth(op);
+}
+
+bool spi_mem_default_supports_op(const struct spi_mem_op *op)
+{
+	if (op->cmd.dtr || op->addr.dtr || op->dummy.dtr || op->data.dtr) {
+		return false;
+	}
+
+	if (op->cmd.nbytes != 1U) {
+		return false;
+	}
+
+	return spi_mem_check_buswidth(op);
+}
+
+static bool spi_mem_supports_op(const struct spi_mem_op *op)
+{
+	const struct spi_bus_ops *ops = spi_slave.ops;
+
+	if (ops->supports_op != NULL) {
+		return ops->supports_op(op);
+	}
+
+	return spi_mem_default_supports_op(op);
 }
 
 static int spi_mem_set_speed_mode(void)
@@ -151,9 +203,9 @@ int spi_mem_exec_op(const struct spi_mem_op *op)
 	const struct spi_bus_ops *ops = spi_slave.ops;
 	int ret;
 
-	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addqr:%" PRIx64 " len:%x\n",
-		__func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
-		op->dummy.buswidth, op->data.buswidth,
+	VERBOSE("%s: cmd:%x dtr:%d mode:%d.%d.%d.%d addqr:%" PRIx64 " len:%x\n",
+		__func__, op->cmd.opcode, op->cmd.dtr, op->cmd.buswidth,
+		op->addr.buswidth, op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);
 
 	if (!spi_mem_supports_op(op)) {
@@ -175,6 +227,54 @@ int spi_mem_exec_op(const struct spi_mem_op *op)
 }
 
 /*
+ * spi_mem_dirmap_read() - Read data through a direct mapping
+ * @op: The memory operation to execute.
+ *
+ * This function reads data from a memory device using a direct mapping.
+ *
+ * Return: 0 in case of success, a negative error code otherwise.
+ */
+int spi_mem_dirmap_read(const struct spi_mem_op *op)
+{
+	const struct spi_bus_ops *ops = spi_slave.ops;
+	int ret;
+
+	VERBOSE("%s: cmd:%x dtr:%d mode:%d.%d.%d.%d addr:%" PRIx64 " len:%x\n",
+		__func__, op->cmd.opcode, op->cmd.dtr, op->cmd.buswidth,
+		op->addr.buswidth, op->dummy.buswidth, op->data.buswidth,
+		op->addr.val, op->data.nbytes);
+
+	if (op->data.dir != SPI_MEM_DATA_IN) {
+		return -EINVAL;
+	}
+
+	if (op->data.nbytes == 0U) {
+		return 0;
+	}
+
+	if (ops->dirmap_read == NULL) {
+		return spi_mem_exec_op(op);
+	}
+
+	if (!spi_mem_supports_op(op)) {
+		WARN("Error in spi_mem_support\n");
+		return -ENOTSUP;
+	}
+
+	ret = ops->claim_bus(spi_slave.cs);
+	if (ret != 0) {
+		WARN("Error claim_bus\n");
+		return ret;
+	}
+
+	ret = ops->dirmap_read(op);
+
+	ops->release_bus();
+
+	return ret;
+}
+
+/*
  * spi_mem_init_slave() - SPI slave device initialization.
  * @fdt: Pointer to the device tree blob.
  * @bus_node: Offset of the bus node.
@@ -188,7 +288,7 @@ int spi_mem_exec_op(const struct spi_mem_op *op)
 int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 {
 	int ret;
-	int mode = 0;
+	unsigned int mode = 0U;
 	int nchips = 0;
 	int bus_subnode = 0;
 	const fdt32_t *cuint = NULL;
@@ -256,6 +356,9 @@ int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 			case 4U:
 				mode |= SPI_TX_QUAD;
 				break;
+			case 8U:
+				mode |= SPI_TX_OCTAL;
+				break;
 			default:
 				WARN("spi-tx-bus-width %u not supported\n",
 				     fdt32_to_cpu(*cuint));
@@ -273,6 +376,9 @@ int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 				break;
 			case 4U:
 				mode |= SPI_RX_QUAD;
+				break;
+			case 8U:
+				mode |= SPI_RX_OCTAL;
 				break;
 			default:
 				WARN("spi-rx-bus-width %u not supported\n",

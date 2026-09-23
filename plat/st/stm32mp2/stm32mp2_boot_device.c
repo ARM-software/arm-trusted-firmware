@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <common/debug.h>
+#include <drivers/hyperflash.h>
 #include <drivers/nand.h>
 #include <drivers/raw_nand.h>
 #include <drivers/spi_nand.h>
@@ -16,21 +16,10 @@
 #include <plat/common/platform.h>
 
 #if STM32MP_RAW_NAND || STM32MP_SPI_NAND
-#if STM32MP13
-void plat_get_scratch_buffer(void **buffer_addr, size_t *buf_size)
-{
-	assert(buffer_addr != NULL);
-	assert(buf_size != NULL);
-
-	*buffer_addr = (void *)STM32MP_MTD_BUFFER;
-	*buf_size = PLATFORM_MTD_MAX_PAGE_SIZE;
-}
-#endif
-
 static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 {
 	uint32_t nand_param;
-	uint32_t nand2_param __maybe_unused;
+	uint32_t nand2_param;
 
 	/* Check if NAND parameters are stored in OTP */
 	if (stm32_get_otp_value(NAND_OTP, &nand_param) != 0) {
@@ -38,31 +27,16 @@ static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 		return -EACCES;
 	}
 
-	if (nand_param == 0U) {
-#if STM32MP13
-		if (is_slc) {
-			return 0;
-		}
-#endif
-#if STM32MP15
+	if ((nand_param == 0U) && is_slc) {
 		return 0;
-#endif
 	}
 
-	if ((nand_param & NAND_PARAM_STORED_IN_OTP) == 0U) {
-#if STM32MP13
-		if (is_slc) {
-			goto ecc;
-		}
-#endif
-#if STM32MP15
+	if (((nand_param & NAND_PARAM_STORED_IN_OTP) == 0U) && is_slc) {
 		goto ecc;
-#endif
 	}
 
-#if STM32MP13
 	if (stm32_get_otp_value(NAND2_OTP, &nand2_param) != 0) {
-		ERROR("BSEC: NAND_OTP Error\n");
+		ERROR("BSEC: NAND2_OTP Error\n");
 		return -EACCES;
 	}
 
@@ -71,7 +45,6 @@ static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 	    (((nand2_param & NAND2_CONFIG_DISTRIB) == NAND2_PNAND_NAND2_SNAND_NAND1) && is_slc)) {
 		nand_param = nand2_param << (NAND_PAGE_SIZE_SHIFT - NAND2_PAGE_SIZE_SHIFT);
 	}
-#endif
 
 	/* NAND parameter shall be read from OTP */
 	if ((nand_param & NAND_WIDTH_MASK) != 0U) {
@@ -175,17 +148,6 @@ int plat_get_raw_nand_data(struct rawnand_device *device)
 #if STM32MP_SPI_NAND
 int plat_get_spi_nand_data(struct spinand_device *device)
 {
-	zeromem(&device->spi_read_cache_op, sizeof(struct spi_mem_op));
-	device->spi_read_cache_op.cmd.opcode = SPI_NAND_OP_READ_FROM_CACHE_4X;
-	device->spi_read_cache_op.cmd.nbytes = 1U;
-	device->spi_read_cache_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
-	device->spi_read_cache_op.addr.nbytes = 2U;
-	device->spi_read_cache_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
-	device->spi_read_cache_op.dummy.nbytes = 1U;
-	device->spi_read_cache_op.dummy.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
-	device->spi_read_cache_op.data.buswidth = SPI_MEM_BUSWIDTH_4_LINE;
-	device->spi_read_cache_op.data.dir = SPI_MEM_DATA_IN;
-
 	return get_data_from_otp(device->nand_dev, false);
 }
 #endif
@@ -193,6 +155,7 @@ int plat_get_spi_nand_data(struct spinand_device *device)
 #if STM32MP_SPI_NOR
 int plat_get_nor_data(struct nor_device *device)
 {
+	/* Quad read command used with MX25L51245G */
 	device->size = SZ_64M;
 	device->flags |= SPI_NOR_USE_BANK;
 
@@ -206,6 +169,15 @@ int plat_get_nor_data(struct nor_device *device)
 	device->read_op.dummy.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	device->read_op.data.buswidth = SPI_MEM_BUSWIDTH_4_LINE;
 	device->read_op.data.dir = SPI_MEM_DATA_IN;
+
+	return 0;
+}
+#endif
+
+#if STM32MP_HYPERFLASH
+int plat_get_hyperflash_data(struct hyperflash_device *device)
+{
+	device->size = SZ_64M;
 
 	return 0;
 }
