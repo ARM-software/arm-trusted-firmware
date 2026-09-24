@@ -256,9 +256,7 @@ $(eval BL31_CPPFLAGS += $(call make_defines, \
 $(call assert_booleans,\
     $(sort \
 	CRASH_REPORTING \
-	DSU_PDL2_SUPPORT \
 	EL3_EXCEPTION_HANDLING \
-	USE_DSU_DRIVER \
 ))
 
 # Numeric_Flags
@@ -270,7 +268,5 @@ $(call assert_numerics,\
 $(call add_defines,\
     $(sort \
 	CRASH_REPORTING \
-	DSU_PDL2_SUPPORT \
 	EL3_EXCEPTION_HANDLING \
-	USE_DSU_DRIVER \
 ))
