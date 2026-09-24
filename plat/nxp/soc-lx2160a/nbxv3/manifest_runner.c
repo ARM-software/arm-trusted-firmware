@@ -27,6 +27,7 @@
 #include <drivers/io/io_storage.h>
 #include <drivers/nxp/io/io_xspi_nor.h>
 #include <flash_info.h>
+#include <fspi_api.h>
 #include <lib/semihosting.h>
 
 #include "manifest.h"
@@ -113,9 +114,14 @@ static const uint8_t *flash_ahb_view(uint32_t nor_offset)
 		(NXP_FLEXSPI_FLASH_ADDR + (uintptr_t)nor_offset);
 }
 
+/*
+ * Copy the payload chunk by chunk.
+ * With @erase_ahead, each chunk's sector erase is started before its
+ * host read and only waited for after it.
+ */
 static int region_chunked_copy(uintptr_t src, uintptr_t dst,
 			       const struct nbxv3_region *r,
-			       size_t total)
+			       size_t total, bool erase_ahead)
 {
 	struct nbxv3_pb pb;
 	size_t remaining = total;
@@ -132,9 +138,23 @@ static int region_chunked_copy(uintptr_t src, uintptr_t dst,
 			? NBXV3_CHUNK_SZ : remaining;
 		size_t got = 0U;
 		size_t put = 0U;
+		int rc;
 
-		if (io_read(src, (uintptr_t)nbxv3_chunk_buf,
-			    chunk, &got) != 0 || got != chunk) {
+		if (erase_ahead &&
+		    xspi_sector_erase_start(r->offset + nor_pos) != 0) {
+			nbxv3_pb_step(&pb, NBXV3_PB_GIVE_UP);
+			nbxv3_pb_end(&pb);
+			ERROR("manifest: %s: erase failed at NOR 0x%x\n",
+			      r->file, r->offset + nor_pos);
+			return -EIO;
+		}
+
+		rc = io_read(src, (uintptr_t)nbxv3_chunk_buf, chunk, &got);
+		if (erase_ahead) {
+			/* Normally already done: the host read is longer. */
+			xspi_wait_ready();
+		}
+		if (rc != 0 || got != chunk) {
 			nbxv3_pb_step(&pb, NBXV3_PB_GIVE_UP);
 			nbxv3_pb_end(&pb);
 			ERROR("manifest: %s: read short / failed at NOR 0x%x\n",
@@ -267,6 +287,9 @@ static int region_erase_and_verify(uintptr_t dst,
  */
 static long process_region(const struct nbxv3_region *r)
 {
+	const bool erase_ahead = r->erase && !r->verify_erase &&
+				 (NBXV3_CHUNK_SZ == F_SECTOR_ERASE_SZ) &&
+				 ((r->offset % F_SECTOR_ERASE_SZ) == 0U);
 	uintptr_t src = 0U;
 	uintptr_t dst = 0U;
 	size_t flen = 0U;
@@ -309,7 +332,13 @@ static long process_region(const struct nbxv3_region *r)
 		return -EIO;
 	}
 
-	ret = region_erase_and_verify(dst, r, flen);
+	if (erase_ahead) {
+		NOTICE("manifest: %s: erasing %zu bytes at NOR 0x%x, chunk by chunk during the host reads\n",
+		       r->file, round_up_to_sector(flen), r->offset);
+		ret = 0;
+	} else {
+		ret = region_erase_and_verify(dst, r, flen);
+	}
 	if (ret != 0) {
 		(void)io_close(dst);
 		if (src != 0U) {
@@ -325,7 +354,7 @@ static long process_region(const struct nbxv3_region *r)
 		}
 		return -EIO;
 	}
-	ret = region_chunked_copy(src, dst, r, flen);
+	ret = region_chunked_copy(src, dst, r, flen, erase_ahead);
 
 	(void)io_close(dst);
 
