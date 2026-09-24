@@ -205,7 +205,7 @@ struct ddr4u1d {
 	uint16_t alt_cas_l;
 	uint8_t  alt_wcas_l;
 	uint8_t  d4misc;
-} __packed;
+} __packed __aligned(2);
 
 struct ddr4u2d {
 	uint8_t  reserved00;
@@ -367,7 +367,7 @@ struct ddr4u2d {
 	uint16_t alt_cas_l;
 	uint8_t  alt_wcas_l;
 	uint8_t  d4misc;
-} __packed;
+} __packed __aligned(2);
 
 struct ddr4r1d {
 	uint8_t  reserved00;
@@ -669,7 +669,7 @@ struct ddr4r1d {
 	uint16_t alt_cas_l;
 	uint8_t  alt_wcas_l;
 	uint8_t  d4misc;
-} __packed;
+} __packed __aligned(2);
 
 struct ddr4r2d {
 	uint8_t  reserved00;
@@ -939,7 +939,7 @@ struct ddr4r2d {
 	uint16_t alt_cas_l;
 	uint8_t  alt_wcas_l;
 	uint8_t  d4misc;
-} __packed;
+} __packed __aligned(2);
 
 struct ddr4lr1d {
 	uint8_t  reserved00;
@@ -1932,7 +1932,7 @@ struct ddr4lr1d {
 	uint16_t alt_cas_l;
 	uint8_t  alt_wcas_l;
 	uint8_t  d4misc;
-} __packed;
+} __packed __aligned(2);
 
 struct ddr4lr2d {
 	uint8_t  reserved00;
@@ -2893,5 +2893,5 @@ struct ddr4lr2d {
 	uint16_t alt_cas_l;
 	uint8_t  alt_wcas_l;
 	uint8_t  d4misc;
-} __packed;
+} __packed __aligned(2);
 #endif
