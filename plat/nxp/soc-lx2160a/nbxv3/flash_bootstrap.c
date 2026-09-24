@@ -15,6 +15,7 @@
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include <arch_helpers.h>
@@ -24,6 +25,7 @@
 #include <fspi_api.h>
 #include <lib/mmio.h>
 #include <lib/semihosting.h>
+#include <lib/utils_def.h>
 #include <xspi_nor_diag.h>
 
 #include "flash_bootstrap.h"
@@ -42,33 +44,51 @@
 #define NBXV3_SYSCLK_HZ			100000000U
 
 /*
- * Default SCK ceiling when the manifest does not set spi_mhz.
- *
- * Per GD55LB02GF datasheet:
- *   - read commands  SCK <= 166 MHz
- *   - program/erase  SCK <=  50 MHz
- * The bootstrap path does sector erase + program + verify, so the
- * 50 MHz ceiling rules. We pick 150 MHz as the requested default
- * because fspi_set_serclk_max_hz() picks the smallest SERCLKDIV
- * that keeps SCK at or below the request, and the RCW chain caps
- * the root clock well below 150 MHz on this board:
- *
- *   fspi_root_hz = SYSCLK * SYS_PLL_RAT / 2 / 2
- *
- *   - hardcoded RCW (SP fallback): SYS_PLL_RAT=12 -> platform=600 MHz
- *                                                 -> fspi_root=300 MHz
- *     SERCLKDIV picks 4 -> SCK = 300/(4+1) =  60 MHz (>50; tolerated
- *     by GD55 for short-burst program windows on this board, no
- *     bit errors observed in the verify step).
- *   - production RCW: SYS_PLL_RAT=14 -> platform=700 MHz
- *                                    -> fspi_root=350 MHz
- *     SERCLKDIV picks 4 -> SCK = 350/(4+1) =  70 MHz.
- *
- * The manifest may override via spi_mhz (e.g. preset to 30 MHz on
- * a marginal harness). 150 MHz is just the safe ceiling that lets
- * the divisor logic land at the right value autonomously.
+ * SCK ceiling when the manifest does not set spi_mhz. The ceiling in
+ * effect is the lower of this (or spi_mhz) and the board limit below.
  */
 #define NBXV3_FSPI_DEFAULT_MAX_SCK_HZ	(150ULL * 1000000ULL)
+
+/*
+ * The board limit on SCK.
+ * The GD55LB02GF is rated 133 MHz (60 MHz for 03h/13h), but on this
+ * CPU module SCK is re-driven by a 74LVC1G126, while MOSI is a plain
+ * wire: so each SCK edge reaches the flash about 5 to 6.5 ns after
+ * the data it clocks.
+ */
+#define NBXV3_FSPI_BOARD_MAX_SCK_HZ	(50ULL * 1000000ULL)
+
+/*
+ * FlexSPI serial root clock.
+ * DCFG FlexSPICR1 divides the platform
+ * PLL * (SYSCLK * SYS_PLL_RAT, twice the platform clock) and MCR0[SERCLKDIV]
+ * divides the result again:
+ *
+ *   SCK = SYSCLK * SYS_PLL_RAT / FlexSPICR1 divisor / (SERCLKDIV + 1)
+ *
+ * FlexSPICR1 powers up at divisor 80: it measn 15 MHz with the Bootrom RCW
+ * (SYS_PLL_RAT 12).
+ */
+#define NBXV3_DCFG_FLEXSPICR1_OFFSET	0x900U
+#define NBXV3_FLEXSPICR1_DIV_MASK	0x1fU
+
+/* LX2160A FlexSPICR1 divisor encodings, fastest first. */
+static const struct nbxv3_fspi_div {
+	uint32_t val;
+	uint32_t div;
+} nbxv3_fspi_divs[] = {
+	{ .val = 1U,  .div = 2U },
+	{ .val = 3U,  .div = 4U },
+	{ .val = 5U,  .div = 6U },
+	{ .val = 7U,  .div = 8U },
+	{ .val = 11U, .div = 12U },
+	{ .val = 15U, .div = 16U },
+	{ .val = 16U, .div = 20U },
+	{ .val = 17U, .div = 24U },
+	{ .val = 18U, .div = 28U },
+	{ .val = 19U, .div = 32U },
+	{ .val = 20U, .div = 80U },
+};
 
 /* Manifest file name. Resolved by the host's semihost basedir. */
 #define NBXV3_MANIFEST_PATH		"flash_manifest.json"
@@ -80,14 +100,59 @@ static uint32_t nbxv3_mem_pll_rat(void)
 	return (rcwsr0 >> RCWSR0_MEM_PLL_RAT_SHIFT) & RCWSR0_MEM_PLL_RAT_MASK;
 }
 
-static uint64_t nbxv3_fspi_root_hz(void)
+static uint64_t nbxv3_platform_pll_hz(void)
 {
 	uint32_t rcwsr0 = mmio_read_32(NXP_DCFG_ADDR + RCWSR0_OFFSET);
 	uint32_t rat = (rcwsr0 >> RCWSR0_SYS_PLL_RAT_SHIFT) &
 		       RCWSR0_SYS_PLL_RAT_MASK;
-	uint64_t platform_hz = (uint64_t)NBXV3_SYSCLK_HZ * (uint64_t)rat / 2ULL;
 
-	return platform_hz / 2ULL;
+	return (uint64_t)NBXV3_SYSCLK_HZ * (uint64_t)rat;
+}
+
+/* The FlexSPICR1 divisor in effect, 0 for an encoding not in the table. */
+static uint32_t nbxv3_fspi_cr1_div(void)
+{
+	uint32_t val = mmio_read_32(NXP_DCFG_ADDR +
+				    NBXV3_DCFG_FLEXSPICR1_OFFSET) &
+		       NBXV3_FLEXSPICR1_DIV_MASK;
+	size_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(nbxv3_fspi_divs); i++) {
+		if (nbxv3_fspi_divs[i].val == val) {
+			return nbxv3_fspi_divs[i].div;
+		}
+	}
+
+	return 0U;
+}
+
+static uint64_t nbxv3_fspi_root_hz(void)
+{
+	uint32_t div = nbxv3_fspi_cr1_div();
+
+	return (div != 0U) ? (nbxv3_platform_pll_hz() / div) : 0U;
+}
+
+/* Use the fastest FlexSPICR1 divisor */
+static void nbxv3_fspi_set_root_max_hz(uint64_t max_hz)
+{
+	const struct nbxv3_fspi_div *d =
+		&nbxv3_fspi_divs[ARRAY_SIZE(nbxv3_fspi_divs) - 1U];
+	uint64_t pll_hz = nbxv3_platform_pll_hz();
+	size_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(nbxv3_fspi_divs); i++) {
+		if ((pll_hz / nbxv3_fspi_divs[i].div) <= max_hz) {
+			d = &nbxv3_fspi_divs[i];
+			break;
+		}
+	}
+
+	NOTICE("nbxv3 bootstrap: FlexSPICR1 0x%x -> 0x%x: root %llu MHz / %u = %llu kHz\n",
+	       mmio_read_32(NXP_DCFG_ADDR + NBXV3_DCFG_FLEXSPICR1_OFFSET),
+	       d->val, (unsigned long long)(pll_hz / 1000000ULL), d->div,
+	       (unsigned long long)(pll_hz / d->div / 1000ULL));
+	mmio_write_32(NXP_DCFG_ADDR + NBXV3_DCFG_FLEXSPICR1_OFFSET, d->val);
 }
 
 /*
@@ -176,20 +241,7 @@ void __dead2 nbxv3_flash_bootstrap(void)
 	NOTICE("  Service Processor fell back to its boot-ROM RCW; provisioning\n");
 	NOTICE("  the on-board NOR over ARM semihosting.\n");
 
-	NOTICE("nbxv3 bootstrap: initialising FlexSPI NOR controller @ 0x%x\n",
-	       NXP_FLEXSPI_ADDR);
-	if (fspi_init(NXP_FLEXSPI_ADDR, NXP_FLEXSPI_FLASH_ADDR) != 0) {
-		ERROR("nbxv3 bootstrap: fspi_init failed\n");
-		panic();
-	}
-
-	/*
-	 * Load the manifest before clamping SCK so spi_mhz from the
-	 * manifest can override the default. The manifest itself is
-	 * read over semihosting through the direct semihosting
-	 * library, the io_storage path comes online later for the
-	 * payload reads.
-	 */
+	/* Load the manifest first, use its spi_mhz to set the SCK ceiling */
 	if (nbxv3_manifest_load(NBXV3_MANIFEST_PATH) != 0) {
 		ERROR("nbxv3 bootstrap: failed to load %s\n",
 		      NBXV3_MANIFEST_PATH);
@@ -197,11 +249,21 @@ void __dead2 nbxv3_flash_bootstrap(void)
 	}
 	m = nbxv3_manifest_get();
 
-	root_hz = nbxv3_fspi_root_hz();
 	max_sck_hz = (m->spi_mhz != 0U)
 		? ((uint64_t)m->spi_mhz * 1000000ULL)
 		: NBXV3_FSPI_DEFAULT_MAX_SCK_HZ;
-	fspi_print_speed(root_hz);
+	if (max_sck_hz > NBXV3_FSPI_BOARD_MAX_SCK_HZ) {
+		max_sck_hz = NBXV3_FSPI_BOARD_MAX_SCK_HZ;
+	}
+	nbxv3_fspi_set_root_max_hz(max_sck_hz);
+	root_hz = nbxv3_fspi_root_hz();
+
+	NOTICE("nbxv3 bootstrap: initialising FlexSPI NOR controller @ 0x%x\n",
+	       NXP_FLEXSPI_ADDR);
+	if (fspi_init(NXP_FLEXSPI_ADDR, NXP_FLEXSPI_FLASH_ADDR) != 0) {
+		ERROR("nbxv3 bootstrap: fspi_init failed\n");
+		panic();
+	}
 	fspi_set_serclk_max_hz(root_hz, max_sck_hz);
 	fspi_print_speed(root_hz);
 
