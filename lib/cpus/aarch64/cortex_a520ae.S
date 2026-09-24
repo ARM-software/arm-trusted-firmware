@@ -51,15 +51,6 @@ cpu_reset_func_start cortex_a520ae
 	enable_mpmm
 cpu_reset_func_end cortex_a520ae
 
-.section .rodata.cortex_a520ae_regs, "aS"
-cortex_a520ae_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a520ae_cpu_reg_dump
-	adr	x6, cortex_a520ae_regs
-	mrs	x8, CORTEX_A520_CPUECTLR_EL1
-	ret
-endfunc cortex_a520ae_cpu_reg_dump
 
 declare_cpu_ops cortex_a520ae, CORTEX_A520_MIDR, \
 	cortex_a520ae_reset_func, \

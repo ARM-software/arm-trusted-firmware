@@ -66,13 +66,6 @@
 #define CPU_ERRATA_PRINTED_SIZE	0
 #endif /* (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && REPORT_ERRATA */
 
-#if defined(IMAGE_BL31) && CRASH_REPORTING
-#define CPU_REG_DUMP_SIZE	CPU_WORD_SIZE
-#else
-#define CPU_REG_DUMP_SIZE	0
-#endif /* defined(IMAGE_BL31) && CRASH_REPORTING */
-
-
 /*
  * Define the offsets to the fields in cpu_ops structure. Every offset is
  * defined based on the offset and size of the previous field.
@@ -89,12 +82,7 @@
 #define CPU_ERRATA_LIST_END	CPU_ERRATA_LIST_START + CPU_ERRATA_LIST_START_SIZE
 #define CPU_CPU_STR		CPU_ERRATA_LIST_END + CPU_ERRATA_LIST_END_SIZE
 #define CPU_ERRATA_LOCK		CPU_CPU_STR + CPU_CPU_STR_SIZE
-#ifdef __aarch64__
-#define CPU_REG_DUMP		CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
-#define CPU_OPS_SIZE		CPU_REG_DUMP + CPU_REG_DUMP_SIZE
-#else
 #define CPU_OPS_SIZE		CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
-#endif /* __aarch64__ */
 
 #ifndef __ASSEMBLER__
 #include <arch_helpers.h>
@@ -123,9 +111,6 @@ struct cpu_ops {
 	spinlock_t *errata_reported;
 #endif /* defined(IMAGE_BL31) || defined(IMAGE_BL32) */
 #endif /* REPORT_ERRATA */
-#if defined(IMAGE_BL31) && CRASH_REPORTING
-	void (*reg_dump)(void);
-#endif /* defined(IMAGE_BL31) && CRASH_REPORTING */
 } __packed __aligned(CPU_WORD_SIZE);
 
 CASSERT(sizeof(struct cpu_ops) == CPU_OPS_SIZE,

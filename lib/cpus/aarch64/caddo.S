@@ -56,15 +56,6 @@ caddo_skip_pwr_dwn:
 	ret
 endfunc caddo_core_pwr_dwn
 
-.section .rodata.caddo_regs, "aS"
-caddo_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func caddo_cpu_reg_dump
-	adr 	x6, caddo_regs
-	mrs	x8, CADDO_IMP_CPUECTLR_EL1
-	ret
-endfunc caddo_cpu_reg_dump
 
 declare_cpu_ops caddo, CADDO_MIDR, \
 	caddo_reset_func, \

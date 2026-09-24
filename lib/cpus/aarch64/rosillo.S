@@ -56,15 +56,6 @@ rosillo_skip_pwr_dwn:
 	ret
 endfunc rosillo_core_pwr_dwn
 
-.section .rodata.rosillo_regs, "aS"
-rosillo_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func rosillo_cpu_reg_dump
-	adr 	x6, rosillo_regs
-	mrs	x8, ROSILLO_IMP_CPUECTLR_EL1
-	ret
-endfunc rosillo_cpu_reg_dump
 
 declare_cpu_ops rosillo, ROSILLO_MIDR, \
 	rosillo_reset_func, \

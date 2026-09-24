@@ -58,16 +58,6 @@ c2_ultra_skip_pwr_dwn:
 	ret
 endfunc c2_ultra_core_pwr_dwn
 
-.section .rodata.c2_ultra_regs, "aS"
-c2_ultra_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func c2_ultra_cpu_reg_dump
-	adr 	x6, c2_ultra_regs
-	mrs	x8, C2_ULTRA_CPUECTLR_EL1
-	ret
-endfunc c2_ultra_cpu_reg_dump
-
 declare_cpu_ops c2_ultra, C2_ULTRA_MIDR, \
 	c2_ultra_reset_func, \
 	c2_ultra_core_pwr_dwn

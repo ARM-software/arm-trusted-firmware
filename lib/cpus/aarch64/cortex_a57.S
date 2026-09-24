@@ -279,26 +279,6 @@ func cortex_a57_cluster_pwr_dwn
 	b	cortex_a57_disable_ext_debug
 endfunc cortex_a57_cluster_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a57 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a57_regs, "aS"
-cortex_a57_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", "cpumerrsr_el1", "l2merrsr_el1", ""
-
-func cortex_a57_cpu_reg_dump
-	adr	x6, cortex_a57_regs
-	mrs	x8, CORTEX_A57_ECTLR_EL1
-	mrs	x9, CORTEX_A57_MERRSR_EL1
-	mrs	x10, CORTEX_A57_L2MERRSR_EL1
-	ret
-endfunc cortex_a57_cpu_reg_dump
 
 declare_cpu_ops cortex_a57, CORTEX_A57_MIDR, \
 	cortex_a57_reset_func, \

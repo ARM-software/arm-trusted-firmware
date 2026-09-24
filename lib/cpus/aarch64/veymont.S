@@ -63,15 +63,6 @@ veymont_skip_pwr_dwn:
 	ret
 endfunc veymont_core_pwr_dwn
 
-.section .rodata.veymont_regs, "aS"
-veymont_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func veymont_cpu_reg_dump
-	adr 	x6, veymont_regs
-	mrs	x8, VEYMONT_IMP_CPUECTLR_EL1
-	ret
-endfunc veymont_cpu_reg_dump
 
 declare_cpu_ops veymont, VEYMONT_MIDR, \
 	veymont_reset_func, \

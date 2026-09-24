@@ -179,24 +179,6 @@ c1_pro_skip_pwr_dwn:
 	ret
 endfunc c1_pro_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Arm C1-Pro specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.c1_pro_regs, "aS"
-c1_pro_regs: /* The ASCII list of register names to be reported */
-	.asciz	"imp_cpuectlr_el1", ""
-
-func c1_pro_cpu_reg_dump
-	adr	x6, c1_pro_regs
-	mrs	x8, C1_PRO_CPUECTLR_EL1
-	ret
-endfunc c1_pro_cpu_reg_dump
 
 declare_cpu_ops c1_pro, C1_PRO_MIDR, \
 	c1_pro_reset_func, \

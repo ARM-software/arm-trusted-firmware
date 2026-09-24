@@ -34,23 +34,6 @@ endfunc qemu_max_cluster_pwr_dwn
 cpu_reset_func_start qemu_max
 cpu_reset_func_end qemu_max
 
-	/* ---------------------------------------------
-	 * This function provides cpu specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.qemu_max_regs, "aS"
-qemu_max_regs:  /* The ascii list of register names to be reported */
-	.asciz	"" /* no registers to report */
-
-func qemu_max_cpu_reg_dump
-	adr	x6, qemu_max_regs
-	ret
-endfunc qemu_max_cpu_reg_dump
 
 
 /* cpu_ops for QEMU MAX */

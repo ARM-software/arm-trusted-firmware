@@ -202,15 +202,6 @@ c1_ultra_skip_pwr_dwn:
 	ret
 endfunc c1_ultra_core_pwr_dwn
 
-.section .rodata.c1_ultra_regs, "aS"
-c1_ultra_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func c1_ultra_cpu_reg_dump
-	adr 	x6, c1_ultra_regs
-	mrs	x8, C1_ULTRA_CPUECTLR_EL1
-	ret
-endfunc c1_ultra_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh c1_ultra, C1_ULTRA_MIDR, \

@@ -366,24 +366,6 @@ cpu_reset_func_start cortex_a510
 skip_mpmm:
 cpu_reset_func_end cortex_a510
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-A510 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a510_regs, "aS"
-cortex_a510_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a510_cpu_reg_dump
-	adr	x6, cortex_a510_regs
-	mrs	x8, CORTEX_A510_CPUECTLR_EL1
-	ret
-endfunc cortex_a510_cpu_reg_dump
 
 declare_cpu_ops cortex_a510, CORTEX_A510_MIDR, \
 	cortex_a510_reset_func, \

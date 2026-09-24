@@ -57,15 +57,6 @@ lsc25_p_core_skip_pwr_dwn:
 	ret
 endfunc lsc25_p_core_core_pwr_dwn
 
-.section .rodata.lsc25_p_core_regs, "aS"
-lsc25_p_core_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func lsc25_p_core_cpu_reg_dump
-	adr 	x6, lsc25_p_core_regs
-	mrs	x8, LSC25_P_CORE_IMP_CPUECTLR_EL1
-	ret
-endfunc lsc25_p_core_cpu_reg_dump
 
 declare_cpu_ops lsc25_p_core, LSC25_P_CORE_MIDR, \
 	lsc25_p_core_reset_func, \
