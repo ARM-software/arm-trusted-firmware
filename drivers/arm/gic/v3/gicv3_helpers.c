@@ -312,8 +312,13 @@ void gicv3_ppi_sgi_config_defaults(uintptr_t gicr_base)
 
 	/* 32 interrupt IDs per GICR_IGROUPR register */
 	for (i = 0U; i < ppi_regs_num; ++i) {
-		/* Treat all SGIs/(E)PPIs as G1NS by default */
+		/*
+		 * Treat all SGIs/(E)PPIs as G1NS by default. GICR_IGRPMODR0
+		 * resets to an architecturally UNKNOWN value, so clear it
+		 * explicitly to pin the group to (IGRPMODR=0, IGROUPR=1) = G1NS.
+		 */
 		gicr_write_igroupr(gicr_base, i, ~0U);
+		gicr_write_igrpmodr(gicr_base, i, 0U);
 	}
 
 	/* 4 interrupt IDs per GICR_IPRIORITYR register */
