@@ -50,7 +50,7 @@ static int wait_for_state(struct ls_i2c *ccsr_i2c,
 		timer = get_timer_val(start_time);
 		if (timer > I2C_TIMEOUT)
 			break;
-		mdelay(1);
+		udelay(1);
 	} while (1);
 	WARN("I2C: Timeout waiting for state 0x%x, sr = 0x%x\n", state, sr);
 
