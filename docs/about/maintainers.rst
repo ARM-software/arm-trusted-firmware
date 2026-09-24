@@ -1015,6 +1015,16 @@ Build system
 :|F|: Makefile
 :|F|: make_helpers/
 
+Nix flake
+^^^^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|M|: Dániel Herczeg <daniel.herczeg@arm.com>
+:|M|: Milán Laász <milan.laasz@arm.com>
+:|F|: docs/getting_started/nix-flake.rst
+:|F|: flake.lock
+:|F|: flake.nix
+:|F|: nix/
+
 Third party libraries
 ^^^^^^^^^^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
