@@ -98,7 +98,7 @@ $(BUILD_DIR)/jmptbl.i: $(PROCESSED_JMPTBL) | $$(@D)/
 	$(s)echo "  PRE     $@"
 	$(q)$(ROMLIB_GEN) pre --output $@ --deps $(BUILD_DIR)/jmptbl.d $<
 
-$(WRAPPER_SOURCES) $&: $(PROCESSED_JMPTBL) | $$(@D)/
+$(WRAPPER_SOURCES) &: $(PROCESSED_JMPTBL) | $$(@D)/
 	$(s)echo "  WRP     $<"
 	$(q)$(ROMLIB_GEN) genwrappers --bti=$(ENABLE_BTI) -b $(WRAPPER_DIR) $<
 

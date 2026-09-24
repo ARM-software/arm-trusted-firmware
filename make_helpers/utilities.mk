@@ -25,13 +25,6 @@ directory-name = $(call decompat-path,$(dir $(call compat-path,$(1))))
 escape-shell = '$(subst ','\'',$(1))'
 
 #
-# The grouped-target symbol. Grouped targets are not supported on versions of
-# GNU Make <= 4.2, which was most recently packaged with Ubuntu 20.04.
-#
-
-& := $(if $(filter grouped-target,$(.FEATURES)),&)
-
-#
 # Upper-case a string value.
 #
 # Parameters:

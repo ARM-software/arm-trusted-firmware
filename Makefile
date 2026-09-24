@@ -1305,7 +1305,7 @@ fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 ${FIPTOOL}: FORCE | $$(@D)/
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${FIPTOOLPATH} all
 
-$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB) $(config-header) | $$(@D)/
+$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a &: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB) $(config-header) | $$(@D)/
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_LIB=$(CRYPTO_LIB) ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) config-header=$(call shell-quote,$(config-header)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
