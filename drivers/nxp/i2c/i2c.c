@@ -24,7 +24,7 @@ void i2c_init(uintptr_t nxp_i2c_addr)
 	g_nxp_i2c_addr = nxp_i2c_addr;
 	/* Presume workaround for erratum a009203 applied */
 	i2c_out(&ccsr_i2c->cr, I2C_CR_DIS);
-	i2c_out(&ccsr_i2c->fd, I2C_FD_CONSERV);
+	i2c_out(&ccsr_i2c->fd, NXP_I2C_FD);
 	i2c_out(&ccsr_i2c->sr, I2C_SR_RST);
 	i2c_out(&ccsr_i2c->cr, I2C_CR_EN);
 }
