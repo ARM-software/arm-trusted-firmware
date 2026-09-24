@@ -1,0 +1,25 @@
+# Poetry pyproject.toml: https://python-poetry.org/docs/pyproject/
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "errata"
+version = "0.1.0"
+description = "TF-A CPU errata automation tool"
+authors = ["Arm Ltd <tf-a@lists.trustedfirmware.org>"]
+license = "BSD-3-Clause"
+repository = "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/"
+homepage = "https://trustedfirmware-a.readthedocs.io/en/latest/index.html"
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiofiles = "^25.1.0"
+async-lru = "^2.3.0"
+beautifulsoup4 = "^4.15"
+colorlog = "^6.12.0"
+httpx = "^0.28.1"
+numpy = "^2.2.6"
+openai = "^3.10.0"
+pydantic = "^2.13.5"

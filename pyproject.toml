@@ -7,8 +7,9 @@ license = "BSD-3-Clause"
 readme = "readme.rst"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 cot-dt2c = {path = "tools/cot_dt2c", develop = true}
+errata = {path = "tools/errata_automation", develop = true}
 memory = {path = "tools/memory", develop = true}
 tlc = {path = "contrib/libtl/tlc", develop = true}
 
