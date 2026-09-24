@@ -47,6 +47,14 @@ int xspi_read(uint32_t src_off, uint32_t *des, uint32_t len);
  * @return XSPI_SUCCESS or error code
  */
 int xspi_sector_erase(uint32_t erase_offset, uint32_t erase_len);
+
+/*
+ * Return without waiting for the flash so we can do something
+ */
+int xspi_sector_erase_start(uint32_t erase_offset);
+
+/* Wait until the flash has finished its program or erase. */
+void xspi_wait_ready(void);
 /*!
  * @details IP write, For writing data to flash, calls xspi_wren() internally.
  * Single/multiple page write can start @any offset, but performance will be low
