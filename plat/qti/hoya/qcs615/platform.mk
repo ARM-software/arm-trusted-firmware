@@ -63,7 +63,8 @@ DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 ENABLE_STACK_PROTECTOR				:=	strong
 
 
-QTI_EXTERNAL_INCLUDES	:=	-I${QTI_PLAT_PATH}/hoya/${CHIPSET}/inc			\
+QTI_EXTERNAL_INCLUDES	:=	-I${QTI_PLAT_PATH}/hoya/inc				\
+				-I${QTI_PLAT_PATH}/hoya/${CHIPSET}/inc			\
 				-I${QTI_PLAT_PATH}/common/inc				\
 				-I${QTI_PLAT_PATH}/common/inc/$(ARCH)			\
 				-I${QTI_PLAT_PATH}/hoya/qtiseclib/inc
