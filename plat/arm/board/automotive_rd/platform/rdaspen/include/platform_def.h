@@ -40,6 +40,10 @@
 #define PLATFORM_CORE_COUNT			U(16)
 #endif /* PLATFORM_CORE_COUNT */
 
+#define PLAT_NUM_PWR_DOMAINS			(ARM_SYSTEM_COUNT + \
+						PLAT_ARM_CLUSTER_COUNT + \
+						PLATFORM_CORE_COUNT)
+
 #if (PLATFORM_CORE_COUNT > 16) || (PLATFORM_CORE_COUNT < 1)
 #error "Invalid number of platform's cores was passed."
 #endif /* 1 <= PLATFORM_CORE_COUNT <= 16 */
@@ -135,7 +139,7 @@
 /* SCMI Related Constants */
 #define PLAT_ARM_SCMI_CHANNEL_COUNT		U(1)
 #define CSS_SYSTEM_PWR_DMN_LVL			ARM_PWR_LVL2
-#define PLAT_MAX_PWR_LVL			ARM_PWR_LVL1
+#define PLAT_MAX_PWR_LVL			CSS_SYSTEM_PWR_DMN_LVL
 
 #define MAX_IO_DEVICES				U(3)
 #define MAX_IO_HANDLES				U(4)
