@@ -2982,6 +2982,39 @@ frequency for the CPU's generic timer. This value will be programmed into the
 of the system counter, which is retrieved from the first entry in the frequency
 modes table.
 
+Function : plat_is_valid_ns_address_range() [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uintptr_t, size_t
+    Return   : bool
+
+This function is used by the SMC argument validation framework
+(``include/common/smc_validation_framework.h``) to determine whether a memory
+range supplied by a Non-Secure caller lies entirely within Non-Secure memory.
+``smc_validate_mem_range()`` calls it, and therefore so does
+``smc_get_mem_range()``, before an EL3 runtime service acts on a
+caller-supplied address.
+
+Only the platform knows which physical ranges are Non-Secure, so the framework
+provides no default implementation. A platform that uses the framework must
+implement this function; if it does not, the build fails to link.
+
+Implementations may assume that ``base + size`` does not overflow, as
+``smc_validate_mem_range()`` rejects overflowing ranges before calling this
+function. All other validation is the platform's responsibility: the range
+should be checked against the Granule Protection Tables where RME is in use, or
+against the platform memory map otherwise, and Secure, reserved and device
+memory must be rejected.
+
+The function must return ``true`` only if the entire range lies in Non-Secure
+memory. Returning ``true`` unconditionally leaves the framework's central
+security property unenforced, as ``smc_get_mem_range()`` would then report
+``SMC_OK`` for an address in Secure RAM.
+
+See ``plat/arm/common/arm_common_helpers.c`` for a reference implementation.
+
 #define : PLAT_PERCPU_BAKERY_LOCK_SIZE [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
