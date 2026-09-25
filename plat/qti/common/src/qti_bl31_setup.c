@@ -109,11 +109,12 @@ void bl31_platform_setup(void)
 
 	plat_qti_gic_driver_init();
 	plat_qti_gic_init();
-	qti_cmd_db_init();
-	qti_pdc_init();
-	qti_pwr_utils_init();
-	qti_smem_init();
 	qti_rpmh_init();
+	qti_cmd_db_init();
+	qti_pwr_utils_init();
+	qti_pdc_init();
+
+	qti_smem_init();
 
 	if (qti_chipinfo_init() != CHIPINFO_SUCCESS) {
 		WARN("ChipInfo initialization error\n");
