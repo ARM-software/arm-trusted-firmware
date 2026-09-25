@@ -7,13 +7,9 @@
 # Arm(R) Ethos(TM)-N NPU SiP service
 ETHOSN_NPU_DRIVER			:=	0
 
-$(call assert_boolean,ETHOSN_NPU_DRIVER)
-$(eval $(call add_define,ETHOSN_NPU_DRIVER))
-
 #Ethos-N NPU TZMP1
 ETHOSN_NPU_TZMP1			:=	0
-$(call assert_boolean,ETHOSN_NPU_TZMP1)
-$(eval $(call add_define,ETHOSN_NPU_TZMP1))
+
 ifeq (${ETHOSN_NPU_TZMP1},1)
   ifeq (${ETHOSN_NPU_DRIVER},0)
     $(error "ETHOSN_NPU_TZMP1 is only available if ETHOSN_NPU_DRIVER=1)
