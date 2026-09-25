@@ -318,18 +318,24 @@ Standard Validation Framework
 TF-A provides a standardized validation framework in
 ``include/common/smc_validation_framework.h`` to simplify these checks and
 reduce boilerplate error-prone code. It is recommended to use the
-unmarshaling macros provided by this framework:
+unmarshaling functions provided by this framework:
 
 .. code:: c
 
     #include <common/smc_validation_framework.h>
 
     uintptr_t sip_handler(uint32_t smc_fid, u_register_t x1, ..., void *handle)
-        /* 1. Atomic Shadow-Copy & Validation */
-        SMC_ARG_MEM_RANGE(buf, len, handle, 2, 3);
+    {
+        uintptr_t base;
+        size_t size;
+
+        /* 1. Atomic shadow-copy and validation */
+        if (smc_get_mem_range(handle, 2, 3, &base, &size) != SMC_OK) {
+            SMC_RET1(handle, SMC_INVALID_PARAM);
+        }
 
         /* 2. Parameters are now safe to use */
-        return plat_perform_action(cmd, buf, len);
+        return plat_perform_action(base, size);
     }
 
 .. note::
