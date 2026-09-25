@@ -97,6 +97,10 @@ endif
 # Build macro necessary for branching to ACS tests
 $(eval $(call add_define,PLAT_ARM_ACS_SMC_HANDLER))
 
+# Build macro necessary for running SPM tests on FVP platform
+PLAT_TEST_SPM			?=	0
+$(eval $(call add_define,PLAT_TEST_SPM))
+
 # As per CCA security model, all root firmware must execute from on-chip secure
 # memory. This means we must not run BL31 from TZC-protected DRAM.
 ifeq (${ARM_BL31_IN_DRAM},1)
