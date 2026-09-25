@@ -25,6 +25,14 @@ Common build options
 -  ``ARM_BL2_SP_LIST_DTS``: Path to DTS file snippet to override the hardcoded
    SP nodes in tb_fw_config.
 
+-  ``ARM_RECOM_STATE_ID_ENC``: The PSCI1.0 specification recommends an encoding
+   for the construction of composite state-ID in the power-state parameter.
+   The existing PSCI clients currently do not support this encoding of
+   State-ID yet. Hence this flag is used to configure whether to use the
+   recommended State-ID encoding or not. The default value of this flag is 0,
+   in which case the platform is configured to expect NULL in the State-ID
+   field of power-state parameter.
+
 -  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
    SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
 

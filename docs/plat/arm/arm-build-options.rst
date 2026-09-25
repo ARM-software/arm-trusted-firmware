@@ -51,14 +51,6 @@ Arm Platform Build Options
    in ``plat/arm/common/`` is omitted, and the platform must add its own
    bl2_mem_params_desc.c file to ``BL2_SOURCES``.  The default value is 0.
 
--  ``ARM_RECOM_STATE_ID_ENC``: The PSCI1.0 specification recommends an encoding
-   for the construction of composite state-ID in the power-state parameter.
-   The existing PSCI clients currently do not support this encoding of
-   State-ID yet. Hence this flag is used to configure whether to use the
-   recommended State-ID encoding or not. The default value of this flag is 0,
-   in which case the platform is configured to expect NULL in the State-ID
-   field of power-state parameter.
-
 -  ``ARM_ROTPK_LOCATION``: used when ``TRUSTED_BOARD_BOOT=1``. It specifies the
    location of the ROTPK returned by the function ``plat_get_rotpk_info()``
    for Arm platforms. Depending on the selected option, the proper private key

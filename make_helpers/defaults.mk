@@ -29,6 +29,9 @@ ARM_ARCH_FEATURE		:= none
 ARM_ARCH_MAJOR			:= 8
 ARM_ARCH_MINOR			:= 0
 
+# Use recommended PSCI composite state-ID encoding
+ARM_RECOM_STATE_ID_ENC		:= 0
+
 # Base commit to perform code check on
 BASE_COMMIT			:= origin/master
 
