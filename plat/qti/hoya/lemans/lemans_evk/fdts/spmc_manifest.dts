@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2026, Qualcomm Technologies, Inc. and/or its subsidiaries.
+ *
+ * TF-A core manifest for the SPMD: describes OP-TEE as S-EL1 SPMC.
+ * This is parsed by BL31/SPMD at runtime (passed as TOS_FW_CONFIG in the FIP).
+ */
+
+/dts-v1/;
+
+/ {
+	compatible = "arm,ffa-core-manifest-1.0";
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	attribute {
+		spmc_id = <0x8000>;
+		maj_ver = <0x1>;
+		min_ver = <0x1>;
+		exec_state = <0x0>;        /* AArch64 */
+		load_address = <0x0 0x1c300000>;
+		entrypoint = <0x0 0x1c300000>;
+		binary_size = <0x200000>;
+	};
+};
