@@ -3,6 +3,39 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.8..refs/tags/lts-v2.14.9) (2026-09-25)
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - **Automotive RD**
+
+      - **RD-Aspen**
+
+        - correct PSCI power domain topology ([9f68c35](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9f68c353466c0f56669d4b1f850d6df60da96bb8))
+
+  - **MediaTek**
+
+    - enable missing Cortex-A78 errata for MT8188 ([f61b03e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f61b03e773e6f2101b614b8f7f783d4856e496fb))
+    - enable missing Cortex-A78 errata for MT8189 ([fad1a2f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fad1a2ff2cf4c83d8e953b695a37f539cf559cb0))
+    - enable missing Cortex-A78 errata for MT8195 ([58c00cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/58c00cf35bbb87de26ae15bee7637a055b2e38da))
+
+  - **QEMU**
+
+    - add TB_FW_CONFIG_SIZE and TOS_FW_CONFIG_SIZE defines ([d57a771](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d57a7713135436c624a1f83a4033ea628c4ddc73))
+    - produce manifest entry inside transfer list ([b034088](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b034088093892c534a49687284a257532bfbf20c))
+
+    - **SBSA**
+
+      - fix build break when SPM set to SPMD ([f5b7ee2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f5b7ee2f7e6e50f36193dfbf44436b872cad4d0b))
+
+  - **Xilinx**
+
+    - allow secure access to IPI channels ([634fea2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/634fea282394a5b54676319856d953f96212b016))
+
 ## [lts-2.14.8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.7..refs/tags/lts-v2.14.8) (2026-09-18)
 
 ### Code Refactoring
