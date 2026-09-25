@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) 2026, Qualcomm Technologies, Inc. and/or its subsidiaries.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
+#include <xpu_target_info.h>
+
+struct xpu_err_pos_to_hal_map xpu_err_pos_to_hal_map
+	[ACC_XPU_ERR_INT_REG_NUM][ACC_XPU_ERR_NUM_PER_REG] = {
+		{
+			{ BIT(1), XPU_TYPE_AOSS_CNOC_MPU },
+			{ BIT(9), XPU_TYPE_SEC_CTRL_APU },
+			{ BIT(10), XPU_TYPE_WPSS_MPU },
+			{ BIT(16), XPU_TYPE_AOSS_MPU },
+			{ BIT(18), XPU_TYPE_CNOC_GEMNOC_MPU },
+			{ BIT(25), XPU_TYPE_LLCC_BROADCAST_MPU },
+			{ BIT(26), XPU_TYPE_BIMC_MPU0 },
+			{ BIT(27), XPU_TYPE_BIMC_MPU1 },
+			{ BIT(30), XPU_TYPE_BOOT_ROM },
+			{ BIT(31), XPU_TYPE_DC_NOC_NON_BROADCAST_MPU },
+			{ 0, 0 },
+		},
+		{
+			{ BIT(0), XPU_TYPE_IMEM_MPU },
+			{ BIT(1), XPU_TYPE_ANOC1_MPU },
+			{ BIT(2), XPU_TYPE_ANOC2_MPU },
+			{ BIT(3), XPU_TYPE_MSS_MPU },
+			{ BIT(6), XPU_TYPE_CNOC2_SS_MPU },
+			{ BIT(10), XPU_TYPE_MSS_Q6_MPU },
+			{ BIT(11), XPU_TYPE_IPA_0_GSI_TOP },
+			{ BIT(13), XPU_TYPE_DC_NOC_SHRM_MPU },
+			{ BIT(14), XPU_TYPE_PKA_APU },
+			{ BIT(16), XPU_TYPE_IPC_MPU },
+			{ BIT(30), XPU_TYPE_MSS_NAV_MPU },
+			{ 0, 0 },
+		},
+	};
+
+const struct xpu_intr_reg_dtls
+	xpu_non_sec_intr_status_reg[ACC_XPU_ERR_INT_REG_NUM] = {
+		{
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_STATUS_REG_0_ADDR,
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_STATUS_REG_0_RMSK,
+		},
+		{
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_STATUS_REG_1_ADDR,
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_STATUS_REG_1_RMSK,
+		},
+	};
+
+const struct xpu_intr_reg_dtls
+	xpu_sec_intr_status_reg[ACC_XPU_ERR_INT_REG_NUM] = {
+		{
+			HWIO_TCSR_XPU3_SEC_IRQ_STATUS_REG_0_ADDR,
+			HWIO_TCSR_XPU3_SEC_IRQ_STATUS_REG_0_RMSK,
+		},
+		{
+			HWIO_TCSR_XPU3_SEC_IRQ_STATUS_REG_1_ADDR,
+			HWIO_TCSR_XPU3_SEC_IRQ_STATUS_REG_1_RMSK,
+		},
+	};
+
+const struct xpu_intr_reg_dtls
+	xpu_non_sec_intr_en_reg[ACC_XPU_ERR_INT_REG_NUM] = {
+		{
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_ENABLE_0_REG_0_ADDR,
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_ENABLE_0_REG_0_RMSK,
+		},
+		{
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_ENABLE_0_REG_1_ADDR,
+			HWIO_TCSR_XPU3_NON_SEC_IRQ_ENABLE_0_REG_1_RMSK,
+		},
+	};
+
+const struct xpu_intr_reg_dtls xpu_sec_intr_en_reg[ACC_XPU_ERR_INT_REG_NUM] = {
+	{
+		HWIO_TCSR_XPU3_SEC_IRQ_ENABLE_0_REG_0_ADDR,
+		HWIO_TCSR_XPU3_SEC_IRQ_ENABLE_0_REG_0_RMSK,
+	},
+	{
+		HWIO_TCSR_XPU3_SEC_IRQ_ENABLE_0_REG_1_ADDR,
+		HWIO_TCSR_XPU3_SEC_IRQ_ENABLE_0_REG_1_RMSK,
+	},
+};
+
+struct xpu_base_addr_info g_xpu_base_addr_array[] = {
+	{
+		XPU_TYPE_DC_NOC_SHRM_MPU,
+		XPU_ADDR_TYPE(QHM_SHRM_MPU_XPU3_GCR0),
+		"DC_NOC_SHRM_MPU",
+	},
+	{
+		XPU_TYPE_PKA_APU,
+		XPU_ADDR_TYPE(PKA_WRAPPER_XPU3_GCR0),
+		"PKA_APU",
+	},
+	{
+		XPU_TYPE_IPC_MPU,
+		XPU_ADDR_TYPE(IPC_XPU3_GCR0),
+		"IPC_MPU",
+	},
+	{
+		XPU_TYPE_DC_NOC_NON_BROADCAST_MPU,
+		XPU_ADDR_TYPE(QHS_NON_BROADCAST_MPU_XPU3_GCR0),
+		"DC_NOC_NON_BROADCAST_MPU",
+	},
+	{
+		XPU_TYPE_IMEM_MPU,
+		XPU_ADDR_TYPE(OCIMEM_MPU_XPU3_GCR0),
+		"IMEM_MPU",
+	},
+	{
+		XPU_TYPE_BOOT_ROM,
+		XPU_ADDR_TYPE(BOOT_ROM_XPU3_GCR0),
+		"BOOT_ROM",
+	},
+	{
+		XPU_TYPE_IPA_0_GSI_TOP,
+		XPU_ADDR_TYPE(IPA_0_GSI_TOP_XPU3_GCR0),
+		"IPA_0_GSI_TOP",
+	},
+	{
+		XPU_TYPE_BIMC_MPU0,
+		XPU_ADDR_TYPE(LLCC0_LLCC_XPU3_GCR0),
+		"BIMC_MPU0",
+	},
+	{
+		XPU_TYPE_BIMC_MPU1,
+		XPU_ADDR_TYPE(LLCC1_LLCC_XPU3_GCR0),
+		"BIMC_MPU0",
+	},
+	{
+		XPU_TYPE_LLCC_BROADCAST_MPU,
+		XPU_ADDR_TYPE(LLCC_BROADCAST_LLCC_XPU3_GCR0),
+		"LLCC_BROADCAST_MPU",
+	},
+	{
+		XPU_TYPE_MSS_NAV_MPU,
+		XPU_ADDR_TYPE(SNOC_NAV_MS_MPU_XPU3_GCR0),
+		"MSS_NAV_MPU",
+	},
+	{
+		XPU_TYPE_MSS_MPU,
+		XPU_ADDR_TYPE(MODEM_MS_MPU_XPU3_GCR0),
+		"MSS_MPU",
+	},
+	{
+		XPU_TYPE_ANOC1_MPU,
+		XPU_ADDR_TYPE(SNOC_AGGRE1_MS_MPU_XPU3_GCR0),
+		"ANOC1_MPU",
+	},
+	{
+		XPU_TYPE_ANOC2_MPU,
+		XPU_ADDR_TYPE(SNOC_AGGRE2_MS_MPU_XPU3_GCR0),
+		"ANOC2_MPU",
+	},
+	{
+		XPU_TYPE_MSS_Q6_MPU,
+		XPU_ADDR_TYPE(MDSP_MS_MPU_XPU3_GCR0),
+		"MSS_Q6_MPU",
+	},
+	{
+		XPU_TYPE_AOSS_MPU,
+		XPU_ADDR_TYPE(AOSS_MPU_XPU3_GCR0),
+		"AOSS_MPU",
+	},
+	{
+		XPU_TYPE_SEC_CTRL_APU,
+		XPU_ADDR_TYPE(SEC_CTRL_APU_XPU3_GCR0),
+		"SEC_CTRL_APU",
+	},
+	{
+		XPU_TYPE_CNOC_GEMNOC_MPU,
+		XPU_ADDR_TYPE(CNOC_GEMNOC_MPU_XPU3_GCR0),
+		"CNOC_GEMNOC_MPU",
+	},
+	{
+		XPU_TYPE_CNOC2_SS_MPU,
+		XPU_ADDR_TYPE(CNOC2_SS_MPU_XPU3_GCR0),
+		"CNOC2_SS_MPU",
+	},
+	{
+		XPU_TYPE_WPSS_MPU,
+		XPU_ADDR_TYPE(WPSS_MPU_XPU3_GCR0),
+		"WPSS_MPU",
+	},
+	{
+		XPU_TYPE_AOSS_CNOC_MPU,
+		XPU_ADDR_TYPE(AOSS_CNOC_MPU_XPU3_GCR0),
+		"AOSS_CNOC_MPU",
+	},
+};
+
+uint32_t g_xpu_base_addr_array_count = ARRAY_SIZE(g_xpu_base_addr_array);
+
+void xpu_configure_tz(void)
+{
+	mmio_write_32(HWIO_IPA_0_GSI_TOP_XPU3_GCR0_ADDR + 0x8, 0x10f);
+}

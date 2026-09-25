@@ -37,13 +37,37 @@ const mmap_region_t plat_qti_mmap[] = {
 
 CASSERT(ARRAY_SIZE(plat_qti_mmap) <= MAX_MMAP_REGIONS, assert_max_mmap_regions);
 
+static const struct {
+	uintptr_t start;
+	uintptr_t end;
+} sec_regions[] = {
+	{ BL31_BASE, BL31_LIMIT },
+#if defined(BL32_BASE) && defined(BL32_LIMIT)
+/* TEE region */
+	{ BL32_BASE, BL32_LIMIT },
+/* TA region */
+#if defined(QTI_PIMEM_BASE) && defined(QTI_PIMEM_LIMIT)
+	{ QTI_PIMEM_BASE, QTI_PIMEM_LIMIT },
+#endif
+#endif
+#if defined(BL2_BASE) && defined(BL2_LIMIT)
+	{ BL2_BASE, BL2_LIMIT },
+#endif
+};
 
-bool qti_is_overlap_atf_rg(unsigned long long addr, size_t size)
+static bool qti_is_overlap_secure_rg(uintptr_t addr, size_t size)
 {
-	if (addr > addr + size
-			|| (BL31_BASE < addr + size && BL31_LIMIT > addr)) {
+	uintptr_t end = addr + size;
+
+	if (addr > end)
 		return true;
+
+	for (size_t i = 0; i < ARRAY_SIZE(sec_regions); i++) {
+		if (addr < sec_regions[i].end && end > sec_regions[i].start) {
+			return true;
+		}
 	}
+
 	return false;
 }
 
@@ -131,8 +155,8 @@ int qti_mmap_add_dynamic_region(uintptr_t base_pa, size_t size,
 
 	qti_align_mem_region(base_pa, size, &aligned_pa, &aligned_size);
 
-	if (qti_is_overlap_atf_rg(base_pa, size)) {
-		/* Memory shouldn't overlap with TF-A range. */
+	if (qti_is_overlap_secure_rg(base_pa, size)) {
+		/* Memory shouldn't overlap with secure ranges. */
 		return -EPERM;
 	}
 
