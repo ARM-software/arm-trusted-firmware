@@ -1,67 +1,48 @@
 { self, ... }:
 
 {
+  # For each system configured in `flake.nix`, `flake-parts` evaluates this
+  # module and supplies it with a system-specific Nixpkgs package set (`pkgs`).
   perSystem =
     { pkgs, lib, ... }:
 
     let
-      stdenv = pkgs.pkgsCross.aarch64-embedded.stdenvNoLibs;
+      mkFirmware = import ./builders/mk-firmware.nix {
+        # Use the flake's source snapshot from the Nix store. Note that this
+        # does *not* include `.gitignore`'d files or the `.git/` directory.
+        src = self.outPath;
+
+        # TF-A is a freestanding firmware, and provides its own C standard
+        # library and compiler runtime libraries, so use a bare-metal AArch64
+        # cross-toolchain without runtime libraries.
+        stdenv = pkgs.pkgsCross.aarch64-embedded.stdenvNoLibs;
+
+        inherit pkgs;
+        inherit lib;
+      };
     in
 
     {
       packages = {
-        default = stdenv.mkDerivation {
-          pname = "trusted-firmware-a";
-          version = "experimental";
-
-          src = self.outPath;
-
-          strictDeps = true;
-          dontConfigure = true;
-
-          enableParallelBuilding = false; # TF-A's build system is not reliably parallel-safe
-          hardeningDisable = [ "all" ]; # TF-A's build system blindly overrides hardening options
-
+        default = mkFirmware {
           nativeBuildInputs = [
-            pkgs.dtc
-            pkgs.gnumake
-
-            stdenv.cc
+            pkgs.dtc # Device Tree Compiler
           ];
-
-          preBuild = ''
-            makeFlagsArray+=(
-              ${lib.escapeShellArgs [
-                "AS=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-                "CPP=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-                "CC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-
-                "AR=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}ar"}"
-                "LD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}gcc"}"
-
-                "OC=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objcopy"}"
-                "OD=${lib.getExe' stdenv.cc "${stdenv.cc.targetPrefix}objdump"}"
-
-                "DTC=${lib.getExe pkgs.dtc}"
-
-                "BUILD_STRING=nix-flake" # For reproducibility
-                "BUILD_MESSAGE_TIMESTAMP=\"1970-01-01T00:00:00Z\""
-              ]}
-            )
-
-            buildFlagsArray+=(
-              "''${PWD}/build/fvp/release/bl1.bin"
-              "''${PWD}/build/fvp/release/bl2.bin"
-              "''${PWD}/build/fvp/release/bl31.bin"
-            )
-          '';
 
           installPhase = ''
             runHook preInstall
 
-            install -D -m0644 "''${PWD}/build/fvp/release/bl1.bin" "''${out}/bl1.bin"
-            install -D -m0644 "''${PWD}/build/fvp/release/bl2.bin" "''${out}/bl2.bin"
-            install -D -m0644 "''${PWD}/build/fvp/release/bl31.bin" "''${out}/bl31.bin"
+            install -D -m 0644 -t "''${out}" \
+              build/fvp/release/{bl1,bl2,bl31}.bin
+
+            install -D -m 0644 -t "''${out}/dtbs" \
+              build/fvp/release/fdts/fvp-base-gicv3-psci.dtb \
+              build/fvp/release/fdts/fvp_{fw,tb_fw,soc_fw,nt_fw}_config.dtb
+
+            for stage in bl1 bl2 bl31; do
+              install -D -m 0644 -t "''${debug}/''${stage}" \
+                "build/fvp/release/''${stage}/''${stage}".{dump,elf,map}
+            done
 
             runHook postInstall
           '';
