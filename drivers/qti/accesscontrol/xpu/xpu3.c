@@ -54,15 +54,15 @@
 #define XPU3_UMR_CR2_OFFSET 0x318
 #define XPU3_RGn_REG_SPACE_SIZE 0x80
 #define XPU3_REV_SHFT 0x10
-#define XPU3_EAR0_OFFSET 0
-#define XPU3_EAR1_OFFSET 1
-#define XPU3_ESR_OFFSET 2
-#define XPU3_SRRESTORE_OFFSET 3
-#define XPU3_ESYNR0_OFFSET 4
-#define XPU3_ESYNR1_OFFSET 5
-#define XPU3_ESYNR2_OFFSET 6
-#define XPU3_ESYNR3_OFFSET 7
-#define XPU3_ESYNR4_OFFSET 8
+#define XPU3_EAR0_OFFSET 0x0
+#define XPU3_EAR1_OFFSET 0x4
+#define XPU3_ESR_OFFSET 0x8
+#define XPU3_SRRESTORE_OFFSET 0xC
+#define XPU3_ESYNR0_OFFSET 0x10
+#define XPU3_ESYNR1_OFFSET 0x14
+#define XPU3_ESYNR2_OFFSET 0x18
+#define XPU3_ESYNR3_OFFSET 0x1C
+#define XPU3_ESYNR4_OFFSET 0x20
 
 #define XPU3_RGn_RACR_OFFSET 0x1040
 #define XPU3_RGn_WACR_OFFSET 0x1060
@@ -87,7 +87,8 @@ static uint8_t get_xpu_type(struct xpu_instance *xpu)
 static void dump_log(enum xpu xpu, int type)
 {
 	char sec_char[2] = { ' ', 0 };
-	uint32_t xpu_addr;
+	uintptr_t xpu_addr;
+	uintptr_t base;
 	uint32_t offset;
 
 	switch (type) {
@@ -106,7 +107,8 @@ static void dump_log(enum xpu xpu, int type)
 		if (g_xpu_base_addr_array[i].e_xpu != xpu)
 			continue;
 
-		xpu_addr = g_xpu_base_addr_array[i].base_addr + offset;
+		base = g_xpu_base_addr_array[i].base_addr;
+		xpu_addr = base + offset;
 
 		ERROR("%s_ear0 0x%x\n", sec_char,
 		      mmio_read_32(xpu_addr + XPU3_EAR0_OFFSET));
@@ -120,10 +122,15 @@ static void dump_log(enum xpu xpu, int type)
 		      mmio_read_32(xpu_addr + XPU3_ESYNR1_OFFSET));
 		ERROR("%s_esynr2 0x%x\n", sec_char,
 		      mmio_read_32(xpu_addr + XPU3_ESYNR2_OFFSET));
-		ERROR("%s_esynr3 0x%x\n", sec_char,
-		      mmio_read_32(xpu_addr + XPU3_ESYNR3_OFFSET));
-		ERROR("%s_esynr4 0x%x\n", sec_char,
-		      mmio_read_32(xpu_addr + XPU3_ESYNR4_OFFSET));
+
+		/* Only MPUs implement ESYNR3 and ESYNR4. */
+		if ((mmio_read_32(base + XPU3_IDR0_OFFSET) &
+		     XPU_TYPE_BITMASK) == XPU_TYPE_MPU) {
+			ERROR("%s_esynr3 0x%x\n", sec_char,
+			      mmio_read_32(xpu_addr + XPU3_ESYNR3_OFFSET));
+			ERROR("%s_esynr4 0x%x\n", sec_char,
+			      mmio_read_32(xpu_addr + XPU3_ESYNR4_OFFSET));
+		}
 
 		/* clear error (SRRESTORE) as xpu errors are non fatal */
 		mmio_write_32(xpu_addr + XPU3_SRRESTORE_OFFSET, 0);
