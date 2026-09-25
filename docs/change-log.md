@@ -3,6 +3,29 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.36](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.35..refs/tags/lts-v2.10.36) (2026-09-25)
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **MediaTek**
+
+    - enable missing Cortex-A78 errata for MT8188 ([80d954c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/80d954cfc048a40a8e240339728b785921611e00))
+    - enable missing Cortex-A78 errata for MT8195 ([8c85229](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c8522931b18820654f60a2d9ade92f034744af0))
+
+  - **QTI**
+
+    - disallow secure IO accesses from secure world callers ([f884efa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f884efa8ccf45fb8add2d14a3e3d6282bf43a882))
+    - do not map secure regions ([eae6e49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eae6e49a94bb36f468f3f3cb94400051eb624c3f))
+    - fix build without coreboot ([5fd5f37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5fd5f37ad588c6cb3f7bd6c965d162f6a3c2efe3))
+    - harden mem_assign parameter handling ([b8594bd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b8594bd373eadbb17e494710a045bf182a7d7ed4))
+    - pull in access-control backend for mem_assign ([4aa762a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4aa762a74b8db7264c3f0e6a4d668907b9e9a862))
+
+  - **Xilinx**
+
+    - allow secure access to IPI channels ([36870eb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/36870eb723b953bbbf0ceacbcbb78ef227e7ce83))
+
 ## [lts-2.10.35](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.34..refs/tags/lts-v2.10.35) (2026-09-18)
 
 ### Build System
