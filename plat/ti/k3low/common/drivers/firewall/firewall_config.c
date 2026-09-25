@@ -52,7 +52,7 @@ void update_fwl_configs(void)
 	uint32_t permissions[3] = {FWL_PERM_ALL_RW, FWL_PERM_ALL_RW, FWL_PERM_ALL_RW};
 
 	/* Open up firewalls that were configured by ROM for boot phase */
-	for (int i = 0; i < ARRAY_SIZE(fwls); i++) {
+	for (size_t i = 0; i < ARRAY_SIZE(fwls); i++) {
 		add_fwl_configs(fwls[i].fwl_id, fwls[i].region, FWL_MAX_PRIVID_SLOTS,
 				FWL_CTRL_EN_BG, permissions, 0x0, 0xFFFFFFFFF);
 	}
