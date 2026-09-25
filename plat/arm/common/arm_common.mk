@@ -303,6 +303,10 @@ BL2_SOURCES		+=	${DYN_CFG_SOURCES}
 # The Arm platforms use the default BL2 mem params desc.
 ARM_PLAT_PROVIDES_BL2_MEM_PARAMS	:=  0
 
+JUNO_AARCH32_EL3_RUNTIME		?= 0
+$(call assert_boolean,JUNO_AARCH32_EL3_RUNTIME)
+$(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
+
 # Because BL1/BL2 execute in AArch64 mode but BL32 in AArch32 we need to use
 # the AArch32 descriptors.
 ifeq (${JUNO_AARCH32_EL3_RUNTIME},1)

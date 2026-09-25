@@ -39,8 +39,6 @@ endif
 
 # Flag to enable support for AArch32 state on JUNO
 JUNO_AARCH32_EL3_RUNTIME	:=	0
-$(call assert_boolean,JUNO_AARCH32_EL3_RUNTIME)
-$(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
 
 # Flag to enable support for TZMP1 on JUNO
 JUNO_TZMP1		:=	0
