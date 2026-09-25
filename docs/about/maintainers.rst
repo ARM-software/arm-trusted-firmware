@@ -769,6 +769,18 @@ QTI chipinfo, clock and platform info drivers
 :|F|: include/drivers/qti/clock/
 :|F|: include/drivers/qti/platforminfo/
 
+QTI power drivers
+^^^^^^^^^^^^^^^^^
+:|M|: Dinesh Choudhary <idinesh@qti.qualcomm.com>
+:|F|: drivers/qti/cmd_db/
+:|F|: drivers/qti/pdc/
+:|F|: drivers/qti/pwr_utils/
+:|F|: drivers/qti/rpmh/
+:|F|: include/drivers/qti/cmd_db/
+:|F|: include/drivers/qti/pdc/
+:|F|: include/drivers/qti/pwr_utils/
+:|F|: include/drivers/qti/rpmh/
+
 QTI MSM8916 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Stephan Gerhold <stephan@gerhold.net>
