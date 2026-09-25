@@ -44,6 +44,12 @@ static const io_uuid_spec_t qti_bl33_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
 
+#if defined(SPD_spmd)
+static const io_uuid_spec_t qti_tos_fw_config_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
+};
+#endif
+
 struct qti_io_policy {
 	unsigned int image_id;
 	uintptr_t *dev_handle;
@@ -75,6 +81,14 @@ static const struct qti_io_policy qti_io_policies[] = {
 		.image_spec = (uintptr_t)&qti_bl33_spec,
 		.init_params = FIP_IMAGE_ID,
 	},
+#if defined(SPD_spmd)
+	{
+		.image_id   = TOS_FW_CONFIG_ID,
+		.dev_handle = &qti_fip_dev_handle,
+		.image_spec = (uintptr_t)&qti_tos_fw_config_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+#endif
 };
 
 static int qti_io_memmap_setup(void)

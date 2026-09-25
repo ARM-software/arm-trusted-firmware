@@ -11,6 +11,7 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <common/image_decompress.h>
+#include <common/tbbr/tbbr_img_def.h>
 #include <drivers/io/io_storage.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -86,5 +87,26 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
+#if defined(SPD_spmd)
+	/*
+	 * The SPMC core manifest is loaded as TOS_FW_CONFIG and BL31/SPMD
+	 * expects its address in the BL32 entry point's arg0. This is only
+	 * wired up when building with SPD=spmd.
+	 */
+	bl_mem_params_node_t *tos_fw_config;
+	bl_mem_params_node_t *bl32;
+
+	if (image_id != BL32_IMAGE_ID) {
+		return 0;
+	}
+
+	tos_fw_config = get_bl_mem_params_node(TOS_FW_CONFIG_ID);
+	if (tos_fw_config == NULL) {
+		return 0;
+	}
+
+	bl32 = get_bl_mem_params_node(BL32_IMAGE_ID);
+	bl32->ep_info.args.arg0 = tos_fw_config->image_info.image_base;
+#endif
 	return 0;
 }
