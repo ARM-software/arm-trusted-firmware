@@ -384,9 +384,7 @@ int arm_get_rotpk_info_cc(void **key_ptr, unsigned int *key_len,
 int arm_get_rotpk_info_dev(void **key_ptr, unsigned int *key_len,
 	unsigned int *flags);
 
-#if ARM_PLAT_MT
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);
-#endif
 
 unsigned int plat_cluster_id_by_mpidr(u_register_t mpidr);
 
