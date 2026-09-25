@@ -108,11 +108,6 @@ void spin_unlock(spinlock_t *lock)
 	__asm__ volatile (
 	"stlr	wzr, %[dst]"
 	: [dst] "=Q" (*dst));
-
-	/* atomics don't generate events so wake others manually */
-	if (is_feat_lse_supported()) {
-		sev();
-	}
 }
 
 static bool spin_trylock_atomic(volatile uint32_t *dst)
