@@ -10,8 +10,6 @@
 #include <arch_helpers.h>
 #include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
-#include <drivers/arm/gic_common.h>
-#include <lib/el3_runtime/context_mgmt.h>
 #include <lib/spinlock.h>
 #include <lib/utils_def.h>
 
@@ -19,7 +17,6 @@
 #include <qti_interrupt_svc.h>
 #include <qti_plat.h>
 
-#define QTI_INTR_INVALID_INT_NUM		0xFFFFFFFFU
 #define ISR_TABLE_LEN				20
 
 static struct qti_isr_table {
@@ -88,7 +85,7 @@ error:
 	return -ENOENT;
 }
 
-static void interrupt_svc_invoke_isr(uint32_t id, void *handle)
+void qti_interrupt_svc_dispatch(uint32_t id, void *handle)
 {
 	struct qti_isr *p = isr_table.entry;
 	qti_int_svc_isr_t invoke_isr = NULL;
@@ -114,35 +111,8 @@ plat_dispatch:
 	plat_qti_invoke_unhandled_isr(id, handle);
 }
 
-/*
- * Top-level EL3 interrupt handler.
- */
-static uint64_t qti_el3_interrupt_handler(uint32_t id, uint32_t flags,
-					  void *handle, void *cookie)
-{
-	uint32_t irq = QTI_INTR_INVALID_INT_NUM;
-
-	/*
-	 * EL3 non-interruptible. Interrupt shouldn't occur when we are at
-	 * EL3 / Secure.
-	 */
-	assert(handle != cm_get_context(SECURE));
-
-	irq = plat_ic_acknowledge_interrupt();
-
-	interrupt_svc_invoke_isr(irq, handle);
-
-	/* End of Interrupt. */
-	if (irq < 1022U) {
-		plat_ic_end_of_interrupt(irq);
-	}
-
-	return (uint64_t) handle;
-}
-
 int qti_interrupt_svc_init(bool have_sel1)
 {
-	int ret;
 	uint64_t flags = 0U;
 
 	/*
@@ -155,10 +125,7 @@ int qti_interrupt_svc_init(bool have_sel1)
 	if (!have_sel1)
 		set_interrupt_rm_flag(flags, SECURE);
 
-	/* Register handler for EL3 interrupts */
-	ret = register_interrupt_type_handler(INTR_TYPE_EL3,
-					      qti_el3_interrupt_handler, flags);
-	assert(ret == 0);
+	qti_interrupt_svc_register_el3_owner(flags);
 
-	return ret;
+	return 0;
 }
