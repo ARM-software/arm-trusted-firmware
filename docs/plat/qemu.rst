@@ -155,6 +155,23 @@ for extracting and launching these from ``fw_cfg``.
     either case, ensure that the kernel build options are aligned with the
     parameters passed to QEMU.
 
+Booting via fw_cfg
+------------------
+
+The FIP image can also be passed directly to QEMU via ``-fw_cfg`` under the
+``opt/tf-a/fip`` key, avoiding the need to concatenate ``bl1.bin`` and
+``fip.bin`` or enable semihosting:
+
+.. code:: shell
+
+    qemu-system-aarch64 -nographic -machine virt,secure=on \
+        -cpu cortex-a57 -kernel Image \
+        -append "console=ttyAMA0,38400 keep_bootcon" \
+        -initrd rootfs.cpio.gz -smp 2 -m 1024 \
+        -bios build/qemu/release/bl1.bin \
+        -fw_cfg name=opt/tf-a/fip,file=build/qemu/release/fip.bin \
+        -d unimp
+
 Running QEMU in OpenCI
 -----------------------
 
