@@ -6,10 +6,14 @@
 
 #include <assert.h>
 
+#include <arch.h>
 #include <common/bl_common.h>
+#include <common/debug.h>
 
+#include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/io/io_storage.h>
+#include <lib/mmio.h>
 #include <plat/common/platform.h>
 #include <plat/arm/common/arm_fconf_getter.h>
 #include <plat/arm/common/arm_fconf_io_storage.h>
@@ -32,6 +36,30 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 	{0}
 };
+
+#define CS1K_GPT_DELAY	25U /* GPT initialization delay in milliseconds. */
+
+#if defined(IMAGE_BL2) && RESET_TO_BL2 && ARM_GPT_SUPPORT
+void plat_arm_io_setup(void)
+{
+	int err;
+
+	err = arm_io_setup();
+	if (err < 0) {
+		panic();
+	}
+
+	/*
+	 * Allow time before early memory-mapped flash reads. This is a
+	 * workaround for invalid GPT reads observed on MPS3; the underlying
+	 * readiness requirement still needs investigation.
+	 */
+	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
+		     CNTCR_FCREQ(0U) | CNTCR_EN);
+	generic_delay_timer_init();
+	mdelay(CS1K_GPT_DELAY);
+}
+#endif
 
 static void set_fip_image_source(void)
 {
