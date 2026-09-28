@@ -901,6 +901,12 @@ Altera agilex3 platform port
 :|C|: Jit Loon Lim <jit.loon.lim@altera.com>
 :|F|: plat/altera/soc/agilex3
 
+Altera agilex72 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Benjamin Jit Loon Lim <jit.loon.lim@altera.com>
+:|C|: Jit Loon Lim <jit.loon.lim@altera.com>
+:|F|: plat/altera/soc/agilex72
+
 Secure Payloads and Dispatchers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

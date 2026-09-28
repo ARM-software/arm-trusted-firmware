@@ -123,7 +123,7 @@ typedef struct handoff_t {
 	uint32_t	hps_osc_clk_h;
 	uint32_t	fpga_clk_hz;
 	uint32_t	_pad_0x604_0x610[3];
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3 || PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
 	uint32_t	clock_magic;
 	uint32_t	clock_length;
 	uint32_t	_pad_0x588_0x590[2];
@@ -169,7 +169,7 @@ typedef struct handoff_t {
 	uint32_t	_pad_0x604_0x610[3];
 #endif
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3 || PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
 	/* peripheral configuration - select */
 	uint32_t	peripheral_pwr_gate_magic;
 	uint32_t	peripheral_pwr_gate_length;

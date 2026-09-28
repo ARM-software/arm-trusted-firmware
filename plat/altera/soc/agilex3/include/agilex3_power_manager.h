@@ -8,8 +8,6 @@
 #ifndef POWERMANAGER_H
 #define POWERMANAGER_H
 
-#include "socfpga_handoff.h"
-
 #define AGX3_PWRMGR_BASE					0x10d14000
 
 /* DSU */
@@ -87,5 +85,10 @@
 #define AGX3_PWRMGR_PSS_STAT_BUSY_E_BUSY			0x0
 #define AGX3_PWRMGR_PSS_STAT_BUSY(x)				(((x) & 0x000000FF) >> 0)
 
+#ifndef __ASSEMBLER__
+
+typedef struct handoff_t handoff;
 void config_pwrmgr_handoff(handoff *hoff_ptr);
+
+#endif /* __ASSEMBLER__ */
 #endif

@@ -11,11 +11,11 @@
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 
-/* Platform-specific clock manager */
+#include "socfpga_plat_def.h"
+
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
 #include "agilex3_clock_manager.h"
 #endif
-#include "socfpga_plat_def.h"
 
 #define SOCFPGA_GLOBAL_TIMER		PLAT_TIMER_BASE_ADDR
 #define SOCFPGA_GLOBAL_TIMER_EN		0x3

@@ -28,14 +28,10 @@
 #define SYSMGR_ECC_DDR0_MASK				BIT(16)
 #define SYSMGR_ECC_DDR1_MASK				BIT(17)
 
-/* Macros */
-
-#define SOCFPGA_SYSMGR(_reg)		(SOCFPGA_SYSMGR_REG_BASE \
-						+ (SOCFPGA_SYSMGR_##_reg))
-
 /* Function Prototype */
 uint32_t intel_hps_get_jtag_id(void);
-bool is_agilex5_A5F0(void);
+bool is_agilex5_A5C0(void);
+bool is_agilex5_A5C4(void);
 bool is_agilex5_A5F4(void);
 bool is_agilex5_A36F0(void);
 

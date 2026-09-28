@@ -9,9 +9,10 @@
 #ifndef PLAT_SOCFPGA_DEF_H
 #define PLAT_SOCFPGA_DEF_H
 
+#include "agilex3_cache.h"
 #include "agilex3_memory_controller.h"
+#include "agilex3_power_manager.h"
 #include "agilex3_system_manager.h"
-
 #include <platform_def.h>
 
 /* Platform Setting */
@@ -186,6 +187,13 @@
  ******************************************************************************/
 #define SDMMC_READ_BLOCKS					sdmmc_read_blocks
 #define SDMMC_WRITE_BLOCKS					sdmmc_write_blocks
+
+/*******************************************************************************
+ * Power Manager related constants
+ ******************************************************************************/
+#define PWRMGR_MPU_PCHCTLR					AGX3_PWRMGR(MPU_PCHCTLR)
+#define PWRMGR_CPU_POWER_STATE_MASK			AGX3_PWRMGR_CPU_POWER_STATE_MASK
+#define PWRMGR_MPU_TRIGGER_PCH_CPU			AGX3_PWRMGR_MPU_TRIGGER_PCH_CPU
 
 /*******************************************************************************
  * sysmgr.boot_scratch_cold3 bits[5:2] are used to indicate L2 reset

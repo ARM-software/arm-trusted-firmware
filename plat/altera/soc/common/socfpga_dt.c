@@ -22,11 +22,9 @@
 #include <tools_share/firmware_image_package.h>
 
 #include <platform_def.h>
-
 #include "socfpga_dt.h"
 
-static void *fdt;
-#define DT_DEBUG 1
+static const void *fdt;
 /*******************************************************************************
  * This function checks device tree file with its header.
  * Returns 0 on success and a negative FDT error code on failure.
@@ -38,17 +36,17 @@ int socfpga_dt_open_and_check(uintptr_t dt_addr, char *compatible_str)
 
 	ret = fdt_check_header((void *)dt_addr);
 
-	if (ret == 0) {
-		fdt = (void *)dt_addr;
-	} else {
+	if (ret != 0) {
 		ERROR("SOCFPGA: FDT Header invalid\n");
+		return ret;
 	}
+
+	fdt = (const void *)dt_addr;
 
 	/* As libfdt use void *, we can't avoid this cast */
 	const void *dtb = (void *)dt_addr;
 
-	/* Assert the node offset point to "arm,tb_fw" compatible property */
-	//const char *compatible_str = "arm,AGILEX5";;
+	/* Assert the node offset point to compatible property */
 	node = fdt_node_offset_by_compatible(dtb, -1, compatible_str);
 	if (node < 0) {
 		ERROR("SOCFPGA: Can't find `%s` compatible in dtb\n",

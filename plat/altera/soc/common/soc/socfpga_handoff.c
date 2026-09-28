@@ -56,7 +56,7 @@ int socfpga_get_handoff(handoff *reverse_hoff_ptr)
 		return -1;
 	}
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3 || PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX72
 	if (reverse_hoff_ptr->peripheral_pwr_gate_magic != HANDOFF_MAGIC_PERIPHERAL) {
 		return -1;
 	}

@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
 #include <arch.h>
 #include <lib/psci/psci.h>
 #include <platform_def.h>
@@ -48,4 +50,13 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 		return -1;
 
 	return (cpu_id + (cluster_id * 4));
+}
+
+unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
+{
+	int core_pos = plat_core_pos_by_mpidr(mpidr);
+
+	assert(core_pos >= 0);
+
+	return (unsigned int)core_pos;
 }

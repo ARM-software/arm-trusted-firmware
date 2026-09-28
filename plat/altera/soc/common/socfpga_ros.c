@@ -11,8 +11,8 @@
 
 #include <common/tf_crc32.h>
 
+#include "mailbox/socfpga_mailbox.h"
 #include "qspi/cadence_qspi.h"
-#include "socfpga_mailbox.h"
 #include "socfpga_private.h"
 #include "socfpga_ros.h"
 
