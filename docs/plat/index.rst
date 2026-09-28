@@ -16,7 +16,10 @@ Platform Ports
    meson-g12a
    hikey
    hikey960
+   altera-agilex3
+   altera-agilex72
    intel-agilex
+   intel-agilex5
    intel-stratix10
    marvell/index
    mt8183
