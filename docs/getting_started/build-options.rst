@@ -1387,8 +1387,6 @@ flags support :ref:`enable_feat_mechanism` and take numeric values from 0 to 2.
    ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
    world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
    superset of SVE. SME is an optional architectural feature for AArch64.
-   At this time, this build option cannot be used on systems that have
-   SPD=spmd and attempting to build with this option will fail.
    Default is 0.
 
 -  ``ENABLE_SME2_FOR_NS``: Enables Scalable Matrix Extension
