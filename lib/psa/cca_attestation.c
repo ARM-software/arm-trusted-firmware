@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,9 +31,12 @@ cca_attestation_get_realm_key(uintptr_t buf, size_t *len, unsigned int type)
 	 */
 	assert(type == ATTEST_KEY_CURVE_ECC_SECP384R1);
 
-	ret = rse_delegated_attest_get_delegated_key(PSA_ECC_FAMILY_SECP_R1,
-						     384, (uint8_t *)buf, *len,
-						     &dak_len, PSA_ALG_SHA_256);
+	do {
+		ret = rse_delegated_attest_get_delegated_key(
+			PSA_ECC_FAMILY_SECP_R1, 384, (uint8_t *)buf, *len,
+			&dak_len, PSA_ALG_SHA_256);
+	} while (ret == PSA_OPERATION_INCOMPLETE);
+
 	if (ret != PSA_SUCCESS) {
 		return ret;
 	}
@@ -54,8 +57,12 @@ cca_attestation_get_plat_token(uintptr_t buf, size_t *len,
 	size_t token_len = 0;
 	psa_status_t ret = PSA_SUCCESS;
 
-	ret = rse_delegated_attest_get_token((const uint8_t *)hash, hash_size,
-					     (uint8_t *)buf, *len, &token_len);
+	do {
+		ret = rse_delegated_attest_get_token((const uint8_t *)hash,
+						     hash_size, (uint8_t *)buf,
+						     *len, &token_len);
+	} while (ret == PSA_OPERATION_INCOMPLETE);
+
 	if (ret != PSA_SUCCESS) {
 		return ret;
 	}

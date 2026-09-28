@@ -53,6 +53,11 @@ endif
 # RD-V3 uses MHUv3
 PLAT_MHU := MHUv3
 
+# RD-V3 supports attestation
+ifeq (${FIRME_SUPPORT},1)
+    FIRME_SUPPORT_ATTESTATION	:= 1
+endif
+
 ifeq (${NRD_PLATFORM_VARIANT}, 2)
 override PLATFORM_NODE_COUNT	:= NRD_CHIP_COUNT
 endif
@@ -123,6 +128,7 @@ BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
 			drivers/arm/smmu/smmu_v3.c			\
 			drivers/cfi/v2m/v2m_flash.c			\
 			lib/psa/cca_attestation.c			\
+			lib/psa/initial_attestation.c			\
 			lib/psa/delegated_attestation.c			\
 			lib/utils/mem_region.c				\
 			plat/arm/common/arm_dyn_cfg.c			\

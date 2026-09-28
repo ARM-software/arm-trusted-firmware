@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -258,8 +258,10 @@ static int32_t dpe_client_call(const char *cmd_input, size_t cmd_input_size,
 		{ cmd_output, *cmd_output_size },
 	};
 
-	err = psa_call(RSE_DPE_SERVICE_HANDLE, 0,
-			in_vec, IOVEC_LEN(in_vec), out_vec, IOVEC_LEN(out_vec));
+	do {
+		err = psa_call(RSE_DPE_SERVICE_HANDLE, 0, in_vec,
+			       IOVEC_LEN(in_vec), out_vec, IOVEC_LEN(out_vec));
+	} while (err == PSA_OPERATION_INCOMPLETE);
 
 	if (err == PSA_SUCCESS) {
 		*cmd_output_size = out_vec[0].len;

@@ -494,6 +494,9 @@ FIRME_SUPPORT			:= 0
 # FIRME IDE KM support.
 FIRME_SUPPORT_IDE_KM		:= 0
 
+# FIRME Attestation support.
+FIRME_SUPPORT_ATTESTATION	:= 0
+
 # Flag to enable the spinlock implementation variant using the FEAT_LSE
 # compare-and-swap instruction.
 USE_SPINLOCK_CAS		?=	0

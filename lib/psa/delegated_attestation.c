@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -32,11 +32,15 @@ rse_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
 	}
 
 	status = psa_call(RSE_DELEGATED_SERVICE_HANDLE,
-			  RSE_DELEGATED_ATTEST_GET_DELEGATED_KEY,
-			  in_vec,  IOVEC_LEN(in_vec),
-			  out_vec, IOVEC_LEN(out_vec));
+			  RSE_DELEGATED_ATTEST_GET_DELEGATED_KEY, in_vec,
+			  IOVEC_LEN(in_vec), out_vec, IOVEC_LEN(out_vec));
+
 	if (status == PSA_SUCCESS) {
 		*key_size = out_vec[0].len;
+	}
+
+	if (status == PSA_OPERATION_INCOMPLETE) {
+		*key_size = 0;
 	}
 
 	return status;
@@ -65,8 +69,13 @@ rse_delegated_attest_get_token(const uint8_t *dak_pub_hash,
 			  RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN,
 			  in_vec, IOVEC_LEN(in_vec),
 			  out_vec, IOVEC_LEN(out_vec));
+
 	if (status == PSA_SUCCESS) {
 		*token_size = out_vec[0].len;
+	}
+
+	if (status == PSA_OPERATION_INCOMPLETE) {
+		*token_size = 0;
 	}
 
 	return status;

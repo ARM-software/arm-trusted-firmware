@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -53,6 +53,17 @@ psa_status_t rse_protocol_pointer_access_deserialize_reply(psa_outvec *out_vec,
 
 	assert(reply != NULL);
 	assert(return_val != NULL);
+	assert((out_len == 0U) || (out_vec != NULL));
+
+	if (reply_size < sizeof(*reply)) {
+		return PSA_ERROR_INVALID_ARGUMENT;
+	}
+
+	for (i = 0U; i < out_len; ++i) {
+		if (reply->out_sizes[i] > out_vec[i].len) {
+			return PSA_ERROR_INVALID_ARGUMENT;
+		}
+	}
 
 	for (i = 0U; i < out_len; ++i) {
 		out_vec[i].len = reply->out_sizes[i];

@@ -13,6 +13,8 @@
 
 #include "mhu_v3_x.h"
 
+#define DOORBELL_TIMEOUT	U(10)
+
 #define MHU_NOTIFY_VALUE	U(1234)
 
 #ifndef ALIGN_UP
@@ -108,6 +110,7 @@ static enum mhu_error_t wait_for_signal(
 	struct mhu_v3_x_dev_t *dev;
 	uint32_t read_val;
 	uint8_t num_channels;
+	int cnt = 0;
 
 	dev = (struct mhu_v3_x_dev_t *)mhu_receiver_dev;
 
@@ -122,11 +125,17 @@ static enum mhu_error_t wait_for_signal(
 	}
 
 	do {
+		cnt++;
 		err = mhu_v3_x_doorbell_read(dev, num_channels - 1, &read_val);
 		if (err != MHU_V_3_X_ERR_NONE) {
 			return error_mapping_to_mhu_error_t(err);
 		}
-	} while (read_val != value);
+	} while (read_val != value && cnt != DOORBELL_TIMEOUT);
+
+	/* Return to caller to avoid too long blocking calls */
+	if (read_val != value && cnt == DOORBELL_TIMEOUT) {
+		return MHU_ERR_INCOMPLETE;
+	}
 
 	return error_mapping_to_mhu_error_t(err);
 }
@@ -407,7 +416,7 @@ enum mhu_error_t mhu_receive_data(uint8_t *receive_buffer, size_t *size)
 		return error_mapping_to_mhu_error_t(mhu_v3_err);
 	}
 
-	/* Busy wait for incoming reply */
+	/* Busy wait for incoming reply, DOORBELL_TIMEOUT might happen */
 	mhu_err = wait_for_signal(dev, MHU_NOTIFY_VALUE);
 	if (mhu_err != MHU_ERR_NONE) {
 		return mhu_err;

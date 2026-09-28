@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -75,6 +75,7 @@ rse_measured_boot_extend_measurement(uint8_t index,
 				     size_t measurement_value_size,
 				     bool lock_measurement)
 {
+	psa_status_t status;
 	struct measured_boot_extend_iovec_t extend_iov = {
 		.index = index,
 		.lock_measurement = lock_measurement,
@@ -115,10 +116,13 @@ rse_measured_boot_extend_measurement(uint8_t index,
 			measurement_algo, measurement_value,
 			measurement_value_size, lock_measurement);
 
-	return psa_call(RSE_MEASURED_BOOT_HANDLE,
-			RSE_MEASURED_BOOT_EXTEND,
-			in_vec, IOVEC_LEN(in_vec),
-			NULL, 0);
+	do {
+		status = psa_call(RSE_MEASURED_BOOT_HANDLE,
+				  RSE_MEASURED_BOOT_EXTEND, in_vec,
+				  IOVEC_LEN(in_vec), NULL, 0);
+	} while (status == PSA_OPERATION_INCOMPLETE);
+
+	return status;
 }
 
 psa_status_t rse_measured_boot_read_measurement(uint8_t index,
@@ -158,9 +162,12 @@ psa_status_t rse_measured_boot_read_measurement(uint8_t index,
 		{.base = measurement_value, .len = measurement_value_size}
 	};
 
-	status = psa_call(RSE_MEASURED_BOOT_HANDLE, RSE_MEASURED_BOOT_READ,
-					  in_vec, IOVEC_LEN(in_vec),
-					  out_vec, IOVEC_LEN(out_vec));
+	do {
+		status = psa_call(RSE_MEASURED_BOOT_HANDLE,
+				  RSE_MEASURED_BOOT_READ, in_vec,
+				  IOVEC_LEN(in_vec), out_vec,
+				  IOVEC_LEN(out_vec));
+	} while (status == PSA_OPERATION_INCOMPLETE);
 
 	if (status == PSA_SUCCESS) {
 		*is_locked = read_iov_out.is_locked;

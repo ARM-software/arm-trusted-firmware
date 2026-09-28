@@ -38,6 +38,7 @@ struct firme_service {
 extern const struct firme_service firme_base_service;
 extern const struct firme_service firme_granule_mgmt_service;
 extern const struct firme_service firme_mecid_service;
+extern const struct firme_service firme_attestation_service;
 #if FIRME_SUPPORT_IDE_KM
 extern const struct firme_service firme_ide_km_service;
 #endif

@@ -6,15 +6,28 @@
 
 #include <stdint.h>
 
+#include "firme_private.h"
+
 #include <arch.h>
 #include <arch_features.h>
 #include <common/debug.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
 
 #include "firme_private.h"
+
+#if PAGE_SIZE == PAGE_SIZE_4KB
+#define FIRME_BASE_MIN_SH_BUF_SZ_PAGE_SIZE FIRME_BASE_MIN_SH_BUF_SZ_4KB
+#elif PAGE_SIZE == PAGE_SIZE_16KB
+#define FIRME_BASE_MIN_SH_BUF_SZ_PAGE_SIZE FIRME_BASE_MIN_SH_BUF_SZ_16KB
+#elif PAGE_SIZE == PAGE_SIZE_64KB
+#define FIRME_BASE_MIN_SH_BUF_SZ_PAGE_SIZE FIRME_BASE_MIN_SH_BUF_SZ_64KB
+#else
+#error "Unsupported FIRME MIN_SH_BUF_SZ PAGE_SIZE"
+#endif
 
 /*
  * Feature reg 0 indicates which ABIs are supported for base service.
@@ -22,9 +35,9 @@
  */
 static uint64_t registers[FIRME_BASE_FEATURE_REG_COUNT] = {
 	FIRME_BASE_VERSION_BIT | FIRME_BASE_FEATURES_BIT,
-	(((0x0 & FIRME_BASE_MAX_SH_BUF_PG_CNT_MASK))
-		 << FIRME_BASE_MAX_SH_BUF_PG_CNT_SHIFT |
-	 ((0x0 & FIRME_BASE_MIN_SH_BUF_SZ_MASK)
+	(((FIRME_BASE_MAX_SH_BUF_PG_CNT & FIRME_BASE_MAX_SH_BUF_PG_CNT_MASK)
+	  << FIRME_BASE_MAX_SH_BUF_PG_CNT_SHIFT) |
+	 ((FIRME_BASE_MIN_SH_BUF_SZ_PAGE_SIZE & FIRME_BASE_MIN_SH_BUF_SZ_MASK)
 	  << FIRME_BASE_MIN_SH_BUF_SZ_SHIFT))
 };
 
@@ -69,6 +82,11 @@ static int32_t firme_base_service_get_feature_reg(firme_instance_e instance,
 		if (firme_service_is_supported(FIRME_IDE_KEY_MGMT_ID,
 					       instance)) {
 			*reg |= FIRME_BASE_SERVICE_IDE_KM_BIT;
+		}
+
+		if (firme_service_is_supported(FIRME_ATTESTATION_ID,
+					       instance)) {
+			*reg |= FIRME_BASE_SERVICE_ATTESTATION_BIT;
 		}
 	}
 

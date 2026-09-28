@@ -59,8 +59,6 @@ size_t rme_gpf_safe_read(void *dest, const void *lower_el_src, size_t size);
  * raised while accessing the lower-EL destination buffer, the function returns
  * the number of bytes copied before the fault.
  *
- * @lower_el_dest, @src and @size must be 8-byte aligned.
- *
  * Return: @size on success, less than @size if the lower-EL access faults
  */
 size_t rme_gpf_safe_write(void *lower_el_dest, const void *src, size_t size);

@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 
 #include <common/debug.h>
 #include <drivers/arm/rse_comms.h>
+#include <lib/spinlock.h>
 #include <psa/client.h>
 #include <rse_comms_protocol.h>
 
@@ -19,6 +21,13 @@ union __packed __attribute__((aligned(4))) rse_comms_io_buffer_t {
 	struct serialized_rse_comms_msg_t msg;
 	struct serialized_rse_comms_reply_t reply;
 };
+
+struct rse_pending_req_t {
+	bool active;
+	psa_handle_t handle;
+	int32_t type;
+	spinlock_t lock;
+} rse_pending_req;
 
 static uint8_t select_protocol_version(const psa_invec *in_vec, size_t in_len,
 				       const psa_outvec *out_vec, size_t out_len)
@@ -71,60 +80,102 @@ static uint8_t select_protocol_version(const psa_invec *in_vec, size_t in_len,
 psa_status_t psa_call(psa_handle_t handle, int32_t type, const psa_invec *in_vec, size_t in_len,
 		      psa_outvec *out_vec, size_t out_len)
 {
+	/*
+	 * This implementation supports asynchronous calls, but not concurrent
+	 * calls. PSA ABI calls are assumed not to be interleaved: a pending
+	 * operation must be continued with the same handle and type until it
+	 * completes.
+	 */
 	/* Declared statically to avoid using huge amounts of stack space. Maybe revisit if
 	 * functions not being reentrant becomes a problem.
 	 */
 	static union rse_comms_io_buffer_t io_buf;
 	int err;
 	psa_status_t status;
+	bool active_pending_req;
 	static uint8_t seq_num = 1U;
 	size_t msg_size;
 	size_t reply_size = sizeof(io_buf.reply);
 	psa_status_t return_val;
 	size_t idx;
 
-	if (type > PSA_CALL_TYPE_MAX || type < PSA_CALL_TYPE_MIN ||
-	    in_len > PSA_MAX_IOVEC   || out_len > PSA_MAX_IOVEC) {
-		return PSA_ERROR_INVALID_ARGUMENT;
+	spin_lock(&rse_pending_req.lock);
+	active_pending_req = rse_pending_req.active;
+	spin_unlock(&rse_pending_req.lock);
+
+	/* Only allow a request matching an active handle and type to continue */
+	if (active_pending_req && !((handle == rse_pending_req.handle) &&
+				    (type == rse_pending_req.type))) {
+		return PSA_ERROR_CONNECTION_BUSY;
 	}
 
-	io_buf.msg.header.seq_num = seq_num,
-	/* No need to distinguish callers (currently concurrent calls are not supported). */
-	io_buf.msg.header.client_id = 1U,
-	io_buf.msg.header.protocol_ver = select_protocol_version(in_vec, in_len, out_vec, out_len);
+	/* In case of ongoing call skip the message sending */
+	if (!active_pending_req) {
+		if (type > PSA_CALL_TYPE_MAX || type < PSA_CALL_TYPE_MIN ||
+		    in_len > PSA_MAX_IOVEC || out_len > PSA_MAX_IOVEC) {
+			return PSA_ERROR_INVALID_ARGUMENT;
+		}
 
-	status = rse_protocol_serialize_msg(handle, type, in_vec, in_len, out_vec,
-					    out_len, &io_buf.msg, &msg_size);
-	if (status != PSA_SUCCESS) {
-		return status;
-	}
+		io_buf.msg.header.seq_num = seq_num;
+		/* No need to distinguish callers (currently concurrent calls are not supported). */
+		io_buf.msg.header.client_id = 1U;
+		io_buf.msg.header.protocol_ver = select_protocol_version(
+			in_vec, in_len, out_vec, out_len);
 
-	VERBOSE("[RSE-COMMS] Sending message\n");
-	VERBOSE("protocol_ver=%u\n", io_buf.msg.header.protocol_ver);
-	VERBOSE("seq_num=%u\n", io_buf.msg.header.seq_num);
-	VERBOSE("client_id=%u\n", io_buf.msg.header.client_id);
-	for (idx = 0; idx < in_len; idx++) {
-		VERBOSE("in_vec[%lu].len=%lu\n", idx, in_vec[idx].len);
-		VERBOSE("in_vec[%lu].buf=%p\n", idx, (void *)in_vec[idx].base);
-	}
+		status = rse_protocol_serialize_msg(handle, type, in_vec,
+						    in_len, out_vec, out_len,
+						    &io_buf.msg, &msg_size);
+		if (status != PSA_SUCCESS) {
+			return status;
+		}
 
-	err = rse_mbx_send_data((uint8_t *)&io_buf.msg, msg_size);
-	if (err != 0) {
-		return PSA_ERROR_COMMUNICATION_FAILURE;
-	}
+		VERBOSE("[RSE-COMMS] Sending message\n");
+		VERBOSE("protocol_ver=%u\n", io_buf.msg.header.protocol_ver);
+		VERBOSE("seq_num=%u\n", io_buf.msg.header.seq_num);
+		VERBOSE("client_id=%u\n", io_buf.msg.header.client_id);
+		for (idx = 0; idx < in_len; idx++) {
+			VERBOSE("in_vec[%lu].len=%lu\n", idx, in_vec[idx].len);
+			VERBOSE("in_vec[%lu].buf=%p\n", idx,
+				(void *)in_vec[idx].base);
+		}
+
+		err = rse_mbx_send_data((uint8_t *)&io_buf.msg, msg_size);
+		if (err != 0) {
+			return PSA_ERROR_COMMUNICATION_FAILURE;
+		}
 
 #if DEBUG
-	/*
-	 * Poisoning the message buffer (with a known pattern).
-	 * Helps in detecting hypothetical RSE communication bugs.
-	 */
-	memset(&io_buf.msg, 0xA5, msg_size);
+		/*
+		 * Poisoning the message buffer (with a known pattern).
+		 * Helps in detecting hypothetical RSE communication bugs.
+		 */
+		memset(&io_buf.msg, 0xA5, msg_size);
 #endif
+	}
 
 	err = rse_mbx_receive_data((uint8_t *)&io_buf.reply, &reply_size);
-	if (err != 0) {
+	if (err == -EINPROGRESS) {
+		if (!active_pending_req) {
+			rse_pending_req.handle = handle;
+			rse_pending_req.type = type;
+		}
+
+		spin_lock(&rse_pending_req.lock);
+		rse_pending_req.active = true;
+		spin_unlock(&rse_pending_req.lock);
+
+		return PSA_OPERATION_INCOMPLETE;
+	} else if (err != 0) {
+		spin_lock(&rse_pending_req.lock);
+		rse_pending_req.active = false;
+		spin_unlock(&rse_pending_req.lock);
+
 		return PSA_ERROR_COMMUNICATION_FAILURE;
 	}
+
+	spin_lock(&rse_pending_req.lock);
+	rse_pending_req.active = false;
+	spin_unlock(&rse_pending_req.lock);
 
 	VERBOSE("[RSE-COMMS] Received reply\n");
 	VERBOSE("protocol_ver=%u\n", io_buf.reply.header.protocol_ver);
