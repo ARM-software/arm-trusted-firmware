@@ -678,6 +678,7 @@ NXP i.MX9 platform port
 :|F|: plat/imx/imx93/
 :|F|: plat/imx/imx9/imx94/
 :|F|: plat/imx/imx9/imx95/
+:|F|: plat/imx/imx9/imx952/
 
 NXP QorIQ Layerscape common code for platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -36,7 +36,12 @@ Build Procedure
 
        CROSS_COMPILE=aarch64-linux-gnu- make PLAT=<Target_SoC> bl31
 
-   Target_SoC should be "imx93" for i.MX93 SoC.
+   Target_SoC should be one of the following values:
+
+   - ``imx93`` for i.MX93 SoC
+   - ``imx94`` for i.MX94 SoC
+   - ``imx95`` for i.MX95 SoC
+   - ``imx952`` for i.MX952 SoC
 
 Deploy TF-A Images
 ~~~~~~~~~~~~~~~~~~

@@ -7,7 +7,6 @@
 #define PLATFORM_DEF_H
 
 #include <lib/utils_def.h>
-#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <imx94_scmi_def.h>
 
