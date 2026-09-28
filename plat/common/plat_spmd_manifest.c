@@ -17,6 +17,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <platform_def.h>
 #include <services/spm_core_manifest.h>
+#include <services/spmd_svc.h>
 
 #define ATTRIBUTE_ROOT_NODE_STR "attribute"
 
@@ -147,6 +148,36 @@ int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 	rc = manifest_parse_root(manifest, pm_addr, rc);
 
 	return rc;
+#elif TRANSFER_LIST && RESET_TO_BL31
+	int rc = -1;
+
+	assert(manifest != NULL);
+	assert(pm_addr != NULL);
+
+	/*
+	 * With RESET_TO_BL31, TRANSFER_LIST does not guarantee that the SPMC
+	 * manifest was handed off via a transfer list entry.
+	 */
+	if (spmc_manifest_from_tl) {
+		rc = fdt_check_header(pm_addr);
+		if (rc != 0) {
+			ERROR("Wrong format for SPM Core manifest (%d).\n", rc);
+			return rc;
+		}
+
+		VERBOSE("Reading SPM Core manifest at address %p\n", pm_addr);
+
+		rc = fdt_node_offset_by_compatible(pm_addr, -1,
+					"arm,ffa-core-manifest-1.0");
+		if (rc < 0) {
+			ERROR("Unrecognized SPM Core manifest\n");
+			return rc;
+		}
+
+		return manifest_parse_root(manifest, pm_addr, rc);
+	} else {
+		return rc;
+	}
 #else
 	int rc, unmap_ret;
 	uintptr_t pm_base, pm_base_align;

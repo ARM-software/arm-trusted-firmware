@@ -8,8 +8,16 @@
 #define SPMD_SVC_H
 
 #ifndef __ASSEMBLER__
-#include <services/ffa_svc.h>
+#include <stdbool.h>
 #include <stdint.h>
+
+#include <services/ffa_svc.h>
+
+/*
+ * True if the SPM Core manifest address was extracted from a valid transfer
+ * list entry (whose memory is already mapped), set by spmd_setup.
+ */
+extern bool spmc_manifest_from_tl;
 
 int spmd_setup(void);
 uint64_t spmd_ffa_smc_handler(uint32_t smc_fid,
