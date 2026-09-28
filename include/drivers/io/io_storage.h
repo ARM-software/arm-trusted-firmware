@@ -24,6 +24,7 @@ typedef enum {
 	IO_TYPE_MTD,
 	IO_TYPE_MMC,
 	IO_TYPE_ENCRYPTED,
+	IO_TYPE_FW_CFG,
 	IO_TYPE_MAX
 } io_type_t;
 
