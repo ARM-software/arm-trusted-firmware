@@ -182,6 +182,7 @@
 
 #ifndef __ASSEMBLER__
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* Function to help build the psci capabilities bitfield */
@@ -308,8 +309,14 @@ struct __packed __aligned(CACHE_WRITEBACK_GRANULE) psci_cpu_data {
 
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;
+#if PSCI_OS_INIT_MODE
+	bool cpu_suspend_called;
+#endif
 	/* pad up to a cache line */
 	uint8_t _padding[CACHE_WRITEBACK_GRANULE -
+#if PSCI_OS_INIT_MODE
+			 sizeof(bool) -
+#endif
 			 (sizeof(aff_info_state_t) + sizeof(unsigned int) +
 			  sizeof(plat_local_state_t))];
 };

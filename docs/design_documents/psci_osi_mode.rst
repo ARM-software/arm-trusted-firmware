@@ -159,8 +159,9 @@ state coordination.
        1).
    :retval DENIED: if the cores are not in the correct state.
 
-Switching from platform-coordinated to OS-initiated is only allowed if the
-following conditions are met:
+Switching from platform-coordinated to OS-initiated is allowed if all other
+cores are off, through CPU_OFF or not yet booted. Otherwise, the following
+conditions must be met:
 
 * All cores are in one of the following states:
 
@@ -168,14 +169,16 @@ following conditions are met:
   * Off, through a call to CPU_OFF or not yet booted.
   * Suspended, through a call to CPU_DEFAULT_SUSPEND.
 
-* None of the cores has called CPU_SUSPEND since the last change of mode or
-  boot.
+* None of the cores has called CPU_SUSPEND since its last CPU_OFF, the last
+  change of mode or boot. A call counts even if it is rejected.
 
 Switching from OS-initiated to platform-coordinated is only allowed if all cores
 other than the calling core are off, either through a call to CPU_OFF or not yet
 booted.
 
 If these conditions are not met, the PSCI implementation must return DENIED.
+
+The switch is denied while a core is being powered on.
 
 See sections 5.1.19 and 5.20 of the PSCI spec (DEN0022D.b) for more details.
 

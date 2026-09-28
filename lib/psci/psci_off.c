@@ -118,6 +118,16 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 
 	PUBLISH_EVENT(psci_cpu_off_start);
 
+#if PSCI_OS_INIT_MODE
+	/*
+	 * PSCI (DEN0022F.b) 5.21.2 permits a core that is off through CPU_OFF
+	 * whatever it did before, and it has booted again when next turned on.
+	 * Clear its record before the power down cache maintenance, so the
+	 * write is not lost.
+	 */
+	set_cpu_data(psci_svc_cpu_data.cpu_suspend_called, false);
+#endif
+
 	/*
 	 * Arch. management. Initiate power down sequence.
 	 */

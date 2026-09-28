@@ -1495,6 +1495,50 @@ bool psci_are_all_cpus_on_safe(unsigned int this_core)
 	return true;
 }
 
+#if PSCI_OS_INIT_MODE
+/*******************************************************************************
+ * OS-initiated mode may be entered when no core is powering on and either all
+ * other cores are off or none of the running cores has called CPU_SUSPEND.
+ ******************************************************************************/
+bool psci_is_osi_entry_allowed(unsigned int this_core)
+{
+	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
+	bool cpu_suspend_called;
+	bool others_off = true;
+	bool ret = true;
+
+	cpu_suspend_called = get_cpu_data(psci_svc_cpu_data.cpu_suspend_called);
+
+	psci_get_parent_pwr_domain_nodes(this_core, PLAT_MAX_PWR_LVL, parent_nodes);
+
+	psci_acquire_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+
+	for (unsigned int cpu_idx = 0U; cpu_idx < psci_plat_core_count; cpu_idx++) {
+		aff_info_state_t state;
+
+		if (cpu_idx == this_core) {
+			continue;
+		}
+
+		state = psci_get_aff_info_state_by_idx(cpu_idx);
+		if (state == AFF_STATE_ON_PENDING) {
+			ret = false;
+			break;
+		}
+
+		if (state == AFF_STATE_ON) {
+			others_off = false;
+			cpu_suspend_called |= get_cpu_data_by_index(cpu_idx,
+					psci_svc_cpu_data.cpu_suspend_called);
+		}
+	}
+
+	psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+
+	return ret && (others_off || !cpu_suspend_called);
+}
+#endif
+
 /*******************************************************************************
  * Safely counts the number of CPUs in the system that are currently in the ON
  * or ON_PENDING state.
