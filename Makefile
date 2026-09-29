@@ -678,6 +678,7 @@ $(call assert_booleans,\
 	DSU_PDL2_SUPPORT \
 	USE_DSU_DRIVER \
 	XLAT_TABLES_LIB_V2 \
+	ARM_RECOM_STATE_ID_ENC \
 ))
 
 # Numeric_Flags
@@ -977,6 +978,7 @@ $(call add_defines,\
 	DSU_PDL2_SUPPORT \
 	USE_DSU_DRIVER \
 	XLAT_TABLES_LIB_V2 \
+	ARM_RECOM_STATE_ID_ENC \
 ))
 
 ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)

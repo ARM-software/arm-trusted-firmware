@@ -59,10 +59,6 @@ $(error Build option ARM_RECOM_STATE_ID_ENC needs to be set if \
 endif
 endif
 
-# Process ARM_RECOM_STATE_ID_ENC flag
-$(call assert_boolean,ARM_RECOM_STATE_ID_ENC)
-$(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
-
 # Process ARM_DISABLE_TRUSTED_WDOG flag
 # By default, Trusted Watchdog is always enabled unless SPIN_ON_BL1_EXIT is set
 ARM_DISABLE_TRUSTED_WDOG	:=	0

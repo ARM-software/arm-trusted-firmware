@@ -33,6 +33,10 @@ $(eval $(call add_define,K3_SPL_IMG_OFFSET))
 AM62L_DDR_RAM_SIZE ?= 0x80000000
 $(eval $(call add_define,AM62L_DDR_RAM_SIZE))
 
+# Define sec_proxy usage as the full prioritized communication scheme
+K3_SEC_PROXY_LITE ?= 0
+$(eval $(call add_define,K3_SEC_PROXY_LITE))
+
 USE_COHERENT_MEM := 0
 
 ifeq ($(DEBUG),1)

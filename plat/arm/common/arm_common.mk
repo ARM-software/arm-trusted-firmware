@@ -55,10 +55,6 @@ ifeq (${PSCI_EXTENDED_STATE_ID}, 1)
   endif
 endif
 
-# Process ARM_RECOM_STATE_ID_ENC flag
-$(call assert_boolean,ARM_RECOM_STATE_ID_ENC)
-$(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
-
 # Process ARM_DISABLE_TRUSTED_WDOG flag
 # By default, Trusted Watchdog is always enabled unless SPIN_ON_BL1_EXIT is set
 ifeq (${SPIN_ON_BL1_EXIT}, 1)
@@ -100,6 +96,21 @@ endif
 
 # Build macro necessary for branching to ACS tests
 $(eval $(call add_define,PLAT_ARM_ACS_SMC_HANDLER))
+
+# Build macro necessary for running SPM tests on FVP platform
+PLAT_TEST_SPM			?=	0
+$(eval $(call add_define,PLAT_TEST_SPM))
+
+# Arm(R) Ethos(TM)-N NPU SiP service
+ETHOSN_NPU_DRIVER		?=	0
+
+$(call assert_boolean,ETHOSN_NPU_DRIVER)
+$(eval $(call add_define,ETHOSN_NPU_DRIVER))
+
+#Ethos-N NPU TZMP1
+ETHOSN_NPU_TZMP1		?=	0
+$(call assert_boolean,ETHOSN_NPU_TZMP1)
+$(eval $(call add_define,ETHOSN_NPU_TZMP1))
 
 # As per CCA security model, all root firmware must execute from on-chip secure
 # memory. This means we must not run BL31 from TZC-protected DRAM.
@@ -306,6 +317,10 @@ BL2_SOURCES		+=	${DYN_CFG_SOURCES}
 
 # The Arm platforms use the default BL2 mem params desc.
 ARM_PLAT_PROVIDES_BL2_MEM_PARAMS	:=  0
+
+JUNO_AARCH32_EL3_RUNTIME		?= 0
+$(call assert_boolean,JUNO_AARCH32_EL3_RUNTIME)
+$(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
 
 # Because BL1/BL2 execute in AArch64 mode but BL32 in AArch32 we need to use
 # the AArch32 descriptors.
