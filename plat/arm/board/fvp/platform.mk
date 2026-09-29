@@ -49,7 +49,9 @@ ifeq (${ENABLE_RMM},1)
     FIRME_SUPPORT_IDE_KM	:= 1
 endif
 
-ifeq (${FIRME_SUPPORT},1)
+# ENABLE_RMM enables FIRME_SUPPORT after the platform Makefile is included.
+# Check both options here so that attestation is enabled in either case.
+ifneq ($(filter 1,${ENABLE_RMM} ${FIRME_SUPPORT}),)
     FIRME_SUPPORT_ATTESTATION	:= 1
 endif
 
