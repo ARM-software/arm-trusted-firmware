@@ -90,16 +90,12 @@ lib.extendMkDerivation {
         # are provided automatically by `stdenv`.
         #
         # TODO: Align TF-A with GNU variable naming conventions, which Nix is
-        # already aligned with: `{AS,LD}`, `CC{AS,LD}`, and `OBJ{COPY,DUMP}`.
-        "AS=$(CC)"
-        "CPP=$(CC)"
+        # already aligned with: `LD`, `CCLD`, and `OBJ{COPY,DUMP}`.
         "LD=$(CC)"
 
         "OC=$(OBJCOPY)"
         "OD=$(OBJDUMP)"
 
-        "HOSTAS=$(CC_FOR_BUILD)"
-        "HOSTCPP=$(CC_FOR_BUILD)"
         "HOSTCC=$(CC_FOR_BUILD)"
         "HOSTLD=$(CC_FOR_BUILD)"
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -64,15 +64,15 @@ all: $(BUILD_DIR)/romlib.bin $(BUILD_DIR)/romlib.ldflags $(LIB_DIR)/libwrappers.
 
 $(filter-out %/jmptbl.o,$(OBJS)): $(BUILD_DIR)/%.o: %.s | $$(@D)/
 	$(s)echo "  AS      $@"
-	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
+	$(q)$(aarch64-cc) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/jmptbl.o: $(BUILD_DIR)/jmptbl.s | $$(@D)/
 	$(s)echo "  AS      $@"
-	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
+	$(q)$(aarch64-cc) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/romlib.ld: romlib.ld.S $(config-header) | $$(@D)/
 	$(s)echo "  PP      $@"
-	$(q)$(aarch64-cpp) -E $(PPFLAGS) -o $@ romlib.ld.S
+	$(q)$(aarch64-cc) -E $(PPFLAGS) -o $@ romlib.ld.S
 
 $(BUILD_DIR)/romlib.elf: $(OBJS) $(BUILD_DIR)/romlib.ld | $$(@D)/
 	$(s)echo "  LD      $@"
@@ -88,7 +88,7 @@ $(WRAPPER_DIR)/jmpvar.s: $(BUILD_DIR)/romlib.elf | $$(@D)/
 
 $(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s | $$(@D)/
 	$(s)echo "  AS      $@"
-	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
+	$(q)$(aarch64-cc) -c $(ASFLAGS) -o $@ $<
 
 $(LIB_DIR)/libwrappers.a: $(WRAPPER_OBJS) | $$(@D)/
 	@echo "  AR      $@"
@@ -98,7 +98,7 @@ $(BUILD_DIR)/jmptbl.i: $(PROCESSED_JMPTBL) | $$(@D)/
 	$(s)echo "  PRE     $@"
 	$(q)$(ROMLIB_GEN) pre --output $@ --deps $(BUILD_DIR)/jmptbl.d $<
 
-$(WRAPPER_SOURCES) $&: $(PROCESSED_JMPTBL) | $$(@D)/
+$(WRAPPER_SOURCES) &: $(PROCESSED_JMPTBL) | $$(@D)/
 	$(s)echo "  WRP     $<"
 	$(q)$(ROMLIB_GEN) genwrappers --bti=$(ENABLE_BTI) -b $(WRAPPER_DIR) $<
 

@@ -383,7 +383,7 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ): $(2) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
-	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(LIB$(4)_ASFLAGS) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-cc) -x assembler-with-cpp $$(TF_CFLAGS) $$(LIB$(4)_ASFLAGS) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -431,7 +431,7 @@ $(eval BL_ASFLAGS := $($(4)_ASFLAGS))
 
 $(OBJ): $(2) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/ $(BL_INCLUDE_DIRS:%=%/)
 	$$(s)echo "  AS      $$<"
-	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
+	$$(q)$($(ARCH)-cc) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -449,7 +449,7 @@ $(eval DEP := $(3))
 $(eval CUSTOM_FLAGS := $(4))
 $(OUT): $(SRC) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CPP     $$<"
-	$$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp $$(TF_CFLAGS) $(CUSTOM_FLAGS) $(call MAKE_DEP,$(DEP),$(OUT)) -o $$@ $$<
+	$$(q)$($(ARCH)-cc) -E -P -x assembler-with-cpp $$(TF_CFLAGS) $(CUSTOM_FLAGS) $(call MAKE_DEP,$(DEP),$(OUT)) -o $$@ $$<
 endef
 
 # MAKE_LD generate the linker script using the C preprocessor

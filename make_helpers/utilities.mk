@@ -8,28 +8,10 @@ space :=
 space := $(space) $(space)
 comma := ,
 
-null := �
-
 lparen := (
 rparen := )
 
-compat-path = $(subst $(space),$(null),$(1))
-decompat-path = $(subst $(null), ,$(1))
-
-absolute-path = $(call decompat-path,$(abspath $(call compat-path,$(1))))
-real-path = $(call decompat-path,$(realpath $(call compat-path,$(1))))
-
-file-name = $(call decompat-path,$(notdir $(call compat-path,$(1))))
-directory-name = $(call decompat-path,$(dir $(call compat-path,$(1))))
-
 escape-shell = '$(subst ','\'',$(1))'
-
-#
-# The grouped-target symbol. Grouped targets are not supported on versions of
-# GNU Make <= 4.2, which was most recently packaged with Ubuntu 20.04.
-#
-
-& := $(if $(filter grouped-target,$(.FEATURES)),&)
 
 #
 # Upper-case a string value.
