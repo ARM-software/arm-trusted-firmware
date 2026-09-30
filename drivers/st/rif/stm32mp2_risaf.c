@@ -409,14 +409,12 @@ static uint32_t risaf_granularity[RISAF_MAX_INSTANCE];
 static struct stm32mp2_risaf_region risaf_region[RISAF_MAX_REGION];
 
 /* Construct platform data structure */
-static int risaf_get_platdata(struct stm32mp2_risaf_platdata *pdata)
+static void risaf_get_platdata(struct stm32mp2_risaf_platdata *pdata)
 {
 	pdata->base = risaf_base;
 	pdata->clock = risaf_clock;
 	pdata->granularity = risaf_granularity;
 	pdata->region = risaf_region;
-
-	return 0;
 }
 
 /*
@@ -587,10 +585,7 @@ int stm32mp2_risaf_init(void)
 {
 	int err;
 
-	err = risaf_get_platdata(&stm32mp2_risaf);
-	if (err != 0) {
-		return err;
-	}
+	risaf_get_platdata(&stm32mp2_risaf);
 
 	err = risaf_parse_fdt();
 	if (err != 0) {
