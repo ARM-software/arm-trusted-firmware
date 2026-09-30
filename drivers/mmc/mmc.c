@@ -18,7 +18,7 @@
 #include <lib/utils.h>
 #include <plat/common/common_def.h>
 
-#define MMC_DEFAULT_MAX_RETRIES		5
+#define MMC_DEFAULT_MAX_RETRIES		15
 #define SEND_OP_COND_MAX_RETRIES	100
 
 #define MULT_BY_512K_SHIFT		19
