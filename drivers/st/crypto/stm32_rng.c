@@ -20,54 +20,87 @@
 #include <platform_def.h>
 
 #if STM32_RNG_VER == 2
-#define DT_RNG_COMPAT		"st,stm32-rng"
+#define DT_RNG_COMPAT			"st,stm32-rng"
 #endif
 #if STM32_RNG_VER == 4
-#define DT_RNG_COMPAT		"st,stm32mp13-rng"
+#define DT_RNG_COMPAT			"st,stm32mp13-rng"
+#define DT_RNG_MAX_NIST_CONFIG		3U
 #endif
-#define RNG_CR			0x00U
-#define RNG_SR			0x04U
-#define RNG_DR			0x08U
+#define RNG_CR				0x00U
+#define RNG_SR				0x04U
+#define RNG_DR				0x08U
 #if STM32_RNG_VER == 4
-#define RNG_HTCR		0x10U
+#define RNG_NSCR			0x0CU
+#define RNG_HTCR			0x10U
 #endif
 
-#define RNG_CR_RNGEN		BIT(2)
-#define RNG_CR_IE		BIT(3)
-#define RNG_CR_CED		BIT(5)
-#define RNG_CR_CLKDIV		GENMASK(19, 16)
-#define RNG_CR_CLKDIV_SHIFT	16U
-#define RNG_CR_CONDRST		BIT(30)
+#define RNG_CR_RNGEN			BIT_32(2)
+#define RNG_CR_CED			BIT_32(5)
+#if STM32_RNG_VER == 4
+#define RNG_CR_RNG_CONFIG3_SHIFT	8U
+#define RNG_CR_NISTC			BIT_32(12)
+#define RNG_CR_RNG_CONFIG2_SHIFT	13U
+#define RNG_CR_CLKDIV			GENMASK_32(19, 16)
+#define RNG_CR_CLKDIV_SHIFT		16U
+#define RNG_CR_RNG_CONFIG1_SHIFT	20U
+#define RNG_CR_CONDRST			BIT_32(30)
+#endif
 
-#define RNG_SR_DRDY		BIT(0)
-#define RNG_SR_CECS		BIT(1)
-#define RNG_SR_SECS		BIT(2)
-#define RNG_SR_CEIS		BIT(5)
-#define RNG_SR_SEIS		BIT(6)
+#define RNG_SR_DRDY			BIT_32(0)
+#define RNG_SR_SECS			BIT_32(2)
+#define RNG_SR_SEIS			BIT_32(6)
 
-#define RNG_TIMEOUT_US		100000U
-#define RNG_TIMEOUT_STEP_US	10U
+#define RNG_TIMEOUT_US			100000U
+#define RNG_TIMEOUT_STEP_US		10U
 
-#define TIMEOUT_US_1MS		1000U
-
-#define RNG_NIST_CONFIG_A	0x00F40F00U
-#define RNG_NIST_CONFIG_B	0x01801000U
-#define RNG_NIST_CONFIG_C	0x00F00D00U
-#define RNG_NIST_CONFIG_MASK	GENMASK(25, 8)
+#define TIMEOUT_US_1MS			1000U
 
 #if STM32_RNG_VER == 4
+#define RNG_NIST_CONFIG(x, y, z)	(((x) << RNG_CR_RNG_CONFIG1_SHIFT) | \
+					 ((y) << RNG_CR_RNG_CONFIG2_SHIFT) | \
+					 ((z) << RNG_CR_RNG_CONFIG3_SHIFT))
+#define RNG_NIST_CONFIG_MASK		GENMASK_32(25, 8)
+
 #if STM32_RNG_VER_MINOR == 2
-#define RNG_HTCFG_CONFIG	0x000072ACU /* Reset value */
+/* MP13 default values */
+#define RNG_NIST_CONFIG1		0xFU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xDU
+#define RNG_HTCFG_CONFIG		0x0000969DU
+#define RNG_NSCFG_CONFIG		0x0002B5BBU
+#define RNG_MAX_NOISE_CLK_FREQ		48000000U
+#elif STM32_RNG_VER_MINOR == 3
+/* MP25 and MP23 default values */
+#define RNG_NIST_CONFIG1		0x8FU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xEU
+#define RNG_HTCFG_CONFIG		0x00006688U
+#define RNG_NSCFG_CONFIG		0x0002E649U
+#define RNG_CLKDIV_STATIC		1U /* 64MHz >> 1 = 32MHz (≤ 48MHz target) */
+#elif STM32_RNG_VER_MINOR == 4
+/* MP21 default values */
+#define RNG_NIST_CONFIG1		0xFU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xFU
+#define RNG_HTCFG_CONFIG		0x0000AAC7U
+#define RNG_NSCFG_CONFIG		0x000001FFU
+#define RNG_CLKDIV_STATIC		4U /* 64MHz >> 4 = 4MHz <= (<=4MHz target) */
 #else
-#define RNG_HTCFG_CONFIG	0x0000AAC7U
+#error "Please define STM32_RNG_VER_MINOR"
 #endif
 #endif
 
-#define RNG_MAX_NOISE_CLK_FREQ	48000000U
-
+/* For MP1x, clock correspond to rng_clk as this one isn't fixed and can
+ * be used to activate peripheral bus clock hclk. In MP2X, rng_clk is fixed
+ * and clock correspond to hclk directly.
+ */
 struct stm32_rng_instance {
 	uintptr_t base;
 	unsigned long clock;
+#if STM32_RNG_VER == 4
+	uint32_t ht_cfg;
+	uint32_t nist_cfg;
+#endif
 };
 
 static struct stm32_rng_instance stm32_rng;
@@ -95,6 +128,8 @@ static void seed_error_recovery(void)
 	}
 }
 
+#if STM32_RNG_VER == 4
+#if STM32_RNG_VER_MINOR == 2
 static uint32_t stm32_rng_clock_freq_restrain(void)
 {
 	unsigned long clock_rate;
@@ -115,6 +150,13 @@ static uint32_t stm32_rng_clock_freq_restrain(void)
 
 	return clock_div;
 }
+#else
+static uint32_t stm32_rng_clock_freq_restrain(void)
+{
+	return RNG_CLKDIV_STATIC;
+}
+#endif
+#endif /* STM32_RNG_VER == 4 */
 
 static int stm32_rng_enable(void)
 {
@@ -131,12 +173,14 @@ static int stm32_rng_enable(void)
 
 	/* Update configuration fields */
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_NIST_CONFIG_MASK,
-			   RNG_NIST_CONFIG_A | RNG_CR_CONDRST | RNG_CR_CED);
+			   stm32_rng.nist_cfg | RNG_CR_CONDRST | RNG_CR_CED);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CLKDIV,
 			   (clock_div << RNG_CR_CLKDIV_SHIFT));
 
-	mmio_write_32(stm32_rng.base + RNG_HTCR, RNG_HTCFG_CONFIG);
+	mmio_write_32(stm32_rng.base + RNG_HTCR, stm32_rng.ht_cfg);
+
+	mmio_write_32(stm32_rng.base + RNG_NSCR, RNG_NSCFG_CONFIG);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CONDRST, RNG_CR_RNGEN);
 #endif
@@ -186,6 +230,39 @@ static int check_data_validity(void)
 	}
 
 	return 0;
+}
+
+static void parse_dt_optional_config(const void *fdt, int node)
+{
+#if STM32_RNG_VER == 4
+	const fdt32_t *cuint;
+	int len;
+	uint32_t nist_dt_config[DT_RNG_MAX_NIST_CONFIG] = {
+		RNG_NIST_CONFIG1,
+		RNG_NIST_CONFIG2,
+		RNG_NIST_CONFIG3
+	};
+
+	cuint = fdt_getprop(fdt, node, "st,rng-cfg", &len);
+	if ((cuint != NULL) && (len > 0) &&
+	    ((uint32_t)len <= (DT_RNG_MAX_NIST_CONFIG * sizeof(uint32_t)))) {
+		uint32_t i;
+
+		for (i = 0U; i < ((uint32_t)len / sizeof(uint32_t)); i++) {
+			nist_dt_config[i] = fdt32_to_cpu(*cuint);
+			cuint++;
+		}
+	}
+
+	stm32_rng.nist_cfg = RNG_NIST_CONFIG(nist_dt_config[0], nist_dt_config[1],
+					     nist_dt_config[2]);
+
+	if (fdt_getprop(fdt, node, "st,rng-cfg-nist-custom", NULL) != NULL) {
+		stm32_rng.nist_cfg |= RNG_CR_NISTC;
+	}
+
+	stm32_rng.ht_cfg = fdt_read_uint32_default(fdt, node, "st,rng-htcfg", RNG_HTCFG_CONFIG);
+#endif
 }
 
 /*
@@ -267,7 +344,7 @@ void stm32_rng_select(uintptr_t rng_base)
  */
 int stm32_rng_init(void)
 {
-	struct stm32_rng_instance rng = {0, 0};
+	struct stm32_rng_instance rng = {0U};
 	void *fdt;
 	int node;
 	int success = 0;
@@ -309,6 +386,8 @@ int stm32_rng_init(void)
 		if (dt_rng.clock < 0) {
 			panic();
 		}
+
+		parse_dt_optional_config(fdt, node);
 
 		stm32_rng.clock = (unsigned long)dt_rng.clock;
 		clk_enable(stm32_rng.clock);
