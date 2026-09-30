@@ -12,7 +12,20 @@
 #include <lib/extensions/brbe.h>
 #include <lib/per_cpu/per_cpu.h>
 
+#define BRBE_MDCR_EL3_PMEE_MASK	MDCR_PMEE(UL(3))
+
 PER_CPU_DEFINE(brbe_regs_t, brbe_ctx);
+PER_CPU_DEFINE(brbe_dump_pmu_regs_t, brbe_dump_pmu_ctx);
+
+static uint64_t brbe_buffer_dump_threshold(void)
+{
+	return EXTRACT(BRBIDR0_EL1_NUMREC, read_brbidr0_el1());
+}
+
+static uint64_t brbe_pmevcnt_threshold(void)
+{
+	return UINT64_MAX - (brbe_buffer_dump_threshold() - 1);
+}
 
 static u_register_t read_brbinf(unsigned int n)
 {
@@ -172,10 +185,12 @@ static void brbe_context_save(void)
 {
 	u_register_t brbinf;
 	u_register_t num_records = EXTRACT(BRBIDR0_EL1_NUMREC, read_brbidr0_el1());
-	brbe_regs_t *ctx = PER_CPU_CUR(brbe_ctx);
+	brbe_regs_t *ctx_brbe = PER_CPU_CUR(brbe_ctx);
 
-	ctx->records = 0;
-	ctx->brbfcr_el1 = read_brbfcr_el1();
+	ctx_brbe->records = 0;
+	ctx_brbe->brbfcr_el1 = read_brbfcr_el1();
+	ctx_brbe->brbcr_el1 = read_brbcr_el1();
+	ctx_brbe->brbcr_el2 = read_brbcr_el2();
 
 	for (uint8_t record = 0; record < num_records; record++) {
 		uint8_t reg_num = record % BRBE_RECORDS_PER_BANK;
@@ -191,16 +206,36 @@ static void brbe_context_save(void)
 			break;
 		}
 
-		ctx->brbinf[ctx->records] = brbinf;
-		ctx->brbsrc[ctx->records] = read_brbsrc(reg_num);
-		ctx->brbtgt[ctx->records] = read_brbtgt(reg_num);
-		ctx->records++;
+		ctx_brbe->brbinf[ctx_brbe->records] = brbinf;
+		ctx_brbe->brbsrc[ctx_brbe->records] = read_brbsrc(reg_num);
+		ctx_brbe->brbtgt[ctx_brbe->records] = read_brbtgt(reg_num);
+		ctx_brbe->records++;
 	}
+
+	brbe_dump_pmu_regs_t *ctx_brbe_dump = PER_CPU_CUR(brbe_dump_pmu_ctx);
+
+	ctx_brbe_dump->pm = read_pm();
+	ctx_brbe_dump->pmselr_el0 = read_pmselr_el0();
+	ctx_brbe_dump->pmcr_el0 = read_pmcr_el0();
+	ctx_brbe_dump->pmecr_el1 = read_pmecr_el1();
+	ctx_brbe_dump->brbe_pmcnt_set =
+		read_pmcntenset_el0() & DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT;
+	ctx_brbe_dump->brbe_pmint_set =
+		read_pmintenset_el1() & DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT;
+	ctx_brbe_dump->brbe_pmov_set =
+		read_pmovsclr_el0() & DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT;
+	ctx_brbe_dump->mdcr_el3 = read_mdcr_el3();
+
+	write_pmselr_el0(DEFAULT_BRBE_SELECTED_PMU_COUNTER);
+	isb();
+	ctx_brbe_dump->pmxevtyper_el0 = read_pmxevtyper_el0();
+	ctx_brbe_dump->pmxevcntr_el0 = read_pmxevcntr_el0();
 }
 
 /*
  * Begin branch record capture at EL3. Will save the buffer and any registers
- * that get clobbered.
+ * that get clobbered, though PMU counter 0 will be unavailable for the
+ * duration of profiling.
  *
  * NOTE: must call brbe_stop_recording() before exiting EL3 to prevent BRBE
  * leakage
@@ -208,8 +243,26 @@ static void brbe_context_save(void)
 void brbe_start_recording(void)
 {
 	u_register_t brbfcr_val = 0U;
+	u_register_t saved_pmselr_el0 = read_pmselr_el0();
 
 	brbe_context_save();
+
+	/* Enable FZP and FZPSS, so BRB recording freezes on PMU overflow. */
+	write_brbcr_el1(read_brbcr_el1() | BRBCR_ELx_FZP_EN |
+			BRBCR_ELx_FZPSS_EN);
+	write_brbcr_el2(read_brbcr_el2() | BRBCR_ELx_FZP_EN |
+			BRBCR_ELx_FZPSS_EN);
+
+	/*
+	 * PM is set when an exception is taken, and this masks all profiling
+	 * exceptions (needed for buffer dumping, as dumping is triggered on
+	 * PMU overflows which are profiling exceptions with FEAT_EBEP).
+	 *
+	 * Clearing PM allows profiling to take place in exception handlers,
+	 * which is most of the EL3 runtime. Outside of boot, the only way to
+	 * enter EL3 is via an exception.
+	 */
+	write_pm(0);
 
 	/*
 	 * Invalidate everything captured up to the last ctx sync event. Branch
@@ -217,6 +270,22 @@ void brbe_start_recording(void)
 	 * entry is the most recent.
 	 */
 	brbiall();
+
+	/* Enable count and interrupts on this counter, and clear overflow */
+	write_pmcntenset_el0(DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT);
+	write_pmintenset_el1(DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT);
+	write_pmovsclr_el0(DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT);
+
+	/* Track <buffer size> BRB_FILTRATE events */
+	write_pmxevtyper_el0(BRB_FILTRATE_EVENT);
+	write_pmxevcntr_el0(brbe_pmevcnt_threshold());
+
+	/* Enable PMU exceptions */
+	write_pmcr_el0(read_pmcr_el0() | PMCR_EL0_E_BIT);
+	write_pmecr_el1(read_pmecr_el1() | PMECR_EL1_KPME);
+
+	/* Reset PMSELR */
+	write_pmselr_el0(saved_pmselr_el0);
 
 	/*
 	 * Enable recording of direct and indirect branch with link
@@ -228,35 +297,77 @@ void brbe_start_recording(void)
 	write_brbfcr_el1(brbfcr_val);
 
 	/*
-	 * Enable branch recording at EL3. Usee E3BREW so that recording stops
+	 * Enable branch recording at EL3. Use E3BREW so that recording stops
 	 * as soon as the core encounters any reset.
 	 */
 	if (is_feat_brbev1p1_supported()) {
-		write_mdcr_el3(read_mdcr_el3() | MDCR_E3BREW_BIT);
+		u_register_t mdcr_el3_val = read_mdcr_el3();
+		/* Allow PMU exceptions at EL3 */
+		mdcr_el3_val |= MDCR_SPME_BIT | MDCR_PMEE(MDCR_PMEE_EXC_ONLY) |
+				MDCR_E3BREW_BIT;
+		mdcr_el3_val &= ~(MDCR_SDD_BIT | MDCR_MPMX_BIT);
+		write_mdcr_el3(mdcr_el3_val);
 	}
 	isb();
 }
 
 static void brbe_context_restore(void)
 {
-	brbe_regs_t *ctx = PER_CPU_CUR(brbe_ctx);
+	brbe_regs_t *ctx_brbe = PER_CPU_CUR(brbe_ctx);
+	brbe_dump_pmu_regs_t *ctx_brbe_dump = PER_CPU_CUR(brbe_dump_pmu_ctx);
+	u_register_t saved_pmselr_el0;
 
-	for (uint8_t record = 0; record < ctx->records; record++) {
-		write_brbinfinj_el1(ctx->brbinf[record]);
-		write_brbsrcinj_el1(ctx->brbsrc[record]);
-		write_brbtgtinj_el1(ctx->brbtgt[record]);
+	/*
+	 * Restore this counter to its original state, potentially disabling
+	 * counting, interrupts, and clearing overflow.
+	 */
+	write_pmcntenclr_el0(~ctx_brbe_dump->brbe_pmcnt_set &
+		DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT);
+	write_pmintenclr_el1(~ctx_brbe_dump->brbe_pmint_set &
+		DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT);
+	write_pmovsclr_el0(~ctx_brbe_dump->brbe_pmov_set &
+		DEFAULT_BRBE_SELECTED_PMU_COUNTER_BIT);
+
+	/* Select the ascribed PMU counter */
+	saved_pmselr_el0 = read_pmselr_el0();
+	write_pmselr_el0(DEFAULT_BRBE_SELECTED_PMU_COUNTER);
+	isb();
+
+	write_pmxevtyper_el0(ctx_brbe_dump->pmxevtyper_el0);
+	write_pmxevcntr_el0(ctx_brbe_dump->pmxevcntr_el0);
+
+	write_pmcr_el0(ctx_brbe_dump->pmcr_el0);
+	write_pmecr_el1(ctx_brbe_dump->pmecr_el1);
+
+	/* Reset PMSELR, MDCR, and PM */
+	write_pmselr_el0(saved_pmselr_el0);
+	write_mdcr_el3(ctx_brbe_dump->mdcr_el3);
+	write_pm(ctx_brbe_dump->pm);
+
+	for (uint8_t record = 0; record < ctx_brbe->records; record++) {
+		write_brbinfinj_el1(ctx_brbe->brbinf[record]);
+		write_brbsrcinj_el1(ctx_brbe->brbsrc[record]);
+		write_brbtgtinj_el1(ctx_brbe->brbtgt[record]);
 
 		/* Rule RPWKFJ means isb not needed before or after */
 		brbinj();
 	}
 
-	write_brbfcr_el1(ctx->brbfcr_el1);
+	/* Unset FZP and FZPSS */
+	write_brbcr_el1(ctx_brbe->brbcr_el1);
+	write_brbcr_el2(ctx_brbe->brbcr_el2);
+
+	write_brbfcr_el1(ctx_brbe->brbfcr_el1);
 	isb();
 }
 
 /* Stop branch capture and put back BRBE context as it was */
 void brbe_stop_recording(void)
 {
+	write_brbfcr_el1(read_brbfcr_el1() | BRBFCR_EL1_PAUSED_BIT);
+	isb();
+	brbe_reset_buffer();
+
 	if (is_feat_brbev1p1_supported()) {
 		write_mdcr_el3(read_mdcr_el3() & ~MDCR_E3BREW_BIT);
 	}
@@ -300,4 +411,24 @@ void _brbe_dump_branch_records(void)
 		     "SRC: 0x%016lx, TGT: 0x%016lx\n",
 		     record, brbinf, read_brbsrc(reg_num), read_brbtgt(reg_num));
 	}
+}
+
+void brbe_reset_buffer(void)
+{
+	u_register_t saved_pmselr_el0;
+
+	/* Dump the branch records & prepare to reset the counter */
+	_brbe_dump_branch_records();
+	saved_pmselr_el0 = read_pmselr_el0();
+	write_pmselr_el0(DEFAULT_BRBE_SELECTED_PMU_COUNTER);
+	isb();
+
+	/* Clear overflow flag & reset counter */
+	write_pmovsclr_el0(U(1) << DEFAULT_BRBE_SELECTED_PMU_COUNTER);
+	write_pmxevcntr_el0(brbe_pmevcnt_threshold());
+	write_pmselr_el0(saved_pmselr_el0);
+	isb();
+
+	/* Invalidate current BRBE */
+	brbiall();
 }

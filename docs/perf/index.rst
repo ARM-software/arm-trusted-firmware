@@ -12,6 +12,7 @@ Performance & Testing
    tsp
    performance-monitoring-unit
    unit-tests
+   branch-record-buffer
 
 --------------
 

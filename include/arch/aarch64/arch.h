@@ -759,6 +759,7 @@
 #define MDCR_EnPMS3_BIT		(ULL(1) << 42)
 #define MDCR_PMEE(x)		((x) << 40)
 #define MDCR_PMEE_CTRL_EL2	ULL(0x1)
+#define MDCR_PMEE_EXC_ONLY	ULL(0x3)
 #define MDCR_E3BREC_BIT		(ULL(1) << 38)
 #define MDCR_E3BREW_BIT		(ULL(1) << 37)
 #define MDCR_EnPMSN_BIT		(ULL(1) << 36)
@@ -1202,6 +1203,7 @@
 #define EC_AARCH64_FP			U(0x2c)
 #define EC_SERROR			U(0x2f)
 #define EC_BRK				U(0x3c)
+#define EC_PMU				U(0x3d)
 
 #define EC_ABORT_CUR_EL_BIT		U(0x1)
 
@@ -1323,9 +1325,13 @@
 
 /* Data Fault Status code, not all error codes listed */
 #define ISS_DFSC_SHIFT 			U(0)
-#define ISS_DFSC_WIDTH			U(5)
+#define ISS_DFSC_WIDTH			U(6)
 #define ISS_DFSC_MASK			GENMASK(ISS_DFSC_WIDTH, ISS_DFSC_SHIFT)
 #define DFSC_GPF_DABORT			U(0x28)
+
+#define ISS_FSC_SHIFT			U(1)
+#define ISS_FSC_WIDTH			U(5)
+#define FSC_PMU				U(0x0)
 
 /*
  * External Abort bit in Instruction and Data Aborts synchronous exception
@@ -1390,6 +1396,25 @@
 #define PMCR_EL0_C_BIT		(U(1) << 2)
 #define PMCR_EL0_P_BIT		(U(1) << 1)
 #define PMCR_EL0_E_BIT		(U(1) << 0)
+
+/* PMECR_EL1 definitions */
+#define PMECR_EL1_KPME			(U(1) << 2)
+
+/*******************************************************************************
+ * Definitions for performance monitor registers
+ ******************************************************************************/
+
+#define PMOVSSET_EL0			S3_3_C9_C14_3
+#define PMOVSCLR_EL0			S3_3_C9_C12_3
+
+/* PMEVTYPER<n> definitions */
+#define PMXEVTYPER_EL0			S3_3_C9_C13_1
+
+/* PMEVCNTR<n> definitions */
+#define PMXEVCNTR_EL0			S3_3_C9_C13_2
+
+#define PMSELR_EL0			S3_3_C9_C12_5
+#define PMSELR_MAX			U(30)
 
 /*******************************************************************************
  * Definitions for system register interface to SVE
@@ -1825,7 +1850,11 @@
  ******************************************************************************/
 #define BRBE_RECORDS_PER_BANK		32
 
+#define BRBCR_EL1			S2_1_C9_C0_0
 #define BRBCR_EL2			S2_4_C9_C0_0
+
+#define BRBCR_ELx_FZP_EN		(U(1) << 8)
+#define BRBCR_ELx_FZPSS_EN		(U(1) << 9)
 
 #define BRBFCR_EL1			S2_1_C9_C0_1
 #define BRBFCR_EL1_PAUSED_BIT		BIT(7)
@@ -2005,6 +2034,11 @@
 #define MECIDR_EL2_MECIDWidthm1_SHIFT	U(0)
 #define MECIDR_EL2_MECIDWidthm1_WIDTH	U(4)
 #define MECIDR_EL2_MECIDWidthm1_MASK	GENMASK(3, 0)
+
+/*******************************************************************************
+ * FEAT_EBEP - directly access PSTATE.PM field
+ ******************************************************************************/
+#define PM				S3_0_C4_C3_1
 
 /******************************************************************************
  * FEAT_FGWTE3 - Fine Grained Write Trap
