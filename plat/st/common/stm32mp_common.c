@@ -491,14 +491,14 @@ int stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
 static int stm32_get_bootinfo_cell(const char *name, struct nvmem_cell *cell)
 {
 	void *fdt = NULL;
-	int node = 0;
 	int ret;
 
 	if (fdt_get_address(&fdt) == 0) {
 		ret = -ENODEV;
 	} else {
-		node = fdt_node_offset_by_compatible(fdt, -1,
-						     "st,stm32mp-bootinfo");
+		int node = fdt_node_offset_by_compatible(fdt, -1,
+							 "st,stm32mp-bootinfo");
+
 		if (node >= 0) {
 			ret = nvmem_get_cell_by_name(fdt, node, name, cell);
 		} else {
