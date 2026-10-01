@@ -75,10 +75,12 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	ipi_local_id = x1 & UNSIGNED32_MASK;
 	ipi_remote_id = x2 & UNSIGNED32_MASK;
 
-	if (SMC_ENTITY(smc_fid) >= SMC_ENTITY_TRUSTED_APP)
+	/* Determine secure access based on the caller's security state. */
+	if (is_caller_secure(flags)) {
 		is_secure = 1;
-	else
+	} else {
 		is_secure = 0;
+	}
 
 	/* Validate IPI mailbox access */
 	ret = ipi_mb_validate(ipi_local_id, ipi_remote_id, is_secure);
