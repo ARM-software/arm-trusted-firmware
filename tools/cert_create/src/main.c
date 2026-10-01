@@ -209,6 +209,17 @@ static void check_cmd_params(void)
 			continue;
 		}
 
+		/*
+		 * Mark the keys this requested certficate needs, so the key
+		 * load/create and save loops only touch the keys that are
+		 * actually used:
+		 * (a) its own key
+		 * (b) it's issuer's key
+		 * (c) any PKEY-extension key
+		 */
+		keys[cert->key].required = true;
+		keys[certs[cert->issuer].key].required = true;
+
 		/* Check that all parameters required to create this certificate
 		 * have been specified in the command line */
 		for (j = 0; j < cert->num_ext; j++) {
@@ -223,6 +234,8 @@ static void check_cmd_params(void)
 				}
 				break;
 			case EXT_TYPE_PKEY:
+				/* (c) public key embedded as an extension */
+				keys[ext->attr.key].required = true;
 				/* Key filename must be specified */
 				key = &keys[ext->attr.key];
 				if (!new_keys && key->fn == NULL) {
@@ -429,6 +442,8 @@ int main(int argc, char *argv[])
 
 	/* Load private keys from files (or generate new ones) */
 	for (i = 0 ; i < num_keys ; i++) {
+		if (!keys[i].required)
+			continue;
 #if !USING_OPENSSL3
 		if (!key_new(&keys[i])) {
 			ERROR("Failed to allocate key container\n");
@@ -587,14 +602,19 @@ int main(int argc, char *argv[])
 	/* Save keys */
 	if (save_keys) {
 		for (i = 0 ; i < num_keys ; i++) {
+			if (!keys[i].required)
+				continue;
 			if (!key_store(&keys[i])) {
 				ERROR("Cannot save %s\n", keys[i].desc);
 			}
 		}
 	}
 
-	/* If we got here, then we must have filled the key array completely.
-	 * We can then safely call free on all of the keys in the array
+	/*
+	 * Free all keys. Keys that were not required by any requested
+	 * certificate were never created, so their .key filed is NULL;
+	 * key_cleanup() calls EVP_PKEY_free(NULL) on them, which is a
+	 * safe no-op.
 	 */
 	key_cleanup();
 

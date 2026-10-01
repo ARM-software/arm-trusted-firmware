@@ -7,6 +7,7 @@
 #ifndef KEY_H
 #define KEY_H
 
+#include <stdbool.h>
 #include <openssl/ossl_typ.h>
 
 /* Error codes */
@@ -65,6 +66,7 @@ typedef struct key_s {
 	const char *desc;	/* Key description (debug purposes) */
 	char *fn;		/* Filename to load/store the key */
 	EVP_PKEY *key;		/* Key container */
+	bool required;		/* True if needed by any requested certificate */
 } cert_key_t;
 
 /* Exported API */
