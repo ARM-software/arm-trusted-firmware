@@ -1,5 +1,4 @@
 /*
-<<<<<<< HEAD
  * Copyright (c) 2018-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
