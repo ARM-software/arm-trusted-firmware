@@ -18,4 +18,6 @@ PLAT_INCLUDES += \
 BL31_SOURCES += \
 	$(CPUCP_DRV_PATH)/cpucp.c			\
 	$(CPUCP_DRV_PATH)/$(CHIPSET)/cpu_config.c	\
+	$(CPUCP_DRV_PATH)/$(CHIPSET)/cpucp_config.c	\
+	$(CPUCP_DRV_PATH)/hoya/cpucp_start.c		\
 	drivers/arm/css/scmi/scmi_common.c

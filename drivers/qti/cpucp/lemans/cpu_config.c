@@ -27,14 +27,10 @@ struct clkdom_cpumask clkdom_cpumasks[CD_MAX] = {
 };
 
 /*
- * On lemans the CPU cluster clock domains (OSM) are managed outside EL3: the
- * boot firmware brings up the boot cluster and the kernel EPSS/OSM driver
- * drives every cluster's frequency at runtime. Issuing the CPUCP clock domain
- * enable SCMI from EL3 is therefore unnecessary, and when CPUCP does not
- * service it each core of the domain stalls on the SCMI timeout before coming
- * online. Flag every domain as already initialised so secondary bringup never
- * blocks on that SCMI.
+ * The boot firmware brings up the boot core's domain and both L3 domains. The
+ * cluster 1 domain is enabled through CPUCP over SCMI when its first core
+ * powers on, so it starts uninitialised here.
  */
 unsigned int clkdom_init_status[CD_MAX] = {
-	1U, 1U, 1U, 1U
+	0U, 0U, 1U, 0U
 };
