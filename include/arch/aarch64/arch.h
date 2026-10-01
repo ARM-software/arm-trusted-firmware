@@ -1398,6 +1398,7 @@
 #define PMCR_EL0_E_BIT		(U(1) << 0)
 
 /* PMECR_EL1 definitions */
+#define PMECR_EL1			S3_0_C9_C14_5
 #define PMECR_EL1_KPME			(U(1) << 2)
 
 /*******************************************************************************
