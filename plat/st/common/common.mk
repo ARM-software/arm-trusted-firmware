@@ -205,7 +205,8 @@ PLAT_BL_COMMON_SOURCES		+=	drivers/clk/clk.c				\
 					drivers/st/nvmem/stm32mp_tamp_nvram_core.c	\
 					drivers/st/regulator/regulator_core.c		\
 					drivers/st/regulator/regulator_fixed.c		\
-					plat/st/common/stm32mp_dt.c
+					plat/st/common/stm32mp_dt.c			\
+					plat/st/common/stm32mp_fconf_fuse.c
 
 BL2_SOURCES			+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
 
