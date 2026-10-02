@@ -3,6 +3,81 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.15..refs/tags/lts-v2.12.16) (2026-10-02)
+
+### Build System
+
+- **deps-dev:** bump js-yaml from 4.1.1 to 4.3.2 ([b0c15fa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b0c15fa1e6fd5344db51ad3777039d73372944be))
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add links to each core's TRM and SDEN ([a821c6b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a821c6b856a375f33d585c42cf8a3ad73b3b457b))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - factor out Neoverse V3AE from the base Neoverse V3 file ([71efef3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/71efef39624d114dfc1ec27e0b674fea56977506))
+
+### Documentation
+
+- add LTS Dependabot release step ([abcc760](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/abcc76089de7890de7e559adba08af7b01390bed))
+
+### Resolved Issues
+
+- **rk3568:** implement CPU core suspend/resume power domain hooks ([396760c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/396760c1ef1a6fbd32628e9ec6e4cbd5852b2582))
+
+- **Platforms**
+
+  - **MediaTek**
+
+    - enable missing Cortex-A78 errata for MT8188 ([1e81817](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1e81817e45d42c028c9dc8f30d291c036c6fc24c))
+    - enable missing Cortex-A78 errata for MT8195 ([702924f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/702924fd8063a1b55dc5634a54e41343a98332ca))
+
+  - **NXP**
+
+    - **i.MX**
+
+      - **i.MX 8M**
+
+        - don't reconfigure default region0 ([3d7508d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3d7508d681b44943cf01a2e23198b3b37c39948c))
+
+  - **QTI**
+
+    - disallow secure IO accesses from secure world callers ([6e901e8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6e901e8e98cb4e627128be90ef2bdacf7b33e803))
+    - do not map secure regions ([8ea8c7d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8ea8c7d7ef38413653eec42fc603bd3930233937))
+    - fix build without coreboot ([963815c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/963815cd50671b2720c88f019cc610422253a3d9))
+    - harden mem_assign parameter handling ([f8594cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f8594cfac9b3e21a81024ee2206d26d5cfb000a7))
+    - pull in access-control backend for mem_assign ([3cbfcb1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3cbfcb11c8c87378b2077c4bf86815b66258ab14))
+
+  - **Xilinx**
+
+    - allow secure access to IPI channels ([a347cce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a347cce110b9e43f2087b5f7ec6c9de1456a0338))
+
+- **Services**
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - harden composite MRD validation ([34f3139](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/34f313938ca9a1bff265ccce65a1c7d343e6b6b8))
+
+- **Miscellaneous**
+
+  - **FDT Wrappers**
+
+    - reject negative cell counts ([07f688c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/07f688ca8fd1e5d6036cfbead8ba0ad38dd66858))
+
+- **Tools**
+
+  - change data type to size_t for doimage ([f99d1b5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f99d1b51a2819d31959de1734d7a03a5aec6b71d))
+
 ## [lts-2.12.15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.14..refs/tags/lts-v2.12.15) (2026-09-11)
 
 ### Documentation
