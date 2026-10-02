@@ -13,6 +13,9 @@ STM32MP_UART_BAUDRATE		?=	115200
 TRUSTED_BOARD_BOOT		?=	0
 STM32MP_USE_EXTERNAL_HEAP	?=	0
 
+# Don't have the Linux kernel as a BL33 image by default
+ARM_LINUX_KERNEL_AS_BL33	:=	0
+
 # Use secure library from the ROM code for authentication
 STM32MP_CRYPTO_ROM_LIB		?=	0
 
@@ -136,6 +139,7 @@ endif
 # Enable flags for C files
 $(call assert_booleans,\
 	$(sort \
+		ARM_LINUX_KERNEL_AS_BL33 \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
@@ -160,6 +164,7 @@ $(call assert_numerics,\
 
 $(call add_defines,\
 	$(sort \
+		ARM_LINUX_KERNEL_AS_BL33 \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_VERSION \
 		STM32MP_EMMC \

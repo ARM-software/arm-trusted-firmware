@@ -82,7 +82,7 @@ static void print_reset_reason(void)
 		}
 	}
 
-	INFO("Reset reason: %s (0x%x)\n", reason_str, rstsr);
+	NOTICE("Reset reason: %s (0x%x)\n", reason_str, rstsr);
 }
 
 void bl2_early_platform_setup2(u_register_t arg0 __unused,

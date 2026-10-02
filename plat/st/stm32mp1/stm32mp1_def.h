@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -179,6 +180,10 @@ enum ddr_type {
  #endif
 #endif
 
+#if ARM_LINUX_KERNEL_AS_BL33
+#define STM32MP_BL33_BASE		(STM32MP_DDR_BASE + U(0x8000))
+#define STM32MP_BL33_MAX_SIZE		U(0x5FF8000)
+#else /* ARM_LINUX_KERNEL_AS_BL33 */
 #if STM32MP13
 #define STM32MP_BL33_BASE		STM32MP_DDR_BASE
 #endif
@@ -186,6 +191,7 @@ enum ddr_type {
 #define STM32MP_BL33_BASE		(STM32MP_DDR_BASE + U(0x100000))
 #endif
 #define STM32MP_BL33_MAX_SIZE		U(0x400000)
+#endif /* ARM_LINUX_KERNEL_AS_BL33 */
 
 /* Define location for the MTD scratch buffer */
 #if STM32MP13

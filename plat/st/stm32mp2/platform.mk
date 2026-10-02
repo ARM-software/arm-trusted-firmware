@@ -23,7 +23,7 @@ ifeq ($(ENABLE_PIE),1)
 BL2_IN_XIP_MEM			:=	1
 endif
 
-STM32MP_BL33_EL1		?=	1
+STM32MP_BL33_EL1		?=	0
 ifeq ($(STM32MP_BL33_EL1),1)
 INIT_UNUSED_NS_EL2		:=	1
 endif

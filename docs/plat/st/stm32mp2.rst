@@ -105,6 +105,8 @@ STM32MP2x specific flags
 
 Dedicated STM32MP2 build flags:
 
+- | ``STM32MP_BL33_EL1``: Runs BL33 at EL1 if set to 1, or at EL2 if set to 0.
+  | Default: 0
 - | ``STM32MP_DDR_FIP_IO_STORAGE``: to store DDR firmware in FIP.
   | Default: 1
 - | ``STM32MP21``: to select STM32MP21 variant configuration.
