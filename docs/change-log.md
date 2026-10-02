@@ -3,6 +3,39 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.10](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.9..refs/tags/lts-v2.14.10) (2026-10-02)
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - **Development dependencies**
+
+    - bump commitizen ([45ae407](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/45ae4079b39f45127e3ce8f4ef6cc4cf8ae47d45))
+
+### Build System
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - build with CMake ([c7a2337](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7a233761b7cafed98c501d69da269197c5776b4))
+
+- **Build System**
+
+  - move global defines into a config header ([d343569](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d343569b477346b829d81a44cadd14710454e759))
+
+- **Dependencies**
+
+  - bump the npm_and_yarn group across 1 directory with 5 updates ([9b58aed](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9b58aed424f3b1fe2134d6506cb9b78e546af6e7))
+
+  - **Development dependencies**
+
+    - bump js-yaml from 4.1.0 to 4.3.2 ([bb8f562](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bb8f5625e6c248b5840fae097ee65b00d1ecb75a))
+    - bump pyright ([6e9711e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6e9711e860ef9a1647836c1513ca469229c74b57))
+
 ## [lts-2.14.9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.8..refs/tags/lts-v2.14.9) (2026-09-25)
 
 ### Resolved Issues
