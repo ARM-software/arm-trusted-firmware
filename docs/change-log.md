@@ -3,6 +3,46 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.48](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.47..refs/tags/lts-v2.8.48) (2026-10-02)
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **MediaTek**
+
+    - enable missing Cortex-A78 errata for MT8188 ([e605d56](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e605d5651388661243db21748adfd02839477168))
+    - enable missing Cortex-A78 errata for MT8195 ([adb1202](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/adb1202f80125ec912d47fe76530a4d7baddd159))
+
+  - **Xilinx**
+
+    - allow secure access to IPI channels ([67527c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/67527c85162b492df51fd5e4571435945af06d85))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - remove stray conflict marker in cortex_a77.h ([3cf7fb6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3cf7fb63ee0897653deb24b17ef3d5fe77aff597))
+
+### Miscellaneous
+
+- **dev-deps:** bump the dev-deps group with 3 updates ([5adc272](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5adc272cf30f02b46d19be6b7b3ab7394f8bdff6))
+- **dev-deps:** bump the pip group across 2 directories with 1 update ([bd6f66a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bd6f66a57bddcb384928ef3d8b1c2976f897a76f))
+
+### Build System
+
+- **dev-deps:** bump applicable documentation dependencies ([ab964f0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ab964f0ac7e489edf58a48dd9078c72bf533eaea))
+- **dev-deps:** bump the dev-deps group with 5 updates ([61f9f12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/61f9f12e4479282053cb3d5974e586aeb6fbea3d))
+
+- **Dependencies**
+
+  - bump certifi from 2023.7.22 to 2024.7.4 ([53f4a11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/53f4a11dc1c1f66575aa5652081e3aae494b6d30))
+  - bump commitizen ([d9d673a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d9d673a55cd8739d7748c2e952a0204a129b871b))
+  - bump setuptools in the pip group across 1 directory ([93f99ff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/93f99ffb95f1ea2e019d27ab2f8016a063461f24))
+  - bump the npm_and_yarn group with 5 updates ([b034ff0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b034ff051abd4d635e6bae2e7da31ac13c747755))
+  - bump the pip group across 1 directory with 2 updates ([315c943](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/315c9432155664ba2bbf981612aed7ec1c8068d5))
+  - bump the pip group across 1 directory with 7 updates ([1193208](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1193208dc60aa81a0084a0fa2fa4efa57ce2fad1))
+
 ## [lts-2.8.47](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.46..refs/tags/lts-v2.8.47) (2026-09-26)
 
 ### New Features
