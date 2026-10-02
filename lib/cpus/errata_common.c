@@ -177,6 +177,7 @@ bool errata_ich_vmcr_el2_applies(void)
 
 #if ERRATA_V3_3701767
 	case EXTRACT_PARTNUM(NEOVERSE_V3_MIDR):
+	case EXTRACT_PARTNUM(NEOVERSE_V3_VNAE_MIDR):
 		if (check_erratum_neoverse_v3_3701767(cpu_get_rev_var()) == ERRATA_APPLIES)
 			return true;
 		break;

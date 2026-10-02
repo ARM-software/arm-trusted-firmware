@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Arm Limited. All rights reserved.
+# Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -38,7 +38,7 @@ RESET_TO_BL2				:=	1
 SVE_VECTOR_LEN				:=	128
 USE_COHERENT_MEM			:=	0
 
-RD1AE_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3.S
+RD1AE_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3ae.S
 
 include drivers/arm/gic/v3/gicv3.mk
 RD1AE_GIC_SOURCES	:=	${GICV3_SOURCES}	\
