@@ -58,8 +58,8 @@ define set_crypto_support
 	else
 		CRYPTO_SUPPORT := 0
 	endif
-	MBEDTLS_LIB ?= $(BUILD_PLAT)/lib/libmbedtls.a
-	CRYPTO_LIB := $(if $(filter-out 0,$(CRYPTO_SUPPORT)),$(MBEDTLS_LIB),)
+	MBEDCRYPTO_LIB ?= $(BUILD_PLAT)/mbedtls-install/lib/libmbedcrypto.a
+	CRYPTO_LIB := $(if $(filter-out 0,$(CRYPTO_SUPPORT)),$(MBEDCRYPTO_LIB),)
 endef
 
 # Convenience function for creating a build definition
@@ -374,7 +374,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval LIB := $(notdir $(1)))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
+$(OBJ): $(2) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CC      $$<"
 	$$(q)$($(ARCH)-cc) $$(LIB$(4)_CFLAGS) $$(TF_CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
@@ -391,7 +391,7 @@ define MAKE_S_LIB
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
+$(OBJ): $(2) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
 	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
@@ -415,7 +415,7 @@ $(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
 $(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)))
 $(eval BL_CFLAGS := $($(4)_CFLAGS))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/ $(BL_INCLUDE_DIRS:%=%/)
+$(OBJ): $(2) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/ $(BL_INCLUDE_DIRS:%=%/)
 	$$(s)echo "  CC      $$<"
 	$$(q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
@@ -439,7 +439,7 @@ $(eval BL_INCLUDE_DIRS := $($(4)_INCLUDE_DIRS))
 $(eval BL_CPPFLAGS := $($(4)_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)))
 $(eval BL_ASFLAGS := $($(4)_ASFLAGS))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/ $(BL_INCLUDE_DIRS:%=%/)
+$(OBJ): $(2) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/ $(BL_INCLUDE_DIRS:%=%/)
 	$$(s)echo "  AS      $$<"
 	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(call MAKE_DEP,$(DEP),$(OBJ)) -c $$< -o $$@
 
@@ -457,7 +457,7 @@ $(eval OUT := $(1))
 $(eval SRC := $(2))
 $(eval DEP := $(3))
 $(eval CUSTOM_FLAGS := $(4))
-$(OUT): $(SRC) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
+$(OUT): $(SRC) $(config-header) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CPP     $$<"
 	$$(q)$($(ARCH)-cpp) -E -P -x assembler-with-cpp $$(TF_CFLAGS) $(CUSTOM_FLAGS) $(call MAKE_DEP,$(DEP),$(OUT)) -o $$@ $$<
 endef

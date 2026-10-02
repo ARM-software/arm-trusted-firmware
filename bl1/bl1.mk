@@ -47,6 +47,9 @@ $(eval BL1_CPPFLAGS += $(call make_defines, \
         CRYPTO_SUPPORT \
 )))
 
+BL1_LIBS += $(MBEDTLS_LIBS)
+BL1_INCLUDE_DIRS += $(MBEDTLS_INCLUDE_DIRS)
+
 # Numeric_Flags
 $(eval $(call assert_numerics,\
     $(sort \
