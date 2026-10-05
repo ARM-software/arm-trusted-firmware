@@ -497,6 +497,7 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		desc_limit = ufs_params.desc_base + ufs_params.desc_size;
 		while (length > 0) {
 			if ((uintptr_t)prdt + sizeof(prdt_t) > desc_limit) {
+				assert((uintptr_t)prdt + sizeof(prdt_t) <= desc_limit);
 				ERROR("UFS: Exceeded descriptor limit. Image is too large\n");
 				panic();
 			}
@@ -529,6 +530,9 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 {
 	utrd_header_t *hd;
 	query_upiu_t *query_upiu;
+	uintptr_t desc_limit;
+	size_t request_data_length = 0U;
+	size_t response_data_length = 0U;
 
 
 	hd = (utrd_header_t *)utrd->header;
@@ -540,7 +544,11 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 
 	query_upiu->trans_type = QUERY_REQUEST_UPIU;
 	query_upiu->task_tag = utrd->task_tag;
-	query_upiu->data_segment_len = htobe16(length);
+	assert(length <= UINT16_MAX);
+	if (length > UINT16_MAX) {
+		return -EINVAL;
+	}
+	query_upiu->data_segment_len = 0U;
 	query_upiu->ts.desc.opcode = op;
 	query_upiu->ts.desc.idn = idn;
 	query_upiu->ts.desc.index = index;
@@ -550,12 +558,13 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		query_upiu->query_func = QUERY_FUNC_STD_READ;
 		query_upiu->ts.desc.length = htobe16(length);
 		utrd->size_resp_upiu = ALIGN_8(sizeof(query_resp_upiu_t) + length);
+		response_data_length = length;
 		break;
 	case QUERY_WRITE_DESC:
 		query_upiu->query_func = QUERY_FUNC_STD_WRITE;
 		query_upiu->ts.desc.length = htobe16(length);
-		memcpy((void *)(utrd->upiu + sizeof(query_upiu_t)),
-		       (void *)buf, length);
+		query_upiu->data_segment_len = htobe16(length);
+		request_data_length = length;
 		break;
 	case QUERY_READ_ATTR:
 	case QUERY_READ_FLAG:
@@ -571,7 +580,30 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		break;
 	default:
 		assert(0);
-		break;
+		return -EINVAL;
+	}
+
+	utrd->resp_upiu = ALIGN_8(utrd->upiu + sizeof(query_upiu_t) +
+				  request_data_length);
+	utrd->size_upiu = utrd->resp_upiu - utrd->upiu;
+	utrd->size_resp_upiu = ALIGN_8(sizeof(query_resp_upiu_t) +
+					 response_data_length);
+	utrd->prdt = utrd->resp_upiu + utrd->size_resp_upiu;
+	hd->ruo = utrd->size_upiu >> 2;
+	hd->rul = utrd->size_resp_upiu >> 2;
+
+	desc_limit = ufs_params.desc_base + ufs_params.desc_size;
+	assert((utrd->resp_upiu >= utrd->upiu) &&
+	       (utrd->resp_upiu + utrd->size_resp_upiu >= utrd->resp_upiu) &&
+	       (utrd->resp_upiu + utrd->size_resp_upiu <= desc_limit));
+	if ((utrd->resp_upiu < utrd->upiu) ||
+	    (utrd->resp_upiu + utrd->size_resp_upiu < utrd->resp_upiu) ||
+	    (utrd->resp_upiu + utrd->size_resp_upiu > desc_limit)) {
+		return -EFBIG;
+	}
+	if (request_data_length != 0U) {
+		memcpy((void *)(utrd->upiu + sizeof(query_upiu_t)),
+		       (void *)buf, request_data_length);
 	}
 	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
 	return 0;
