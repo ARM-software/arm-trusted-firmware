@@ -674,12 +674,14 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type, unsigned int timeout
 	assert(hd->ocs == OCS_SUCCESS);
 	assert((resp->trans_type & TRANS_TYPE_CODE_MASK) == trans_type);
 
-	sense = &resp->sd.sense;
-	if (sense->resp_code == SENSE_DATA_VALID &&
-	    sense->sense_key == SENSE_KEY_UNIT_ATTENTION && sense->asc == 0x29 &&
-	    sense->ascq == 0) {
-		WARN("Unit Attention Condition\n");
-		return -EAGAIN;
+	if (trans_type == RESPONSE_UPIU) {
+		sense = &resp->sd.sense;
+		if (sense->resp_code == SENSE_DATA_VALID &&
+		    sense->sense_key == SENSE_KEY_UNIT_ATTENTION &&
+		    sense->asc == 0x29 && sense->ascq == 0) {
+			WARN("Unit Attention Condition\n");
+			return -EAGAIN;
+		}
 	}
 
 	(void)resp;
