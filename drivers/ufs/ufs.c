@@ -664,7 +664,13 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type, unsigned int timeout
 	slot = utrd->task_tag - 1;
 
 	data = mmio_read_32(ufs_params.reg_base + UTRLDBR);
-	assert((data & (1 << slot)) == 0);
+	if ((data & (1U << slot)) != 0U) {
+		ERROR("%s: slot busy: slot=%d UTRLDBR=0x%x IS=0x%x UTRLRSR=0x%x\n",
+		      __func__, slot, data,
+			  mmio_read_32(ufs_params.reg_base + IS),
+		      mmio_read_32(ufs_params.reg_base + UTRLRSR));
+		return -EBUSY;
+	}
 	/*
 	 * Invalidate the header after DMA read operation has
 	 * completed to avoid cpu referring to the prefetched
