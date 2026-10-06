@@ -885,8 +885,9 @@ static int ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 			inv_dcache_range(buf, CACHE_WRITEBACK_GRANULE);
 			/* last logical block address */
 			*num = be32toh(*(unsigned int *)buf);
-			if (*num)
+			if (*num < UINT32_MAX) {
 				*num += 1;
+			}
 			/* logical block length in bytes */
 			*size = be32toh(*(unsigned int *)(buf + 4));
 
