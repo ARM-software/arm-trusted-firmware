@@ -874,10 +874,12 @@ static int ufs_verify_ready(void)
 }
 
 static int ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
-		     uintptr_t buf, size_t size)
+		     uintptr_t buf, size_t size, size_t *returned_length)
 {
 	utp_utrd_t utrd;
 	query_resp_upiu_t *resp;
+	size_t response_data_length;
+	size_t response_tsf_length;
 	int result;
 
 	switch (op) {
@@ -931,9 +933,26 @@ static int ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
 		*(uint32_t *)buf = (uint32_t)resp->ts.flag.value;
 		break;
 	case QUERY_READ_DESC:
+		response_data_length = be16toh(resp->data_segment_len);
+		response_tsf_length = be16toh(resp->ts.desc.length);
+
+		assert((response_data_length == response_tsf_length) &&
+		       (response_data_length <= size));
+
+		if ((response_data_length != response_tsf_length) ||
+		    (response_data_length > size)) {
+			ERROR("UFS: invalid QUERY desc length: dsl=%zu length=%zu capacity=%zu\n",
+			      response_data_length, response_tsf_length, size);
+			return -EIO;
+		}
 		memcpy((void *)buf,
 		       (void *)(utrd.resp_upiu + sizeof(query_resp_upiu_t)),
-		       size);
+		       response_data_length);
+
+		if (returned_length != NULL) {
+			*returned_length = response_data_length;
+		}
+
 		break;
 	case QUERY_READ_ATTR:
 		*(uint32_t *)buf = htobe32(resp->ts.attr.value);
@@ -956,7 +975,7 @@ int ufs_read_attr(int idn, unsigned int *value)
 	}
 
 	result = ufs_query(QUERY_READ_ATTR, idn, 0, 0, (uintptr_t)value,
-			   sizeof(*value));
+			   sizeof(*value), NULL);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -969,7 +988,7 @@ int ufs_write_attr(int idn, unsigned int value)
 	int result;
 
 	result = ufs_query(QUERY_WRITE_ATTR, idn, 0, 0, (uintptr_t)&value,
-			   sizeof(value));
+			   sizeof(value), NULL);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -987,7 +1006,7 @@ int ufs_read_flag(int idn, unsigned int *value)
 	}
 
 	result = ufs_query(QUERY_READ_FLAG, idn, 0, 0, (uintptr_t)value,
-			   sizeof(*value));
+			   sizeof(*value), NULL);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -999,7 +1018,7 @@ int ufs_set_flag(int idn)
 {
 	int result;
 
-	result = ufs_query(QUERY_SET_FLAG, idn, 0, 0, 0, 0);
+	result = ufs_query(QUERY_SET_FLAG, idn, 0, 0, 0, 0, NULL);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -1011,7 +1030,7 @@ int ufs_clear_flag(int idn)
 {
 	int result;
 
-	result = ufs_query(QUERY_CLEAR_FLAG, idn, 0, 0, 0, 0);
+	result = ufs_query(QUERY_CLEAR_FLAG, idn, 0, 0, 0, 0, NULL);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -1019,11 +1038,11 @@ int ufs_clear_flag(int idn)
 	return result;
 }
 
-int ufs_read_desc(int idn, int index, uintptr_t buf, size_t size)
+int ufs_read_desc(int idn, int index, uintptr_t buf, size_t size, size_t *returned_length)
 {
 	int result;
 
-	result = ufs_query(QUERY_READ_DESC, idn, index, 0, buf, size);
+	result = ufs_query(QUERY_READ_DESC, idn, index, 0, buf, size, returned_length);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -1035,7 +1054,7 @@ int ufs_write_desc(int idn, int index, uintptr_t buf, size_t size)
 {
 	int result;
 
-	result = ufs_query(QUERY_WRITE_DESC, idn, index, 0, buf, size);
+	result = ufs_query(QUERY_WRITE_DESC, idn, index, 0, buf, size, NULL);
 	if (result != 0) {
 		assert(result == 0);
 	}
@@ -1254,6 +1273,7 @@ static int ufs_enum(void)
 static int ufs_get_device_info(struct ufs_dev_desc *card_data)
 {
 	uint8_t desc_buf[DESC_DEVICE_MAX_SIZE];
+	size_t returned_length = 0U;
 	int result;
 
 	assert(card_data != NULL);
@@ -1262,10 +1282,14 @@ static int ufs_get_device_info(struct ufs_dev_desc *card_data)
 	}
 
 	result = ufs_read_desc(DESC_TYPE_DEVICE, 0, (uintptr_t)desc_buf,
-			       DESC_DEVICE_MAX_SIZE);
+			       DESC_DEVICE_MAX_SIZE, &returned_length);
 	if (result != 0) {
 		assert(result == 0);
 		return result;
+	}
+
+	if (returned_length < DEVICE_DESC_PARAM_MANF_ID + 2U) {
+		return -EIO;
 	}
 
 	/*

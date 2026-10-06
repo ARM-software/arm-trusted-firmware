@@ -581,7 +581,7 @@ int ufs_write_attr(int idn, unsigned int value);
 int ufs_read_flag(int idn, unsigned int *value);
 int ufs_set_flag(int idn);
 int ufs_clear_flag(int idn);
-int ufs_read_desc(int idn, int index, uintptr_t buf, size_t size);
+int ufs_read_desc(int idn, int index, uintptr_t buf, size_t size, size_t *returned_length);
 int ufs_write_desc(int idn, int index, uintptr_t buf, size_t size);
 size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size);
 size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size);
