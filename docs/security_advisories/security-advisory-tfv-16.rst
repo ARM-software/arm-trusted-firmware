@@ -121,7 +121,7 @@ For example, a platform that contains affected C1-Pro CPUs should add:
     WORKAROUND_CVE_2026_0995 := 1
 
     ifeq (${WORKAROUND_CVE_2026_0995},1)
-    BL31_SOURCES += lib/cpus/aarch64/c1_pro_pubsub.c \
+    BL31_SOURCES += lib/cpus/helpers/aarch64/c1_pro_pubsub.c \
                     ${CPU_SVC_SRCS}
     endif
 

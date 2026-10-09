@@ -54,8 +54,8 @@ vulnerability workarounds should be applied at runtime.
 
 -  ``WORKAROUND_CVE_2026-0995``: Enables mitigation for `CVE-2026-0995`_.
    This build option should be set to 1 if the target platform contains at least
-   1 C1 Pro CPU. Platforms should also inlcude lib/cpus/aarch64/c1_pro_pubsub.c
-   in BL31_SOURCES. Defaults to 0.
+   1 C1 Pro CPU. Platforms should also inlcude
+   lib/cpus/helpers/aarch64/c1_pro_pubsub.c in BL31_SOURCES. Defaults to 0.
 
 .. _arm_cpu_macros_errata_workarounds:
 
