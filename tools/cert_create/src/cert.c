@@ -16,6 +16,10 @@
 #include <openssl/pem.h>
 #include <openssl/sha.h>
 #include <openssl/x509v3.h>
+#if OPENSSL_VERSION_NUMBER >= 0x30200000L
+#include <openssl/core_names.h>
+#include <openssl/params.h>
+#endif
 
 #include "cert.h"
 #include "cmd_opt.h"
@@ -222,6 +226,27 @@ int cert_new(
 		ERR_print_errors_fp(stdout);
 		goto END;
 	}
+
+#if OPENSSL_VERSION_NUMBER >= 0x30200000L
+	/*
+	 * Derive the ECDSA nonce from the key and the message (RFC 6979)
+	 * instead of drawing it at random, so that the same certificate always
+	 * gets the same signature.
+	 */
+	if (EVP_PKEY_is_a(ikey, "EC")) {
+		unsigned int nonce_type = 1;
+		OSSL_PARAM params[] = {
+			OSSL_PARAM_construct_uint(OSSL_SIGNATURE_PARAM_NONCE_TYPE,
+						  &nonce_type),
+			OSSL_PARAM_construct_end()
+		};
+
+		if (!EVP_PKEY_CTX_set_params(pKeyCtx, params)) {
+			ERR_print_errors_fp(stdout);
+			goto END;
+		}
+	}
+#endif
 
 	/*
 	 * Set additional parameters if issuing public key algorithm is RSA.
