@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <openssl/conf.h>
 #include <openssl/err.h>
@@ -56,6 +58,85 @@ error:
 
 	return ret;
 }
+
+/*
+ * Read SOURCE_DATE_EPOCH (https://reproducible-builds.org/specs/source-date-epoch/)
+ * into 't'. Returns 1 if it is set, 0 if it is not and -1 if it is malformed.
+ */
+static int source_date_epoch(time_t *t)
+{
+	const char *env = getenv("SOURCE_DATE_EPOCH");
+	unsigned long long epoch;
+	char *end;
+
+	if (env == NULL || *env == '\0') {
+		return 0;
+	}
+
+	errno = 0;
+	epoch = strtoull(env, &end, 10);
+	if (errno != 0 || *end != '\0' || *env < '0' || *env > '9' ||
+	    epoch != (unsigned long long)(time_t)epoch) {
+		ERROR("Invalid SOURCE_DATE_EPOCH '%s'\n", env);
+		return -1;
+	}
+
+	*t = (time_t)epoch;
+	return 1;
+}
+
+/*
+ * Derive the serial number of certificate 'x' from the digest of its subject,
+ * public key and extensions, which hold the hashes of the images, so that it
+ * is reproducible, yet differs between certificates.
+ */
+static int digest_serial(X509 *x)
+{
+	X509_EXTENSIONS *exts = (X509_EXTENSIONS *)X509_get0_extensions(x);
+	unsigned char *subject = NULL, *pubkey = NULL, *ext = NULL;
+	unsigned char md[EVP_MAX_MD_SIZE];
+	int subject_len, pubkey_len, ext_len, ret = 0;
+	EVP_MD_CTX *ctx = NULL;
+	ASN1_INTEGER *sno;
+	BIGNUM *bn = NULL;
+
+	subject_len = i2d_X509_NAME(X509_get_subject_name(x), &subject);
+	pubkey_len = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(x), &pubkey);
+	ext_len = exts != NULL ? i2d_X509_EXTENSIONS(exts, &ext) : 0;
+	ctx = EVP_MD_CTX_create();
+	if (subject_len <= 0 || pubkey_len <= 0 || ext_len < 0 ||
+	    ctx == NULL ||
+	    !EVP_DigestInit_ex(ctx, EVP_sha256(), NULL) ||
+	    !EVP_DigestUpdate(ctx, subject, subject_len) ||
+	    !EVP_DigestUpdate(ctx, pubkey, pubkey_len) ||
+	    !EVP_DigestUpdate(ctx, ext, ext_len) ||
+	    !EVP_DigestFinal_ex(ctx, md, NULL)) {
+		goto error;
+	}
+
+	/* Keep the serial number positive */
+	md[0] &= 0x7f;
+	bn = BN_bin2bn(md, SERIAL_RAND_BITS / 8, NULL);
+	if (bn == NULL) {
+		goto error;
+	}
+
+	sno = BN_to_ASN1_INTEGER(bn, NULL);
+	if (sno == NULL) {
+		goto error;
+	}
+	ret = X509_set_serialNumber(x, sno);
+	ASN1_INTEGER_free(sno);
+
+error:
+	EVP_MD_CTX_destroy(ctx);
+	BN_free(bn);
+	OPENSSL_free(subject);
+	OPENSSL_free(pubkey);
+	OPENSSL_free(ext);
+	return ret;
+}
+
 const EVP_MD *get_digest(int alg)
 {
 	switch (alg) {
@@ -110,6 +191,7 @@ int cert_new(
 	int i, num, rc = 0;
 	EVP_MD_CTX *mdCtx;
 	EVP_PKEY_CTX *pKeyCtx = NULL;
+	time_t epoch, *t = NULL;
 
 	/* Create the certificate structure */
 	x = X509_new();
@@ -162,17 +244,32 @@ int cert_new(
 		}
 	}
 
+	/*
+	 * With SOURCE_DATE_EPOCH set, the validity starts at SOURCE_DATE_EPOCH
+	 * instead of the current time, and the serial number is derived from
+	 * the contents of the certificate instead of being random.
+	 */
+	switch (source_date_epoch(&epoch)) {
+	case 1:
+		t = &epoch;
+		break;
+	case -1:
+		goto END;
+	}
+
 	/* x509.v3 */
 	X509_set_version(x, 2);
 
 	/* Random serial number */
-	sno = ASN1_INTEGER_new();
-	rand_serial(NULL, sno);
-	X509_set_serialNumber(x, sno);
-	ASN1_INTEGER_free(sno);
+	if (t == NULL) {
+		sno = ASN1_INTEGER_new();
+		rand_serial(NULL, sno);
+		X509_set_serialNumber(x, sno);
+		ASN1_INTEGER_free(sno);
+	}
 
-	X509_gmtime_adj(X509_get_notBefore(x), 0);
-	X509_gmtime_adj(X509_get_notAfter(x), (long)60*60*24*days);
+	X509_time_adj_ex(X509_get_notBefore(x), 0, 0, t);
+	X509_time_adj_ex(X509_get_notAfter(x), days, 0, t);
 	X509_set_pubkey(x, pkey);
 
 	/* Subject name */
@@ -204,6 +301,11 @@ int cert_new(
 			ex = sk_X509_EXTENSION_value(sk, i);
 			X509_add_ext(x, ex, -1);
 		}
+	}
+
+	if (t != NULL && !digest_serial(x)) {
+		ERR_print_errors_fp(stdout);
+		goto END;
 	}
 
 	if (!X509_sign_ctx(x, mdCtx)) {
