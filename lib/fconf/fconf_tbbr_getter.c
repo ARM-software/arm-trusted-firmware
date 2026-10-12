@@ -49,7 +49,7 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 		return -1;
 	}
 
-#if defined(DYN_DISABLE_AUTH)
+#if DYN_DISABLE_AUTH
 	if (tbbr_dyn_config.disable_auth == 1)
 		dyn_disable_auth();
 #endif
