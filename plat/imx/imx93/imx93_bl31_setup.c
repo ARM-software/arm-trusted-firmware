@@ -47,8 +47,8 @@ static const uintptr_t gicr_base_addrs[] = {
 static const mmap_region_t imx_mmap[] = {
 	AIPS1_MAP, AIPS2_MAP, AIPS4_MAP, GIC_MAP,
 	TRDC_A_MAP, TRDC_W_MAP, TRDC_M_MAP,
-	TRDC_N_MAP, DDRMIX_MAP, S400_MU_MAP, FSB_MAP,
-	NIC_GPV_MAP, AIPS3_MAP,
+	TRDC_N_MAP, DDRMIX_MAP, GPIO_MAP, S400_MU_MAP,
+	FSB_MAP, NIC_GPV_MAP, AIPS3_MAP,
 	{0},
 };
 

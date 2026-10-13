@@ -74,6 +74,37 @@ void ele_release_gmid(void)
 	VERBOSE("msg : %x, resp: %x\n", msg, resp);
 }
 
+void ele_request_pwrdown(void)
+{
+	uint32_t msg, resp;
+	unsigned int timeout = 10000U;
+
+	mmio_write_32(ELE_MU_TRx(0), ELE_POWER_DOWN_REQ);
+	mmio_write_32(ELE_MU_TRx(1), 0x4000);
+	mmio_write_32(ELE_MU_TRx(2), BL31_BASE);
+
+	do {
+		resp = mmio_read_32(ELE_MU_RSR);
+		if ((resp & ELE_MU_RSR_RX_MASK) == ELE_MU_RSR_RX_MASK) {
+			break;
+		}
+		udelay(1);
+	} while (--timeout > 0U);
+
+	if (timeout == 0U) {
+		ERROR("ELE power-down request timeout\n");
+		return;
+	}
+
+	msg = mmio_read_32(ELE_MU_RRx(0));
+	resp = mmio_read_32(ELE_MU_RRx(1));
+
+	VERBOSE("resp %x; %x\n", msg, resp);
+	if ((resp & ELE_RESP_SUCCESS_MASK) != ELE_RESP_SUCCESS) {
+		WARN("ELE power-down request failed: resp=0x%x\n", resp);
+	}
+}
+
 uint32_t ele_read_common_fuse(uint32_t fuse_id)
 {
 	uint32_t msg, resp, val = 0;
