@@ -1,24 +1,31 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <string.h>
+#include <stdint.h>
 
 void *memmove(void *dst, const void *src, size_t len)
 {
+	if (dst == src || len == 0)
+		return dst;
+
 	/*
-	 * The following test makes use of unsigned arithmetic overflow to
-	 * more efficiently test the condition !(src <= dst && dst < str+len).
-	 * It also avoids the situation where the more explicit test would give
-	 * incorrect results were the calculation str+len to overflow (though
-	 * that issue is probably moot as such usage is probably undefined
-	 * behaviour and a bug anyway.
+	 * Assuming pointers convert to linear byte addresses, this unsigned
+	 * difference is less than `len` only when `dst` starts inside the source
+	 * range at a higher address. Copy backwards in that case, and forwards
+	 * otherwise, including when the ranges overlap with `dst` below `src`.
 	 */
-	if (((size_t)dst - (size_t)src) >= len) {
-		/* destination not in source data, so can safely use memcpy */
-		return memcpy(dst, src, len);
+	if (((uintptr_t)dst - (uintptr_t)src) >= len)  {
+		/* copy forward... */
+		const char *end = dst + len;
+		const char *s = (const char *)src;
+		char *d = (char *)dst;
+		while (d != end) {
+			*d++ = *s++;
+		}
 	} else {
 		/* copy backwards... */
 		const char *end = dst;
@@ -28,5 +35,6 @@ void *memmove(void *dst, const void *src, size_t len)
 			*--d = *--s;
 		}
 	}
+
 	return dst;
 }
