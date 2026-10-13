@@ -228,6 +228,27 @@ static inline void src_ack_cnt_mode(unsigned int mix, uint8_t mode)
 #define CA55_RVBADDR0_H		U(0x120)
 
 /*******************************************************************************
+ * ANA definitions & declarations
+ ******************************************************************************/
+#define DRAM_PLL_BASE			U(0x44481300)
+
+#define PLL_CTRL			U(0x0)
+#define PLL_CTRL_SET			U(0x4)
+#define PLL_CTRL_CLR			U(0x8)
+#define PLL_CTRL_TOG			U(0xC)
+
+#define PLL_SPREAD_SPECTRUM		U(0x30)
+#define PLL_SPREAD_SPECTRUM_SET		U(0x34)
+#define PLL_SPREAD_SPECTRUM_CLR		U(0x38)
+#define PLL_SPREAD_SPECTRUM_TOG		U(0x3C)
+
+#define PLL_NUMERATOR			U(0x40)
+#define PLL_DENOMINATOR			U(0x50)
+
+#define PLL_DIV				U(0x60)
+#define PLL_STATUS			U(0xF0)
+
+/*******************************************************************************
  * Other definitions & declarations
  ******************************************************************************/
 void nicmix_qos_init(void);

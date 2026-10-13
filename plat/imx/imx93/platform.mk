@@ -5,6 +5,7 @@
 #
 
 PLAT_INCLUDES		:=	-Iplat/imx/common/include		\
+				-Iplat/imx/imx9/common/include		\
 				-Iplat/imx/imx93/include		\
 				-Iplat/imx/common
 # Translation tables library
@@ -12,6 +13,10 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 USE_GIC_DRIVER := 3
 GICV3_SUPPORT_GIC600  :=      1
+
+IMX_DRAM_SOURCES	:=	plat/imx/imx9/common/ddr/dram.c		\
+				plat/imx/imx9/common/ddr/ddr_dvfs.c	\
+				plat/imx/imx9/common/ddr/dram_retention.c
 
 BL31_SOURCES		+=	common/desc_image_load.c			\
 				plat/common/aarch64/crash_console_helpers.S	\
@@ -38,6 +43,7 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/nxp/trdc/imx_trdc.c			\
 				${IMX_GIC_SOURCES}				\
+				${IMX_DRAM_SOURCES}				\
 				${XLAT_TABLES_LIB_SRCS}
 
 RESET_TO_BL31		:=	1

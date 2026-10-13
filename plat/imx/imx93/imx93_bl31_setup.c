@@ -20,6 +20,7 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
+#include <dram.h>
 #include <ele_api.h>
 #include <imx8_lpuart.h>
 #include <imx_cpu_off.h>
@@ -29,6 +30,9 @@
 #include <plat_common.h>
 #include <plat_imx8.h>
 #include <platform_def.h>
+
+CASSERT(SAVED_DRAM_TIMING_BASE + SAVED_DRAM_TIMING_SIZE <= OCRAM_BASE + OCRAM_SIZE,
+	assert_saved_dram_timing_fits_ocram);
 
 #define MAP_BL31_TOTAL										   \
 	MAP_REGION_FLAT(BL31_BASE, BL31_SIZE, MT_MEMORY | MT_RW | MT_SECURE)
@@ -43,7 +47,7 @@ static const uintptr_t gicr_base_addrs[] = {
 static const mmap_region_t imx_mmap[] = {
 	AIPS1_MAP, AIPS2_MAP, AIPS4_MAP, GIC_MAP,
 	TRDC_A_MAP, TRDC_W_MAP, TRDC_M_MAP,
-	TRDC_N_MAP, S400_MU_MAP, FSB_MAP,
+	TRDC_N_MAP, DDRMIX_MAP, S400_MU_MAP, FSB_MAP,
 	NIC_GPV_MAP, AIPS3_MAP,
 	{0},
 };
@@ -144,6 +148,9 @@ void bl31_platform_setup(void)
 	imx_el3_interrupt_config();
 	imx_intercore_svc_init();
 	imx_cpuoff_init();
+
+	/* Init the dram info */
+	dram_info_init(SAVED_DRAM_TIMING_BASE);
 }
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
@@ -158,4 +165,3 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 
 	return NULL;
 }
-

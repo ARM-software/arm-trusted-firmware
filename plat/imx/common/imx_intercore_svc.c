@@ -63,6 +63,41 @@ int trigger_intercore_cpuoff_svc(unsigned int cpu)
 	return inf->cpu_off_svc.result;
 }
 
+int register_intercore_dvfs_svc(interrupt_type_handler_t handler)
+{
+	percpu_svc_inf_t *inf;
+	uint32_t i;
+
+	if (!handler) {
+		return -EINVAL;
+	}
+
+	for (i = 0U; i < PLATFORM_CORE_COUNT; i++) {
+		inf = &svc_info[i];
+		inf->dvfs_svc.enabled = true;
+		inf->dvfs_svc.handler = handler;
+	}
+
+	return 0;
+}
+
+int trigger_intercore_dvfs_svc(unsigned int cpu)
+{
+	percpu_svc_inf_t *inf;
+
+	if (cpu >= PLATFORM_CORE_COUNT) {
+		return -EINVAL;
+	}
+
+	inf = &svc_info[cpu];
+	inf->dvfs_svc.trigged = true;
+	inf->dvfs_svc.result = 0;
+
+	plat_ic_raise_el3_sgi(INTERCORE_SVC_IRQ, logical_id_to_hwid(cpu));
+
+	return 0;
+}
+
 static uint64_t intercore_service(uint32_t id, uint32_t flags,
 		void *handle, void *cookie)
 {
@@ -72,6 +107,11 @@ static uint64_t intercore_service(uint32_t id, uint32_t flags,
 	if (inf->cpu_off_svc.enabled && inf->cpu_off_svc.trigged && inf->cpu_off_svc.handler) {
 		inf->cpu_off_svc.trigged = false;
 		inf->cpu_off_svc.result = inf->cpu_off_svc.handler(id, flags, handle, cookie);
+	}
+
+	if (inf->dvfs_svc.enabled && inf->dvfs_svc.trigged && inf->dvfs_svc.handler) {
+		inf->dvfs_svc.trigged = false;
+		inf->dvfs_svc.result = inf->dvfs_svc.handler(id, flags, handle, cookie);
 	}
 
 	return 0;
