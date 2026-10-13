@@ -160,7 +160,7 @@ all: armstub8
 ${BUILD_PLAT}/armstub8_header.o: plat/rpi/common/aarch64/armstub8_header.S \
 				$(config-header) | $$(@D)/
 	$(s)echo "  AS      $<"
-	$(q)$($(ARCH)-as) -x assembler-with-cpp $(TF_CFLAGS) $(ASFLAGS) $(DEFINES) -c $< -o $@
+	$(q)$($(ARCH)-cc) -x assembler-with-cpp $(TF_CFLAGS) $(ASFLAGS) $(DEFINES) -c $< -o $@
 
 ${RPI4_ARMSTUB_HEADER_BIN}: ${BUILD_PLAT}/armstub8_header.o | $$(@D)/
 	$(s)echo "  BIN     $@"
