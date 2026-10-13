@@ -113,9 +113,6 @@ enum pmu_sft_con {
 #define WAKEUP_INT_CLUSTER_EN	0x1
 #define PMIC_SLEEP_REG		0x34
 
-#define PLL_IS_NORM_MODE(mode, pll_id)	\
-		((mode & (PLL_NORM_MODE(pll_id)) & 0xffff) != 0)
-
 #define CTLR_ENABLE_G1_BIT	BIT(1)
 #define UART_FIFO_EMPTY		BIT(6)
 

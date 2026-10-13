@@ -192,10 +192,10 @@ int rockchip_soc_cores_pwr_dm_resume(void)
 
 void __dead2 rockchip_soc_soft_reset(void)
 {
-	mmio_write_32(CRU_BASE + CRU_CRU_MODE, PLL_SLOW_MODE(CPLL_ID));
-	mmio_write_32(CRU_BASE + CRU_CRU_MODE, PLL_SLOW_MODE(GPLL_ID));
-	mmio_write_32(CRU_BASE + CRU_CRU_MODE, PLL_SLOW_MODE(NPLL_ID));
-	mmio_write_32(CRU_BASE + CRU_CRU_MODE, PLL_SLOW_MODE(APLL_ID));
+	mmio_write_32(CRU_BASE + CRU_CRU_MODE, rk3328_pll_mode_slow(CPLL_ID));
+	mmio_write_32(CRU_BASE + CRU_CRU_MODE, rk3328_pll_mode_slow(GPLL_ID));
+	mmio_write_32(CRU_BASE + CRU_CRU_MODE, rk3328_pll_mode_slow(NPLL_ID));
+	mmio_write_32(CRU_BASE + CRU_CRU_MODE, rk3328_pll_mode_slow(APLL_ID));
 	dsb();
 
 	mmio_write_32(CRU_BASE + CRU_GLB_SRST_FST, CRU_GLB_SRST_FST_VALUE);
@@ -298,7 +298,7 @@ static __sramfunc void dpll_suspend(void)
 	int i;
 
 	/* slow mode */
-	mmio_write_32(CRU_BASE + CRU_CRU_MODE, PLL_SLOW_MODE(DPLL_ID));
+	mmio_write_32(CRU_BASE + CRU_CRU_MODE, rk3328_pll_mode_slow(DPLL_ID));
 
 	/* save pll con */
 	for (i = 0; i < CRU_PLL_CON_NUMS; i++)
@@ -334,7 +334,7 @@ static __sramfunc void dpll_resume(void)
 			;
 
 	mmio_write_32(CRU_BASE + CRU_CRU_MODE,
-		      PLL_NORM_MODE(DPLL_ID));
+		      rk3328_pll_mode_normal(DPLL_ID));
 }
 
 static inline void pll_suspend(uint32_t pll_id)
@@ -342,7 +342,7 @@ static inline void pll_suspend(uint32_t pll_id)
 	int i;
 
 	/* slow mode */
-	mmio_write_32(CRU_BASE + CRU_CRU_MODE, PLL_SLOW_MODE(pll_id));
+	mmio_write_32(CRU_BASE + CRU_CRU_MODE, rk3328_pll_mode_slow(pll_id));
 
 	/* save pll con */
 	for (i = 0; i < CRU_PLL_CON_NUMS; i++)
@@ -360,9 +360,9 @@ static inline void pll_resume(uint32_t pll_id)
 
 	pm_pll_wait_lock(pll_id);
 
-	if (PLL_IS_NORM_MODE(ddr_data.cru_mode_save, pll_id))
+	if (rk3328_pll_is_mode_normal(ddr_data.cru_mode_save, pll_id))
 		mmio_write_32(CRU_BASE + CRU_CRU_MODE,
-			      PLL_NORM_MODE(pll_id));
+			      rk3328_pll_mode_normal(pll_id));
 }
 
 static void pm_plls_suspend(void)
