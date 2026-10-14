@@ -4,6 +4,7 @@
  * Copyright (c) 2019-2020, Linaro Limited
  */
 #include <cdefs.h>
+#include <stddef.h>
 #include <string.h>
 
 #include <drivers/scmi-msg.h>
@@ -476,7 +477,13 @@ static void scmi_clock_config_set(struct scmi_msg *msg)
 	unsigned int clock_id = 0U;
 	uint8_t extended_config_type = 0U;
 
-	if (msg->in_size != sizeof(*in_args)) {
+	/*
+	 * Agents that implement clock protocol v1/v2 send this message without
+	 * extended_config_val (8 bytes instead of 12); accept both.
+	 */
+	if ((msg->in_size != sizeof(*in_args)) &&
+	    (msg->in_size != offsetof(struct scmi_clock_config_set_a2p,
+				      extended_config_val))) {
 		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
 		return;
 	}
@@ -491,6 +498,12 @@ static void scmi_clock_config_set(struct scmi_msg *msg)
 	enable = in_args->attributes & SCMI_CLOCK_CONFIG_SET_ENABLE_MASK;
 
 	extended_config_type = in_args->attributes & SCMI_CLOCK_EXTENDED_CONFIG_SET_TYPE_MASK;
+
+	/* The short (v1/v2) message has no extended_config_val to apply. */
+	if ((extended_config_type != 0U) && (msg->in_size != sizeof(*in_args))) {
+		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		return;
+	}
 
 	if ((extended_config_type == 0U)
 	    && (enable == SCMI_CLOCK_CONFIG_SET_UNCHANGED_STATE)) {
