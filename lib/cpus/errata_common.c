@@ -10,7 +10,8 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <cortex_a75.h>
+#include <c1_pro.h>
+#include <c1_ultra.h>
 #include <cortex_a510.h>
 #include <cortex_a520.h>
 #include <cortex_a710.h>
@@ -18,18 +19,18 @@
 #include <cortex_a720.h>
 #include <cortex_a720ae.h>
 #include <cortex_a725.h>
+#include <cortex_a75.h>
 #include <cortex_x2.h>
 #include <cortex_x3.h>
 #include <cortex_x4.h>
 #include <cortex_x925.h>
-#include <c1_ultra.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
 #include <neoverse_n2.h>
 #include <neoverse_n3.h>
 #include <neoverse_v2.h>
 #include <neoverse_v3.h>
-#include <c1_pro.h>
+#include <neoverse_v3ae.h>
 
 struct erratum_entry *find_erratum_entry(uint32_t errata_id)
 {
@@ -177,8 +178,11 @@ bool errata_ich_vmcr_el2_applies(void)
 
 #if ERRATA_V3_3701767
 	case EXTRACT_PARTNUM(NEOVERSE_V3_MIDR):
-	case EXTRACT_PARTNUM(NEOVERSE_V3_VNAE_MIDR):
 		if (check_erratum_neoverse_v3_3701767(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+	case EXTRACT_PARTNUM(NEOVERSE_V3_VNAE_MIDR):
+		if (check_erratum_neoverse_v3ae_3701767(cpu_get_rev_var()) == ERRATA_APPLIES)
 			return true;
 		break;
 #endif /* ERRATA_V3_3701767 */
