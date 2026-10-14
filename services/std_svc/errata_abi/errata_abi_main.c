@@ -200,10 +200,17 @@ int32_t verify_errata_implemented(uint32_t errata_id)
 /* Predicate indicating that a function id is part of EM_ABI */
 bool is_errata_fid(uint32_t smc_fid)
 {
-	return ((smc_fid == ARM_EM_VERSION) ||
-		(smc_fid == ARM_EM_FEATURES) ||
-		(smc_fid == ARM_EM_CPU_ERRATUM_FEATURES));
+	switch (smc_fid) {
+	case ARM_EM_VERSION:
+	case ARM_EM_VERSION | (SMC_64 << FUNCID_CC_SHIFT):
+	case ARM_EM_FEATURES:
+	case ARM_EM_FEATURES | (SMC_64 << FUNCID_CC_SHIFT):
+	case ARM_EM_CPU_ERRATUM_FEATURES:
+	case ARM_EM_CPU_ERRATUM_FEATURES | (SMC_64 << FUNCID_CC_SHIFT):
+		return true;
+	};
 
+	return false;
 }
 
 bool validate_spsr_mode(void)
@@ -235,11 +242,13 @@ uintptr_t errata_abi_smc_handler(uint32_t smc_fid, u_register_t x1,
 
 	switch (smc_fid) {
 	case ARM_EM_VERSION:
+	case ARM_EM_VERSION | (SMC_64 << FUNCID_CC_SHIFT):
 		SMC_RET1(handle, MAKE_SMCCC_VERSION(
 			EM_VERSION_MAJOR, EM_VERSION_MINOR
 		));
 		break; /* unreachable */
 	case ARM_EM_FEATURES:
+	case ARM_EM_FEATURES | (SMC_64 << FUNCID_CC_SHIFT):
 		if (is_errata_fid((uint32_t)x1)) {
 			SMC_RET1(handle, EM_SUCCESS);
 		}
@@ -247,6 +256,7 @@ uintptr_t errata_abi_smc_handler(uint32_t smc_fid, u_register_t x1,
 		SMC_RET1(handle, EM_NOT_SUPPORTED);
 		break; /* unreachable */
 	case ARM_EM_CPU_ERRATUM_FEATURES:
+	case ARM_EM_CPU_ERRATUM_FEATURES | (SMC_64 << FUNCID_CC_SHIFT):
 
 		/*
 		 * If the forward flag is greater than zero and the calling EL
