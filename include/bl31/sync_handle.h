@@ -15,8 +15,6 @@
 #define TRAP_RET_REPEAT			0
 #define TRAP_RET_CONTINUE		1
 
-#define XZR_REG_NUM   31
-
 /**
  * handle_sysreg_trap() - Handle AArch64 system register traps from lower ELs
  * @esr_el3: The content of ESR_EL3, containing the trap syndrome information

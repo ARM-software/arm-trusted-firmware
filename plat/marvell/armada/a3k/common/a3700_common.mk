@@ -62,10 +62,6 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
 				$(MARVELL_DRV)
 
-ifeq ($(HANDLE_EA_EL3_FIRST_NS),1)
-BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/a3700_ea.c
-endif
-
 ifeq ($(CM3_SYSTEM_RESET),1)
 BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/cm3_system_reset.c
 endif

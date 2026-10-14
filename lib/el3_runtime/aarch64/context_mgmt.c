@@ -258,13 +258,6 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 		scr_el3 |= SCR_EnSCXT_BIT;
 	}
 
-	if (is_feat_sctlr2_supported()) {
-		/* Set the SCTLR2En bit in SCR_EL3 to enable access to
-		 * SCTLR2_ELx registers.
-		 */
-		scr_el3 |= SCR_SCTLR2En_BIT;
-	}
-
 	if (is_feat_d128_supported()) {
 		/*
 		 * Set the D128En bit in SCR_EL3 to enable access to 128-bit
@@ -348,7 +341,7 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 	}
 
-#if HANDLE_EA_EL3_FIRST_NS
+#if FFH_SUPPORT
 	/* SCR_EL3.EA: Route External Abort and SError Interrupt to EL3. */
 	scr_el3 |= SCR_EA_BIT;
 #endif
@@ -377,13 +370,6 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		 * RCWMASK_EL1 and RCWSMASK_EL1 registers.
 		 */
 		scr_el3 |= SCR_RCWMASKEn_BIT;
-	}
-
-	if (is_feat_sctlr2_supported()) {
-		/* Set the SCTLR2En bit in SCR_EL3 to enable access to
-		 * SCTLR2_ELx registers.
-		 */
-		scr_el3 |= SCR_SCTLR2En_BIT;
 	}
 
 	if (is_feat_d128_supported()) {
@@ -612,6 +598,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 
 	if (is_feat_mec_supported()) {
 		scr_el3 |= SCR_MECEn_BIT;
+	}
+
+	if (is_feat_sctlr2_supported()) {
+		scr_el3 |= SCR_SCTLR2En_BIT;
 	}
 
 	/*

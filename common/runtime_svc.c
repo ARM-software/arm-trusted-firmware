@@ -237,7 +237,8 @@ static void sync_handler(cpu_context_t *ctx, uint32_t smc_fid, u_register_t scr_
 
 void handler_sync_exception(cpu_context_t *ctx)
 {
-	uint32_t smc_fid = read_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X0);
+	gp_regs_t *gpregs = get_gpregs_ctx(ctx);
+	uint32_t smc_fid = read_ctx_reg(gpregs, CTX_GPREG_X0);
 	u_register_t esr_el3 = read_esr_el3();
 	u_register_t exc_class = EXTRACT(ESR_EC, esr_el3);
 	el3_state_t *state = get_el3state_ctx(ctx);
@@ -253,7 +254,18 @@ void handler_sync_exception(cpu_context_t *ctx)
 		return sync_handler(ctx, smc_fid, scr_el3);
 #endif /* CTX_INCLUDE_AARCH32_REGS */
 	} else if (exc_class == EC_AARCH64_SYS) {
+		u_register_t sp_el0 = read_ctx_reg(gpregs, CTX_GPREG_SP_EL0);
 		int ret = handle_sysreg_trap(esr_el3, ctx, get_flags(smc_fid, scr_el3));
+
+		/*
+		 * Hardening check against firmware bugs where a trapped write
+		 * to XZR was incorrectly handled. Such writes will land on
+		 * SP_EL0 so check that its value hasn't changed.
+		 */
+		if (sp_el0 != read_ctx_reg(gpregs, CTX_GPREG_SP_EL0)) {
+			panic();
+		}
+
 		if (ret == TRAP_RET_CONTINUE) {
 			/* advance the PC to continue after the instruction */
 			write_ctx_reg(state, CTX_ELR_EL3, read_ctx_reg(state, CTX_ELR_EL3) + 4);
@@ -271,8 +283,8 @@ void handler_sync_exception(cpu_context_t *ctx)
 		 * platform fatal error handler rather than the generic EA one.
 		 */
 		if (is_feat_ras_supported() &&
-		    (EXTRACT(EABORT_SET, esr_el3) == ERROR_STATUS_SET_UC ||
-		     EXTRACT(EABORT_DFSC, esr_el3) == SYNC_EA_FSC)) {
+		    (EXTRACT(EABORT_DFSC, esr_el3) == SYNC_EA_FSC &&
+		     EXTRACT(EABORT_SET, esr_el3) == ERROR_STATUS_SET_UC)) {
 			return plat_handle_uncontainable_ea();
 		}
 		/* Setup exception class and syndrome arguments for platform handler */

@@ -16,7 +16,7 @@
 
 static int access_raz_wi(bool is_read, uint8_t rt, cpu_context_t *ctx)
 {
-	if (is_read && rt != XZR_REG_NUM) {
+	if (is_read) {
 		ctx->gpregs_ctx.ctx_regs[rt] = 0UL;
 	}
 	return TRAP_RET_CONTINUE;
@@ -28,13 +28,6 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 	uint8_t rt = EXTRACT(ISS_SYS64_RT, esr_el3);
 	bool is_read = EXTRACT(ISS_SYS64_DIR, esr_el3);
 
-	if (is_feat_idte3_supported() &&
-	    ((opcode >= ISS_SYSREG_OPCODE_IDREG_MIN &&
-	      opcode <= ISS_SYSREG_OPCODE_IDREG_MAX) ||
-	      opcode == ISS_SYSREG_OPCODE_GMID_EL1)) {
-		return handle_idreg_trap(rt, opcode, ctx, flags);
-	}
-
 	if (is_feat_rng_trap_supported() &&
 	    (opcode == ISS_SYSREG_OPCODE_RNDR ||
 	     opcode == ISS_SYSREG_OPCODE_RNDRRS)) {
@@ -44,7 +37,7 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		int ret = TRAP_RET_CONTINUE;
 
 		/* Only expect reads, write shouldn't be possible. */
-		assert(EXTRACT(ISS_SYS64_DIR, esr_el3) != 0);
+		assert(is_read);
 
 		/* Successful reads should have NZCV == 0 */
 		new_spsr = read_ctx_reg(state, CTX_SPSR_EL3);
@@ -56,7 +49,7 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		 * also be logical but C6.1.4.1 doesn't make this clear and
 		 * success is simpler for now.
 		 */
-		if (rt != ISS_SYSREG_RT_XZR) {
+		if (rt != XZR_REG_NUM) {
 			data = &(ctx->gpregs_ctx.ctx_regs[rt]);
 
 			ret = plat_handle_rng_trap(data, opcode == ISS_SYSREG_OPCODE_RNDRRS);
@@ -73,6 +66,29 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
 		assert(ret == TRAP_RET_CONTINUE);
 
 		return ret;
+	}
+
+	/*
+	 * `mrs xzr, <register>` is always a NOP. Catch this early for traps
+	 * that don't have special behaviour.
+	 */
+	if (is_read && (rt == XZR_REG_NUM)) {
+		return TRAP_RET_CONTINUE;
+	}
+
+	/*
+	* S3_0_C0_C1_{0..7} is fully populated. The SCR_EL3.TID3 definition
+	* also lists S3_0_C0_C{2..7}_{0..7} so match
+	* S3_0_C0_C{1..7}_{0..7}. There is a single group 5 register.
+	*/
+	if (is_feat_idte3_supported() &&
+	    (((EXTRACT(ISS_SYS64_OP0, opcode) == 3) &&
+	      (EXTRACT(ISS_SYS64_OP1, opcode) == 0) &&
+	      (EXTRACT(ISS_SYS64_CRN, opcode) == 0) &&
+	      (EXTRACT(ISS_SYS64_CRM, opcode) >= 1) &&
+	      (EXTRACT(ISS_SYS64_CRM, opcode) <= 7)) ||
+	     (opcode == ISS_SYSREG_OPCODE_GMID_EL1))) {
+		return handle_idreg_trap(rt, opcode, ctx, flags);
 	}
 
 	if (is_feat_ras_supported() && !FAULT_INJECTION_SUPPORT &&

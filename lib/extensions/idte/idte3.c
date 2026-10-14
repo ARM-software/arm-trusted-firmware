@@ -242,16 +242,10 @@ int handle_idreg_trap(uint8_t rt, uint64_t idreg, cpu_context_t *ctx, u_register
 		break;
 
 	/*
-	 * Any ID register access that falls within the Group 3
-	 * ID space (op0 == 3, op1 == 0, CRn == 0, CRm == {2-7}, op2 == {0-7})
-	 * but is not explicitly handled here will return 0.
-	 * This covers newly introduced ID registers that were previously
-	 * reserved or unknown.
-	 *
-	 * When new ID registers are added in future revisions of
-	 * the architecture, they must be explicitly handled in this
-	 * switch statement to return their actual value instead of
-	 * Res0.
+	 * Any ID register that falls within the Group 3 ID space but is not
+	 * explicitly handled here will return 0. This covers newly introduced
+	 * ID registers that were previously reserved or unknown. This is to
+	 * ensure forwards compatibility instead of panicing.
 	 */
 	default:
 		WARN("Unknown ID register: S%u_%u_C%u_C%u_%u is trapped\n",

@@ -21,7 +21,7 @@ Advisory TFV-13 (CVE-2024-7881)
 +----------------+-----------------------------------------------------------------+
 | Impact         | Potential leakage of secure world data to normal world.         |
 +----------------+-----------------------------------------------------------------+
-| Fix Version    | `Gerrit topic #ar/smccc_arch_wa_4`_                             |
+| Fix Version    | Commit d8823f36fc1a (merged on 28 January 2026)                 |
 |                | Also see mitigation guidance in the `Official Arm Advisory`_    |
 +----------------+-----------------------------------------------------------------+
 | Credit         | Arm                                                             |
@@ -86,6 +86,5 @@ For further technical information, affected CPUs, and detailed guidance,
 refer to the full `Official Arm Advisory`_.
 
 .. _CVE-2024-7881: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-7881
-.. _Gerrit topic #ar/smccc_arch_wa_4: https://review.trustedfirmware.org/q/topic:%22ar/smccc_arch_wa_4%22
 .. _SMC Calling Convention specification: https://developer.arm.com/documentation/den0028/latest
 .. _Official Arm Advisory: https://developer.arm.com/documentation/110326/latest
