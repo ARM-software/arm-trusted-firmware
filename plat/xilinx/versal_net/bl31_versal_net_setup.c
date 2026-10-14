@@ -94,7 +94,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 #if !(TFA_NO_PM)
 	uint64_t tfa_handoff_addr;
-	uint8_t buff[HANDOFF_PARAMS_MAX_SIZE] = {0};
+	uint8_t buff[HANDOFF_PARAMS_MAX_SIZE] __aligned(8) = {0};
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 #if DEBUG

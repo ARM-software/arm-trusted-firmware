@@ -81,7 +81,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint64_t tfa_handoff_addr;
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = (uint32_t)HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
-	const uint8_t addr[HANDOFF_PARAMS_MAX_SIZE];
+	const uint8_t addr[HANDOFF_PARAMS_MAX_SIZE] __aligned(8);
 #endif
 #if (TRANSFER_LIST == 1)
 	int32_t tl_rc;
