@@ -5,6 +5,7 @@
  *
  * TRM: https://support.arm.com/documentation/101595/latest
  * SDEN: https://support.arm.com/documentation/109704/latest
+ * MinRevision: r0p1
  */
 
 #include "wa_cve_2022_23960_bhb_vector.S"
