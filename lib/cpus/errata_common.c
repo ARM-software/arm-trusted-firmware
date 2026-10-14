@@ -24,6 +24,7 @@
 #include <neoverse_n2.h>
 #include <neoverse_v2.h>
 #include <neoverse_v3.h>
+#include <neoverse_v3ae.h>
 
 struct erratum_entry *find_erratum_entry(uint32_t errata_id)
 {
