@@ -107,6 +107,19 @@ static inline void _op ## _type(uint64_t v)		\
 	 __asm__ (#_op " " #_type ", %0" : : "r" (v));	\
 }
 
+/*
+ * Execute the cpp rctx instruction.
+ *
+ * WARNING: this is broken on some cores and requires mitigations. See
+ * CVE-2025-0647 and cve_2025_0647_cpp_wa() for details.
+ */
+static inline void cpp_rctx(uint64_t arg)
+{
+	__asm__ volatile (
+		".arch_extension predres\n"
+		"cpp rctx, %0" : : "r" (arg) : "memory");
+}
+
 /*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
@@ -385,6 +398,18 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, ishld)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
+
+static inline void psbcsync(void)
+{
+	/* use the hint synonym for compatibility */
+	__asm__ volatile ("hint #17");
+}
+
+static inline void tsbcsync(void)
+{
+	/* use the hint synonym for compatibility */
+	__asm__ volatile ("hint #18");
+}
 
 static inline void enable_irq(void)
 {

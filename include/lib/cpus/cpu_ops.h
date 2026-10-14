@@ -39,7 +39,7 @@
 #else
 #define CPU_RESET_FUNC_SIZE	0
 #endif /* IMAGE_AT_EL3 */
-#define CPU_E_HANDLER_FUNC_SIZE CPU_WORD_SIZE
+#define CPU_E_HANDLER_FUNCS_SIZE CPU_WORD_SIZE
 /* The power down core and cluster is needed only in BL31 and BL32 */
 #if defined(IMAGE_BL31) || defined(IMAGE_BL32)
 #define CPU_PWR_DWN_OPS_SIZE	CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
@@ -73,8 +73,8 @@
 #define CPU_MIDR		0
 #define CPU_RESET_FUNC		CPU_MIDR + CPU_MIDR_SIZE
 #if __aarch64__
-#define CPU_E_HANDLER_FUNC	CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
-#define CPU_PWR_DWN_OPS		CPU_E_HANDLER_FUNC + CPU_E_HANDLER_FUNC_SIZE
+#define CPU_E_HANDLER_FUNCS	CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
+#define CPU_PWR_DWN_OPS		CPU_E_HANDLER_FUNCS + CPU_E_HANDLER_FUNCS_SIZE
 #else
 #define CPU_PWR_DWN_OPS		CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
 #endif /* __aarch64__ */
@@ -88,6 +88,7 @@
 #include <arch_helpers.h>
 #include <lib/cassert.h>
 #include <lib/spinlock.h>
+typedef int (*e_handler_t)(uint32_t);
 
 typedef u_register_t(*cpu_ops_pwr_dwn_op_t)(void);
 
@@ -97,7 +98,7 @@ struct cpu_ops {
 	void (*reset_func)(void);
 #endif /* IMAGE_AT_EL3 */
 #if __aarch64__
-	int (*e_handler_func)(long es);
+	e_handler_t *e_handler_funcs;
 #endif /* __aarch64__ */
 #if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS
 	cpu_ops_pwr_dwn_op_t pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS];

@@ -42,6 +42,52 @@
 	.endm
 
 	/*
+	 * Helper to emit an entry in the e_handler_funcs array. If a handler is
+	 * registered then it will be defined as a symbol. Otherwise leave a
+	 * NULL hole. Do not emit anything if the #slots is fewer.
+	 */
+	.macro declare_e_handler_func _name:req, _slot:req, _slots:req
+	.if \_slot < \_slots
+		.ifdef \_name\()_e_handler_func_\_slot
+			.quad \_name\()_e_handler_func_\_slot
+		.else
+			.quad 0
+		.endif
+	.endif
+	.endm
+
+	/*
+	 * Declare the e_handlers array referenced by cpu_ops.
+	 *
+	 * _name: same as declare_cpu_ops_base
+	 *
+	 * _slots: number of spaces to allocate
+	 *
+	 * _handler: optional pointer to a handler if a single slot is needed
+	 */
+	.macro declare_e_handler_funcs _name:req, _slots:req, _handler
+	.pushsection .rodata
+	.align 3
+	\_name\()_e_handler_funcs:
+
+	.ifnb \_handler
+	.quad \_handler
+	.else
+	/* Placeholders for up to 8 slots, the maximum possible at the moment. */
+	declare_e_handler_func \_name, 0, \_slots
+	declare_e_handler_func \_name, 1, \_slots
+	declare_e_handler_func \_name, 2, \_slots
+	declare_e_handler_func \_name, 3, \_slots
+	declare_e_handler_func \_name, 4, \_slots
+	declare_e_handler_func \_name, 5, \_slots
+	declare_e_handler_func \_name, 6, \_slots
+	declare_e_handler_func \_name, 7, \_slots
+	.endif
+
+	.popsection
+	.endm
+
+	/*
 	 * Declare CPU operations
 	 *
 	 * _name:
@@ -51,7 +97,7 @@
 	 * _resetfunc:
 	 *	Reset function for the CPU.
 	 * _e_handler:
-	 *	This is a placeholder for future per CPU exception handlers.
+	 *	Pointer to a list of IMP DEF exception handlers.
 	 * _power_down_ops:
 	 *	Comma-separated list of functions to perform power-down
 	 *	operatios on the CPU. At least one, and up to
@@ -62,7 +108,7 @@
 	 *	used to handle power down at subsequent levels
 	 */
 	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
-		_e_handler:req, _power_down_ops:vararg
+		_e_handler_ptr, _power_down_ops:vararg
 	.section .cpu_ops, "a"
 	.align 3
 	.type cpu_ops_\_name, %object
@@ -70,7 +116,7 @@
 #if defined(IMAGE_AT_EL3)
 	.quad \_resetfunc
 #endif
-	.quad \_e_handler
+	.quad \_e_handler_ptr
 #ifdef IMAGE_BL31
 	/* Insert list of functions */
 	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops
@@ -124,15 +170,44 @@
 
 	.endm
 
+	/* Base high-level macro for a standard CPU */
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
 		_power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, \_power_down_ops
 	.endm
 
+	/*
+	 * High-level macro for a CPU that needs to handle a single IMP DEF trap.
+	 * ESR_EL3.ISS must be 0 when this trap happens.
+	 */
 	.macro declare_cpu_ops_eh _name:req, _midr:req, _resetfunc:req, \
 		_e_handler:req, _power_down_ops:vararg
+
+		declare_e_handler_funcs \_name, 1, \_e_handler
+
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			\_e_handler, \_power_down_ops
+			\_name\()_e_handler_funcs, \_power_down_ops
+	.endm
+
+	/*
+	 * High-level macro for a CPU that needs to handle a number of IMP DEF
+	 * traps. ESR_EL3.ISS will report the trap number.
+	 */
+	.macro declare_cpu_ops_eh_traps _name:req, _midr:req, _resetfunc:req, \
+		_patch_slots:req, _power_down_ops:vararg
+
+		/* check thata slot has been allocated for each patch in use */
+		.ifndef \_name\()_required_slots
+		.error "CPU declared patch slots but didn't use them"
+		.endif
+		.if \_name\()_required_slots > \_patch_slots
+		.error "CPU did not declare enough patch slots"
+		.endif
+
+		declare_e_handler_funcs \_name, \_patch_slots
+
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
+			\_name\()_e_handler_funcs, \_power_down_ops
 	.endm
 
 	/*
@@ -665,6 +740,76 @@
  */
 .macro signal_pabandon_handled
 	mov_imm	x0, PABANDON_ACK
+.endm
+
+/*
+ * Configure an instruction patch in a CPU.
+ *
+ * Arguments
+ *   _slot:
+ *       Patch slot index to configure.
+ *   _cpu.*:
+ *       Value for the corresponding register.
+ *
+ * Clobbers
+ *   x0
+ */
+.macro setup_instruction_patch _slot _cpupor _cpupmr _cpupcr _cpupor2=0 _cpupmr2=0
+	/* Frist select which slot to configure */
+	mov	x0, #\_slot
+	msr	CPUPSELR_EL3, x0
+
+/* Set _cpupor2 and _cpupmr2 if used */
+.if \_cpupor2 && \_cpupmr2
+	ldr 	x0, =\_cpupor2
+	msr	CPUPOR2_EL3, x0
+
+	ldr	x0, =\_cpupmr2
+	msr	CPUPMR2_EL3, x0
+.endif
+
+	ldr 	x0, =\_cpupor
+	msr	CPUPOR_EL3, x0
+
+	ldr	x0, =\_cpupmr
+	msr	CPUPMR_EL3, x0
+
+	ldr	x0, =\_cpupcr
+	msr	CPUPCR_EL3, x0
+
+	/* No ISB here since errata framework does ISB. */
+.endm
+
+/*
+ * Configure an instruction patch in a CPU that reports which patch slot fired
+ * in ESR_EL3.ISS. Behaves the same as setup_instruction_patch but will also
+ * dispatch the correct handler.
+ *
+ * New arguments:
+ *   _handler:
+*        function to call when this instruction patch fires
+ *
+ * Clobbers
+ *   x0
+ */
+.macro setup_multiple_instruction_patch _name:req, _slot:req, _cpupor:req, \
+	_cpupmr:req, _cpupcr:req, _handler:req, _cpupor2=0, _cpupmr2=0
+	/* This is just an instruction patch with trap enabled in config. */
+	setup_instruction_patch \_slot \_cpupor \_cpupmr \_cpupcr \_cpupor2 \_cpupmr2
+
+	/*
+	 * stash the number of slots needed so that declare_cpu_ops_eh_traps can
+	 * check it is allocating enough
+	 */
+	.ifndef \_name\()_required_slots
+	.equ \_name\()_required_slots, \_slot + 1
+	.endif
+	.if (\_slot + 1) > \_name\()_required_slots
+	.equ \_name\()_required_slots, \_slot + 1
+	.endif
+
+	/* Store the trap handler pointer. */
+	.equiv \_name\()_e_handler_func_\_slot, \_handler
 .endm
 
 #endif /* CPU_MACROS_S */

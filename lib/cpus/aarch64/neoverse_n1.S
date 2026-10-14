@@ -8,6 +8,7 @@
  */
 
 #include <arch.h>
+#include <arm_impdef_regs.h>
 #include <asm_macros.S>
 #include <bl31/sync_handle.h>
 #include <cpuamu.h>
@@ -25,8 +26,6 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Neoverse-N1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
-
-	.global neoverse_n1_errata_ic_trap_handler
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N1_BHB_LOOP_COUNT, neoverse_n1

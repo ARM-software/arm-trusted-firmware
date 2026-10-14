@@ -7,13 +7,14 @@
  * SDEN: https://support.arm.com/documentation/SDEN-1982442/latest
  */
 
+#include "wa_cve_2022_23960_bhb_vector.S"
+
 #include <arch.h>
+#include <arm_impdef_regs.h>
 #include <asm_macros.S>
 #include <cpu_macros.S>
 #include <dsu_macros.S>
 #include <neoverse_n2.h>
-#include "wa_cve_2022_23960_bhb_vector.S"
-#include <wa_cve_2025_0647_cpprctx.h>
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -302,19 +303,11 @@ check_erratum_ls neoverse_n2, CVE(2024, 5660), CPU_REV(0, 3)
 	 */
 workaround_reset_start neoverse_n2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #ifdef IMAGE_BL31
-	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
-	bl	wa_cve_2025_0647_instruction_patch
+	setup_instruction_patch 0 0xEE670DF3 0xFFFF0FFF 0x800002001FF
 #endif /* IMAGE_BL31 */
 workaround_reset_end neoverse_n2, CVE(2025, 647)
 
 check_erratum_chosen neoverse_n2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-
-#if WORKAROUND_CVE_2025_0647
-func neoverse_n2_impl_defined_el3_handler
-	mov	x0, #WA_LS_RCG_EN
-	b	wa_cve_2025_0647_do_cpp_wa
-endfunc neoverse_n2_impl_defined_el3_handler
-#endif
 
 add_erratum_entry neoverse_n2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 check_erratum_chosen neoverse_n2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
@@ -374,11 +367,10 @@ func neoverse_n2_core_pwr_dwn
 	ret
 endfunc neoverse_n2_core_pwr_dwn
 
-
-#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2025_0647
 declare_cpu_ops_eh neoverse_n2, NEOVERSE_N2_MIDR, \
 	neoverse_n2_reset_func, \
-	neoverse_n2_impl_defined_el3_handler, \
+	cve_2025_0647_cpp_no_gating_wa, \
 	neoverse_n2_core_pwr_dwn
 #else
 declare_cpu_ops neoverse_n2, NEOVERSE_N2_MIDR, \

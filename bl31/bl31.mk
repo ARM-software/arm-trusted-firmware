@@ -164,10 +164,6 @@ BL31_SOURCES		+=	lib/cpus/aarch64/wa_cve_2017_5715_bpiall.S	\
 				lib/cpus/aarch64/wa_cve_2017_5715_mmu.S
 endif
 
-ifeq (${WORKAROUND_CVE_2025_0647},1)
-BL31_SOURCES		+=	lib/cpus/aarch64/wa_cve_2025_0647_cpprctx.S
-endif
-
 ifeq ($(SMC_PCI_SUPPORT),1)
 BL31_SOURCES		+=	services/std_svc/pci_svc.c
 endif

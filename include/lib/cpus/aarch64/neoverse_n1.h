@@ -58,10 +58,4 @@
 
 #define NEOVERSE_N1_CPUACTLR3_EL1_BIT_10		(ULL(1) << 10)
 
-/* Instruction patching registers */
-#define CPUPSELR_EL3					S3_6_C15_C8_0
-#define CPUPCR_EL3					S3_6_C15_C8_1
-#define CPUPOR_EL3					S3_6_C15_C8_2
-#define CPUPMR_EL3					S3_6_C15_C8_3
-
 #endif /* NEOVERSE_N1_H */

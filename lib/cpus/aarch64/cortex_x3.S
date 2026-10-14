@@ -8,13 +8,13 @@
  */
 
 #include <arch.h>
+#include <arm_impdef_regs.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
 #include <cortex_x3.h>
 #include "wa_cve_2022_23960_bhb_vector.S"
 
 #include <cpu_macros.S>
-#include <wa_cve_2025_0647_cpprctx.h>
 
 #include <plat_macros.S>
 
@@ -213,19 +213,11 @@ check_erratum_ls cortex_x3, CVE(2024, 7881), CPU_REV(1, 2)
 	 */
 workaround_reset_start cortex_x3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #ifdef IMAGE_BL31
-	mov	x0, #WA_PATCH_SLOT(3)
-	bl	wa_cve_2025_0647_instruction_patch
+	setup_instruction_patch 3 0xD50B73E0 0xFFFFFFE0 0x800002001FF
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x3, CVE(2025, 647)
 
 check_erratum_chosen cortex_x3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-
-#if WORKAROUND_CVE_2025_0647
-func cortex_x3_impl_defined_el3_handler
-	mov	x0, #WA_LS_RCG_EN
-	b	wa_cve_2025_0647_do_cpp_wa
-endfunc cortex_x3_impl_defined_el3_handler
-#endif
 
 add_erratum_entry cortex_x3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 check_erratum_chosen cortex_x3, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
@@ -253,10 +245,10 @@ func cortex_x3_core_pwr_dwn
 endfunc cortex_x3_core_pwr_dwn
 
 
-#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2025_0647
 declare_cpu_ops_eh cortex_x3, CORTEX_X3_MIDR, \
 	cortex_x3_reset_func, \
-	cortex_x3_impl_defined_el3_handler, \
+	cve_2025_0647_cpp_no_gating_wa, \
 	cortex_x3_core_pwr_dwn
 #else
 declare_cpu_ops cortex_x3, CORTEX_X3_MIDR, \

@@ -506,7 +506,20 @@ imp_def_trap_handler:
 	bl 	get_cpu_ops_ptr
 
 	/* Get the cpu_ops exception handler */
-	ldr	x0, [x0, #CPU_E_HANDLER_FUNC]
+	ldr	x1, [x0, #CPU_E_HANDLER_FUNCS]
+
+	/* Caller left ESR_EL3 in x16. Get the ISS and prepare it as argument 0. */
+	ubfx	x0, x16, ESR_ISS_SHIFT, ESR_ISS_LENGTH
+	/*
+	 * Dispatch an instruction patch trap to the right handler.
+	 * Cores that report the instruction patch slot in ISS can route
+	 * to the right handler. Cores that do not will have the field
+	 * RES0 so will always route to the first handler.
+	 * Bits other than ISS[0:2] are ignored.
+	 * Equivalent to `cpu_ops->e_handler_funcs[iss & 0x7]`
+	 */
+	ubfx	x2, x0, #0, #3
+	ldr	x1, [x1, x2, lsl #3] /* x1 + x2 * CPU_WORD_SIZE */
 
 	/* Stash context pointer. */
 	mov	x19, x6
@@ -515,8 +528,8 @@ imp_def_trap_handler:
 	* If the reserved function pointer is NULL, this CPU does not have an
 	* implementation defined exception handler function
 	*/
-	cbz	x0, report_unhandled_exception
-	blr	x0
+	cbz	x1, report_unhandled_exception
+	blr	x1
 
 	cmp	x0, #TRAP_RET_CONTINUE
 	b.ne	1f
