@@ -207,6 +207,7 @@ bool is_errata_fid(uint32_t smc_fid)
 	case ARM_EM_FEATURES | (SMC_64 << FUNCID_CC_SHIFT):
 	case ARM_EM_CPU_ERRATUM_FEATURES:
 	case ARM_EM_CPU_ERRATUM_FEATURES | (SMC_64 << FUNCID_CC_SHIFT):
+	case ARM_EM_CPU_WORKAROUND_CONFIG:
 		return true;
 	};
 
@@ -268,6 +269,10 @@ uintptr_t errata_abi_smc_handler(uint32_t smc_fid, u_register_t x1,
 		}
 		ret_id = verify_errata_implemented((uint32_t)x1);
 		SMC_RET1(handle, ret_id);
+		break; /* unreachable */
+	/* SMC64 only */
+	case ARM_EM_CPU_WORKAROUND_CONFIG:
+		SMC_RET1(handle, EM_UNKNOWN_ERRATUM);
 		break; /* unreachable */
 	default:
 		{
