@@ -59,10 +59,12 @@ static int cpu_on_validate_state(aff_info_state_t aff_state)
  * The state of all the relevant power domains are changed after calling the
  * platform handler as it can return error.
  ******************************************************************************/
-int psci_cpu_on_start(unsigned int target_idx, u_register_t target_cpu)
+int psci_cpu_on_start(unsigned int target_idx, u_register_t target_cpu,
+		      const entry_point_info_t *ep)
 {
 	int rc;
 	aff_info_state_t target_aff_state;
+	entry_point_info_t *target_ep;
 
 	if (target_idx >= PLATFORM_CORE_COUNT) {
 		return PSCI_E_INVALID_PARAMS;
@@ -99,6 +101,13 @@ int psci_cpu_on_start(unsigned int target_idx, u_register_t target_cpu)
 	if (rc != PSCI_E_SUCCESS) {
 		goto on_exit;
 	}
+
+	/*
+	 * This caller owns the successful CPU_ON request. Publish its entry
+	 * state while the target CPU lock excludes later ON_PENDING callers.
+	 */
+	target_ep = get_cpu_data_by_index(target_idx, warmboot_ep_info);
+	*target_ep = *ep;
 
 	/*
 	 * Call the cpu on handler registered by the Secure Payload Dispatcher
