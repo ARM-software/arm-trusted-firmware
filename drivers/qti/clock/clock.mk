@@ -22,7 +22,7 @@ BL31_SOURCES += \
 # Sequences shared by the hoya SoCs. hoya_clock_gpu.c and hoya_clock_lpass.c
 # are built against the chipset's clock_hwio.h; hoya_clock.c takes every
 # register from its caller.
-ifneq ($(filter lemans,$(CHIPSET)),)
+ifneq ($(filter lemans monaco,$(CHIPSET)),)
 PLAT_INCLUDES += \
 	-I$(CLOCK_DRV_PATH)/hoya \
 	-I$(CLOCK_DRV_PATH)/$(CHIPSET)
