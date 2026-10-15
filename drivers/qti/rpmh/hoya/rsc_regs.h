@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * RSC (Resource State Coordinator) register definitions for the lemans
- * (qcs9075) APSS RPMh controller, DRV0 (TZ) view.
+ * RSC (Resource State Coordinator) register definitions for the Lemans
+ * and Monaco APSS RPMh controller, DRV0 (TZ) view.
  */
 
 #ifndef RSC_REGS_H
