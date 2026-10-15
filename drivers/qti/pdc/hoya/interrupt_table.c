@@ -7,7 +7,7 @@
 #include <drivers/qti/pdc/pdc_internal.h>
 #include <lib/utils_def.h>
 
-/* PDC interrupt mapping for lemans (qcs9075) APSS */
+/* Apps PDC interrupt mapping of the hoya chipsets */
 struct pdc_interrupt_mapping g_pdc_interrupt_mapping[] = {
 	/* Bit 0 */
 	{ { TRIGGER_RISING_EDGE, PDC_DRV2 }, 512 }, /* rpmh_wake */

@@ -14,10 +14,10 @@
 
 #define RES_CX_OFF	0U
 #define RES_CX_RET	1U
-#define RES_CX_MOL	2U	/* SVS3 (min_svs) */
+#define RES_CX_MOL	2U
 
 #define RES_MX_RET	1U
-#define RES_MX_MOL	2U	/* NOM */
+#define RES_MX_MOL	2U
 
 #define RES_XO_OFF	0U
 #define RES_XO_MOL	3U	/* ON */
