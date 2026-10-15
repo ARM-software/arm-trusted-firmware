@@ -231,10 +231,24 @@ void qti_get_sys_suspend_power_state(psci_power_state_t *req_state)
 }
 
 /*
+ * psci_system_suspend() denies a request whose state does not power down the
+ * system level, so SYSTEM_SUSPEND is only worth advertising when the deepest
+ * idle state of the backend reaches it.
+ */
+static bool qti_sys_suspend_supported(void)
+{
+	psci_power_state_t state;
+
+	qti_get_sys_suspend_power_state(&state);
+
+	return state.pwr_domain_state[PLAT_MAX_PWR_LVL] != PSCI_LOCAL_STATE_RUN;
+}
+
+/*
  * Structure containing platform specific PSCI operations. Common
  * PSCI layer will use this.
  */
-const plat_psci_ops_t plat_qti_psci_pm_ops = {
+static plat_psci_ops_t plat_qti_psci_pm_ops = {
 	.pwr_domain_on = qti_cpu_power_on,
 	.pwr_domain_on_finish = qti_cpu_power_on_finish,
 	.cpu_standby = qti_cpu_standby,
@@ -245,7 +259,6 @@ const plat_psci_ops_t plat_qti_psci_pm_ops = {
 	.system_reset = qti_system_reset,
 	.get_node_hw_state = NULL,
 	.translate_power_state_by_mpidr = NULL,
-	.get_sys_suspend_power_state = qti_get_sys_suspend_power_state,
 	.validate_power_state = qti_validate_power_state,
 };
 
@@ -261,9 +274,16 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	qti_sec_core_remap((uintptr_t)bl31_warm_entrypoint);
 
 	err = plat_qti_pwr_psci_init((uintptr_t)bl31_warm_entrypoint);
-	if (err == PSCI_E_SUCCESS) {
-		*psci_ops = &plat_qti_psci_pm_ops;
+	if (err != PSCI_E_SUCCESS) {
+		return err;
 	}
+
+	if (qti_sys_suspend_supported()) {
+		plat_qti_psci_pm_ops.get_sys_suspend_power_state =
+			qti_get_sys_suspend_power_state;
+	}
+
+	*psci_ops = &plat_qti_psci_pm_ops;
 
 	return err;
 }
