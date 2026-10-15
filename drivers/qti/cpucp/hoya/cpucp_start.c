@@ -143,7 +143,7 @@ void qti_cpucp_init(void)
 
 	if (version != CPUCP_SHARED_VERSION) {
 		ERROR("CPUCP: unsupported firmware interface %u\n", version);
-		return;
+		panic();
 	}
 
 	cpucp_set_clocks(cfg);
@@ -156,7 +156,7 @@ void qti_cpucp_init(void)
 	cpucp_fill_cpr_info(&cfg->cpr);
 	if (cpucp_fill_mx_levels() != 0) {
 		ERROR("CPUCP: no MX levels in the command DB\n");
-		return;
+		panic();
 	}
 
 	/* SLT status unknown: there is no platform info service. */
