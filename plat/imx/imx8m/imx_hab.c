@@ -120,7 +120,8 @@ int imx_hab_handler(uint32_t smc_fid,
 
 		size_t max_bytes = *(size_t *)bytes_ptr;
 
-		if (smc_validate_mem_range(event_buf, max_bytes) != SMC_OK) {
+		if ((event_buf != 0U) &&
+		    smc_validate_mem_range(event_buf, max_bytes) != SMC_OK) {
 			WARN("HAB: REPORT_EVENT buf 0x%lx+0x%zx failed NS check\n",
 			     event_buf, max_bytes);
 			return (int)HAB_FAILURE;
