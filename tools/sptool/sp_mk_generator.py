@@ -140,33 +140,26 @@ def get_pm_offset(node):
 def get_uuid(sp_layout, sp, args :dict):
     ''' Helper to fetch uuid from pm file listed in sp_layout.json'''
 
-    def to_bytes_even(h: str) -> bytes:
-        '''
-        Zero-fill any odd-length hex string representing an UUID since
-        bytes.fromhex() always expects even number of bytes.
-        '''
-        h = h.zfill(len(h) + len(h) % 2)
-        return bytes.fromhex(h)
-
     if "uuid" in sp_layout[sp]:
         # Extract the UUID from the JSON file if the SP entry has a 'uuid' field
         uuid_std = uuid.UUID(sp_layout[sp]['uuid'])
     else:
-        with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
-            uuid_lines = [l for l in pm_f if 'uuid' in l]
-        assert(len(uuid_lines) == 1)
+        manifest_path = get_sp_manifest_full_path(sp_layout[sp], args)
+        with open(manifest_path, "r") as pm_f:
+            manifest = fdt.parse_dts(pm_f.read())
+        # Only the root partition UUID identifies the SP package. Other
+        # properties (e.g. image-uuid) and child nodes may contain UUIDs too.
+        uuid_words = manifest.get_property("uuid", "/")
+        if not isinstance(uuid_words, fdt.PropWords) or len(uuid_words) != UUID_LEN:
+            raise ValueError(
+                f"{manifest_path}: root uuid must contain exactly {UUID_LEN} 32-bit words"
+            )
+
         # The uuid field in SP manifest is the little endian representation
         # mapped to arguments as described in SMCCC section 5.3.
         # Convert each unsigned integer value to a big endian representation
         # required by fiptool.
-        uuid_parsed = re.findall("0x([0-9a-f]+)", uuid_lines[0])
-
-        # UUID must have 4 little endian words
-        assert len(uuid_parsed) == 4, "SP manifest UUID must have exactly 4 words"
-
-        y = [to_bytes_even(uuid) for uuid in uuid_parsed]
-        z = [int.from_bytes(i, byteorder='little', signed=False) for i in y]
-        uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
+        uuid_std = uuid.UUID(bytes=struct.pack("<4I", *uuid_words))
     return uuid_std
 
 def get_load_address(sp_layout, sp, args :dict):
