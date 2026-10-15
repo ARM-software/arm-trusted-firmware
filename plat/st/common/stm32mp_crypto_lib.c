@@ -520,8 +520,7 @@ int plat_get_enc_key_info(enum fw_enc_status_t fw_enc_status, uint8_t *key,
 		return -EINVAL;
 	}
 
-	if (stm32_get_otp_index(ENCKEY_OTP, &otp_idx, &otp_len) != 0) {
-		VERBOSE("%s: get %s index error\n", __func__, ENCKEY_OTP);
+	if (stm32_get_enc_key_otp_idx_len(&otp_idx, &otp_len) != 0) {
 		return -EINVAL;
 	}
 

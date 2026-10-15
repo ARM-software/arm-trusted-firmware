@@ -3,6 +3,8 @@
  * Copyright (C) 2023-2026, STMicroelectronics - All Rights Reserved
  */
 
+#include <platform_def.h>
+
 / {
 	soc@0 {
 #if !STM32MP_SPI_NAND && !STM32MP_SPI_NOR && !STM32MP_HYPERFLASH
@@ -44,6 +46,31 @@
 			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
 			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
 			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+#if TRUSTED_BOARD_BOOT
+			stm32mp_cfg_cert_uuid = "501d8dd2-8bce-49a5-84eb-559a9f2eaeaf";
+			t_key_cert_uuid = "827ee890-f860-e411-a1b4-777a21b4f94c";
+			soc_fw_key_uuid = "8ab8becc-f960-e411-9ad0-eb4822d8dcf8";
+			tos_fw_key_cert_uuid = "9477d603-fb60-e411-85dd-b7105b8cee04";
+			nt_fw_key_cert_uuid = "8ad5832a-fb60-e411-8aaf-df30bbc49859";
+			soc_fw_content_cert_uuid = "e2b20c20-5e63-e411-9ce8-abccf92bb666";
+			tos_fw_content_cert_uuid = "a49f4411-5e63-e411-8728-3f05722af33d";
+			nt_fw_content_cert_uuid = "8ec4c1f3-5d63-e411-a7a9-87ee40b23fa7";
+#endif
 		};
 	};
+
+#if TRUSTED_BOARD_BOOT
+	tb_fw-config {
+		compatible = "arm,tb_fw";
+
+		/* Disable authentication for development */
+		disable_auth = <0x0>;
+
+		mbedtls_heap_addr = <0x0 STM32MP_MBEDTLS_HEAP_BASE>;
+		mbedtls_heap_size = <STM32MP_MBEDTLS_HEAP_SIZE>;
+	};
+
+#include "stm32mp2-cot-descriptors.dtsi"
+#endif
+
 };

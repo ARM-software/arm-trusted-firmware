@@ -22,8 +22,6 @@
 #include <boot_api.h>
 #include <platform_def.h>
 
-#define HEADER_AND_EXT_TOTAL_SIZE 512
-
 static uint8_t der_sha256_header[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60,
 	0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
 static uint8_t root_pk_hash[HASH_DER_LEN];
@@ -97,8 +95,7 @@ static int get_rotpk_hash(void *cookie, uint8_t *hash, size_t len)
 	uint32_t pk_idx = 0U;
 	uint8_t calc_hash[BOOT_API_SHA256_DIGEST_SIZE_IN_BYTES];
 	uint8_t otp_hash[BOOT_API_SHA256_DIGEST_SIZE_IN_BYTES];
-	boot_api_image_header_t *hdr = (boot_api_image_header_t *)(SRAM3_BASE + SRAM3_SIZE -
-								   HEADER_AND_EXT_TOTAL_SIZE);
+	boot_api_image_header_t *hdr = (boot_api_image_header_t *)stm32_get_header_address();
 	boot_extension_header_t *ext_header = (boot_extension_header_t *)hdr->ext_header;
 	boot_ext_header_params_authentication_t *param;
 

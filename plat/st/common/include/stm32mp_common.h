@@ -63,6 +63,7 @@ int stm32_get_otp_value(const char *otp_name, uint32_t *otp_val);
 int stm32_get_otp_value_from_idx(const uint32_t otp_idx, uint32_t *otp_val);
 /* update UID_WORD_NB array */
 int stm32_get_uid_otp(uint32_t uid[]);
+int stm32_get_enc_key_otp_idx_len(uint32_t *otp_idx, uint32_t *otp_len);
 
 /* Get IWDG platform instance ID from peripheral IO memory base address */
 uint32_t stm32_iwdg_get_instance(uintptr_t base);
@@ -77,6 +78,9 @@ uintptr_t get_uart_address(uint32_t instance_nb);
 
 /* Setup the UART console */
 int stm32mp_uart_console_setup(void);
+
+void stm32_save_header(void);
+uintptr_t stm32_get_header_address(void);
 
 bool stm32mp_is_wakeup_from_standby(void);
 

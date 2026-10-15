@@ -45,7 +45,7 @@
 					MT_EXECUTE_NEVER)
 #endif /* STM32MP_USB_PROGRAMMER && !STM32MP21 */
 
-#if STM32MP_DDR_FIP_IO_STORAGE
+#if STM32MP_DDR_FIP_IO_STORAGE || TRUSTED_BOARD_BOOT
 #define MAP_SRAM1	MAP_REGION_FLAT(SRAM1_BASE, \
 					SRAM1_SIZE_FOR_TFA, \
 					MT_MEMORY | \
@@ -69,7 +69,7 @@ static const mmap_region_t stm32mp2_mmap[] = {
 #else /* !STM32MP_USB_PROGRAMMER || STM32MP21 */
 	MAP_SYSRAM,
 #endif /* STM32MP_USB_PROGRAMMER && !STM32MP21 */
-#if STM32MP_DDR_FIP_IO_STORAGE
+#if STM32MP_DDR_FIP_IO_STORAGE || TRUSTED_BOARD_BOOT
 	MAP_SRAM1,
 #endif
 	MAP_DEVICE,
@@ -83,6 +83,8 @@ static const mmap_region_t stm32mp2_mmap[] = {
 	{0}
 };
 #endif
+
+static uint8_t saved_header[STM32MP_HEADER_SIZE] __maybe_unused;
 
 void configure_mmu(void)
 {
@@ -166,6 +168,22 @@ uintptr_t get_uart_address(uint32_t instance_nb)
 	return stm32mp2_uart_addresses[instance_nb - 1U];
 }
 #endif
+
+void stm32_save_header(void)
+{
+#if STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT
+	memcpy(&saved_header, (uint8_t *)STM32MP_HEADER_BASE, STM32MP_HEADER_SIZE);
+#endif /* STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT */
+}
+
+uintptr_t stm32_get_header_address(void)
+{
+#if STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT
+	return (uintptr_t)&saved_header;
+#else
+	return STM32MP_HEADER_BASE;
+#endif /* STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT */
+}
 
 uint32_t stm32mp_get_chip_version(void)
 {
@@ -485,7 +503,31 @@ bool stm32mp_is_single_core(void)
 /* Return true when device is in closed state */
 uint32_t stm32mp_check_closed_device(void)
 {
-	return STM32MP_CHIP_SEC_OPEN;
+	static uint32_t otp_idx;
+	static uint32_t otp_len;
+	uint32_t otp_val;
+	uint32_t status = STM32MP_CHIP_SEC_CLOSED;
+
+	if (otp_len == 0U) {
+		if (stm32_get_otp_index(LIFECYCLE2_OTP, &otp_idx, &otp_len) != 0) {
+			panic();
+		}
+
+		if (otp_len != __WORD_BIT) {
+			panic();
+		}
+	}
+
+	if (stm32_get_otp_value_from_idx(otp_idx, &otp_val) != 0) {
+		panic();
+	}
+
+	if (!stm32_is_bsec_closed() ||
+	    ((otp_val & SECURE_BOOT_CLOSED_SECURE) == 0U)) {
+		status = STM32MP_CHIP_SEC_OPEN;
+	}
+
+	return status;
 }
 
 /* Return true when device supports secure boot */

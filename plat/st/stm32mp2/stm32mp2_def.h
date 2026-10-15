@@ -206,6 +206,15 @@ enum ddr_type {
 						 (STM32MP_PARAM_LOAD_SIZE +	\
 						  STM32MP_HEADER_SIZE))
 
+#if TRUSTED_BOARD_BOOT
+#if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
+#define STM32MP_BL2_RO_SIZE			U(0x00021000) /* 132 KB */
+#define STM32MP_BL2_SIZE			U(0x0002C000) /* 176 KB for BL2 */
+#else /* STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER */
+#define STM32MP_BL2_RO_SIZE			U(0x00020000) /* 128 KB */
+#define STM32MP_BL2_SIZE			U(0x0002C000) /* 176 KB for BL2 */
+#endif /* STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER */
+#else
 #if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
 #define STM32MP_BL2_RO_SIZE			U(0x0001F000) /* 124 KB */
 #define STM32MP_BL2_SIZE			U(0x00028000) /* 160 KB for BL2 */
@@ -213,6 +222,7 @@ enum ddr_type {
 #define STM32MP_BL2_RO_SIZE			U(0x00020000) /* 128 KB */
 #define STM32MP_BL2_SIZE			U(0x00029000) /* 164 KB for BL2 */
 #endif /* STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER */
+#endif
 
 /* Allocate remaining sysram to BL31 Binary only */
 #define STM32MP_BL31_SIZE			(STM32MP_SYSRAM_SIZE - \
@@ -230,6 +240,10 @@ enum ddr_type {
 #define STM32MP_BL2_RW_SIZE			(STM32MP_SYSRAM_BASE + \
 						 STM32MP_SYSRAM_SIZE - \
 						 STM32MP_BL2_RW_BASE)
+
+#define STM32MP_MBEDTLS_HEAP_SIZE	U(0x2000)
+#define STM32MP_MBEDTLS_HEAP_BASE	(SRAM1_BASE + SRAM1_SIZE_FOR_TFA - \
+					 STM32MP_MBEDTLS_HEAP_SIZE)
 
 /* BL2 and BL32/sp_min require 4 tables */
 #define MAX_XLAT_TABLES				U(4)	/* 16 KB for mapping */
@@ -384,12 +398,23 @@ enum ddr_type {
 /*******************************************************************************
  * STM32MP2 BSEC / OTP
  ******************************************************************************/
+#if STM32MP21
+/*
+ * BSEC: 364 available OTPs, the other are masked
+ * - OEM FSBL keys 348 to 363 (programmable but not readable)
+ * - ECIES key: 364 to 375 (only readable by bootrom)
+ * - HWKEY: 376 to 383 (never reloadable or readable)
+ */
+#define STM32MP2_OTP_MAX_ID			U(0x16B)
+#else
 /*
  * 367 available OTPs, the other are masked
+ * - OEM FSBL keys 360 to 367 (programmable but not readable)
  * - ECIES key: 368 to 375 (only readable by bootrom)
  * - HWKEY: 376 to 383 (never reloadable or readable)
  */
 #define STM32MP2_OTP_MAX_ID			U(0x16F)
+#endif
 #define STM32MP2_MID_OTP_START			U(0x80)
 #define STM32MP2_UPPER_OTP_START		U(0x100)
 
@@ -403,7 +428,11 @@ enum ddr_type {
 #define BOARD_ID_OTP				"board-id"
 #define UID_OTP					"uid-otp"
 #define LIFECYCLE2_OTP				"otp18"
+#if STM32MP21
+#define PKH_OTP					"otp152"
+#else
 #define PKH_OTP					"otp144"
+#endif
 #define ENCKEY_OTP				"otp260"
 
 /* OTP mask */

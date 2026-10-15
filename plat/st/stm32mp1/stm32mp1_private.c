@@ -263,6 +263,11 @@ void stm32mp1_deconfigure_uart_pins(void)
 }
 #endif
 
+uintptr_t stm32_get_header_address(void)
+{
+	return STM32MP_HEADER_BASE;
+}
+
 uint32_t stm32mp_get_chip_version(void)
 {
 #if STM32MP13

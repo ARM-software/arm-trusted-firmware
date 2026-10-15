@@ -193,6 +193,51 @@ ___
         BL32_EXTRA1=<optee_directory>/tee-pager_v2.bin
         fip
 
+Trusted Boot Board
+__________________
+
+.. code:: shell
+
+    tools/cert_create/cert_create -n --rot-key build/stm32mp2/release/rot_key.pem \
+        --tfw-nvctr 0 \
+        --ntfw-nvctr 0 \
+        --key-alg ecdsa --hash-alg sha256 \
+        --trusted-key-cert build/stm32mp2/release/trusted_key.crt \
+        --tos-fw <optee_directory>/tee-header_v2.bin \
+        --tos-fw-extra1 <optee_directory>/tee-pager_v2.bin \
+        --tos-fw-cert build/stm32mp2/release/tos_fw_content.crt \
+        --tos-fw-key-cert build/stm32mp2/release/tos_fw_key.crt \
+        --nt-fw <u-boot_directory>/u-boot-nodtb.bin \
+        --nt-fw-cert build/stm32mp2/release/nt_fw_content.crt \
+        --nt-fw-key-cert build/stm32mp2/release/nt_fw_key.crt \
+        --hw-config <u-boot_directory>/u-boot.dtb \
+        --fw-config build/stm32mp2/release/fdts/stm32mp257f-ev1-fw-config.dtb \
+        --stm32mp-cfg-cert build/stm32mp2/release/stm32mp_cfg_cert.crt \
+        --soc-fw-config build/stm32mp2/release/fdts/stm32mp257f-ev1-bl31.dtb \
+        --soc-fw build/stm32mp2/release/bl31.bin \
+        --soc-fw-cert build/stm32mp2/release/soc_fw_content.crt \
+        --soc-fw-key-cert build/stm32mp2/release/soc_fw_key.crt \
+        --ddr-fw drivers/st/ddr/phy/firmware/bin/stm32mp2/ddr4_pmu_train.bin
+
+    tools/fiptool/fiptool create \
+        --tos-fw <optee_directory>/tee-header_v2.bin \
+        --tos-fw-extra1 <optee_directory>/tee-pager_v2.bin \
+        --nt-fw <u-boot_directory>/u-boot-nodtb.bin \
+        --hw-config <u-boot_directory>/u-boot.dtb \
+        --fw-config build/stm32mp2/release/fdts/stm32mp257f-ev1-fw-config.dtb \
+        --soc-fw-config build/stm32mp2/release/fdts/stm32mp257f-ev1-bl31.dtb \
+        --tos-fw-cert build/stm32mp2/release/tos_fw_content.crt \
+        --tos-fw-key-cert build/stm32mp2/release/tos_fw_key.crt \
+        --nt-fw-cert build/stm32mp2/release/nt_fw_content.crt \
+        --nt-fw-key-cert build/stm32mp2/release/nt_fw_key.crt \
+        --stm32mp-cfg-cert build/stm32mp2/release/stm32mp_cfg_cert.crt \
+        --ddr-fw drivers/st/ddr/phy/firmware/bin/stm32mp2/ddr4_pmu_train.bin \
+        --trusted-key-cert build/stm32mp2/release/trusted_key.crt \
+        --soc-fw-cert build/stm32mp2/release/soc_fw_content.crt \
+        --soc-fw-key-cert build/stm32mp2/release/soc_fw_key.crt \
+        --soc-fw build/stm32mp2/release/bl31.bin \
+        build/stm32mp2/release/fip.bin
+
 .. _STM32MP2 Series: https://www.st.com/en/microcontrollers-microprocessors/stm32mp2-series.html
 .. _STM32MP2 part number codification: https://wiki.st.com/stm32mpu/wiki/STM32MP25_microprocessor#Part_number_codification
 .. _STMicroelectronics DDR PHY github: https://github.com/STMicroelectronics/stm32-ddr-phy-binary

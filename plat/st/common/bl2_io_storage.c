@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/auth/auth_mod.h>
 #include <drivers/fwu/fwu.h>
 #include <drivers/fwu/fwu_metadata.h>
 #if STM32MP_HYPERFLASH
@@ -724,6 +725,13 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 		}
 #endif
 		if (image_id == FW_CONFIG_ID) {
+#if STM32MP_DDR_FIP_IO_STORAGE && TRUSTED_BOARD_BOOT
+			/*
+			 * Clear authentication state of STM32MP certificate that will
+			 * now be loaded from other FIP file
+			 */
+			auth_img_flags[STM32MP_CONFIG_CERT_ID] = 0U;
+#endif
 			stm32cubeprogrammer_uart(PHASE_SSBL, DWL_BUFFER_BASE,
 						 DWL_BUFFER_SIZE);
 			/* FIP loaded at DWL address */
@@ -745,6 +753,13 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 		}
 #endif
 		if (image_id == FW_CONFIG_ID) {
+#if STM32MP_DDR_FIP_IO_STORAGE && TRUSTED_BOARD_BOOT
+			/*
+			 * Clear authentication state of STM32MP certificate that will
+			 * now be loaded from other FIP file
+			 */
+			auth_img_flags[STM32MP_CONFIG_CERT_ID] = 0U;
+#endif
 			stm32cubeprogrammer_usb(PHASE_SSBL, DWL_BUFFER_BASE,
 						DWL_BUFFER_SIZE);
 			/* FIP loaded at DWL address */

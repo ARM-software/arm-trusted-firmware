@@ -83,7 +83,11 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 #endif
 
 #if TRUSTED_BOARD_BOOT
+#ifdef __aarch64__
+#define TBBR_UUID_NUMBER	U(8)
+#else
 #define TBBR_UUID_NUMBER	U(6)
+#endif
 #else
 #define TBBR_UUID_NUMBER	U(0)
 #endif
@@ -130,6 +134,10 @@ static const struct policies_load_info load_info[FCONF_ST_IO_UUID_NUMBER] = {
 	{NON_TRUSTED_FW_KEY_CERT_ID, "nt_fw_key_cert_uuid"},
 	{TRUSTED_OS_FW_CONTENT_CERT_ID, "tos_fw_content_cert_uuid"},
 	{NON_TRUSTED_FW_CONTENT_CERT_ID, "nt_fw_content_cert_uuid"},
+#ifdef __aarch64__
+	{SOC_FW_KEY_CERT_ID, "soc_fw_key_uuid"},
+	{SOC_FW_CONTENT_CERT_ID, "soc_fw_content_cert_uuid"},
+#endif
 #endif /* TRUSTED_BOARD_BOOT */
 };
 
@@ -181,6 +189,13 @@ int fconf_populate_stm32mp_io_policies(uintptr_t config)
 		uuid_ptr->uuid = uuid_helper.uuid_struct;
 		policies[load_info[i].image_id].image_spec = (uintptr_t)uuid_ptr;
 		switch (load_info[i].image_id) {
+#if ENCRYPT_BL31 && !defined(DECRYPTION_SUPPORT_none)
+		case BL31_IMAGE_ID:
+		case SOC_FW_CONFIG_ID:
+			policies[load_info[i].image_id].dev_handle = &enc_dev_handle;
+			policies[load_info[i].image_id].check = open_enc_fip;
+			break;
+#endif
 #if ENCRYPT_BL32 && !defined(DECRYPTION_SUPPORT_none)
 		case BL32_IMAGE_ID:
 		case BL32_EXTRA1_IMAGE_ID:

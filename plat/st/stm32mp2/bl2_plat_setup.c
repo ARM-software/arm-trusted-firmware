@@ -14,6 +14,7 @@
 #include <drivers/clk.h>
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
+#include <drivers/st/stm32_hash.h>
 #include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32_rifsc.h>
 #include <drivers/st/stm32_rng.h>
@@ -91,6 +92,8 @@ void bl2_early_platform_setup2(u_register_t arg0 __unused,
 				  u_register_t arg3 __unused)
 {
 	stm32mp_save_boot_ctx_address(BOOT_CTX_ADDR);
+
+	stm32_save_header();
 }
 
 void bl2_platform_setup(void)
@@ -152,6 +155,39 @@ static void reset_backup_domain(void)
 	}
 }
 
+static void authentication_check(boot_api_context_t *boot_context)
+{
+#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH && !STM32MP21
+	bool auth = false;
+
+	if (boot_context->auth_status == BOOT_API_CTX_AUTH_FAILED) {
+		goto end;
+	}
+
+	if (stm32mp_check_closed_device() != STM32MP_CHIP_SEC_CLOSED) {
+		void *pk_ptr = NULL;
+		unsigned int len = 0U;
+		unsigned int flags = 0U;
+		int rc;
+
+		if (stm32_hash_register() != 0) {
+			ERROR("%s: HASH register fail\n", __func__);
+			return;
+		}
+
+		rc = plat_get_rotpk_info(NULL, &pk_ptr, &len, &flags);
+		if ((rc != -EINVAL) && ((flags & ROTPK_NOT_DEPLOYED) == 0)) {
+			auth = true;
+		}
+	} else {
+		auth = true;
+	}
+end:
+	NOTICE("Bootrom authentication %s\n", auth ? "succeeded" : "failed");
+
+#endif /* TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH && !STM32MP21 */
+}
+
 void bl2_plat_arch_setup(void)
 {
 	const char *board_model;
@@ -185,7 +221,7 @@ void bl2_plat_arch_setup(void)
 		panic();
 	}
 
-#if STM32MP_DDR_FIP_IO_STORAGE
+#if STM32MP_DDR_FIP_IO_STORAGE || TRUSTED_BOARD_BOOT
 	/*
 	 * RISAB3 setup (dedicated for SRAM1)
 	 *
@@ -194,7 +230,7 @@ void bl2_plat_arch_setup(void)
 	 * DDR firmwares are saved there before being loaded in DDRPHY memory.
 	 */
 	mmio_write_32(RISAB3_BASE + RISAB_CR, RISAB_CR_SRWIAD);
-#endif
+#endif /* STM32MP_DDR_FIP_IO_STORAGE || TRUSTED_BOARD_BOOT */
 
 	if (stm32_tamp_nvram_init() < 0) {
 		panic();
@@ -225,7 +261,19 @@ void bl2_plat_arch_setup(void)
 
 	print_reset_reason();
 
+	if (boot_context->auth_status != BOOT_API_CTX_AUTH_NO) {
+		authentication_check(boot_context);
+	}
+
 skip_console_init:
+#if !TRUSTED_BOARD_BOOT
+	if (stm32mp_check_closed_device() == STM32MP_CHIP_SEC_CLOSED) {
+		/* Closed chip mandates authentication */
+		ERROR("Secure chip: TRUSTED_BOARD_BOOT must be enabled\n");
+		panic();
+	}
+#endif
+
 	if (stm32_rng_init() != 0) {
 		panic();
 	}
@@ -310,6 +358,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		BL33_IMAGE_ID,
 		HW_CONFIG_ID,
 	};
+	uint32_t otp_idx __maybe_unused;
+	uint32_t otp_len __maybe_unused;
 
 	assert(bl_mem_params != NULL);
 
@@ -383,6 +433,14 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 				return -EINVAL;
 			}
 		}
+
+#ifndef DECRYPTION_SUPPORT_none
+		/* Load encryption key info before DT is unmapped */
+		err = stm32_get_enc_key_otp_idx_len(&otp_idx, &otp_len);
+		if (err != 0) {
+			panic();
+		}
+#endif
 
 #if PSA_FWU_SUPPORT
 		/* This must be done before the device tree unmapped */

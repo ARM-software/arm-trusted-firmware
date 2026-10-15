@@ -64,6 +64,14 @@ $(warning DTB_FILE_NAME=$(DTB_FILE_NAME))
 $(error Cannot enable more than one STM32MP2x flag)
 endif
 
+STM32MP_USE_EXTERNAL_HEAP 	:=	1
+
+ifeq (${TRUSTED_BOARD_BOOT},1)
+# PKA algo to include
+PKA_USE_NIST_P256		:=	1
+PKA_USE_BRAINPOOL_P256T1	:=	1
+endif
+
 # STM32 image header version v2.2 or v2.3 for STM32MP21
 STM32_HEADER_VERSION_MAJOR	:=	2
 ifeq ($(STM32MP21),1)
@@ -71,6 +79,11 @@ STM32_HEADER_VERSION_MINOR	:=	3
 else
 STM32_HEADER_VERSION_MINOR	:=	2
 endif
+
+PKA_USE_NIST_P256		?=	0
+PKA_USE_NIST_P521		?=	0
+PKA_USE_BRAINPOOL_P256R1	?=	0
+PKA_USE_BRAINPOOL_P256T1 	?=	0
 
 STM32_HASH_VER			:=	4
 STM32_RNG_VER			:=	4
@@ -142,11 +155,20 @@ FDT_SOURCES			+=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32MP_FW_CONFIG_N
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
 
 # Add the SOC_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_IMG_PAYLOAD,STM32MP_SOC_FW_CONFIG,$(STM32MP_SOC_FW_CONFIG),--soc-fw-config,$(patsubst %.dtb,%.dts,$(STM32MP_SOC_FW_CONFIG))))
+ifeq ($(ENCRYPT_BL31),1)
+STM32MP_SOC_FW_CONFIG_ENC 	:= 	$(patsubst %.dtb,%_enc.dtb,$(STM32MP_SOC_FW_CONFIG))
+$(eval $(call ENCRYPT_FW,$(STM32MP_SOC_FW_CONFIG),$(STM32MP_SOC_FW_CONFIG_ENC)))
+endif
+$(eval $(call TOOL_ADD_IMG_PAYLOAD,STM32MP_SOC_FW_CONFIG,$(STM32MP_SOC_FW_CONFIG),--soc-fw-config,$(patsubst %.dtb,%.dts,$(STM32MP_SOC_FW_CONFIG)),,$(STM32MP_SOC_FW_CONFIG_ENC)))
 
 ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
 # Add the FW_DDR to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW,--ddr-fw))
+endif
+ifeq ($(GENERATE_COT),1)
+STM32MP_CFG_CERT		:=	$(BUILD_PLAT)/stm32mp_cfg_cert.crt
+# Add the STM32MP_CFG_CERT to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_CFG_CERT},--stm32mp-cfg-cert))
 endif
 
 # Ultratronik Specific Boards
@@ -165,13 +187,19 @@ endif
 # Enable flags for C files
 $(call assert_booleans,\
 	$(sort \
+		PKA_USE_BRAINPOOL_P256R1 \
+		PKA_USE_BRAINPOOL_P256T1 \
+		PKA_USE_NIST_P256 \
+		PKA_USE_NIST_P521 \
 		STM32_SAES_CRYP2 \
+		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
 		STM32MP_STPMIC1L \
+		STM32MP_USE_EXTERNAL_HEAP \
 		STM32MP13 \
 		STM32MP15 \
 		STM32MP1X \
@@ -196,21 +224,28 @@ $(call assert_numerics,\
 $(call add_defines,\
 	$(sort \
 		DWL_BUFFER_BASE \
+		PKA_USE_BRAINPOOL_P256R1 \
+		PKA_USE_BRAINPOOL_P256T1 \
+		PKA_USE_NIST_P256 \
+		PKA_USE_NIST_P521 \
 		PLAT_DEF_FIP_UUID \
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_TBBR_IMG_DEF \
 		STM32_HASH_VER \
+		STM32_HEADER_VERSION_MAJOR \
 		STM32_RNG_VER \
 		STM32_RNG_VER_MINOR \
 		STM32_SAES_VER \
 		STM32_SAES_CRYP2 \
 		STM32_TF_A_COPIES \
+		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
 		STM32MP_STPMIC1L \
+		STM32MP_USE_EXTERNAL_HEAP \
 		STM32MP13 \
 		STM32MP15 \
 		STM32MP1X \
@@ -262,6 +297,11 @@ BL2_SOURCES			+=	drivers/st/crypto/stm32_hash.c
 
 BL2_SOURCES			+=	drivers/st/rif/stm32_rifsc.c 				\
 					drivers/st/rif/stm32mp2_risaf.c
+
+ifeq (${TRUSTED_BOARD_BOOT},1)
+BL2_SOURCES			+=	drivers/st/crypto/stm32_pka.c
+BL2_SOURCES			+=	drivers/st/crypto/stm32_saes.c
+endif
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c
@@ -367,6 +407,32 @@ STM32MP_DDR_FW_COPY		:=	${STM32MP_DDR_FW}
 DDR_FIP_NAME			?=	fip-ddr.bin
 
 $(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW_COPY,--ddr-fw,DDR_))
+
+ifeq (${TRUSTED_BOARD_BOOT},1)
+ifneq (${GENERATE_COT},0)
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_CFG_CERT},--stm32mp-cfg-cert,,DDR_))
+$(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,DDR_)))
+$(if ${TFW_NVCTR_VAL},$(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr,DDR_)))
+$(if ${TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_WORLD_KEY},--trusted-world-key,DDR_)))
+
+ifneq (${CREATE_KEYS},0)
+$(eval DDR_CRT_ARGS += -n)
+ifneq (${SAVE_KEYS},0)
+$(eval DDR_CRT_ARGS += -k)
+endif
+endif
+
+ddr_certificates: ${DDR_CRT_DEPS} certtool
+	@echo "Build $@"
+	${Q}${CRTTOOL} ${DDR_CRT_ARGS}
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@echo "DDR certificates can be found in ${BUILD_PLAT}"
+	@${ECHO_BLANK_LINE}
+
+DDR_FIP_DEPS		+=	ddr_certificates
+endif
+endif
 
 ${BUILD_PLAT}/${DDR_FIP_NAME}: ${DDR_FIP_DEPS} fiptool
 	${Q}${FIPTOOL} create ${DDR_FIP_ARGS} $@
