@@ -41,23 +41,6 @@ func qti_kryo6_gold_cluster_pwr_dwn
 	ret
 endfunc qti_kryo6_gold_cluster_pwr_dwn
 
-/* ---------------------------------------------
- * This function provides kryo4_gold specific
- * register information for crash reporting.
- * It needs to return with x6 pointing to
- * a list of register names in ASCII and
- * x8 - x15 having values of registers to be
- * reported.
- * ---------------------------------------------
- */
-.section .rodata.qti_kryo4_gold_regs, "aS"
-qti_kryo6_gold_regs:  /* The ASCII list of register names to be reported */
-	.asciz	""
-
-func qti_kryo6_gold_cpu_reg_dump
-	adr	x6, qti_kryo6_gold_regs
-	ret
-endfunc qti_kryo6_gold_cpu_reg_dump
 
 declare_cpu_ops	qti_kryo6_gold, QTI_KRYO6_GOLD_MIDR,	\
 		qti_kryo6_gold_reset_func,		\

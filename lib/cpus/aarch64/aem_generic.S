@@ -61,23 +61,6 @@ endfunc aem_generic_cluster_pwr_dwn
 cpu_reset_func_start aem_generic
 cpu_reset_func_end aem_generic
 
-	/* ---------------------------------------------
-	 * This function provides cpu specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.aem_generic_regs, "aS"
-aem_generic_regs:  /* The ascii list of register names to be reported */
-	.asciz	"" /* no registers to report */
-
-func aem_generic_cpu_reg_dump
-	adr	x6, aem_generic_regs
-	ret
-endfunc aem_generic_cpu_reg_dump
 
 
 /* cpu_ops for Base AEM FVP */

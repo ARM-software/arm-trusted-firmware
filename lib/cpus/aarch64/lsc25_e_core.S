@@ -61,24 +61,6 @@ lsc25_e_core_skip_pwr_dwn:
 	ret
 endfunc lsc25_e_core_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides LSC25 E-Core specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.lsc25_e_core_regs, "aS"
-lsc25_e_core_regs: /* The ASCII list of register names to be reported */
-	.asciz	"imp_cpuectlr_el1", ""
-
-func lsc25_e_core_cpu_reg_dump
-	adr	x6, lsc25_e_core_regs
-	mrs	x8, LSC25_E_CORE_IMP_CPUECTLR_EL1
-	ret
-endfunc lsc25_e_core_cpu_reg_dump
 
 declare_cpu_ops lsc25_e_core, LSC25_E_CORE_MIDR, \
 	lsc25_e_core_reset_func, \

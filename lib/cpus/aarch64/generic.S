@@ -53,12 +53,6 @@ func generic_cluster_pwr_dwn
 
 endfunc generic_cluster_pwr_dwn
 
-/* ---------------------------------------------
- * Unimplemented functions.
- * ---------------------------------------------
- */
-.equ	generic_cpu_reg_dump,		0
-
 cpu_reset_func_start generic
 cpu_reset_func_end generic
 

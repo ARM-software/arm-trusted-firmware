@@ -173,24 +173,6 @@ func cortex_x1c_core_pwr_dwn
 	ret
 endfunc cortex_x1c_core_pwr_dwn
 
-       /* ---------------------------------------------
-	* This function provides Cortex-X1C specific
-	* register information for crash reporting.
-	* It needs to return with x6 pointing to
-	* a list of register names in ascii and
-	* x8 - x15 having values of registers to be
-	* reported.
-	* ---------------------------------------------
-	*/
-.section .rodata.cortex_x1c_regs, "aS"
-cortex_x1c_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_x1c_cpu_reg_dump
-	adr	x6, cortex_x1c_regs
-	mrs	x8, CORTEX_X1_CPUECTLR_EL1
-	ret
-endfunc cortex_x1c_cpu_reg_dump
 
 declare_cpu_ops cortex_x1c, CORTEX_X1C_MIDR, \
 	cortex_x1c_reset_func, \

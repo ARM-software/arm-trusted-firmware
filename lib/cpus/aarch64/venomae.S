@@ -45,15 +45,6 @@ func venomae_core_pwr_dwn
 	ret
 endfunc venomae_core_pwr_dwn
 
-.section .rodata.venomae_regs, "aS"
-venomae_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func venomae_cpu_reg_dump
-	adr 	x6, venomae_regs
-	mrs	x8, VENOM_IMP_CPUECTLR_EL1
-	ret
-endfunc venomae_cpu_reg_dump
 
 declare_cpu_ops venomae, VENOM_AE_MIDR, \
 	venomae_reset_func, \
