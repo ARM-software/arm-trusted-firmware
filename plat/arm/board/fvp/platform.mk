@@ -33,9 +33,6 @@ PLAT_TEST_SPM	:= 0
 # Enable passing the DT to BL33 in x0 by default.
 USE_KERNEL_DT_CONVENTION	:= 1
 
-# By default dont build CPUs with no FVP model.
-BUILD_CPUS_WITH_NO_FVP_MODEL	?= 0
-
 ENABLE_FEAT_AMU			:= 2
 ENABLE_FEAT_AMUv1p1		:= 2
 ENABLE_FEAT_HCX			:= 2
@@ -207,7 +204,6 @@ else
 # Cores used with DSU only
 	ifeq (${CTX_INCLUDE_AARCH32_REGS}, 0)
 	# AArch64-only cores
-	# TODO: add all cores to the appropriate lists
 		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a65.S		\
 					lib/cpus/aarch64/cortex_a65ae.S	\
 					lib/cpus/aarch64/cortex_a76.S		\
@@ -225,42 +221,34 @@ else
 					lib/cpus/aarch64/neoverse_v1.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/cortex_x2.S		\
-					lib/cpus/aarch64/cortex_x4.S
-	endif
+					lib/cpus/aarch64/cortex_x4.S		\
+					lib/cpus/aarch64/cortex_a320.S		\
+					lib/cpus/aarch64/cortex_a510.S		\
+					lib/cpus/aarch64/cortex_a520.S		\
+					lib/cpus/aarch64/cortex_a725.S		\
+					lib/cpus/aarch64/cortex_x1.S		\
+					lib/cpus/aarch64/cortex_x3.S		\
+					lib/cpus/aarch64/cortex_x925.S		\
+					lib/cpus/aarch64/neoverse_n3.S		\
+					lib/cpus/aarch64/neoverse_v2.S		\
+					lib/cpus/aarch64/neoverse_v3.S		\
+					lib/cpus/aarch64/neoverse_v3ae.S	\
+					lib/cpus/aarch64/c1_pro.S		\
+					lib/cpus/aarch64/c1_nano.S		\
+					lib/cpus/aarch64/c1_ultra.S		\
+					lib/cpus/aarch64/c1_premium.S		\
+					lib/cpus/aarch64/c2_ultra.S		\
+					lib/cpus/aarch64/caddo.S		\
+					lib/cpus/aarch64/veymont.S		\
+					lib/cpus/aarch64/dionysus.S		\
+					lib/cpus/aarch64/venom.S
+		endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
 				lib/cpus/aarch64/cortex_a75.S
 endif
 
 #Include all CPUs to build to support all-errata build.
-ifeq (${ENABLE_ERRATA_ALL},1)
-	BUILD_CPUS_WITH_NO_FVP_MODEL = 1
-	FVP_CPU_LIBS    +=    	lib/cpus/aarch64/cortex_a320.S          \
-				lib/cpus/aarch64/cortex_a510.S		\
-				lib/cpus/aarch64/cortex_a520.S		\
-				lib/cpus/aarch64/cortex_a725.S          \
-				lib/cpus/aarch64/cortex_x1.S            \
-				lib/cpus/aarch64/cortex_x3.S            \
-				lib/cpus/aarch64/cortex_x925.S          \
-				lib/cpus/aarch64/neoverse_n3.S          \
-				lib/cpus/aarch64/neoverse_v2.S          \
-				lib/cpus/aarch64/neoverse_v3.S		\
-				lib/cpus/aarch64/neoverse_v3ae.S
-endif
-
-#Build AArch64-only CPUs with no FVP model yet.
-ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
-	FVP_CPU_LIBS    +=	lib/cpus/aarch64/c1_pro.S		\
-				lib/cpus/aarch64/c1_nano.S		\
-				lib/cpus/aarch64/c1_ultra.S		\
-				lib/cpus/aarch64/c1_premium.S		\
-				lib/cpus/aarch64/canyon.S		\
-				lib/cpus/aarch64/caddo.S		\
-				lib/cpus/aarch64/veymont.S		\
-				lib/cpus/aarch64/dionysus.S		\
-				lib/cpus/aarch64/venom.S
-endif
-
 else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S			\
 				lib/cpus/aarch32/cortex_a57.S			\

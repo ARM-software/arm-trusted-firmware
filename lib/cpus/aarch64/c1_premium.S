@@ -35,32 +35,38 @@ workaround_runtime_end c1_premium, ERRATUM(3324333)
 check_erratum_ls c1_premium, ERRATUM(3324333), CPU_REV(0, 0)
 
 workaround_reset_start c1_premium, ERRATUM(3502731), ERRATA_C1PREMIUM_3502731
-	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR4_EL1, BIT(23)
+	sysreg_bit_set C1_PREMIUM_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_premium, ERRATUM(3502731)
 
 check_erratum_ls c1_premium, ERRATUM(3502731), CPU_REV(0, 0)
 
 workaround_reset_start c1_premium, ERRATUM(3684152), ERRATA_C1PREMIUM_3684152
-	sysreg_bitfield_insert C1_PREMIUM_IMP_CPUACTLR_EL1, C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_BIT, \
-	C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_SHIFT, C1_PREMIUM_IMP_CPUACTLR_EL1_LOAD_WIDTH
+	sysreg_bitfield_insert C1_PREMIUM_CPUACTLR_EL1, \
+		C1_PREMIUM_CPUACTLR_EL1_LOAD_BIT, \
+		C1_PREMIUM_CPUACTLR_EL1_LOAD_SHIFT, \
+		C1_PREMIUM_CPUACTLR_EL1_LOAD_WIDTH
 workaround_reset_end c1_premium, ERRATUM(3684152)
 
 check_erratum_ls c1_premium, ERRATUM(3684152), CPU_REV(0, 0)
 
 workaround_reset_start c1_premium, ERRATUM(3705939), ERRATA_C1PREMIUM_3705939
-	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR_EL1, BIT(48)
+	sysreg_bit_set C1_PREMIUM_CPUACTLR_EL1, BIT(48)
 workaround_reset_end c1_premium, ERRATUM(3705939)
 
 check_erratum_ls c1_premium, ERRATUM(3705939), CPU_REV(1, 0)
 
+/* It depends on non-default settings CORE<n>_ASYNC_BRIDGE = FALSE */
+add_erratum_entry c1_premium, ERRATUM(3806278), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_premium, ERRATUM(3806278), CPU_REV(1, 0)
+
 workaround_reset_start c1_premium, ERRATUM(3815514), ERRATA_C1PREMIUM_3815514
-	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR5_EL1, BIT(13)
+	sysreg_bit_set C1_PREMIUM_CPUACTLR5_EL1, BIT(13)
 workaround_reset_end c1_premium, ERRATUM(3815514)
 
 check_erratum_ls c1_premium, ERRATUM(3815514), CPU_REV(1, 0)
 
 workaround_reset_start c1_premium, ERRATUM(3865171), ERRATA_C1PREMIUM_3865171
-	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR2_EL1, BIT(22)
+	sysreg_bit_set C1_PREMIUM_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end c1_premium, ERRATUM(3865171)
 
 check_erratum_ls c1_premium, ERRATUM(3865171), CPU_REV(1, 0)
@@ -68,33 +74,45 @@ check_erratum_ls c1_premium, ERRATUM(3865171), CPU_REV(1, 0)
 workaround_reset_start c1_premium, ERRATUM(3926381), ERRATA_C1PREMIUM_3926381
 	/* Convert WFx to NOP */
 	ldr x0,=0x0
-	msr C1_PREMIUM_IMP_CPUPSELR_EL3, x0
+	msr C1_PREMIUM_CPUPSELR_EL3, x0
 	ldr x0,=0xD503205f
-	msr C1_PREMIUM_IMP_CPUPOR_EL3, x0
+	msr C1_PREMIUM_CPUPOR_EL3, x0
 	ldr x0,=0xFFFFFFDF
-	msr C1_PREMIUM_IMP_CPUPMR_EL3, x0
+	msr C1_PREMIUM_CPUPMR_EL3, x0
 	ldr x0,=0x1000002043ff
-	msr C1_PREMIUM_IMP_CPUPCR_EL3, x0
+	msr C1_PREMIUM_CPUPCR_EL3, x0
 
 	/* Convert WFxT to NOP */
 	ldr x0,=0x1
-	msr C1_PREMIUM_IMP_CPUPSELR_EL3, x0
+	msr C1_PREMIUM_CPUPSELR_EL3, x0
 	ldr x0,=0xD5031000
-	msr C1_PREMIUM_IMP_CPUPOR_EL3, x0
+	msr C1_PREMIUM_CPUPOR_EL3, x0
 	ldr x0,=0xFFFFFFC0
-	msr C1_PREMIUM_IMP_CPUPMR_EL3, x0
+	msr C1_PREMIUM_CPUPMR_EL3, x0
 	ldr x0,=0x1000002043ff
-	msr C1_PREMIUM_IMP_CPUPCR_EL3, x0
+	msr C1_PREMIUM_CPUPCR_EL3, x0
 	isb
 workaround_reset_end c1_premium, ERRATUM(3926381)
 
 check_erratum_range c1_premium, ERRATUM(3926381), CPU_REV(1, 0), CPU_REV(1, 0)
 
 workaround_reset_start c1_premium, ERRATUM(4102704), ERRATA_C1PREMIUM_4102704
-	sysreg_bit_set C1_PREMIUM_IMP_CPUACTLR4_EL1, BIT(23)
+	sysreg_bit_set C1_PREMIUM_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_premium, ERRATUM(4102704)
 
 check_erratum_ls c1_premium, ERRATUM(4102704), CPU_REV(1, 0)
+
+workaround_reset_start c1_premium, ERRATUM(4302962), ERRATA_C1PREMIUM_4302962
+	sysreg_bit_set C1_PREMIUM_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end c1_premium, ERRATUM(4302962)
+
+check_erratum_ls c1_premium, ERRATUM(4302962), CPU_REV(1, 0)
+
+workaround_reset_start c1_premium, ERRATUM(4623386), ERRATA_C1PREMIUM_4623386
+	sysreg_bit_set C1_PREMIUM_CPUACTLR4_EL1, BIT(36)
+workaround_reset_end c1_premium, ERRATUM(4623386)
+
+check_erratum_chosen c1_premium, ERRATUM(4623386), ERRATA_C1PREMIUM_4623386
 
 	/* ---------------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for C1-Premium using erratum 3651221
@@ -159,8 +177,8 @@ func c1_premium_core_pwr_dwn
 	 * It will be set on powerdown and cleared on wakeup.
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_toggle C1_PREMIUM_IMP_CPUPWRCTLR_EL1, \
-		C1_PREMIUM_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	sysreg_bit_toggle C1_PREMIUM_CPUPWRCTLR_EL1, \
+		C1_PREMIUM_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 c1_premium_skip_pwr_dwn:
 	signal_pabandon_handled
@@ -173,7 +191,7 @@ c1_premium_regs: /* The ASCII list of register names to be reported */
 
 func c1_premium_cpu_reg_dump
 	adr 	x6, c1_premium_regs
-	mrs	x8, C1_PREMIUM_IMP_CPUECTLR_EL1
+	mrs	x8, C1_PREMIUM_CPUECTLR_EL1
 	ret
 endfunc c1_premium_cpu_reg_dump
 

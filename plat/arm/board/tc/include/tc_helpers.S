@@ -63,7 +63,7 @@ func mark_extllc_presence
 	sysreg_bitfield_insert_from_gpr CPUECTLR_EL1, x1, CPUECTLR_EL1_EXTLLC_BIT, 1
 	ret
 ARM_C1_PRO:
-	sysreg_bitfield_insert_from_gpr C1_PRO_IMP_CPUECTLR_EL1, x1, C1_PRO_CPUECTLR2_EL1_EXTLLC_BIT, 1
+	sysreg_bitfield_insert_from_gpr C1_PRO_CPUECTLR_EL1, x1, C1_PRO_CPUECTLR2_EL1_EXTLLC_BIT, 1
 #endif
 	ret
 endfunc mark_extllc_presence
