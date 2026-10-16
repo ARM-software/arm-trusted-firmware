@@ -3,6 +3,39 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.10..refs/tags/lts-v2.14.11) (2026-10-16)
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - rename Canyon to C2-Ultra ([eabd238](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eabd2381b544f81648726934cbc4c31e7dfe9878))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - absorb BUILD_CPUS_WITH_NO_FVP_MODEL and ENABLE_ERRATA_ALL cores ([dfb36dc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dfb36dc0af204ff0385944cd4bbe89ff4b6f5f33))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add C1-Nano errata 3806270 and 4394104 ([130e4a8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/130e4a8f2a04538697cc8fe8234dbca63f808041))
+    - add workarounds C1-Premium errata ([b7f280b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b7f280b9f60bc21e5eae992c8108e587dfc991c4))
+    - add workarounds for C1-Pro errata 3679375 and 3806276 ([b64ad16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b64ad163d4ee7bfdc3abbb200a8874d70731fc59))
+    - add workarounds for C1-Ultra errata ([ffa77d4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ffa77d4e5ab1664b9d50875f6ea004a558a8f753))
+    - remove C1-NANO implementation-specific register 'IMP' prefixes ([84a6a90](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/84a6a905ecd623d97f4930423a102ecb4ec3c583))
+    - remove C1-PREMIUM implementation-specific register 'IMP' prefixes ([f9cfd5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9cfd5d5a5f71d4ba387fadd848f6aaf8b639114))
+    - remove C1-PRO implementation-specific register 'IMP' prefixes ([7843e6a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7843e6af3dbd354eb56ff862741e6bfd13883488))
+    - remove C1-ULTRA implementation-specific register 'IMP' prefixes ([19d4627](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/19d4627955327592eb3e6cf94b92f50a4e665442))
+
 ## [lts-2.14.10](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.9..refs/tags/lts-v2.14.10) (2026-10-02)
 
 ### Miscellaneous
