@@ -14,6 +14,9 @@
 #define I2C_TIMEOUT	1000	/* ms */
 
 #define I2C_FD_CONSERV	0x7e
+#ifndef NXP_I2C_FD
+#define NXP_I2C_FD	I2C_FD_CONSERV
+#endif
 #define I2C_CR_DIS	(1 << 7)
 #define I2C_CR_EN	(0 << 7)
 #define I2C_CR_MA	(1 << 5)

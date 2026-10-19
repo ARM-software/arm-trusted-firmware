@@ -29,6 +29,9 @@ APPLY_MAX_CDD	:=	yes
 ERRATA_DDR_A011396	:= 1
 ERRATA_DDR_A050450	:= 1
 
+# IIC1 frequency divider for BL2's SPD reads
+$(eval $(call add_define_val,NXP_I2C_FD,0x32))
+
 # Cortex-A72 erratum 1319367 (AT-instruction speculation): applies to
 # every Cortex-A72 revision; cost is ~10 extra insns + 2 ISBs per EL3
 # entry. Avoids hard-to-debug PA mistranslations on PSCI / SMCCC paths.
