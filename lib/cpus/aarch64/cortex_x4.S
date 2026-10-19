@@ -35,10 +35,6 @@ cpu_reset_prologue cortex_x4
 .global check_erratum_cortex_x4_2726228
 .global check_erratum_cortex_x4_3701758
 
-add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
-
-check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
-
 workaround_reset_start cortex_x4, ERRATUM(2302507), ERRATA_X4_2302507
 	sysreg_bit_set CORTEX_X4_CPUACTLR2_EL1, BIT(0)
 workaround_reset_end cortex_x4, ERRATUM(2302507)
@@ -72,6 +68,10 @@ workaround_reset_start cortex_x4, ERRATUM(2646977), ERRATA_X4_2646977
 workaround_reset_end cortex_x4, ERRATUM(2646977)
 
 check_erratum_ls cortex_x4, ERRATUM(2646977), CPU_REV(0, 0)
+
+add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
+
+check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
 
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
