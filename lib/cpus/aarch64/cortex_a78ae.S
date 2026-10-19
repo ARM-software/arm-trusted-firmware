@@ -130,6 +130,17 @@ workaround_reset_end cortex_a78ae, ERRATUM(2466780)
 
 check_erratum_ls cortex_a78ae, ERRATUM(2466780), CPU_REV(0, 1)
 
+add_erratum_entry cortex_a78ae, ERRATUM(2712574), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_a78ae, ERRATUM(2712574)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(0, 2)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_a78ae, ERRATUM(2712574)
+
 workaround_reset_start cortex_a78ae, ERRATUM(2743229), ERRATA_A78_AE_2743229
 	sysreg_bitfield_insert CORTEX_A78_AE_CPUACTLR5_EL1, 1, 55, 2
 workaround_reset_end cortex_a78ae, ERRATUM(2743229)

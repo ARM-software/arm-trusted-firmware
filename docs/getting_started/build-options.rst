@@ -912,9 +912,9 @@ Common build options
 - ``ERRATA_ABI_SUPPORT``: Boolean option to enable support for Errata management
   firmware interface for the BL31 image. By default its disabled (``0``).
 
-- ``ERRATA_NON_ARM_INTERCONNECT``: Boolean option to enable support for the
-  errata mitigation for platforms with a non-arm interconnect using the errata
-  ABI. By default its disabled (``0``).
+- ``ERRATA_NON_ARM_INTERCONNECT``: Boolean option to enable reporting of errata
+  affecting platforms with a non-arm interconnect using the errata ABI. By
+  default it is disabled (``0``).
 
 - ``ENABLE_CONSOLE_GETC``: Boolean option to enable `getc()` feature in console
   driver(s). By default it is disabled (``0``) because it constitutes an attack

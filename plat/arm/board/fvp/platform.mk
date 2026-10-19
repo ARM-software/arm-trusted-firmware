@@ -586,10 +586,6 @@ ifeq (${PLATFORM_TEST_FFH_LSP_RAS_SP}, 1)
     endif
 endif
 
-ifeq (${ERRATA_ABI_SUPPORT}, 1)
-include plat/arm/board/fvp/fvp_cpu_errata.mk
-endif
-
 ifeq (${LFA_SUPPORT},1)
 BL31_SOURCES            +=      plat/arm/board/fvp/fvp_lfa.c
 endif

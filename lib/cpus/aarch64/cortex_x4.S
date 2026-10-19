@@ -69,6 +69,17 @@ workaround_reset_end cortex_x4, ERRATUM(2646977)
 
 check_erratum_ls cortex_x4, ERRATUM(2646977), CPU_REV(0, 0)
 
+add_erratum_entry cortex_x4, ERRATUM(2701112), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_x4, ERRATUM(2701112)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(0, 0)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_x4, ERRATUM(2701112)
+
 add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
 
 check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)

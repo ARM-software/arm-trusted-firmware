@@ -207,6 +207,17 @@ workaround_reset_end neoverse_n2, ERRATUM(2388450)
 
 check_erratum_ls neoverse_n2, ERRATUM(2388450), CPU_REV(0, 0)
 
+add_erratum_entry neoverse_n2, ERRATUM(2728475), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start neoverse_n2, ERRATUM(2728475)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(0, 2)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end neoverse_n2, ERRATUM(2728475)
+
 workaround_reset_start neoverse_n2, ERRATUM(2743014), ERRATA_N2_2743014
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
 	sysreg_lazy_start NEOVERSE_N2_CPUACTLR5_EL1

@@ -139,6 +139,9 @@ static inline void apply_cve_2025_10263_wa(void)
 /* useful for errata that end up always being worked around */
 #define ERRATUM_ALWAYS_CHOSEN	1
 
+/* useful for errata without an EL3 workaround */
+#define ERRATUM_NO_EL3_WA	0
+
 #endif /* __ASSEMBLER__ */
 
 #define ERRATUM(id)		0, id
