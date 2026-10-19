@@ -17,7 +17,7 @@
 struct trdc_mgr_info trdc_mgr_blks[] = {
 	{ TRDC_A_BASE, 0, 0, 39, 40 },
 	{ TRDC_W_BASE, 0, 0, 70, 71 },
-	{ TRDC_M_BASE, 1, 0, 1, 2 },
+	{ TRDC_W_BASE, 1, 0, 1, 2 },
 	{ TRDC_N_BASE, 0, 1, 1, 2 },
 };
 

@@ -8,7 +8,6 @@
 
 #define TRDC_A_BASE	U(0x44270000)
 #define TRDC_W_BASE	U(0x42460000)
-#define TRDC_M_BASE	U(0x42460000)
 #define TRDC_N_BASE	U(0x49010000)
 
 /* GLBAC7 is used for TRDC only, any setting to GLBAC7 will be ignored */
