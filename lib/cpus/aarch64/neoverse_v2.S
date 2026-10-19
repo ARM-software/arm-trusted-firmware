@@ -63,6 +63,17 @@ workaround_reset_end neoverse_v2, ERRATUM(2662553)
 
 check_erratum_ls neoverse_v2, ERRATUM(2662553), CPU_REV(0, 1)
 
+add_erratum_entry neoverse_v2, ERRATUM(2719103), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start neoverse_v2, ERRATUM(2719103)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(0, 1)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end neoverse_v2, ERRATUM(2719103)
+
 workaround_reset_start neoverse_v2, ERRATUM(2719105), ERRATA_V2_2719105
 	sysreg_bit_set NEOVERSE_V2_CPUACTLR2_EL1, NEOVERSE_V2_CPUACTLR2_EL1_BIT_0
 workaround_reset_end neoverse_v2, ERRATUM(2719105)

@@ -149,12 +149,6 @@ BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${PLAT_PATH}/gicv3.c
 
-ifeq (${ERRATA_ABI_SUPPORT}, 1)
-# enable the cpu macros for errata abi interface
-CORTEX_A78_AE_H_INC     := 1
-$(eval $(call add_define, CORTEX_A78_AE_H_INC))
-endif
-
 # Enable Handoff protocol using transfer lists
 TRANSFER_LIST                   := 1
 
