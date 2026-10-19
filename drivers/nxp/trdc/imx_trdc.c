@@ -144,6 +144,11 @@ int trdc_mbc_set_control(uintptr_t trdc_reg, uint32_t mbc_x,
 		}
 	}
 
+	/* Skip glbac6 used for fused module */
+	if (glbac_id == GLBAC_FUSED && glbac_val != 0U) {
+		return -EPERM;
+	}
+
 	/* only first dom has the glbac */
 	mbc_dom = &mbc_base->mem_dom[0];
 
@@ -313,6 +318,32 @@ void trdc_mgr_mbc_setup(struct trdc_mgr_info *mgr)
 		/* Lock it up for TRDC mgr */
 		trdc_mbc_set_control(mgr->trdc_base, mgr->mbc_id, GLBAC_TRDC_MGR,
 				     GLBAC_LOCK_MASK | GLBAC_TRDC_MGR_PERM);
+	}
+}
+
+void trdc_mgr_fused_slot_setup(struct trdc_fused_module_info *fused_slot)
+{
+	uint32_t i, val, did;
+
+	if (trdc_mbc_enabled(fused_slot->trdc_base)) {
+		/* No access permission */
+		trdc_mbc_set_control(fused_slot->trdc_base, fused_slot->mbc_id,
+				     GLBAC_FUSED, 0x0);
+
+		val = trdc_fuse_read(fused_slot->fsb_index);
+		/* If the module is fused, set GLBAC6 for no access permission */
+		if (val & BIT_32(fused_slot->fuse_bit)) {
+			for (i = 0U; i < fused_slot->blk_num; i++) {
+				for (did = 0U; did < DID_NUM; did++) {
+					trdc_mbc_blk_config(fused_slot->trdc_base,
+							    fused_slot->mbc_id,
+							    did,
+							    fused_slot->mem_id,
+							    fused_slot->blk_id + i,
+							    true, GLBAC_FUSED);
+				}
+			}
+		}
 	}
 }
 

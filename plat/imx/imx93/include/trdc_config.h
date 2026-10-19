@@ -286,4 +286,29 @@ struct trdc_config_info trdc_cfg_info[] = {
 	}, /* TRDC_N */
 };
 
+struct trdc_fused_module_info fuse_info[] = {
+	{ TRDC_N_BASE, 19, 13, 1, 2, 16, 1 }, /* NPU, NICMIX, MBC1, MEM2, slot 16 */
+	{ TRDC_N_BASE, 19, 13, 1, 3, 16, 1 }, /* NPU, NICMIX, MBC1, MEM3, slot 16 */
+	{ TRDC_A_BASE, 19, 30, 0, 0, 58, 1 }, /* FLEXCAN1, AONMIX, MBC0, MEM0, slot 58 */
+	{ TRDC_W_BASE, 19, 31, 0, 0, 91, 1 }, /* FLEXCAN2, WAKEUPMIX, MBC0, MEM0, slot 91 */
+	{ TRDC_N_BASE, 20, 3, 0, 3, 16, 16 }, /* USB1, NICMIX, MBC0, MEM3, slot 16-31 */
+	{ TRDC_N_BASE, 20, 4, 0, 3, 32, 16 }, /* USB2, NICMIX, MBC0, MEM3, slot 32-47 */
+	{ TRDC_W_BASE, 20, 5, 1, 0, 9, 1 },  /* ENET1 (FEC), WAKEUPMIX, MBC1, MEM0, slot 9 */
+	{ TRDC_W_BASE, 20, 6, 1, 0, 10, 1 }, /* ENET2 (eQOS), WAKEUPMIX, MBC1, MEM0, slot 10 */
+	{ TRDC_N_BASE, 20, 10, 0, 2, 34, 1 }, /* PXP, NICMIX, MBC0, MEM2, slot 34 */
+	{ TRDC_N_BASE, 20, 17, 0, 2, 32, 1 }, /* MIPI CSI NICMIX, MBC0, MEM2, slot 32 */
+	{ TRDC_N_BASE, 20, 19, 0, 2, 33, 1 }, /* MIPI DSI NICMIX, MBC0, MEM2, slot 33 */
+	{ TRDC_A_BASE, 21, 7, 0, 0, 83, 1 }, /* ADC1 AONMIX, MBC0, MEM0, slot 83 */
+};
+
+unsigned int fuse_info_num = ARRAY_SIZE(fuse_info);
+
+struct trdc_fuse_data fuse_data[] = {
+	{ 19, 0 },
+	{ 20, 0 },
+	{ 21, 0 },
+};
+
+unsigned int fuse_data_num = ARRAY_SIZE(fuse_data);
+
 #endif /* TRDC_CONFIG_H */

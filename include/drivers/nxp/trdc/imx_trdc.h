@@ -27,6 +27,8 @@
 /* GLBAC7 is reserved for TRDC MGR slot protection */
 #define GLBAC_TRDC_MGR		U(7)
 #define GLBAC_TRDC_MGR_PERM	U(0x6000)
+/* GLBAC6 is reserved for fused-module protection */
+#define GLBAC_FUSED		U(6)
 
 #define MDAC_W_X(m, r)	(0x800 + (m) * 0x20 + (r) * 0x4)
 
@@ -75,7 +77,7 @@ struct mbc_mem_dom {
 	uint32_t mem2_blk_cfg_w[8];
 	uint32_t mem2_blk_nse_w[2];
 	uint32_t mem3_blk_cfg_w[8];
-	uint32_t mem3_blk_nse_w[2]; /*0x1F0, 0x1F4 */
+	uint32_t mem3_blk_nse_w[2]; /* 0x1F0, 0x1F4 */
 	uint32_t reserved[2];
 };
 
@@ -162,6 +164,21 @@ struct trdc_config_info {
 	uint32_t num_mrc_cfg;
 };
 
+struct trdc_fused_module_info {
+	uintptr_t trdc_base;
+	uint8_t fsb_index;
+	uint8_t fuse_bit;
+	uint8_t mbc_id;
+	uint8_t mem_id;
+	uint8_t blk_id;
+	uint8_t blk_num;
+};
+
+struct trdc_fuse_data {
+	uint8_t fsb_index;
+	uint32_t value;
+};
+
 extern struct trdc_mgr_info trdc_mgr_blks[];
 extern unsigned int trdc_mgr_num;
 /* APIs to apply and enable TRDC */
@@ -173,8 +190,12 @@ int trdc_mda_set_cpu(uintptr_t trdc_base, uint32_t mda_inst,
 int trdc_mda_set_noncpu(uintptr_t trdc_base, uint32_t mda_inst,
 			bool did_bypass, uint8_t sa, uint8_t pa,
 			uint8_t did, bool lock);
-
+int trdc_mbc_blk_config(uintptr_t trdc_reg, uint32_t mbc_x,
+			uint32_t dom_x, uint32_t mem_x, uint32_t blk_x,
+			bool sec_access, uint32_t glbac_id);
 void trdc_mgr_mbc_setup(struct trdc_mgr_info *mgr);
+void trdc_mgr_fused_slot_setup(struct trdc_fused_module_info *fused_slot);
+uint32_t trdc_fuse_read(uint8_t word_index);
 void trdc_try_lockup(struct trdc_config_info *cfg);
 void trdc_setup(struct trdc_config_info *cfg);
 void trdc_config(void);

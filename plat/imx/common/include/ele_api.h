@@ -8,6 +8,7 @@
 
 #define ELE_GET_INFO_REQ	U(0x17DA0406)
 #define ELE_RELEASE_GMID	U(0x17E40106)
+#define ELE_READ_FUSE_REQ	U(0x17970206)
 
 struct ele_soc_info {
 	uint32_t hdr;
@@ -24,6 +25,7 @@ struct ele_soc_info {
 
 void ele_get_soc_info(void);
 void ele_release_gmid(void);
+uint32_t ele_read_common_fuse(uint32_t fuse_id);
 int imx9_soc_info_handler(uint32_t smc_fid, void *handle);
 
 #endif /* ELE_API_H */
