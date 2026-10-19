@@ -139,12 +139,6 @@ ifeq ($(HARDEN_SLS_ALL), 1)
 TF_CFLAGS_aarch64      +=      -mharden-sls=all
 endif
 
-ifeq (${ERRATA_ABI_SUPPORT}, 1)
-# enable the cpu macros for errata abi interface
-CORTEX_A72_H_INC	:= 1
-$(eval $(call add_define, CORTEX_A72_H_INC))
-endif
-
 ifdef CUSTOM_PKG_PATH
 include $(CUSTOM_PKG_PATH)/custom_pkg.mk
 else

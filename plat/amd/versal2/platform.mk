@@ -188,12 +188,6 @@ ifeq ($(DEBUG),1)
 BL31_SOURCES            +=      ${PLAT_PATH}/plat_ocm_coherency.c
 endif
 
-ifeq (${ERRATA_ABI_SUPPORT}, 1)
-# enable the cpu macros for errata abi interface
-CORTEX_A78_AE_H_INC     := 1
-$(eval $(call add_define, CORTEX_A78_AE_H_INC))
-endif
-
 # Enable Handoff protocol using transfer lists
 TRANSFER_LIST                   ?= 0
 
