@@ -198,6 +198,9 @@ void trdc_mgr_fused_slot_setup(struct trdc_fused_module_info *fused_slot);
 uint32_t trdc_fuse_read(uint8_t word_index);
 void trdc_try_lockup(struct trdc_config_info *cfg);
 void trdc_setup(struct trdc_config_info *cfg);
+void trdc_common_init(void);
 void trdc_config(void);
+void trdc_w_reinit(void);
+void trdc_n_reinit(void);
 
 #endif /* IMX_TRDC_H */

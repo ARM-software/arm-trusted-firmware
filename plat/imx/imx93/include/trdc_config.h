@@ -286,6 +286,8 @@ struct trdc_config_info trdc_cfg_info[] = {
 	}, /* TRDC_N */
 };
 
+unsigned int trdc_cfg_info_num = ARRAY_SIZE(trdc_cfg_info);
+
 struct trdc_fused_module_info fuse_info[] = {
 	{ TRDC_N_BASE, 19, 13, 1, 2, 16, 1 }, /* NPU, NICMIX, MBC1, MEM2, slot 16 */
 	{ TRDC_N_BASE, 19, 13, 1, 3, 16, 1 }, /* NPU, NICMIX, MBC1, MEM3, slot 16 */
