@@ -131,6 +131,7 @@ Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
 :|M|: Boyan Karatotev <boyan.karatotev@arm.com>
 :|M|: Manish Pandey <manish.pandey2@arm.com>
+:|C|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|F|: lib/cpus/
 :|F|: include/lib/cpus/
 
