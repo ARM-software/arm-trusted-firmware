@@ -150,7 +150,7 @@ static inline void apply_cve_2025_10263_wa(void)
 /* Macro to get CPU revision code for checking errata version compatibility. */
 #define CPU_REV(r, p)		((r << 4) | p)
 
-/* Used for errata that have split workaround */
+/* Used for errata that need a workaround at EL3 and a lower EL simultaneously */
 #define SPLIT_WA			1
 
 /* chosen bitfield entries */
