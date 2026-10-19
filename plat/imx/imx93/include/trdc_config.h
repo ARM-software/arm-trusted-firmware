@@ -14,6 +14,7 @@
 #define TRDC_N_BASE	U(0x49010000)
 
 /* GLBAC7 is used for TRDC only, any setting to GLBAC7 will be ignored */
+/* GLBAC6 is used for fused modules, any setting to GLBAC6 will be ignored */
 
 /* aonmix */
 struct trdc_glbac_config trdc_a_mbc_glbac[] = {
@@ -178,19 +179,165 @@ struct trdc_mbc_config trdc_n_mbc[] = {
 	{ 3, 3, 0, 3, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 0, 4, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 0, 5, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 6, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 7, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 8, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 9, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 10, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 11, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 12, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 13, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 14, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 15, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 16, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 17, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 18, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 19, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 20, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 21, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 22, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 0, 23, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 1, 0, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 1, 1, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 1, 2, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 1, 3, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 1, 4, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
 	{ 3, 3, 1, 5, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 6, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 7, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 8, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 9, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 10, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 11, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 12, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 13, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 14, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 15, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 16, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 17, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 18, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 19, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 20, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 21, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 22, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+	{ 3, 3, 1, 23, 0, false  }, /* MBC3 OCRAM for A55 DID3 */
+
+	{ 3, 5, 0, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID5 */
+	{ 3, 5, 1, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID5 */
+
+	{ 3, 6, 0, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID6 */
+	{ 3, 6, 1, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID6 */
 
 	{ 0, 7, 1, MBC_BLK_ALL, 0, false }, /* MBC0 AIPS4 for eDMA DID7 */
 	{ 0, 7, 2, MBC_BLK_ALL, 0, false }, /* MBC0 MEDIAMIX for eDMA DID7 */
 	{ 0, 7, 3, MBC_BLK_ALL, 0, false }, /* MBC0 HSIOMIX for eDMA DID7 */
 
-	{ 3, 10, 0, MBC_BLK_ALL, 0, false }, /* MBC3 OCRAM for DID10 */
-	{ 3, 10, 1, MBC_BLK_ALL, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 7, 0, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 0, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 1, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 2, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 3, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 4, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 5, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 6, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 7, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 8, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 9, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 10, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 11, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 12, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 13, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 14, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 15, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 16, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 17, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 18, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 19, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 20, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 21, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 22, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 0, 23, 0, false }, /* MBC3 OCRAM for DID7 */
+
+	{ 3, 7, 1, 0, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 1, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 2, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 3, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 4, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 5, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 6, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 7, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 8, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 9, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 10, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 11, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 12, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 13, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 14, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 15, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 16, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 17, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 18, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 19, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 20, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 21, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 22, 0, false }, /* MBC3 OCRAM for DID7 */
+	{ 3, 7, 1, 23, 0, false }, /* MBC3 OCRAM for DID7 */
+
+	{ 3, 10, 0, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 0, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 1, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 2, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 3, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 4, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 5, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 6, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 7, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 8, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 9, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 10, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 11, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 12, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 13, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 14, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 15, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 16, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 17, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 18, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 19, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 20, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 21, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 22, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 0, 23, 0, false }, /* MBC3 OCRAM for DID10 */
+
+	{ 3, 10, 1, 0, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 1, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 2, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 3, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 4, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 5, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 6, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 7, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 8, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 9, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 10, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 11, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 12, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 13, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 14, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 15, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 16, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 17, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 18, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 19, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 20, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 21, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 22, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, 23, 0, false }, /* MBC3 OCRAM for DID10 */
+
+	{ 3, 11, 0, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID11 */
+	{ 3, 11, 1, MBC_BLK_ALL, 0, true }, /* MBC3 OCRAM for DID11 */
 };
 
 struct trdc_glbac_config trdc_n_mrc_glbac[] = {
