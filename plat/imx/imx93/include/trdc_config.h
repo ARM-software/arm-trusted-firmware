@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef TRDC_CONFIG_H
+#define TRDC_CONFIG_H
+
 #include <drivers/nxp/trdc/imx_trdc.h>
 
 #define TRDC_A_BASE	U(0x44270000)
@@ -251,4 +254,36 @@ struct trdc_mrc_config trdc_n_mrc[] = {
 	{ 0, 10, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for SoC masters DID10 */
 	{ 0, 11, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for USB DID11 */
 };
-#endif
+#endif /* SPD_opteed */
+
+struct trdc_mgr_info trdc_mgr_blks[] = {
+	{ TRDC_A_BASE, 0, 0, 39, 40 },
+	{ TRDC_W_BASE, 0, 0, 70, 71 },
+	{ TRDC_W_BASE, 1, 0, 1, 2 },
+	{ TRDC_N_BASE, 0, 1, 1, 2 },
+};
+
+unsigned int trdc_mgr_num = ARRAY_SIZE(trdc_mgr_blks);
+
+struct trdc_config_info trdc_cfg_info[] = {
+	{	TRDC_A_BASE,
+		trdc_a_mbc_glbac, ARRAY_SIZE(trdc_a_mbc_glbac),
+		trdc_a_mbc, ARRAY_SIZE(trdc_a_mbc),
+		trdc_a_mrc_glbac, ARRAY_SIZE(trdc_a_mrc_glbac),
+		trdc_a_mrc, ARRAY_SIZE(trdc_a_mrc)
+	}, /* TRDC_A */
+	{	TRDC_W_BASE,
+		trdc_w_mbc_glbac, ARRAY_SIZE(trdc_w_mbc_glbac),
+		trdc_w_mbc, ARRAY_SIZE(trdc_w_mbc),
+		trdc_w_mrc_glbac, ARRAY_SIZE(trdc_w_mrc_glbac),
+		trdc_w_mrc, ARRAY_SIZE(trdc_w_mrc)
+	}, /* TRDC_W */
+	{	TRDC_N_BASE,
+		trdc_n_mbc_glbac, ARRAY_SIZE(trdc_n_mbc_glbac),
+		trdc_n_mbc, ARRAY_SIZE(trdc_n_mbc),
+		trdc_n_mrc_glbac, ARRAY_SIZE(trdc_n_mrc_glbac),
+		trdc_n_mrc, ARRAY_SIZE(trdc_n_mrc)
+	}, /* TRDC_N */
+};
+
+#endif /* TRDC_CONFIG_H */

@@ -27,7 +27,7 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				plat/imx/common/plat_imx8_gic.c			\
 				plat/imx/common/lpuart_console.S		\
 				plat/imx/imx9/common/plat_topology.c		\
-				plat/imx/imx93/trdc.c			\
+				plat/imx/imx9/common/imx9_trdc.c		\
 				plat/imx/imx93/pwr_ctrl.c			\
 				plat/imx/imx93/imx93_bl31_setup.c		\
 				plat/imx/imx93/imx93_psci.c			\
