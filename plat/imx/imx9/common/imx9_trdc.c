@@ -17,11 +17,12 @@ void trdc_config(void)
 	unsigned int i;
 
 	/* Set MTR to DID1 */
-	trdc_mda_set_noncpu(TRDC_A_BASE, 4, false, 0x2, 0x2, 0x1);
+	trdc_mda_set_noncpu(TRDC_A_BASE, 4, false, 0x2, 0x2, 0x1, false);
 
 #if defined(PLAT_imx93)
 	/* Set M33 to DID2 */
-	trdc_mda_set_cpu(TRDC_A_BASE, 1, 0, 0x2, 0x0, 0x2, 0x0, 0x0, 0x0);
+	trdc_mda_set_cpu(TRDC_A_BASE, 1, 0, 0x2, 0x0, 0x2,
+			 0x0, 0x0, 0x0, false);
 #endif /* PLAT_imx93 */
 
 	/* Configure the access permission for TRDC MGR and MC slots */

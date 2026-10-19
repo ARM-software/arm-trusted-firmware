@@ -20,6 +20,14 @@
 #define MBC_BLK_NUM(GLBCFG)	((GLBCFG) & 0x3FF)
 #define MRC_RGN_NUM(GLBCFG)	((GLBCFG) & 0x1F)
 
+#define GLBAC_SETTING_MASK	U(0x7777)
+#define GLBAC_LOCK_MASK		BIT(31)
+#define MDAC_LOCK_MASK		BIT(30)
+
+/* GLBAC7 is reserved for TRDC MGR slot protection */
+#define GLBAC_TRDC_MGR		U(7)
+#define GLBAC_TRDC_MGR_PERM	U(0x6000)
+
 #define MDAC_W_X(m, r)	(0x800 + (m) * 0x20 + (r) * 0x4)
 
 /* CPU/non-CPU domain common bits */
@@ -159,13 +167,15 @@ extern unsigned int trdc_mgr_num;
 /* APIs to apply and enable TRDC */
 int trdc_mda_set_cpu(uintptr_t trdc_base, uint32_t mda_inst,
 		     uint32_t mda_reg, uint8_t sa, uint8_t dids,
-		     uint8_t did, uint8_t pe, uint8_t pidm, uint8_t pid);
+		     uint8_t did, uint8_t pe, uint8_t pidm,
+		     uint8_t pid, bool lock);
 
 int trdc_mda_set_noncpu(uintptr_t trdc_base, uint32_t mda_inst,
 			bool did_bypass, uint8_t sa, uint8_t pa,
-			uint8_t did);
+			uint8_t did, bool lock);
 
 void trdc_mgr_mbc_setup(struct trdc_mgr_info *mgr);
+void trdc_try_lockup(struct trdc_config_info *cfg);
 void trdc_setup(struct trdc_config_info *cfg);
 void trdc_config(void);
 
