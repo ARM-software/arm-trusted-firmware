@@ -245,7 +245,8 @@
  *	Compile time flag on whether the erratum is included
  *
  * _split_wa:
- *	Flag that indicates whether an erratum has split workaround or not.
+ *	Flag that indicates whether an erratum is worked around at EL3 but also
+ *	requires mitigation at a lower EL.
  *	Default value is 0.
  *
  * in body:
