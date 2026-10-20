@@ -615,6 +615,7 @@ $(call assert_booleans,\
 	ENABLE_SVE_FOR_SWD \
 	ENCRYPT_BL31 \
 	ENCRYPT_BL32 \
+	ENCRYPT_BL33 \
 	ERRATA_ABI_SUPPORT \
 	ERRATA_NON_ARM_INTERCONNECT \
 	ERRATA_SPECULATIVE_AT \
@@ -900,6 +901,7 @@ $(call add_defines,\
 	ENABLE_TRF_FOR_NS \
 	ENCRYPT_BL31 \
 	ENCRYPT_BL32 \
+	ENCRYPT_BL33 \
 	ERRATA_ABI_SUPPORT \
 	ERRATA_NON_ARM_INTERCONNECT \
 	ERRATA_SPECULATIVE_AT \
@@ -1129,7 +1131,11 @@ endif #(NEED_RMM)
 
 # Add the BL33 image if required by the platform
 ifeq (${NEED_BL33},yes)
+ifneq (${DECRYPTION_SUPPORT},none)
+$(eval $(call TOOL_ADD_IMG,bl33,--nt-fw,,$(ENCRYPT_BL33)))
+else
 $(eval $(call TOOL_ADD_IMG,bl33,--nt-fw))
+endif #(DECRYPTION_SUPPORT)
 endif #(NEED_BL33)
 
 ifeq (${NEED_BL2U},yes)
