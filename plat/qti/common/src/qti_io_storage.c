@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdint.h>
 
+#include <common/tbbr/tbbr_img_def.h>
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
@@ -43,32 +44,51 @@ static const io_uuid_spec_t qti_bl33_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
 
+#if defined(SPD_spmd)
+static const io_uuid_spec_t qti_tos_fw_config_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
+};
+#endif
+
 struct qti_io_policy {
+	unsigned int image_id;
 	uintptr_t *dev_handle;
 	uintptr_t image_spec;
 	uintptr_t init_params;
 };
 
 static const struct qti_io_policy qti_io_policies[] = {
-	[FIP_IMAGE_ID] = {
+	{
+		.image_id   = FIP_IMAGE_ID,
 		.dev_handle = &qti_backend_dev_handle,
 		.image_spec = (uintptr_t)&qti_fip_spec,
 	},
-	[BL31_IMAGE_ID] = {
+	{
+		.image_id   = BL31_IMAGE_ID,
 		.dev_handle = &qti_fip_dev_handle,
 		.image_spec = (uintptr_t)&qti_bl31_spec,
 		.init_params = FIP_IMAGE_ID,
 	},
-	[BL32_IMAGE_ID] = {
+	{
+		.image_id   = BL32_IMAGE_ID,
 		.dev_handle = &qti_fip_dev_handle,
 		.image_spec = (uintptr_t)&qti_bl32_spec,
 		.init_params = FIP_IMAGE_ID,
 	},
-	[BL33_IMAGE_ID] = {
+	{
+		.image_id   = BL33_IMAGE_ID,
 		.dev_handle = &qti_fip_dev_handle,
 		.image_spec = (uintptr_t)&qti_bl33_spec,
 		.init_params = FIP_IMAGE_ID,
 	},
+#if defined(SPD_spmd)
+	{
+		.image_id   = TOS_FW_CONFIG_ID,
+		.dev_handle = &qti_fip_dev_handle,
+		.image_spec = (uintptr_t)&qti_tos_fw_config_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+#endif
 };
 
 static int qti_io_memmap_setup(void)
@@ -121,13 +141,17 @@ int qti_io_setup(void)
 int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 			  uintptr_t *image_spec)
 {
-	uintptr_t init_params;
+	unsigned int i;
 
-	assert(image_id < ARRAY_SIZE(qti_io_policies));
+	for (i = 0U; i < ARRAY_SIZE(qti_io_policies); i++) {
+		if (qti_io_policies[i].image_id != image_id)
+			continue;
 
-	*dev_handle = *qti_io_policies[image_id].dev_handle;
-	*image_spec = qti_io_policies[image_id].image_spec;
-	init_params = qti_io_policies[image_id].init_params;
+		*dev_handle = *qti_io_policies[i].dev_handle;
+		*image_spec = qti_io_policies[i].image_spec;
+		return io_dev_init(*dev_handle, qti_io_policies[i].init_params);
+	}
 
-	return io_dev_init(*dev_handle, init_params);
+	ERROR("No IO policy for image id %u\n", image_id);
+	return -ENOENT;
 }
