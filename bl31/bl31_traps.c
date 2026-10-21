@@ -134,9 +134,9 @@ int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx, u_register_t flags)
  * NOTE: This piece of code must be reviewed every release against the latest
  * sequence to ensure that we keep up with new arch features.
  *
- * The pseudocode is based on revision 2026-03 (replace `latest` in the URL).
+ * The pseudocode is based on revision 2026-09 (replace `latest` in the URL).
  *
- * Next review: TF-A 2.16 release
+ * Next review: TF-A 2.17 release
  *
  * FEAT_NV3 has an impact but is not implemented in EL3 yet.
  * TODO: this should create a BRBE exception record
