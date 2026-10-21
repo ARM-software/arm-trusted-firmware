@@ -91,12 +91,6 @@
 #define QTI_FIRST_GOLD_CORE			4
 
 /*
- * Time to let the gold PLL/cluster clock settle after the one-time cold boot
- * before the first gold core is released from reset (see gold_cluster_cold_boot).
- */
-#define GOLD_CLUSTER_SETTLE_US			500U
-
-/*
  * Repair the L3 memories of the gold cluster. Performed once, before the first
  * gold core is powered on.
  */
@@ -258,19 +252,6 @@ static void gold_cluster_cold_boot(void)
 	l3_memory_repair();
 	l3_cold_boot();
 	cpu_memory_repair();
-
-	/*
-	 * The cold-boot sequence above only polls for the L3 and gold-PLL
-	 * "sequence done" / "memory repair done" status, not for the gold PLL
-	 * to actually lock and drive the cluster clock. Releasing the first
-	 * gold core (the only one that runs this cold boot) before its clock is
-	 * running leaves it stuck: PSCI CPU_ON reports success but the core
-	 * never starts executing, so the kernel times it out and only 7 of the
-	 * 8 CPUs come online. Let the PLL/clock settle before the reset
-	 * sequence releases the core. This runs only on the one-time cold-boot
-	 * path, so it does not affect the later gold cores or steady state.
-	 */
-	udelay(GOLD_CLUSTER_SETTLE_US);
 
 	gold_cluster_booted = true;
 	spin_unlock(&gold_cluster_lock);
