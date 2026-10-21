@@ -8,6 +8,17 @@
 #ifndef KODIAK_DEF_H
 #define KODIAK_DEF_H
 
+/*
+ * The gold cores share the one DSU cluster; their memories are repaired by
+ * the APC1 rail sequencer of the cluster IPM block (its registers are named
+ * after the gold+ cores) before the first of them powers on.
+ */
+#define QTI_GOLD_HAS_SEPARATE_DSU	0
+#define QTI_GOLD_RAIL_BOOT_MV		852U
+#define QTI_APC1_MEM_REPAIR_SEQ		0x18080180U
+#define QTI_APC1_MEM_REPAIR_REQ		0x100U
+#define QTI_APC1_MEM_REPAIR_DONE	0x10U
+
 #include <hoya_def.h>
 
 /*----------------------------------------------------------------------------*/
