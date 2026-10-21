@@ -61,6 +61,7 @@ import hob
 import struct
 from hob import HobList
 
+DEBUG = 0
 MAX_SP = 8
 UUID_LEN = 4
 HOB_OFFSET_DEFAULT=0x2000
@@ -94,16 +95,18 @@ def get_sp_img_full_path(sp_node, args :dict):
 
 def get_size(sp_node):
     if not "size" in sp_node:
-        print("WARNING: default image size 0x100000")
+        if DEBUG==1:
+            print("WARNING: default image size 0x100000")
         return 0x100000
 
     # Try if it was a decimal value.
     try:
-        return int(sp_node["size"])
-    except ValueError:
-        print("WARNING: trying to parse base 16 size")
-        # Try if it is of base 16
         return int(sp_node["size"], 16)
+    except ValueError:
+        if DEBUG==1:
+            print("WARNING: trying to parse base 10 size")
+        # Try if it is of base 10
+        return int(sp_node["size"])
 
 def get_sp_pkg(sp, args :dict):
     check_out_dir(args)
@@ -137,33 +140,26 @@ def get_pm_offset(node):
 def get_uuid(sp_layout, sp, args :dict):
     ''' Helper to fetch uuid from pm file listed in sp_layout.json'''
 
-    def to_bytes_even(h: str) -> bytes:
-        '''
-        Zero-fill any odd-length hex string representing an UUID since
-        bytes.fromhex() always expects even number of bytes.
-        '''
-        h = h.zfill(len(h) + len(h) % 2)
-        return bytes.fromhex(h)
-
     if "uuid" in sp_layout[sp]:
         # Extract the UUID from the JSON file if the SP entry has a 'uuid' field
         uuid_std = uuid.UUID(sp_layout[sp]['uuid'])
     else:
-        with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
-            uuid_lines = [l for l in pm_f if 'uuid' in l]
-        assert(len(uuid_lines) == 1)
+        manifest_path = get_sp_manifest_full_path(sp_layout[sp], args)
+        with open(manifest_path, "r") as pm_f:
+            manifest = fdt.parse_dts(pm_f.read())
+        # Only the root partition UUID identifies the SP package. Other
+        # properties (e.g. image-uuid) and child nodes may contain UUIDs too.
+        uuid_words = manifest.get_property("uuid", "/")
+        if not isinstance(uuid_words, fdt.PropWords) or len(uuid_words) != UUID_LEN:
+            raise ValueError(
+                f"{manifest_path}: root uuid must contain exactly {UUID_LEN} 32-bit words"
+            )
+
         # The uuid field in SP manifest is the little endian representation
         # mapped to arguments as described in SMCCC section 5.3.
         # Convert each unsigned integer value to a big endian representation
         # required by fiptool.
-        uuid_parsed = re.findall("0x([0-9a-f]+)", uuid_lines[0])
-
-        # UUID must have 4 little endian words
-        assert len(uuid_parsed) == 4, "SP manifest UUID must have exactly 4 words"
-
-        y = [to_bytes_even(uuid) for uuid in uuid_parsed]
-        z = [int.from_bytes(i, byteorder='little', signed=False) for i in y]
-        uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
+        uuid_std = uuid.UUID(bytes=struct.pack("<4I", *uuid_words))
     return uuid_std
 
 def get_load_address(sp_layout, sp, args :dict):
@@ -291,7 +287,7 @@ def check_dualroot(sp_layout, _, args :dict):
     # If it is owned by the platform owner, it is assigned to the SiP.
     args["sip_max_count"] = len(sp_layout.keys()) - args["plat_max_count"]
     if  args["sip_max_count"] > args["split"] or args["sip_max_count"] > args["split"]:
-        print(f"WARN: SiP Secure Partitions should not be more than {args['split']}")
+        print(f"WARNING: SiP Secure Partitions should not be more than {args['split']}")
     # Counters for gen_crt_args.
     args["sip_count"] = 1
     args["plat_count"] = 1
@@ -349,7 +345,7 @@ f'''\
 
 ''')
         else:
-            print("Warning: No load-address was found in the SP manifest.")
+            print("WARNING: No load-address was found in the SP manifest.")
 
     return args
 
