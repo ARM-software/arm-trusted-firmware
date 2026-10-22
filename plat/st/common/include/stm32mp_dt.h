@@ -40,6 +40,7 @@ uint32_t dt_get_pwr_vdd_voltage(void);
 struct rdev *dt_get_vdd_regulator(void);
 struct rdev *dt_get_cpu_regulator(void);
 const char *dt_get_board_model(void);
+bool dt_has_otp_name(const char *name);
 int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len);
 int dt_get_otp_by_phandle(const uint32_t phandle, uint32_t *otp_id, uint32_t *otp_len);
 int fdt_get_gpio_bank_pin_count(unsigned int bank);
