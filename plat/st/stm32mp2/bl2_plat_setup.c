@@ -390,6 +390,12 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 		/* Iterate through all the fw config IDs */
 		for (i = 0U; i < ARRAY_SIZE(image_ids); i++) {
+			/* HW_CONFIG is optional */
+			if ((image_ids[i] == HW_CONFIG_ID) &&
+			    (dyn_cfg_dtb_info_get_index(image_ids[i]) == FCONF_INVALID_IDX)) {
+				continue;
+			}
+
 			bl_mem_params = get_bl_mem_params_node(image_ids[i]);
 			assert(bl_mem_params != NULL);
 

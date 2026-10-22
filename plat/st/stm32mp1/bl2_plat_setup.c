@@ -415,7 +415,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	const struct dyn_cfg_dtb_info_t *config_info;
 	bl_mem_params_node_t *tos_fw_mem_params;
 	unsigned int i;
-	unsigned int idx;
 	unsigned long long ddr_top __unused;
 	const unsigned int image_ids[] = {
 		BL32_IMAGE_ID,
@@ -439,11 +438,12 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 				FW_CONFIG_ID);
 		fconf_populate("FW_CONFIG", STM32MP_FW_CONFIG_BASE);
 
-		idx = dyn_cfg_dtb_info_get_index(TOS_FW_CONFIG_ID);
-
 		/* Iterate through all the fw config IDs */
 		for (i = 0U; i < ARRAY_SIZE(image_ids); i++) {
-			if ((image_ids[i] == TOS_FW_CONFIG_ID) && (idx == FCONF_INVALID_IDX)) {
+			/* HW_CONFIG and TOS_FW_CONFIG are optional */
+			if (((image_ids[i] == HW_CONFIG_ID) ||
+			     (image_ids[i] == TOS_FW_CONFIG_ID)) &&
+			    (dyn_cfg_dtb_info_get_index(image_ids[i]) == FCONF_INVALID_IDX)) {
 				continue;
 			}
 
