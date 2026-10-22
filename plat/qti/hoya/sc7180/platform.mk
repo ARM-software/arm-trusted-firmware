@@ -60,6 +60,7 @@ QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo4_silver.S	\
 				$(QTI_PLAT_PATH)/common/src/qti_common.c		\
 				$(QTI_PLAT_PATH)/common/src/qti_bl31_setup.c		\
 				$(QTI_PLAT_PATH)/common/src/qti_gic_v3.c		\
+				$(QTI_PLAT_PATH)/common/src/qti_gicv3_platform.c	\
 				$(QTI_PLAT_PATH)/common/src/qti_interrupt_svc.c		\
 				$(QTI_PLAT_PATH)/common/src/qti_interrupt_svc_el3.c	\
 				$(QTI_PLAT_PATH)/common/src/qti_syscall.c		\
@@ -68,7 +69,6 @@ QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo4_silver.S	\
 				$(QTI_PLAT_PATH)/common/src/spmi_arb.c			\
 				$(QTI_PLAT_PATH)/hoya/common/$(ARCH)/hoya_helpers.S	\
 				$(QTI_PLAT_PATH)/hoya/common/hoya_bl31_setup.c		\
-				$(QTI_PLAT_PATH)/hoya/common/hoya_gicv3.c		\
 				$(QTI_PLAT_PATH)/hoya/common/qtiseclib_pm.c		\
 				$(QTI_PLAT_PATH)/hoya/qtiseclib/src/qtiseclib_cb_interface.c	\
 				drivers/qti/crypto/rng.c
