@@ -587,6 +587,9 @@ subsections:
           - title: Agatti
             scope: agatti
 
+          - title: Arduino UNO Q
+            scope: uno_q
+
       - title: Raspberry Pi
         scope: rpi
 
