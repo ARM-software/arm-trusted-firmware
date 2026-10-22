@@ -262,26 +262,6 @@ func cortex_a72_cluster_pwr_dwn
 	b	cortex_a72_disable_ext_debug
 endfunc cortex_a72_cluster_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a72 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a72_regs, "aS"
-cortex_a72_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", "cpumerrsr_el1", "l2merrsr_el1", ""
-
-func cortex_a72_cpu_reg_dump
-	adr	x6, cortex_a72_regs
-	mrs	x8, CORTEX_A72_ECTLR_EL1
-	mrs	x9, CORTEX_A72_MERRSR_EL1
-	mrs	x10, CORTEX_A72_L2MERRSR_EL1
-	ret
-endfunc cortex_a72_cpu_reg_dump
 
 declare_cpu_ops cortex_a72, CORTEX_A72_MIDR, \
 	cortex_a72_reset_func, \

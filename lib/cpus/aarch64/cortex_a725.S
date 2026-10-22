@@ -106,24 +106,6 @@ func cortex_a725_core_pwr_dwn
 	ret
 endfunc cortex_a725_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-A725 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a725_regs, "aS"
-cortex_a725_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a725_cpu_reg_dump
-	adr	x6, cortex_a725_regs
-	mrs	x8, CORTEX_A725_CPUECTLR_EL1
-	ret
-endfunc cortex_a725_cpu_reg_dump
 
 declare_cpu_ops cortex_a725, CORTEX_A725_MIDR, \
 	cortex_a725_reset_func, \

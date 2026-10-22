@@ -354,24 +354,6 @@ cpu_reset_func_start cortex_x2
 	enable_mpmm
 cpu_reset_func_end cortex_x2
 
-	/* ---------------------------------------------
-	 * This function provides Cortex X2 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_x2_regs, "aS"
-cortex_x2_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_x2_cpu_reg_dump
-	adr	x6, cortex_x2_regs
-	mrs	x8, CORTEX_X2_CPUECTLR_EL1
-	ret
-endfunc cortex_x2_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x2, CORTEX_X2_MIDR, \

@@ -173,25 +173,6 @@ func cortex_a73_cluster_pwr_dwn
 	b	cortex_a73_disable_smp
 endfunc cortex_a73_cluster_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a73 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a73_regs, "aS"
-cortex_a73_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", "l2merrsr_el1", ""
-
-func cortex_a73_cpu_reg_dump
-	adr	x6, cortex_a73_regs
-	mrs	x8, CORTEX_A73_CPUECTLR_EL1
-	mrs	x9, CORTEX_A73_L2MERRSR_EL1
-	ret
-endfunc cortex_a73_cpu_reg_dump
 
 declare_cpu_ops cortex_a73, CORTEX_A73_MIDR, \
 	cortex_a73_reset_func, \

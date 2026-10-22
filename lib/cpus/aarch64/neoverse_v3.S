@@ -170,24 +170,6 @@ cpu_reset_func_start neoverse_v3
 	apply_erratum neoverse_v3, ERRATUM(3312417), ERRATA_V3_3312417
 cpu_reset_func_end neoverse_v3
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse V3 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_v3_regs, "aS"
-neoverse_v3_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_v3_cpu_reg_dump
-	adr	x6, neoverse_v3_regs
-	mrs	x8, NEOVERSE_V3_CPUECTLR_EL1
-	ret
-endfunc neoverse_v3_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_v3, NEOVERSE_V3_MIDR, \
