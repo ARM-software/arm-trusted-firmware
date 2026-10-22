@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * TRM: https://support.arm.com/documentation/109736/latest
- * SDEN: https://support.arm.com/documentation/112420/latest
+ * SDEN: https://support.arm.com/documentation/111287/latest
  */
 
 #include <arch.h>
