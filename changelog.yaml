@@ -584,6 +584,9 @@ subsections:
           - title: Arduino VENTUNO Q
             scope: monza
 
+          - title: Agatti
+            scope: agatti
+
       - title: Raspberry Pi
         scope: rpi
 
