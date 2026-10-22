@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024, 2026 Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,10 +11,43 @@ from pydevicetree import Devicetree, Property, Node
 from pathlib import Path
 from typing import List, Optional
 
+# TODO: Temporary workaround for pydevicetree failing on simple arithmetic
+# cell expressions in generated CoT descriptors, such as <((39) + 2)>.
+# This is not a general DTS expression evaluator; some valid expressions may
+# still fail. The long-term fix belongs in the pydevicetree parser path.
+def _normalise_cell_expression(match):
+    value = match.group(1).strip()
+    if not re.fullmatch(r"[0-9a-fA-FxX\s()+\-*/%<>&|^~]+", value):
+        return match.group(0)
+
+    try:
+        evaluated = eval(value, {"__builtins__": {}}, {})
+    except Exception:
+        return match.group(0)
+
+    if not isinstance(evaluated, int):
+        return match.group(0)
+
+    return f"<{evaluated}>"
+
+def _normalise_cell_expressions(contents):
+    return re.sub(r"<([^<>]+)>", _normalise_cell_expression, contents)
+
+def _parse_cot_file(inputfile):
+    try:
+        return Devicetree.parseFile(inputfile)
+    except Exception:
+        contents = Path(inputfile).read_text()
+        normalised = _normalise_cell_expressions(contents)
+        if normalised == contents:
+            raise
+
+        return Devicetree.from_dts(normalised)
+
 class COT:
     def __init__(self, inputfile: str, outputfile=None):
         try:
-            self.tree = Devicetree.parseFile(inputfile)
+            self.tree = _parse_cot_file(inputfile)
         except:
             print("not a valid CoT DT file")
             exit(1)
