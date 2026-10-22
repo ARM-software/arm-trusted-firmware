@@ -122,10 +122,13 @@ STM32IMAGE_SRC			:=	${STM32IMAGEPATH}/stm32image.c
 STM32_DEPS			+=	${STM32IMAGE}
 
 FIP_DEPS			+=	dtbs
-STM32MP_HW_CONFIG		:=	${BL33_CFG}
 
-# Add the HW_CONFIG to FIP and specify the same to certtool
+# BL33_CFG is optional: without it, BL33 uses its own embedded DT.
+ifneq (${BL33_CFG},)
+STM32MP_HW_CONFIG		:=	${BL33_CFG}
+# Add the HW_CONFIG to FIP and specify the same to certtool.
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_HW_CONFIG},--hw-config))
+endif
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.

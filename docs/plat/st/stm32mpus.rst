@@ -51,6 +51,11 @@ to save space and not overflow SYSRAM size, or else the platform won't build or 
 
 Other configuration flags:
 
+- | ``BL33_CFG``: optional HW_CONFIG device-tree blob, added to the FIP.
+  | When unset, BL33 uses its own embedded DT (e.g. ``u-boot.bin``, U-Boot with
+  | its appended DT), which is then covered by the BL33 hash. The ``hw-config``
+  | node must then be removed from the board FW_CONFIG.
+  | Default: unset
 - | ``DTB_FILE_NAME``: to precise board device-tree blob to be used.
   | Default: stm32mp157c-ev1.dtb
 - | ``DWL_BUFFER_BASE``: the 'serial boot' load address of FIP,
