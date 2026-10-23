@@ -43,8 +43,6 @@ Advisory TFV-17 (CVE-2025-10263)
 |                | translation invalidation operations.                        |
 +----------------+-------------------------------------------------------------+
 | Fix Version    | `Commit 08fab0f083db` (merged on 16 June 2026)              |
-|                |                                                             |
-|                | `Gerrit topic #gr/CVE-2025-10263`_                          |
 +----------------+-------------------------------------------------------------+
 | Credit         | Arm                                                         |
 +----------------+-------------------------------------------------------------+
@@ -99,5 +97,4 @@ For further information, affected CPUs, and detailed guidance, refer to the full
 `Official Arm Advisory`_.
 
 .. _CVE-2025-10263: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-10263
-.. _Gerrit topic #gr/CVE-2025-10263: https://review.trustedfirmware.org/q/topic:gr/CVE-2025-10263
 .. _Official Arm Advisory: https://developer.arm.com/documentation/112137
