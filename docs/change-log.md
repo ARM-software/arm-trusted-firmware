@@ -3,6 +3,50 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.48..refs/tags/lts-v2.8.49) (2026-10-23)
+
+### Miscellaneous
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - bump maximum permitted Trusted SRAM size ([ee812fd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ee812fdfdd33ae53229becff0e1b13003418125e))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - scale SP_MIN max size based on SRAM size ([0f6da52](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0f6da5212a35f52a6da3ee57a1b569822f6c59d4))
+
+### Build System
+
+- **Dependencies**
+
+  - refresh commitlint CLI dependencies ([3c8c1af](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3c8c1afd83fdc735d9420a1793243af3f5c7cd99))
+  - refresh commitlint config loading ([69d9b49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/69d9b496b90e3c8c00fa0e6e8aa4cd603a88199f))
+  - refresh conventional parser typings ([9f31c54](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9f31c5495ffa928de03ac1f774e7a6cc48e5807f))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - absorb BUILD_CPUS_WITH_NO_FVP_MODEL and ENABLE_ERRATA_ALL cores ([b5fc8d5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b5fc8d59cbfccc854d63afbd9e192b72dd26bbcd))
+
+- **Documentation**
+
+  - do not use topics for security advisories ([c95385f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c95385f7b00890c6f8055e460fa7891c090b36b2))
+
 ## [lts-2.8.48](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.47..refs/tags/lts-v2.8.48) (2026-10-02)
 
 ### Resolved Issues
