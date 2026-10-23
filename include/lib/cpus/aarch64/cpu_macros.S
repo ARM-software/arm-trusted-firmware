@@ -122,9 +122,6 @@
 #endif /* IMAGE_BL31 */
 #endif /* REPORT_ERRATA */
 
-#if defined(IMAGE_BL31) && CRASH_REPORTING
-	.quad \_name\()_cpu_reg_dump
-#endif
 	.endm
 
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \

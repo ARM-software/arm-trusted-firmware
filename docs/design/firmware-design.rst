@@ -1376,10 +1376,6 @@ Each of the above categories fulfils a different requirement.
 #. allows each processor to implement the power down sequence mandated in
    its Technical Reference Manual (TRM).
 
-#. allows a processor to provide additional information to the developer
-   in the event of a crash, for example Cortex-A53 has registers which
-   can expose the data cache contents.
-
 #. allows a processor to define a function that inspects and reports the status
    of all errata workarounds on that processor.
 
@@ -1395,8 +1391,7 @@ can be found in the :ref:`Arm CPU Specific Build Macros` document.
 The CPU specific operations framework depends on the ``cpu_ops`` structure which
 needs to be exported for each type of CPU in the platform. It is defined in
 ``include/lib/cpus/aarch64/cpu_macros.S`` and has the following fields : ``midr``,
-``reset_func()``, ``cpu_pwr_down_ops`` (array of power down functions) and
-``cpu_reg_dump()``.
+``reset_func()`` and ``cpu_pwr_down_ops`` (array of power down functions).
 
 The CPU specific files in ``lib/cpus`` export a ``cpu_ops`` data structure with
 suitable handlers for that CPU. For example, ``lib/cpus/aarch64/cortex_a53.S``
@@ -1485,16 +1480,6 @@ To cater for this possibility, the powerdown hook will be called a second time
 after a wakeup. The expectation is that the first call will operate as before,
 while the second call will undo anything the first call did. This should be done
 statelessly, for example by toggling the relevant bits.
-
-CPU specific register reporting during crash
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If the crash reporting is enabled in BL31, when a crash occurs, the crash
-reporting framework calls ``do_cpu_reg_dump`` which retrieves the matching
-``cpu_ops`` using ``get_cpu_ops_ptr()`` function. The ``cpu_reg_dump()`` in
-``cpu_ops`` is invoked, which then returns the CPU specific register values to
-be reported and a pointer to the ASCII list of register names in a format
-expected by the crash reporting framework.
 
 .. _firmware_design_cpu_errata_implementation:
 

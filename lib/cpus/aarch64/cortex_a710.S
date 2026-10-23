@@ -373,24 +373,6 @@ cpu_reset_func_start cortex_a710
 	enable_mpmm
 cpu_reset_func_end cortex_a710
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-A710 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a710_regs, "aS"
-cortex_a710_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a710_cpu_reg_dump
-	adr	x6, cortex_a710_regs
-	mrs	x8, CORTEX_A710_CPUECTLR_EL1
-	ret
-endfunc cortex_a710_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_a710, CORTEX_A710_MIDR, \

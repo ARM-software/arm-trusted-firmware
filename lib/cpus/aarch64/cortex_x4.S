@@ -238,24 +238,6 @@ func cortex_x4_core_pwr_dwn
 	ret
 endfunc cortex_x4_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Cortex X4-specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_x4_regs, "aS"
-cortex_x4_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_x4_cpu_reg_dump
-	adr	x6, cortex_x4_regs
-	mrs	x8, CORTEX_X4_CPUECTLR_EL1
-	ret
-endfunc cortex_x4_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x4, CORTEX_X4_MIDR, \

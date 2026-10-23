@@ -121,24 +121,6 @@ func cortex_a76ae_core_pwr_dwn
 	ret
 endfunc cortex_a76ae_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a76ae specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a76ae_regs, "aS"
-cortex_a76ae_regs:  /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a76ae_cpu_reg_dump
-	adr	x6, cortex_a76ae_regs
-	mrs	x8, CORTEX_A76_AE_CPUECTLR_EL1
-	ret
-endfunc cortex_a76ae_cpu_reg_dump
 
 declare_cpu_ops cortex_a76ae, CORTEX_A76_AE_MIDR, cortex_a76ae_reset_func, \
 	cortex_a76ae_core_pwr_dwn
