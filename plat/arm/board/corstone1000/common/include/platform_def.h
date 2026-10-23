@@ -331,13 +331,15 @@
 #endif
 
 /*
- * Map the region for the optional device tree configuration with read and
- * write permissions
+ * Map the enclosing shared RAM page with read and write permissions to meet
+ * translation table alignment requirements. This does not change the load
+ * addresses: sizeof(meminfo_t) remains reserved at the start of the page for
+ * BL2 meminfo, and configuration data is loaded at ARM_FW_CONFIG_BASE.
  */
 #define ARM_MAP_BL_CONFIG_REGION	MAP_REGION_FLAT( \
-					ARM_FW_CONFIG_BASE, \
+					ARM_SHARED_RAM_BASE, \
 					(ARM_FW_CONFIG_LIMIT \
-					 - ARM_FW_CONFIG_BASE), \
+					 - ARM_SHARED_RAM_BASE), \
 					MT_MEMORY | MT_RW | MT_SECURE)
 
 #define CORSTONE1000_DEVICE_BASE	(0x1A000000)
