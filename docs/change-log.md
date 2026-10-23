@@ -3,6 +3,62 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.36..refs/tags/lts-v2.10.37) (2026-10-23)
+
+### Miscellaneous
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - bump maximum permitted Trusted SRAM size ([d3e0d00](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d3e0d000da8f14d04cdf11542f377247294133a3))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - scale SP_MIN max size based on SRAM size ([a400708](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a40070817d4983c3ec41ba7f098edbc13711b672))
+
+### Resolved Issues
+
+- **debugfs:** allocate enough space to fit all names ([10c672c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10c672c2134db3fb5c864363fb9a54217358d455))
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - absorb BUILD_CPUS_WITH_NO_FVP_MODEL and ENABLE_ERRATA_ALL cores ([330c951](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/330c9519162014647add048fbb6a3043ed49b21c))
+
+  - **Xilinx**
+
+    - **ZynqMP**
+
+      - fix length of clock name ([dade184](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dade184d56be01e6aacdb093854776ba9a8e25ef))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add C1-Nano errata 3806270 and 4394104 ([3fcbec4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3fcbec4f02a6aae4dc96c8298e071ab49845b113))
+    - add workarounds for C1-Pro errata 3679375 and 3806276 ([4843984](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4843984eb58ea3ec13d8507a4e9664c78c3c54d5))
+    - add workarounds for C1-Ultra errata ([a555689](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a55568938680295e5637055e227a64c58538766a))
+    - remove C1-NANO implementation-specific register 'IMP' prefixes ([054dbab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/054dbab24e03ae3e8e960eceb046aacbceebab27))
+    - remove C1-PRO implementation-specific register 'IMP' prefixes ([d886f8f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d886f8f988b137ddd63418a819642e6301a33dfb))
+    - remove C1-ULTRA implementation-specific register 'IMP' prefixes ([bb2c68b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bb2c68b0acab31c21dc9e365b0d5dcc9d21c5453))
+    - remove cpu crash reporting ([2c8e485](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2c8e48579e070de17ad015d746fbbd94ab991ff5))
+
+- **Documentation**
+
+  - do not use topics for security advisories ([799e9cc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/799e9cc8102bff1cbafa7a18c4e46d7333df14fe))
+
 ## [lts-2.10.36](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.35..refs/tags/lts-v2.10.36) (2026-09-25)
 
 ### Resolved Issues
