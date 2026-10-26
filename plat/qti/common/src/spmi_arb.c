@@ -11,9 +11,9 @@
 #include <platform_def.h>
 #include <spmi_arb.h>
 
-/* Arbiter core and channel registers, at fixed offsets from PMIC_ARB_BASE */
-#define REG_ARB_CORE		(PMIC_ARB_BASE + 0x40000U)
-#define REG_ARB_CHNL(apid)	(PMIC_ARB_BASE + 0x200000U + 0x10000U * apid)
+/* Arbiter core and channel registers, at fixed offsets from QTI_PMIC_ARB_BASE */
+#define REG_ARB_CORE		(QTI_PMIC_ARB_BASE + 0x40000U)
+#define REG_ARB_CHNL(apid)	(QTI_PMIC_ARB_BASE + 0x200000U + 0x10000U * apid)
 
 #define REG_APID_MAP(apid)	(REG_ARB_CORE + 0x900U + sizeof(uint32_t) * apid)
 #define NUM_APID		((0x1100U - 0x900U) / sizeof(uint32_t))
