@@ -8,19 +8,24 @@
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 
+#include <platform_def.h>
 #include <spmi_arb.h>
 
-#define REG_APID_MAP(apid)	(0x0C440900U + sizeof(uint32_t) * apid)
+/* Arbiter core and channel registers, at fixed offsets from PMIC_ARB_BASE */
+#define REG_ARB_CORE		(PMIC_ARB_BASE + 0x40000U)
+#define REG_ARB_CHNL(apid)	(PMIC_ARB_BASE + 0x200000U + 0x10000U * apid)
+
+#define REG_APID_MAP(apid)	(REG_ARB_CORE + 0x900U + sizeof(uint32_t) * apid)
 #define NUM_APID		((0x1100U - 0x900U) / sizeof(uint32_t))
 
 #define PPID_MASK		(0xfffU << 8)
 
-#define REG_ARB_CMD(apid)	(0x0C600000U + 0x10000U * apid)
+#define REG_ARB_CMD(apid)	(REG_ARB_CHNL(apid) + 0x0U)
 /* These are opcodes specific to this SPMI arbitrator, *not* SPMI commands. */
 #define OPC_EXT_WRITEL		0
 #define OPC_EXT_READL		1
 
-#define REG_ARB_STATUS(apid)	(0x0C600008U + 0x10000U * apid)
+#define REG_ARB_STATUS(apid)	(REG_ARB_CHNL(apid) + 0x8U)
 #define ARB_STATUS_DONE		BIT(0)
 #define ARB_STATUS_FAILURE	BIT(1)
 #define ARB_STATUS_DENIED	BIT(2)
@@ -29,8 +34,8 @@
 /* Fake status to report driver errors. */
 #define ARB_FAKE_STATUS_TIMEOUT	BIT(8)
 
-#define REG_ARB_RDATA0(apid)	(0x0C600018U + 0x10000U * apid)
-#define REG_ARB_WDATA0(apid)	(0x0C600010U + 0x10000U * apid)
+#define REG_ARB_RDATA0(apid)	(REG_ARB_CHNL(apid) + 0x18U)
+#define REG_ARB_WDATA0(apid)	(REG_ARB_CHNL(apid) + 0x10U)
 
 static int addr_to_apid(uint32_t addr)
 {
