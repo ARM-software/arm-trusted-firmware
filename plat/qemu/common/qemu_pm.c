@@ -104,6 +104,21 @@ static int qemu_validate_power_state(unsigned int power_state,
 }
 
 /*******************************************************************************
+ * Platform handler called to populate the power state required to enter
+ * system suspend. All the power domains, from the CPU up to the highest
+ * power level supported by the platform, are powered down.
+ ******************************************************************************/
+static void qemu_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	assert(req_state);
+
+	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = PLAT_LOCAL_STATE_OFF;
+}
+
+/*******************************************************************************
  * Platform handler called when a CPU is about to enter standby.
  ******************************************************************************/
 static void qemu_cpu_standby(plat_local_state_t cpu_state)
@@ -237,6 +252,7 @@ static const plat_psci_ops_t plat_qemu_psci_pm_ops = {
 	.system_off = qemu_system_off,
 	.system_reset = qemu_system_reset,
 	.validate_power_state = qemu_validate_power_state,
+	.get_sys_suspend_power_state = qemu_get_sys_suspend_power_state,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
