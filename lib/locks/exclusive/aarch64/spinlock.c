@@ -102,8 +102,8 @@ void spin_unlock(spinlock_t *lock)
 	volatile uint32_t *dst = &(lock->lock);
 
 	/*
-	 * Plain store operations generate an event to other cores waiting in
-	 * WFE when address is monitored by the global monitor.
+	 * Store operations generate an event to other cores waiting in WFE when
+	 * the address is monitored by the global monitor.
 	 */
 	__asm__ volatile (
 	"stlr	wzr, %[dst]"
