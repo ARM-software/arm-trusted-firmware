@@ -125,7 +125,12 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
     include drivers/auth/mbedtls/mbedtls_crypto.mk
 endif
 
-BL2_SOURCES		+=	common/uuid.c
+BL1_SOURCES		+=	drivers/io/io_fw_cfg.c			\
+				drivers/qemu/qemu_fw_cfg.c
+
+BL2_SOURCES		+=	common/uuid.c				\
+				drivers/io/io_fw_cfg.c			\
+				drivers/qemu/qemu_fw_cfg.c
 
 ifeq ($(add-lib-optee),yes)
 BL2_SOURCES		+=	lib/optee/optee_utils.c

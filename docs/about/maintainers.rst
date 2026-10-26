@@ -385,6 +385,14 @@ PSA Firmware Update
 :|F|: drivers/fwu
 :|F|: include/drivers/fwu
 
+QEMU fw_cfg driver
+^^^^^^^^^^^^^^^^^^
+:|M|: Kuan-Wei Chiu <visitorckw@gmail.com>
+:|F|: drivers/io/io_fw_cfg.c
+:|F|: drivers/qemu/
+:|F|: include/drivers/io/io_fw_cfg.h
+:|F|: include/drivers/qemu/
+
 Runtime Security Engine (RSE) comms driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: David Vincze <david.vincze@arm.com>

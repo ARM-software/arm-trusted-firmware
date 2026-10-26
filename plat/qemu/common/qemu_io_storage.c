@@ -16,6 +16,7 @@
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_encrypted.h>
 #include <drivers/io/io_fip.h>
+#include <drivers/io/io_fw_cfg.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_semihosting.h>
 #include <drivers/io/io_storage.h>
@@ -55,6 +56,17 @@ static const io_dev_connector_t *memmap_dev_con;
 static uintptr_t memmap_dev_handle;
 static const io_dev_connector_t *sh_dev_con;
 static uintptr_t sh_dev_handle;
+#ifdef PLAT_QEMU_FW_CFG_BASE
+#define FIP_FW_CFG_NAME			"opt/tf-a/fip"
+
+static const io_dev_connector_t *fw_cfg_dev_con;
+static uintptr_t fw_cfg_dev_handle;
+
+static const io_file_spec_t fip_fw_cfg_spec = {
+	.path = FIP_FW_CFG_NAME,
+	.mode = FOPEN_MODE_RB
+};
+#endif
 #ifndef DECRYPTION_SUPPORT_none
 static const io_dev_connector_t *enc_dev_con;
 static uintptr_t enc_dev_handle;
@@ -210,6 +222,9 @@ static const io_file_spec_t sh_file_spec[] = {
 
 static int open_fip(const uintptr_t spec);
 static int open_memmap(const uintptr_t spec);
+#ifdef PLAT_QEMU_FW_CFG_BASE
+static int open_fw_cfg(const uintptr_t spec);
+#endif
 #ifndef DECRYPTION_SUPPORT_none
 static int open_enc_fip(const uintptr_t spec);
 #endif
@@ -223,9 +238,15 @@ struct plat_io_policy {
 /* By default, ARM platforms load images from the FIP */
 static const struct plat_io_policy policies[] = {
 	[FIP_IMAGE_ID] = {
+#ifdef PLAT_QEMU_FW_CFG_BASE
+		&fw_cfg_dev_handle,
+		(uintptr_t)&fip_fw_cfg_spec,
+		open_fw_cfg
+#else
 		&memmap_dev_handle,
 		(uintptr_t)&fip_block_spec,
 		open_memmap
+#endif
 	},
 	[ENC_IMAGE_ID] = {
 		&fip_dev_handle,
@@ -491,6 +512,24 @@ static int open_semihosting(const uintptr_t spec)
 	return result;
 }
 
+#ifdef PLAT_QEMU_FW_CFG_BASE
+static int open_fw_cfg(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	result = io_dev_init(fw_cfg_dev_handle, (uintptr_t)NULL);
+	if (result == 0) {
+		result = io_open(fw_cfg_dev_handle, spec, &local_image_handle);
+		if (result == 0) {
+			VERBOSE("Using fw_cfg IO\n");
+			io_close(local_image_handle);
+		}
+	}
+	return result;
+}
+#endif
+
 void plat_qemu_io_setup(void)
 {
 	int io_result;
@@ -527,6 +566,15 @@ void plat_qemu_io_setup(void)
 	io_result = io_dev_open(sh_dev_con, (uintptr_t)NULL, &sh_dev_handle);
 	assert(io_result == 0);
 
+#ifdef PLAT_QEMU_FW_CFG_BASE
+	io_result = register_io_dev_fw_cfg(&fw_cfg_dev_con);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(fw_cfg_dev_con, PLAT_QEMU_FW_CFG_BASE,
+				&fw_cfg_dev_handle);
+	assert(io_result == 0);
+#endif
+
 	/* Ignore improbable errors in release builds */
 	(void)io_result;
 }
@@ -534,9 +582,21 @@ void plat_qemu_io_setup(void)
 static int get_alt_image_source(unsigned int image_id, uintptr_t *dev_handle,
 				  uintptr_t *image_spec)
 {
-	const io_file_spec_t *spec = get_io_file_spec(image_id);
+	const io_file_spec_t *spec;
 	int result;
 
+#ifdef PLAT_QEMU_FW_CFG_BASE
+	if (image_id == FIP_IMAGE_ID) {
+		result = open_memmap((const uintptr_t)&fip_block_spec);
+		if (result == 0) {
+			*dev_handle = memmap_dev_handle;
+			*image_spec = (uintptr_t)&fip_block_spec;
+		}
+		return result;
+	}
+#endif
+
+	spec = get_io_file_spec(image_id);
 	result = open_semihosting((const uintptr_t)spec);
 	if (result == 0) {
 		*dev_handle = sh_dev_handle;
