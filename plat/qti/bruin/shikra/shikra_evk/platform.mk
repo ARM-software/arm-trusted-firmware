@@ -63,6 +63,7 @@ ENABLE_STACK_PROTECTOR := strong
 PLAT_INCLUDES		:=	-Iinclude/plat/common/					\
 				-I${PLAT_PATH}/bruin/${CHIPSET}/inc			\
 				-I${PLAT_PATH}/bruin/${CHIPSET}/${PLAT}/inc		\
+				-I${PLAT_PATH}/bruin/common/inc			\
 				-I${PLAT_PATH}/common/inc				\
 				-I${PLAT_PATH}/common/inc/$(ARCH)
 
