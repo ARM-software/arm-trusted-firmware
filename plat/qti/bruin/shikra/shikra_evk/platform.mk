@@ -96,7 +96,8 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c		\
 				$(PLAT_PATH)/bruin/common/$(ARCH)/bruin_helpers.S	\
 				$(PLAT_PATH)/bruin/common/bruin_bl31_setup.c		\
 				$(PLAT_PATH)/bruin/common/bruin_topology.c		\
-				$(PLAT_PATH)/bruin/common/bruin_pm.c
+				$(PLAT_PATH)/bruin/common/bruin_pm.c			\
+				$(PLAT_PATH)/bruin/shikra/shikra_pm.c
 
 include drivers/qti/smem/smem.mk
 include drivers/qti/chipinfo/chipinfo.mk
