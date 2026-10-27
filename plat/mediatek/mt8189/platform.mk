@@ -37,6 +37,7 @@ MODULES-y += $(MTK_PLAT)/drivers/cirq
 MODULES-y += $(MTK_PLAT)/drivers/dcm
 MODULES-y += $(MTK_PLAT)/drivers/dfd
 MODULES-y += $(MTK_PLAT)/drivers/disp
+MODULES-y += $(MTK_PLAT)/drivers/emi
 MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/iommu
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
