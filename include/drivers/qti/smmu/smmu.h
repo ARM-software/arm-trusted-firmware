@@ -17,10 +17,14 @@ struct smmu_cfg_s {
 };
 
 void qti_smmu_init(void);
+void qti_smmu_clocked_init(void);
 extern struct smmu_cfg_s qti_smmu_cfg[];
 extern const size_t qti_smmu_cfg_count;
+extern const struct smmu_cfg_s qti_smmu_gpu_cfg[];
+extern const size_t qti_smmu_gpu_cfg_count;
 #else
 static inline void qti_smmu_init(void) {}
+static inline void qti_smmu_clocked_init(void) {}
 #endif
 
 #endif

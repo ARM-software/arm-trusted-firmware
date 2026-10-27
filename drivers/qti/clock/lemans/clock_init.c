@@ -180,6 +180,26 @@ static void clock_disable_gpu_cx_gdsc(void)
 			   1U << GPUCC_GPU_CC_CX_GDSCR_SW_COLLAPSE_SHFT);
 }
 
+static int clock_enable_gpu_smmu_clk(void)
+{
+	uint32_t retry = CLOCK_GDSC_POLL_RETRIES;
+
+	mmio_setbits_32(GPUCC_GPU_CC_TZ_VOTE_GPU_SMMU_CLK,
+			GPUCC_GPU_CC_TZ_VOTE_GPU_SMMU_CLK_CLK_ENABLE_BMSK);
+	while (((mmio_read_32(GPUCC_GPU_CC_TZ_VOTE_GPU_SMMU_CLK) &
+		 GPUCC_GPU_CC_TZ_VOTE_GPU_SMMU_CLK_CLK_OFF_BMSK) != 0U) &&
+	       (--retry > 0U)) {
+		udelay(CLOCK_STEP_DELAY_US);
+	}
+
+	if (retry == 0U) {
+		ERROR("Clock: GPU SMMU clock stays off\n");
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
 static void clock_disable_boot_imem(void)
 {
 	uint32_t delay;
@@ -442,6 +462,12 @@ int clock_init_image(struct clock_drv_ctxt *drv_ctxt)
 			   GPUCC_GPU_CC_CX_GMU_CBCR_FORCE_MEM_PERIPH_ON_BMSK,
 			   1U << GPUCC_GPU_CC_CX_GMU_CBCR_FORCE_MEM_PERIPH_ON_SHFT);
 
+	/* Accesses to the GPU SMMU registers hang without its clock. */
+	ret = clock_enable_gpu_smmu_clk();
+	if (ret != 0) {
+		return ret;
+	}
+
 	/*
 	 * iris_cc_gcc_clks_off does not go high,
 	 * blocking MMCX collapse, because VIDEO_CC_MVS1_CMD_RCGR__ROOT_OFF is
@@ -470,6 +496,8 @@ int clock_post_init_image(struct clock_drv_ctxt *drv_ctxt)
 	(void)drv_ctxt;
 
 	/* Restore clocks enabled during init to their original state. */
+	mmio_clrbits_32(GPUCC_GPU_CC_TZ_VOTE_GPU_SMMU_CLK,
+			GPUCC_GPU_CC_TZ_VOTE_GPU_SMMU_CLK_CLK_ENABLE_BMSK);
 	clock_disable_gpu_gx_gdsc();
 	clock_disable_gpu_cx_gdsc();
 	clock_group_disable(CLOCK_GROUP_QDSS);

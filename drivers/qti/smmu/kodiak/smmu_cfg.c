@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include <drivers/qti/smmu/kodiak/smmu_cfg.h>
+#include <lib/utils_def.h>
 
 struct smmu_cfg_s qti_smmu_cfg[] = {
 	{SMMU_CUSTOM_CFG_ADDR,
@@ -81,6 +82,12 @@ struct smmu_cfg_s qti_smmu_cfg[] = {
 		SMMU_CLIENT_DBG_WUSER_ANOC_PCIE_SEC},
 	{SMMU_CLIENT_DBG_WUSER_MNOC_SF_0_SEC_ADDR,
 		SMMU_CLIENT_DBG_WUSER_MNOC_SF_0_SEC},
+};
+
+const size_t qti_smmu_cfg_count = sizeof(qti_smmu_cfg) / sizeof(*qti_smmu_cfg);
+
+/* Registers in GPU CX, written by qti_smmu_clocked_init(). */
+const struct smmu_cfg_s qti_smmu_gpu_cfg[] = {
 	{GPU_GFX_SMMU_CUSTOM_CFG_ADDR,
 		GPU_GFX_SMMU_CUSTOM_CFG},
 	{GPU_GFX_SMMU_CUSTOM_CFG_SEC_ADDR,
@@ -117,5 +124,4 @@ struct smmu_cfg_s qti_smmu_cfg[] = {
 		SMMU_GPU_AHB_4K_APERTURE_CTL_REG_ADDR}
 };
 
-const size_t qti_smmu_cfg_count = sizeof(qti_smmu_cfg) / sizeof(*qti_smmu_cfg);
-
+const size_t qti_smmu_gpu_cfg_count = ARRAY_SIZE(qti_smmu_gpu_cfg);
