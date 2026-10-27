@@ -81,19 +81,40 @@ int clock_init_image(struct clock_drv_ctxt *drv_ctxt)
 		return ret;
 	}
 
-	ret = hoya_clock_gpu_init();
-	if (ret != 0) {
-		return ret;
+	/*
+	 * The init group does not clock the GPU, display, LPASS and video
+	 * clock controllers of a part chipinfo reports disabled, and a
+	 * disabled part has no SMMU state to retain.
+	 */
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_GPU, 0U)) {
+		ret = hoya_clock_gpu_init();
+		if (ret != 0) {
+			return ret;
+		}
 	}
-	hoya_clock_gdsc_retain(MDSS_0_DISP_CC_TZ_MDSS_CORE_GDSC_SW_CTL);
-	hoya_clock_gdsc_retain(GCC_CAM_CC_GDSCR);
-	hoya_clock_tz_gdsc_init(GCC_APCS_TZ_LPASS_TBU_SGDSCR);
-	hoya_clock_retention_votes(lemans_lpass_votes,
-				   ARRAY_SIZE(lemans_lpass_votes));
-	hoya_clock_tz_gdsc_init(GCC_APCS_TZ_TURING_0_SGDSCR);
-	hoya_clock_tz_gdsc_init(GCC_APCS_TZ_TURING_1_SGDSCR);
-	hoya_clock_tz_gdsc_init(GCC_APCS_TZ_PCIE_0_SGDSCR);
-	hoya_clock_tz_gdsc_init(GCC_APCS_TZ_PCIE_1_SGDSCR);
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_DISPLAY, 0U)) {
+		hoya_clock_gdsc_retain(MDSS_0_DISP_CC_TZ_MDSS_CORE_GDSC_SW_CTL);
+	}
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_CAMERA, 0U)) {
+		hoya_clock_gdsc_retain(GCC_CAM_CC_GDSCR);
+	}
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_AUDIO, 0U)) {
+		hoya_clock_tz_gdsc_init(GCC_APCS_TZ_LPASS_TBU_SGDSCR);
+		hoya_clock_retention_votes(lemans_lpass_votes,
+					   ARRAY_SIZE(lemans_lpass_votes));
+	}
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_NSP, 0U)) {
+		hoya_clock_tz_gdsc_init(GCC_APCS_TZ_TURING_0_SGDSCR);
+	}
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_NSP, 1U)) {
+		hoya_clock_tz_gdsc_init(GCC_APCS_TZ_TURING_1_SGDSCR);
+	}
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_PCIE, 0U)) {
+		hoya_clock_tz_gdsc_init(GCC_APCS_TZ_PCIE_0_SGDSCR);
+	}
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_PCIE, 1U)) {
+		hoya_clock_tz_gdsc_init(GCC_APCS_TZ_PCIE_1_SGDSCR);
+	}
 	for (i = 0U; i < ARRAY_SIZE(lemans_tz_gdscs); i++) {
 		hoya_clock_tz_gdsc_init(lemans_tz_gdscs[i]);
 	}
@@ -113,7 +134,8 @@ int clock_init_image(struct clock_drv_ctxt *drv_ctxt)
 	 * blocking MMCX collapse, because VIDEO_CC_MVS1_CMD_RCGR__ROOT_OFF is
 	 * not asserted and the SREG PSCBC controller is stuck.
 	 */
-	if (chipinfo_get_chip_version() >= CHIPINFO_VERSION(2, 0)) {
+	if ((chipinfo_get_chip_version() >= CHIPINFO_VERSION(2, 0)) &&
+	    !chipinfo_is_part_disabled(CHIPINFO_PART_VIDEO, 0U)) {
 		mmio_clrsetbits_32(VCODEC_VIDEO_CC_MVS1_CBCR,
 				   VCODEC_VIDEO_CC_MVS1_CBCR_SW_ONLY_EN_BMSK,
 				   1U << VCODEC_VIDEO_CC_MVS1_CBCR_SW_ONLY_EN_SHFT);
@@ -136,7 +158,9 @@ int clock_post_init_image(struct clock_drv_ctxt *drv_ctxt)
 	(void)drv_ctxt;
 
 	/* Restore clocks enabled during init to their original state. */
-	hoya_clock_gpu_gdsc_disable();
+	if (!chipinfo_is_part_disabled(CHIPINFO_PART_GPU, 0U)) {
+		hoya_clock_gpu_gdsc_disable();
+	}
 	clock_group_disable(CLOCK_GROUP_QDSS);
 	clock_group_disable(CLOCK_GROUP_INIT);
 
