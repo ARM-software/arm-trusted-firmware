@@ -332,6 +332,7 @@ unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info);
 void psci_set_pwr_domains_to_run(unsigned int cpu_idx, unsigned int end_pwrlvl);
 void psci_print_power_domain_map(void);
 bool psci_is_last_on_cpu(unsigned int my_idx);
+bool psci_is_osi_entry_allowed(unsigned int this_core);
 int psci_spd_migrate_info(u_register_t *mpidr);
 
 /* This function applies various CPU errata during power down. */
