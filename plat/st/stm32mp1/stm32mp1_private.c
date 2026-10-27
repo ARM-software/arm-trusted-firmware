@@ -484,6 +484,11 @@ void stm32mp_print_boardinfo(void)
 {
 	uint32_t board_id = 0U;
 
+	/* The board ID OTP is optional */
+	if (!dt_has_otp_name(BOARD_ID_OTP)) {
+		return;
+	}
+
 	if (stm32_get_otp_value(BOARD_ID_OTP, &board_id) != 0) {
 		return;
 	}

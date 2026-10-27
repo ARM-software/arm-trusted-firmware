@@ -319,6 +319,25 @@ const char *dt_get_board_model(void)
 }
 
 /*******************************************************************************
+ * dt_has_otp_name: check for an optional OTP node in DT.
+ * name: sub-node name to look up.
+ * return value: true if the BSEC node has a sub-node with this name.
+ ******************************************************************************/
+bool dt_has_otp_name(const char *name)
+{
+	int node;
+
+	assert(name != NULL);
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_BSEC_COMPAT);
+	if (node < 0) {
+		return false;
+	}
+
+	return fdt_subnode_offset(fdt, node, name) >= 0;
+}
+
+/*******************************************************************************
  * dt_find_otp_name: get OTP ID and length in DT.
  * name: sub-node name to look up.
  * otp: pointer to read OTP number or NULL.
