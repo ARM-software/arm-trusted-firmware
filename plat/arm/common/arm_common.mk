@@ -563,6 +563,7 @@ endif
 ifneq ($(COTDTPATH),)
         # no custom flags
         $(eval $(call MAKE_PRE,$(BUILD_PLAT)/$(COTDTPATH),$(COTDTPATH),$(BUILD_PLAT)/$(COTDTPATH:.dts=.o.d)))
+        -include $(BUILD_PLAT)/$(COTDTPATH:.dts=.o.d)
 
         $(BUILD_PLAT)/$(COTDTPATH:.dts=.c): $(BUILD_PLAT)/$(COTDTPATH) | $$(@D)/
 		$(if $(host-poetry),$(q)$(host-poetry) -q install --no-root)

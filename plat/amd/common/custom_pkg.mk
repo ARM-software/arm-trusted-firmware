@@ -125,12 +125,15 @@ CUSTOM_PKG_LD_PPFLAGS = -D__LINKER__ $(CUSTOM_PKG_BL31_LD_CPPFLAGS) \
 # Rule 1: Preprocess individual custom_pkg.ld.S files
 # Use TF-A's standard .ld.S preprocessing flow so armclang picks up the
 # configured target triple and BL31 linker-script defines.
-%.ld.pp: %.ld.S $(config-header)
+%.ld.pp: %.ld.S $(config-header) | $(build-message-header)
 	@echo "  PP      $<"
 	$(q)$($(ARCH)-cc) -E -P -x assembler-with-cpp \
 		$(TF_CFLAGS) \
 		$(CUSTOM_PKG_LD_PPFLAGS) \
+		$(call MAKE_DEP,$@.d,$@) \
 		-o $@ $<
+
+-include $(CUSTOM_PKG_LD_SCRIPTS_PP:%=%.d)
 
 # Rule 2: Generate final plat.ld.S from template + preprocessed scripts
 # Use a generated wrapper include file instead of passing raw absolute paths
@@ -144,14 +147,17 @@ $(CUSTOM_PKG_LD_WRAPPER): $(CUSTOM_PKG_LD_SCRIPTS_PP)
 	done; \
 	mv $$tmp $@
 
-$(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_WRAPPER) $(config-header)
+$(PLAT_LD_SCRIPT): $(PLAT_LD_TEMPLATE) $(CUSTOM_PKG_LD_WRAPPER) $(config-header) | $(build-message-header)
 	@echo "  GEN     $@"
 	$(q)$($(ARCH)-cc) -E -P -x assembler-with-cpp \
 		'-DCUSTOM_PKG_LD_WRAPPER="$(CUSTOM_PKG_LD_WRAPPER)"' \
 		$(TF_CFLAGS) \
 		$(CUSTOM_PKG_LD_PPFLAGS) \
+		$(call MAKE_DEP,$@.d,$@) \
 		-o $@ \
 		$(PLAT_LD_TEMPLATE)
+
+-include $(PLAT_LD_SCRIPT).d
 
 # Ensure final linker script exists before linking BL31
 bl31: $(PLAT_LD_SCRIPT)

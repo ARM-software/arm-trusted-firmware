@@ -13,7 +13,7 @@ BUILD_DIR   = $(BUILD_PLAT)/romlib
 LIB_DIR     = $(BUILD_PLAT)/lib
 WRAPPER_DIR = $(BUILD_PLAT)/libwrapper
 LIBS        = $(LIB_DIR)/libfdt.a $(LIB_DIR)/libc.a
-INC         = $(INCLUDES:-I%=-I../../%)
+INC         = $(foreach inc,$(INCLUDES),$(if $(filter -I/%,$(inc)),$(inc),$(patsubst -I%,-I../../%,$(inc))))
 PPFLAGS     = $(INC) -include $(call shell-quote,$(config-header)) -P -x assembler-with-cpp -D__LINKER__ -MD -MP -MT $(BUILD_DIR)/romlib.ld
 OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
 MAPFILE     = $(BUILD_PLAT)/romlib/romlib.map
