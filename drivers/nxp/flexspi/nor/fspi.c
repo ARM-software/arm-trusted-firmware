@@ -599,6 +599,13 @@ void xspi_ip_write(uint32_t pc_wr_addr, uint32_t *pv_wr_buf, uint32_t ui_len)
 
 }
 
+/* Wait until the flash has cleared WIP (program or erase done). */
+static void fspi_wait_ready(void)
+{
+	while (is_flash_busy())
+		;
+}
+
 int xspi_write(uint32_t pc_wr_addr, void *pv_wr_buf, uint32_t ui_len)
 {
 
@@ -608,6 +615,8 @@ int xspi_write(uint32_t pc_wr_addr, void *pv_wr_buf, uint32_t ui_len)
 	void *buf = pv_wr_buf;
 
 	VERBOSE("\nIn func %s\n", __func__);
+
+	fspi_wait_ready();
 
 	x_addr = (uint32_t)(pc_wr_addr);
 	if ((ui_len <= F_PAGE_256) && ((x_addr % F_PAGE_256) == 0)) {
@@ -1160,6 +1169,28 @@ int xspi_sector_erase(uint32_t pc_wr_addr, uint32_t ui_len)
 	}
 	fspi_ahb_invalidate();
 	return XSPI_SUCCESS;
+}
+
+int xspi_sector_erase_start(uint32_t erase_offset)
+{
+	if ((erase_offset % F_SECTOR_ERASE_SZ) != 0U) {
+		ERROR("!!! In func %s, unaligned sector 0x%x\n", __func__,
+		      erase_offset);
+		return -XSPI_ERASE_FAIL;
+	}
+
+	fspi_wait_ready();
+	xspi_wren(erase_offset);
+	fspi_sec_er(erase_offset);
+	/* Reads through the AHB window must not see the old contents. */
+	fspi_ahb_invalidate();
+
+	return XSPI_SUCCESS;
+}
+
+void xspi_wait_ready(void)
+{
+	fspi_wait_ready();
 }
 
 
