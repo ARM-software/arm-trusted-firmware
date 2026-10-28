@@ -102,6 +102,13 @@ workaround_reset_end cortex_x925, ERRATUM(3865185)
 
 check_erratum_ls cortex_x925, ERRATUM(3865185), CPU_REV(0, 1)
 
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
+add_erratum_entry cortex_x925, ERRATUM(4015817), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen cortex_x925, ERRATUM(4015817), ERRATUM_ALWAYS_CHOSEN
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
