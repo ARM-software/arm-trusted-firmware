@@ -147,19 +147,20 @@ def get_uuid(sp_layout, sp, args :dict):
         manifest_path = get_sp_manifest_full_path(sp_layout[sp], args)
         with open(manifest_path, "r") as pm_f:
             manifest = fdt.parse_dts(pm_f.read())
-        # Only the root partition UUID identifies the SP package. Other
-        # properties (e.g. image-uuid) and child nodes may contain UUIDs too.
+        # Use the first protocol UUID at the root to identify the SP package.
+        # Other properties (e.g. image-uuid) and child nodes may contain UUIDs too.
         uuid_words = manifest.get_property("uuid", "/")
-        if not isinstance(uuid_words, fdt.PropWords) or len(uuid_words) != UUID_LEN:
+        if (not isinstance(uuid_words, fdt.PropWords) or
+                len(uuid_words) < UUID_LEN or len(uuid_words) % UUID_LEN != 0):
             raise ValueError(
-                f"{manifest_path}: root uuid must contain exactly {UUID_LEN} 32-bit words"
+                f"{manifest_path}: root uuid must contain one or more tuples of {UUID_LEN} 32-bit words"
             )
 
         # The uuid field in SP manifest is the little endian representation
         # mapped to arguments as described in SMCCC section 5.3.
         # Convert each unsigned integer value to a big endian representation
         # required by fiptool.
-        uuid_std = uuid.UUID(bytes=struct.pack("<4I", *uuid_words))
+        uuid_std = uuid.UUID(bytes=struct.pack("<4I", *uuid_words[:UUID_LEN]))
     return uuid_std
 
 def get_load_address(sp_layout, sp, args :dict):
