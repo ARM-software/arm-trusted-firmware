@@ -324,6 +324,7 @@ struct dimm_params {
 };
 
 int read_spd(unsigned char chip, void *buf, int len);
+int plat_get_cached_spd(unsigned char chip, void *buf, int len);
 int crc16(unsigned char *ptr, int count);
 int cal_dimm_params(const struct ddr4_spd *spd, struct dimm_params *pdimm);
 

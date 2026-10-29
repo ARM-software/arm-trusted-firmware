@@ -373,10 +373,29 @@ static void nbxv3_diff_spds_on_mismatch(
 		NOTICE("    no covered-range diffs -- CRC bytes themselves disagree (rare; SPD corruption?)\n");
 }
 
+static uint8_t nbxv3_spds[ARRAY_SIZE(nbxv3_sodimm_slots)][NBXV3_DDR4_SPD_BYTES];
+static bool nbxv3_spd_valid[ARRAY_SIZE(nbxv3_sodimm_slots)];
+
+int plat_get_cached_spd(unsigned char chip, void *buf, int len)
+{
+	unsigned int i;
+
+	if (len < 0 || (unsigned int)len > NBXV3_DDR4_SPD_BYTES)
+		return -EINVAL;
+
+	for (i = 0; i < ARRAY_SIZE(nbxv3_sodimm_slots); i++) {
+		if (nbxv3_sodimm_slots[i].i2c_addr == chip && nbxv3_spd_valid[i]) {
+			memcpy(buf, nbxv3_spds[i], (size_t)len);
+			return 0;
+		}
+	}
+	return -ENOENT;
+}
+
 static void nbxv3_probe_sodimm_sockets(void)
 {
-	static uint8_t spds[ARRAY_SIZE(nbxv3_sodimm_slots)][NBXV3_DDR4_SPD_BYTES];
-	bool valid[ARRAY_SIZE(nbxv3_sodimm_slots)] = { false };
+	uint8_t (*spds)[NBXV3_DDR4_SPD_BYTES] = nbxv3_spds;
+	bool *valid = nbxv3_spd_valid;
 	unsigned int i;
 
 	NOTICE("nbxv3 ddr: SODIMM socket map\n");
