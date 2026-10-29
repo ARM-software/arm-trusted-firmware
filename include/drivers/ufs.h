@@ -161,12 +161,13 @@
 #define NOP_OUT_UPIU			(0x00 << 0)
 
 #define OCS_SUCCESS			0x0
-#define OCS_INVALID_FUNC_ATTRIBUTE	0x1
-#define OCS_MISMATCH_REQUEST_SIZE	0x2
-#define OCS_MISMATCH_RESPONSE_SIZE	0x3
-#define OCS_PEER_COMMUNICATION_FAILURE	0x4
-#define OCS_ABORTED			0x5
-#define OCS_FATAL_ERROR			0x6
+#define OCS_INVALID_COMMAND_TABLE_ATTRIBUTES	0x1
+#define OCS_INVALID_PRDT_ATTRIBUTES	0x2
+#define OCS_MISMATCH_DATA_BUFFER_SIZE	0x3
+#define OCS_MISMATCH_RESPONSE_UPIU_SIZE	0x4
+#define OCS_PEER_COMMUNICATION_FAILURE	0x5
+#define OCS_ABORTED			0x6
+#define OCS_FATAL_ERROR			0x7
 #define OCS_MASK			0xF
 
 /* UIC Command */
@@ -575,13 +576,13 @@ int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd);
 int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val);
 int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val);
 
-unsigned int ufs_read_attr(int idn);
-void ufs_write_attr(int idn, unsigned int value);
-unsigned int ufs_read_flag(int idn);
-void ufs_set_flag(int idn);
-void ufs_clear_flag(int idn);
-void ufs_read_desc(int idn, int index, uintptr_t buf, size_t size);
-void ufs_write_desc(int idn, int index, uintptr_t buf, size_t size);
+int ufs_read_attr(int idn, unsigned int *value);
+int ufs_write_attr(int idn, unsigned int value);
+int ufs_read_flag(int idn, unsigned int *value);
+int ufs_set_flag(int idn);
+int ufs_clear_flag(int idn);
+int ufs_read_desc(int idn, int index, uintptr_t buf, size_t size, size_t *returned_length);
+int ufs_write_desc(int idn, int index, uintptr_t buf, size_t size);
 size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size);
 size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size);
 int ufs_init(const ufs_ops_t *ops, ufs_params_t *params);
