@@ -26,7 +26,16 @@ NEED_BL2U			:=	no
 ARM_PLAT_MT			:=	1
 
 # CPU setup
-ARM_ARCH_MINOR			:=	7
+# Use v9.2 for TC5 and above
+# While TC3/TC4 support v9.2, stick with v8.7 as they don't use v9 features
+ifneq ($(shell expr $(TARGET_PLATFORM) \<= 4), 0)
+	ARM_ARCH_MAJOR		:=	8
+	ARM_ARCH_MINOR		:= 	7
+else
+	ARM_ARCH_MAJOR		:=	9
+	ARM_ARCH_MINOR		:= 	3
+endif
+
 BRANCH_PROTECTION		:=	1
 ENABLE_FEAT_MPAM		:=	1 # default is 2, optimise
 ENABLE_SVE_FOR_NS		:=	2 # to show we use it
@@ -75,8 +84,8 @@ ifneq ($(shell expr $(TARGET_PLATFORM) \<= 3), 0)
         $(error Platform ${PLAT}$(TARGET_PLATFORM) is no longer available.)
 endif
 
-ifneq ($(TARGET_PLATFORM), 4)
-        $(error TARGET_PLATFORM must be equal to 4)
+ifeq ($(shell expr $(TARGET_PLATFORM) \<= 5), 0)
+        $(error TARGET_PLATFORM must be less than or equal to 5)
 endif
 
 ifeq ($(filter ${TARGET_FLAVOUR}, fvp fpga),)
@@ -142,6 +151,15 @@ ifeq (${WORKAROUND_CVE_2026_0995},1)
 BL31_SOURCES	+=	lib/cpus/helpers/aarch64/c1_pro_pubsub.c \
 			${CPU_SVC_SRCS}
 endif
+endif
+
+# CPU libraries for TARGET_PLATFORM=5
+ifeq (${TARGET_PLATFORM}, 5)
+
+# prevent CME related wakups
+ERRATA_SME_POWER_DOWN := 1
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/c1_pro.S \
+			lib/cpus/aarch64/c2_ultra.S
 endif
 
 INTERCONNECT_SOURCES	:=	plat/arm/common/arm_ni.c

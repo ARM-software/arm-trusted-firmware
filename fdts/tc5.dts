@@ -1,0 +1,228 @@
+/*
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <platform_def.h>
+
+#define MHU_TX_ADDR			46240000 /* hex */
+#define MHU_RX_ADDR			46250000 /* hex */
+#define MHU_RX_INT_NUM			396
+
+/**
+ * Stub value is set for LIT_CPU_PMU_COMPATIBLE as there are no little cores in TC5
+ * The value is removed from the post-processed file by the build process
+ */
+#define LIT_CPU_PMU_COMPATIBLE		"arm,tc5-non-existent-pmu"
+#define MID_CPU_PMU_COMPATIBLE		"arm,c1-pro-pmu"
+#define BIG_CPU_PMU_COMPATIBLE		"arm,c2-ultra-pmu"
+
+#define RSE_MHU_TX_ADDR			49020000 /* hex */
+#define RSE_MHU_RX_ADDR			49030000 /* hex */
+
+#if TARGET_FLAVOUR_FVP
+#define ETHERNET_ADDR			64000000
+#define ETHERNET_INT			799
+#define SYS_REGS_ADDR			60080000
+#define MMC_ADDR			600b0000
+#define MMC_INT_0			778
+#define MMC_INT_1			779
+#else /* TARGET_FLAVOUR_FPGA */
+#define ETHERNET_ADDR			18000000
+#define ETHERNET_INT			240
+#define SYS_REGS_ADDR			1c010000
+#define MMC_ADDR			1c050000
+#define MMC_INT_0			238
+#define MMC_INT_1			239
+#endif /* TARGET_FLAVOUR_FVP */
+
+#define RTC_ADDR			600a0000
+#define RTC_INT				777
+
+#define KMI_0_ADDR			60100000
+#define KMI_0_INT			784
+#define KMI_1_ADDR			60110000
+#define KMI_1_INT			785
+
+#define VIRTIO_BLOCK_ADDR		60020000
+#define VIRTIO_BLOCK_INT		769
+
+#define UART_AP_NS_IRQ			193
+#define UART_OFFSET			0x10000
+
+#if TARGET_FLAVOUR_FPGA
+#define DPU_ADDR			4000000000
+#define DPU_IRQ				579
+#endif
+
+#define DSU_MPAM_ADDR			0x5 0x00010000 /* 0x05_0001_0000 */
+
+/**
+ * CPU Capacity Weights
+ * NB: Stub value is set for LIT_CAPACITY as there are no little cores in TC5
+ * The value is removed from the post-processed file by the build process
+ */
+#define LIT_CAPACITY			0
+#define MID_CAPACITY			647
+#define BIG_CAPACITY			1024
+
+#include "tc-common.dtsi"
+#if TARGET_FLAVOUR_FVP
+#include "tc-fvp.dtsi"
+#else
+#include "tc-fpga.dtsi"
+#endif /* TARGET_FLAVOUR_FVP */
+#include "tc-base.dtsi"
+
+#if TARGET_FLAVOUR_FPGA
+	&mmci {
+	    status = "disabled";
+	};
+
+#endif
+
+/ {
+	cpus {
+		CPU0:cpu@0 {
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+		};
+
+		CPU1:cpu@100 {
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+		};
+	};
+
+	gic: interrupt-controller@GIC_CTRL_ADDR {
+		ppi-partitions {
+			/delete-node/ ppi_partition_little;
+			ppi_partition_mid: interrupt-partition-1 {
+				affinity = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>;
+			};
+		};
+	};
+	/delete-node/ cpu-pmu-little;
+
+	spe-pmu-mid {
+		status = "okay";
+	};
+
+	spe-pmu-big {
+		status = "okay";
+	};
+
+	smmu_700: iommu@3f000000 {
+		status = "okay";
+	};
+
+	smmu_700_dpu: iommu@4002a00000 {
+		status = "okay";
+	};
+
+	dp0: display@DPU_ADDR {
+		iommus = <&smmu_700_dpu 0x000>, <&smmu_700_dpu 0x100>,
+			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
+	};
+
+	dsu-pmu {
+		interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH 0>;
+	};
+
+	cs-pmu@4 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(4) 0x0 0xffc>;
+	};
+
+	cs-pmu@5 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(5) 0x0 0xffc>;
+	};
+
+	cs-pmu@6 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(6) 0x0 0xffc>;
+	};
+
+	cs-pmu@7 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(7) 0x0 0xffc>;
+	};
+
+#if defined(TARGET_FLAVOUR_FPGA)
+	slc-msc@0 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(0) 0x0 0x4000>;
+	};
+
+	slc-msc@1 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(1) 0x0 0x4000>;
+	};
+
+	slc-msc@2 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(2) 0x0 0x4000>;
+	};
+
+	slc-msc@3 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(3) 0x0 0x4000>;
+	};
+
+	slc-msc@4 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(4) 0x0 0x4000>;
+	};
+
+	slc-msc@5 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(5) 0x0 0x4000>;
+	};
+
+	slc-msc@6 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(6) 0x0 0x4000>;
+	};
+
+	slc-msc@7 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(7) 0x0 0x4000>;
+	};
+#endif	/* TARGET_FLAVOUR_FPGA */
+
+	/delete-node/ gpu;
+
+	gpu_tc5: gpu@550000000 {
+		compatible = "arm,mali-midgard";
+		reg = <0x5 0x50000000  0x0 0x580000>;
+		protected-memory-allocator = <&gpu_protected_memory_allocator0>;
+		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "IRQAW";
+#if !defined(TC_TARGET_DISTRO_BUILDROOT)
+		iommus = <&smmu_700 0x0>;
+		system-coherency = <0x0>;
+#else
+		system-coherency = <0x1F>;
+#endif
+#if TC_SCMI_PD_CTRL_EN
+		power-domains = <&scmi_devpd GPU_SCMI_PD_IDX>;
+		scmi-perf-domain = <3>;
+#endif /* TC_SCMI_PD_CTRL_EN */
+		clocks = <&gpu_core_clk 0>;
+		clock-names = "shadercores";
+		pbha {
+			int-id-override = <0 0x22>, <2 0x23>, <4 0x23>, <7 0x22>,
+					  <8 0x22>, <9 0x22>, <10 0x22>, <11 0x22>,
+					  <12 0x22>, <13 0x22>, <16 0x22>, <17 0x32>,
+					  <18 0x32>, <19 0x22>, <20 0x22>, <21 0x32>,
+					  <22 0x32>, <24 0x22>, <28 0x32>;
+			propagate-bits = <0x0f>;
+		};
+	};
+};

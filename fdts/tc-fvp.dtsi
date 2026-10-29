@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define GIC_CTRL_ADDR		2c010000
 #define GIC_GICR_OFFSET		0x200000
-#define UART_OFFSET		0x1000
 
 #ifdef TC_RESOLUTION_1920X1080P60
 
@@ -67,10 +66,10 @@
 		clock-names = "KMIREFCLK", "apb_pclk";
 	};
 
-	kmi@1c070000 {
+	kmi@KMI_1_ADDR {
 		compatible = "arm,pl050", "arm,primecell";
-		reg = <0x0 0x001c070000 0x0 0x1000>;
-		interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH 0>;
+		reg = <0x0 ADDRESSIFY(KMI_1_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI KMI_1_INT IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
 		clock-names = "KMIREFCLK", "apb_pclk";
 	};
