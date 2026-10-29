@@ -73,9 +73,9 @@ workaround_reset_start cortex_x1c, ERRATUM(1951501), ERRATA_X1C_1951501
 	msr s3_6_c15_c8_3, x0
 	ldr x0, =0x2001003ff
 	msr s3_6_c15_c8_1, x0
-workaround_reset_end cortex_x1c, ERRATUM(1951500)
+workaround_reset_end cortex_x1c, ERRATUM(1951501)
 
-check_erratum_range cortex_x1c, ERRATUM(1951500), CPU_REV(1, 0), CPU_REV(1, 1)
+check_erratum_ls cortex_x1c, ERRATUM(1951501), CPU_REV(0, 0)
 
 workaround_reset_start cortex_x1c, ERRATUM(1952683), ERRATA_X1_1952683
 	ldr x0, =0x5
