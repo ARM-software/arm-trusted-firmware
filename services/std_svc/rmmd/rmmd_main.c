@@ -481,14 +481,13 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		WARN("RMMD: RMM-EL3 call originated from secure or normal world\n");
 		SMC_RET1(handle, SMC_UNK);
 	}
-	uint64_t cnt = 1;
+
 	switch (smc_fid) {
 	case RMM_GTSI_DELEGATE:
-		ret = gpt_transition_pas(x1, &cnt, GPT_GPI_REALM,
-					 SMC_FROM_REALM);
+		ret = gpt_delegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
 		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
 	case RMM_GTSI_UNDELEGATE:
-		ret = gpt_transition_pas(x1, &cnt, GPT_GPI_NS, SMC_FROM_REALM);
+		ret = gpt_undelegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
 		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
 	case RMM_ATTEST_GET_REALM_KEY:
 		ret = rmmd_attest_get_signing_key(x1, &x2, x3);

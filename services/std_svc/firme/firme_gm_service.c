@@ -7,16 +7,17 @@
 #include <errno.h>
 #include <stdint.h>
 
+#include "firme_gm_private.h"
+#include "firme_private.h"
+
 #include <arch.h>
 #include <arch_features.h>
 #include <common/debug.h>
-#include <lib/gpt_rme/gpt_rme.h>
+#include <lib/extensions/rme.h>
 #include <lib/smccc.h>
 #include <services/firme/firme_granule_mgmt.h>
 #include <services/firme_svc.h>
 #include <smccc_helpers.h>
-
-#include "firme_private.h"
 
 /* Only supported ABI is GPI_SET for now. */
 static uint64_t registers[FIRME_GRANULE_MGMT_FEATURE_REG_COUNT] = {
@@ -50,6 +51,8 @@ static int32_t firme_granule_mgmt_service_init(void)
 			<< FIRME_GM_L0GPTSZ_SHIFT;
 		registers[1] |= ((gpccr >> GPCCR_PPS_SHIFT) & GPCCR_PPS_MASK)
 				<< FIRME_GM_PPS_SHIFT;
+
+		firme_gm_gpi_init();
 	}
 
 	return FIRME_SUCCESS;
@@ -96,22 +99,13 @@ u_register_t firme_granule_mgmt_service_handler(firme_instance_e instance,
 
 	switch (smc_fid) {
 	case FIRME_GM_GPI_SET_FID: {
-		/* Extract target GPI value from attributes in x3. */
-		uint8_t target_gpi = (x3 >> FIRME_GM_GPI_SET_TGT_GPI_SHIFT) &
-				     FIRME_GM_GPI_SET_TGT_GPI_MASK;
-		/*
-		 * Granule count is the number of granules to transition, and
-		 * will be overwritten to contain the number of granules
-		 * actually transitioned by gpt_transition_pas.
-		 */
-		uint64_t granule_count = x2;
-		uint32_t ret = gpt_transition_pas(x1, &granule_count,
-						  target_gpi,
-						  caller_sec_state(flags));
+		uint32_t ret;
+		uint64_t gcnt = 0;
 
+		ret = firme_gm_gpi_set(x1, x2, x3, flags, &gcnt);
 		switch (ret) {
 		case 0:
-			SMC_RET2(handle, FIRME_SUCCESS, granule_count);
+			SMC_RET2(handle, FIRME_SUCCESS, gcnt);
 		case -EINVAL:
 			SMC_RET2(handle, FIRME_INVALID_PARAMETERS, 0);
 		case -EPERM:

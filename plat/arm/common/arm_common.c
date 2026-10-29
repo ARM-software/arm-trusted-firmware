@@ -254,25 +254,25 @@ void arm_gpt_setup(void)
 	}
 
 	/* Initialize entire protected space to GPT_GPI_ANY. */
-	if (gpt_init_l0_tables(arm_gpt_info->pps, arm_gpt_info->l0_base,
+	if (rme_init_gpt_l0_tables(arm_gpt_info->pps, arm_gpt_info->l0_base,
 		arm_gpt_info->l0_size) < 0) {
-		ERROR("gpt_init_l0_tables() failed!\n");
+		ERROR("rme_init_gpt_l0_tables() failed!\n");
 		panic();
 	}
 
 	/* Carve out defined PAS ranges. */
-	if (gpt_init_pas_l1_tables(arm_gpt_info->pgs,
+	if (rme_init_gpt_l1_tables(arm_gpt_info->pgs,
 				   arm_gpt_info->l1_base,
 				   arm_gpt_info->l1_size,
 				   arm_gpt_info->pas_region_base,
 				   arm_gpt_info->pas_region_count) < 0) {
-		ERROR("gpt_init_pas_l1_tables() failed!\n");
+		ERROR("rme_init_gpt_l1_tables() failed!\n");
 		panic();
 	}
 
 	INFO("Enabling Granule Protection Checks\n");
-	if (gpt_enable() < 0) {
-		ERROR("gpt_enable() failed!\n");
+	if (rme_gpc_enable() < 0) {
+		ERROR("rme_gpc_enable() failed!\n");
 		panic();
 	}
 #endif /* ENABLE_FEAT_RME */

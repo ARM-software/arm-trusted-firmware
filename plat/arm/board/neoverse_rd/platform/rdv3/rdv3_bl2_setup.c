@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/debug.h>
-#include <lib/gpt_rme/gpt_rme.h>
+#include <lib/extensions/rme.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <nrd_plat.h>

@@ -160,6 +160,7 @@ BL31_SOURCES		+=	services/std_svc/pci_svc.c
 endif
 
 ifneq (${ENABLE_FEAT_RME},0)
+BL31_SOURCES		+=	lib/extensions/rme/rme.c
 include lib/gpt_rme/gpt_rme.mk
 
 BL31_SOURCES		+=	${GPT_LIB_SRCS}
@@ -206,7 +207,8 @@ endif
 ifeq (${FIRME_SUPPORT},1)
 BL31_SOURCES		+=	services/std_svc/firme/firme_svc.c \
 				services/std_svc/firme/firme_base_service.c \
-				services/std_svc/firme/firme_granule_management_service.c \
+				services/std_svc/firme/firme_gm_service.c \
+				services/std_svc/firme/firme_gm_gpi.c \
 				services/std_svc/firme/firme_mecid.c
 
 ifeq (${FIRME_SUPPORT_ATTESTATION},1)

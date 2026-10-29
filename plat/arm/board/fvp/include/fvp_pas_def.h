@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2021-2025, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2026, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef FVP_PAS_DEF_H
 #define FVP_PAS_DEF_H
 
-#include <lib/gpt_rme/gpt_rme.h>
+#include <lib/extensions/rme.h>
 #include <platform_def.h>
 
 /*****************************************************************************

@@ -11,6 +11,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <drivers/arm/pl061_gpio.h>
+#include <lib/extensions/rme.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #if TRANSFER_LIST
 #include <transfer_list.h>
@@ -244,28 +245,28 @@ static void bl31_plat_gpt_setup(void)
 	 * 256TB of RAM (48-bit PA) would require a 2MB L0 region. At the
 	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
 	 */
-	if (gpt_init_l0_tables(PLAT_QEMU_GPCCR_PPS, PLAT_QEMU_L0_GPT_BASE,
-			       PLAT_QEMU_L0_GPT_SIZE) < 0) {
-		ERROR("gpt_init_l0_tables() failed!\n");
+	if (rme_init_gpt_l0_tables(PLAT_QEMU_GPCCR_PPS, PLAT_QEMU_L0_GPT_BASE,
+				   PLAT_QEMU_L0_GPT_SIZE) < 0) {
+		ERROR("rme_init_gpt_l0_tables() failed!\n");
 		panic();
 	}
 
 	bl31_adjust_pas_regions();
 
 	/* Carve out defined PAS ranges. */
-	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
+	if (rme_init_gpt_l1_tables(GPCCR_PGS_4K,
 				   PLAT_QEMU_L1_GPT_BASE,
 				   PLAT_QEMU_L1_GPT_SIZE,
 				   pas_regions,
 				   (unsigned int)(sizeof(pas_regions) /
 						  sizeof(pas_region_t))) < 0) {
-		ERROR("gpt_init_pas_l1_tables() failed!\n");
+		ERROR("rme_init_gpt_l0_tables() failed!\n");
 		panic();
 	}
 
 	INFO("Enabling Granule Protection Checks\n");
-	if (gpt_enable() < 0) {
-		ERROR("gpt_enable() failed!\n");
+	if (rme_gpc_enable() < 0) {
+		ERROR("rme_gpc_enable() failed!\n");
 		panic();
 	}
 #endif /* ENABLE_FEAT_RME */
@@ -310,6 +311,15 @@ void bl31_plat_arch_setup(void)
 		 * primary processor. The tables have already been initialized
 		 * by a previous BL stage, so there is no need to provide any
 		 * PAS here. This function sets up pointers to those tables.
+		 */
+		if (rme_sync_gpt_config_for_warmboot() < 0) {
+			ERROR("rme_sync_gpt_config_for_warmboot() failed!\n");
+			panic();
+		}
+
+		/*
+		 * Initialze locks for runtime services that handle granule
+		 * transition using legacy delegate/undelegate calls.
 		 */
 		if (gpt_runtime_init(BITLOCK_BASE, BITLOCK_SIZE) < 0) {
 			ERROR("gpt_runtime_init() failed!\n");

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef QEMU_PAS_DEF_H
 #define QEMU_PAS_DEF_H
 
-#include <lib/gpt_rme/gpt_rme.h>
+#include <lib/extensions/rme.h>
 #include "platform_def.h"
 
 /*****************************************************************************

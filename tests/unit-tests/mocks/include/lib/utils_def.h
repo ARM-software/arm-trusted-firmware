@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -52,6 +52,27 @@
 #else
 #define GENMASK				GENMASK_32
 #endif
+
+/*
+ * Similar to GENMASK_64 but uses a named register field to compute the mask.
+ * For a register field REG_FIELD, the macros REG_FIELD_WIDTH and
+ * REG_FIELD_SHIFT must be defined.
+ */
+#define MASK(regfield)							\
+	((~ULL(0) >> (ULL(64) - (regfield##_WIDTH))) << (regfield##_SHIFT))
+
+/**
+ * EXTRACT - Extracts a specific bit field from a value.
+ *
+ * @regfield: A bitmask representing the field. For a register field REG_FIELD,
+ *            the macros REG_FIELD_WIDTH and REG_FIELD_SHIFT must be defined.
+ * @reg:      The input value containing the field.
+ *
+ * The result of this macro is the contents of the field right shifted to the
+ * least significant bit positions, with the rest being zero.
+ */
+#define EXTRACT(regfield, reg) \
+	(((reg) & MASK(regfield)) >> (regfield##_SHIFT))
 
 /*
  * This variant of div_round_up can be used in macro definition but should not

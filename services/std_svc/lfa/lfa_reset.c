@@ -131,7 +131,7 @@ void __no_pauth lfa_warm_reset_entrypoint(void)
 	 * accesses are controlled attributes in GPCCR and do not depend on the
 	 * SCR_EL3.C bit.
 	 */
-	if (gpt_enable() != 0) {
+	if (rme_gpc_enable() != 0) {
 		panic();
 	}
 #endif
