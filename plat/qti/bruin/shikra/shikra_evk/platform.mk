@@ -63,6 +63,7 @@ ENABLE_STACK_PROTECTOR := strong
 PLAT_INCLUDES		:=	-Iinclude/plat/common/					\
 				-I${PLAT_PATH}/bruin/${CHIPSET}/inc			\
 				-I${PLAT_PATH}/bruin/${CHIPSET}/${PLAT}/inc		\
+				-I${PLAT_PATH}/bruin/common/inc			\
 				-I${PLAT_PATH}/common/inc				\
 				-I${PLAT_PATH}/common/inc/$(ARCH)
 
@@ -96,7 +97,8 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c		\
 				$(PLAT_PATH)/bruin/common/$(ARCH)/bruin_helpers.S	\
 				$(PLAT_PATH)/bruin/common/bruin_bl31_setup.c		\
 				$(PLAT_PATH)/bruin/common/bruin_topology.c		\
-				$(PLAT_PATH)/bruin/common/bruin_pm.c
+				$(PLAT_PATH)/bruin/common/bruin_pm.c			\
+				$(PLAT_PATH)/bruin/shikra/shikra_pm.c
 
 include drivers/qti/smem/smem.mk
 include drivers/qti/chipinfo/chipinfo.mk

@@ -10,6 +10,7 @@ Qualcomm Platforms
    rb3gen2
    lemans_evk
    monza
+   uno_q
 
 --------------
 

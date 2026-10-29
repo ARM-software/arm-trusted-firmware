@@ -9,8 +9,13 @@
 
 #include <lib/utils_def.h>
 
-/* Cortex-A53 midr for revision 0 */
+/*
+ * Cortex-A53 midr for revision 0. A core with the Cortex-A53 design behind
+ * another MIDR builds this driver with CORTEX_A53_MIDR predefined.
+ */
+#ifndef CORTEX_A53_MIDR
 #define CORTEX_A53_MIDR			U(0x410FD030)
+#endif
 
 /* Retention timer tick definitions */
 #define RETENTION_ENTRY_TICKS_2		U(0x1)

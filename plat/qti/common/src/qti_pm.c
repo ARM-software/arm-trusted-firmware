@@ -26,13 +26,6 @@
 					  (PLAT_MAX_PWR_LVL + 1)))
 #endif
 
-/* QTI_CORE_PWRDN_EN_MASK happens to be same across all CPUs */
-#define QTI_CORE_PWRDN_EN_MASK		1
-
-/* cpu power control happens to be same across all CPUs */
-DEFINE_RENAME_SYSREG_RW_FUNCS(cpu_pwrctrl_val, S3_0_C15_C2_7)
-
-
 /*******************************************************************************
  * QTI standard platform handler called to check the validity of the power
  * state parameter. The power state parameter has to be a composite power
@@ -85,17 +78,6 @@ int qti_validate_power_state(unsigned int power_state,
 /*******************************************************************************
  * PLATFORM FUNCTIONS
  ******************************************************************************/
-
-static void qti_set_cpupwrctlr_val(void)
-{
-	unsigned long val;
-
-	val = read_cpu_pwrctrl_val();
-	val |= QTI_CORE_PWRDN_EN_MASK;
-	write_cpu_pwrctrl_val(val);
-
-	isb();
-}
 
 /**
  * CPU power on function - ideally we want a wrapper since this function is
@@ -165,7 +147,6 @@ static void qti_node_power_off(const psci_power_state_t *target_state)
 	plat_qti_pwr_domain_off((const uint8_t *)target_state->pwr_domain_state);
 	if (is_cpu_off(target_state)) {
 		plat_qti_gic_cpuif_disable();
-		qti_set_cpupwrctlr_val();
 	}
 }
 
@@ -174,7 +155,6 @@ static void qti_node_suspend(const psci_power_state_t *target_state)
 	plat_qti_pwr_domain_suspend((const uint8_t *)target_state->pwr_domain_state);
 	if (is_cpu_off(target_state)) {
 		plat_qti_gic_cpuif_disable();
-		qti_set_cpupwrctlr_val();
 	}
 }
 
