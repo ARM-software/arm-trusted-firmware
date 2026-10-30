@@ -3,6 +3,31 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.50](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.49..refs/tags/lts-v2.8.50) (2026-10-30)
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - introduce new header for Neoverse V3AE ([f4a0a8f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f4a0a8f69f2faaeb8177c949987955bee73c7a22))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - do not program DSU CLUSTERPWRDN register ([0313c7c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0313c7cac76cc01f123244e39b0c6e1e5d347d56))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Neoverse V3AE errata workarounds ([0d903cd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0d903cd9ab2a95ef76f291252e6672d2d7bc6334))
+    - repair broken SDEN links ([01f43dc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/01f43dcd1ff2ff3b06951f36591529fc1c5dd555))
+
 ## [lts-2.8.49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.48..refs/tags/lts-v2.8.49) (2026-10-23)
 
 ### Miscellaneous
