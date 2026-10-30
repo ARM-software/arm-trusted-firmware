@@ -3,6 +3,44 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.38](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.37..refs/tags/lts-v2.10.38) (2026-10-30)
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - introduce new header for Neoverse V3AE ([6ee4667](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6ee466780c6d5732875302152c1345f7ee29b778))
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - update developer.arm.com links to support.arm.com ([ffd88cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ffd88cff15869ca4df3c6efcb09d171f28966cb0))
+
+### Resolved Issues
+
+- **Services**
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - lock FF-A version after first non-version call ([70c1156](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70c11561ba563438026c0ba644975bc84e859edb))
+      - reject SPs with non compatible version in manifest ([70369d4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70369d4e8bc543d6218c9ec631cd1719266872cc))
+      - validate compatibility of FFA_VERSION requests ([89e6f21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/89e6f21f84d715277a59680d65095559e31bbcb2))
+      - validate v1.0 descriptor fragment offset ([7dc6638](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7dc663839975627634a3c7ed602866a0deaeac60))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Neoverse V3AE errata workarounds ([c354351](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c35435189b1d0754850f177666e249383a0ce3e0))
+    - repair broken SDEN links ([325ed54](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/325ed548c19b73e4eecbc29fc19910e099c7b2d8))
+
 ## [lts-2.10.37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.36..refs/tags/lts-v2.10.37) (2026-10-23)
 
 ### Miscellaneous
