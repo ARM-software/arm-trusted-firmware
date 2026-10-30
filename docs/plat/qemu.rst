@@ -172,6 +172,24 @@ The FIP image can also be passed directly to QEMU via ``-fw_cfg`` under the
         -fw_cfg name=opt/tf-a/fip,file=build/qemu/release/fip.bin \
         -d unimp
 
+Running AArch32 software at a lower EL
+--------------------------------------
+
+By default, the port builds with ``CTX_INCLUDE_AARCH32_REGS=0``, so BL31 does
+not save the AArch32 system registers or handle SMCs from AArch32 lower ELs.
+To run AArch32 software below EL3, e.g. a 32-bit Secure-EL1 payload, build
+with ``CTX_INCLUDE_AARCH32_REGS=1``:
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=qemu SPD=<dispatcher> \
+         CTX_INCLUDE_AARCH32_REGS=1 all fip
+
+Cortex-A76 and later cores only implement AArch64 at EL1 and above, so their
+support is left out of this build. Start QEMU with an earlier CPU, e.g.
+``-cpu cortex-a57``, or with ``-cpu max-v8`` (``-cpu max`` on QEMU versions
+before 11.2).
+
 Running QEMU in OpenCI
 -----------------------
 
