@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/*
+ * Copyright (C) 2026 Amarula Solutions, Dario Binacchi <dario.binacchi@amarulasolutions.com>
+ * Copyright (C) 2026 Engicam srl
+ */
+
+#include "stm32mp25-fw-config.dtsi"
+
+/ {
+	dtb-registry {
+		soc_fw-config {
+			load-address = <0x0 0x81fc0000>;
+			max-size = <0x40000>;
+		};
+		tos_fw {
+			load-address = <0x0 0x82000000>;
+			max-size = <0x2000000>;
+		};
+	};
+
+	st-mem-firewall {
+		bl31_context: bl31-context@81fc0000 {
+			reg = <0x0 0x81fc0000 0x0 0x40000>;
+			st,protreg = <RISAFPROT(RISAF_REG_ID(7), RIF_CID1_BF, RIF_CID1_BF, RIF_CID1_BF, RIF_SEC, RIF_ENC_DIS, RIF_BREN_EN)>;
+		};
+		op_tee: op-tee@82000000 {
+			reg = <0x0 0x82000000 0x0 0x2000000>;
+			st,protreg = <RISAFPROT(RISAF_REG_ID(8), RIF_CID1_BF, RIF_CID1_BF, RIF_UNUSED, RIF_SEC, RIF_ENC_DIS, RIF_BREN_EN)>;
+		};
+	};
+};

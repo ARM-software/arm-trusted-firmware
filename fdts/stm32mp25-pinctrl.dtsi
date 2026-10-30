@@ -18,6 +18,17 @@
 	};
 
 	/omit-if-no-ref/
+	i2c7_pins_b: i2c7-1 {
+		pins {
+			pinmux = <STM32_PINMUX('D', 15, AF10)>, /* I2C7_SCL */
+				 <STM32_PINMUX('H', 7, AF10)>; /* I2C7_SDA */
+			bias-disable;
+			drive-open-drain;
+			slew-rate = <0>;
+		};
+	};
+
+	/omit-if-no-ref/
 	ospi_port1_clk_pins_a: ospi-port1-clk-0 {
 		pins {
 			pinmux = <STM32_PINMUX('D', 0, AF10)>; /* OSPI1_CLK */
