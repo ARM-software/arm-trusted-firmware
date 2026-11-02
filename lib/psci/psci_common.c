@@ -659,7 +659,8 @@ static bool psci_validate_subtree_state(unsigned int node_idx, unsigned int lvl,
  * of its inactive child domains is still powered on. It returns
  * PSCI_E_SUCCESS if the states are consistent, or PSCI_E_DENIED otherwise.
  ******************************************************************************/
-static int psci_validate_hierarchical_state_consistency(
+static int __attribute__((nonnull(3)))
+psci_validate_hierarchical_state_consistency(
 	unsigned int cpu_idx, unsigned int end_pwrlvl,
 	const psci_power_state_t *state_info)
 {
