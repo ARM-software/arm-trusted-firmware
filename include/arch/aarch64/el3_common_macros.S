@@ -74,8 +74,12 @@ feat_sctlr2_not_supported\@:
 	 *
 	 * SCR_EL3.EEL2: Set to one if S-EL2 is present and enabled.
 	 *
-	 * NOTE: Modifying EEL2 bit along with EA bit ensures that we mitigate
-	 * against ERRATA_V2_3099206.
+	 * NOTE:
+	 *  To avoid errata Neoverse V2 3099206:
+	 *  - SCR_EL3.EEL2 must remain unchanged throughout the core's lifetime.
+	 *  - SCR_EL3.EA must be toggled before returning to a lower EL.
+	 *    Since SCR_EL3.EA is already set to 1, it must be set to 0
+	 *    at the same time chaing SCR_EL3.EEL2.
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, SCR_RESET_VAL

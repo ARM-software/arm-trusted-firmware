@@ -91,6 +91,18 @@ workaround_runtime_end neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 
 check_erratum_ls neoverse_v2, ERRATUM(2801372), CPU_REV(0, 1)
 
+/*
+ * To mitigate this workaround SCR_EL3.EA must be toggled prior to returning to
+ * a lower EL. EA bit is set to 1 here, and then el3_arch_init_common sets to 0.
+ */
+workaround_reset_start neoverse_v2, ERRATUM(3099206), ERRATA_V2_3099206
+	mrs x0, scr_el3
+	orr x0, x0, #SCR_EA_BIT
+	msr scr_el3, x0
+workaround_reset_end neoverse_v2, ERRATUM(3099206)
+
+check_erratum_chosen neoverse_v2, ERRATUM(3099206), ERRATA_V2_3099206
+
 workaround_reset_start neoverse_v2, ERRATUM(3442699), ERRATA_V2_3442699
 	sysreg_bit_set NEOVERSE_V2_CPUACTLR_EL1, NEOVERSE_V2_CPUACTLR_EL1_BIT_36
 workaround_reset_end neoverse_v2, ERRATUM(3442699)
@@ -219,4 +231,3 @@ declare_cpu_ops neoverse_v2, NEOVERSE_V2_MIDR, \
 	neoverse_v2_reset_func, \
 	neoverse_v2_core_pwr_dwn
 #endif
-
