@@ -143,7 +143,8 @@ static uint8_t findmax(uint8_t *buf, uint32_t len)
 static void get_cdd_val(uint16_t **phy_ptr, uint32_t rank, uint32_t freq,
 		uint32_t *tcfg0, uint32_t *tcfg4)
 {
-	uint8_t cdd[CDD_DATA_LEN+4] = {0U};
+	uint16_t cdd_regs[(CDD_DATA_LEN + 4) / 2] = {0U};
+	uint8_t *cdd = (uint8_t *)cdd_regs;
 	uint32_t i, val = 0U;
 	uint16_t *phy;
 	uint8_t buf[16] = {U(0x0)};
@@ -162,8 +163,7 @@ static void get_cdd_val(uint16_t **phy_ptr, uint32_t rank, uint32_t freq,
 		phy_io_write16(phy, t_apbonly |
 				csr_micro_cont_mux_sel_addr, U(0x0));
 
-		read_phy_reg(phy, CDD_VAL_READ_ADDR,
-				(uint16_t *)&cdd, CDD_DATA_LEN);
+		read_phy_reg(phy, CDD_VAL_READ_ADDR, cdd_regs, CDD_DATA_LEN);
 
 		phy_io_write16(phy, t_apbonly |
 				csr_micro_cont_mux_sel_addr, U(0x1));
