@@ -13,6 +13,7 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <lib/spinlock.h>
+#include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
 #include <platform_def.h>
@@ -21,10 +22,10 @@
 /*
  * Native (hoya/lemans) backend for the QTI PSCI power-domain hooks declared in
  * qti_plat.h. The secondary-core cold-boot bringup and reset-vector setup are
- * performed natively via the raw APSS IPM register sequence below. Only
- * CPU-level standby (WFI retention) is supported; the firmware
- * low-power-mode / suspend node handling (PCU/RSC/PDC) is not ported, so the
- * power-down and suspend hooks are empty stubs.
+ * performed natively via the raw APSS IPM register sequence below. CPU_OFF
+ * collapses the core through its IPM sequencer where the chipset provides the
+ * sequence. Idle is CPU-level standby (WFI retention) only: the cluster and
+ * system low-power modes (RSC/PDC) are not ported.
  */
 
 /* Per-core APSS IPM register block. */
@@ -36,7 +37,23 @@
 #define CPU_HEAD_SWITCH_CTL(core)		(APSS_CPU_IPM_REG(core) + 0x08U)
 #define CPU_SEQ_FORCE_PWR_CTL_EN(core)		(APSS_CPU_IPM_REG(core) + 0x1cU)
 #define CPU_SEQ_FORCE_PWR_CTL_VAL(core)		(APSS_CPU_IPM_REG(core) + 0x20U)
+#define CPU_SEQ_CTL(core)			(APSS_CPU_IPM_REG(core) + 0x24U)
 #define CPU_PCHANNEL_FSM_CTL(core)		(APSS_CPU_IPM_REG(core) + 0x44U)
+#define CPU_PCHANNEL_CTLER_STATUS(core)		(APSS_CPU_IPM_REG(core) + 0x4cU)
+
+#define CPU_SEQ_CTL_RESET			0x400U
+#define CPU_SEQ_CTL_EN				BIT_32(0)
+#define CPU_SEQ_CTL_PWR_STATE_IDX(idx)		((idx) << 8)
+#define CPU_SEQ_CTL_START_ADDR(cmd)		((cmd) << 16)
+#define PCHANNEL_MASK_WAKEUP			BIT_32(13)
+#define CTLER_STATUS_LPM_ENTER_COND		BIT_32(12)
+
+#define CPU_OFF_TIMEOUT_US			10000U
+
+/* Sequencer instruction memory, four 8-bit commands per word. */
+#define APSS_SEQ_COMMON_INSTR(n)		(0x180c0000U + ((n) * 4U))
+
+static const uint32_t cpu_off_seq[] = QTI_CPU_OFF_SEQ;
 
 /*
  * APSS cluster (L3/DSU) IPM alias register block (APSS_ALIAS_1). Used for the
@@ -297,16 +314,38 @@ static enum gold_domain_state gold_domain_cold_boot(void)
 	return ret;
 }
 
-/*
- * plat_qti_pwr_psci_init - PSCI backend init hook.
- *
- * The secondary-core reset vector (RVBAR) is programmed by
- * qti_sec_core_remap(), invoked from plat_setup_psci_ops() ahead of this hook,
- * so there is nothing left to do here.
- */
+/* plat_qti_pwr_psci_init - PSCI backend init hook. */
 int plat_qti_pwr_psci_init(uintptr_t warmboot_entry)
 {
 	(void)warmboot_entry;
+
+	for (unsigned int i = 0U; i < ARRAY_SIZE(cpu_off_seq); i++) {
+		mmio_write_32(APSS_SEQ_COMMON_INSTR(QTI_CPU_OFF_SEQ_START / 4U + i),
+			      cpu_off_seq[i]);
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+/*
+ * Wake a core its sequencer collapsed at CPU_OFF: the sequence powers it up
+ * on the wake event. CPU_ON can arrive before the core has reached its last
+ * WFI, so wait for the collapse first.
+ */
+static int cpu_wake(u_register_t mpidr, int core_pos)
+{
+	uint64_t timeout = timeout_init_us(CPU_OFF_TIMEOUT_US);
+
+	while ((mmio_read_32(CPU_PCHANNEL_CTLER_STATUS(core_pos)) &
+		CTLER_STATUS_LPM_ENTER_COND) == 0U) {
+		if (timeout_elapsed(timeout)) {
+			ERROR("CPU%d did not power down\n", core_pos);
+			return PSCI_E_INTERN_FAIL;
+		}
+	}
+
+	plat_ic_raise_el3_sgi(PLAT_INT_ID_CPU_WAKEUP_SGI, mpidr);
+	mmio_clrbits_32(CPU_PCHANNEL_FSM_CTL(core_pos), PCHANNEL_MASK_WAKEUP);
 
 	return PSCI_E_SUCCESS;
 }
@@ -317,7 +356,10 @@ int plat_qti_pwr_psci_init(uintptr_t warmboot_entry)
  */
 int plat_qti_pwr_domain_on(u_register_t mpidr, int core_pos)
 {
-	(void)mpidr;
+	if ((ARRAY_SIZE(cpu_off_seq) != 0U) &&
+	    ((mmio_read_32(CPU_SEQ_CTL(core_pos)) & CPU_SEQ_CTL_EN) != 0U)) {
+		return cpu_wake(mpidr, core_pos);
+	}
 
 	/* Bring up the gold domain before powering on its first core. */
 	if ((core_pos >= QTI_FIRST_GOLD_CORE) &&
@@ -374,29 +416,48 @@ int plat_qti_pwr_domain_on(u_register_t mpidr, int core_pos)
 /*
  * plat_qti_pwr_domain_on_finish - per-core setup once it has come online.
  *
- * Initialise the GIC redistributor for the core and request CPUCP to enable
- * the core's clock domain on cold boot.
+ * Initialise the GIC redistributor for the core, request CPUCP to enable
+ * the core's clock domain and disable the core sequencer armed at CPU_OFF.
  */
 void plat_qti_pwr_domain_on_finish(int core_pos, const uint8_t *states)
 {
-	(void)core_pos;
 	(void)states;
 
 	plat_qti_gic_pcpu_init();
 	cpucp_clkdom_init();
+
+	if (ARRAY_SIZE(cpu_off_seq) != 0U) {
+		mmio_write_32(CPU_SEQ_CTL(core_pos), CPU_SEQ_CTL_RESET);
+	}
 }
 
 /*
- * The native port only supports CPU-level standby (WFI retention); the firmware
- * power-collapse / low-power-mode node handling (PCU/RSC/PDC) is not ported.
- * These power-down and suspend node hooks are therefore empty stubs, and no
- * corresponding idle states are advertised by plat_qti_pm_idle_states().
+ * Have the core sequencer collapse the core on the power-down request it
+ * raises at its last WFI, with wake-ups masked so that an interrupt cannot
+ * cut the collapse short. CPU_ON then powers it up again from off.
  */
 void plat_qti_pwr_domain_off(const uint8_t *states)
 {
+	unsigned int core;
+
 	(void)states;
+
+	if (ARRAY_SIZE(cpu_off_seq) == 0U) {
+		return;
+	}
+
+	core = plat_my_core_pos();
+	mmio_write_32(CPU_SEQ_CTL(core),
+		      CPU_SEQ_CTL_START_ADDR(QTI_CPU_OFF_SEQ_START) |
+		      CPU_SEQ_CTL_PWR_STATE_IDX(QTI_LOCAL_STATE_DEEPOFF) |
+		      CPU_SEQ_CTL_EN);
+	mmio_setbits_32(CPU_PCHANNEL_FSM_CTL(core), PCHANNEL_MASK_WAKEUP);
 }
 
+/*
+ * Idle power-down is not ported: no such state is advertised by
+ * plat_qti_pm_idle_states(), so the suspend hooks are empty.
+ */
 void plat_qti_pwr_domain_suspend(const uint8_t *states)
 {
 	(void)states;
@@ -408,8 +469,8 @@ void plat_qti_pwr_domain_suspend_finish(const uint8_t *states)
 }
 
 /*
- * No native EL3 handler exists for QTI-specific interrupts; an unhandled
- * interrupt reaching EL3 is not expected, so drop it.
+ * No native EL3 handler exists for QTI-specific interrupts. The CPU wake-up
+ * SGI that woke a core is expected here; drop it.
  */
 void plat_qti_invoke_unhandled_isr(uint32_t id, void *handle)
 {
@@ -420,9 +481,8 @@ void plat_qti_invoke_unhandled_isr(uint32_t id, void *handle)
 /*
  * plat_qti_pm_idle_states - advertise the supported CPU idle states.
  *
- * The native port does not implement the firmware power-collapse (LPM)
- * sequence, so a CPU cannot be physically powered down by EL3 alone. Advertise
- * only CPU-level standby (retention), entered with a simple WFI and handled by
+ * Idle power-down is not implemented. Advertise only CPU-level standby
+ * (retention), entered with a simple WFI and handled by
  * qti_cpu_standby(). This is "standard Arm WFI" CPU idle and is safe alongside
  * the OP-TEE SPD, which cannot tolerate the PSCI power-down abandon path that a
  * non-collapsing WFI would otherwise trigger.

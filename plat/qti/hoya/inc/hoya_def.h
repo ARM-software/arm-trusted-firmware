@@ -140,6 +140,15 @@
 #endif
 #endif
 
+/*
+ * Without a power-collapse sequence for the core IPM sequencers, CPU_OFF
+ * leaves the core in WFI with its power-down request pending.
+ */
+#ifndef QTI_CPU_OFF_SEQ
+#define QTI_CPU_OFF_SEQ_START		0U
+#define QTI_CPU_OFF_SEQ			{}
+#endif
+
 /*----------------------------------------------------------------------------*/
 /* GIC-600 constants */
 /*----------------------------------------------------------------------------*/
