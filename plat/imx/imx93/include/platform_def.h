@@ -6,6 +6,7 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
+#include <lib/cassert.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/common_def.h>
@@ -32,6 +33,8 @@
 #define BL31_BASE			U(0x204E0000)
 #define BL31_LIMIT			U(0x2051C000)
 #define BL31_SIZE			SZ_256K
+#define SAVED_DRAM_TIMING_BASE		U(0x2051c000)
+#define SAVED_DRAM_TIMING_SIZE		U(0x4000)
 
 #define OCRAM_BASE			U(0x20480000)
 #define OCRAM_SIZE			U(0xA0000)
@@ -50,8 +53,8 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 32)
 #define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 32)
 
-#define MAX_XLAT_TABLES			8
-#define MAX_MMAP_REGIONS		16
+#define MAX_XLAT_TABLES			12
+#define MAX_MMAP_REGIONS		19
 
 #define IMX_LPUART_BASE			U(0x44380000)
 #define IMX_BOOT_UART_CLK_IN_HZ		U(24000000) /* Select 24MHz oscillator */
@@ -61,11 +64,20 @@
 #define AIPS1_BASE			U(0x44000000)
 #define AIPS2_BASE			U(0x42000000)
 #define AIPS3_BASE			U(0x42800000)
+#define NIC_MAIN_GPV_BASE		U(0x43900000)
 #define AIPS4_BASE			U(0x49000000)
+#define WDOG3_BASE			U(0x42490000)
+#define WDOG4_BASE			U(0x424A0000)
+#define WDOG5_BASE			U(0x424B0000)
 #define GPIO1_BASE			U(0x47400000)
 #define GPIO2_BASE			U(0x43810000)
 #define GPIO3_BASE			U(0x43820000)
 #define GPIO4_BASE			U(0x43830000)
+#define SEMA42_1_BASE			U(0x44260000)
+#define GPIO_BASE			U(0x53810000)
+#define GPIO_SIZE			U(0x30000)
+#define DDRMIX_BASE			U(0x4E000000)
+#define DDRMIX_SIZE			U(0x400000)
 
 #define TRDC_A_BASE			U(0x44270000)
 #define TRDC_W_BASE			U(0x42460000)
@@ -74,7 +86,6 @@
 #define TRDC_x_SISE			U(0x20000)
 
 #define WDOG1_BASE			U(0x442D0000)
-#define WDOG3_BASE			U(0x42490000)
 #define WDOG_CS				U(0x0)
 #define WDOG_CS_UPDATE			BIT(5)
 #define WDOG_CS_EN			BIT(7)
@@ -104,8 +115,22 @@
 #define SRC_BASE			U(0x44460000)
 #define GPC_BASE			U(0x44470000)
 #define BLK_CTRL_S_BASE			U(0x444F0000)
+#define FSB_BASE			U(0x47510000)
+#define FSB_SHADOW_OFF			U(0x8000)
 #define S400_MU_BASE			U(0x47520000)
 #define ELE_MU_BASE			S400_MU_BASE
+
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupt properties
+ * as per GICv3 terminology.
+ */
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(29U, GIC_HIGHEST_SEC_PRIORITY, grp,   \
+		       GIC_INTR_CFG_LEVEL)
+
+#define PLAT_ARM_G0_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(8U, GIC_HIGHEST_SEC_PRIORITY, \
+		       (grp), GIC_INTR_CFG_LEVEL)
 
 /* system memory map define */
 #define AIPS2_MAP	MAP_REGION_FLAT(AIPS2_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW | MT_NS)
@@ -116,7 +141,12 @@
 #define TRDC_W_MAP	MAP_REGION_FLAT(TRDC_W_BASE, TRDC_x_SISE, MT_DEVICE | MT_RW)
 #define TRDC_M_MAP	MAP_REGION_FLAT(TRDC_M_BASE, TRDC_x_SISE, MT_DEVICE | MT_RW)
 #define TRDC_N_MAP	MAP_REGION_FLAT(TRDC_N_BASE, TRDC_x_SISE, MT_DEVICE | MT_RW)
+#define DDRMIX_MAP	MAP_REGION_FLAT(DDRMIX_BASE, DDRMIX_SIZE, MT_DEVICE | MT_RW | MT_NS)
+#define GPIO_MAP	MAP_REGION_FLAT(GPIO_BASE, GPIO_SIZE, MT_DEVICE | MT_RW)
 #define S400_MU_MAP	MAP_REGION_FLAT(S400_MU_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW)
+#define FSB_MAP		MAP_REGION_FLAT(FSB_BASE, U(0x10000), MT_DEVICE | MT_RW)
+#define NIC_GPV_MAP	MAP_REGION_FLAT(NIC_MAIN_GPV_BASE, 0x200000, MT_DEVICE | MT_RW)
+#define AIPS3_MAP	MAP_REGION_FLAT(AIPS3_BASE, AIPSx_SIZE, MT_DEVICE | MT_RW | MT_NS)
 
 #define COUNTER_FREQUENCY		24000000
 

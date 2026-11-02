@@ -6,15 +6,28 @@
 
 #include <stdbool.h>
 
+#include "../drivers/arm/gic/v3/gicv3_private.h"
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <drivers/delay_timer.h>
+#include <drivers/arm/gicv3.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
+#include <dram.h>
+#include <ele_api.h>
 #include <plat_imx8.h>
 #include <pwr_ctrl.h>
+#include <sema42.h>
+
+#define M33_ACTIVE_FLAG		(SRC_BASE + 0x54)
+#define M33_ACTIVE		U(0x5555)
+#define DDR_RETENTION		(SRC_BASE + 0x58)
+#define DDR_RETENTION_A55_FLAG	BIT(0)
+#define DDR_RETENTION_M33_FLAG	BIT(1)
+/* PLL can use LPM when DDR is in retention */
+#define DDR_RETENTION_PLL_LPM	BIT(2)
 
 #define CORE_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL0])
 #define CLUSTER_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL1])
@@ -24,6 +37,125 @@
 static uintptr_t secure_entrypoint;
 
 static bool boot_stage = true;
+
+/*
+ * GPC IRQ mask used to check if any the below interrupt is enabled
+ * as wakeup source;
+ *
+ * lpuart3-6: 68-70,flexcan2: 51, usdhc1: 86, usdhc2: 87; fec: 181,
+ * eqos: 183, usdhc3: 205, lpuart7: 210, lpaurt8: 211.
+ */
+uint32_t wakeupmix_irq_mask[IMR_NUM] = {
+	0x0, 0x80000, 0xC000F0, 0x0,
+	0x0, 0xA00000, 0xC2000, 0x0,
+};
+
+struct gpio_ctx wakeupmix_gpio_ctx[3] = {
+	GPIO_CTX(GPIO2_BASE | BIT(28), 30),
+	GPIO_CTX(GPIO3_BASE | BIT(28), 32),
+	GPIO_CTX(GPIO4_BASE | BIT(28), 30),
+};
+
+uint32_t clock_root[6];
+
+/* true: M33 inactive, full suspend path taken */
+static bool full_suspend_path;
+
+/*
+ * Empty implementation of these hooks avoid setting the GICR_WAKER.Sleep bit
+ * on ARM GICv3 implementations without LPI support.
+ */
+void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
+{
+}
+
+void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
+{
+}
+
+static struct qchannel_hsk_config {
+	const uint32_t lpcg_idx;
+	const uint32_t root_idx;
+	const unsigned int wakeup_irq;
+	uint32_t root_ctrl;
+	uint32_t lpcg_cur;
+	uint32_t lpcg_auth;
+	bool active_wakeup;
+} hsk_config[] = {
+	{ CAN1_LPCG, CAN1_ROOT, 8 },
+	{ CAN2_LPCG, CAN2_ROOT, 51 },
+
+	{ UART1_LPCG, UART1_ROOT, 19 },
+	{ UART2_LPCG, UART2_ROOT, 20 },
+	{ UART3_LPCG, UART3_ROOT, 68 },
+	{ UART4_LPCG, UART4_ROOT, 69 },
+	{ UART5_LPCG, UART5_ROOT, 70 },
+	{ UART6_LPCG, UART6_ROOT, 71 },
+	{ UART7_LPCG, UART7_ROOT, 210 },
+	{ UART8_LPCG, UART8_ROOT, 211 },
+
+	/* wakeup_irq == 0: no IRQ check, always enable qchannel handshake (GPIO) */
+	{ GPIO1_LPCG, },
+	{ GPIO2_LPCG, },
+	{ GPIO3_LPCG, },
+	{ GPIO4_LPCG, },
+};
+
+/*
+ * M33 side need to raise this flag it DDR is used when
+ * A55 side enter low power mode.
+ */
+static inline bool is_m33_active(void)
+{
+	return mmio_read_32(M33_ACTIVE_FLAG) == M33_ACTIVE;
+}
+
+/*
+ * For peripherals like CANs, GPIOs & UARTs that need to support async wakeup
+ * when clock is gated, LPCGs of these IPs need to be changed to CPU LPM
+ * controlled, and for CANs &UARTs, we also need to make sure its ROOT clock
+ * slice is enabled.
+ */
+void peripheral_qchannel_hsk(bool en)
+{
+	unsigned int i;
+	struct qchannel_hsk_config *cfg;
+	uintptr_t lpcg_base;
+
+	for (i = 0; i < ARRAY_SIZE(hsk_config); i++) {
+		cfg = &hsk_config[i];
+
+		if (en) {
+			if (cfg->wakeup_irq != 0U &&
+			    !is_wakeup_source(cfg->wakeup_irq)) {
+				cfg->active_wakeup = false;
+				continue;
+			}
+
+			cfg->active_wakeup = true;
+			if (cfg->root_idx != 0U) {
+				cfg->root_ctrl =
+					mmio_read_32(CCM_ROOT_SLICE(cfg->root_idx));
+				mmio_clrbits_32(CCM_ROOT_SLICE(cfg->root_idx),
+						ROOT_CLK_OFF);
+			}
+
+			lpcg_base = LPCG(cfg->lpcg_idx);
+			cfg->lpcg_auth = mmio_read_32(lpcg_base + LPCG_AUTH);
+			cfg->lpcg_cur = mmio_read_32(lpcg_base + LPCG_CUR);
+			mmio_setbits_32(lpcg_base + LPCG_AUTH, CPU_LPM_EN);
+			mmio_write_32(lpcg_base + LPCG_CUR, 0x2);
+		} else if (cfg->active_wakeup) {
+			lpcg_base = LPCG(cfg->lpcg_idx);
+			mmio_write_32(lpcg_base + LPCG_AUTH, cfg->lpcg_auth);
+			mmio_write_32(lpcg_base + LPCG_CUR, cfg->lpcg_cur);
+			if (cfg->root_idx != 0U) {
+				mmio_write_32(CCM_ROOT_SLICE(cfg->root_idx),
+					      cfg->root_ctrl);
+			}
+		}
+	}
+}
 
 int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
@@ -164,12 +296,140 @@ void imx_pwr_domain_suspend(const psci_power_state_t *target_state)
 			write_clusterpwrdn(DSU_CLUSTER_PWR_OFF | BIT(1));
 		}
 	}
+
+	if (is_local_state_retn(SYSTEM_PWR_STATE(target_state))) {
+		/*
+		 * If M33 is active to use DRAM and the bus fabric, need to do
+		 * special handling to reduce the system power.
+		 */
+		if (is_m33_active()) {
+			full_suspend_path = false;
+			dcsw_op_all(DCCISW);
+
+			/* Make sure sema42_1 clock enabled */
+			mmio_write_32(LPCG(17), 0x1);
+			/* Set LPM CUR domain control to ON in case of CPU_LPM control */
+			mmio_write_32(LPCG(17) + LPCG_CUR, 0x3);
+
+			if (sema42_lock(0) != 0) {
+				ERROR("sema42 lock timeout\n");
+				panic();
+			}
+			/* Put ddr into retention if not used by m33 */
+			if (mmio_read_32(DDR_RETENTION) & DDR_RETENTION_M33_FLAG) {
+				dram_enter_retention();
+			}
+			/* DDR is not used by A55 now */
+			mmio_setbits_32(DDR_RETENTION, DDR_RETENTION_A55_FLAG);
+
+			/* Switch wakeup axi, hsio & nic to 24M when NICMIX power down */
+			clock_root[1] = mmio_read_32(CCM_ROOT_SLICE(WAKEUP_AXI_ROOT));
+			clock_root[2] = mmio_read_32(CCM_ROOT_SLICE(HSIO_CLK_ROOT));
+			clock_root[3] = mmio_read_32(CCM_ROOT_SLICE(NIC_CLK_ROOT));
+			clock_root[4] = mmio_read_32(CCM_ROOT_SLICE(BUS_WAKEUP_ROOT));
+			clock_root[5] = mmio_read_32(CCM_ROOT_SLICE(BUS_AON_ROOT));
+
+			/* Slow down WAKEUP AXI to rate / DIV5 */
+			mmio_clrsetbits_32(CCM_ROOT_SLICE(WAKEUP_AXI_ROOT), 0xff, 0x4);
+			/* Slow down NIC CLK to rate / DIV8 */
+			mmio_clrsetbits_32(CCM_ROOT_SLICE(NIC_CLK_ROOT), 0xff, 0x7);
+			mmio_clrbits_32(CCM_ROOT_SLICE(HSIO_CLK_ROOT), ROOT_MUX_MASK);
+
+			sema42_unlock(0);
+
+			if (mmio_read_32(DDR_RETENTION) & DDR_RETENTION_PLL_LPM) {
+				pll_pwr_down(true);
+			}
+
+		} else {
+			/*
+			 * For the A55 cluster, the cache disable/flushing is controlled by HW,
+			 * so flush cache explicitly before put DDR into retention to make sure
+			 * no cache maintenance to DDR memory happens after DDR retention.
+			 */
+			dcsw_op_all(DCCISW);
+			dram_enter_retention();
+
+			/*
+			 * If NICMIX or WAKEUPMIX power down, the TRDC_N/W config will lost,
+			 * so need to request Sentinel to set the correct permission at the early
+			 * beginning.
+			 */
+			nicmix_pwr_down(core_id);
+			ele_request_pwrdown();
+			wakeupmix_pwr_down();
+
+			/* Power down PLL */
+			pll_pwr_down(true);
+			full_suspend_path = true;
+		}
+
+		peripheral_qchannel_hsk(true);
+		/* Config the A55 cluster target mode to SUSPEND */
+		gpc_set_cpu_mode(CPU_A55_PLAT, CM_MODE_SUSPEND);
+
+		/* Enable system suspend when A55 cluster is in SUSPEND MODE */
+		gpc_set_cpu_ss_mode(CPU_A55_PLAT, SS_SUSPEND);
+
+		/* Force M33 into system sleep if M33 is not enabled. */
+		if (is_m33_disabled()) {
+			gpc_force_cpu_suspend(CPU_M33);
+		}
+		/* Put OSC into power down */
+		gpc_rosc_off(true);
+		/* Put PMIC into standby mode */
+		gpc_pmic_stby_en(true);
+	}
 }
 
 void imx_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
 	uint64_t mpidr = read_mpidr_el1();
 	unsigned int core_id = MPIDR_AFFLVL1_VAL(mpidr);
+
+	/* System level */
+	if (is_local_state_retn(SYSTEM_PWR_STATE(target_state))) {
+		/* Disable system suspend when A55 cluster is in SUSPEND MODE */
+		gpc_set_cpu_ss_mode(CPU_A55_PLAT, 0x0);
+
+		if (is_m33_disabled()) {
+			gpc_unforce_cpu_suspend(CPU_M33);
+		}
+
+		/* Disable PMIC standby */
+		gpc_pmic_stby_en(false);
+		/* Disable OSC power down */
+		gpc_rosc_off(false);
+		peripheral_qchannel_hsk(false);
+		if (!full_suspend_path) {
+			pll_pwr_down(false);
+
+			if (sema42_lock(0) != 0) {
+				ERROR("sema42 lock timeout\n");
+				panic();
+			}
+
+			mmio_write_32(CCM_ROOT_SLICE(WAKEUP_AXI_ROOT), clock_root[1]);
+			mmio_write_32(CCM_ROOT_SLICE(HSIO_CLK_ROOT), clock_root[2]);
+			mmio_write_32(CCM_ROOT_SLICE(NIC_CLK_ROOT), clock_root[3]);
+			mmio_write_32(CCM_ROOT_SLICE(BUS_WAKEUP_ROOT), clock_root[4]);
+			mmio_write_32(CCM_ROOT_SLICE(BUS_AON_ROOT), clock_root[5]);
+
+			if (mmio_read_32(DDR_RETENTION) & DDR_RETENTION_M33_FLAG) {
+				dram_exit_retention();
+			}
+			/* DDR need to keep active as A55 will use it */
+			mmio_clrbits_32(DDR_RETENTION, DDR_RETENTION_A55_FLAG);
+
+			sema42_unlock(0);
+		} else {
+			/* Power down PLL */
+			pll_pwr_down(false);
+			nicmix_pwr_up(core_id);
+			wakeupmix_pwr_up();
+			dram_exit_retention();
+		}
+	}
 
 	/* cluster level */
 	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
@@ -242,6 +502,8 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	imx_set_cpu_boot_entry(0, sec_entrypoint);
 
 	pwr_sys_init();
+	nicmix_qos_init();
+	wakeupmix_qos_init();
 
 	*psci_ops = &imx_plat_psci_ops;
 

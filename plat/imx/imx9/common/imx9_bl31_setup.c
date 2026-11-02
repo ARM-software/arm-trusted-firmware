@@ -160,11 +160,6 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 	return NULL;
 }
 
-unsigned int plat_get_syscnt_freq2(void)
-{
-	return COUNTER_FREQUENCY;
-}
-
 #ifdef SPD_trusty
 void plat_trusty_set_boot_args(aapcs64_params_t *args)
 {

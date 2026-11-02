@@ -20,14 +20,19 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
+#include <dram.h>
 #include <ele_api.h>
 #include <imx8_lpuart.h>
 #include <imx_cpu_off.h>
 #include <imx_intercore_svc.h>
 #include <imx_interrupt_mgmt.h>
+#include <imx_plat_common.h>
 #include <plat_common.h>
 #include <plat_imx8.h>
 #include <platform_def.h>
+
+CASSERT(SAVED_DRAM_TIMING_BASE + SAVED_DRAM_TIMING_SIZE <= OCRAM_BASE + OCRAM_SIZE,
+	assert_saved_dram_timing_fits_ocram);
 
 #define MAP_BL31_TOTAL										   \
 	MAP_REGION_FLAT(BL31_BASE, BL31_SIZE, MT_MEMORY | MT_RW | MT_SECURE)
@@ -42,29 +47,13 @@ static const uintptr_t gicr_base_addrs[] = {
 static const mmap_region_t imx_mmap[] = {
 	AIPS1_MAP, AIPS2_MAP, AIPS4_MAP, GIC_MAP,
 	TRDC_A_MAP, TRDC_W_MAP, TRDC_M_MAP,
-	TRDC_N_MAP, S400_MU_MAP,
+	TRDC_N_MAP, DDRMIX_MAP, GPIO_MAP, S400_MU_MAP,
+	FSB_MAP, NIC_GPV_MAP, AIPS3_MAP,
 	{0},
 };
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
-
-/* get SPSR for BL33 entry */
-static uint32_t get_spsr_for_bl33_entry(void)
-{
-	unsigned long el_status;
-	unsigned long mode;
-	uint32_t spsr;
-
-	/* figure out what mode we enter the non-secure world */
-	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
-	el_status &= ID_AA64PFR0_ELX_MASK;
-
-	mode = (el_status) ? MODE_EL2 : MODE_EL1;
-
-	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
-	return spsr;
-}
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
@@ -82,7 +71,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * and the entry state information.
 	 */
 	bl33_image_ep_info.pc = PLAT_NS_IMAGE_OFFSET;
-	bl33_image_ep_info.spsr = get_spsr_for_bl33_entry();
+	bl33_image_ep_info.spsr = plat_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 #if defined(SPD_opteed)
@@ -159,6 +148,9 @@ void bl31_platform_setup(void)
 	imx_el3_interrupt_config();
 	imx_intercore_svc_init();
 	imx_cpuoff_init();
+
+	/* Init the dram info */
+	dram_info_init(SAVED_DRAM_TIMING_BASE);
 }
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
@@ -172,9 +164,4 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 	}
 
 	return NULL;
-}
-
-unsigned int plat_get_syscnt_freq2(void)
-{
-	return COUNTER_FREQUENCY;
 }

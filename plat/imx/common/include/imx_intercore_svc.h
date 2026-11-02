@@ -24,10 +24,13 @@ typedef struct intercore_svc {
 
 typedef struct percpu_svc_inf {
 	intercore_svc_t cpu_off_svc;
+	intercore_svc_t dvfs_svc;
 } __aligned(CACHE_WRITEBACK_GRANULE) percpu_svc_inf_t;
 
 int register_intercore_cpuoff_svc(interrupt_type_handler_t handler);
 int trigger_intercore_cpuoff_svc(unsigned int cpu);
+int register_intercore_dvfs_svc(interrupt_type_handler_t handler);
+int trigger_intercore_dvfs_svc(unsigned int cpu);
 void imx_intercore_svc_init(void);
 
 #endif	/* IMX_INTERCORE_SVC_H	*/
