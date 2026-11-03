@@ -97,6 +97,13 @@ workaround_reset_end c1_premium, ERRATUM(3926381)
 
 check_erratum_range c1_premium, ERRATUM(3926381), CPU_REV(1, 0), CPU_REV(1, 0)
 
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
+add_erratum_entry c1_premium, ERRATUM(4015814), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_premium, ERRATUM(4015814), CPU_REV(1, 0)
+
 workaround_reset_start c1_premium, ERRATUM(4102704), ERRATA_C1PREMIUM_4102704
 	sysreg_bit_set C1_PREMIUM_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_premium, ERRATUM(4102704)

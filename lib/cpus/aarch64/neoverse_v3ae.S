@@ -116,6 +116,13 @@ workaround_reset_end neoverse_v3ae, ERRATUM(3984852)
 
 check_erratum_chosen neoverse_v3ae, ERRATUM(3984852), ERRATA_V3AE_3984852
 
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
+add_erratum_entry neoverse_v3ae, ERRATUM(4060225), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen neoverse_v3ae, ERRATUM(4060225), ERRATUM_ALWAYS_CHOSEN
+
 workaround_reset_start neoverse_v3ae, ERRATUM(4302965), ERRATA_V3AE_4302965
 	sysreg_bit_set NEOVERSE_V3AE_CPUACTLR5_EL1, BIT(50)
 workaround_reset_end neoverse_v3ae, ERRATUM(4302965)
