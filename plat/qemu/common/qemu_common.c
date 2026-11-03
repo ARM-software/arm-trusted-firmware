@@ -297,7 +297,7 @@ const struct memory_bank coh_region_data[] = {};
 const struct bdf_mapping_info rc0rp0_bdf_data[] = {
 	/* BDF0 */
 	{0U,		/* mapping_base */
-	 0x8000U,	/* mapping_top */
+	 0x7FFFU,	/* mapping_top */
 	 0U,		/* mapping_off */
 	 0U		/* smmu_idx */
 	}

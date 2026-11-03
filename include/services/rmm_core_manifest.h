@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -136,9 +136,9 @@ CASSERT(offsetof(struct smmu_list, checksum) == 16UL,
 /* PCIe BDF Mapping Info structure */
 struct bdf_mapping_info {
 	uint16_t mapping_base;	/* Base of BDF mapping (inclusive) */
-	uint16_t mapping_top;	/* Top of BDF mapping (exclusive) */
+	uint16_t mapping_top;	/* Top of BDF mapping (inclusive) */
 	uint16_t mapping_off;	/* Mapping offset, as per Arm Base System Architecture: */
-				/* StreamID = zero_extend(RequesterID[N-1:0]) + (1<<N)*Constant_B */
+				/* StreamID = RequesterID[15:0] + (1<<16)*mapping_off */
 	uint16_t smmu_idx;	/* SMMU index in smmu_info[] array */
 };
 
