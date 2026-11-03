@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,7 +104,12 @@ int fconf_populate_topology(uintptr_t config)
 
 	/* Iterate through cluster nodes */
 	fdt_for_each_subnode(cluster_node, hw_config_dtb, node) {
-		assert(cluster_count < PLAT_ARM_CLUSTER_COUNT);
+		if (cluster_count >= PLAT_ARM_CLUSTER_COUNT) {
+			ERROR("FCONF: Too many cluster nodes in cpu-map "
+			      "(found at least %u, maximum %u)\n",
+			      cluster_count + 1U, PLAT_ARM_CLUSTER_COUNT);
+			return -1;
+		}
 
 		/* Iterate through core nodes */
 		fdt_for_each_subnode(core_node, hw_config_dtb, cluster_node) {
