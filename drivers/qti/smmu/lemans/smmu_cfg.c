@@ -176,6 +176,8 @@ const struct smmu_cfg_s qti_smmu_gpu_cfg[] = {
 		GPU_SMMU_FUSA_SEC_OVERRIDE_GFX_1},
 	{GPU_GFX_SMMU_FUSA_SEC_OVERRIDE_TCU_ADDR,
 		GPU_GFX_SMMU_FUSA_SEC_OVERRIDE_TCU},
+	{GPU_SMMU_APERTURE_S1CB0_ADDR,
+		GPU_SMMU_APERTURE_S1CB0},
 };
 
 const size_t qti_smmu_gpu_cfg_count = ARRAY_SIZE(qti_smmu_gpu_cfg);

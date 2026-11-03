@@ -342,6 +342,15 @@
 #define GPU_GFX_SMMU_FUSA_SEC_OVERRIDE_TCU_ADDR \
 	(GPU_SMMU_BASE + 0x0000801c)
 
+/*
+ * Aperture slot 0, through which the Adreno CP switches the page tables of
+ * GPU SMMU context bank 0: the offset of that bank in the GPU register space.
+ */
+#define GPU_SMMU_APERTURE_S1CB0 \
+	((GPU_SMMU_BASE + 0x00010000) & 0x000fffff)
+#define GPU_SMMU_APERTURE_S1CB0_ADDR \
+	0x03d60000
+
 #define GPU_SMMU_FUSA_SEC_OVERRIDE_GFX_0 \
 	0x00000003
 #define GPU_SMMU_FUSA_SEC_OVERRIDE_GFX_0_ADDR \
