@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,10 @@
 #include <platform_def.h>
 
 #define FFA_BOOT_INFO_SIZE	(PAGE_SIZE * 2)
+
+#define TPM_CRB_LOCALITY_COUNT       U(5)
+#define TPM_CRB_NS_LOCALITY_COUNT    U(4)
+#define TPM_CRB_S_LOCALITY_INDEX     TPM_CRB_NS_LOCALITY_COUNT
 
 /*
  * Statically allocate a page of memory for passing boot information to an SP.
@@ -151,16 +155,21 @@ static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
 {
 	struct efi_hob_handoff_info_table *hob_table;
 	uintptr_t base_address;
-	int mem_region_node;
+	int mem_region_node, dev_region_node;
+	int i;
 	int32_t node, ret;
+	int32_t ns_crb_node, s_crb_node;
 	const char *name;
 	uint32_t granularity, size;
 	uint32_t mem_region_num;
 	struct efi_guid ns_buf_guid = MM_NS_BUFFER_GUID;
 	struct efi_guid mmram_resv_guid = MM_PEI_MMRAM_MEMORY_RESERVE_GUID;
 	struct efi_guid tpm_evtlog_guid = MM_TPM_EVENT_LOG_GUID;
+	struct efi_guid tpm_crb_info_guid = MM_TPM_CRB_INFO_GUID;
 	struct efi_mmram_descriptor *mmram_desc_data;
 	struct efi_mmram_hob_descriptor_block *mmram_hob_desc_data;
+	struct tpm_crb_info_hob_data *crb_info_hob_data;
+	struct tpm_crb_region_desc *crb_desc;
 
 	if (sp_manifest == NULL || hob_table_size == NULL || *hob_table_size == 0) {
 		return NULL;
@@ -185,9 +194,15 @@ static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
 
 	mem_region_node = fdt_subnode_offset_namelen(sp_manifest, 0, "memory-regions",
 			sizeof("memory-regions") - 1);
-	if (node < 0) {
+	if (mem_region_node < 0) {
 		ERROR("Not found memory-region configuration for SP.\n");
 		return NULL;
+	}
+
+	dev_region_node = fdt_subnode_offset_namelen(sp_manifest, 0, "device-regions",
+			sizeof("device-regions") - 1);
+	if (dev_region_node < 0) {
+		VERBOSE("Not found device-regions configuration for SP.\n");
 	}
 
 	INFO("Generating PHIT_HOB...\n");
@@ -306,6 +321,69 @@ static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
 		mmram_desc_data->physical_size = tpm_evtlog_size;
 		mmram_desc_data->cpu_start = (uintptr_t)tpm_evtlog_addr;
 		mmram_desc_data->region_state = EFI_CACHEABLE | EFI_ALLOCATED;
+	}
+
+	/*
+	 * Add tpm crb information.
+	 */
+	ns_crb_node = s_crb_node = -1;
+	if (dev_region_node >= 0) {
+		for (node = fdt_first_subnode(sp_manifest, dev_region_node);
+				node >= 0;
+				node = fdt_next_subnode(sp_manifest, node)) {
+			name = fdt_get_name(sp_manifest, node, NULL);
+
+			if (!strcmp(name, "tpm_ns_crb")) {
+				ns_crb_node = node;
+			}
+
+			if (!strcmp(name, "tpm_s_crb")) {
+				s_crb_node = node;
+			}
+		}
+	}
+
+	if (ns_crb_node >= 0 && s_crb_node >= 0) {
+		ret = create_guid_hob(hob_table, &tpm_crb_info_guid,
+				sizeof(struct tpm_crb_info_hob_data) +
+				(TPM_CRB_LOCALITY_COUNT *
+				sizeof(struct tpm_crb_region_desc)),
+				(void **) &crb_info_hob_data);
+		if (ret < 0) {
+			ERROR("Failed to create tpm_crb_info hob\n");
+			return NULL;
+		}
+
+		ret = get_memory_region_info(sp_manifest, ns_crb_node, NULL,
+				granularity, &base_address, &size);
+		if (ret < 0 || size != 4 * PAGE_SIZE) {
+			ERROR("Invalid non-secure CRB regions\n");
+			return NULL;
+		}
+
+		for (i = 0; i < TPM_CRB_NS_LOCALITY_COUNT; i++) {
+			crb_desc = &crb_info_hob_data->crb_regions[i];
+			crb_desc->paddr = base_address + i * PAGE_SIZE;
+			crb_desc->vaddr = crb_desc->paddr;
+			crb_desc->size = PAGE_SIZE;
+		}
+
+		ret = get_memory_region_info(sp_manifest, s_crb_node, NULL,
+				granularity, &base_address, &size);
+		if (ret < 0 || size != PAGE_SIZE) {
+			ERROR("Invalid secure CRB regions\n");
+			return NULL;
+		}
+
+		crb_desc = &crb_info_hob_data->crb_regions[TPM_CRB_S_LOCALITY_INDEX];
+		crb_desc->paddr = base_address;
+		crb_desc->vaddr = crb_desc->paddr;
+		crb_desc->size = PAGE_SIZE;
+
+		crb_info_hob_data->number_of_locality = TPM_CRB_LOCALITY_COUNT;
+	} else if (ns_crb_node >= 0 || s_crb_node >= 0) {
+		ERROR("missing CRB information\n");
+		return NULL;
 	}
 
 	*hob_table_size = hob_table->efi_free_memory_bottom -

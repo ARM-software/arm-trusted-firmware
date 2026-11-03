@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,5 +32,21 @@
 {                                                                               \
 	0x360c4a06, 0x146c, 0x11f0, {0xb1, 0x73, 0x6b, 0xd5, 0x98, 0xff, 0x54, 0xd6}  \
 }
+
+#define MM_TPM_CRB_INFO_GUID                                                    \
+{                                                                               \
+	0x1b97b3b4, 0xbd84, 0x11f1, {0xa8, 0xbc, 0x8f, 0xa5, 0x8b, 0x7c, 0xd7, 0x9e}  \
+}
+
+struct tpm_crb_region_desc {
+	efi_physical_address_t paddr;
+	efi_physical_address_t vaddr;
+	uint64_t size;
+};
+
+struct tpm_crb_info_hob_data {
+	uint32_t number_of_locality;
+	struct tpm_crb_region_desc crb_regions[];
+};
 
 #endif /* HOB_GUID_H */
