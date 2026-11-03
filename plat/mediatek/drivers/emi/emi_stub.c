@@ -23,7 +23,7 @@ uint64_t emi_mpu_read_aid(unsigned int region, unsigned int aid_shift)
 
 uint64_t emi_mpu_check_ns_cpu(void)
 {
-	return MTK_BL31_STATUS_NOT_SUPPORTED;
+	return 0;
 }
 
 enum mtk_bl31_status emi_kp_set_protection(size_t start, size_t end, unsigned int region)
