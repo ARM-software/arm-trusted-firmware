@@ -17,17 +17,25 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
 ifeq (${ARCH},aarch32)
 QEMU_CPU_LIBS		:=	lib/cpus/${ARCH}/cortex_a15.S
 else
+# Set to 1 to run AArch32 software at a lower EL, e.g. a 32-bit Secure-EL1
+# payload.
+CTX_INCLUDE_AARCH32_REGS := 0
+
 QEMU_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a55.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
-				lib/cpus/aarch64/cortex_a76.S		\
+				lib/cpus/aarch64/qemu_max.S
+
+# These cores are AArch64-only at EL1 and above.
+ifneq (${CTX_INCLUDE_AARCH32_REGS},1)
+QEMU_CPU_LIBS		+=	lib/cpus/aarch64/cortex_a76.S		\
 				lib/cpus/aarch64/cortex_a710.S		\
 				lib/cpus/aarch64/neoverse_n1.S		\
 				lib/cpus/aarch64/neoverse_v1.S		\
-				lib/cpus/aarch64/neoverse_n2.S		\
-				lib/cpus/aarch64/qemu_max.S
+				lib/cpus/aarch64/neoverse_n2.S
+endif
 
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
 endif
@@ -144,11 +152,6 @@ USE_COHERENT_MEM	:=	0
 
 # This can be overridden depending on CPU(s) used in the QEMU image
 HW_ASSISTED_COHERENCY	:=	1
-
-CTX_INCLUDE_AARCH32_REGS := 0
-ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
-$(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
-endif
 
 # Pointer Authentication sources
 ifeq ($(BRANCH_PROTECTION),$(filter $(BRANCH_PROTECTION),1 2 3 5))
