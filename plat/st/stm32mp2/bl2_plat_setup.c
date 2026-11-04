@@ -41,16 +41,26 @@ IMPORT_SYM(uintptr_t, __BSS_END__, BSS_END)
 IMPORT_SYM(uintptr_t, __DATA_START__, DATA_START)
 IMPORT_SYM(uintptr_t, __DATA_END__, DATA_END)
 
+static bool cold_boot;
+
 static void print_reset_reason(void)
 {
-	uint32_t rstsr = mmio_read_32(stm32mp_rcc_base() + RCC_C1BOOTRSTSCLRR);
-	const char *reason_str = "Unidentified";
+	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t rstsr = mmio_read_32(rcc_base + RCC_C1BOOTRSTSCLRR);
+	const char *boot_str;
+	const char *reason_str;
 
 #if !STM32MP21
 	if ((rstsr & RCC_C1BOOTRSTSCLRR_C1P1RSTF) != 0U) {
 		INFO("CA35 processor core 1 reset\n");
 	}
 #endif /* !STM32MP21 */
+
+	if (cold_boot) {
+		boot_str = " Cold boot.";
+	} else {
+		boot_str = " Warm boot.";
+	}
 
 	if ((rstsr & RCC_C1BOOTRSTSCLRR_PADRSTF) == 0U) {
 		if ((rstsr & RCC_C1BOOTRSTSCLRR_STBYC1RSTF) != 0U) {
@@ -76,14 +86,13 @@ static void print_reset_reason(void)
 			reason_str = "Clock failure on HSE";
 		} else if ((rstsr & RCC_C1BOOTRSTSCLRR_IWDGXSYSRSTF) != 0U) {
 			reason_str = "IWDG system reset (iwdgX_out_rst)";
-		} else if ((rstsr & RCC_C1BOOTRSTSCLRR_PADRSTF) != 0U) {
-			reason_str = "Pin reset from NRST";
 		} else {
-			reason_str = "Unidentified";
+			reason_str = "Pin reset from NRST";
 		}
 	}
 
-	NOTICE("Reset reason: %s (0x%x)\n", reason_str, rstsr);
+	NOTICE("Reset reason: %s (0x%x).%s\n",
+	       reason_str, rstsr, boot_str);
 }
 
 void bl2_early_platform_setup2(u_register_t arg0 __unused,
@@ -145,6 +154,8 @@ static void reset_backup_domain(void)
 
 	/* Reset backup domain on cold boot cases */
 	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCCKEN) == 0U) {
+		cold_boot = true;
+
 		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 
 		while ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_VSWRST) == 0U) {

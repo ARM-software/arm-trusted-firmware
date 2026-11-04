@@ -51,9 +51,12 @@ static const char debug_msg[] = {
 };
 #endif
 
+static bool cold_boot;
+
 static void print_reset_reason(void)
 {
-	uint32_t rstsr = mmio_read_32(stm32mp_rcc_base() + RCC_MP_RSTSCLRR);
+	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t rstsr = mmio_read_32(rcc_base + RCC_MP_RSTSCLRR);
 
 	if (rstsr == 0U) {
 		WARN("Reset reason unknown\n");
@@ -61,6 +64,10 @@ static void print_reset_reason(void)
 	}
 
 	NOTICE("Reset reason (0x%x):\n", rstsr);
+
+	if (cold_boot) {
+		INFO("Cold boot detected\n");
+	}
 
 	if ((rstsr & RCC_MP_RSTSCLRR_PADRSTF) == 0U) {
 		if ((rstsr & RCC_MP_RSTSCLRR_STDBYRSTF) != 0U) {
@@ -203,13 +210,41 @@ static void update_monotonic_counter(void)
 }
 #endif
 
+static void reset_backup_domain(void)
+{
+	uintptr_t pwr_base = stm32mp_pwr_base();
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	/*
+	 * Disable the backup domain write protection.
+	 * The protection is enable at each reset by hardware
+	 * and must be disabled by software.
+	 */
+	mmio_setbits_32(pwr_base + PWR_CR1, PWR_CR1_DBP);
+
+	while ((mmio_read_32(pwr_base + PWR_CR1) & PWR_CR1_DBP) == 0U) {
+		;
+	}
+
+	/* Reset backup domain on cold boot cases */
+	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCCKEN) == 0U) {
+		cold_boot = true;
+
+		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
+
+		while ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_VSWRST) == 0U) {
+			;
+		}
+
+		mmio_clrbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
+	}
+}
+
 void bl2_plat_arch_setup(void)
 {
 	const char *board_model;
 	boot_api_context_t *boot_context =
 		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
-	uintptr_t pwr_base;
-	uintptr_t rcc_base;
 
 	if (bsec_probe() != 0U) {
 		panic();
@@ -230,38 +265,14 @@ void bl2_plat_arch_setup(void)
 		panic();
 	}
 
-	pwr_base = stm32mp_pwr_base();
-	rcc_base = stm32mp_rcc_base();
-
-	/*
-	 * Disable the backup domain write protection.
-	 * The protection is enable at each reset by hardware
-	 * and must be disabled by software.
-	 */
-	mmio_setbits_32(pwr_base + PWR_CR1, PWR_CR1_DBP);
-
-	while ((mmio_read_32(pwr_base + PWR_CR1) & PWR_CR1_DBP) == 0U) {
-		;
-	}
-
-	/* Reset backup domain on cold boot cases */
-	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCSRC_MASK) == 0U) {
-		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
-
-		while ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_VSWRST) ==
-		       0U) {
-			;
-		}
-
-		mmio_clrbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
-	}
+	reset_backup_domain();
 
 	/*
 	 * Set minimum reset pulse duration to 31ms for discrete power
 	 * supplied boards.
 	 */
 	if (dt_pmic_status() <= 0) {
-		mmio_clrsetbits_32(rcc_base + RCC_RDLSICR,
+		mmio_clrsetbits_32(stm32mp_rcc_base() + RCC_RDLSICR,
 				   RCC_RDLSICR_MRD_MASK,
 				   31U << RCC_RDLSICR_MRD_SHIFT);
 	}
