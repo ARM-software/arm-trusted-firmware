@@ -118,6 +118,15 @@ func plat_reset_handler
 #endif
 
 	/* -----------------------------------------------------
+	 * Prohibit DSU PMU event counting in secure state
+	 * before granting lower ELs access to the DSU PMU.
+	 * -----------------------------------------------------
+	 */
+	mrs x1, CLUSTERPMMDCR_EL3
+	bic x1, x1, #CLUSTERPMMDCR_SPME
+	msr CLUSTERPMMDCR_EL3, x1
+
+	/* -----------------------------------------------------
 	 * Enable DSU PMU EL1 write-access for MTK platform.
 	 * Bits [12:10]: CLUSTERPMUEN, SMEN, TSIDEN
 	 * -----------------------------------------------------
