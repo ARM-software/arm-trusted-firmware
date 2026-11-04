@@ -104,9 +104,8 @@ static u_register_t sip_emidbg_control(u_register_t op_id,
 		return MTK_SIP_E_SUCCESS;
 #ifdef MTK_EMI_MPU_DEBUG
 	case EMIMPU_READ:
-		ret = emi_mpu_read_by_type((unsigned int)x2, (unsigned int)x3,
-					   (unsigned int)x4, smccc_ret);
-		break;
+		return emi_mpu_read_by_type((unsigned int)x2, (unsigned int)x3,
+					    (unsigned int)x4, smccc_ret);
 #endif
 	case EMIMPU_CLEAR_MD:
 		ret = emi_clear_md_violation();
@@ -157,9 +156,8 @@ static u_register_t sip_emimpu_control(u_register_t op_id,
 		ret = emi_mpu_set_aid((unsigned int)x2, (unsigned int)x3);
 		break;
 	case EMIMPU_READ:
-		ret = emi_mpu_read_by_type((unsigned int)x2, (unsigned int)x3,
-					   (unsigned int)x4, smccc_ret);
-		break;
+		return emi_mpu_read_by_type((unsigned int)x2, (unsigned int)x3,
+					    (unsigned int)x4, smccc_ret);
 	case KP_SET:
 		ret = emi_kp_set_protection((size_t)x2, (size_t)x3, (unsigned int)x4);
 		break;
