@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 ifndef libfdt-mk
         libfdt-mk := $(lastword $(MAKEFILE_LIST))
-        libfdt-root := $(patsubst %/,%,$(dir $(libfdt-mk)))
+        libfdt-root := contrib/dtc/libfdt
 
         include $(libfdt-root)/Makefile.libfdt
 
