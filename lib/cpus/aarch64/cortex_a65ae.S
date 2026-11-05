@@ -47,12 +47,12 @@ cpu_reset_func_start cortex_a65ae
 cpu_reset_func_end cortex_a65ae
 
 func cortex_a65ae_cpu_pwr_dwn
-	sysreg_bit_set CORTEX_A65_AE_CPUPWRCTLR_EL1, CORTEX_A65_AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	sysreg_bit_set CORTEX_A65AE_CPUPWRCTLR_EL1, CORTEX_A65AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_a65ae_cpu_pwr_dwn
 
 
-declare_cpu_ops cortex_a65ae, CORTEX_A65_AE_MIDR, \
+declare_cpu_ops cortex_a65ae, CORTEX_A65AE_MIDR, \
 	cortex_a65ae_reset_func, \
 	cortex_a65ae_cpu_pwr_dwn
