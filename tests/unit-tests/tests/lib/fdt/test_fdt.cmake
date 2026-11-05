@@ -14,21 +14,20 @@ unit_test_add_suite(
 		${PROJECT_SOURCE_DIR}/mocks/common/uuid.c
 		${UNIT_TEST_PROJECT_PATH}/common/fdt_wrappers.c
 		${UNIT_TEST_PROJECT_PATH}/lib/libc/strlcpy.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_addresses.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_empty_tree.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_overlay.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_ro.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_rw.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_strerror.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_sw.c
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/fdt_wip.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_addresses.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_empty_tree.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_overlay.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_ro.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_rw.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_strerror.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_sw.c
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/fdt_wip.c
 	INCLUDE_DIRECTORIES
 		${PROJECT_SOURCE_DIR}/mocks/include/
 		${PROJECT_SOURCE_DIR}/mocks/include/lib/libc/
 		${UNIT_TEST_PROJECT_PATH}/include/
-		${UNIT_TEST_PROJECT_PATH}/include/lib/libfdt/
-		${UNIT_TEST_PROJECT_PATH}/lib/libfdt/
+		${UNIT_TEST_PROJECT_PATH}/contrib/dtc/libfdt/
 	COMPILE_DEFINITIONS
 		# Several additional DTB files from the Linux kernel and the TFA source
 		# are needed to run these tests.  They cannot be included here due to
