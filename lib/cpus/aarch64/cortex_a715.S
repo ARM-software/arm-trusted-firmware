@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101590/latest
- * SDEN: https://developer.arm.com/documentation/SDEN2148827/latest
+ * TRM: https://support.arm.com/documentation/101590/latest
+ * SDEN: https://support.arm.com/documentation/SDEN2148827/latest
  */
 
 #include <arch.h>

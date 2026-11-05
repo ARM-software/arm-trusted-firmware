@@ -4,8 +4,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101433/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-1401782/latest
+ * TRM: https://support.arm.com/documentation/101433/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1401782/latest
  */
 
 #include <asm_macros.S>
