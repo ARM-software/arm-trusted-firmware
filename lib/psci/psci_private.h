@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -348,7 +348,7 @@ int psci_cpu_suspend_start(const entry_point_info_t *ep,
 			   psci_power_state_t *state_info,
 			   unsigned int is_power_down_state);
 
-void psci_cpu_suspend_finish(unsigned int cpu_idx, const psci_power_state_t *state_info);
+void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, const psci_power_state_t *state_info);
 
 /* Private exported functions from psci_helpers.S */
 void psci_do_pwrdown_cache_maintenance(unsigned int pwr_level);
