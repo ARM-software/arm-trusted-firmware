@@ -87,7 +87,6 @@ BL2_SOURCES		+=	\
 		plat/altera/soc/common/drivers/wdt/watchdog.c
 
 include lib/zlib/zlib.mk
-PLAT_INCLUDES	+=	-Ilib/zlib
 
 BL31_SOURCES	+=	\
 		drivers/arm/cci/cci.c					\
