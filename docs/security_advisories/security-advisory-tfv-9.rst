@@ -23,7 +23,7 @@ Advisory TFV-9 (CVE-2022-23960)
 |                | induce misprediction onto that primitive. There are         |
 |                | currently no known exploits.                                |
 +----------------+-------------------------------------------------------------+
-| Fix Version    | `Gerrit topic #spectre_bhb`_                                |
+| Fix Version    | Commit 815abebcc165 (merged on 18 March 2022)               |
 +----------------+-------------------------------------------------------------+
 | Credit         | Systems and Network Security Group at Vrije Universiteit    |
 |                | Amsterdam for CVE-2022-23960, Arm for patches               |
@@ -96,8 +96,8 @@ In case local workaround is not feasible, the Rich OS can invoke the SMC
 (``SMCCC_ARCH_WORKAROUND_3``) to apply the workaround. Refer to `SMCCC Calling
 Convention specification`_ for more details.
 
-`Gerrit topic #spectre_bhb`_ This patchset implements the Spectre-BHB loop
-workaround for CPUs mentioned in the above table. For CPUs supporting
+The patchset implements the Spectre-BHB loop workaround for CPUs mentioned in
+the above table. For CPUs supporting
 speculative barrier instruction, the loop workaround is optimised by using SB
 in place of the common DSB and ISB sequence. It also mitigates against
 this vulnerability for Cortex-A72 CPU versions that support the CSV2 feature
@@ -117,6 +117,5 @@ For more information about non-Arm CPUs, please contact the CPU vendor.
 
 .. _Arm Processor Security Update: http://www.arm.com/security-update
 .. _CVE-2022-23960: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23960
-.. _Gerrit topic #spectre_bhb: https://review.trustedfirmware.org/q/topic:"spectre_bhb"+(status:open%20OR%20status:merged)
 .. _CVE-2022-23960 mitigation specification: https://developer.arm.com/support/arm-security-updates/speculative-processor-vulnerability
 .. _SMCCC Calling Convention specification: https://developer.arm.com/documentation/den0028/latest
