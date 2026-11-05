@@ -7,25 +7,25 @@
  * SDEN: https://support.arm.com/documentation/109704/latest
  */
 
+#include "wa_cve_2022_23960_bhb_vector.S"
+
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <neoverse_v3.h>
-#include "wa_cve_2022_23960_bhb_vector.S"
-
 #include <cpu_macros.S>
+#include <neoverse_v3ae.h>
 #include <wa_cve_2025_0647_cpprctx.h>
 
 #include <plat_macros.S>
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
-#error "Neoverse V3 must be compiled with HW_ASSISTED_COHERENCY enabled"
+#error "Neoverse V3AE must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
 /* 64-bit only core */
 #if CTX_INCLUDE_AARCH32_REGS == 1
-#error "Neoverse V3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
+#error "Neoverse V3AE supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
 cpu_reset_prologue neoverse_v3ae
@@ -54,7 +54,7 @@ workaround_runtime_end neoverse_v3ae, ERRATUM(3312417)
 check_erratum_ls neoverse_v3ae, ERRATUM(3312417), CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v3ae, ERRATUM(3696307), ERRATA_V3_3696307
-	sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
+	sysreg_bit_set NEOVERSE_V3AE_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end neoverse_v3ae, ERRATUM(3696307)
 
 check_erratum_ls neoverse_v3ae, ERRATUM(3696307), CPU_REV(0, 1)
@@ -65,45 +65,45 @@ check_erratum_ls neoverse_v3ae, ERRATUM(3701767), CPU_REV(0, 2)
 
 workaround_reset_start neoverse_v3ae, ERRATUM(3734562), ERRATA_V3_3734562
 	mov	x0, #2
-	msr	NEOVERSE_V3_CPUPSELR_EL3, x0
+	msr	NEOVERSE_V3AE_CPUPSELR_EL3, x0
 	ldr	x0, =0xD503225F
-	msr	NEOVERSE_V3_CPUPOR_EL3, x0
+	msr	NEOVERSE_V3AE_CPUPOR_EL3, x0
 	mov	x0, 0xFFFFFFFF
-	msr	NEOVERSE_V3_CPUPMR_EL3, x0
+	msr	NEOVERSE_V3AE_CPUPMR_EL3, x0
 	ldr	x0, =0x404003FD
-	msr	NEOVERSE_V3_CPUPCR_EL3, x0
+	msr	NEOVERSE_V3AE_CPUPCR_EL3, x0
 workaround_reset_end neoverse_v3ae, ERRATUM(3734562)
 
 check_erratum_ls neoverse_v3ae, ERRATUM(3734562), CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v3ae, ERRATUM(3782181), ERRATA_V3_3782181
         /* Disable retention control for WFI and WFE. */
-        mrs     x0, NEOVERSE_V3_CPUPWRCTLR_EL1
-        bfi     x0, xzr, #NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
-		#NEOVERSE_V3_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
-        bfi     x0, xzr, #NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
-		#NEOVERSE_V3_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
-        msr     NEOVERSE_V3_CPUPWRCTLR_EL1, x0
+        mrs     x0, NEOVERSE_V3AE_CPUPWRCTLR_EL1
+        bfi     x0, xzr, #NEOVERSE_V3AE_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
+		#NEOVERSE_V3AE_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
+        bfi     x0, xzr, #NEOVERSE_V3AE_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
+		#NEOVERSE_V3AE_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
+        msr     NEOVERSE_V3AE_CPUPWRCTLR_EL1, x0
 workaround_reset_end neoverse_v3ae, ERRATUM(3782181)
 
 check_erratum_range neoverse_v3ae, ERRATUM(3782181), CPU_REV(0, 1), \
 	CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v3ae, ERRATUM(3864536), ERRATA_V3_3864536
-	sysreg_bit_set NEOVERSE_V3_CPUACTLR2_EL1, BIT(22)
+	sysreg_bit_set NEOVERSE_V3AE_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end neoverse_v3ae, ERRATUM(3864536)
 
 check_erratum_ls neoverse_v3ae, ERRATUM(3864536), CPU_REV(0, 2)
 
 workaround_reset_start neoverse_v3ae, ERRATUM(3878291), ERRATA_V3_3878291
-	sysreg_bit_set NEOVERSE_V3_CPUACTLR4_EL1, BIT(57)
+	sysreg_bit_set NEOVERSE_V3AE_CPUACTLR4_EL1, BIT(57)
 workaround_reset_end neoverse_v3ae, ERRATUM(3878291)
 
 check_erratum_ls neoverse_v3ae, ERRATUM(3878291), CPU_REV(0, 2)
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3ae, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
+	sysreg_bit_set NEOVERSE_V3AE_CPUECTLR_EL1, BIT(46)
 workaround_reset_end neoverse_v3ae, CVE(2024, 5660)
 
 check_erratum_ls neoverse_v3ae, CVE(2024, 5660), CPU_REV(0, 1)
@@ -115,7 +115,7 @@ check_erratum_ls neoverse_v3ae, CVE(2024, 5660), CPU_REV(0, 1)
 	 * ----------------------------------------------------------------
 	 */
 workaround_reset_start neoverse_v3ae, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-       sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
+       sysreg_bit_set NEOVERSE_V3AE_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end neoverse_v3ae, CVE(2024, 7881)
 
 check_erratum_ls neoverse_v3ae, CVE(2024, 7881), CPU_REV(0, 1)
@@ -157,8 +157,8 @@ func neoverse_v3ae_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
 	 */
-	sysreg_bit_set NEOVERSE_V3_CPUPWRCTLR_EL1, \
-		NEOVERSE_V3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	sysreg_bit_set NEOVERSE_V3AE_CPUPWRCTLR_EL1, \
+		NEOVERSE_V3AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 
 	isb
 	ret
@@ -170,6 +170,24 @@ cpu_reset_func_start neoverse_v3ae
 	apply_erratum neoverse_v3ae, ERRATUM(3312417), ERRATA_V3_3312417
 cpu_reset_func_end neoverse_v3ae
 
+	/* ---------------------------------------------
+	 * This function provides Neoverse V3AE specific
+	 * register information for crash reporting.
+	 * It needs to return with x6 pointing to
+	 * a list of register names in ascii and
+	 * x8 - x15 having values of registers to be
+	 * reported.
+	 * ---------------------------------------------
+	 */
+.section .rodata.neoverse_v3ae_regs, "aS"
+neoverse_v3ae_regs:  /* The ascii list of register names to be reported */
+	.asciz	"cpuectlr_el1", ""
+
+func neoverse_v3ae_cpu_reg_dump
+	adr	x6, neoverse_v3ae_regs
+	mrs	x8, NEOVERSE_V3AE_CPUECTLR_EL1
+	ret
+endfunc neoverse_v3ae_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_v3ae, NEOVERSE_V3_VNAE_MIDR, \
