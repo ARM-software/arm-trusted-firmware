@@ -219,7 +219,8 @@ endif
 #Include all CPUs to build to support all-errata build.
 ifeq (${ENABLE_ERRATA_ALL},1)
 	BUILD_CPUS_WITH_NO_FVP_MODEL = 1
-	FVP_CPU_LIBS    +=	lib/cpus/aarch64/cortex_a510.S		\
+	FVP_CPU_LIBS    +=    	lib/cpus/aarch64/cortex_a320.S          \
+				lib/cpus/aarch64/cortex_a510.S		\
 				lib/cpus/aarch64/cortex_a520.S		\
 				lib/cpus/aarch64/cortex_a725.S          \
 				lib/cpus/aarch64/cortex_x1.S            \
@@ -233,11 +234,9 @@ endif
 
 #Build AArch64-only CPUs with no FVP model yet.
 ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
-	FVP_CPU_LIBS    +=	lib/cpus/aarch64/neoverse_n3.S		\
-				lib/cpus/aarch64/c1_pro.S		\
+	FVP_CPU_LIBS    +=	lib/cpus/aarch64/c1_pro.S		\
 				lib/cpus/aarch64/c1_nano.S		\
-				lib/cpus/aarch64/c1_ultra.S		\
-				lib/cpus/aarch64/cortex_arcadia.S
+				lib/cpus/aarch64/c1_ultra.S
 endif
 
 else
