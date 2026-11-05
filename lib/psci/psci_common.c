@@ -260,13 +260,9 @@ static unsigned int get_power_on_target_pwrlvl(void)
 
 	/*
 	 * Assume that this cpu was suspended and retrieve its target power
-	 * level. If it is invalid then it could only have been turned off
-	 * earlier. PLAT_MAX_PWR_LVL will be the highest power level a
-	 * cpu can be turned off to.
+	 * level. If it wasn't, the cpu is off so this will be PLAT_MAX_PWR_LVL.
 	 */
 	pwrlvl = psci_get_suspend_pwrlvl();
-	if (pwrlvl == PSCI_INVALID_PWR_LVL)
-		pwrlvl = PLAT_MAX_PWR_LVL;
 	assert(pwrlvl < PSCI_INVALID_PWR_LVL);
 	return pwrlvl;
 }

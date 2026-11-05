@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,6 +53,9 @@ static void psci_suspend_to_standby_finisher(unsigned int cpu_idx,
 	 * on waking up from retention.
 	 */
 	psci_plat_pm_ops->pwr_domain_suspend_finish(&state_info);
+
+	/* This loses its meaning when not suspending, reset so it's correct for OFF */
+	psci_set_suspend_pwrlvl(PLAT_MAX_PWR_LVL);
 
 	/*
 	 * Set the requested and target state of this CPU and all the higher
@@ -363,8 +366,8 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx, const psci_power_state_t *sta
 		psci_spd_pm->svc_suspend_finish(max_off_lvl);
 	}
 
-	/* Invalidate the suspend level for the cpu */
-	psci_set_suspend_pwrlvl(PSCI_INVALID_PWR_LVL);
+	/* This loses its meaning when not suspending, reset so it's correct for OFF */
+	psci_set_suspend_pwrlvl(PLAT_MAX_PWR_LVL);
 
 	PUBLISH_EVENT(psci_suspend_pwrdown_finish);
 }
