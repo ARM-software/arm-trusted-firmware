@@ -144,6 +144,10 @@ class CPU:
                 continue
 
             erratum_id: str = match.group("id")
+
+            if erratum_id.startswith("ARCH_WORKAROUND_"):
+                continue
+
             workaround_class: str = match.group("workaround_class")
             requires_review = match.group("review_marker") is not None
 
