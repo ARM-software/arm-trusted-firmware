@@ -63,6 +63,10 @@ workaround_reset_end c1_ultra, ERRATUM(3705939)
 
 check_erratum_ls c1_ultra, ERRATUM(3705939), CPU_REV(1, 0)
 
+/* It depends on non-default settings CORE<n>_ASYNC_BRIDGE = FALSE */
+add_erratum_entry c1_ultra, ERRATUM(3806278), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_ultra, ERRATUM(3806278), CPU_REV(1, 0)
+
 workaround_reset_start c1_ultra, ERRATUM(3815514), ERRATA_C1ULTRA_3815514
 	sysreg_bit_set C1_ULTRA_CPUACTLR5_EL1, BIT(13)
 workaround_reset_end c1_ultra, ERRATUM(3815514)
@@ -108,6 +112,18 @@ workaround_reset_start c1_ultra, ERRATUM(4102704), ERRATA_C1ULTRA_4102704
 workaround_reset_end c1_ultra, ERRATUM(4102704)
 
 check_erratum_ls c1_ultra, ERRATUM(4102704), CPU_REV(1, 0)
+
+workaround_reset_start c1_ultra, ERRATUM(4302962), ERRATA_C1ULTRA_4302962
+	sysreg_bit_set C1_ULTRA_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end c1_ultra, ERRATUM(4302962)
+
+check_erratum_ls c1_ultra, ERRATUM(4302962), CPU_REV(1, 0)
+
+workaround_reset_start c1_ultra, ERRATUM(4623386), ERRATA_C1ULTRA_4623386
+	sysreg_bit_set C1_ULTRA_CPUACTLR4_EL1, BIT(36)
+workaround_reset_end c1_ultra, ERRATUM(4623386)
+
+check_erratum_chosen c1_ultra, ERRATUM(4623386), ERRATA_C1ULTRA_4623386
 
 	/* -------------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for C1-Ultra using erratum 3651221
