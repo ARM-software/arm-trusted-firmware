@@ -6,6 +6,7 @@
  *
  * TRM: https://support.arm.com/documentation/101433/latest
  * SDEN: https://support.arm.com/documentation/SDEN-1401782/latest
+ * MinRevision: r1p1
  */
 
 #include <asm_macros.S>
