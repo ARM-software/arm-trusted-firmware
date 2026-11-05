@@ -27,19 +27,19 @@
 cpu_reset_prologue c1_nano
 
 workaround_reset_start c1_nano, ERRATUM(3392149), ERRATA_C1NANO_3392149
-	sysreg_bit_set C1_NANO_IMP_CPUACTLR3_EL1, BIT(39)
+	sysreg_bit_set C1_NANO_CPUACTLR3_EL1, BIT(39)
 workaround_reset_end c1_nano, ERRATUM(3392149)
 
 check_erratum_ls c1_nano, ERRATUM(3392149), CPU_REV(0, 0)
 
 workaround_reset_start c1_nano, ERRATUM(3419531), ERRATA_C1NANO_3419531
-	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(27)
+	sysreg_bit_set C1_NANO_CPUACTLR_EL1, BIT(27)
 workaround_reset_end c1_nano, ERRATUM(3419531)
 
 check_erratum_ls c1_nano, ERRATUM(3419531), CPU_REV(0, 0)
 
 workaround_reset_start c1_nano, ERRATUM(3437202), ERRATA_C1NANO_3437202
-	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(26)
+	sysreg_bit_set C1_NANO_CPUACTLR_EL1, BIT(26)
 workaround_reset_end c1_nano, ERRATUM(3437202)
 
 check_erratum_ls c1_nano, ERRATUM(3437202), CPU_REV(0, 0)
@@ -52,26 +52,26 @@ workaround_reset_start c1_nano, ERRATUM(3516455), ERRATA_C1NANO_3516455
 #endif
 
 	mov x0, #0
-	msr C1_NANO_IMP_CPUPSELR_EL3, x0
+	msr C1_NANO_CPUPSELR_EL3, x0
 	isb
 	ldr x0, =0xA0008000
-	msr C1_NANO_IMP_CPUPOR_EL3, x0
+	msr C1_NANO_CPUPOR_EL3, x0
 	ldr x0, =0xFE808000
-	msr C1_NANO_IMP_CPUPMR_EL3, x0
+	msr C1_NANO_CPUPMR_EL3, x0
 	ldr x0, =0x7F9
 	movk x0, #0x20, LSL #32
-	msr C1_NANO_IMP_CPUPCR_EL3, x0
+	msr C1_NANO_CPUPCR_EL3, x0
 	isb
 	mov x0, #1
-	msr C1_NANO_IMP_CPUPSELR_EL3, x0
+	msr C1_NANO_CPUPSELR_EL3, x0
 	isb
 	ldr x0, =0xA4604000
-	msr C1_NANO_IMP_CPUPOR_EL3, x0
+	msr C1_NANO_CPUPOR_EL3, x0
 	ldr x0, =0xBE604000
-	msr C1_NANO_IMP_CPUPMR_EL3, x0
+	msr C1_NANO_CPUPMR_EL3, x0
 	ldr x0, =0x7F9
 	movk x0, #0x20, LSL #32
-	msr C1_NANO_IMP_CPUPCR_EL3, x0
+	msr C1_NANO_CPUPCR_EL3, x0
 
 	1:
 #endif
@@ -86,7 +86,7 @@ workaround_reset_start c1_nano, ERRATUM(3616450), ERRATA_C1NANO_3616450
 	beq 1f
 #endif
 
-	sysreg_bit_set C1_NANO_IMP_CPUACTLR_EL1, BIT(29)
+	sysreg_bit_set C1_NANO_CPUACTLR_EL1, BIT(29)
 
 	1:
 #endif
@@ -95,15 +95,15 @@ workaround_reset_end c1_nano, ERRATUM(3616450)
 check_erratum_ls c1_nano, ERRATUM(3616450), CPU_REV(0, 0)
 
 workaround_reset_start c1_nano, ERRATUM(3630925), ERRATA_C1NANO_3630925
-	sysreg_bitfield_insert C1_NANO_IMP_CPUPWRCTLR_EL1, \
-	C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_BIT, \
-	C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
-	C1_NANO_IMP_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
+	sysreg_bitfield_insert C1_NANO_CPUPWRCTLR_EL1, \
+	C1_NANO_CPUPWRCTLR_EL1_WFE_RET_CTRL_BIT, \
+	C1_NANO_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
+	C1_NANO_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
 
-	sysreg_bitfield_insert C1_NANO_IMP_CPUPWRCTLR_EL1, \
-	C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_BIT, \
-	C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
-	C1_NANO_IMP_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
+	sysreg_bitfield_insert C1_NANO_CPUPWRCTLR_EL1, \
+	C1_NANO_CPUPWRCTLR_EL1_WFI_RET_CTRL_BIT, \
+	C1_NANO_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
+	C1_NANO_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
 workaround_reset_end c1_nano, ERRATUM(3630925)
 
 check_erratum_ls c1_nano, ERRATUM(3630925), CPU_REV(0, 0)
@@ -157,8 +157,8 @@ func c1_nano_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set C1_NANO_IMP_CPUPWRCTLR_EL1, \
-		C1_NANO_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	sysreg_bit_set C1_NANO_CPUPWRCTLR_EL1, \
+		C1_NANO_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	apply_erratum c1_nano, ERRATUM(3754876), ERRATA_C1NANO_3754876
 	ret
