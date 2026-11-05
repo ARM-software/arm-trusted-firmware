@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -223,13 +223,6 @@
 	.align	SPINLOCK_ASM_ALIGN
 	\_name:
 	.space	SPINLOCK_ASM_SIZE
-	.endm
-
-	/*
-	 * With RAS extension executes esb instruction, else NOP
-	 */
-	.macro esb
-	.inst	0xd503221f
 	.endm
 
 	/*
