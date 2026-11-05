@@ -75,7 +75,7 @@ feat_sctlr2_not_supported\@:
 	 * SCR_EL3.EEL2: Set to one if S-EL2 is present and enabled.
 	 *
 	 * NOTE:
-	 *  To avoid errata Neoverse V2 3099206:
+	 *  To avoid errata Neoverse V2 3099206 and Neoverse N2 3099213:
 	 *  - SCR_EL3.EEL2 must remain unchanged throughout the core's lifetime.
 	 *  - SCR_EL3.EA must be toggled before returning to a lower EL.
 	 *    Since SCR_EL3.EA is already set to 1, it must be set to 0
@@ -201,12 +201,15 @@ feat_sctlr2_not_supported\@:
 		 *
 		 * SCTLR_EL3.NMI: Set/left to zero as required by the workaround
 		 * for Arm C1-Pro erratum 3679375
+		 *
+		 * SCTLR_EL3.IESB: It has to be set to 1 to mitigate Neoverse N2
+		 * erratum 3003140. If FEAT_RAS is present then assume
+		 * FEAT_IESB is also present.
 		 * -------------------------------------------------------------
 		 */
 		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \
 				| SCTLR_SA_BIT | SCTLR_A_BIT | SCTLR_DSSBS_BIT))
 #if ENABLE_FEAT_RAS
-		/* If FEAT_RAS is present assume FEAT_IESB is also present */
 		orr	x0, x0, #SCTLR_IESB_BIT
 #endif
 		msr	sctlr_el3, x0
