@@ -118,14 +118,14 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
  * the state transition has been done, no further error is expected and it is
  * not possible to undo any of the actions taken beyond that point.
  ******************************************************************************/
-int psci_cpu_suspend_start(const entry_point_info_t *ep,
+int psci_cpu_suspend_start(unsigned int idx,
+			   const entry_point_info_t *ep,
 			   unsigned int end_pwrlvl,
 			   psci_power_state_t *state_info,
 			   unsigned int is_power_down_state)
 {
 	int rc = PSCI_E_SUCCESS;
 	bool skip_wfi = false;
-	unsigned int idx = plat_my_core_pos();
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 
 	/*
@@ -161,7 +161,7 @@ int psci_cpu_suspend_start(const entry_point_info_t *ep,
 		 * This function validates the requested state info for
 		 * OS-initiated mode.
 		 */
-		rc = psci_validate_state_coordination(end_pwrlvl, state_info);
+		rc = psci_validate_state_coordination(idx, end_pwrlvl, state_info);
 		if (rc != PSCI_E_SUCCESS) {
 			skip_wfi = true;
 			goto exit;
@@ -173,7 +173,7 @@ int psci_cpu_suspend_start(const entry_point_info_t *ep,
 		 * it returns the negotiated state info for each power level upto
 		 * the end level specified.
 		 */
-		psci_do_state_coordination(end_pwrlvl, state_info);
+		psci_do_state_coordination(idx, end_pwrlvl, state_info);
 #if PSCI_OS_INIT_MODE
 	}
 #endif
@@ -189,11 +189,11 @@ int psci_cpu_suspend_start(const entry_point_info_t *ep,
 #endif
 
 	/* Update the target state in the power domain nodes */
-	psci_set_target_local_pwr_states(end_pwrlvl, state_info);
+	psci_set_target_local_pwr_states(idx, end_pwrlvl, state_info);
 
 #if ENABLE_PSCI_STAT
 	/* Update the last cpu for each level till end_pwrlvl */
-	psci_stats_update_pwr_down(end_pwrlvl, state_info);
+	psci_stats_update_pwr_down(idx, end_pwrlvl, state_info);
 #endif
 
 	if (is_power_down_state != 0U)
@@ -269,11 +269,11 @@ exit:
 	 * 'end_pwrlvl'. The exit retention state could be deeper than the entry
 	 * state as a result of state coordination amongst other CPUs post wfi.
 	 */
-	psci_get_target_local_pwr_states(end_pwrlvl, state_info);
+	psci_get_target_local_pwr_states(idx, end_pwrlvl, state_info);
 
 #if ENABLE_PSCI_STAT
 	plat_psci_stat_accounting_stop(state_info);
-	psci_stats_update_pwr_up(end_pwrlvl, state_info);
+	psci_stats_update_pwr_up(idx, end_pwrlvl, state_info);
 #endif
 
 	/*
@@ -286,7 +286,7 @@ exit:
 	 * Set the requested and target state of this CPU and all the higher
 	 * power domain levels for this CPU to run.
 	 */
-	psci_set_pwr_domains_to_run(end_pwrlvl);
+	psci_set_pwr_domains_to_run(idx, end_pwrlvl);
 
 	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
