@@ -23,25 +23,25 @@
 #endif
 
 #if WORKAROUND_CVE_2022_23960
-	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_AE_BHB_LOOP_COUNT, cortex_a78ae
+	wa_cve_2022_23960_bhb_vector_table CORTEX_A78AE_BHB_LOOP_COUNT, cortex_a78ae
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue cortex_a78ae
 
 workaround_reset_start cortex_a78ae, ERRATUM(1827431), ERRATA_A78_AE_1827431
-	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, BIT(53)
+	sysreg_bit_set CORTEX_A78AE_CPUECTLR_EL1, BIT(53)
 workaround_reset_end cortex_a78ae, ERRATUM(1827431)
 
 check_erratum_ls cortex_a78ae, ERRATUM(1827431), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a78ae, ERRATUM(1827433), ERRATA_A78_AE_1827433
-	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, BIT(2)
+	sysreg_bit_set CORTEX_A78AE_CPUACTLR2_EL1, BIT(2)
 workaround_reset_end cortex_a78ae, ERRATUM(1827433)
 
 check_erratum_ls cortex_a78ae, ERRATUM(1827433), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a78ae, ERRATUM(1941500), ERRATA_A78_AE_1941500
-	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
+	sysreg_bit_set CORTEX_A78AE_CPUECTLR_EL1, CORTEX_A78AE_CPUECTLR_EL1_BIT_8
 workaround_reset_end cortex_a78ae, ERRATUM(1941500)
 
 check_erratum_ls cortex_a78ae, ERRATUM(1941500), CPU_REV(0, 1)
@@ -99,7 +99,7 @@ workaround_reset_start cortex_a78ae, ERRATUM(2376748), ERRATA_A78_AE_2376748
 	 * that share data.
 	 * -------------------------------------------------------
 	 */
-	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, CORTEX_A78_AE_ACTLR2_EL1_BIT_0
+	sysreg_bit_set CORTEX_A78AE_CPUACTLR2_EL1, CORTEX_A78AE_CPUACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a78ae, ERRATUM(2376748)
 
 check_erratum_ls cortex_a78ae, ERRATUM(2376748), CPU_REV(0, 2)
@@ -111,7 +111,7 @@ workaround_reset_start cortex_a78ae, ERRATUM(2395408), ERRATA_A78_AE_2395408
 	 * CPUACTLR2_EL1[40] to 1.
 	 * --------------------------------------------------------
 	 */
-	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, CORTEX_A78_AE_ACTLR2_EL1_BIT_40
+	sysreg_bit_set CORTEX_A78AE_CPUACTLR2_EL1, CORTEX_A78AE_CPUACTLR2_EL1_BIT_40
 workaround_reset_end cortex_a78ae, ERRATUM(2395408)
 
 check_erratum_ls cortex_a78ae, ERRATUM(2395408), CPU_REV(0, 1)
@@ -142,25 +142,25 @@ check_erratum_custom_start cortex_a78ae, ERRATUM(2712574)
 check_erratum_custom_end cortex_a78ae, ERRATUM(2712574)
 
 workaround_reset_start cortex_a78ae, ERRATUM(2743229), ERRATA_A78_AE_2743229
-	sysreg_bitfield_insert CORTEX_A78_AE_CPUACTLR5_EL1, 1, 55, 2
+	sysreg_bitfield_insert CORTEX_A78AE_CPUACTLR5_EL1, 1, 55, 2
 workaround_reset_end cortex_a78ae, ERRATUM(2743229)
 
 check_erratum_ls cortex_a78ae, ERRATUM(2743229), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78ae, ERRATUM(2779481), ERRATA_A78_AE_2779481
-	sysreg_bit_set CORTEX_A78_AE_CPUACTLR3_EL1, BIT(47)
+	sysreg_bit_set CORTEX_A78AE_CPUACTLR3_EL1, BIT(47)
 workaround_reset_end cortex_a78ae, ERRATUM(2779481)
 
 check_erratum_ls cortex_a78ae, ERRATUM(2779481), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78ae, ERRATUM(3888018), ERRATA_A78_AE_3888018
-	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, BIT(22)
+	sysreg_bit_set CORTEX_A78AE_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end cortex_a78ae, ERRATUM(3888018)
 
 check_erratum_chosen cortex_a78ae, ERRATUM(3888018), ERRATA_A78_AE_3888018
 
 workaround_reset_start cortex_a78ae, ERRATUM(4302973), ERRATA_A78_AE_4302973
-	sysreg_bit_set CORTEX_A78_AE_CPUACTLR5_EL1, BIT(50)
+	sysreg_bit_set CORTEX_A78AE_CPUACTLR5_EL1, BIT(50)
 workaround_reset_end cortex_a78ae, ERRATUM(4302973)
 
 check_erratum_chosen cortex_a78ae, ERRATUM(4302973), ERRATA_A78_AE_4302973
@@ -179,7 +179,7 @@ check_erratum_chosen cortex_a78ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_a78ae, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, BIT(46)
+	sysreg_bit_set CORTEX_A78AE_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_a78ae, CVE(2024, 5660)
 
 check_erratum_ls cortex_a78ae, CVE(2024, 5660), CPU_REV(0, 3)
@@ -190,17 +190,17 @@ check_erratum_chosen cortex_a78ae, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 cpu_reset_func_start cortex_a78ae
 #if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	sysreg_bit_clear actlr_el3, CORTEX_A78_ACTLR_TAM_BIT
+	sysreg_bit_clear actlr_el3, CORTEX_A78AE_ACTLR_TAM_BIT
 
 	/* Make sure accesses from non-secure EL0/EL1 are not trapped to EL2 */
-	sysreg_bit_clear actlr_el2, CORTEX_A78_ACTLR_TAM_BIT
+	sysreg_bit_clear actlr_el2, CORTEX_A78AE_ACTLR_TAM_BIT
 
 	/* Enable group0 counters */
-	mov	x0, #CORTEX_A78_AMU_GROUP0_MASK
+	mov	x0, #CORTEX_A78AE_AMU_GROUP0_MASK
 	msr	CPUAMCNTENSET0_EL0, x0
 
 	/* Enable group1 counters */
-	mov	x0, #CORTEX_A78_AMU_GROUP1_MASK
+	mov	x0, #CORTEX_A78AE_AMU_GROUP1_MASK
 	msr	CPUAMCNTENSET1_EL0, x0
 #endif
 cpu_reset_func_end cortex_a78ae
@@ -214,12 +214,12 @@ func cortex_a78ae_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * -------------------------------------------------------
 	 */
-	sysreg_bit_set CORTEX_A78_CPUPWRCTLR_EL1, CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	sysreg_bit_set CORTEX_A78AE_CPUPWRCTLR_EL1, CORTEX_A78AE_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	ret
 endfunc cortex_a78ae_core_pwr_dwn
 
 
-declare_cpu_ops cortex_a78ae, CORTEX_A78_AE_MIDR, \
+declare_cpu_ops cortex_a78ae, CORTEX_A78AE_MIDR, \
 	cortex_a78ae_reset_func, \
 	cortex_a78ae_core_pwr_dwn
