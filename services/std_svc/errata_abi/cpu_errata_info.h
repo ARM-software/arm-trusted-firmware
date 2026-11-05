@@ -14,7 +14,7 @@
 #if __aarch64__
 #include <cortex_a710.h>
 #include <cortex_a78.h>
-#include <cortex_a78_ae.h>
+#include <cortex_a78ae.h>
 #include <cortex_a78c.h>
 #include <cortex_x2.h>
 #include <cortex_x3.h>

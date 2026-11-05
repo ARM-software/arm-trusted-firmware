@@ -16,7 +16,7 @@
 #include <cortex_a710.h>
 #include <cortex_a715.h>
 #include <cortex_a720.h>
-#include <cortex_a720_ae.h>
+#include <cortex_a720ae.h>
 #include <cortex_a725.h>
 #include <cortex_x2.h>
 #include <cortex_x3.h>
@@ -114,7 +114,7 @@ bool errata_ich_vmcr_el2_applies(void)
 
 #if ERRATA_A720_AE_3699562
 	case EXTRACT_PARTNUM(CORTEX_A720_AE_MIDR):
-		if (check_erratum_cortex_a720_ae_3699562(cpu_get_rev_var()) == ERRATA_APPLIES)
+		if (check_erratum_cortex_a720ae_3699562(cpu_get_rev_var()) == ERRATA_APPLIES)
 			return true;
 		break;
 #endif /* ERRATA_A720_AE_3699562 */

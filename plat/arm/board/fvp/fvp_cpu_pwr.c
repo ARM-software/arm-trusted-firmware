@@ -13,7 +13,7 @@
 #include <cortex_a57.h>
 #include <cortex_a72.h>
 #include <cortex_a73.h>
-#include <cortex_a78_ae.h>
+#include <cortex_a78ae.h>
 #include <drivers/arm/fvp/fvp_cpu_pwr.h>
 #include <lib/utils_def.h>
 #include <neoverse_e1.h>
