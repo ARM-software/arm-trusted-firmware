@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2015-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -236,6 +236,6 @@ typedef struct {
 
 void usb_dwc3_init_driver(struct usb_handle *usb_core_handle,
 			  struct pcd_handle *pcd_handle, dwc3_handle_t *dwc3_handle,
-			  void *base_addr);
+			  uintptr_t base);
 
 #endif /* __USB_DWC3_H */

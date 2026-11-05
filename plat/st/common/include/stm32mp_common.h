@@ -37,6 +37,12 @@ bool stm32mp_is_single_core(void);
 bool stm32mp_is_auth_supported(void);
 uint32_t stm32mp_check_closed_device(void);
 
+#if TRUSTED_BOARD_BOOT
+void stm32mp_erase_mbedtls_heap(void);
+#else
+static inline void stm32mp_erase_mbedtls_heap(void) {}
+#endif
+
 /* Return the base address of the DDR controller */
 uintptr_t stm32mp_ddrctrl_base(void);
 

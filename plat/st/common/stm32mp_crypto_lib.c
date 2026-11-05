@@ -661,7 +661,7 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    NULL,
 		    crypto_auth_decrypt,
 		    crypto_convert_pk,
-		    NULL);
+		    stm32mp_erase_mbedtls_heap);
 
 #else /* No decryption support */
 REGISTER_CRYPTO_LIB("stm32_crypto_lib",
@@ -671,5 +671,5 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    NULL,
 		    NULL,
 		    crypto_convert_pk,
-		    NULL);
+		    stm32mp_erase_mbedtls_heap);
 #endif

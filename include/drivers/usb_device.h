@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 
 /* Define for EP address */
 #define EP_DIR_MASK	BIT(7)
+#define EP_DIR_SHIFT	U(7)
 #define EP_DIR_IN	BIT(7)
 #define EP_NUM_MASK	GENMASK(3, 0)
 
@@ -222,18 +223,19 @@ struct usb_driver {
 	enum usb_status (*ep0_out_start)(void *handle);
 	enum usb_status (*ep_start_xfer)(void *handle, struct usbd_ep *ep);
 	enum usb_status (*ep0_start_xfer)(void *handle, struct usbd_ep *ep);
-	enum usb_status (*write_packet)(void *handle, uint8_t *src,
-				     uint8_t ch_ep_num, uint16_t len);
-	void *(*read_packet)(void *handle, uint8_t *dest, uint16_t len);
+	enum usb_status (*write_packet)(const void *handle, uint8_t *src,
+					uint8_t ch_ep_num, uint16_t len);
+	void *(*read_packet)(const void *handle, uint8_t *dest, uint16_t len);
 	enum usb_status (*ep_set_stall)(void *handle, struct usbd_ep *ep);
 	enum usb_status (*start_device)(void *handle);
 	enum usb_status (*stop_device)(void *handle);
-	enum usb_status (*set_address)(void *handle, uint8_t address);
-	enum usb_status (*write_empty_tx_fifo)(void *handle,
-					    uint32_t epnum, uint32_t xfer_len,
-					    uint32_t *xfer_count,
-					    uint32_t maxpacket,
-					    uint8_t **xfer_buff);
+	enum usb_status (*set_address)(const void *handle, uint8_t address);
+	enum usb_status (*write_empty_tx_fifo)(const void *handle,
+					       uint32_t epnum,
+					       uint32_t xfer_len,
+					       uint32_t *xfer_count,
+					       uint32_t maxpacket,
+					       uint8_t **xfer_buff);
 	enum usb_action (*it_handler)(void *handle, uint32_t *param);
 };
 
@@ -280,11 +282,11 @@ enum usb_status usb_core_transmit_ep0(struct usb_handle *pdev, uint8_t *p_buf,
 void usb_core_ctl_error(struct usb_handle *pdev);
 enum usb_status usb_core_start(struct usb_handle *pdev);
 enum usb_status usb_core_stop(struct usb_handle *pdev);
-enum usb_status register_usb_driver(struct usb_handle *pdev,
-				    struct pcd_handle *pcd_handle,
-				    const struct usb_driver *driver,
-				    void *driver_handle);
-enum usb_status register_platform(struct usb_handle *pdev,
-				  const struct usb_desc *plat_call_back);
+void register_usb_driver(struct usb_handle *pdev,
+			 struct pcd_handle *pcd_handle,
+			 const struct usb_driver *driver,
+			 void *driver_handle);
+void register_platform(struct usb_handle *pdev,
+		       const struct usb_desc *plat_call_back);
 
 #endif /* USB_DEVICE_H */
