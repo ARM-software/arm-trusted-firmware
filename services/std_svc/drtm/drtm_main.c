@@ -23,6 +23,7 @@
 #include "drtm_remediation.h"
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci_lib.h>
+#include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <services/drtm_svc.h>
@@ -444,8 +445,16 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 
 	/* Check the Normal World DCE region arguments. */
 	if (a->dce_nwd_paddr != 0) {
-		uint32_t dce_nwd_start = a->dce_nwd_paddr;
-		uint32_t dce_nwd_end = dce_nwd_start + a->dce_nwd_size;
+		uint64_t dce_nwd_start = a->dce_nwd_paddr;
+		uint64_t dce_nwd_size = a->dce_nwd_size;
+		uint64_t dce_nwd_end;
+
+		if (check_u64_overflow(dce_nwd_start, dce_nwd_size)) {
+			ERROR("DRTM: argument Normal World DCE region overflows\n");
+			return INVALID_PARAMETERS;
+		}
+
+		dce_nwd_end = dce_nwd_start + dce_nwd_size;
 
 		if (!(dce_nwd_start < dce_nwd_end)) {
 			ERROR("DRTM: argument Normal World DCE region is dicontiguous\n");
