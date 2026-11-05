@@ -61,7 +61,8 @@ void pmuv3_init_el3(void)
 	 *
 	 * MDCR_EL3.MCCD: Set to one so that cycle counting by PMCCNTR_EL0 is
 	 *  prohibited in EL3. This bit is RES0 in versions of the
-	 *  architecture with FEAT_PMUv3p7 not implemented.
+	 *  architecture with FEAT_PMUv3p7 not implemented. This is a workaround
+	 *  for erratum 3128947.
 	 *
 	 * MDCR_EL3.SCCD: Set to one so that cycle counting by PMCCNTR_EL0 is
 	 *  prohibited in Secure state. This bit is RES0 in versions of the

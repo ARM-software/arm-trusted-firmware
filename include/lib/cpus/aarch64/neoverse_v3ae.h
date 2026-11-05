@@ -39,6 +39,7 @@
 #define NEOVERSE_V3AE_CPUPCR_EL3				                S3_6_C15_C8_1
 #define NEOVERSE_V3AE_CPUPOR_EL3				                S3_6_C15_C8_2
 #define NEOVERSE_V3AE_CPUPMR_EL3				                S3_6_C15_C8_3
+#define NEOVERSE_V3AE_CPUACTLR5_EL1				                S3_0_C15_C8_0
 
 #ifndef __ASSEMBLER__
 long check_erratum_neoverse_v3ae_3701767(long cpu_rev);

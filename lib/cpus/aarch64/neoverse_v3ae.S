@@ -47,6 +47,14 @@ workaround_reset_end neoverse_v3ae, ERRATUM(2970647)
 
 check_erratum_ls neoverse_v3ae, ERRATUM(2970647), CPU_REV(0, 0)
 
+/*
+ *The workaround for this erratum is setting the MCCD bit in MDCR_EL3.
+ * This is done in the PMUv3 library (pmuv3_enable), and is called from
+ * the context management library each time a context is set up.
+ */
+check_erratum_ls neoverse_v3ae, ERRATUM(3128947), CPU_REV(0, 1)
+add_erratum_entry neoverse_v3ae, ERRATUM(3128947), ERRATUM_ALWAYS_CHOSEN
+
 workaround_runtime_start neoverse_v3ae, ERRATUM(3312417), ERRATA_V3_3312417
 	speculation_barrier
 workaround_runtime_end neoverse_v3ae, ERRATUM(3312417)
@@ -100,6 +108,18 @@ workaround_reset_start neoverse_v3ae, ERRATUM(3878291), ERRATA_V3_3878291
 workaround_reset_end neoverse_v3ae, ERRATUM(3878291)
 
 check_erratum_ls neoverse_v3ae, ERRATUM(3878291), CPU_REV(0, 2)
+
+workaround_reset_start neoverse_v3ae, ERRATUM(3984852), ERRATA_V3AE_3984852
+	sysreg_bit_set NEOVERSE_V3AE_CPUACTLR4_EL1, BIT(56)
+workaround_reset_end neoverse_v3ae, ERRATUM(3984852)
+
+check_erratum_chosen neoverse_v3ae, ERRATUM(3984852), ERRATA_V3AE_3984852
+
+workaround_reset_start neoverse_v3ae, ERRATUM(4302965), ERRATA_V3AE_4302965
+	sysreg_bit_set NEOVERSE_V3AE_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end neoverse_v3ae, ERRATUM(4302965)
+
+check_erratum_chosen neoverse_v3ae, ERRATUM(4302965), ERRATA_V3AE_4302965
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3ae, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
