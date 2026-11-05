@@ -35,6 +35,31 @@ workaround_runtime_end neoverse_n3, ERRATUM(3456111)
 
 check_erratum_ls neoverse_n3, ERRATUM(3456111), CPU_REV(0, 1)
 
+workaround_reset_start neoverse_n3, ERRATUM(3711915), ERRATA_N3_3711915
+	mov x0, #5
+	msr S3_6_C15_C8_0, x0
+	isb
+	ldr x0, =0xd503329f
+	msr S3_6_C15_C8_2, x0
+	ldr x0, =0xfffff3ff
+	msr S3_6_C15_C8_3, x0
+	mov x1, #0
+	orr x1, x1, #1<<0
+	orr x1, x1, #3<<4
+	orr x1, x1, #0xf<<6
+	orr x1, x1, #1<<22
+	orr x1, x1, #1<<32
+	msr S3_6_C15_C8_1, x1
+workaround_reset_end neoverse_n3, ERRATUM(3711915)
+
+check_erratum_ls neoverse_n3, ERRATUM(3711915), CPU_REV(0, 0)
+
+workaround_reset_start neoverse_n3, ERRATUM(3866095), ERRATA_N3_3866095
+	sysreg_bit_set NEOVERSE_N3_CPUECTLR2_EL1, BIT(0)
+workaround_reset_end neoverse_n3, ERRATUM(3866095)
+
+check_erratum_ls neoverse_n3, ERRATUM(3866095), CPU_REV(0, 0)
+
 add_erratum_entry neoverse_n3, ERRATUM(3699563), ERRATA_N3_3699563
 
 check_erratum_ls neoverse_n3, ERRATUM(3699563), CPU_REV(0, 0)

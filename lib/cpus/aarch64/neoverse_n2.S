@@ -231,6 +231,22 @@ workaround_reset_end neoverse_n2, ERRATUM(2779511)
 
 check_erratum_ls neoverse_n2, ERRATUM(2779511), CPU_REV(0, 2)
 
+/* SCTLR_EL3.IESB is set to 1 in el3_entrypoint_common */
+add_erratum_entry neoverse_n2, ERRATUM(3003140), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen neoverse_n2, ERRATUM(3003140), ERRATUM_ALWAYS_CHOSEN
+
+/*
+ * To mitigate this workaround SCR_EL3.EA must be toggled prior to returning to
+ * a lower EL. EA bit is set to 1 here, and then el3_arch_init_common sets to 0.
+ */
+workaround_reset_start neoverse_n2, ERRATUM(3099213), ERRATA_N2_3099213
+	mrs x0, scr_el3
+	orr x0, x0, #SCR_EA_BIT
+	msr scr_el3, x0
+workaround_reset_end neoverse_n2, ERRATUM(3099213)
+
+check_erratum_chosen neoverse_n2, ERRATUM(3099213), ERRATA_N2_3099213
+
 workaround_runtime_start neoverse_n2, ERRATUM(3324339), ERRATA_N2_3324339
 	speculation_barrier
 workaround_runtime_end neoverse_n2, ERRATUM(3324339)
