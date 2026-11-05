@@ -685,6 +685,22 @@
 #define MDCR_TDOSA_BIT		(ULL(1) << 10)
 #define MDCR_TDA_BIT		(ULL(1) << 9)
 #define MDCR_TPM_BIT		(ULL(1) << 6)
+/*
+ * MDCR_EL3.{EDADE, ETADE, EPMADE} control external register access.
+ * Before enabling these definitions or setting the bits, check the target
+ * CPU's errata notice and ensure that FEAT_RME is implemented and enabled,
+ * including when ENABLE_FEAT_RME=2.
+ * Otherwise, affected CPUs may incorrectly block memory-mapped debugger
+ * access.
+ *
+ * Known affected CPUs and errata (see their SDENs for applicability):
+ *  Cortex-X4 (4011463); C1-Ultra and C1-Premium (4015814);
+ *  Cortex-X925 (4015817); Neoverse-V3 and Neoverse-V3AE (4060225).
+ *
+ * #define MDCR_EDADE_BIT	(ULL(1) << 4)
+ * #define MDCR_ETADE_BIT	(ULL(1) << 3)
+ * #define MDCR_EPMADE_BIT	(ULL(1) << 2)
+ */
 #define MDCR_EL3_RESET_VAL	MDCR_MTPME_BIT
 
 /* MDCR_EL2 definitions */
