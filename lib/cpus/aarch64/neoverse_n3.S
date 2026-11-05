@@ -67,24 +67,6 @@ func neoverse_n3_core_pwr_dwn
 	ret
 endfunc neoverse_n3_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse-N3 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_n3_regs, "aS"
-neoverse_n3_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_n3_cpu_reg_dump
-	adr	x6, neoverse_n3_regs
-	mrs	x8, NEOVERSE_N3_CPUECTLR_EL1
-	ret
-endfunc neoverse_n3_cpu_reg_dump
 
 declare_cpu_ops neoverse_n3, NEOVERSE_N3_MIDR, \
 	neoverse_n3_reset_func, \

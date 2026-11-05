@@ -352,24 +352,6 @@ func neoverse_n2_core_pwr_dwn
 	ret
 endfunc neoverse_n2_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse N2 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ASCII and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_n2_regs, "aS"
-neoverse_n2_regs:  /* The ASCII list of register names to be reported */
-	.asciz	"cpupwrctlr_el1", ""
-
-func neoverse_n2_cpu_reg_dump
-	adr	x6, neoverse_n2_regs
-	mrs	x8, NEOVERSE_N2_CPUPWRCTLR_EL1
-	ret
-endfunc neoverse_n2_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_n2, NEOVERSE_N2_MIDR, \

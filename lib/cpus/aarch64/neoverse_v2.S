@@ -205,24 +205,6 @@ cpu_reset_func_start neoverse_v2
 #endif
 cpu_reset_func_end neoverse_v2
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse V2-
-	 * specific register information for crash
-	 * reporting. It needs to return with x6
-	 * pointing to a list of register names in ascii
-	 * and x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_v2_regs, "aS"
-neoverse_v2_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_v2_cpu_reg_dump
-	adr	x6, neoverse_v2_regs
-	mrs	x8, NEOVERSE_V2_CPUECTLR_EL1
-	ret
-endfunc neoverse_v2_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_v2, NEOVERSE_V2_MIDR, \

@@ -298,24 +298,6 @@ func denver_cluster_pwr_dwn
 	ret
 endfunc denver_cluster_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Denver specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.denver_regs, "aS"
-denver_regs:  /* The ascii list of register names to be reported */
-	.asciz	"actlr_el1", ""
-
-func denver_cpu_reg_dump
-	adr	x6, denver_regs
-	mrs	x8, ACTLR_EL1
-	ret
-endfunc denver_cpu_reg_dump
 
 /* macro to declare cpu_ops for Denver SKUs */
 .macro	denver_cpu_ops_wa midr

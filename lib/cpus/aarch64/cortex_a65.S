@@ -65,15 +65,6 @@ func cortex_a65_cpu_pwr_dwn
 	ret
 endfunc cortex_a65_cpu_pwr_dwn
 
-.section .rodata.cortex_a65_regs, "aS"
-cortex_a65_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a65_cpu_reg_dump
-	adr	x6, cortex_a65_regs
-	mrs	x8, CORTEX_A65_ECTLR_EL1
-	ret
-endfunc cortex_a65_cpu_reg_dump
 
 declare_cpu_ops cortex_a65, CORTEX_A65_MIDR, \
 	cortex_a65_reset_func, \

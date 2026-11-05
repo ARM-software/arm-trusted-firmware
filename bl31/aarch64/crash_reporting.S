@@ -444,10 +444,6 @@ print_el3_sys_regs:
 	bl	str_in_crash_buf_print
 #endif /* CTX_INCLUDE_AARCH32_REGS */
 
-	/* Get the cpu specific registers to report */
-	bl	do_cpu_reg_dump
-	bl	str_in_crash_buf_print
-
 	/* Print some platform registers */
 	plat_crash_print_regs
 

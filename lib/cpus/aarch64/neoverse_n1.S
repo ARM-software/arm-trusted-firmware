@@ -317,24 +317,6 @@ func neoverse_n1_errata_ic_trap_handler
 	ret
 endfunc neoverse_n1_errata_ic_trap_handler
 
-	/* ---------------------------------------------
-	 * This function provides neoverse_n1 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_n1_regs, "aS"
-neoverse_n1_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_n1_cpu_reg_dump
-	adr	x6, neoverse_n1_regs
-	mrs	x8, NEOVERSE_N1_CPUECTLR_EL1
-	ret
-endfunc neoverse_n1_cpu_reg_dump
 
 declare_cpu_ops_eh neoverse_n1, NEOVERSE_N1_MIDR, \
 	neoverse_n1_reset_func, \

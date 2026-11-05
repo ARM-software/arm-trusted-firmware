@@ -299,24 +299,6 @@ func cortex_a78_core_pwr_dwn
 	ret
 endfunc cortex_a78_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a78 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a78_regs, "aS"
-cortex_a78_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a78_cpu_reg_dump
-	adr	x6, cortex_a78_regs
-	mrs	x8, CORTEX_A78_CPUECTLR_EL1
-	ret
-endfunc cortex_a78_cpu_reg_dump
 
 declare_cpu_ops cortex_a78, CORTEX_A78_MIDR, \
 	cortex_a78_reset_func, \

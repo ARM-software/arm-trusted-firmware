@@ -82,24 +82,6 @@ func rainier_core_pwr_dwn
 	ret
 endfunc rainier_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Rainier specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.rainier_regs, "aS"
-rainier_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func rainier_cpu_reg_dump
-	adr	x6, rainier_regs
-	mrs	x8, RAINIER_CPUECTLR_EL1
-	ret
-endfunc rainier_cpu_reg_dump
 
 declare_cpu_ops rainier, RAINIER_MIDR, \
 	rainier_reset_func, \
