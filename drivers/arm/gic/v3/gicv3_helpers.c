@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -309,7 +309,7 @@ void gicv3_ppi_sgi_config_defaults(uintptr_t gicr_base)
 	regs_num = ppi_regs_num << 3;
 	for (i = 0U; i < regs_num; ++i) {
 		/* Setup the default (E)PPI/SGI priorities doing 4 at a time */
-		gicr_write_ipriorityr(gicr_base, i << 2, GICD_IPRIORITYR_DEF_VAL);
+		gicr_ipriorityr_write(gicr_base, i, GICD_IPRIORITYR_DEF_VAL);
 	}
 
 	/* 16 interrupt IDs per GICR_ICFGR register */
