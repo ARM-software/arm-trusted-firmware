@@ -11,9 +11,9 @@
  */
 
 /*
- * This file is compatible with versions >= 3.6.6
+ * This file is compatible with versions >= 3.6.7
  */
-#define MBEDTLS_CONFIG_VERSION         0x03060600
+#define MBEDTLS_CONFIG_VERSION         0x03060700
 
 /*
  * Key algorithms currently supported on mbed TLS libraries
