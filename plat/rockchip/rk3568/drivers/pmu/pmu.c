@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2026, ARM Limited and Contributors. All rights reserved.
  *
  * The power management unit (PMU) is designed for controlling power resources.
  * The PMU is dedicated for managing the power of the whole chip.
@@ -183,7 +183,8 @@ static void pmu_pd_powerdown_config(void)
 	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_CON0, 0xffffffff);
 	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_CON1, 0x00070007);
 
-	mmio_write_32(PMU_BASE + PMU_VOL_GATE_SFTCON, WRITE_MASK_SET(BIT(VD_NPU_ENA)));
+	mmio_write_32(PMU_BASE + PMU_VOL_GATE_SFTCON,
+		      WRITE_MASK_SET(BIT(VD_GPU_ENA) | BIT(VD_NPU_ENA)));
 
 	mmio_write_32(PMU_BASE + PMU_PWR_CON, WRITE_MASK_CLR(BIT(PWRDN_BYPASS)));
 	mmio_write_32(PMU_BASE + PMU_PWR_CON, WRITE_MASK_CLR(BIT(BUS_BYPASS)));
@@ -367,7 +368,6 @@ static void pmu_reinit(void)
 	mmio_write_32(PMU_BASE + PMU_BUS_IDLE_CON1, 0xffff0000);
 
 	mmio_write_32(PMU_BASE + PMU_PWR_GATE_CON, 0xffff0000);
-	mmio_write_32(PMU_BASE + PMU_VOL_GATE_SFTCON, 0xffff0000);
 	mmio_write_32(PMU_BASE + PMU_CRU_PWR_CON, 0xffff0000);
 
 	mmio_write_32(PMU_BASE + PMU_PLLPD_CON, 0xffff0000);
