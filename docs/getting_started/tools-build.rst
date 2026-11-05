@@ -2,14 +2,15 @@ Building Supporting Tools
 =========================
 
 .. note::
-    The version of OpenSSL required to build the tools is given in the
-    :ref:`Prerequisites` document. A custom installation can be used if
-    not updating the OpenSSL version on the OS. In order to do this, use
-    the ``OPENSSL_DIR`` variable after the ``make`` command to indicate
-    the location of the custom OpenSSL build. Then, to run the tools,
-    use the ``LD_LIBRARY_PATH`` to indicate the location of the built
-    libraries. More info about ``OPENSSL_DIR`` can be found at
-    :ref:`Build Options`.
+
+   The version of OpenSSL required to build the tools is given in the
+   :ref:`Prerequisites` document. A custom installation can be used if not
+   updating the OpenSSL version on the OS. In order to do this, use the
+   ``OPENSSL_DIR`` variable after the ``make`` command, or export it in the
+   environment, to indicate the location of the custom OpenSSL build. Then, to
+   run the tools, use the ``LD_LIBRARY_PATH`` to indicate the location of the
+   built libraries. More info about ``OPENSSL_DIR`` can be found at
+   :ref:`Build Options`.
 
 Building and using the FIP tool
 -------------------------------
