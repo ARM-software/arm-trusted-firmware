@@ -102,6 +102,13 @@ workaround_reset_end neoverse_v3, ERRATUM(3878291)
 
 check_erratum_ls neoverse_v3, ERRATUM(3878291), CPU_REV(0, 2)
 
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
+add_erratum_entry neoverse_v3, ERRATUM(4060225), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen neoverse_v3, ERRATUM(4060225), ERRATUM_ALWAYS_CHOSEN
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
