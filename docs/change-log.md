@@ -3,6 +3,180 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.17](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.16..refs/tags/lts-v2.12.17) (2026-11-06)
+
+### Performance Improvements
+
+- **Libraries**
+
+  - **PSCI**
+
+    - pass my_core_pos around instead of calling it repeatedly ([7782b05](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7782b05de98d8855428a5e3c4a3530c010aeea53))
+
+### Tests
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - update Cactus manifest to FF-A v1.2 ([c4a49c7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c4a49c7cdf921de918ee34bc3560d3c3463aaf51))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - align AE variant core names ([0e65d89](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0e65d89a9c17902ba0eadddb5d864ff51bdf9520))
+    - introduce new header for Neoverse V3AE ([94ae16d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/94ae16d342af3465d13aae57b2a1e17bd1537f41))
+
+  - **PSCI**
+
+    - don't use PSCI_INVALID_PWR_LVL to signal OFF state ([9dbf965](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9dbf96504b8783f0e3a6d800a45ddabdd81e5acb))
+    - factor common code out of the standby finisher ([a8f0c4a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a8f0c4a70ed7dbb170ddfc7617598fbe63a2a2dc))
+    - move timestamp collection to psci_pwrdown_cpu ([5dcd32d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5dcd32dd3dbdd23b20b270990e5b1fe20b6ca625))
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix external LLC presence bit in Neoverse N3 ([e9aace1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e9aace1bc7107384326abe45afc8a10ec73f0958))
+    - minimum revision in Arm CPU files ([f73d719](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f73d719e22222607d84477b1e6d944df7cece492))
+
+  - **PSCI**
+
+    - add hierarchical power state consistency check ([1578d4b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1578d4b26926ddbaa065be1af737092dbc0f8c68))
+
+### Documentation
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - guard external register access without FEAT_RME ([39a2657](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/39a2657f85d2d3a77226d5ff8c3cffe032043d1f))
+
+  - **PSCI**
+
+    - drop outdated cache maintenance comment ([2ffe34f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2ffe34fc6007430b4ee382ecfb46dc2f6d518b1f))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - update CVE-2024-7881 affected CPUs list ([4e65e41](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4e65e413d033dcd96c4a047261e4b5333a499fa8))
+
+### Resolved Issues
+
+- **debugfs:** allocate enough space to fit all names ([7b9f144](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7b9f144cd408d2ffd4b03f3537cba581d14d64b0))
+
+- **Architecture**
+
+  - **Statistical profiling Extension (FEAT_SPE)**
+
+    - add a psb before updating context and remove context saving ([79c0ad6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/79c0ad650da81830540ffb23988cb7e694ed4f27))
+
+- **Platforms**
+
+  - **Arm**
+
+    - validate last_at_pwrlvl before forwarding it ([86a669a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/86a669a9c686aabc871734184dd600f002c08c3d))
+
+    - **FVP**
+
+      - absorb BUILD_CPUS_WITH_NO_FVP_MODEL and ENABLE_ERRATA_ALL cores ([7c975cd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7c975cd4627ad8a53b8566321149dd572c99f230))
+
+- **Services**
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - fix v1.0 EMAD traversal ([fb03ea0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fb03ea00991e721ba65bf6a591acfc09cb535838))
+      - lock FF-A version after first non-version call ([af0edb6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af0edb6d9486d4c41479fc3fa2383afac1197b2f))
+      - reject SPs with non compatible version in manifest ([d2fbe89](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d2fbe8901d3ec1df5ddc88b8fec8657f2bc0fad1))
+      - validate compatibility of FFA_VERSION requests ([af2cb11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af2cb116c1237315872d8e6463dd6550200384f4))
+      - validate full EMAD range in retrieve requests ([9c90391](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9c90391799b88cf1de85e776a0fdf085c1c3f267))
+      - validate v1.0 descriptor fragment offset ([e6b4ba1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e6b4ba19c98e3c9e668ecd00567e645448b65339))
+
+  - **DRTM**
+
+    - validate NWd DCE region size to prevent overflow ([a3c7a17](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a3c7a17fb80191317430384968126e14a7a14f10))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add C1-Nano errata 3806270 and 4394104 ([c0442d8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c0442d8bbc7f8f279bfffd22e60b7985cdc1b455))
+    - add erratum 4011463 for Cortex-X4 ([0fb015c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0fb015cb20c0f6a861e055f7c0273f18edc3b161))
+    - add erratum 4015817 for Cortex-X925 ([dff49d1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dff49d158027c70a489eefa9f4ccc8c5b9d4e220))
+    - add erratum 4060225 for Neoverse-V3 ([0da1fab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0da1fab62f463744977cee2da24b447cb6f4856d))
+    - add erratum 4060225 for Neoverse-V3AE ([41ceebe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/41ceebe626d13e2227eceb689172823e2d3c1e7f))
+    - add Neoverse V3AE errata workarounds ([2810525](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/28105258e1c72fed92751df122f318f7433871d1))
+    - add workarounds for C1-Pro errata 3679375 and 3806276 ([f159009](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f15900914cffb4c5e52d08dae3eb9df8a11f108f))
+    - add workarounds for C1-Ultra errata ([8d2a268](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d2a2687f4cb943201000df8bb4f03f8f66af292))
+    - re-introduce errata ordering checks ([4281e2a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4281e2a2eda8f601be5115e2593267b06018b0ad))
+    - remove C1-NANO implementation-specific register 'IMP' prefixes ([0095044](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/00950449e1f569e210b6bd887ea6f9a784bc2eed))
+    - remove C1-PRO implementation-specific register 'IMP' prefixes ([30db5ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/30db5ab0a4910228109ddfb7bf533a4301482a0c))
+    - remove C1-ULTRA implementation-specific register 'IMP' prefixes ([d4226b7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d4226b7a8888f4e955ce80c4e9d0d9b7be276856))
+    - remove cpu crash reporting ([c3313d4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c3313d40ce935c061ee34bb3b65b974bcdcfe837))
+    - repair broken SDEN links ([8af5ed8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8af5ed84c60e4c88dba27fcb46ebf39a5112726c))
+    - use #ifdef for IMAGE_BL flags ([c83e140](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c83e140fdb32935c5c5eb875a7ab926cd1679406))
+
+  - **PSCI**
+
+    - add missing curly braces ([a8085a4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a8085a4f9b2f09d173b0090dafcdfdceb207f122))
+    - modify variable conflicting with external function ([dc5c354](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dc5c3543e47cd683053aad665e55d4bdfb0dfe7e))
+    - validate last_at_pwrlvl bounds before use ([7fa57a7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7fa57a72645e3077fc561eb24ef862736684ff99))
+
+- **Drivers**
+
+  - **Arm**
+
+    - **GIC**
+
+      - **GICv3**
+
+        - use the correct IPRIORITYR accessor ([e601ac9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e601ac903afc5fa71de3a15d3c69a90e9b5994b6))
+
+- **Documentation**
+
+  - do not use topics for security advisories ([3edbdff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3edbdff9ef1c4e86399be53004b1664447ef386b))
+
+### Miscellaneous
+
+- rename arcadia to Cortex-A320 ([85e39db](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/85e39dbfdfdce6a9c8b7c16dee0f2700c3656444))
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - bump maximum permitted Trusted SRAM size ([4697736](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/469773698b92ac2f55dfae3f4d7390ed6b8faa84))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - clarify C1-Ultra erratum 4015814 comment ([174b63b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/174b63bdf432aee170158c39798b47edebe493c4))
+    - update developer.arm.com links to support.arm.com ([2ed57db](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2ed57dbba0201025b9551e4f227880bd758f33ec))
+
+- **Dependencies**
+
+  - bump cross-spawn ([a144d1d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a144d1d24d32487d82ebc93b8240a37d4e2e3f4d))
+
+### Build System
+
+- **dev-deps:** bump brace-expansion ([8289bcc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8289bcc0a234bfe8de468b253acbdc296d4da41d))
+
+- **Dependencies**
+
+  - bump the npm_and_yarn group across 1 directory with 5 updates ([5f8f86b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5f8f86b23f027f9c6dded7ce50caad8697ae0232))
+
 ## [lts-2.12.16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.15..refs/tags/lts-v2.12.16) (2026-10-02)
 
 ### Build System
