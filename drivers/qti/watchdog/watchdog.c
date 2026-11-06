@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <stdbool.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -85,12 +86,15 @@ static void *bark_handler(uint32_t id, void *ctx)
 	return ctx;
 }
 
+/* cpu_on and interruptible are 64-bit bitmaps */
+CASSERT(PLATFORM_CORE_COUNT <= 64, assert_platform_core_count_fits_bitmap);
+
 void qti_watchdog_set_target(qti_watchdog_cpu_state_t state)
 {
 	static struct {
 		struct {
-			uint8_t interruptible;
-			uint8_t on;
+			uint64_t interruptible;
+			uint64_t on;
 		} state;
 		uint8_t watchdog;
 		spinlock_t lock;
@@ -102,48 +106,50 @@ void qti_watchdog_set_target(qti_watchdog_cpu_state_t state)
 		mpidr[core] = read_mpidr_el1();
 	}
 
+	bool no_targets = false;
+
 	spin_lock(&cpu.lock);
 	switch (state) {
 	case QTI_WATCHDOG_CPU_WAKEUP:
-		cpu.state.interruptible |= (1 << core);
-		cpu.state.on |= (1 << core);
+		cpu.state.interruptible |= UINT64_C(1) << core;
+		cpu.state.on |= UINT64_C(1) << core;
 
 		/* wdog currently in sleep, move it to this core */
-		if (!(cpu.state.on & (1 << cpu.watchdog))) {
+		if (!(cpu.state.on & (UINT64_C(1) << cpu.watchdog))) {
 			tgt = core;
 		}
 		break;
 	case QTI_WATCHDOG_CPU_HOTPLUG:
-		cpu.state.interruptible &= ~(1 << core);
+		cpu.state.interruptible &= ~(UINT64_C(1) << core);
+		cpu.state.on &= ~(UINT64_C(1) << core);
+
 		if (cpu.watchdog != core) {
-			cpu.state.on &= ~(1 << core);
 			break;
 		}
 
-		/* if more than one cpu online */
-		if (cpu.state.on & (cpu.state.on - 1)) {
-			cpu.state.on &= ~(1 << core);
-			tgt = __builtin_ctz((uintptr_t)cpu.state.on);
+		/* if another cpu is online */
+		if (cpu.state.on != 0U) {
+			tgt = __builtin_ctzll(cpu.state.on);
+		} else if (cpu.state.interruptible != 0U) {
+			tgt = __builtin_ctzll(cpu.state.interruptible);
 		} else {
-			assert(cpu.state.interruptible != 0);
-			cpu.state.on &= ~(1 << core);
-			tgt = __builtin_ctz((uintptr_t)cpu.state.interruptible);
+			no_targets = true;
 		}
+
 		break;
 	case QTI_WATCHDOG_CPU_SUSPEND:
+		cpu.state.on &= ~(UINT64_C(1) << core);
+
 		if (cpu.watchdog != core) {
-			cpu.state.on &= ~(1 << core);
 			break;
 		}
 
-		/* if more than one cpu online */
-		if (cpu.state.on & (cpu.state.on - 1)) {
-			cpu.state.on &= ~(1 << core);
-			tgt = __builtin_ctz((uintptr_t)cpu.state.on);
-		} else {
-			assert(core == cpu.watchdog);
-			cpu.state.on &= ~(1 << core);
+		/* if another cpu is online */
+		if (cpu.state.on != 0U) {
+			tgt = __builtin_ctzll(cpu.state.on);
 		}
+		/* if no cpus are online, the current one remains interruptible: keep it as target*/
+
 		break;
 	default:
 		break;
@@ -156,6 +162,10 @@ void qti_watchdog_set_target(qti_watchdog_cpu_state_t state)
 		gic_set_spi_routing(WDOG_BARK_INT_ID, GICV3_IRM_PE, mpidr[tgt]);
 	}
 	spin_unlock(&cpu.lock);
+
+	if (no_targets) {
+		WARN("No valid watchdog targets\n");
+	}
 }
 
 int qti_watchdog_init(void)
@@ -174,4 +184,3 @@ int qti_watchdog_init(void)
 
 	return 0;
 }
-
