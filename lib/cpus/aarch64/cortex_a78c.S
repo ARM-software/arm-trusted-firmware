@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/102226/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-1707916/latest
+ * TRM: https://support.arm.com/documentation/102226/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1707916/latest
+ * MinRevision: r0p0
  */
 
 #include <arch.h>
@@ -183,7 +184,7 @@ check_erratum_chosen cortex_a78c, ERRATUM(4302974), ERRATA_A78C_4302974
 check_erratum_chosen cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A78c generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -222,24 +223,6 @@ func cortex_a78c_core_pwr_dwn
 	ret
 endfunc cortex_a78c_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a78c specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a78c_regs, "aS"
-cortex_a78c_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a78c_cpu_reg_dump
-	adr	x6, cortex_a78c_regs
-	mrs	x8, CORTEX_A78C_CPUECTLR_EL1
-	ret
-endfunc cortex_a78c_cpu_reg_dump
 
 declare_cpu_ops cortex_a78c, CORTEX_A78C_MIDR, \
 	cortex_a78c_reset_func, \

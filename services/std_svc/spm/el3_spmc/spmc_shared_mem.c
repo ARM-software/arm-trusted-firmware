@@ -223,6 +223,12 @@ spmc_shmem_obj_get_emad(const struct ffa_mtd *desc, uint32_t index,
 	return (emad + (*emad_size * index));
 }
 
+static inline const struct ffa_emad_v1_0 *
+emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
+{
+	return (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + offset);
+}
+
 /**
  * spmc_shmem_obj_get_comp_mrd - Get comp_mrd from a mtd struct based on the
  *				 FF-A version of the descriptor.
@@ -564,7 +570,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 {
 	struct ffa_mtd *mtd_orig = &orig->desc;
 	struct ffa_mtd_v1_0 *out = (struct ffa_mtd_v1_0 *) &out_obj->desc;
-	struct ffa_emad_v1_0 *emad_in;
+	const struct ffa_emad_v1_0 *emad_in;
 	struct ffa_emad_v1_0 *emad_array_in;
 	struct ffa_emad_v1_0 *emad_array_out;
 	struct ffa_comp_mrd *mrd_in;
@@ -590,7 +596,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 	emad_array_out = out->emad;
 
 	/* Copy across the emad structs. */
-	emad_in = emad_array_in;
+	emad_in = (const struct ffa_emad_v1_0 *)emad_array_in;
 	for (unsigned int i = 0U; i < out->emad_count; i++) {
 		/* Bound check for emad array. */
 		if (((uint8_t *)emad_in + sizeof(struct ffa_emad_v1_0)) >
@@ -601,7 +607,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 		memcpy(&emad_array_out[i], emad_in,
 		       sizeof(struct ffa_emad_v1_0));
 
-		emad_in +=  mtd_orig->emad_size;
+		emad_in = emad_advance(emad_in, mtd_orig->emad_size);
 	}
 
 	/* Place the mrd descriptors after the end of the emad descriptors. */
@@ -628,13 +634,13 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 	 * Update the offset in the emads by the delta between the input and
 	 * output addresses.
 	 */
-	emad_in = emad_array_in;
+	emad_in = (const struct ffa_emad_v1_0 *)emad_array_in;
 
 	for (unsigned int i = 0U; i < out->emad_count; i++) {
 		emad_array_out[i].comp_mrd_offset = emad_in->comp_mrd_offset +
 						    (mrd_out_offset -
 						     mrd_in_offset);
-		emad_in +=  mtd_orig->emad_size;
+		emad_in = emad_advance(emad_in, mtd_orig->emad_size);
 	}
 
 	/* Verify that we stay within bound of the memory descriptors. */
@@ -695,6 +701,11 @@ spmc_populate_ffa_v1_0_descriptor(void *dst, struct spmc_shmem_obj *orig_obj,
 
 		/* Perform the conversion from v1.1 to v1.0. */
 		if (!spmc_shm_convert_mtd_to_v1_0(v1_0_obj, orig_obj)) {
+			spmc_shmem_obj_free(&spmc_shmem_obj_state, v1_0_obj);
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
+		if (offset >= v1_0_obj->desc_size) {
 			spmc_shmem_obj_free(&spmc_shmem_obj_state, v1_0_obj);
 			return FFA_ERROR_INVALID_PARAMETER;
 		}
@@ -793,12 +804,6 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
 	}
 
 	return 0;
-}
-
-static inline const struct ffa_emad_v1_0 *
-emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
-{
-	return (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + offset);
 }
 
 /**
@@ -1571,14 +1576,27 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 
 	/* Validate that the provided emad offset and structure is valid.*/
 	for (size_t i = 0; i < req->emad_count; i++) {
+		uintptr_t req_base = (uintptr_t)req;
+		uintptr_t emad_start;
 		size_t emad_size;
 		struct ffa_emad_v1_0 *emad;
 
 		emad = spmc_shmem_obj_get_emad(req, i, ffa_version,
 					       &emad_size);
+		emad_start = (uintptr_t)emad;
 
-		if ((uintptr_t) emad >= (uintptr_t)
-					((uint8_t *) req + total_length)) {
+		/*
+		 * Ensure the EMAD is large enough for the fields accessed below and
+		 * lies entirely within the request buffer.
+		 * The emad_size > total_length check is required to avoid
+		 * unsigned underflow in total_length - emad_size; otherwise an
+		 * oversized EMAD can wrap the subtraction and bypass the final
+		 * bounds check.
+		 */
+		if ((emad == NULL) || (emad_size < sizeof(*emad)) ||
+		    (emad_start < req_base) ||
+		    (emad_size > total_length) ||
+		    ((emad_start - req_base) > (total_length - emad_size))) {
 			WARN("Invalid emad access.\n");
 			ret = FFA_ERROR_INVALID_PARAMETER;
 			goto err_unlock_all;

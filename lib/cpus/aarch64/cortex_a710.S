@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101800/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-1775101/latest
+ * TRM: https://support.arm.com/documentation/101800/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1775101/latest
+ * MinRevision: r2p0
  */
 
 #include <arch.h>
@@ -301,7 +302,7 @@ add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
 check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
 
 workaround_reset_start cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A710 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -324,7 +325,7 @@ check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start cortex_a710, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -371,26 +372,8 @@ cpu_reset_func_start cortex_a710
 	apply_erratum cortex_a710, ERRATUM(3324338), ERRATA_A710_3324338
 cpu_reset_func_end cortex_a710
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-A710 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a710_regs, "aS"
-cortex_a710_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func cortex_a710_cpu_reg_dump
-	adr	x6, cortex_a710_regs
-	mrs	x8, CORTEX_A710_CPUECTLR_EL1
-	ret
-endfunc cortex_a710_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_a710, CORTEX_A710_MIDR, \
 	cortex_a710_reset_func, \
 	cortex_a710_impl_defined_el3_handler, \

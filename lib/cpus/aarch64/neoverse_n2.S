@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/102099/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-1982442/latest
+ * TRM: https://support.arm.com/documentation/102099/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1982442/latest
+ * MinRevision: r0p0
  */
 
 #include <arch.h>
@@ -251,7 +252,7 @@ workaround_reset_end neoverse_n2, ERRATUM(4302970)
 check_erratum_ls neoverse_n2, ERRATUM(4302970), CPU_REV(0, 3)
 
 workaround_reset_start neoverse_n2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Neoverse-N2 generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.
@@ -274,7 +275,7 @@ check_erratum_ls neoverse_n2, CVE(2024, 5660), CPU_REV(0, 3)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start neoverse_n2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -352,26 +353,8 @@ func neoverse_n2_core_pwr_dwn
 	ret
 endfunc neoverse_n2_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse N2 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ASCII and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_n2_regs, "aS"
-neoverse_n2_regs:  /* The ASCII list of register names to be reported */
-	.asciz	"cpupwrctlr_el1", ""
 
-func neoverse_n2_cpu_reg_dump
-	adr	x6, neoverse_n2_regs
-	mrs	x8, NEOVERSE_N2_CPUPWRCTLR_EL1
-	ret
-endfunc neoverse_n2_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_n2, NEOVERSE_N2_MIDR, \
 	neoverse_n2_reset_func, \
 	neoverse_n2_impl_defined_el3_handler, \

@@ -73,11 +73,10 @@ static int get_stat_idx(plat_local_state_t local_state, unsigned int pwr_lvl)
  * This function will only be invoked with data cache enabled and while
  * powering down a core.
  ******************************************************************************/
-void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
+void psci_stats_update_pwr_down(unsigned int cpu_idx, unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info)
 {
 	unsigned int lvl, parent_idx;
-	unsigned int cpu_idx = plat_my_core_pos();
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
 	assert(state_info != NULL);
@@ -106,11 +105,10 @@ void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
  * and NON-CPU power domains.
  * It is called with caches enabled and locks acquired(for NON-CPU domain)
  ******************************************************************************/
-void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
+void psci_stats_update_pwr_up(unsigned int cpu_idx, unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info)
 {
 	unsigned int lvl, parent_idx;
-	unsigned int cpu_idx = plat_my_core_pos();
 	int stat_idx;
 	plat_local_state_t local_state;
 	u_register_t residency;

@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/100798/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-885749/latest
+ * TRM: https://support.arm.com/documentation/100798/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-885749/latest
+ * MinRevision: r1p0
  */
 
 #include <arch.h>
@@ -523,7 +524,7 @@ cpu_reset_func_start cortex_a76
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 #endif /* WORKAROUND_CVE_2018_3639 */
 
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2022_23960
 	/*
 	 * The Cortex-A76 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs. This will be bypassed
@@ -552,24 +553,6 @@ func cortex_a76_core_pwr_dwn
 	ret
 endfunc cortex_a76_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a76 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a76_regs, "aS"
-cortex_a76_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a76_cpu_reg_dump
-	adr	x6, cortex_a76_regs
-	mrs	x8, CORTEX_A76_CPUECTLR_EL1
-	ret
-endfunc cortex_a76_cpu_reg_dump
 
 declare_cpu_ops cortex_a76, CORTEX_A76_MIDR, \
 	cortex_a76_reset_func, \

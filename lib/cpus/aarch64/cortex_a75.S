@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/100403/latest
- * SDEN: https://developer.arm.com/documentation/SDEN859515/latest
+ * TRM: https://support.arm.com/documentation/100403/latest
+ * SDEN: https://support.arm.com/documentation/SDEN859515/latest
+ * MinRevision: r1p0
  */
 
 #include <arch.h>
@@ -59,7 +60,7 @@ check_erratum_custom_start cortex_a75, ERRATUM(936184)
 check_erratum_custom_end cortex_a75, ERRATUM(936184)
 
 workaround_reset_start cortex_a75, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_bpiall_vbar
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a75, CVE(2017, 5715)
@@ -74,7 +75,7 @@ workaround_reset_end cortex_a75, CVE(2018, 3639)
 check_erratum_chosen cortex_a75, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a75, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* Skip installing vector table again if already done for CVE(2017, 5715) */
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	mrs	x1, vbar_el3
@@ -144,24 +145,6 @@ func cortex_a75_core_pwr_dwn
 	ret
 endfunc cortex_a75_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a75 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a75_regs, "aS"
-cortex_a75_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a75_cpu_reg_dump
-	adr	x6, cortex_a75_regs
-	mrs	x8, CORTEX_A75_CPUECTLR_EL1
-	ret
-endfunc cortex_a75_cpu_reg_dump
 
 declare_cpu_ops cortex_a75, CORTEX_A75_MIDR, \
 	cortex_a75_reset_func, \

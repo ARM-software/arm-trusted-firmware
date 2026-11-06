@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/100095/latest
- * SDEN: https://developer.arm.com/documentation/epm012079/latest
+ * TRM: https://support.arm.com/documentation/100095/latest
+ * SDEN: https://support.arm.com/documentation/epm012079/latest
+ * MinRevision: r0p0
  */
 #include <arch.h>
 #include <asm_macros.S>
@@ -96,7 +97,7 @@ check_erratum_chosen cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367
 add_erratum_entry cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367
 
 workaround_reset_start cortex_a72, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a72, CVE(2017, 5715)
@@ -112,7 +113,7 @@ workaround_reset_end cortex_a72, CVE(2018, 3639)
 check_erratum_chosen cortex_a72, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a72, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* Skip installing vector table again if already done for CVE(2017, 5715) */
 	/*
 	 * The Cortex-A72 generic vectors are overridden to apply the
@@ -262,26 +263,6 @@ func cortex_a72_cluster_pwr_dwn
 	b	cortex_a72_disable_ext_debug
 endfunc cortex_a72_cluster_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a72 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a72_regs, "aS"
-cortex_a72_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", "cpumerrsr_el1", "l2merrsr_el1", ""
-
-func cortex_a72_cpu_reg_dump
-	adr	x6, cortex_a72_regs
-	mrs	x8, CORTEX_A72_ECTLR_EL1
-	mrs	x9, CORTEX_A72_MERRSR_EL1
-	mrs	x10, CORTEX_A72_L2MERRSR_EL1
-	ret
-endfunc cortex_a72_cpu_reg_dump
 
 declare_cpu_ops cortex_a72, CORTEX_A72_MIDR, \
 	cortex_a72_reset_func, \

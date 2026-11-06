@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/102807/latest
- * SDEN: https://developer.arm.com/documentation/109180/latest/
+ * TRM: https://support.arm.com/documentation/102807/latest
+ * SDEN: https://support.arm.com/documentation/109180/latest/
+ * MinRevision: r0p1
  */
 
 #include <arch.h>
@@ -102,6 +103,13 @@ workaround_reset_end cortex_x925, ERRATUM(3865185)
 
 check_erratum_ls cortex_x925, ERRATUM(3865185), CPU_REV(0, 1)
 
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
+add_erratum_entry cortex_x925, ERRATUM(4015817), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen cortex_x925, ERRATUM(4015817), ERRATUM_ALWAYS_CHOSEN
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
@@ -126,7 +134,7 @@ check_erratum_ls cortex_x925, CVE(2024, 7881), CPU_REV(0, 1)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start cortex_x925, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -169,26 +177,8 @@ func cortex_x925_core_pwr_dwn
 	ret
 endfunc cortex_x925_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-X925 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_x925_regs, "aS"
-cortex_x925_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func cortex_x925_cpu_reg_dump
-	adr	x6, cortex_x925_regs
-	mrs	x8, CORTEX_X925_CPUECTLR_EL1
-	ret
-endfunc cortex_x925_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x925, CORTEX_X925_MIDR, \
 	cortex_x925_reset_func, \
 	cortex_x925_impl_defined_el3_handler, \

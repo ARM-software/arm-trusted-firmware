@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101803/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-1775100/latest
+ * TRM: https://support.arm.com/documentation/101803/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1775100/latest
+ * MinRevision: r2p0
  */
 
 #include <arch.h>
@@ -282,7 +283,7 @@ workaround_reset_end cortex_x2, ERRATUM(4302969)
 check_erratum_ls cortex_x2, ERRATUM(4302969), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-X2 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -305,7 +306,7 @@ check_erratum_chosen cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
  * Enables mitigation for CVE-2025-0647.
  */
 workaround_reset_start cortex_x2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -352,26 +353,8 @@ cpu_reset_func_start cortex_x2
 	apply_erratum cortex_x2, ERRATUM(3324338), ERRATA_X2_3324338
 cpu_reset_func_end cortex_x2
 
-	/* ---------------------------------------------
-	 * This function provides Cortex X2 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_x2_regs, "aS"
-cortex_x2_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func cortex_x2_cpu_reg_dump
-	adr	x6, cortex_x2_regs
-	mrs	x8, CORTEX_X2_CPUECTLR_EL1
-	ret
-endfunc cortex_x2_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x2, CORTEX_X2_MIDR, \
 	cortex_x2_reset_func, \
 	cortex_x2_impl_defined_el3_handler, \

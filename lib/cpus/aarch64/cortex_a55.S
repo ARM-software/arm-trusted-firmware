@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/100442/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-859338/latest
+ * TRM: https://support.arm.com/documentation/100442/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-859338/latest
+ * MinRevision: r0p0
  */
 
 #include <arch.h>
@@ -131,24 +132,6 @@ func cortex_a55_core_pwr_dwn
 	ret
 endfunc cortex_a55_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a55 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a55_regs, "aS"
-cortex_a55_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a55_cpu_reg_dump
-	adr	x6, cortex_a55_regs
-	mrs	x8, CORTEX_A55_CPUECTLR_EL1
-	ret
-endfunc cortex_a55_cpu_reg_dump
 
 declare_cpu_ops cortex_a55, CORTEX_A55_MIDR, \
 	cortex_a55_reset_func, \

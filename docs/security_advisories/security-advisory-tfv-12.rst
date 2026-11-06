@@ -20,7 +20,7 @@ Advisory TFV-12 (CVE-2024-5660)
 | Impact         | Potential for a compromised guest OS to attack the host via  |
 |                | HPA mechanism, resulting in possible information disclosure. |
 +----------------+--------------------------------------------------------------+
-| Fix Version    | `Gerrit-Patches`_                                            |
+| Fix Version    | Commit 08bbe24533f3 (merged on 18 December 2024)             |
 +----------------+--------------------------------------------------------------+
 | Credit         | Arm                                                          |
 +----------------+--------------------------------------------------------------+
@@ -82,5 +82,4 @@ For further technical information, affected CPUs, and detailed guidance, refer t
 full `Official Arm Advisory`_.
 
 .. _CVE-2024-5660: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-5660
-.. _Gerrit-Patches: https://review.trustedfirmware.org/q/topic:%22sm/fix_erratum%22
 .. _Official Arm Advisory: https://developer.arm.com/documentation/110324/latest

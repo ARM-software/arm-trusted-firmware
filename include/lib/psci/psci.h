@@ -302,7 +302,7 @@ typedef struct psci_cpu_data {
 
 	/*
 	 * Highest power level which takes part in a power management
-	 * operation.
+	 * operation. May be lower while the core is in suspend state.
 	 */
 	unsigned int target_pwrlvl;
 

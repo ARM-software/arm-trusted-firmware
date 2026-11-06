@@ -18,7 +18,7 @@ Advisory TFV-16 (CVE-2026-0995)
 | Impact         | SME can access memory after it has been re-allocated,           |
 |                | potentially overwriting the new owner's data.                   |
 +----------------+-----------------------------------------------------------------+
-| Fix Version    | `Gerrit topic #gr/CVE-2026-0995`_                               |
+| Fix Version    | Commit b934b7478ef2 (merged on 20 May 2026)                     |
 |                | Also see mitigation guidance in the `Official Arm Advisory`_    |
 +----------------+-----------------------------------------------------------------+
 | Credit         | Arm                                                             |
@@ -277,5 +277,4 @@ and full protection.
 For further information, affected CPUs, and detailed guidance, refer to the full
 `Official Arm Advisory`_.
 
-.. _Gerrit topic #gr/CVE-2026-0995: https://review.trustedfirmware.org/q/topic:gr/CVE-2026-0095
 .. _Official Arm Advisory: https://developer.arm.com/documentation/111823/latest/

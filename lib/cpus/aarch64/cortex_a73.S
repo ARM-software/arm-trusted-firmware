@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/100048/latest
- * SDEN: https://developer.arm.com/documentation/epm086451/latest
+ * TRM: https://support.arm.com/documentation/100048/latest
+ * SDEN: https://support.arm.com/documentation/epm086451/latest
+ * MinRevision: r0p1
  */
 #include <arch.h>
 #include <asm_macros.S>
@@ -54,7 +55,7 @@ workaround_reset_end cortex_a73, ERRATUM(855423)
 check_erratum_ls cortex_a73, ERRATUM(855423), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a73, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_2017_5715_bpiall_vbar
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a73, CVE(2017, 5715)
@@ -69,7 +70,7 @@ workaround_reset_end cortex_a73, CVE(2018, 3639)
 check_erratum_chosen cortex_a73, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a73, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* Skip installing vector table again for CVE_2022_23960 */
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	mrs	x1, vbar_el3
@@ -173,25 +174,6 @@ func cortex_a73_cluster_pwr_dwn
 	b	cortex_a73_disable_smp
 endfunc cortex_a73_cluster_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides cortex_a73 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a73_regs, "aS"
-cortex_a73_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", "l2merrsr_el1", ""
-
-func cortex_a73_cpu_reg_dump
-	adr	x6, cortex_a73_regs
-	mrs	x8, CORTEX_A73_CPUECTLR_EL1
-	mrs	x9, CORTEX_A73_L2MERRSR_EL1
-	ret
-endfunc cortex_a73_cpu_reg_dump
 
 declare_cpu_ops cortex_a73, CORTEX_A73_MIDR, \
 	cortex_a73_reset_func, \

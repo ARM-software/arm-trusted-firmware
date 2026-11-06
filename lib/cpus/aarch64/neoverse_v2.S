@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/102375/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-2332927/latest
+ * TRM: https://support.arm.com/documentation/102375/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-2332927/latest
+ * MinRevision: r0p1
  */
 
 #include <arch.h>
@@ -117,7 +118,7 @@ workaround_reset_end neoverse_v2, ERRATUM(4302968)
 check_erratum_ls neoverse_v2, ERRATUM(4302968), CPU_REV(0, 2)
 
 workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Neoverse-V2 generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.
@@ -156,7 +157,7 @@ check_erratum_ls neoverse_v2, CVE(2024, 7881), CPU_REV(0, 2)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start neoverse_v2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -205,26 +206,8 @@ cpu_reset_func_start neoverse_v2
 #endif
 cpu_reset_func_end neoverse_v2
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse V2-
-	 * specific register information for crash
-	 * reporting. It needs to return with x6
-	 * pointing to a list of register names in ascii
-	 * and x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_v2_regs, "aS"
-neoverse_v2_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func neoverse_v2_cpu_reg_dump
-	adr	x6, neoverse_v2_regs
-	mrs	x8, NEOVERSE_V2_CPUECTLR_EL1
-	ret
-endfunc neoverse_v2_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_v2, NEOVERSE_V2_MIDR, \
 	neoverse_v2_reset_func, \
 	neoverse_v2_impl_defined_el3_handler, \

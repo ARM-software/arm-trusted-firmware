@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/102530/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-2439421/latest
+ * TRM: https://support.arm.com/documentation/102530/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-2439421/latest
+ * MinRevision: r0p1
  */
 
 #include <arch.h>
@@ -123,24 +124,6 @@ func cortex_a720_core_pwr_dwn
 	ret
 endfunc cortex_a720_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Cortex A720-specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a720_regs, "aS"
-cortex_a720_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a720_cpu_reg_dump
-	adr	x6, cortex_a720_regs
-	mrs	x8, CORTEX_A720_CPUECTLR_EL1
-	ret
-endfunc cortex_a720_cpu_reg_dump
 
 declare_cpu_ops cortex_a720, CORTEX_A720_MIDR, \
 	cortex_a720_reset_func, \

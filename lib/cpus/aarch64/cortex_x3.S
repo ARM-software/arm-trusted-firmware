@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101593/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-2055130/latest
+ * TRM: https://support.arm.com/documentation/101593/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-2055130/latest
+ * MinRevision: r1p0
  */
 
 #include <arch.h>
@@ -170,7 +171,7 @@ workaround_reset_end cortex_x3, ERRATUM(4302966)
 check_erratum_ls cortex_x3, ERRATUM(4302966), CPU_REV(1, 2)
 
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	override_vector_table wa_cve_vbar_cortex_x3
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x3, CVE(2022, 23960)
@@ -201,7 +202,7 @@ check_erratum_ls cortex_x3, CVE(2024, 7881), CPU_REV(1, 2)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start cortex_x3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -245,26 +246,8 @@ func cortex_x3_core_pwr_dwn
 	ret
 endfunc cortex_x3_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-X3-
-	 * specific register information for crash
-	 * reporting. It needs to return with x6
-	 * pointing to a list of register names in ascii
-	 * and x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_x3_regs, "aS"
-cortex_x3_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func cortex_x3_cpu_reg_dump
-	adr	x6, cortex_x3_regs
-	mrs	x8, CORTEX_X3_CPUECTLR_EL1
-	ret
-endfunc cortex_x3_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh cortex_x3, CORTEX_X3_MIDR, \
 	cortex_x3_reset_func, \
 	cortex_x3_impl_defined_el3_handler, \

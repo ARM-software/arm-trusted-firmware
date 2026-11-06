@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/107734/latest
- * SDEN: https://developer.arm.com/documentation/109231/latest
+ * TRM: https://support.arm.com/documentation/107734/latest
+ * SDEN: https://support.arm.com/documentation/109231/latest
+ * MinRevision: r0p1
  */
 
 #include <arch.h>
@@ -101,6 +102,13 @@ workaround_reset_end neoverse_v3, ERRATUM(3878291)
 
 check_erratum_ls neoverse_v3, ERRATUM(3878291), CPU_REV(0, 2)
 
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
+add_erratum_entry neoverse_v3, ERRATUM(4060225), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen neoverse_v3, ERRATUM(4060225), ERRATUM_ALWAYS_CHOSEN
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
@@ -125,7 +133,7 @@ check_erratum_ls neoverse_v3, CVE(2024, 7881), CPU_REV(0, 1)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start neoverse_v3, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -170,24 +178,6 @@ cpu_reset_func_start neoverse_v3
 	apply_erratum neoverse_v3, ERRATUM(3312417), ERRATA_V3_3312417
 cpu_reset_func_end neoverse_v3
 
-	/* ---------------------------------------------
-	 * This function provides Neoverse V3 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_v3_regs, "aS"
-neoverse_v3_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_v3_cpu_reg_dump
-	adr	x6, neoverse_v3_regs
-	mrs	x8, NEOVERSE_V3_CPUECTLR_EL1
-	ret
-endfunc neoverse_v3_cpu_reg_dump
 
 #if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh neoverse_v3, NEOVERSE_V3_MIDR, \

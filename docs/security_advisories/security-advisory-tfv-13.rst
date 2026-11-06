@@ -21,7 +21,7 @@ Advisory TFV-13 (CVE-2024-7881)
 +----------------+-----------------------------------------------------------------+
 | Impact         | Potential leakage of secure world data to normal world.         |
 +----------------+-----------------------------------------------------------------+
-| Fix Version    | `Gerrit topic #ar/smccc_arch_wa_4`_                             |
+| Fix Version    | Commit d8823f36fc1a (merged on 28 January 2026)                 |
 |                | Also see mitigation guidance in the `Official Arm Advisory`_    |
 +----------------+-----------------------------------------------------------------+
 | Credit         | Arm                                                             |
@@ -36,8 +36,8 @@ to fetch the contents of a privileged location (for which it
 does not have read permission) and consume those contents as an address
 that is also dereferenced.
 
-The below table lists all the CPUs impacted by this vulnerability and have
-mitigation in TF-A.
+The following table identifies all affected CPUs and revisions
+for which a mitigation is provided in TF-A.
 
 +----------------+--------------------------+------------------+
 | CPU            | Affected Versions        | Fix Status       |
@@ -67,8 +67,10 @@ Mitigation and Recommendations
 Arm recommends following the mitigation steps and configuration changes
 described in the official advisory. The mitigation for CVE-2024-7881 is
 implemented at EL3 and addresses vulnerabilities caused by memory-dependant
-speculative prefetching. This issue is avoided by setting CPUACTLR6_EL1[41]
-to 1, this disables the affected prefetcher.
+speculative prefetching. This issue can be avoided by disabling the
+affected prefetcher. For most cores, this is done by
+setting CPUACTLR6_EL1[41] = 1. For C1-Pro, the affected prefetcher is
+instead disabled by setting IMP_CPUECTLR_EL1[49] = 1.
 
 Arm has updated the SMC Calling Convention spec so that privileged normal world
 software can identify when the issue has been mitigated in
@@ -83,6 +85,5 @@ For further technical information, affected CPUs, and detailed guidance,
 refer to the full `Official Arm Advisory`_.
 
 .. _CVE-2024-7881: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-7881
-.. _Gerrit topic #ar/smccc_arch_wa_4: https://review.trustedfirmware.org/q/topic:%22ar/smccc_arch_wa_4%22
 .. _SMC Calling Convention specification: https://developer.arm.com/documentation/den0028/latest
 .. _Official Arm Advisory: https://developer.arm.com/documentation/110326/latest

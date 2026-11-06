@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/100616/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-885747/latest
+ * TRM: https://support.arm.com/documentation/100616/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-885747/latest
+ * MinRevision: r3p1
  */
 
 #include <arch.h>
@@ -203,7 +204,7 @@ workaround_reset_end neoverse_n1, ERRATUM(3888013)
 check_erratum_chosen neoverse_n1, ERRATUM(3888013), ERRATA_N1_3888013
 
 workaround_reset_start neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Neoverse-N1 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -317,24 +318,6 @@ func neoverse_n1_errata_ic_trap_handler
 	ret
 endfunc neoverse_n1_errata_ic_trap_handler
 
-	/* ---------------------------------------------
-	 * This function provides neoverse_n1 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.neoverse_n1_regs, "aS"
-neoverse_n1_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_n1_cpu_reg_dump
-	adr	x6, neoverse_n1_regs
-	mrs	x8, NEOVERSE_N1_CPUECTLR_EL1
-	ret
-endfunc neoverse_n1_cpu_reg_dump
 
 declare_cpu_ops_eh neoverse_n1, NEOVERSE_N1_MIDR, \
 	neoverse_n1_reset_func, \

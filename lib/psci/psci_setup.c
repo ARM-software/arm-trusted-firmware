@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,8 +68,8 @@ static void __init psci_init_pwr_domain_node(uint16_t node_idx,
 		/* Set the Affinity Info for the cores as OFF */
 		svc_cpu_data->aff_info_state = AFF_STATE_OFF;
 
-		/* Invalidate the suspend level for the cpu */
-		svc_cpu_data->target_pwrlvl = PSCI_INVALID_PWR_LVL;
+		/* Default to the highest power level when the cpu is not suspending */
+		svc_cpu_data->target_pwrlvl = PLAT_MAX_PWR_LVL;
 
 		/* Set the power state to OFF state */
 		svc_cpu_data->local_state = PLAT_MAX_OFF_STATE;
@@ -153,11 +153,19 @@ static unsigned int __init populate_power_domain_tree(const unsigned char
 			num_children = topology[parent_node_index];
 
 			for (j = node_index;
-				j < (node_index + num_children); j++)
+				j < (node_index + num_children); j++) {
 				psci_init_pwr_domain_node((uint16_t)j,
 						  parent_node_index - 1U,
 						  (unsigned char)level);
-
+			}
+#if PSCI_OS_INIT_MODE
+			if (parent_node_index > 0U) {
+				psci_non_cpu_pd_nodes[parent_node_index - 1U]
+					.first_child_idx = node_index;
+				psci_non_cpu_pd_nodes[parent_node_index - 1U]
+					.num_children = num_children;
+			}
+#endif
 			node_index = j;
 			num_nodes_at_next_lvl += num_children;
 			parent_node_index++;
@@ -167,8 +175,9 @@ static unsigned int __init populate_power_domain_tree(const unsigned char
 		level--;
 
 		/* Reset the index for the cpu power domain array */
-		if (level == (int) PSCI_CPU_PWR_LVL)
+		if (level == (int) PSCI_CPU_PWR_LVL) {
 			node_index = 0;
+		}
 	}
 
 	/* Validate the sanity of array exported by the platform */
@@ -202,6 +211,7 @@ static unsigned int __init populate_power_domain_tree(const unsigned char
 int __init psci_setup(const psci_lib_args_t *lib_args)
 {
 	const unsigned char *topology_tree;
+	unsigned int cpu_idx = plat_my_core_pos();
 
 	assert(VERIFY_PSCI_LIB_ARGS_V1(lib_args));
 
@@ -218,7 +228,7 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 	psci_update_pwrlvl_limits();
 
 	/* Populate the mpidr field of cpu node for this CPU */
-	psci_cpu_pd_nodes[plat_my_core_pos()].mpidr =
+	psci_cpu_pd_nodes[cpu_idx].mpidr =
 		read_mpidr() & MPIDR_AFFINITY_MASK;
 
 	psci_init_req_local_pwr_states();
@@ -227,7 +237,7 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 	 * Set the requested and target state of this CPU and all the higher
 	 * power domain levels for this CPU to run.
 	 */
-	psci_set_pwr_domains_to_run(PLAT_MAX_PWR_LVL);
+	psci_set_pwr_domains_to_run(cpu_idx, PLAT_MAX_PWR_LVL);
 
 	(void) plat_setup_psci_ops((uintptr_t)lib_args->mailbox_ep,
 				   &psci_plat_pm_ops);

@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101590/latest
- * SDEN: https://developer.arm.com/documentation/SDEN2148827/latest
+ * TRM: https://support.arm.com/documentation/101590/latest
+ * SDEN: https://support.arm.com/documentation/SDEN2148827/latest
+ * MinRevision: r1p1
  */
 
 #include <arch.h>
@@ -213,7 +214,7 @@ workaround_reset_end cortex_a715, ERRATUM(3711916)
 check_erratum_ls cortex_a715, ERRATUM(3711916), CPU_REV(1, 3)
 
 workaround_reset_start cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A715 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -246,24 +247,6 @@ func cortex_a715_core_pwr_dwn
 	ret
 endfunc cortex_a715_core_pwr_dwn
 
-	/* ---------------------------------------------
-	 * This function provides Cortex-A715 specific
-	 * register information for crash reporting.
-	 * It needs to return with x6 pointing to
-	 * a list of register names in ascii and
-	 * x8 - x15 having values of registers to be
-	 * reported.
-	 * ---------------------------------------------
-	 */
-.section .rodata.cortex_a715_regs, "aS"
-cortex_a715_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_a715_cpu_reg_dump
-	adr	x6, cortex_a715_regs
-	mrs	x8, CORTEX_A715_CPUECTLR_EL1
-	ret
-endfunc cortex_a715_cpu_reg_dump
 
 declare_cpu_ops cortex_a715, CORTEX_A715_MIDR, \
 	cortex_a715_reset_func, \

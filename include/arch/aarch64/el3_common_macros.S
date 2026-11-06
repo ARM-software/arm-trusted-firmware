@@ -80,10 +80,6 @@
 	/* ---------------------------------------------------------------------
 	 * Initialise MDCR_EL3, setting all fields rather than relying on hw.
 	 * Some fields are architecturally UNKNOWN on reset.
-	 * Future feature enablement code must only set ETADE, EDADE, and EPMADE
-	 * when FEAT_RME is implemented and enabled. This preserves access to
-	 * externally accessible debug registers as required by C1-Ultra erratum
-	 * 4015814.
 	 */
 	mov_imm	x0, MDCR_EL3_RESET_VAL
 	msr	mdcr_el3, x0
@@ -170,6 +166,9 @@
 		 *
 		 * SCTLR.DSSBS: Set to zero to disable speculation store bypass
 		 *  safe behaviour upon exception entry to EL3.
+		 *
+		 * SCTLR_EL3.NMI: Set/left to zero as required by the workaround
+		 * for Arm C1-Pro erratum 3679375
 		 * -------------------------------------------------------------
 		 */
 		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \

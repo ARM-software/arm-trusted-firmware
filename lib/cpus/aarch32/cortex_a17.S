@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,7 +121,7 @@ func cortex_a17_reset_func
 	bl	errata_a17_852423_wa
 #endif
 
-#if IMAGE_BL32 && WORKAROUND_CVE_2017_5715
+#if defined(IMAGE_BL32) && WORKAROUND_CVE_2017_5715
 	ldr	r0, =wa_cve_2017_5715_bpiall_vbar
 	stcopr	r0, VBAR
 	stcopr	r0, MVBAR

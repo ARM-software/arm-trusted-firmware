@@ -25,8 +25,9 @@ static void psci_set_power_off_state(psci_power_state_t *state_info)
 {
 	unsigned int lvl;
 
-	for (lvl = PSCI_CPU_PWR_LVL; lvl <= PLAT_MAX_PWR_LVL; lvl++)
+	for (lvl = PSCI_CPU_PWR_LVL; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
 		state_info->pwr_domain_state[lvl] = PLAT_MAX_OFF_STATE;
+	}
 }
 
 /******************************************************************************
@@ -94,8 +95,9 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 */
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_off != NULL)) {
 		rc = psci_spd_pm->svc_off(0);
-		if (rc != 0)
-			goto exit;
+		if (rc != 0) {
+			goto off_exit;
+		}
 	}
 
 	/*
@@ -103,25 +105,14 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 * it returns the negotiated state info for each power level upto
 	 * the end level specified.
 	 */
-	psci_do_state_coordination(end_pwrlvl, &state_info);
+	psci_do_state_coordination(idx, end_pwrlvl, &state_info);
 
 	/* Update the target state in the power domain nodes */
-	psci_set_target_local_pwr_states(end_pwrlvl, &state_info);
+	psci_set_target_local_pwr_states(idx, end_pwrlvl, &state_info);
 
 #if ENABLE_PSCI_STAT
 	/* Update the last cpu for each level till end_pwrlvl */
-	psci_stats_update_pwr_down(end_pwrlvl, &state_info);
-#endif
-
-#if ENABLE_RUNTIME_INSTRUMENTATION
-
-	/*
-	 * Flush cache line so that even if CPU power down happens
-	 * the timestamp update is reflected in memory.
-	 */
-	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
-		RT_INSTR_ENTER_CFLUSH,
-		PMF_CACHE_MAINT);
+	psci_stats_update_pwr_down(idx, end_pwrlvl, &state_info);
 #endif
 
 	PUBLISH_EVENT(psci_cpu_off_start);
@@ -130,12 +121,6 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 * Arch. management. Initiate power down sequence.
 	 */
 	psci_pwrdown_cpu(psci_find_max_off_lvl(&state_info));
-
-#if ENABLE_RUNTIME_INSTRUMENTATION
-	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
-		RT_INSTR_EXIT_CFLUSH,
-		PMF_NO_CACHE_MAINT);
-#endif
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
@@ -147,7 +132,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	plat_psci_stat_accounting_start(&state_info);
 #endif
 
-exit:
+off_exit:
 	/*
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.

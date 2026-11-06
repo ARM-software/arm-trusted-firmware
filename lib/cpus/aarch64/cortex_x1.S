@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 2022-2024, Google LLC. All rights reserved.
+ * Copyright (c) 2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101433/latest
- * SDEN: https://developer.arm.com/documentation/SDEN-1401782/latest
+ * TRM: https://support.arm.com/documentation/101433/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1401782/latest
+ * MinRevision: r1p1
  */
 
 #include <asm_macros.S>
@@ -226,7 +228,7 @@ check_erratum_chosen cortex_x1, ERRATUM(4302972), ERRATA_X1_4302972
 check_erratum_chosen cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * The Cortex-X1 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
@@ -258,24 +260,6 @@ func cortex_x1_core_pwr_dwn
 	ret
 endfunc cortex_x1_core_pwr_dwn
 
-       /* ---------------------------------------------
-	* This function provides Cortex X1 specific
-	* register information for crash reporting.
-	* It needs to return with x6 pointing to
-	* a list of register names in ascii and
-	* x8 - x15 having values of registers to be
-	* reported.
-	* ---------------------------------------------
-	*/
-.section .rodata.cortex_x1_regs, "aS"
-cortex_x1_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func cortex_x1_cpu_reg_dump
-	adr	x6, cortex_x1_regs
-	mrs	x8, CORTEX_X1_CPUECTLR_EL1
-	ret
-endfunc cortex_x1_cpu_reg_dump
 
 declare_cpu_ops cortex_x1, CORTEX_X1_MIDR, \
 	cortex_x1_reset_func, \

@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101385/latest
- * SDEN: https://developer.arm.com/documentation/SDEN1344564/latest
+ * TRM: https://support.arm.com/documentation/101385/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1344564/latest
+ * MinRevision: r0p0
  */
 #include <arch.h>
 
@@ -46,21 +47,12 @@ cpu_reset_func_start cortex_a65ae
 cpu_reset_func_end cortex_a65ae
 
 func cortex_a65ae_cpu_pwr_dwn
-	sysreg_bit_set CORTEX_A65AE_CPUPWRCTLR_EL1, CORTEX_A65AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	sysreg_bit_set CORTEX_A65_AE_CPUPWRCTLR_EL1, CORTEX_A65_AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_a65ae_cpu_pwr_dwn
 
-.section .rodata.cortex_a65ae_regs, "aS"
-cortex_a65ae_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func cortex_a65ae_cpu_reg_dump
-	adr	x6, cortex_a65ae_regs
-	mrs	x8, CORTEX_A65AE_ECTLR_EL1
-	ret
-endfunc cortex_a65ae_cpu_reg_dump
-
-declare_cpu_ops cortex_a65ae, CORTEX_A65AE_MIDR, \
+declare_cpu_ops cortex_a65ae, CORTEX_A65_AE_MIDR, \
 	cortex_a65ae_reset_func, \
 	cortex_a65ae_cpu_pwr_dwn

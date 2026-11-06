@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/101560/latest
- * SDEN: https://developer.arm.com/documentation/SDEN1402034/latest
+ * TRM: https://support.arm.com/documentation/101560/latest
+ * SDEN: https://support.arm.com/documentation/SDEN-1402034/latest
+ * MinRevision: r0p0
  */
 #include <arch.h>
 #include <asm_macros.S>
@@ -49,15 +50,6 @@ func neoverse_e1_cpu_pwr_dwn
 	ret
 endfunc neoverse_e1_cpu_pwr_dwn
 
-.section .rodata.neoverse_e1_regs, "aS"
-neoverse_e1_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
-
-func neoverse_e1_cpu_reg_dump
-	adr	x6, neoverse_e1_regs
-	mrs	x8, NEOVERSE_E1_ECTLR_EL1
-	ret
-endfunc neoverse_e1_cpu_reg_dump
 
 declare_cpu_ops neoverse_e1, NEOVERSE_E1_MIDR, \
 	neoverse_e1_reset_func, \

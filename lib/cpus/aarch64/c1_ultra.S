@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * TRM: https://developer.arm.com/documentation/108014/latest
- * SDEN: https://developer.arm.com/documentation/111077/latest
+ * TRM: https://support.arm.com/documentation/108014/latest
+ * SDEN: https://support.arm.com/documentation/111077/latest
+ * MinRevision: r1p0
  */
 
 #include <arch.h>
@@ -35,7 +36,7 @@ workaround_runtime_end c1_ultra, ERRATUM(3324333)
 check_erratum_ls c1_ultra, ERRATUM(3324333), CPU_REV(0, 0)
 
 workaround_reset_start c1_ultra, ERRATUM(3502731), ERRATA_C1ULTRA_3502731
-	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR4_EL1, BIT(23)
+	sysreg_bit_set C1_ULTRA_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_ultra, ERRATUM(3502731)
 
 check_erratum_ls c1_ultra, ERRATUM(3502731), CPU_REV(0, 0)
@@ -49,26 +50,32 @@ add_erratum_entry c1_ultra, ERRATUM(3683289), ERRATUM_ALWAYS_CHOSEN
 check_erratum_ls c1_ultra, ERRATUM(3683289), CPU_REV(1, 0)
 
 workaround_reset_start c1_ultra, ERRATUM(3684152), ERRATA_C1ULTRA_3684152
-	sysreg_bitfield_insert C1_ULTRA_IMP_CPUACTLR_EL1, C1_ULTRA_IMP_CPUACTLR_EL1_LOAD_BIT, \
-	C1_ULTRA_IMP_CPUACTLR_EL1_LOAD_SHIFT, C1_ULTRA_IMP_CPUACTLR_EL1_LOAD_WIDTH
+	sysreg_bitfield_insert C1_ULTRA_CPUACTLR_EL1, \
+		C1_ULTRA_CPUACTLR_EL1_LOAD_BIT, \
+		C1_ULTRA_CPUACTLR_EL1_LOAD_SHIFT, \
+		C1_ULTRA_CPUACTLR_EL1_LOAD_WIDTH
 workaround_reset_end c1_ultra, ERRATUM(3684152)
 
 check_erratum_ls c1_ultra, ERRATUM(3684152), CPU_REV(0, 0)
 
 workaround_reset_start c1_ultra, ERRATUM(3705939), ERRATA_C1ULTRA_3705939
-	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR_EL1, BIT(48)
+	sysreg_bit_set C1_ULTRA_CPUACTLR_EL1, BIT(48)
 workaround_reset_end c1_ultra, ERRATUM(3705939)
 
 check_erratum_ls c1_ultra, ERRATUM(3705939), CPU_REV(1, 0)
 
+/* It depends on non-default settings CORE<n>_ASYNC_BRIDGE = FALSE */
+add_erratum_entry c1_ultra, ERRATUM(3806278), ERRATUM_ALWAYS_CHOSEN
+check_erratum_ls c1_ultra, ERRATUM(3806278), CPU_REV(1, 0)
+
 workaround_reset_start c1_ultra, ERRATUM(3815514), ERRATA_C1ULTRA_3815514
-	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR5_EL1, BIT(13)
+	sysreg_bit_set C1_ULTRA_CPUACTLR5_EL1, BIT(13)
 workaround_reset_end c1_ultra, ERRATUM(3815514)
 
 check_erratum_ls c1_ultra, ERRATUM(3815514), CPU_REV(1, 0)
 
 workaround_reset_start c1_ultra, ERRATUM(3865171), ERRATA_C1ULTRA_3865171
-	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR2_EL1, BIT(22)
+	sysreg_bit_set C1_ULTRA_CPUACTLR2_EL1, BIT(22)
 workaround_reset_end c1_ultra, ERRATUM(3865171)
 
 check_erratum_ls c1_ultra, ERRATUM(3865171), CPU_REV(1, 0)
@@ -76,36 +83,51 @@ check_erratum_ls c1_ultra, ERRATUM(3865171), CPU_REV(1, 0)
 workaround_reset_start c1_ultra, ERRATUM(3926381), ERRATA_C1ULTRA_3926381
 	/* Convert WFx to NOP */
 	ldr x0,=0x0
-	msr C1_ULTRA_IMP_CPUPSELR_EL3, x0
+	msr C1_ULTRA_CPUPSELR_EL3, x0
 	ldr x0,=0xD503205f
-	msr C1_ULTRA_IMP_CPUPOR_EL3, x0
+	msr C1_ULTRA_CPUPOR_EL3, x0
 	ldr x0,=0xFFFFFFDF
-	msr C1_ULTRA_IMP_CPUPMR_EL3, x0
+	msr C1_ULTRA_CPUPMR_EL3, x0
 	ldr x0,=0x1000002043ff
-	msr C1_ULTRA_IMP_CPUPCR_EL3, x0
+	msr C1_ULTRA_CPUPCR_EL3, x0
 	/* Convert WFxT to NOP */
 	ldr x0,=0x1
-	msr C1_ULTRA_IMP_CPUPSELR_EL3, x0
+	msr C1_ULTRA_CPUPSELR_EL3, x0
 	ldr x0,=0xD5031000
-	msr C1_ULTRA_IMP_CPUPOR_EL3, x0
+	msr C1_ULTRA_CPUPOR_EL3, x0
 	ldr x0,=0xFFFFFFC0
-	msr C1_ULTRA_IMP_CPUPMR_EL3, x0
+	msr C1_ULTRA_CPUPMR_EL3, x0
 	ldr x0,=0x1000002043ff
-	msr C1_ULTRA_IMP_CPUPCR_EL3, x0
+	msr C1_ULTRA_CPUPCR_EL3, x0
 	isb
 workaround_reset_end c1_ultra, ERRATUM(3926381)
 
 check_erratum_range c1_ultra, ERRATUM(3926381), CPU_REV(1, 0), CPU_REV(1, 0)
 
-/* Erratum avoided by the generic MDCR_EL3 initialization. */
+/*
+ * Erratum avoided by the generic MDCR_EL3.{EDADE, ETADE, EPMADE}
+ * initialization.
+ */
 add_erratum_entry c1_ultra, ERRATUM(4015814), ERRATUM_ALWAYS_CHOSEN
 check_erratum_ls c1_ultra, ERRATUM(4015814), CPU_REV(1, 0)
 
 workaround_reset_start c1_ultra, ERRATUM(4102704), ERRATA_C1ULTRA_4102704
-	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR4_EL1, BIT(23)
+	sysreg_bit_set C1_ULTRA_CPUACTLR4_EL1, BIT(23)
 workaround_reset_end c1_ultra, ERRATUM(4102704)
 
 check_erratum_ls c1_ultra, ERRATUM(4102704), CPU_REV(1, 0)
+
+workaround_reset_start c1_ultra, ERRATUM(4302962), ERRATA_C1ULTRA_4302962
+	sysreg_bit_set C1_ULTRA_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end c1_ultra, ERRATUM(4302962)
+
+check_erratum_ls c1_ultra, ERRATUM(4302962), CPU_REV(1, 0)
+
+workaround_reset_start c1_ultra, ERRATUM(4623386), ERRATA_C1ULTRA_4623386
+	sysreg_bit_set C1_ULTRA_CPUACTLR4_EL1, BIT(36)
+workaround_reset_end c1_ultra, ERRATUM(4623386)
+
+check_erratum_chosen c1_ultra, ERRATUM(4623386), ERRATA_C1ULTRA_4623386
 
 	/* -------------------------------------------------------------
 	 * CVE-2024-7881 is mitigated for C1-Ultra using erratum 3651221
@@ -114,7 +136,7 @@ check_erratum_ls c1_ultra, ERRATUM(4102704), CPU_REV(1, 0)
 	 * -------------------------------------------------------------
 	 */
 workaround_reset_start c1_ultra, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-	sysreg_bit_set C1_ULTRA_IMP_CPUACTLR6_EL1, BIT(41)
+	sysreg_bit_set C1_ULTRA_CPUACTLR6_EL1, BIT(41)
 workaround_reset_end c1_ultra, CVE(2024, 7881)
 
 check_erratum_ls c1_ultra, CVE(2024, 7881), CPU_REV(0, 0)
@@ -124,7 +146,7 @@ check_erratum_ls c1_ultra, CVE(2024, 7881), CPU_REV(0, 0)
 	 * Enables mitigation for CVE-2025-0647.
 	 */
 workaround_reset_start c1_ultra, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	mov	x0, #WA_PATCH_SLOT(3)
 	bl	wa_cve_2025_0647_instruction_patch
 #endif /* IMAGE_BL31 */
@@ -155,8 +177,8 @@ cpu_reset_func_start c1_ultra
 	msr	SSBS, xzr
 	apply_erratum c1_ultra, ERRATUM(3324333), ERRATA_C1ULTRA_3324333
 	/* model bug: not cleared on reset */
-	sysreg_bit_clear C1_ULTRA_IMP_CPUPWRCTLR_EL1, \
-		C1_ULTRA_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	sysreg_bit_clear C1_ULTRA_CPUPWRCTLR_EL1, \
+		C1_ULTRA_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 cpu_reset_func_end c1_ultra
 
 func c1_ultra_core_pwr_dwn
@@ -179,23 +201,14 @@ func c1_ultra_core_pwr_dwn
 	 * It will be set on powerdown and cleared on wakeup
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_toggle C1_ULTRA_IMP_CPUPWRCTLR_EL1, \
-		C1_ULTRA_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	sysreg_bit_toggle C1_ULTRA_CPUPWRCTLR_EL1, \
+		C1_ULTRA_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	ret
 endfunc c1_ultra_core_pwr_dwn
 
-.section .rodata.c1_ultra_regs, "aS"
-c1_ultra_regs: /* The ASCII list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
 
-func c1_ultra_cpu_reg_dump
-	adr 	x6, c1_ultra_regs
-	mrs	x8, C1_ULTRA_IMP_CPUECTLR_EL1
-	ret
-endfunc c1_ultra_cpu_reg_dump
-
-#if WORKAROUND_CVE_2025_0647 && IMAGE_BL31
+#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
 declare_cpu_ops_eh c1_ultra, C1_ULTRA_MIDR, \
 	c1_ultra_reset_func, \
 	c1_ultra_impl_defined_el3_handler, \
