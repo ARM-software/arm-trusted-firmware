@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2013-2026, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -639,6 +640,7 @@ $(call assert_booleans,\
 	PFDI_SUPPORT \
 	PL011_GENERIC_UART \
 	PLAT_EXTRA_LD_SCRIPT \
+	PLAT_XLAT_TABLES_DYNAMIC_LOCKING \
 	PLATFORM_REPORT_CTX_MEM_USE \
 	PRESERVE_DSU_PMU_REGS \
 	PROGRAMMABLE_RESET_ADDRESS \
@@ -927,6 +929,7 @@ $(call add_defines,\
 	PL011_GENERIC_UART \
 	PLAT_${PLAT} \
 	PLAT_EXTRA_LD_SCRIPT \
+	PLAT_XLAT_TABLES_DYNAMIC_LOCKING \
 	PLATFORM_NODE_COUNT \
 	PLATFORM_REPORT_CTX_MEM_USE \
 	PRESERVE_DSU_PMU_REGS \

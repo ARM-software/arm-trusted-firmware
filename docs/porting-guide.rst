@@ -461,6 +461,12 @@ constants must also be defined:
    functionality will be available, if defined and set to 1 it will also
    include the dynamic functionality.
 
+-  **#define : PLAT_XLAT_TABLES_DYNAMIC_LOCKING**
+
+   Optional build flag to serialize dynamic updates to the default mmap context.
+   Disabled by default. When enabled, calls in all images must execute with
+   coherent CPUs, the MMU and data cache enabled, and shared Normal lock memory.
+
 -  **#define : MAX_XLAT_TABLES**
 
    Defines the maximum number of translation tables that are allocated by the
