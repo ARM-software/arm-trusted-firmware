@@ -144,6 +144,11 @@ verbose. The following command should be used to obtain help about the tool:
 
     ./build/<platform>/<build-type>/tools/cert_create/cert_create -h
 
+If the ``SOURCE_DATE_EPOCH`` environment variable is set (see the
+`SOURCE_DATE_EPOCH specification`_), the validity of the certificates starts
+at that time instead of the current time, and their serial numbers are derived
+from their contents instead of being random, for reproducible builds.
+
 .. _tools_build_enctool:
 
 Building the Firmware Encryption Tool
@@ -177,3 +182,4 @@ via using ``cat <filename>`` instead of a hex string.
 
 .. _Trusted Firmware-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/
 .. _TFTF documentation: https://trustedfirmware-a-tests.readthedocs.io/en/latest/
+.. _SOURCE_DATE_EPOCH specification: https://reproducible-builds.org/specs/source-date-epoch/
