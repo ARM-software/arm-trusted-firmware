@@ -18,6 +18,7 @@
 #define APPS_SMMU_STATS_SYNC_INV_TBU_ACK     0x150025DC
 #define APPS_SMMU_SAFE_SEC_CFG               0x15002644
 #define APPS_SMMU_MMU2QSS_AND_SAFE_WAIT_CNTR 0x15002648
+#define TCSR_BOOT_MISC_DETECT                0x01FD3000
 
 static const uintptr_t qti_secure_io_allowed_regs[] = {
 #if DEBUG
@@ -28,6 +29,7 @@ static const uintptr_t qti_secure_io_allowed_regs[] = {
 	APPS_SMMU_STATS_SYNC_INV_TBU_ACK,
 	APPS_SMMU_SAFE_SEC_CFG,
 	APPS_SMMU_MMU2QSS_AND_SAFE_WAIT_CNTR,
+	TCSR_BOOT_MISC_DETECT,
 };
 
 static const uintptr_t qti_secure_io_debug_allowed_regs[] = {
