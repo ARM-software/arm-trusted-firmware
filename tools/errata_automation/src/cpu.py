@@ -15,8 +15,10 @@ from src.models.workaround_details import WorkaroundClass
 from src.resolvers.trm import TechnicalReferenceManual
 
 _cpu_marker_re = re.compile(r"cpu_reset_prologue\s+(?P<cpu_name>.+)")
-_trm_re = re.compile(r"TRM:\s+(?P<url>.+)")
-_sden_re = re.compile(r"SDEN:\s+(?P<url>.+)")
+
+_trm_re = re.compile(r"TRM:\s*(?P<url>https?://\S+|N/A)", re.IGNORECASE)
+_sden_re = re.compile(r"SDEN:\s*(?P<url>https?://\S+|N/A)", re.IGNORECASE)
+
 _errata_re = re.compile(
     r"(?P<workaround_class>add_erratum_entry|workaround_reset_start|workaround_runtime_start)\s*.*?,\s*"
     r"(?P<category>ERRATUM)\((?P<id>.*?)\),"
@@ -24,6 +26,9 @@ _errata_re = re.compile(
     r"(?:,\s*(?P<review_marker>__REQUIRES_REVIEW__).*)?"
 )
 
+
+class DocumentationNotAvailableError(Exception):
+    """Raised when a CPU has no released documentation."""
 
 class CPU:
     _logger: logging.Logger
@@ -190,6 +195,11 @@ class CPU:
         if sden_link is None or trm_link is None:
             raise ValueError(
                 f"Missing SDEN or TRM link in assembly file {self._assembly_file_path.name}."
+            )
+
+        if sden_link.upper() == "N/A" or trm_link.upper() == "N/A":
+            raise DocumentationNotAvailableError(
+                f"No available SDEN or TRM documentation for {self._assembly_file_path.name}."
             )
 
         return sden_link, trm_link
