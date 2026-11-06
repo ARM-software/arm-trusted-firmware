@@ -290,7 +290,7 @@ _soc_core_prep_off:
 
 	/* x7 = core mask lsb */
 
-	mrs	x1, CPUECTLR_EL1
+	mrs	x1, NXP_CPUECTLR_EL1
 
 	/* Set smp and disable L2 snoops in cpuectlr */
 	orr	x1, x1, #CPUECTLR_SMPEN_EN
@@ -301,7 +301,7 @@ _soc_core_prep_off:
 	/* Set retention control in cpuectlr */
 	bic	x1, x1, #CPUECTLR_TIMER_MASK
 	orr	x1, x1, #CPUECTLR_TIMER_2TICKS
-	msr	CPUECTLR_EL1, x1
+	msr	NXP_CPUECTLR_EL1, x1
 
 	/* Get redistributor rd base addr for this core */
 	mov	x0, x7
@@ -564,11 +564,11 @@ _soc_sys_off:
 	msr	sctlr_el1, x0
 
 	/* Disable L2 prefetches */
-	mrs	x0, CPUECTLR_EL1
+	mrs	x0, NXP_CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMPEN_EN
 	bic	x0, x0, #CPUECTLR_TIMER_MASK
 	orr	x0, x0, #CPUECTLR_TIMER_2TICKS
-	msr	CPUECTLR_EL1, x0
+	msr	NXP_CPUECTLR_EL1, x0
 	dsb	sy
 	isb
 
@@ -649,10 +649,10 @@ _soc_sys_off:
  * uses x0, x1
  */
 _soc_core_prep_stdby:
-	/* Clear CPUECTLR_EL1[2:0] */
-	mrs	x1, CPUECTLR_EL1
+	/* Clear NXP_CPUECTLR_EL1[2:0] */
+	mrs	x1, NXP_CPUECTLR_EL1
 	bic	x1, x1, #CPUECTLR_TIMER_MASK
-	msr	CPUECTLR_EL1, x1
+	msr	NXP_CPUECTLR_EL1, x1
 
 	ret
 
@@ -704,11 +704,11 @@ _soc_core_prep_pwrdn:
 	 * Enable dynamic retention control (CPUECTLR[2:0])
 	 * Set the SMPEN bit (CPUECTLR[6])
 	 */
-	mrs	x1, CPUECTLR_EL1
+	mrs	x1, NXP_CPUECTLR_EL1
 	bic	x1, x1, #CPUECTLR_RET_MASK
 	orr	x1, x1, #CPUECTLR_TIMER_2TICKS
 	orr	x1, x1, #CPUECTLR_SMPEN_EN
-	msr	CPUECTLR_EL1, x1
+	msr	NXP_CPUECTLR_EL1, x1
 
 	isb
 	ret
@@ -749,10 +749,10 @@ _soc_core_exit_pwrdn:
  * uses x0, x1
  */
 _soc_clstr_prep_stdby:
-	/* Clear CPUECTLR_EL1[2:0] */
-	mrs	x1, CPUECTLR_EL1
+	/* Clear NXP_CPUECTLR_EL1[2:0] */
+	mrs	x1, NXP_CPUECTLR_EL1
 	bic	x1, x1, #CPUECTLR_TIMER_MASK
-	msr	CPUECTLR_EL1, x1
+	msr	NXP_CPUECTLR_EL1, x1
 
 	ret
 
@@ -788,11 +788,11 @@ _soc_clstr_prep_pwrdn:
 	 * Enable dynamic retention control (CPUECTLR[2:0])
 	 * Set the SMPEN bit (CPUECTLR[6])
 	 */
-	mrs	x1, CPUECTLR_EL1
+	mrs	x1, NXP_CPUECTLR_EL1
 	bic	x1, x1, #CPUECTLR_RET_MASK
 	orr	x1, x1, #CPUECTLR_TIMER_2TICKS
 	orr	x1, x1, #CPUECTLR_SMPEN_EN
-	msr	CPUECTLR_EL1, x1
+	msr	NXP_CPUECTLR_EL1, x1
 
 	isb
 	ret
@@ -817,10 +817,10 @@ _soc_clstr_exit_pwrdn:
  * uses x0, x1
  */
 _soc_sys_prep_stdby:
-	/* Clear CPUECTLR_EL1[2:0] */
-	mrs	x1, CPUECTLR_EL1
+	/* Clear NXP_CPUECTLR_EL1[2:0] */
+	mrs	x1, NXP_CPUECTLR_EL1
 	bic	x1, x1, #CPUECTLR_TIMER_MASK
-	msr	CPUECTLR_EL1, x1
+	msr	NXP_CPUECTLR_EL1, x1
 
 	ret
 
@@ -846,11 +846,11 @@ _soc_sys_exit_stdby:
  */
 _soc_sys_prep_pwrdn:
 	/* Set retention control */
-	mrs	x0, CPUECTLR_EL1
+	mrs	x0, NXP_CPUECTLR_EL1
 	bic	x0, x0, #CPUECTLR_TIMER_MASK
 	orr	x0, x0, #CPUECTLR_TIMER_2TICKS
 	orr	x0, x0, #CPUECTLR_SMPEN_EN
-	msr	CPUECTLR_EL1, x0
+	msr	NXP_CPUECTLR_EL1, x0
 	dsb	sy
 	isb
 	ret
@@ -959,10 +959,10 @@ _soc_sys_pwrdn_wfi:
 	str	w1, [x0]
 
 	/* Setup retention control */
-	mrs	x0, CPUECTLR_EL1
+	mrs	x0, NXP_CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMPEN_EN
 	orr	x0, x0, #CPUECTLR_TIMER_2TICKS
-	msr	CPUECTLR_EL1, x0
+	msr	NXP_CPUECTLR_EL1, x0
 	dsb	sy
 	isb
 
