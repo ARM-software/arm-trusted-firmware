@@ -3,6 +3,28 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.12..refs/tags/lts-v2.14.13) (2026-11-06)
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - clarify C1-Ultra erratum 4015814 comment ([a6ae659](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a6ae6596e9da40785f6f2212bbb62e32cb158887))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add erratum 4011463 for Cortex-X4 ([c6f0be4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c6f0be4bc9b4fcad6a1a4a4569f3c8fced36683a))
+    - add erratum 4015814 for C1-Premium ([1d106b4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1d106b471e3368cb390ecffde952120db470836e))
+    - add erratum 4015817 for Cortex-X925 ([24b2531](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/24b25310b540bd3868486c2e89fb0b4bfa27d467))
+    - add erratum 4060225 for Neoverse-V3 ([5464d46](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5464d4609059b6ceb12282498397990eb11438b5))
+    - add erratum 4060225 for Neoverse-V3AE ([bc1eb95](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bc1eb95d665940524c67ef44b8279ea3a7548714))
+
 ## [lts-2.14.12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.11..refs/tags/lts-v2.14.12) (2026-10-31)
 
 ### Performance Improvements
