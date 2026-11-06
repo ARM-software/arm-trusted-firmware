@@ -3,6 +3,26 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.51](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.50..refs/tags/lts-v2.8.51) (2026-11-06)
+
+### Documentation
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - guard external register access without FEAT_RME ([c857d76](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c857d762c9cd5b0f1d6d6770cced0a93dec9fd90))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add erratum 4011463 for Cortex-X4 ([f47fd4a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f47fd4aceb1ee62be1caa1d1633836d176d93531))
+    - add erratum 4060225 for Neoverse-V3 ([c9484d9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c9484d9a277edf12a66a54ec7bfe3bea5a24366b))
+    - add erratum 4060225 for Neoverse-V3AE ([f004b2e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f004b2e1fcff615b5efa5ee10e57651dbe2b67cd))
+
 ## [lts-2.8.50](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.49..refs/tags/lts-v2.8.50) (2026-10-30)
 
 ### Code Refactoring

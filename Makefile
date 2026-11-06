@@ -9,7 +9,7 @@
 #
 VERSION_MAJOR			:= 2
 VERSION_MINOR			:= 8
-VERSION_PATCH			:= 50
+VERSION_PATCH			:= 51
 VERSION				:= ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 
 # Default goal is build all images
