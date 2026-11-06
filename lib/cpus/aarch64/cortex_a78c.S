@@ -142,6 +142,17 @@ workaround_reset_end cortex_a78c, ERRATUM(2683027)
 
 check_erratum_range cortex_a78c, ERRATUM(2683027), CPU_REV(0, 1), CPU_REV(0, 2)
 
+add_erratum_entry cortex_a78c, ERRATUM(2712575), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_a78c, ERRATUM(2712575)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_range CPU_REV(0, 1), CPU_REV(0, 2)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_a78c, ERRATUM(2712575)
+
 workaround_reset_start cortex_a78c, ERRATUM(2743232), ERRATA_A78C_2743232
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
 	sysreg_lazy_start CORTEX_A78C_ACTLR5_EL1

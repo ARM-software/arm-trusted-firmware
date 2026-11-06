@@ -215,12 +215,6 @@ $(error "Please define proper PLAT_IPI_ID_APU")
 endif
 endif
 
-ifeq (${ERRATA_ABI_SUPPORT}, 1)
-# enable the cpu macros for errata abi interface
-CORTEX_A78_AE_H_INC     := 1
-$(eval $(call add_define, CORTEX_A78_AE_H_INC))
-endif
-
 ifeq (${TRANSFER_LIST},1)
 BL31_SOURCES           +=	plat/amd/common/plat_fdt.c
 BL31_SOURCES           +=	plat/amd/common/plat_xfer_list.c

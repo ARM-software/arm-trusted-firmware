@@ -56,13 +56,13 @@ func cortex_a720ae_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set CORTEX_A720_AE_CPUPWRCTLR_EL1, CORTEX_A720_AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	sysreg_bit_set CORTEX_A720AE_CPUPWRCTLR_EL1, CORTEX_A720AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 
 	isb
 	ret
 endfunc cortex_a720ae_core_pwr_dwn
 
 
-declare_cpu_ops cortex_a720ae, CORTEX_A720_AE_MIDR, \
+declare_cpu_ops cortex_a720ae, CORTEX_A720AE_MIDR, \
 	cortex_a720ae_reset_func, \
 	cortex_a720ae_core_pwr_dwn

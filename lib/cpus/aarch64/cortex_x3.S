@@ -114,6 +114,17 @@ workaround_reset_end cortex_x3, ERRATUM(2641945)
 
 check_erratum_ls cortex_x3, ERRATUM(2641945), CPU_REV(1, 0)
 
+add_erratum_entry cortex_x3, ERRATUM(2701951), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_x3, ERRATUM(2701951)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(1, 1)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_x3, ERRATUM(2701951)
+
 workaround_reset_start cortex_x3, ERRATUM(2742421), ERRATA_X3_2742421
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
 	sysreg_lazy_start CORTEX_X3_CPUACTLR5_EL1

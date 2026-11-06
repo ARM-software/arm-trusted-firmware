@@ -114,7 +114,7 @@ bool errata_ich_vmcr_el2_applies(void)
 #endif /* ERRATA_A720_3699561 */
 
 #if ERRATA_A720_AE_3699562
-	case EXTRACT_PARTNUM(CORTEX_A720_AE_MIDR):
+	case EXTRACT_PARTNUM(CORTEX_A720AE_MIDR):
 		if (check_erratum_cortex_a720ae_3699562(cpu_get_rev_var()) == ERRATA_APPLIES)
 			return true;
 		break;

@@ -139,6 +139,9 @@ static inline void apply_cve_2025_10263_wa(void)
 /* useful for errata that end up always being worked around */
 #define ERRATUM_ALWAYS_CHOSEN	1
 
+/* useful for errata without an EL3 workaround */
+#define ERRATUM_NO_EL3_WA	0
+
 #endif /* __ASSEMBLER__ */
 
 #define ERRATUM(id)		0, id
@@ -147,7 +150,7 @@ static inline void apply_cve_2025_10263_wa(void)
 /* Macro to get CPU revision code for checking errata version compatibility. */
 #define CPU_REV(r, p)		((r << 4) | p)
 
-/* Used for errata that have split workaround */
+/* Used for errata that need a workaround at EL3 and a lower EL simultaneously */
 #define SPLIT_WA			1
 
 /* chosen bitfield entries */

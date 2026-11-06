@@ -243,6 +243,17 @@ workaround_reset_end neoverse_v1, ERRATUM(2372203)
 
 check_erratum_ls neoverse_v1, ERRATUM(2372203), CPU_REV(1, 1)
 
+add_erratum_entry neoverse_v1, ERRATUM(2701953), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start neoverse_v1, ERRATUM(2701953)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(1, 1)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end neoverse_v1, ERRATUM(2701953)
+
 workaround_runtime_start neoverse_v1, ERRATUM(2743093), ERRATA_V1_2743093
 	/* dsb before isb of power down sequence */
 	dsb	sy
