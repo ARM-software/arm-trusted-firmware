@@ -2,6 +2,10 @@
  * Copyright (c) 2020-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: N/A
+ * SDEN: N/A
+ * MinRevision: N/A
  */
 
 #include <arch.h>
