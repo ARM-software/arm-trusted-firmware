@@ -10,9 +10,16 @@ $(eval $(call add_define,QTI_RPMH_ENABLED))
 
 RPMH_DRV_PATH := drivers/qti/rpmh
 
+# Lemans and Monaco share one apps RSC layout and AOP message RAM.
+ifneq ($(filter lemans monaco,$(CHIPSET)),)
+RPMH_DATA := $(RPMH_DRV_PATH)/hoya
+else
+RPMH_DATA := $(RPMH_DRV_PATH)/$(CHIPSET)
+endif
+
 PLAT_INCLUDES += \
 	-I$(RPMH_DRV_PATH) \
-	-I$(RPMH_DRV_PATH)/$(CHIPSET)
+	-I$(RPMH_DATA)
 
 BL31_SOURCES += \
 	$(RPMH_DRV_PATH)/rpmh_client.c

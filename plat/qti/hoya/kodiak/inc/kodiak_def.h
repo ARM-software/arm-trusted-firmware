@@ -8,6 +8,32 @@
 #ifndef KODIAK_DEF_H
 #define KODIAK_DEF_H
 
+/*
+ * The gold cores share the one DSU cluster; their memories are repaired by
+ * the APC1 rail sequencer of the cluster IPM block (its registers are named
+ * after the gold+ cores) before the first of them powers on.
+ */
+#define QTI_GOLD_HAS_SEPARATE_DSU	0
+#define QTI_GOLD_RAIL_BOOT_MV		852U
+#define QTI_APC1_MEM_REPAIR_SEQ		0x18080180U
+#define QTI_APC1_MEM_REPAIR_REQ		0x100U
+#define QTI_APC1_MEM_REPAIR_DONE	0x10U
+
+/*
+ * Power-collapse sequence of the core IPM sequencers, run on the P-channel
+ * OFF request a core raises at CPU_OFF. It is loaded at command 0x20, where
+ * the boot firmware's secure library loads it.
+ */
+#define QTI_CPU_OFF_SEQ_START		0x20U
+#define QTI_CPU_OFF_SEQ \
+{ \
+	0x02a7b5b1U, 0xa2ada1e4U, 0x02a3e502U, 0xa90cb4e5U, \
+	0xa5a4b0a6U, 0xaee302aaU, 0x028ee802U, 0xe0b787e8U, \
+	0xa7e20397U, 0x02aee402U, 0xe8028ee8U, 0x06060606U, \
+	0x0ce3028aU, 0x818d0c94U, 0x83908689U, 0x0282e502U, \
+	0x8802a8e5U, 0x8403a0e6U, 0x95878085U, 0x00002091U \
+}
+
 #include <hoya_def.h>
 
 /*----------------------------------------------------------------------------*/

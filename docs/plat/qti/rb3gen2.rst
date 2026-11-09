@@ -32,14 +32,21 @@ How to build
 Steps to build TF-A BL2 and FIP payload::
 
 	$ make CROSS_COMPILE=aarch64-none-elf- PLAT=rb3gen2 SPD=opteed \
-            QTISECLIB_PATH=<qtiseclib-path> BL32=<path-to-optee-bin> \
-            BL33=<path-to-os-bootloader-bin> fip all
+            BL32=<path-to-optee-bin> BL33=<path-to-os-bootloader-bin> fip all
 
         $ ./tools/qti/generate_fip_elf.sh build/rb3gen2/release/fip.bin \
             0x9fc00000
 
-QTISELIB for Kodiak/SC7280 is available at
-`link <https://github.com/coreboot/qc_blobs/blob/master/sc7280/qtiseclib/libqtisec.a?raw=true>`__
+BL31 runs the native PSCI, CPUCP, command DB, PDC, clock, access
+control, SMMU, sec_core, QTimer and watchdog drivers. Alternatively,
+``QTISECLIB_PATH=<qtiseclib-path>`` links the QTISECLIB for Kodiak/SC7280,
+available at
+`link <https://github.com/coreboot/qc_blobs/blob/master/sc7280/qtiseclib/libqtisec.a?raw=true>`__,
+in place of these drivers.
+
+U-Boot as BL33 is built from ``qcom_defconfig`` with ``tfa-optee.config``,
+adding ``CONFIG_OPTEE_LIB=y`` so that U-Boot copies the OP-TEE node into the
+device tree it passes to Linux.
 
 Note that the bl2.elf generated here is required to be signed as TZ image with
 QTI signing involved. Also, the fip.elf generated above is signed using
@@ -47,6 +54,20 @@ QTI signing involved. Also, the fip.elf generated above is signed using
 the OEM test signature to allow it to work on devices in non-secure mode. In
 secure mode, it is required to be signed using
 `sectools v2 <https://docs.qualcomm.com/bundle/publicresource/topics/80-70020-11/tools.html>`__
+
+Native driver limitations
+-------------------------
+
+- Only CPU standby (WFI) is offered as an idle state: the idle
+  power-collapse sequences of the CPUs, the clusters and the system are not
+  implemented. With no system power-down state, PSCI SYSTEM_SUSPEND cannot
+  suspend the system.
+- The access control driver applies the static XPU configuration. Of the QTI
+  SiP MEM_ASSIGN transitions it implements only those of the modem VMIDs: it
+  returns success for the others, for instance the LPASS and ADSP heap VMIDs
+  that FastRPC assigns, without changing their access.
+- The SiP call that points GPU SMMU aperture slots at context banks is not
+  implemented: BL31 writes slot 0, the only one Linux uses, at boot.
 
 How to flash
 ------------
@@ -65,7 +86,7 @@ Then flash the board following the meta-qcom instructions
 Boot Trace
 -------------
 
-Boot logs on RB3Gen2::
+Boot logs on RB3Gen2 with QTISECLIB::
 
         Format: Log Type - Time(microsec) - Message - Optional Info
         Log Type: B - Since Boot(Power On Reset),  D - Delta,  S - Statistic

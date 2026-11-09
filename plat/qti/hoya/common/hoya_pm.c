@@ -13,6 +13,7 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <lib/spinlock.h>
+#include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
 #include <platform_def.h>
@@ -21,10 +22,10 @@
 /*
  * Native (hoya/lemans) backend for the QTI PSCI power-domain hooks declared in
  * qti_plat.h. The secondary-core cold-boot bringup and reset-vector setup are
- * performed natively via the raw APSS IPM register sequence below. Only
- * CPU-level standby (WFI retention) is supported; the firmware
- * low-power-mode / suspend node handling (PCU/RSC/PDC) is not ported, so the
- * power-down and suspend hooks are empty stubs.
+ * performed natively via the raw APSS IPM register sequence below. CPU_OFF
+ * collapses the core through its IPM sequencer where the chipset provides the
+ * sequence. Idle is CPU-level standby (WFI retention) only: the cluster and
+ * system low-power modes (RSC/PDC) are not ported.
  */
 
 /* Per-core APSS IPM register block. */
@@ -36,11 +37,27 @@
 #define CPU_HEAD_SWITCH_CTL(core)		(APSS_CPU_IPM_REG(core) + 0x08U)
 #define CPU_SEQ_FORCE_PWR_CTL_EN(core)		(APSS_CPU_IPM_REG(core) + 0x1cU)
 #define CPU_SEQ_FORCE_PWR_CTL_VAL(core)		(APSS_CPU_IPM_REG(core) + 0x20U)
+#define CPU_SEQ_CTL(core)			(APSS_CPU_IPM_REG(core) + 0x24U)
 #define CPU_PCHANNEL_FSM_CTL(core)		(APSS_CPU_IPM_REG(core) + 0x44U)
+#define CPU_PCHANNEL_CTLER_STATUS(core)		(APSS_CPU_IPM_REG(core) + 0x4cU)
+
+#define CPU_SEQ_CTL_RESET			0x400U
+#define CPU_SEQ_CTL_EN				BIT_32(0)
+#define CPU_SEQ_CTL_PWR_STATE_IDX(idx)		((idx) << 8)
+#define CPU_SEQ_CTL_START_ADDR(cmd)		((cmd) << 16)
+#define PCHANNEL_MASK_WAKEUP			BIT_32(13)
+#define CTLER_STATUS_LPM_ENTER_COND		BIT_32(12)
+
+#define CPU_OFF_TIMEOUT_US			10000U
+
+/* Sequencer instruction memory, four 8-bit commands per word. */
+#define APSS_SEQ_COMMON_INSTR(n)		(0x180c0000U + ((n) * 4U))
+
+static const uint32_t cpu_off_seq[] = QTI_CPU_OFF_SEQ;
 
 /*
  * APSS cluster (L3/DSU) IPM alias register block (APSS_ALIAS_1). Used for the
- * gold-cluster L3 turn-on and memory-repair sequences.
+ * L3 sequences of a separate gold DSU.
  */
 #define APSS_CL_IPM_REG_BASE			0x18090000U
 
@@ -48,22 +65,25 @@
 #define L3_SEQ_FORCE_PWR_CTL_VAL		(APSS_CL_IPM_REG_BASE + 0x20U)
 #define L3_SEQ_STS1				(APSS_CL_IPM_REG_BASE + 0x38U)
 #define CL_PCHANNEL_FSM_CTL			(APSS_CL_IPM_REG_BASE + 0x44U)
-#define GOLD_PLL_SEQ_FORCE_PWR_CTL_EN		(APSS_CL_IPM_REG_BASE + 0xecU)
-#define GOLD_PLL_SEQ_FORCE_PWR_CTL_VAL		(APSS_CL_IPM_REG_BASE + 0xf0U)
-#define GOLD_PLL_SEQ_STS1			(APSS_CL_IPM_REG_BASE + 0xfcU)
 
 #define L3_SEQ_STS1_MEM_REPAIR_DONE		0x40000U
 #define L3_SEQ_FORCE_PWR_CTL_MEM_REPAIR		0x2000000U
-#define GOLD_PLL_SEQ_STS1_MEM_REPAIR_DONE	0x40U
-#define GOLD_PLL_SEQ_FORCE_PWR_CTL_MEM_REPAIR	0x4000U
+
+/*
+ * IPM sequencer that repairs the memories of the gold cores on the gold rail:
+ * force power control enable and value registers, and a status register.
+ */
+#define CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_EN	(QTI_APC1_MEM_REPAIR_SEQ)
+#define CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_VAL	(QTI_APC1_MEM_REPAIR_SEQ + 0x4U)
+#define CPU_MEM_REPAIR_SEQ_STS1			(QTI_APC1_MEM_REPAIR_SEQ + 0x10U)
 
 /* Upper bound for the memory-repair "done" handshake. */
 #define MEM_REPAIR_TIMEOUT_US			10000U
 
 /*
- * Gold-cluster (APC1) SAW4 AVS rail. The lemans SAW4 instance for the gold
- * rail is at 0x18101000, with the AVS register region at +0x800 and the status
- * region at +0xc00 (see qtiseclib HAL_avs_SecondaryRailInit / saw_v4.c).
+ * Gold-cluster (APC1) SAW4 AVS rail. The SAW4 instance for the gold rail is
+ * at 0x18101000, with the AVS register region at +0x800 and the status
+ * region at +0xc00.
  */
 #define GOLD_SAW4_BASE				0x18101000U
 #define GOLD_SAW4_VCTL				(GOLD_SAW4_BASE + 0x900U)
@@ -82,25 +102,25 @@
  * uses the 16-bit VCTL address index (0) with the boot voltage as data.
  */
 #define SAW4_VCTL_ENABLE			0x30080U
-#define GOLD_SAW4_BOOT_VOLTAGE			828U
-#define SAW4_VCTL_SET_VOLTAGE			(0x100000U | GOLD_SAW4_BOOT_VOLTAGE)
+#define SAW4_VCTL_SET_VOLTAGE			(0x100000U | QTI_GOLD_RAIL_BOOT_MV)
 
 #define SAW4_PMIC_WRITE_RETRY			200U
 
-/* The first gold-cluster (DSU1) core in the lemans CPU topology. */
-#define QTI_FIRST_GOLD_CORE			4
-
 /*
- * Time to let the gold PLL/cluster clock settle after the one-time cold boot
- * before the first gold core is released from reset (see gold_cluster_cold_boot).
+ * State of the one-time gold domain bring-up, also reported by each of its
+ * steps; a domain that failed is not retried.
  */
-#define GOLD_CLUSTER_SETTLE_US			500U
+enum gold_domain_state {
+	GOLD_DOMAIN_OFF,
+	GOLD_DOMAIN_ON,
+	GOLD_DOMAIN_FAIL,
+};
 
 /*
  * Repair the L3 memories of the gold cluster. Performed once, before the first
  * gold core is powered on.
  */
-static void l3_memory_repair(void)
+static enum gold_domain_state l3_memory_repair(void)
 {
 	uint32_t val;
 	uint64_t timeout;
@@ -117,7 +137,7 @@ static void l3_memory_repair(void)
 	while ((mmio_read_32(L3_SEQ_STS1) & L3_SEQ_STS1_MEM_REPAIR_DONE) == 0U) {
 		if (timeout_elapsed(timeout)) {
 			ERROR("L3 memory repair timed out\n");
-			panic();
+			return GOLD_DOMAIN_FAIL;
 		}
 	}
 
@@ -128,6 +148,8 @@ static void l3_memory_repair(void)
 	val = mmio_read_32(L3_SEQ_FORCE_PWR_CTL_EN);
 	mmio_write_32(L3_SEQ_FORCE_PWR_CTL_EN,
 		      val & ~L3_SEQ_FORCE_PWR_CTL_MEM_REPAIR);
+
+	return GOLD_DOMAIN_ON;
 }
 
 /* Execute the gold-cluster L3 turn-on sequence. Performed once. */
@@ -155,38 +177,41 @@ static void l3_cold_boot(void)
 }
 
 /*
- * Repair the gold-cluster PLL memories. Performed once, before the first gold
- * core is powered on.
+ * Repair the memories of the gold cores. Performed once, after the gold rail
+ * is up and before the first gold core is powered on.
  */
-static void cpu_memory_repair(void)
+static enum gold_domain_state cpu_memory_repair(void)
 {
 	uint32_t val;
 	uint64_t timeout;
 
-	val = mmio_read_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_EN);
-	mmio_write_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_EN,
-		      val | GOLD_PLL_SEQ_FORCE_PWR_CTL_MEM_REPAIR);
+	val = mmio_read_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_EN);
+	mmio_write_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_EN,
+		      val | QTI_APC1_MEM_REPAIR_REQ);
 
-	val = mmio_read_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_VAL);
-	mmio_write_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_VAL,
-		      val | GOLD_PLL_SEQ_FORCE_PWR_CTL_MEM_REPAIR);
+	val = mmio_read_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_VAL);
+	mmio_write_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_VAL,
+		      val | QTI_APC1_MEM_REPAIR_REQ);
 
 	timeout = timeout_init_us(MEM_REPAIR_TIMEOUT_US);
-	while ((mmio_read_32(GOLD_PLL_SEQ_STS1) &
-		GOLD_PLL_SEQ_STS1_MEM_REPAIR_DONE) == 0U) {
+	while ((mmio_read_32(CPU_MEM_REPAIR_SEQ_STS1) &
+		QTI_APC1_MEM_REPAIR_DONE) == 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("Gold PLL memory repair timed out\n");
-			panic();
+			ERROR("Memory repair of sequencer 0x%lx timed out\n",
+			      (unsigned long)QTI_APC1_MEM_REPAIR_SEQ);
+			return GOLD_DOMAIN_FAIL;
 		}
 	}
 
-	val = mmio_read_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_VAL);
-	mmio_write_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_VAL,
-		      val & ~GOLD_PLL_SEQ_FORCE_PWR_CTL_MEM_REPAIR);
+	val = mmio_read_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_VAL);
+	mmio_write_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_VAL,
+		      val & ~QTI_APC1_MEM_REPAIR_REQ);
 
-	val = mmio_read_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_EN);
-	mmio_write_32(GOLD_PLL_SEQ_FORCE_PWR_CTL_EN,
-		      val & ~GOLD_PLL_SEQ_FORCE_PWR_CTL_MEM_REPAIR);
+	val = mmio_read_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_EN);
+	mmio_write_32(CPU_MEM_REPAIR_SEQ_FORCE_PWR_CTL_EN,
+		      val & ~QTI_APC1_MEM_REPAIR_REQ);
+
+	return GOLD_DOMAIN_ON;
 }
 
 /*
@@ -214,10 +239,10 @@ static bool saw4_pmic_wait(uint32_t expect_data, bool check_data)
 
 /*
  * Enable the gold-cluster (APC1) SAW4 AVS rail and drive it to its boot
- * voltage. This mirrors qtiseclib's HAL_avs_SecondaryRailInit(); without it the
- * gold cluster has no supply and its cores never come out of reset.
+ * voltage; without it the gold cluster has no supply and its cores never
+ * come out of reset.
  */
-static void set_gold_cluster_voltage(void)
+static enum gold_domain_state set_gold_cluster_voltage(void)
 {
 	uint32_t val;
 
@@ -231,61 +256,96 @@ static void set_gold_cluster_voltage(void)
 	/* Enable the PMIC rail and wait for warm-up. */
 	mmio_write_32(GOLD_SAW4_VCTL, SAW4_VCTL_ENABLE);
 	if (!saw4_pmic_wait(0U, false)) {
-		WARN("gold SAW4 PMIC enable timed out\n");
+		ERROR("gold SAW4 PMIC enable timed out\n");
+		return GOLD_DOMAIN_FAIL;
 	}
 	udelay(90);
 
 	/* Restore the rail to its boot voltage. */
 	mmio_write_32(GOLD_SAW4_VCTL, SAW4_VCTL_SET_VOLTAGE);
-	if (!saw4_pmic_wait(GOLD_SAW4_BOOT_VOLTAGE, true)) {
-		WARN("gold SAW4 PMIC voltage set timed out\n");
-	}
-}
-
-/* One-time gold-cluster (DSU1) bringup, run before its first core powers on. */
-static void gold_cluster_cold_boot(void)
-{
-	static spinlock_t gold_cluster_lock;
-	static bool gold_cluster_booted;
-
-	spin_lock(&gold_cluster_lock);
-	if (gold_cluster_booted) {
-		spin_unlock(&gold_cluster_lock);
-		return;
+	if (!saw4_pmic_wait(QTI_GOLD_RAIL_BOOT_MV, true)) {
+		ERROR("gold SAW4 PMIC voltage set timed out\n");
+		return GOLD_DOMAIN_FAIL;
 	}
 
-	set_gold_cluster_voltage();
-	l3_memory_repair();
-	l3_cold_boot();
-	cpu_memory_repair();
-
-	/*
-	 * The cold-boot sequence above only polls for the L3 and gold-PLL
-	 * "sequence done" / "memory repair done" status, not for the gold PLL
-	 * to actually lock and drive the cluster clock. Releasing the first
-	 * gold core (the only one that runs this cold boot) before its clock is
-	 * running leaves it stuck: PSCI CPU_ON reports success but the core
-	 * never starts executing, so the kernel times it out and only 7 of the
-	 * 8 CPUs come online. Let the PLL/clock settle before the reset
-	 * sequence releases the core. This runs only on the one-time cold-boot
-	 * path, so it does not affect the later gold cores or steady state.
-	 */
-	udelay(GOLD_CLUSTER_SETTLE_US);
-
-	gold_cluster_booted = true;
-	spin_unlock(&gold_cluster_lock);
+	return GOLD_DOMAIN_ON;
 }
 
 /*
- * plat_qti_pwr_psci_init - PSCI backend init hook.
- *
- * The secondary-core reset vector (RVBAR) is programmed by
- * qti_sec_core_remap(), invoked from plat_setup_psci_ops() ahead of this hook,
- * so there is nothing left to do here.
+ * Gold domain bring-up: the gold rail, the L3 of the gold DSU where it is a
+ * separate one, then the memories of the gold cores where a sequencer
+ * repairs them.
  */
+static enum gold_domain_state gold_domain_bring_up(void)
+{
+	if (set_gold_cluster_voltage() != GOLD_DOMAIN_ON) {
+		return GOLD_DOMAIN_FAIL;
+	}
+
+	if (QTI_GOLD_HAS_SEPARATE_DSU != 0) {
+		if (l3_memory_repair() != GOLD_DOMAIN_ON) {
+			return GOLD_DOMAIN_FAIL;
+		}
+		l3_cold_boot();
+	}
+
+	if ((QTI_APC1_MEM_REPAIR_SEQ != 0U) &&
+	    (cpu_memory_repair() != GOLD_DOMAIN_ON)) {
+		return GOLD_DOMAIN_FAIL;
+	}
+
+	return GOLD_DOMAIN_ON;
+}
+
+/* One-time gold domain bring-up, run before its first core powers on. */
+static enum gold_domain_state gold_domain_cold_boot(void)
+{
+	static spinlock_t gold_domain_lock;
+	static enum gold_domain_state gold_domain;
+	enum gold_domain_state ret;
+
+	spin_lock(&gold_domain_lock);
+	if (gold_domain == GOLD_DOMAIN_OFF) {
+		gold_domain = gold_domain_bring_up();
+	}
+	ret = gold_domain;
+	spin_unlock(&gold_domain_lock);
+
+	return ret;
+}
+
+/* plat_qti_pwr_psci_init - PSCI backend init hook. */
 int plat_qti_pwr_psci_init(uintptr_t warmboot_entry)
 {
 	(void)warmboot_entry;
+
+	for (unsigned int i = 0U; i < ARRAY_SIZE(cpu_off_seq); i++) {
+		mmio_write_32(APSS_SEQ_COMMON_INSTR(QTI_CPU_OFF_SEQ_START / 4U + i),
+			      cpu_off_seq[i]);
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+/*
+ * Wake a core its sequencer collapsed at CPU_OFF: the sequence powers it up
+ * on the wake event. CPU_ON can arrive before the core has reached its last
+ * WFI, so wait for the collapse first.
+ */
+static int cpu_wake(u_register_t mpidr, int core_pos)
+{
+	uint64_t timeout = timeout_init_us(CPU_OFF_TIMEOUT_US);
+
+	while ((mmio_read_32(CPU_PCHANNEL_CTLER_STATUS(core_pos)) &
+		CTLER_STATUS_LPM_ENTER_COND) == 0U) {
+		if (timeout_elapsed(timeout)) {
+			ERROR("CPU%d did not power down\n", core_pos);
+			return PSCI_E_INTERN_FAIL;
+		}
+	}
+
+	plat_ic_raise_el3_sgi(PLAT_INT_ID_CPU_WAKEUP_SGI, mpidr);
+	mmio_clrbits_32(CPU_PCHANNEL_FSM_CTL(core_pos), PCHANNEL_MASK_WAKEUP);
 
 	return PSCI_E_SUCCESS;
 }
@@ -296,11 +356,15 @@ int plat_qti_pwr_psci_init(uintptr_t warmboot_entry)
  */
 int plat_qti_pwr_domain_on(u_register_t mpidr, int core_pos)
 {
-	(void)mpidr;
+	if ((ARRAY_SIZE(cpu_off_seq) != 0U) &&
+	    ((mmio_read_32(CPU_SEQ_CTL(core_pos)) & CPU_SEQ_CTL_EN) != 0U)) {
+		return cpu_wake(mpidr, core_pos);
+	}
 
-	/* Bring up the gold cluster before powering on its first core. */
-	if (core_pos >= QTI_FIRST_GOLD_CORE) {
-		gold_cluster_cold_boot();
+	/* Bring up the gold domain before powering on its first core. */
+	if ((core_pos >= QTI_FIRST_GOLD_CORE) &&
+	    (gold_domain_cold_boot() != GOLD_DOMAIN_ON)) {
+		return PSCI_E_INTERN_FAIL;
 	}
 
 	/* Program skew between en_few and en_rest. */
@@ -352,29 +416,48 @@ int plat_qti_pwr_domain_on(u_register_t mpidr, int core_pos)
 /*
  * plat_qti_pwr_domain_on_finish - per-core setup once it has come online.
  *
- * Initialise the GIC redistributor for the core and request CPUCP to enable
- * the core's clock domain on cold boot.
+ * Initialise the GIC redistributor for the core, request CPUCP to enable
+ * the core's clock domain and disable the core sequencer armed at CPU_OFF.
  */
 void plat_qti_pwr_domain_on_finish(int core_pos, const uint8_t *states)
 {
-	(void)core_pos;
 	(void)states;
 
 	plat_qti_gic_pcpu_init();
 	cpucp_clkdom_init();
+
+	if (ARRAY_SIZE(cpu_off_seq) != 0U) {
+		mmio_write_32(CPU_SEQ_CTL(core_pos), CPU_SEQ_CTL_RESET);
+	}
 }
 
 /*
- * The native port only supports CPU-level standby (WFI retention); the firmware
- * power-collapse / low-power-mode node handling (PCU/RSC/PDC) is not ported.
- * These power-down and suspend node hooks are therefore empty stubs, and no
- * corresponding idle states are advertised by plat_qti_pm_idle_states().
+ * Have the core sequencer collapse the core on the power-down request it
+ * raises at its last WFI, with wake-ups masked so that an interrupt cannot
+ * cut the collapse short. CPU_ON then powers it up again from off.
  */
 void plat_qti_pwr_domain_off(const uint8_t *states)
 {
+	unsigned int core;
+
 	(void)states;
+
+	if (ARRAY_SIZE(cpu_off_seq) == 0U) {
+		return;
+	}
+
+	core = plat_my_core_pos();
+	mmio_write_32(CPU_SEQ_CTL(core),
+		      CPU_SEQ_CTL_START_ADDR(QTI_CPU_OFF_SEQ_START) |
+		      CPU_SEQ_CTL_PWR_STATE_IDX(QTI_LOCAL_STATE_DEEPOFF) |
+		      CPU_SEQ_CTL_EN);
+	mmio_setbits_32(CPU_PCHANNEL_FSM_CTL(core), PCHANNEL_MASK_WAKEUP);
 }
 
+/*
+ * Idle power-down is not ported: no such state is advertised by
+ * plat_qti_pm_idle_states(), so the suspend hooks are empty.
+ */
 void plat_qti_pwr_domain_suspend(const uint8_t *states)
 {
 	(void)states;
@@ -386,8 +469,8 @@ void plat_qti_pwr_domain_suspend_finish(const uint8_t *states)
 }
 
 /*
- * No native EL3 handler exists for QTI-specific interrupts; an unhandled
- * interrupt reaching EL3 is not expected, so drop it.
+ * No native EL3 handler exists for QTI-specific interrupts. The CPU wake-up
+ * SGI that woke a core is expected here; drop it.
  */
 void plat_qti_invoke_unhandled_isr(uint32_t id, void *handle)
 {
@@ -398,9 +481,8 @@ void plat_qti_invoke_unhandled_isr(uint32_t id, void *handle)
 /*
  * plat_qti_pm_idle_states - advertise the supported CPU idle states.
  *
- * The native port does not implement the firmware power-collapse (LPM)
- * sequence, so a CPU cannot be physically powered down by EL3 alone. Advertise
- * only CPU-level standby (retention), entered with a simple WFI and handled by
+ * Idle power-down is not implemented. Advertise only CPU-level standby
+ * (retention), entered with a simple WFI and handled by
  * qti_cpu_standby(). This is "standard Arm WFI" CPU idle and is safe alongside
  * the OP-TEE SPD, which cannot tolerate the PSCI power-down abandon path that a
  * non-collapsing WFI would otherwise trigger.

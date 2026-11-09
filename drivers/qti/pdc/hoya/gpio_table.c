@@ -7,7 +7,7 @@
 #include <drivers/qti/pdc/pdc_internal.h>
 #include <lib/utils_def.h>
 
-/* GPIO mapping for lemans (qcs9075) APSS */
+/* Apps PDC GPIO mapping of the hoya chipsets */
 struct pdc_gpio_mapping g_pdc_gpio_mapping[] = {
 	/* { trig_config,                  subsystem_irq } */
 	/* Mux 0 */

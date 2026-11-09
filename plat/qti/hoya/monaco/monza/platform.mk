@@ -108,3 +108,8 @@ include drivers/qti/cpucp/cpucp.mk
 include drivers/qti/smmu/smmu.mk
 
 include drivers/qti/pdc/pdc.mk
+
+QTI_CLOCK_RAIL_VOTE			:=	1
+include drivers/qti/pwr_utils/pwr_utils.mk
+include drivers/qti/rpmh/rpmh.mk
+include drivers/qti/clock/clock.mk

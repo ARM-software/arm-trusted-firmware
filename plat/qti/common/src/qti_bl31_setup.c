@@ -121,6 +121,7 @@ void bl31_plat_arch_setup(void)
  */
 static void clocked_boot_init(void)
 {
+	qti_smmu_clocked_init();
 	qti_accesscontrol_init();
 }
 

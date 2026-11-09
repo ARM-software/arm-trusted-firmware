@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * PDC register definitions for lemans APSS.
+ * Apps PDC register map of the hoya chipsets.
  */
 
 #ifndef PDC_REGS_H

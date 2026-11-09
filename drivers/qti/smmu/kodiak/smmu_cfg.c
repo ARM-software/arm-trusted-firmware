@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include <drivers/qti/smmu/kodiak/smmu_cfg.h>
+#include <lib/utils_def.h>
 
 struct smmu_cfg_s qti_smmu_cfg[] = {
 	{SMMU_CUSTOM_CFG_ADDR,
@@ -81,16 +82,21 @@ struct smmu_cfg_s qti_smmu_cfg[] = {
 		SMMU_CLIENT_DBG_WUSER_ANOC_PCIE_SEC},
 	{SMMU_CLIENT_DBG_WUSER_MNOC_SF_0_SEC_ADDR,
 		SMMU_CLIENT_DBG_WUSER_MNOC_SF_0_SEC},
+};
+
+const size_t qti_smmu_cfg_count = sizeof(qti_smmu_cfg) / sizeof(*qti_smmu_cfg);
+
+/*
+ * Registers in GPU CX, written by qti_smmu_clocked_init(): the secure ones
+ * that differ from reset, and aperture slot 0 for the OS.
+ */
+const struct smmu_cfg_s qti_smmu_gpu_cfg[] = {
 	{GPU_GFX_SMMU_CUSTOM_CFG_ADDR,
 		GPU_GFX_SMMU_CUSTOM_CFG},
 	{GPU_GFX_SMMU_CUSTOM_CFG_SEC_ADDR,
 		GPU_GFX_SMMU_CUSTOM_CFG_SEC},
 	{GPU_GFX_SMMU_ACR_ADDR,
 		GPU_GFX_SMMU_ACR},
-	{GPU_GFX_SMMU_NSACR_ADDR,
-		GPU_GFX_SMMU_NSACR},
-	{GPU_GFX_SMMU_SPARE_REG_1_SEC_ADDR,
-		GPU_GFX_SMMU_SPARE_REG_1_SEC},
 	{GPU_GFX_SMMU_CLOCK_GATING_SEC_ADDR,
 		GPU_GFX_SMMU_CLOCK_GATING_SEC},
 	{GPU_GFX_SMMU_CLIENT_DBG_SSD_IDX_HYP_HLOS_EN_GFX_0_SEC_ADDR,
@@ -101,21 +107,8 @@ struct smmu_cfg_s qti_smmu_cfg[] = {
 		GPU_GFX_SMMU_CLIENT_DBG_SID_HALT_GFX_0_SEC},
 	{GPU_GFX_SMMU_CLIENT_DBG_SID_HALT_GFX_1_SEC_ADDR,
 		GPU_GFX_SMMU_CLIENT_DBG_SID_HALT_GFX_1_SEC},
-	{GPU_GFX_SMMU_TLBIS_CTRL_ADDR,
-		GPU_GFX_SMMU_TLBIS_CTRL},
-	{GPU_GFX_SMMU_CLIENT_DBG_WUSER_GFX_0_SEC_ADDR,
-		GPU_GFX_SMMU_CLIENT_DBG_WUSER_GFX_0_SEC},
-	{GPU_GFX_SMMU_CLIENT_DBG_WUSER_GFX_1_SEC_ADDR,
-		GPU_GFX_SMMU_CLIENT_DBG_WUSER_GFX_1_SEC},
-	{SMMU_GPU_AHB_4K_APERTURE_S1CB0_HWIO_ADDR,
-		(SMMU_GPU_AHB_4K_APERTURE_S1CB0_REG_ADDR & GPU_REG_OFFSET_MASK)},
-	{SMMU_GPU_AHB_4K_APERTURE_S1CB1_HWIO_ADDR,
-		(SMMU_GPU_AHB_4K_APERTURE_S1CB1_REG_ADDR & GPU_REG_OFFSET_MASK)},
-	{SMMU_GPU_AHB_4K_APERTURE_S1CB6_HWIO_ADDR,
-		(SMMU_GPU_AHB_4K_APERTURE_S1CB2_REG_ADDR & GPU_REG_OFFSET_MASK)},
-	{SMMU_GPU_AHB_4K_APERTURE_CTL_HWIO_ADDR,
-		SMMU_GPU_AHB_4K_APERTURE_CTL_REG_ADDR}
+	{GPU_SMMU_APERTURE_S1CB0_ADDR,
+		GPU_SMMU_APERTURE_S1CB0}
 };
 
-const size_t qti_smmu_cfg_count = sizeof(qti_smmu_cfg) / sizeof(*qti_smmu_cfg);
-
+const size_t qti_smmu_gpu_cfg_count = ARRAY_SIZE(qti_smmu_gpu_cfg);

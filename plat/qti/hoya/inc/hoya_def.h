@@ -112,6 +112,43 @@
 
 #define PLAT_MAX_PWR_LVL		3
 
+/*
+ * Gold domain: the gold cores start at core 4. By default they form a second
+ * DSU cluster with its own L3, on a gold (APC1) rail booted at 828 mV, and the
+ * memories of the gold cores on that rail are repaired through the gold PLL
+ * sequencer of that cluster (its request and done bits). Without a separate
+ * gold DSU there is no such sequencer: a chipset that repairs the gold
+ * memories names its own, otherwise none runs. A chipset with another layout
+ * defines these before including this file.
+ */
+#define QTI_FIRST_GOLD_CORE		4
+#ifndef QTI_GOLD_HAS_SEPARATE_DSU
+#define QTI_GOLD_HAS_SEPARATE_DSU	1
+#endif
+#ifndef QTI_GOLD_RAIL_BOOT_MV
+#define QTI_GOLD_RAIL_BOOT_MV		828U
+#endif
+#ifndef QTI_APC1_MEM_REPAIR_SEQ
+#if QTI_GOLD_HAS_SEPARATE_DSU
+#define QTI_APC1_MEM_REPAIR_SEQ		0x180900ecU
+#define QTI_APC1_MEM_REPAIR_REQ		0x4000U
+#define QTI_APC1_MEM_REPAIR_DONE	0x40U
+#else
+#define QTI_APC1_MEM_REPAIR_SEQ		0U
+#define QTI_APC1_MEM_REPAIR_REQ		0U
+#define QTI_APC1_MEM_REPAIR_DONE	0U
+#endif
+#endif
+
+/*
+ * Without a power-collapse sequence for the core IPM sequencers, CPU_OFF
+ * leaves the core in WFI with its power-down request pending.
+ */
+#ifndef QTI_CPU_OFF_SEQ
+#define QTI_CPU_OFF_SEQ_START		0U
+#define QTI_CPU_OFF_SEQ			{}
+#endif
+
 /*----------------------------------------------------------------------------*/
 /* GIC-600 constants */
 /*----------------------------------------------------------------------------*/

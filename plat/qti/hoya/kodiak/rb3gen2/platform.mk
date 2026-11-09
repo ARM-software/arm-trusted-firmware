@@ -94,26 +94,26 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c		\
 				$(PLAT_PATH)/common/src/spmi_arb.c			\
 				$(PLAT_PATH)/hoya/common/$(ARCH)/hoya_helpers.S		\
 				$(PLAT_PATH)/hoya/common/hoya_bl31_setup.c		\
-				$(PLAT_PATH)/hoya/common/qtiseclib_pm.c			\
 				$(PLAT_PATH)/hoya/qtiseclib/src/qtiseclib_cb_interface.c
 
-# Override this on the command line to point to the qtiseclib library
+# Point this at a QTISECLIB to use it instead of the native drivers.
 QTISECLIB_PATH ?=
 
 ifeq ($(QTISECLIB_PATH),)
-# if No lib then use stub implementation for qtiseclib interface
-$(warning QTISECLIB_PATH is not provided while building, using stub implementation. \
-		Please refer to documentation for more details \
-		THIS FIRMWARE WILL NOT BOOT!)
 
 include drivers/qti/accesscontrol/access_control.mk
+include drivers/qti/clock/clock.mk
 include drivers/qti/smmu/smmu.mk
+include drivers/qti/cmd_db/cmd_db.mk
+include drivers/qti/cpucp/cpucp.mk
+include drivers/qti/pdc/pdc.mk
 
 PLAT_INCLUDES	+=	-Iinclude/drivers/qti/sec_core/${CHIPSET} \
 			-Iinclude/drivers/qti/qtimer/hoya \
 			-Iinclude/drivers/qti/watchdog/hoya
 
-BL31_SOURCES	+=	plat/qti/hoya/qtiseclib/src/qtiseclib_interface_stub.c	\
+BL31_SOURCES	+=	$(PLAT_PATH)/hoya/common/hoya_pm.c			\
+			plat/qti/hoya/qtiseclib/src/qtiseclib_interface_stub.c	\
 			drivers/qti/sec_core/sec_core.c				\
 			drivers/qti/sec_core/${CHIPSET}/sec_core_cfg.c		\
 			drivers/qti/qtimer/qtimer.c				\
@@ -122,7 +122,8 @@ else
 $(eval $(call add_define,QTISECLIB_PATH))
 $(eval $(call add_define,QTI_XPU_BYPASS))
 # use library provided by QTISECLIB_PATH
-BL31_SOURCES	+=	drivers/qti/sec_core/sec_core_stub.c			\
+BL31_SOURCES	+=	$(PLAT_PATH)/hoya/common/qtiseclib_pm.c			\
+			drivers/qti/sec_core/sec_core_stub.c			\
 			drivers/qti/qtimer/qtimer_stub.c			\
 			drivers/qti/watchdog/watchdog_stub.c			\
 			drivers/qti/accesscontrol/access_control_qtiseclib.c		\
