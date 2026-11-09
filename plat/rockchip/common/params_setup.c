@@ -203,7 +203,7 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 uint32_t rockchip_get_uart_base(void)
 {
 #if COREBOOT
-	return coreboot_serial.baseaddr;
+	return coreboot_has_serial ? coreboot_serial.baseaddr : 0;
 #else
 	return rk_uart_base;
 #endif

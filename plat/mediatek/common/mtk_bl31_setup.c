@@ -111,7 +111,7 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 	static console_t console;
 
 	params_early_setup(soc_fw_config);
-	if (coreboot_serial.type) {
+	if (coreboot_has_serial) {
 		console_16550_register(coreboot_serial.baseaddr,
 				       coreboot_serial.input_hertz,
 				       coreboot_serial.baud,

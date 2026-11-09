@@ -65,7 +65,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	params_early_setup(arg1);
 
 #if COREBOOT
-	if (coreboot_serial.type) {
+	if (coreboot_has_serial) {
 		console_16550_register(coreboot_serial.baseaddr,
 				       coreboot_serial.input_hertz,
 				       coreboot_serial.baud,
