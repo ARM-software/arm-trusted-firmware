@@ -20,8 +20,6 @@
 #define NEOVERSE_V1_CPUPOR_EL3					S3_6_C15_C8_2
 #define NEOVERSE_V1_CPUPMR_EL3					S3_6_C15_C8_3
 #define NEOVERSE_V1_CPUPCR_EL3					S3_6_C15_C8_1
-#define NEOVERSE_V1_CPUECTLR_EL1_BIT_8				(ULL(1) << 8)
-#define NEOVERSE_V1_CPUECTLR_EL1_BIT_53				(ULL(1) << 53)
 
 #define NEOVERSE_V1_CPUECTLR2_EL1				S3_0_C15_C1_5
 #define NEOVERSE_V1_CPUECTLR2_EL1_TXREQ_MAX_BIT			U(0)
@@ -31,28 +29,16 @@
  * CPU Power Control register specific definitions
  ******************************************************************************/
 #define NEOVERSE_V1_CPUPWRCTLR_EL1				S3_0_C15_C2_7
-#define NEOVERSE_V1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
+#define NEOVERSE_V1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		BIT(0)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
 #define NEOVERSE_V1_CPUACTLR_EL1				S3_0_C15_C1_0
 
-#define NEOVERSE_V1_ACTLR2_EL1					S3_0_C15_C1_1
-#define NEOVERSE_V1_ACTLR2_EL1_BIT_0				ULL(1)
-#define NEOVERSE_V1_ACTLR2_EL1_BIT_2				(ULL(1) << 2)
-#define NEOVERSE_V1_ACTLR2_EL1_BIT_28				(ULL(1) << 28)
-#define NEOVERSE_V1_ACTLR2_EL1_BIT_40				(ULL(1) << 40)
-
-#define NEOVERSE_V1_ACTLR3_EL1					S3_0_C15_C1_2
-#define NEOVERSE_V1_ACTLR3_EL1_BIT_47				(ULL(1) << 47)
-
+#define NEOVERSE_V1_CPUACTLR2_EL1				S3_0_C15_C1_1
+#define NEOVERSE_V1_CPUACTLR3_EL1				S3_0_C15_C1_2
 #define NEOVERSE_V1_CPUACTLR4_EL1				S3_0_C15_C1_3
-
-#define NEOVERSE_V1_ACTLR5_EL1					S3_0_C15_C9_0
-#define NEOVERSE_V1_ACTLR5_EL1_BIT_55				(ULL(1) << 55)
-#define NEOVERSE_V1_ACTLR5_EL1_BIT_56				(ULL(1) << 56)
-#define NEOVERSE_V1_ACTLR5_EL1_BIT_61				(ULL(1) << 61)
-
+#define NEOVERSE_V1_CPUACTLR5_EL1				S3_0_C15_C9_0
 
 #endif /* NEOVERSE_V1_H */
