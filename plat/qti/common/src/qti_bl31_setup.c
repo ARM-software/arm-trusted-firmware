@@ -68,11 +68,21 @@ static entry_point_info_t bl33_image_ep_info;
 void bl31_early_platform_setup(u_register_t from_bl2,
 			       u_register_t plat_params_from_bl2)
 {
+	uintptr_t uart_base;
+
 	bl_aux_params_parse(plat_params_from_bl2, NULL);
 
-	qti_console_uart_register(&g_qti_console_uart, PLAT_QTI_UART_BASE);
-	console_set_scope(&g_qti_console_uart, CONSOLE_FLAG_RUNTIME |
-			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH);
+#if COREBOOT
+	uart_base = coreboot_has_serial ? coreboot_serial.baseaddr : 0U;
+#else
+	uart_base = PLAT_QTI_UART_BASE;
+#endif
+
+	if (uart_base != 0U) {
+		qti_console_uart_register(&g_qti_console_uart, uart_base);
+		console_set_scope(&g_qti_console_uart, CONSOLE_FLAG_RUNTIME |
+				  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH);
+	}
 
 #ifdef TFA_BL31_RING_LOG_BASE
 	qti_console_ringbuf_init(&g_qti_bl31_ringbuf);
