@@ -24,6 +24,9 @@ static uint32_t rdist_has_saved[PLATFORM_CORE_COUNT];
 /* we save and restore the GICv3 context on system suspend */
 gicv3_dist_ctx_t dist_ctx;
 
+/* Per-core Redistributor context, saved on CPU power down */
+static gicv3_redist_ctx_t rdist_ctx[PLATFORM_CORE_COUNT];
+
 static unsigned int mt_mpidr_to_core_pos(u_register_t mpidr)
 {
 	return plat_core_pos_by_mpidr(mpidr);
@@ -36,16 +39,6 @@ gicv3_driver_data_t mt_gicv3_data = {
 	.rdistif_base_addrs = rdistif_base_addrs,
 	.mpidr_to_core_pos = mt_mpidr_to_core_pos,
 };
-
-struct gic_chip_data {
-	unsigned int saved_group;
-	unsigned int saved_enable;
-	unsigned int saved_conf0;
-	unsigned int saved_conf1;
-	unsigned int saved_grpmod;
-};
-
-static struct gic_chip_data gic_data;
 
 void clear_sec_pol_ctl_en(void)
 {
@@ -109,34 +102,62 @@ void mt_gic_distif_restore(void)
 
 void mt_gic_rdistif_save(void)
 {
-	unsigned int proc_num;
+	unsigned int i, proc_num;
 	uintptr_t gicr_base;
+	gicv3_redist_ctx_t *ctx;
 
 	proc_num = plat_my_core_pos();
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+	ctx = &rdist_ctx[proc_num];
 
-	gic_data.saved_group = mmio_read_32(gicr_base + GICR_IGROUPR0);
-	gic_data.saved_enable = mmio_read_32(gicr_base + GICR_ISENABLER0);
-	gic_data.saved_conf0 = mmio_read_32(gicr_base + GICR_ICFGR0);
-	gic_data.saved_conf1 = mmio_read_32(gicr_base + GICR_ICFGR1);
-	gic_data.saved_grpmod = mmio_read_32(gicr_base + GICR_IGRPMODR0);
+	/*
+	 * Wait for any write to GICR_CTLR to complete before trying to save any
+	 * state.
+	 */
+	gicr_wait_for_pending_write(gicr_base);
+
+	ctx->gicr_ctlr = mmio_read_32(gicr_base + GICR_CTLR);
+	ctx->gicr_igroupr[0] = mmio_read_32(gicr_base + GICR_IGROUPR0);
+	ctx->gicr_isenabler[0] = mmio_read_32(gicr_base + GICR_ISENABLER0);
+	ctx->gicr_icfgr[0] = mmio_read_32(gicr_base + GICR_ICFGR0);
+	ctx->gicr_icfgr[1] = mmio_read_32(gicr_base + GICR_ICFGR1);
+	ctx->gicr_igrpmodr[0] = mmio_read_32(gicr_base + GICR_IGRPMODR0);
+	ctx->gicr_ispendr[0] = mmio_read_32(gicr_base + GICR_ISPENDR0);
+	ctx->gicr_isactiver[0] = mmio_read_32(gicr_base + GICR_ISACTIVER0);
+	ctx->gicr_nsacr = mmio_read_32(gicr_base + GICR_NSACR);
+
+	for (i = 0U; i < GICR_NUM_REGS(IPRIORITYR); ++i)
+		ctx->gicr_ipriorityr[i] = gicr_ipriorityr_read(gicr_base, i);
 
 	rdist_has_saved[proc_num] = 1;
 }
 
 void mt_gic_rdistif_restore(void)
 {
-	unsigned int proc_num;
+	unsigned int i, proc_num;
 	uintptr_t gicr_base;
+	const gicv3_redist_ctx_t *ctx;
 
 	proc_num = plat_my_core_pos();
 	if (rdist_has_saved[proc_num] == 1) {
 		gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
-		mmio_write_32(gicr_base + GICR_IGROUPR0, gic_data.saved_group);
-		mmio_write_32(gicr_base + GICR_ISENABLER0, gic_data.saved_enable);
-		mmio_write_32(gicr_base + GICR_ICFGR0, gic_data.saved_conf0);
-		mmio_write_32(gicr_base + GICR_ICFGR1, gic_data.saved_conf1);
-		mmio_write_32(gicr_base + GICR_IGRPMODR0, gic_data.saved_grpmod);
+		ctx = &rdist_ctx[proc_num];
+
+		mmio_write_32(gicr_base + GICR_IGROUPR0, ctx->gicr_igroupr[0]);
+		mmio_write_32(gicr_base + GICR_IGRPMODR0, ctx->gicr_igrpmodr[0]);
+		mmio_write_32(gicr_base + GICR_NSACR, ctx->gicr_nsacr);
+		mmio_write_32(gicr_base + GICR_ICFGR0, ctx->gicr_icfgr[0]);
+		mmio_write_32(gicr_base + GICR_ICFGR1, ctx->gicr_icfgr[1]);
+
+		for (i = 0U; i < GICR_NUM_REGS(IPRIORITYR); ++i)
+			gicr_ipriorityr_write(gicr_base, i, ctx->gicr_ipriorityr[i]);
+
+		mmio_write_32(gicr_base + GICR_ISPENDR0, ctx->gicr_ispendr[0]);
+		mmio_write_32(gicr_base + GICR_ISACTIVER0, ctx->gicr_isactiver[0]);
+		mmio_write_32(gicr_base + GICR_ISENABLER0, ctx->gicr_isenabler[0]);
+		mmio_write_32(gicr_base + GICR_CTLR, ctx->gicr_ctlr);
+
+		gicr_wait_for_pending_write(gicr_base);
 	}
 }
 
