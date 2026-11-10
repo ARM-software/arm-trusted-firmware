@@ -198,6 +198,7 @@ else
 					lib/cpus/aarch64/cortex_a520ae.S	\
 					lib/cpus/aarch64/cortex_a725.S		\
 					lib/cpus/aarch64/cortex_x1.S		\
+					lib/cpus/aarch64/cortex_x1c.S		\
 					lib/cpus/aarch64/cortex_x3.S		\
 					lib/cpus/aarch64/cortex_x925.S		\
 					lib/cpus/aarch64/neoverse_n3.S		\
