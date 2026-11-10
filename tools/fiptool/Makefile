@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -29,8 +29,6 @@ FIPTOOL_DEFINES += STATIC=$(STATIC)
 ifeq (${STATIC},1)
 FIPTOOL_LDFLAGS := -static
 else
-OPENSSL_DIR := /usr
-
 # Select OpenSSL version flag according to the OpenSSL build selected
 # from setting the OPENSSL_DIR path.
 $(eval $(call SELECT_OPENSSL_API_VERSION))

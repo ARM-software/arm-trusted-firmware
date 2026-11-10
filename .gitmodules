@@ -23,3 +23,7 @@
 	url = https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
 	# the repository autogenerates mv_ddr_build_message.c which is untracked
 	ignore = untracked
+[submodule "zlib"]
+	path = contrib/zlib
+	url = https://github.com/madler/zlib.git
+	shallow = true
