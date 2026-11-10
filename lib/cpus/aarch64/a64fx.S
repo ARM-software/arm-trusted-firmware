@@ -1,7 +1,11 @@
 /*
- * Copyright (c) 2022, Fujitsu Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2026, Fujitsu Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: N/A
+ * SDEN: N/A
+ * MinRevision: N/A
  */
 #include <arch.h>
 #include <asm_macros.S>

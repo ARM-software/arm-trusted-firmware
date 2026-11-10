@@ -3,6 +3,10 @@
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * TRM: N/A
+ * SDEN: N/A
+ * MinRevision: N/A
  */
 
 #include <arch.h>
