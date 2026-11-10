@@ -9,8 +9,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 include common/fdt_wrappers.mk
 
 PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
-				-Iplat/rpi/rpi3/include			\
-				-Ilib/libfdt
+				-Iplat/rpi/rpi3/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				drivers/arm/pl011/aarch64/pl011_console.S \

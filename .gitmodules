@@ -1,3 +1,7 @@
+[submodule "dtc"]
+	path = contrib/dtc
+	url = https://git.kernel.org/pub/scm/utils/dtc/dtc.git
+	shallow = true
 [submodule "libtl"]
 	path = contrib/libtl
 	url = https://review.trustedfirmware.org/shared/transfer-list-library
