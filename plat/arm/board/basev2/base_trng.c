@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2026, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <arm_acle.h>
+#include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+
+#include <arch_helpers.h>
+#if CRYPTO_SUPPORT
+#include <drivers/arm/rse_comms.h>
+#endif
+#include <drivers/auth/crypto_mod.h>
+#include <lib/mmio.h>
+#if CRYPTO_SUPPORT
+#include <lib/psa/rse_platform_api.h>
+#endif
+#include <lib/smccc.h>
+#include <lib/utils_def.h>
+#include <plat/common/platform.h>
+#include <services/trng_svc.h>
+#include <smccc_helpers.h>
+
+#include <platform_def.h>
+
+DEFINE_SVC_UUID2(_plat_trng_uuid,
+	0x23523c58, 0x7448, 0x4083, 0x9d, 0x16,
+	0xe3, 0xfa, 0xb9, 0xf1, 0x73, 0xbc
+);
+uuid_t plat_trng_uuid;
+
+bool plat_get_entropy(uint64_t *out)
+{
+	/* Use RSE entropy when crypto support is enabled for this boot stage. */
+#if CRYPTO_SUPPORT
+	psa_status_t status;
+
+	status = rse_platform_get_entropy((uint8_t *)out, sizeof(*out));
+	if (status != PSA_SUCCESS) {
+		printf("Failed for entropy read, psa_status=%d\n", status);
+		return false;
+	}
+#else
+	/* Non-cryptographic fallback for model builds without an entropy source. */
+	*out = 0xABBAEDDAACDCDEAD ^ read_cntpct_el0();
+#endif
+	return true;
+}
+
+void plat_entropy_setup(void)
+{
+	uint64_t entropy;
+
+	plat_trng_uuid = _plat_trng_uuid;
+
+	/* Initialise the entropy source and trigger RNG generation */
+	if (!plat_get_entropy(&entropy)) {
+		ERROR("Failed to setup entropy\n");
+		panic();
+	}
+}

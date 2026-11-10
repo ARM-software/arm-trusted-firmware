@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <platform_def.h>
+
+#define MHU_TX_ADDR			46240000 /* hex */
+#define MHU_RX_ADDR			46250000 /* hex */
+
+#define RSE_MHU_TX_ADDR			49020000 /* hex */
+#define RSE_MHU_RX_ADDR			49030000 /* hex */
+
+#define ETHERNET_ADDR			64000000
+#define ETHERNET_INT			799
+#define SYS_REGS_ADDR			60080000
+#define MMC_ADDR			600b0000
+#define MMC_INT_0			778
+#define MMC_INT_1			779
+
+#define RTC_ADDR			600a0000
+#define RTC_INT				777
+
+#define KMI_0_ADDR			60100000
+#define KMI_0_INT			784
+#define KMI_1_ADDR			60110000
+#define KMI_1_INT			785
+
+#define VIRTIO_BLOCK_ADDR		60020000
+#define VIRTIO_BLOCK_INT		769
+
+#define VIRTIO_NET_ADDR		60040000
+#define VIRTIO_NET_INT		771
+
+#define VIRTIO_P9_ADDR		60050000
+#define VIRTIO_P9_INT		772
+
+#define GIC_CTRL_ADDR			2c010000
+#define GIC_GICR_OFFSET			0x200000
+#define UART_OFFSET			0x1000
+
+#ifdef BASE_RESOLUTION_1920X1080P60
+
+#define LCD_TIMING_CLK 148500000
+#define LCD_TIMING								\
+	clock-frequency = <LCD_TIMING_CLK>;			\
+	hactive = <1920>;							\
+	vactive = <1080>;							\
+	hfront-porch = <88>;						\
+	hback-porch = <148>;						\
+	hsync-len = <44>;							\
+	vfront-porch = <4>;							\
+	vback-porch = <36>;							\
+	vsync-len = <5>
+
+#else /* BASE_RESOLUTION_640X480P60 */
+
+#define LCD_TIMING_CLK 25175000
+#define LCD_TIMING								\
+	clock-frequency = <LCD_TIMING_CLK>;			\
+	hactive = <640>;							\
+	vactive = <480>;							\
+	hfront-porch = <16>;						\
+	hback-porch = <48>;							\
+	hsync-len = <96>;							\
+	vfront-porch = <10>;						\
+	vback-porch = <33>;							\
+	vsync-len = <2>
+
+#endif
+
+#define PASTER(x, y)		x ## y
+#define EVALUATOR(x, y)		PASTER(x, y)
+#define ADDRESSIFY(addr)	EVALUATOR(0x, addr)
+
+#include "basev2.dtsi"
+
+/ {
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	ethernet: ethernet@ETHERNET_ADDR {
+		compatible = "smsc,lan91c111";
+	};
+
+	mmci: mmci@MMC_ADDR {
+		cd-gpios = <&sysreg 0 0>;
+	};
+
+	rtc@RTC_ADDR {
+		compatible = "arm,pl031", "arm,primecell";
+		reg = <0x0 ADDRESSIFY(RTC_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI RTC_INT IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+	};
+
+	kmi@KMI_0_ADDR {
+		compatible = "arm,pl050", "arm,primecell";
+		reg = <0x0 ADDRESSIFY(KMI_0_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI KMI_0_INT IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "KMIREFCLK", "apb_pclk";
+	};
+
+	kmi@1c070000 {
+		compatible = "arm,pl050", "arm,primecell";
+		reg = <0x0 0x001c070000 0x0 0x1000>;
+		interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "KMIREFCLK", "apb_pclk";
+	};
+
+	virtio_block@VIRTIO_BLOCK_ADDR {
+		compatible = "virtio,mmio";
+		reg = <0x0 ADDRESSIFY(VIRTIO_BLOCK_ADDR) 0x0 0x200>;
+		/* spec lists this wrong */
+		interrupts = <GIC_SPI VIRTIO_BLOCK_INT IRQ_TYPE_LEVEL_HIGH 0>;
+	};
+
+	virtio_net@VIRTIO_NET_ADDR {
+		compatible = "virtio,mmio";
+		reg = <0x0 ADDRESSIFY(VIRTIO_NET_ADDR) 0x0 0x200>;
+		/* spec lists this wrong */
+		interrupts = <GIC_SPI VIRTIO_NET_INT IRQ_TYPE_LEVEL_HIGH 0>;
+	};
+
+	virtio_p9@VIRTIO_P9_ADDR {
+		compatible = "virtio,mmio";
+		reg = <0x0 ADDRESSIFY(VIRTIO_P9_ADDR) 0x0 0x200>;
+		/* spec lists this wrong */
+		interrupts = <GIC_SPI VIRTIO_P9_INT IRQ_TYPE_LEVEL_HIGH 0>;
+	};
+
+	spe-pmu-mid {
+		status = "okay";
+	};
+
+	spe-pmu-big {
+		status = "okay";
+	};
+
+	smmu_700: iommu@3f000000 {
+		status = "okay";
+	};
+
+	smmu_700_dpu: iommu@4002a00000 {
+		status = "okay";
+	};
+
+	dp0: display@DPU_ADDR {
+		iommus = <&smmu_700_dpu 0x000>, <&smmu_700_dpu 0x100>,
+			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
+	};
+
+	gpu: gpu@550000000 {
+		interrupts = <GIC_SPI 320 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "IRQAW";
+#if !defined(BASE_TARGET_DISTRO_BUILDROOT)
+		iommus = <&smmu_700 0x0>;
+		system-coherency = <0x0>;
+#else
+		system-coherency = <0x1F>;
+#endif
+	};
+
+	dsu-pmu {
+		interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH 0>;
+	};
+
+	pcie: pcie@420000000 {
+		#address-cells = <0x3>;
+		#size-cells = <0x2>;
+		#interrupt-cells = <0x1>;
+		compatible = "pci-host-ecam-generic";
+		device_type = "pci";
+		bus-range = <0x0 0xff>;
+		reg = <0x00000004 0x20000000   0x00000000 0x10000000>;
+		ranges = <
+			0x02000000 0x00000000 0x5a000000
+			0x00000000 0x5a000000
+			0x00000000 0x01000000
+
+			0x43000000 0x00000010 0x00000000
+			0x00000010 0x00000000
+			0x00000030 0x00000000
+		>;
+		interrupt-map = <0x00000800 0 0 1 &gic 0 0 GIC_SPI 476 IRQ_TYPE_LEVEL_HIGH 0>,
+				<0x00000800 0 0 2 &gic 0 0 GIC_SPI 473 IRQ_TYPE_LEVEL_HIGH 0>,
+				<0x00000800 0 0 3 &gic 0 0 GIC_SPI 474 IRQ_TYPE_LEVEL_HIGH 0>,
+				<0x00000800 0 0 4 &gic 0 0 GIC_SPI 475 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-map-mask = <0x0000f800 0x0 0x0 0x7>;
+		msi-map = <0x0 &its 0x0 0x10000>;
+		dma-coherent;
+	};
+};

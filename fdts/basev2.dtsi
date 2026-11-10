@@ -1,0 +1,727 @@
+/*
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*
+ * BaseV2 AEM configuration: 4 cores per cluster, 2 clusters.
+ */
+
+#define MHU_TX_COMPAT			"arm,mhuv3"
+#define MHU_TX_INT_NAME			""
+
+#define MHU_RX_COMPAT			"arm,mhuv3"
+#define MHU_OFFSET			0x10000
+#define MHU_MBOX_CELLS			3
+#define MHU_RX_INT_NUM			300
+#define MHU_RX_INT_NAME			"combined"
+#if BASE_SCMI_PD_CTRL_EN
+#define GPU_SCMI_PD_IDX			0
+#endif /* BASE_SCMI_PD_CTRL_EN */
+
+#define DSU_MPAM_ADDR			0x0 0x5f010000 /* 0x5f01_0000 */
+
+#define DPU_ADDR			4000000000
+#define DPU_IRQ				579
+
+/* Use SCMI controlled clocks */
+#if BASE_DPU_USE_SCMI_CLK
+#define DPU_CLK_ATTR1								\
+	clocks = <&scmi_clk 0>;							\
+	clock-names = "aclk"
+
+#define DPU_CLK_ATTR2								\
+	clocks = <&scmi_clk 1>;							\
+	clock-names = "pxclk"
+
+#define DPU_CLK_ATTR3								\
+	clocks = <&scmi_clk 2>;							\
+	clock-names = "pxclk"							\
+/* Use fixed clocks */
+#else /* !BASE_DPU_USE_SCMI_CLK */
+#define DPU_CLK_ATTR1								\
+	clocks = <&dpu_aclk>;							\
+	clock-names = "aclk"
+
+#define DPU_CLK_ATTR2								\
+	clocks = <&dpu_pixel_clk>, <&dpu_aclk>;					\
+	clock-names = "pxclk", "aclk"
+
+#define DPU_CLK_ATTR3 DPU_CLK_ATTR2
+#endif /* !BASE_DPU_USE_SCMI_CLK */
+
+/ {
+	compatible = "arm";
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &os_uart;
+	};
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&CPU0>;
+				};
+				core1 {
+					cpu = <&CPU1>;
+				};
+				core2 {
+					cpu = <&CPU2>;
+				};
+				core3 {
+					cpu = <&CPU3>;
+				};
+			};
+			cluster1 {
+				core0 {
+					cpu = <&CPU4>;
+				};
+				core1 {
+					cpu = <&CPU5>;
+				};
+				core2 {
+					cpu = <&CPU6>;
+				};
+				core3 {
+					cpu = <&CPU7>;
+				};
+			};
+		};
+
+		/*
+		 * The timings below are just to demonstrate working cpuidle.
+		 * These values may be inaccurate.
+		 */
+		idle-states {
+			entry-method = "psci";
+
+			CPU_SLEEP_0: cpu-sleep-0 {
+				compatible = "arm,idle-state";
+				arm,psci-suspend-param = <0x0010000>;
+				local-timer-stop;
+				entry-latency-us = <300>;
+				exit-latency-us = <1200>;
+				min-residency-us = <2000>;
+			};
+			CLUSTER_SLEEP_0: cluster-sleep-0 {
+				compatible = "arm,idle-state";
+				arm,psci-suspend-param = <0x1010000>;
+				local-timer-stop;
+				entry-latency-us = <400>;
+				exit-latency-us = <1200>;
+				min-residency-us = <2500>;
+			};
+		};
+
+		amus {
+			amu: amu-0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				mpmm_gear0: counter@0 {
+					reg = <0>;
+					enable-at-el3;
+				};
+
+				mpmm_gear1: counter@1 {
+					reg = <1>;
+					enable-at-el3;
+				};
+
+				mpmm_gear2: counter@2 {
+					reg = <2>;
+					enable-at-el3;
+				};
+			};
+		};
+
+		CPU0:cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00000000>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU1:cpu@100 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00000100>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU2:cpu@200 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00000200>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU3:cpu@300 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00000300>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU4:cpu@10000 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00010000>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU5:cpu@10100 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00010100>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU6:cpu@10200 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00010200>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU7:cpu@10300 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x00010300>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			linux,cma-default;
+		};
+
+		optee {
+			compatible = "restricted-dma-pool";
+			reg = <0x0 BASE_NS_OPTEE_BASE 0x0 BASE_NS_OPTEE_SIZE>;
+		};
+
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 BASE_NS_DRAM1_BASE 0x0 BASE_NS_DRAM1_SIZE>,
+		      <HI(PLAT_ARM_DRAM2_BASE) LO(PLAT_ARM_DRAM2_BASE)
+		       HI(PLAT_ARM_DRAM2_SIZE) LO(PLAT_ARM_DRAM2_SIZE)>;
+	};
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2";
+		method = "smc";
+	};
+
+	cpu-pmu-mid {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH &ppi_partition_mid>;
+		status = "okay";
+	};
+
+	sram: sram@6000000 {
+		compatible = "mmio-sram";
+		reg = <0x0 PLAT_ARM_NSRAM_BASE 0x0 PLAT_ARM_NSRAM_SIZE>;
+
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x0 PLAT_ARM_NSRAM_BASE PLAT_ARM_NSRAM_SIZE>;
+
+		cpu_scp_scmi_a2p: scp-shmem@0 {
+			compatible = "arm,scmi-shmem";
+			reg = <0x0 0x80>;
+		};
+	};
+
+	mbox_db_rx: mhu@MHU_RX_ADDR {
+		compatible = MHU_RX_COMPAT;
+		reg = <0x0 ADDRESSIFY(MHU_RX_ADDR) 0x0 MHU_OFFSET>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupts = <GIC_SPI MHU_RX_INT_NUM IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = MHU_RX_INT_NAME;
+	};
+
+	mbox_db_tx: mhu@MHU_TX_ADDR {
+		compatible = MHU_TX_COMPAT;
+		reg = <0x0 ADDRESSIFY(MHU_TX_ADDR) 0x0 MHU_OFFSET>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupt-names = MHU_TX_INT_NAME;
+	};
+
+	firmware {
+		scmi {
+			compatible = "arm,scmi";
+			mbox-names = "tx", "rx";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+#if BASE_SCMI_PD_CTRL_EN
+			scmi_devpd: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+#endif /* BASE_SCMI_PD_CTRL_EN */
+
+			scmi_dvfs: protocol@13 {
+				reg = <0x13>;
+				#clock-cells = <1>;
+			};
+
+			scmi_clk: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	gic: interrupt-controller@GIC_CTRL_ADDR {
+		compatible = "arm,gic-v3";
+		#address-cells = <2>;
+		#interrupt-cells = <4>;
+		#size-cells = <2>;
+		ranges;
+		interrupt-controller;
+		reg = <0x0 0x30000000 0 0x10000>, /* GICD */
+		      <0x0 0x30080000 0 GIC_GICR_OFFSET>; /* GICR */
+		interrupts = <GIC_PPI 0x9 IRQ_TYPE_LEVEL_LOW 0>;
+
+		its: msi-controller@30040000 {
+			compatible = "arm,gic-v3-its";
+			reg = <0x0 0x30040000 0x0 0x20000>; // GITS
+			msi-controller;
+			#msi-cells = <1>;
+		};
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW 0>,
+			     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW 0>,
+			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW 0>,
+			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW 0>;
+	};
+
+	spe-pmu-mid {
+		compatible = "arm,statistical-profiling-extension-v1";
+		interrupts = <GIC_PPI 1 IRQ_TYPE_LEVEL_HIGH &ppi_partition_mid>;
+		status = "disabled";
+	};
+
+
+	soc_refclk: refclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1000000000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	soc_refclk60mhz: refclk60mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <60000000>;
+		clock-output-names = "iofpga_clk";
+	};
+
+	soc_uartclk: uartclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <BASE_UARTCLK>;
+		clock-output-names = "uartclk";
+	};
+
+	/* Non-secure AP UART. */
+	os_uart: serial@2a400000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x0 0x2A400000 0x0 UART_OFFSET>;
+		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&soc_uartclk>, <&soc_refclk>;
+		clock-names = "uartclk", "apb_pclk";
+		status = "okay";
+	};
+
+#if !BASE_DPU_USE_SCMI_CLK
+	dpu_aclk: dpu_aclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <LCD_TIMING_CLK>;
+		clock-output-names = "fpga:dpu_aclk";
+	};
+
+	dpu_pixel_clk: dpu-pixel-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <LCD_TIMING_CLK>;
+		clock-output-names = "pxclk";
+	};
+#endif /* !BASE_DPU_USE_SCMI_CLK */
+
+#if BASE_DPU_USE_SIMPLE_PANEL
+	vpanel {
+		compatible = "panel-dpi";
+		post-init-providers = <&pl0>;
+		port {
+			lcd_in: endpoint {
+				remote-endpoint = <&dp_pl0_out0>;
+			};
+		};
+
+		panel-timing {
+			LCD_TIMING;
+		};
+	};
+
+#else
+	vencoder {
+		compatible = "drm,virtual-encoder";
+		port {
+			lcd_in: endpoint {
+				remote-endpoint = <&dp_pl0_out0>;
+			};
+		};
+
+		display-timings {
+			timing-panel {
+				LCD_TIMING;
+			};
+		};
+
+	};
+#endif
+	ethernet: ethernet@ETHERNET_ADDR {
+		reg = <0x0 ADDRESSIFY(ETHERNET_ADDR) 0x0 0x10000>;
+		interrupts = <GIC_SPI ETHERNET_INT IRQ_TYPE_LEVEL_HIGH 0>;
+
+		reg-io-width = <2>;
+		smsc,irq-push-pull;
+	};
+
+	bp_clock24mhz: clock24mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "bp:clock24mhz";
+	};
+
+	sysreg: sysreg@SYS_REGS_ADDR {
+		compatible = "arm,vexpress-sysreg";
+		reg = <0x0 ADDRESSIFY(SYS_REGS_ADDR) 0x0 0x1000>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	fixed_3v3: v2m-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	mmci: mmci@MMC_ADDR {
+		compatible = "arm,pl180", "arm,primecell";
+		reg = <0x0 ADDRESSIFY(MMC_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI MMC_INT_0 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI MMC_INT_1 IRQ_TYPE_LEVEL_HIGH 0>;
+		wp-gpios = <&sysreg 1 0>;
+		bus-width = <4>;
+		max-frequency = <25000000>;
+		vmmc-supply = <&fixed_3v3>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "mclk", "apb_pclk";
+	};
+
+	gpu_clk: gpu_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1000000000>;
+	};
+
+	gpu_core_clk: gpu_core_clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <1000000000>;
+	};
+
+	gpu: gpu@550000000 {
+		compatible = "arm,mali-midgard";
+		reg = <0x5 0x50000000 0x0 0x00200000>;
+		clocks = <&gpu_core_clk>;
+		clock-names = "shadercores";
+#if BASE_SCMI_PD_CTRL_EN
+		scmi-perf-domain = <3>;
+#endif /* BASE_SCMI_PD_CTRL_EN */
+
+		pbha {
+			int-id-override = <0 0x22>, <2 0x23>, <4 0x23>, <7 0x22>,
+					  <8 0x22>, <9 0x22>, <10 0x22>, <11 0x22>,
+					  <12 0x22>, <13 0x22>, <16 0x22>, <17 0x32>,
+					  <18 0x32>, <19 0x22>, <20 0x22>, <21 0x32>,
+					  <22 0x32>, <24 0x22>, <28 0x32>;
+			propagate-bits = <0x0f>;
+		};
+	};
+
+	power_model_simple {
+		/*
+		 * Numbers used are irrelevant to Titan,
+		 * it helps suppressing the kernel warnings.
+		 */
+		compatible = "arm,mali-simple-power-model";
+		static-coefficient = <2427750>;
+		dynamic-coefficient = <4687>;
+		ts = <20000 2000 (-20) 2>;
+		thermal-zone = "";
+	};
+
+	smmu_600: smmu@2ce00000 {
+		compatible = "arm,smmu-v3";
+		reg = <0 0x2ce00000 0 0x20000>;
+		interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 74 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 76 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 77 IRQ_TYPE_EDGE_RISING 0>;
+		interrupt-names = "eventq", "priq", "cmdq-sync", "gerror";
+		#iommu-cells = <1>;
+		status = "disabled";
+	};
+
+	smmu_700: iommu@3f000000 {
+		#iommu-cells = <1>;
+		compatible = "arm,smmu-v3";
+		reg = <0x0 0x3f000000 0x0 0x5000000>;
+		interrupts = <GIC_SPI 228 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 229 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 230 IRQ_TYPE_EDGE_RISING 0>;
+		interrupt-names = "eventq", "cmdq-sync", "gerror";
+		dma-coherent;
+		status = "disabled";
+	};
+
+	smmu_700_dpu: iommu@4002a00000 {
+		#iommu-cells = <1>;
+		compatible = "arm,smmu-v3";
+		reg = <HI(0x4002a00000) LO(0x4002a00000) 0x0 0x5000000>;
+		interrupts = <GIC_SPI 481 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 482 IRQ_TYPE_EDGE_RISING 0>,
+			     <GIC_SPI 483 IRQ_TYPE_EDGE_RISING 0>;
+		interrupt-names = "eventq", "cmdq-sync", "gerror";
+		dma-coherent;
+		status = "disabled";
+	};
+
+	dp0: display@DPU_ADDR {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "arm,mali-d71";
+		reg = <HI(ADDRESSIFY(DPU_ADDR)) LO(ADDRESSIFY(DPU_ADDR)) 0 0x20000>;
+		interrupts = <GIC_SPI DPU_IRQ IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "DPU";
+		DPU_CLK_ATTR1;
+
+		pl0: pipeline@0 {
+			reg = <0>;
+			DPU_CLK_ATTR2;
+			pl_id = <0>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+					dp_pl0_out0: endpoint {
+						remote-endpoint = <&lcd_in>;
+					};
+				};
+			};
+		};
+
+		pl1: pipeline@1 {
+			reg = <1>;
+			DPU_CLK_ATTR3;
+			pl_id = <1>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+				};
+			};
+		};
+	};
+
+	/*
+	 * L3 cache in the DSU is the Memory System Component (MSC)
+	 * The MPAM registers are accessed through utility bus in the DSU
+	 */
+	dsu-msc0 {
+		compatible = "arm,mpam-msc";
+		reg = <DSU_MPAM_ADDR 0x0 0x2000>;
+	};
+	ete0 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU0>;
+	};
+	ete1 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU1>;
+	};
+	ete2 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU2>;
+	};
+	ete3 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU3>;
+	};
+	ete4 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU4>;
+	};
+	ete5 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU5>;
+	};
+	ete6 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU6>;
+	};
+	ete7 {
+		compatible = "arm,embedded-trace-extension";
+		arm,coresight-loses-context-with-cpu;
+		cpu = <&CPU7>;
+	};
+	trbe {
+		compatible = "arm,trace-buffer-extension";
+		interrupts = <GIC_PPI 2 IRQ_TYPE_LEVEL_LOW 0>;
+	};
+
+	/* used in U-boot, Linux doesn't care */
+	arm_ffa {
+		compatible = "arm,ffa";
+		method = "smc";
+#if SPD_none
+		status = "disabled";
+#endif
+	};
+};
+
+/ {
+
+	rse_mbox_db_rx: mhu@RSE_MHU_RX_ADDR {
+		compatible = MHU_RX_COMPAT;
+		reg = <0x0 ADDRESSIFY(RSE_MHU_RX_ADDR) 0x0 MHU_OFFSET>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupts = <GIC_SPI 313 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = MHU_RX_INT_NAME;
+	};
+
+	rse_mbox_db_tx: mhu@RSE_MHU_TX_ADDR {
+		compatible = MHU_TX_COMPAT;
+		reg = <0x0 ADDRESSIFY(RSE_MHU_TX_ADDR) 0x0 MHU_OFFSET>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupt-names = MHU_TX_INT_NAME;
+	};
+
+	gpu: gpu@550000000 {
+#if BASE_SCMI_PD_CTRL_EN
+		power-domains = <&scmi_devpd GPU_SCMI_PD_IDX>;
+#endif /* BASE_SCMI_PD_CTRL_EN */
+	};
+
+	gic: interrupt-controller@GIC_CTRL_ADDR {
+		ppi-partitions {
+			ppi_partition_mid: interrupt-partition-0 {
+				affinity = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>;
+			};
+		};
+	};
+
+	sram: sram@6000000 {
+		cpu_scp_scmi_p2a: scp-shmem@80 {
+			compatible = "arm,scmi-shmem";
+			reg = <0x80 0x80>;
+		};
+	};
+
+	firmware {
+		scmi {
+			mboxes = <&mbox_db_tx 0 0 0 &mbox_db_rx 0 0 0 &mbox_db_rx 0 0 1>;
+			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_p2a>;
+		};
+
+		rse {
+			compatible = "arm,rse";
+			mbox-names = "tx", "rx";
+			mboxes = <&rse_mbox_db_tx 0 0 0>, <&rse_mbox_db_rx 0 0 0>;
+		};
+	};
+
+	dsu-pmu {
+		compatible = "arm,dsu-pmu";
+		cpus =<&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>;
+	};
+};
