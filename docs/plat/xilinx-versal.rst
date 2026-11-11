@@ -46,6 +46,9 @@ Xilinx Versal platform specific build options
 *   ``VERSAL_ATF_MEM_SIZE``: Specifies the size of the memory region of the bl31 binary.
 *   ``VERSAL_BL32_MEM_BASE``: Specifies the base address of the bl32 binary.
 *   ``VERSAL_BL32_MEM_SIZE``: Specifies the size of the memory region of the bl32 binary.
+*   ``XILINX_OF_BOARD_DTB_ADDR``: Specifies the address of the device tree
+    passed to OP-TEE when ``SPD=opteed``. For ``PLAT=versal``, BL31 runs from
+    OCM (``0xfffe0000``) and the DTB address passed to OP-TEE is ``0x1000``.
 
 *   ``VERSAL_CONSOLE``: Select the console driver. Options:
 

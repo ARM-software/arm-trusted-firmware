@@ -59,6 +59,11 @@ static inline void bl31_set_default_config(void)
 {
 	bl32_image_ep_info.pc = (uintptr_t)BL32_BASE;
 	bl32_image_ep_info.spsr = (uint32_t)arm_get_spsr(BL32_IMAGE_ID);
+#if defined(SPD_opteed) && (TRANSFER_LIST == 0) && \
+	defined(XILINX_OF_BOARD_DTB_ADDR)
+	/* NS dtb addr passed to optee_os */
+	bl32_image_ep_info.args.arg3 = XILINX_OF_BOARD_DTB_ADDR;
+#endif
 	bl33_image_ep_info.pc = (uintptr_t)plat_get_ns_image_entrypoint();
 	bl33_image_ep_info.spsr = (uint32_t)SPSR_64(MODE_EL2, MODE_SP_ELX,
 						    DISABLE_ALL_EXCEPTIONS);
@@ -168,6 +173,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	} else {
 		INFO("BL31: PLM to TF-A handover success %u\n", ret);
+#if defined(SPD_opteed) && defined(XILINX_OF_BOARD_DTB_ADDR)
+		/* NS dtb addr passed to optee_os */
+		bl32_image_ep_info.args.arg3 = XILINX_OF_BOARD_DTB_ADDR;
+#endif
 	}
 #else
 	bl31_set_default_config();

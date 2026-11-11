@@ -83,6 +83,14 @@ ifdef VERSAL_PLATFORM
     $(warning "VERSAL_PLATFORM has been deprecated")
 endif
 
+ifeq (${SPD},opteed)
+ifndef PLAT_IS_VERSAL_PREMIUM_GEN2
+# Stock versal: default DTB location passed to OP-TEE (Premium Gen 2 sets its
+# own default in versal_premium_gen2.mk).
+XILINX_OF_BOARD_DTB_ADDR ?= 0x1000
+endif
+endif
+
 ifdef XILINX_OF_BOARD_DTB_ADDR
 XLNX_DT_CFG     := 1
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
