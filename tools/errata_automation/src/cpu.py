@@ -11,6 +11,7 @@ from src.files.assembly_file import AssemblyFile
 from src.files.header_file import HeaderFile
 from src.models.cpuname import CpuName
 from src.models.erratum import Erratum
+from src.models.erratum_revision import Revision
 from src.models.workaround_details import WorkaroundClass
 from src.resolvers.trm import TechnicalReferenceManual
 
@@ -18,6 +19,9 @@ _cpu_marker_re = re.compile(r"cpu_reset_prologue\s+(?P<cpu_name>.+)")
 
 _trm_re = re.compile(r"TRM:\s*(?P<url>https?://\S+|N/A)", re.IGNORECASE)
 _sden_re = re.compile(r"SDEN:\s*(?P<url>https?://\S+|N/A)", re.IGNORECASE)
+_min_revision_re = re.compile(
+    r"^\s*\*\s*MinRevision:\s*(?P<revision>.*?)\s*$", re.IGNORECASE
+)
 
 _errata_re = re.compile(
     r"(?P<workaround_class>add_erratum_entry|workaround_reset_start|workaround_runtime_start)\s*.*?,\s*"
@@ -27,13 +31,14 @@ _errata_re = re.compile(
 )
 
 
-class DocumentationNotAvailableError(Exception):
-    """Raised when a CPU has no released documentation."""
+class NotAvailableError(Exception):
+    """Raised when required CPU information is unavailable."""
 
 class CPU:
     _logger: logging.Logger
 
     name: CpuName
+    min_revision: Revision
 
     assembly_file: AssemblyFile
     header_file: HeaderFile
@@ -70,6 +75,7 @@ class CPU:
             self.assembly_file_lines = file.readlines()
 
         self.name = self._get_cpu_name(self.assembly_file_lines)
+        self.min_revision = self._get_min_revision(self.assembly_file_lines)
 
         self.assembly_file = AssemblyFile(self._assembly_file_path)
 
@@ -182,6 +188,29 @@ class CPU:
 
         raise ValueError("CPU name not found in assembly file.")
 
+    def _get_min_revision(self, assembly_file_lines: list[str]) -> Revision:
+        revisions = [
+            match.group("revision")
+            for line in assembly_file_lines
+            if (match := _min_revision_re.match(line))
+        ]
+
+        if len(revisions) == 0:
+            raise ValueError(
+                f"Missing MinRevision entry in assembly file {self._assembly_file_path.name}."
+            )
+        elif len(revisions) > 1:
+            raise ValueError(
+                f"Multiple MinRevision entries in assembly file {self._assembly_file_path.name}."
+            )
+
+        if revisions[0].upper() == "N/A":
+            raise NotAvailableError(
+                f"No available MinRevision for {self._assembly_file_path.name}."
+            )
+
+        return Revision.model_validate(revisions[0])
+
     def _get_sden_trm_links(self, assembly_file_lines) -> tuple[str, str]:
         sden_link = None
         trm_link = None
@@ -198,7 +227,7 @@ class CPU:
             )
 
         if sden_link.upper() == "N/A" or trm_link.upper() == "N/A":
-            raise DocumentationNotAvailableError(
+            raise NotAvailableError(
                 f"No available SDEN or TRM documentation for {self._assembly_file_path.name}."
             )
 
