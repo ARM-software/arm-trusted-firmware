@@ -32,7 +32,7 @@ class MkFile(FileUpdater):
             erratum_number = item["erratum_number"]
             if erratum_number and erratum_number == int(erratum.id):
                 start_line = item["start_line"]
-                end_line = item["end_line"] + 1
+                end_line = item["end_line"]
                 replace_text_range(self.path, start_line, end_line, flag)
 
                 return True

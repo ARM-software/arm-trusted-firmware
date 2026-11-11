@@ -14,7 +14,7 @@ from typing import TypeVar
 
 from pydantic import ValidationError
 from src.corpus import Corpus
-from src.cpu import CPU
+from src.cpu import CPU, DocumentationNotAvailableError
 from src.files.mk_file import MkFile
 from src.files.rst_file import RstFile
 from src.models.erratum import Erratum
@@ -333,9 +333,14 @@ class ErrataHandler:
         return paths
 
     async def _load_cpu_and_fetch_errata(self, cpu_file_path: Path) -> None:
-        self._logger.info("Loading CPU file %s...",  cpu_file_path.name)
+        self._logger.info("Loading CPU file %s ...",  cpu_file_path.name)
 
-        cpu = await CPU(cpu_file_path, self._doc_dir_path)
+        try:
+            cpu = await CPU(cpu_file_path, self._doc_dir_path)
+
+        except DocumentationNotAvailableError as e:
+            self._logger.warning("Skipping CPU, %s", e)
+            return
 
         self.cpus.append(cpu)
 
