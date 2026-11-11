@@ -202,9 +202,9 @@ feat_sctlr2_not_supported\@:
 		 * SCTLR_EL3.NMI: Set/left to zero as required by the workaround
 		 * for Arm C1-Pro erratum 3679375
 		 *
-		 * SCTLR_EL3.IESB: It has to be set to 1 to mitigate Neoverse N2
-		 * erratum 3003140 and Cortex-X4 erratum 2959655. If FEAT_RAS is
-		 * present then assume FEAT_IESB is also present.
+		 * SCTLR_EL3.IESB: It has to be set to 1 to mitigate errata
+		 * Neoverse N2 3003140, Cortex-X4 2959655, Neoverse V1 3003013.
+		 * If FEAT_RAS is present then assume FEAT_IESB is also present.
 		 * -------------------------------------------------------------
 		 */
 		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \
