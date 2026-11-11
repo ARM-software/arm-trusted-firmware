@@ -243,6 +243,17 @@ workaround_reset_end neoverse_v1, ERRATUM(2372203)
 
 check_erratum_ls neoverse_v1, ERRATUM(2372203), CPU_REV(1, 1)
 
+workaround_reset_start neoverse_v1, ERRATUM(2675258), ERRATA_V1_2675258
+	sysreg_bit_clear NEOVERSE_V1_CPUECTLR2_EL1, BIT(2)
+
+	sysreg_bitfield_insert NEOVERSE_V1_CPUECTLR2_EL1, \
+		NEOVERSE_V1_CPUECTLR2_EL1_TXREQ_MAX_BIT, \
+		NEOVERSE_V1_CPUECTLR2_EL1_TXREQ_MAX_SHIFT, \
+		NEOVERSE_V1_CPUECTLR2_EL1_TXREQ_MAX_WIDTH
+workaround_reset_end neoverse_v1, ERRATUM(2675258)
+
+check_erratum_ls neoverse_v1, ERRATUM(2675258), CPU_REV(1, 1)
+
 add_erratum_entry neoverse_v1, ERRATUM(2701953), ERRATUM_NO_EL3_WA
 
 check_erratum_custom_start neoverse_v1, ERRATUM(2701953)
@@ -276,11 +287,21 @@ workaround_reset_end neoverse_v1, ERRATUM(2779461)
 
 check_erratum_ls neoverse_v1, ERRATUM(2779461), CPU_REV(1, 2)
 
+/* SCTLR_EL3.IESB is set to 1 in el3_entrypoint_common */
+add_erratum_entry neoverse_v1, ERRATUM(3003013), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen neoverse_v1, ERRATUM(3003013), ERRATUM_ALWAYS_CHOSEN
+
 workaround_reset_start neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
 	sysreg_bit_set NEOVERSE_V1_ACTLR2_EL1, BIT(22)
 workaround_reset_end neoverse_v1, ERRATUM(3888016)
 
 check_erratum_chosen neoverse_v1, ERRATUM(3888016), ERRATA_V1_3888016
+
+workaround_reset_start neoverse_v1, ERRATUM(4302971), ERRATA_V1_4302971
+	sysreg_bit_set NEOVERSE_V1_ACTLR5_EL1, BIT(50)
+workaround_reset_end neoverse_v1, ERRATUM(4302971)
+
+check_erratum_chosen neoverse_v1, ERRATUM(4302971), ERRATA_V1_4302971
 
 workaround_reset_start neoverse_v1, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #ifdef IMAGE_BL31
