@@ -31,8 +31,14 @@ typedef struct {
 typedef enum {
 	CB_TAG_MEMORY = 0x1,
 	CB_TAG_SERIAL = 0xf,
+	CB_TAG_CONSOLE = 0x10,
 	CB_TAG_CBMEM_CONSOLE = 0x17,
 } cb_tag_t;
+
+typedef enum {
+	CB_TAG_CONSOLE_SERIAL_IO = 0,
+	CB_TAG_CONSOLE_SERIAL_MMIO = 6,
+} cb_console_t;
 
 typedef struct {
 	uint32_t tag;
@@ -40,12 +46,14 @@ typedef struct {
 	union {
 		coreboot_memrange_t memranges[COREBOOT_MAX_MEMRANGES];
 		coreboot_serial_t serial;
+		uint32_t uint32;
 		uint64_t uint64;
 	};
 } cb_entry_t;
 
 coreboot_memrange_t coreboot_memranges[COREBOOT_MAX_MEMRANGES];
 coreboot_serial_t coreboot_serial;
+bool coreboot_has_serial;
 uint64_t coreboot_table_addr;
 uint32_t coreboot_table_size;
 
@@ -132,6 +140,7 @@ void coreboot_table_setup(void *base)
 	ptr = base + header->header_bytes;
 	for (i = 0; i < header->table_entries; i++) {
 		size_t size;
+		uint32_t console_type;
 		cb_entry_t *entry = ptr;
 
 		if (ptr - base >= header->header_bytes + header->table_bytes) {
@@ -152,6 +161,13 @@ void coreboot_table_setup(void *base)
 		case CB_TAG_SERIAL:
 			memcpy(&coreboot_serial, &entry->serial,
 			       sizeof(coreboot_serial));
+			break;
+		case CB_TAG_CONSOLE:
+			console_type = read_le32(&entry->uint32);
+			if ((console_type == CB_TAG_CONSOLE_SERIAL_IO) ||
+			    (console_type == CB_TAG_CONSOLE_SERIAL_MMIO)) {
+				coreboot_has_serial = true;
+			}
 			break;
 		case CB_TAG_CBMEM_CONSOLE:
 			setup_cbmem_console(read_le64(&entry->uint64));

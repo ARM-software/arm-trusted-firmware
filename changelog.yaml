@@ -964,6 +964,9 @@ subsections:
       - title: Exception Handling Framework (EHF)
         scope: ehf
 
+      - title: coreboot
+        scope: coreboot
+
   - title: Drivers
 
     subsections:

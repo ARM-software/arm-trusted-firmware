@@ -7,6 +7,7 @@
 #ifndef COREBOOT_H
 #define COREBOOT_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct {
@@ -18,6 +19,7 @@ typedef struct {
 	uint32_t uart_pci_addr;		/* unused on current ARM systems */
 } coreboot_serial_t;
 extern coreboot_serial_t coreboot_serial;
+extern bool coreboot_has_serial;
 
 #define COREBOOT_MAX_MEMRANGES	32	/* libpayload also uses this limit */
 
