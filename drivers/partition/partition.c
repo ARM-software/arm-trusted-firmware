@@ -577,6 +577,25 @@ const partition_entry_t *get_partition_entry_by_guid(
 }
 
 /*
+ * Try retrieving a partition table entry based on the partition type and part
+ * GUID.
+ */
+const partition_entry_t *get_partition_entry_by_type_and_guid(
+	const struct efi_guid *type_guid, const struct efi_guid *part_guid)
+{
+	unsigned int i;
+
+	for (i = 0U; i < list.entry_count; i++) {
+		if (guidcmp(type_guid, &list.list[i].type_guid) == 0 &&
+		    guidcmp(part_guid, &list.list[i].part_guid) == 0) {
+			return &list.list[i];
+		}
+	}
+
+	return NULL;
+}
+
+/*
  * Return entry to the list of partition table entries.
  */
 const partition_entry_list_t *get_partition_entry_list(void)

@@ -989,6 +989,43 @@ void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 	}
 }
 
+#if (STM32MP_SDMMC || STM32MP_EMMC)
+static int get_metadata_partition_entry(unsigned int image_id,
+					const partition_entry_t **entry)
+{
+	const bool is_main_metadata = (image_id == FWU_METADATA_IMAGE_ID);
+	const struct efi_guid metadata_type_guid = FWU_METADATA_GUID;
+	const struct efi_guid fwu_metadata1_part_guid = FWU_METADATA1_PART_GUID;
+	const struct efi_guid fwu_metadata2_part_guid = FWU_METADATA2_PART_GUID;
+	const struct efi_guid *metadata_part_guid =
+		is_main_metadata ?
+		&fwu_metadata1_part_guid : &fwu_metadata2_part_guid;
+
+	const char *metadata_part_name =
+		is_main_metadata ? METADATA_PART_1 : METADATA_PART_2;
+
+	partition_init(GPT_IMAGE_ID);
+
+	*entry = get_partition_entry_by_type_and_guid(&metadata_type_guid,
+						      metadata_part_guid);
+	if (*entry != NULL) {
+		return 0;
+	}
+
+	VERBOSE("FWU %s partition GUID not found, trying lookup by partition name...\n",
+		metadata_part_name);
+
+	*entry = get_partition_entry(metadata_part_name);
+	if (*entry == NULL) {
+		ERROR("Unable to find metadata partition \"%s\"\n",
+		      metadata_part_name);
+		return -ENOENT;
+	}
+
+	return 0;
+}
+#endif
+
 static int set_metadata_image_source(unsigned int image_id,
 				     uintptr_t *handle,
 				     uintptr_t *image_spec)
@@ -997,6 +1034,7 @@ static int set_metadata_image_source(unsigned int image_id,
 	io_block_spec_t *spec __maybe_unused;
 	const partition_entry_t *entry __maybe_unused;
 	const uint16_t boot_itf = stm32mp_get_boot_itf_selected();
+	int ret __maybe_unused;
 
 	policy = &policies[image_id];
 	spec = (io_block_spec_t *)policy->image_spec;
@@ -1005,17 +1043,9 @@ static int set_metadata_image_source(unsigned int image_id,
 #if (STM32MP_SDMMC || STM32MP_EMMC)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
-		partition_init(GPT_IMAGE_ID);
-
-		if (image_id == FWU_METADATA_IMAGE_ID) {
-			entry = get_partition_entry(METADATA_PART_1);
-		} else {
-			entry = get_partition_entry(METADATA_PART_2);
-		}
-
-		if (entry == NULL) {
-			ERROR("Unable to find a metadata partition\n");
-			return -ENOENT;
+		ret = get_metadata_partition_entry(image_id, &entry);
+		if (ret != 0) {
+			return ret;
 		}
 
 		spec->offset = entry->start;
