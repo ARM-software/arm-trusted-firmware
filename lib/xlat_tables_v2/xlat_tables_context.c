@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2026, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +11,7 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
+#include <lib/spinlock.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
@@ -62,12 +64,28 @@ void mmap_add_alloc_va(mmap_region_t *mm)
 
 #if defined(PLAT_XLAT_TABLES_DYNAMIC) && PLAT_XLAT_TABLES_DYNAMIC
 
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+static spinlock_t mmap_lock;
+#endif
+
 int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
 			    size_t size, unsigned int attr)
 {
 	mmap_region_t mm = MAP_REGION(base_pa, base_va, size, attr);
 
-	return mmap_add_dynamic_region_ctx(&tf_xlat_ctx, &mm);
+	int rc;
+
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+	spin_lock(&mmap_lock);
+#endif
+
+	rc = mmap_add_dynamic_region_ctx(&tf_xlat_ctx, &mm);
+
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+	spin_unlock(&mmap_lock);
+#endif
+
+	return rc;
 }
 
 int mmap_add_dynamic_region_alloc_va(unsigned long long base_pa,
@@ -76,7 +94,17 @@ int mmap_add_dynamic_region_alloc_va(unsigned long long base_pa,
 {
 	mmap_region_t mm = MAP_REGION_ALLOC_VA(base_pa, size, attr);
 
-	int rc = mmap_add_dynamic_region_alloc_va_ctx(&tf_xlat_ctx, &mm);
+	int rc;
+
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+	spin_lock(&mmap_lock);
+#endif
+
+	rc = mmap_add_dynamic_region_alloc_va_ctx(&tf_xlat_ctx, &mm);
+
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+	spin_unlock(&mmap_lock);
+#endif
 
 	*base_va = mm.base_va;
 
@@ -86,8 +114,19 @@ int mmap_add_dynamic_region_alloc_va(unsigned long long base_pa,
 
 int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 {
-	return mmap_remove_dynamic_region_ctx(&tf_xlat_ctx,
-					base_va, size);
+	int rc;
+
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+	spin_lock(&mmap_lock);
+#endif
+
+	rc = mmap_remove_dynamic_region_ctx(&tf_xlat_ctx, base_va, size);
+
+#if PLAT_XLAT_TABLES_DYNAMIC_LOCKING
+	spin_unlock(&mmap_lock);
+#endif
+
+	return rc;
 }
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */

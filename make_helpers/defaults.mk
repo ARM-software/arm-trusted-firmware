@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2016-2026, Arm Limited. All rights reserved.
+# Copyright (c) 2026, NVIDIA CORPORATION. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -441,6 +442,9 @@ PLATFORM_REPORT_CTX_MEM_USE	:= 0
 
 # Request a custom addition to the BL31 linker script
 PLAT_EXTRA_LD_SCRIPT		:= 0
+
+# Serialize dynamic mmap updates.
+PLAT_XLAT_TABLES_DYNAMIC_LOCKING := 0
 
 # Enable early console
 EARLY_CONSOLE			:= 0
