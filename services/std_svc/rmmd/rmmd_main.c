@@ -30,7 +30,6 @@
 #include <lib/extensions/trbe.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/per_cpu/per_cpu.h>
-#include <lib/spinlock.h>
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/common_def.h>
@@ -63,6 +62,11 @@ PER_CPU_DEFINE(rmmd_rmm_context_t, rmm_context);
  * on secondary cores.
  ******************************************************************************/
 static entry_point_info_t *rmm_ep_info;
+
+/*******************************************************************************
+ * Flag to indicate whether LFA is allowed or not.
+ ******************************************************************************/
+static bool allow_lfa = true;
 
 /*******************************************************************************
  * Static function declaration.
@@ -549,6 +553,10 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		ret = firme_handler(FIRME_MEC_REFRESH_FID, x1, x2, x3, x4,
 				    cookie, handle, flags);
 		SMC_RET1(handle, ret);
+	case RMM_LFA_ALLOW:
+		__atomic_store_n(&allow_lfa, (x1 & BIT(0)) != 0U,
+				 __ATOMIC_RELAXED);
+		SMC_RET1(handle, E_RMM_OK);
 	default:
 		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
@@ -562,6 +570,14 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 int rmmd_primary_activate(void)
 {
 	int rc;
+
+	/*
+	 * All other cores are held at EL3 at this point, so no need to serialize
+	 * access to variable `allow_lfa`.
+	 */
+	if (!allow_lfa) {
+		return -EPERM;
+	}
 
 	rc = rmmd_setup();
 	if (rc != 0) {
