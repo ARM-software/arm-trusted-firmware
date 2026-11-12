@@ -66,12 +66,6 @@ class Corpus:
         )
 
     async def classify(self, erratum: Erratum) -> ErratumClassification:
-        self._logger.info(
-            "Classifying erratum: %s - %s",
-            erratum.cpu_name.human_readable_name,
-            erratum.id
-        )
-
         erratum_classification = await self._openai_client.classify_erratum(erratum.summary, erratum.workaround)
 
         if self._errata_embeddings is not None:
@@ -96,13 +90,6 @@ class Corpus:
                 similar_erratum = self._errata_list[best_position]
 
                 erratum_classification.workaround_class = similar_erratum.workaround_class
-
-        self._logger.info(
-            "Erratum %s for %s classified as %s",
-            erratum.id,
-            erratum.cpu_name.human_readable_name,
-            erratum_classification,
-        )
 
         return erratum_classification
 

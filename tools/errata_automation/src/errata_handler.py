@@ -14,7 +14,7 @@ from typing import TypeVar
 
 from pydantic import ValidationError
 from src.corpus import Corpus
-from src.cpu import CPU, DocumentationNotAvailableError
+from src.cpu import CPU, NotAvailableError
 from src.files.mk_file import MkFile
 from src.files.rst_file import RstFile
 from src.models.erratum import Erratum
@@ -338,7 +338,7 @@ class ErrataHandler:
         try:
             cpu = await CPU(cpu_file_path, self._doc_dir_path)
 
-        except DocumentationNotAvailableError as e:
+        except NotAvailableError as e:
             self._logger.warning("Skipping CPU, %s", e)
             return
 
@@ -372,9 +372,34 @@ class ErrataHandler:
 
     async def _classify_and_extract_workaround_details(self, cpu: CPU, erratum: Erratum):
         try:
+            self._logger.info(
+                "Classifying erratum: %s - %s",
+                erratum.cpu_name.human_readable_name,
+                erratum.id
+            )
+
+            if not erratum.is_open():
+                if erratum.fixed_revision <= cpu.min_revision:
+                    erratum.workaround_class = WorkaroundClass.IGNORED
+                    self._logger.info(
+                        "Erratum %s for %s was fixed in %s (MinRevision: %s); classified as IGNORED",
+                        erratum.id,
+                        cpu.name.human_readable_name,
+                        erratum.fixed_revision,
+                        cpu.min_revision,
+                    )
+                    return
+
             erratum_classification = await self.corpus.classify(erratum)
             erratum.workaround_class = erratum_classification.workaround_class
             erratum.workaround_details = erratum_classification.workaround_details
+
+            self._logger.info(
+                "Erratum %s for %s classified as %s",
+                erratum.id,
+                erratum.cpu_name.human_readable_name,
+                erratum_classification,
+            )
 
         except ValidationError as error:
             erratum.requires_review  = True

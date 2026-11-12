@@ -34,7 +34,7 @@ Extraction steps:
 3. Ignore Category A, Category C, and all other categories. If both Category B and Category B (Rare) exist, include both.
 4. Preserve the erratum id exactly as written in <erratum_id>.
 5. Fetch the Fault status. Convert the revision in which the erratum is present to a list and preserve it to <revisions>.
-   Preserve the status as <status>. If the status is Fixed, preserve the revision in <fixed_revision>.
+   If the status is "Fixed", preserve the revision in <fixed_revision>. If the status is "Open", set the <fixed_revision> to empty.
    The 'Fixed in versions' should not be present in `Found in versions`.
 6. Copy the complete summary cell for the selected erratum into <summary>.
    Preserve its wording and punctuation, including apparent errors or stray
@@ -47,8 +47,7 @@ Return ONLY a JSON array in this format. Return [] when no rows match:
   {
     "document_version": "<document_version>",
     "id": "<erratum_id>",
-    "category" : "<category_string>",
-    "status": "<open|fixed>",
+    "category": "<category_string>",
     "present_revisions": ["<revisions>"],
     "fixed_revision": "<fixed_revision>",
     "summary": "<summary>",

@@ -4,8 +4,9 @@
 
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 from src.models.cpuname import CpuName
+from src.models.erratum_revision import Revision
 from src.models.workaround_details import WorkaroundClass, WorkaroundDetails
 
 
@@ -26,7 +27,7 @@ class Erratum(BaseModel):
     """Validate a CPU erratum and its workaround data from PDFs or LLM output.
 
     Construction validates field types and rejects unknown fields. An erratum
-    is open when its status is Open and its fixed revision is empty.
+    is open when its fixed revision is empty; status is derived from that revision.
     ``set_require_review()`` updates the review flag for CPU reset workarounds
     when their register settings or instruction sequence need review; other
     workaround classes leave the flag unchanged.
@@ -39,9 +40,8 @@ class Erratum(BaseModel):
     cpu_name: CpuName
     id: int
     category: str
-    status: ErratumStatus
     present_revisions: list[str] = Field(default_factory=list)
-    fixed_revision: str
+    fixed_revision: Revision | None
     summary: str
     workaround: str
     workaround_details: WorkaroundDetails = Field(
@@ -51,8 +51,24 @@ class Erratum(BaseModel):
         default=WorkaroundClass.UNCLASSIFIED
     )
 
-    def is_open(self):
-        return self.status == ErratumStatus.Open and self.fixed_revision == ""
+    @field_validator("fixed_revision", mode="before")
+    @classmethod
+    def empty_fixed_to_none(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip() or None
+
+        return value
+
+    @field_serializer("fixed_revision", when_used="json")
+    def serialize_fixed(self, value: Revision | None) -> str:
+        return str(value) if value is not None else ""
+
+    @property
+    def status(self) -> ErratumStatus:
+        return ErratumStatus.Open if self.fixed_revision is None else ErratumStatus.Fixed
+
+    def is_open(self) -> bool:
+        return self.status == ErratumStatus.Open
 
     def set_require_review(self):
         details = self.workaround_details
