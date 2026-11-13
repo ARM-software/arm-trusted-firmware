@@ -63,7 +63,6 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c
 
 include lib/zlib/zlib.mk
-PLAT_INCLUDES	+=	-Ilib/zlib
 BL2_SOURCES	+=	$(ZLIB_SOURCES)
 
 BL31_SOURCES	+=	\

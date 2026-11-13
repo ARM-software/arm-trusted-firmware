@@ -62,11 +62,9 @@ license text is included in those source files.
    the BSD-2-Clause license. Any contributions to this code must be made under
    the terms of both licenses.
 
--  The LLVM compiler-rt source code is disjunctively dual licensed
-   (NCSA OR MIT). It is used by this project under the terms of the NCSA
-   license (also known as the University of Illinois/NCSA Open Source License),
-   which is a permissive license compatible with BSD-3-Clause. Any
-   contributions to this code must be made under the terms of both licenses.
+-  The LLVM compiler-rt source code is licensed under the Apache License 2.0
+   with LLVM exceptions (Apache-2.0 WITH LLVM-exception). The license text is
+   included in ``lib/compiler-rt/LICENSE.TXT``.
 
 -  The zlib source code is licensed under the Zlib license, which is a
    permissive license compatible with BSD-3-Clause.
