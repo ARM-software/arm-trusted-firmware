@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2026, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,8 +13,6 @@ FIPTOOL ?= fiptool${BIN_EXT}
 PROJECT := $(notdir ${FIPTOOL})
 OBJECTS := fiptool.o tbbr_config.o
 V ?= 0
-OPENSSL_DIR := /usr
-
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
 HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99
