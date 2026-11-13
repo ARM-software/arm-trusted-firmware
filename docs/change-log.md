@@ -3,6 +3,30 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.40](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.39..refs/tags/lts-v2.10.40) (2026-11-13)
+
+### Build System
+
+- **Dependencies**
+
+  - add DTC submodule ([6cdf299](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6cdf299a25442f63bed4ba1681591f95bc4cb42b))
+  - add zlib submodule ([49c1aa9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/49c1aa966acb50bc13a7400e5fb04668a100d225))
+  - update Mbed TLS to v3.6.7 ([1f661c7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1f661c754e033639eab815daa827623bb224e636))
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - **Compiler runtime libraries**
+
+    - sync upstream license information ([155b633](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/155b633dadbf812c5ce099da2239c9e95966b1fb))
+
+### Resolved Issues
+
+- **Build System**
+
+  - respect exported OpenSSL installation prefix ([8870f81](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8870f8175c46fc68ad6b00b0c5cd92cf7d31d655))
+
 ## [lts-2.10.39](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.38..refs/tags/lts-v2.10.39) (2026-11-06)
 
 ### Miscellaneous
