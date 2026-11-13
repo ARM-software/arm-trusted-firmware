@@ -366,7 +366,7 @@ RAS_TRAP_NS_ERR_REC_ACCESS	:= 0
 COT_DESC_IN_DTB			:= 0
 
 # Build option to provide OpenSSL directory path
-OPENSSL_DIR			:= /usr
+OPENSSL_DIR			?= /usr
 
 # Select the openssl binary provided in OPENSSL_DIR variable
 ifeq ("$(wildcard ${OPENSSL_DIR}/bin)", "")

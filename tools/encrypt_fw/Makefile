@@ -7,7 +7,6 @@
 
 BUILD_INFO	?= 1
 DEBUG		:= 0
-OPENSSL_DIR	:= /usr
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
