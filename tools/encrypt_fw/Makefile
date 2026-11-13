@@ -9,8 +9,6 @@ BUILD_INFO	?= 1
 DEBUG		:= 0
 ENCTOOL		?= encrypt_fw${BIN_EXT}
 BINARY		:= $(notdir ${ENCTOOL})
-OPENSSL_DIR	:= /usr
-
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk

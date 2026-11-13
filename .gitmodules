@@ -1,4 +1,12 @@
+[submodule "dtc"]
+	path = contrib/dtc
+	url = https://git.kernel.org/pub/scm/utils/dtc/dtc.git
+	shallow = true
 [submodule "mbed-tls"]
 	path = contrib/mbed-tls
 	url = https://github.com/Mbed-TLS/mbedtls.git
+	shallow = true
+[submodule "zlib"]
+	path = contrib/zlib
+	url = https://github.com/madler/zlib.git
 	shallow = true

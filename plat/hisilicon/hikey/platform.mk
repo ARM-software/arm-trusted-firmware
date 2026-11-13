@@ -96,7 +96,6 @@ BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
 
 include lib/zlib/zlib.mk
-PLAT_INCLUDES		+=	-Ilib/zlib
 BL2_SOURCES		+=	$(ZLIB_SOURCES)
 
 HIKEY_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
