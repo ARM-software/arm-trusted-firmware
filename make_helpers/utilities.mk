@@ -500,7 +500,7 @@ define shell-slice.sh =
         m=$(if $(3),$(call shell-quote,$(3)),$$(($$# + 1)));
 
         printf '%s\n' "$$@" $\
-                | sed -n "$${n},$${m}{ $${m}!p }; $${m}q" $\
+                | sed -n "$${n},$${m}{ $${m}!p; }; $${m}q" $\
                 | sed "s/'/'\\\\''/g; s/^/'/; s/\$$/'/";
 endef
 
