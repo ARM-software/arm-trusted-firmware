@@ -4,17 +4,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-# TF-A was tested with v1.2 version of QCBOR
+QCBOR_SOURCES	+=	contrib/qcbor/src/qcbor_encode.c \
+			contrib/qcbor/src/qcbor_decode.c \
+			contrib/qcbor/src/UsefulBuf.c
 
-ifeq (${QCBOR_DIR},)
-        $(error Error: QCBOR_DIR not set)
-endif
-
-QCBOR_SOURCES	+=	${QCBOR_DIR}/src/qcbor_encode.c \
-			${QCBOR_DIR}/src/qcbor_decode.c \
-			${QCBOR_DIR}/src/UsefulBuf.c
-
-QCBOR_INCLUDES	+=	${QCBOR_DIR}/inc
+QCBOR_INCLUDES	+=	contrib/qcbor/inc
 
 # Floating point numbers are not used, so disable the support.
 # This reduces the library size as well.
