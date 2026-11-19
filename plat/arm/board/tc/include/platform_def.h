@@ -484,13 +484,12 @@
 #define MCN_CONFIG_SLC_PRESENT_BIT	3
 
 /*
- * TC3 CPUs have the same definitions for:
- *   CORTEX_{A520|A725|X925}_CPUECTLR_EL1
- *   CORTEX_{A520|A725|X925}_CPUECTLR_EL1_EXTLLC_BIT
+ * TC CPUs have the same definitions for:
+ * the following.
  * Define the common macros for easier using.
  */
-#define CPUECTLR_EL1			CORTEX_A520_CPUECTLR_EL1
-#define CPUECTLR_EL1_EXTLLC_BIT		CORTEX_A520_CPUECTLR_EL1_EXTLLC_BIT
+#define CPUECTLR_EL1			S3_0_C15_C1_4
+#define CPUECTLR_EL1_EXTLLC_BIT		U(0)
 
 #define CPUACTLR_CLUSTERPMUEN		(ULL(1) << 12)
 
