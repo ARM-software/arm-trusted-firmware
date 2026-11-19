@@ -65,8 +65,10 @@ workaround_reset_start cortex_a720, ERRATUM(2926083), ERRATA_A720_2926083
 	ubfx x0, x1, ID_AA64DFR0_PMS_SHIFT, #4
 	cbz x0, 1f
 	/* Apply the workaround by setting CPUACTLR_EL1[58:57] = 0b11. */
-	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, BIT(57)
-	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, BIT(58)
+	sysreg_lazy_start CORTEX_A720_CPUACTLR_EL1
+	sysreg_lazy_set BIT(57)
+	sysreg_lazy_set BIT(58)
+	sysreg_lazy_commit CORTEX_A720_CPUACTLR_EL1
 1:
 #endif
 workaround_reset_end cortex_a720, ERRATUM(2926083)

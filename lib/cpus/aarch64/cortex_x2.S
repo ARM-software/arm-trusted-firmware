@@ -238,10 +238,23 @@ workaround_reset_end cortex_x2, ERRATUM(2371105)
 
 check_erratum_ls cortex_x2, ERRATUM(2371105), CPU_REV(2, 0)
 
+add_erratum_entry cortex_x2, ERRATUM(2701952), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_x2, ERRATUM(2701952)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(2, 1)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_x2, ERRATUM(2701952)
+
 workaround_reset_start cortex_x2, ERRATUM(2742423), ERRATA_X2_2742423
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
-	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(55)
-	sysreg_bit_clear CORTEX_X2_CPUACTLR5_EL1, BIT(56)
+	sysreg_lazy_start CORTEX_X2_CPUACTLR5_EL1
+	sysreg_lazy_set BIT(55)
+	sysreg_lazy_clear BIT(56)
+	sysreg_lazy_commit CORTEX_X2_CPUACTLR5_EL1
 workaround_reset_end cortex_x2, ERRATUM(2742423)
 
 check_erratum_ls cortex_x2, ERRATUM(2742423), CPU_REV(2, 1)

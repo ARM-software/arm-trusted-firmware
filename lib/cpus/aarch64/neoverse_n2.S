@@ -206,10 +206,23 @@ workaround_reset_end neoverse_n2, ERRATUM(2388450)
 
 check_erratum_ls neoverse_n2, ERRATUM(2388450), CPU_REV(0, 0)
 
+add_erratum_entry neoverse_n2, ERRATUM(2728475), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start neoverse_n2, ERRATUM(2728475)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(0, 2)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end neoverse_n2, ERRATUM(2728475)
+
 workaround_reset_start neoverse_n2, ERRATUM(2743014), ERRATA_N2_2743014
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
-	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_55
-	sysreg_bit_clear NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_start NEOVERSE_N2_CPUACTLR5_EL1
+	sysreg_lazy_set NEOVERSE_N2_CPUACTLR5_EL1_BIT_55
+	sysreg_lazy_clear NEOVERSE_N2_CPUACTLR5_EL1_BIT_56
+	sysreg_lazy_commit NEOVERSE_N2_CPUACTLR5_EL1
 workaround_reset_end neoverse_n2, ERRATUM(2743014)
 
 check_erratum_ls neoverse_n2, ERRATUM(2743014), CPU_REV(0, 2)
@@ -227,6 +240,22 @@ workaround_reset_start neoverse_n2, ERRATUM(2779511), ERRATA_N2_2779511
 workaround_reset_end neoverse_n2, ERRATUM(2779511)
 
 check_erratum_ls neoverse_n2, ERRATUM(2779511), CPU_REV(0, 2)
+
+/* SCTLR_EL3.IESB is set to 1 in el3_entrypoint_common */
+add_erratum_entry neoverse_n2, ERRATUM(3003140), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen neoverse_n2, ERRATUM(3003140), ERRATUM_ALWAYS_CHOSEN
+
+/*
+ * To mitigate this workaround SCR_EL3.EA must be toggled prior to returning to
+ * a lower EL. EA bit is set to 1 here, and then el3_arch_init_common sets to 0.
+ */
+workaround_reset_start neoverse_n2, ERRATUM(3099213), ERRATA_N2_3099213
+	mrs x0, scr_el3
+	orr x0, x0, #SCR_EA_BIT
+	msr scr_el3, x0
+workaround_reset_end neoverse_n2, ERRATUM(3099213)
+
+check_erratum_chosen neoverse_n2, ERRATUM(3099213), ERRATA_N2_3099213
 
 workaround_runtime_start neoverse_n2, ERRATUM(3324339), ERRATA_N2_3324339
 	speculation_barrier
