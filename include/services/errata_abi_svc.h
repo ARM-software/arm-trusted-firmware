@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,10 +12,11 @@
 #define ARM_EM_VERSION			U(0x840000F0)
 #define ARM_EM_FEATURES			U(0x840000F1)
 #define ARM_EM_CPU_ERRATUM_FEATURES	U(0x840000F2)
+#define ARM_EM_CPU_WORKAROUND_CONFIG	U(0xC40000F5)
 
 /* EM version numbers */
 #define EM_VERSION_MAJOR		(0x1)
-#define EM_VERSION_MINOR		(0x0)
+#define EM_VERSION_MINOR		(0x1)
 
 /* EM CPU_ERRATUM_FEATURES return codes */
 #define EM_HIGHER_EL_MITIGATION		(3)
