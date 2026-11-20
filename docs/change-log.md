@@ -3,6 +3,73 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.18..refs/tags/lts-v2.12.19) (2026-11-20)
+
+### Build System
+
+- **Dependencies**
+
+  - add QCBOR submodule ([8d953f6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d953f69d5ea1e9c0649bf39e798226e9f5a5b3e))
+
+### Documentation
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - better explain what SPLIT_WA means ([c00d217](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c00d2173d4f27044eb909a4e12f0300e859ba0ec))
+
+### Resolved Issues
+
+- **rk3568:** fix GPU domain enable errors ([39494f9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/39494f982ae9efdf85ca3f3f19f793f7b04b3b87))
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - also reply to SMC64 calls ([a9bd436](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a9bd4365f3270fa89b3dd77267ccad0cee4bb8fd))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Cortex-X4 errata workarounds ([df65847](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/df658471f837658beff80705a68451ecad8bcadc))
+    - add errata workarounds for Neoverse V1 ([9c21ac8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9c21ac88ff5ae7fc70fa2c9601703a90b8bc4f6d))
+    - add Neoverse N2 errata workarounds ([6beff2d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6beff2d36ea2f5db6fe89e38624ad2d3858e5f2f))
+    - add Neoverse N3 errata workarounds ([ce52373](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ce5237395273009b6a3033f5404d6e61838b2f70))
+    - fix workaround for Neoverse V2 erratum 3099206 ([8f82b79](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8f82b79b56b38be8dc07caeb826e1a7186f2fd40))
+    - put erratum 2726228 for Cortex-X4 in order ([5825f27](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5825f27a0c23d4713625560158acd2f539c2b4c9))
+    - remove non Arm interconnect errata flags ([06ba5be](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06ba5bef8413c80eb337c185673393e50a73568a))
+    - update MinRevision for Cortex-A725 ([e87254b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e87254ba33c9284d7d8fce0b52d6d20317345ef9))
+
+### New Features
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for version 1.1 ([d4736ad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d4736addca5e34897b0aaba9fca86be9cb02ceb7))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add sysreg_lazy_* macros for batched read-modify-write ([348221e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/348221ea9b57c18ba575313ad876fa54735e680e))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - integrate ERRATA_NON_ARM_INTERCONNECT errata into the generic framework ([1529794](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1529794dae4e99194341f4aa64e3a8ce3bfc1e0b))
+    - normalize Cortex-A65AE header macro names ([1495421](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/14954217aac6f82b1d957b1d6509349f971219bd))
+    - normalize Cortex-A720AE header macro names ([756d3a8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/756d3a8d9abad82ebd888ce18fa28b0ecdd1fb9e))
+    - normalize Cortex-A76AE header macro names ([21abef5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/21abef5d24ddfb5a6f632cce92d36d55dcfa8f08))
+    - normalize Cortex-A78AE header macro names ([85f39f4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/85f39f426842ff68a23dd11bc53bdc025834839f))
+    - normalize Neoverse V1 register definitions ([64344e6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/64344e6a80825030e86f323d136acf6329dede89))
+    - use sysreg_lazy_* for batched register writes ([0482367](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/04823675452b14a0b643291b34f560749568d3c6))
+
 ## [lts-2.12.18](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.17..refs/tags/lts-v2.12.18) (2026-11-13)
 
 ### Build System
