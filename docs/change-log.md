@@ -3,6 +3,63 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.41](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.40..refs/tags/lts-v2.10.41) (2026-11-20)
+
+### Documentation
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - better explain what SPLIT_WA means ([2cce485](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2cce4857980eec8a004994029d861124ee51b1ff))
+
+### Resolved Issues
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - also reply to SMC64 calls ([b000615](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b0006154389638e445540caf8420ecafe8ded79c))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Cortex-X4 errata workarounds ([1a5bb69](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1a5bb69173c477abcbdb1013169a8e9b8103b04f))
+    - add errata workarounds for Neoverse V1 ([d0f7797](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d0f77970c5e80539bcc4fa039674616dd05088bc))
+    - add Neoverse N2 errata workarounds ([7ab9060](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7ab906083a8b83381cacfd38a83c51a7795dca46))
+    - add Neoverse N3 errata workarounds ([5bc9b19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5bc9b1908427e28ef6bce08872716644d325f97a))
+    - fix workaround for Neoverse V2 erratum 3099206 ([b5b7844](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b5b784431c7f11fb6584d921315f78d130b64dda))
+    - put erratum 2726228 for Cortex-X4 in order ([23d3260](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/23d32601206623481d4379b843dbba4beec148dd))
+    - remove non Arm interconnect errata flags ([dd3c6fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dd3c6fe70fe46cc7b5524ebbd61029aef0014285))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - integrate ERRATA_NON_ARM_INTERCONNECT errata into the generic framework ([ceaba1b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ceaba1bf1f6f8a3dff937f1b012881bf4a455bb2))
+    - normalize Cortex-A65AE header macro names ([daf33f8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/daf33f8d0f7b1fc27e11068f271f0a0cd34729ba))
+    - normalize Cortex-A76AE header macro names ([fee38b6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fee38b6e3f739d435b2086502443a3c7547183b3))
+    - normalize Cortex-A78AE header macro names ([7b68c37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7b68c3756b9d7f75667b21639860283ebfe38efe))
+    - normalize Neoverse V1 register definitions ([c533bab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c533babb3b8733e4cc20263b9190df413cbc358b))
+    - use sysreg_lazy_* for batched register writes ([fdce56d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fdce56d5e6068708f015489f716d8a02801d6ee0))
+
+### New Features
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for version 1.1 ([0ed1d83](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ed1d83893195797886187698ebee15c612f57c6))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add sysreg_lazy_* macros for batched read-modify-write ([99586c1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/99586c199cb0bfda825ed75007c699f1d15dd7ef))
+
 ## [lts-2.10.40](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.39..refs/tags/lts-v2.10.40) (2026-11-13)
 
 ### Build System

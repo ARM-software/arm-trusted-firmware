@@ -1,6 +1,6 @@
 {
   "name": "conventional-changelog-tf-a",
-  "version": "2.10.40",
+  "version": "2.10.41",
   "license": "BSD-3-Clause",
   "private": true,
   "main": "index.js",
