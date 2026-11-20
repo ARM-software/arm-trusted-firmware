@@ -35,10 +35,6 @@ cpu_reset_prologue cortex_x4
 .global check_erratum_cortex_x4_2726228
 .global check_erratum_cortex_x4_3701758
 
-add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
-
-check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
-
 workaround_reset_start cortex_x4, ERRATUM(2302507), ERRATA_X4_2302507
 	sysreg_bit_set CORTEX_X4_CPUACTLR2_EL1, BIT(0)
 workaround_reset_end cortex_x4, ERRATUM(2302507)
@@ -72,6 +68,21 @@ workaround_reset_start cortex_x4, ERRATUM(2646977), ERRATA_X4_2646977
 workaround_reset_end cortex_x4, ERRATUM(2646977)
 
 check_erratum_ls cortex_x4, ERRATUM(2646977), CPU_REV(0, 0)
+
+add_erratum_entry cortex_x4, ERRATUM(2701112), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_x4, ERRATUM(2701112)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(0, 0)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_x4, ERRATUM(2701112)
+
+add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228
+
+check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
 
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
@@ -132,9 +143,15 @@ workaround_reset_end cortex_x4, ERRATUM(2957258)
 
 check_erratum_ls cortex_x4, ERRATUM(2957258), CPU_REV(0, 1)
 
+/* SCTLR_EL3.IESB is set to 1 in el3_entrypoint_common */
+add_erratum_entry cortex_x4, ERRATUM(2959655), ERRATUM_ALWAYS_CHOSEN
+check_erratum_chosen cortex_x4, ERRATUM(2959655), ERRATUM_ALWAYS_CHOSEN
+
 workaround_reset_start cortex_x4, ERRATUM(3076789), ERRATA_X4_3076789
-	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(14)
-	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(13)
+	sysreg_lazy_start CORTEX_X4_CPUACTLR3_EL1
+	sysreg_lazy_set BIT(14)
+	sysreg_lazy_set BIT(13)
+	sysreg_lazy_commit CORTEX_X4_CPUACTLR3_EL1
 	sysreg_bit_set CORTEX_X4_CPUACTLR_EL1, BIT(52)
 workaround_reset_end cortex_x4, ERRATUM(3076789)
 
@@ -175,6 +192,18 @@ check_erratum_ls cortex_x4, ERRATUM(3887999), CPU_REV(0, 3)
  */
 add_erratum_entry cortex_x4, ERRATUM(4011463), ERRATUM_ALWAYS_CHOSEN
 check_erratum_chosen cortex_x4, ERRATUM(4011463), ERRATUM_ALWAYS_CHOSEN
+
+workaround_reset_start cortex_x4, ERRATUM(4302964), ERRATA_X4_4302964
+	sysreg_bit_set CORTEX_X4_CPUACTLR5_EL1, BIT(50)
+workaround_reset_end cortex_x4, ERRATUM(4302964)
+
+check_erratum_chosen cortex_x4, ERRATUM(4302964), ERRATA_X4_4302964
+
+workaround_reset_start cortex_x4, ERRATUM(4430903), ERRATA_X4_4430903
+	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(23)
+workaround_reset_end cortex_x4, ERRATUM(4430903)
+
+check_erratum_chosen cortex_x4, ERRATUM(4430903), ERRATA_X4_4430903
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660

@@ -35,8 +35,10 @@
 cpu_reset_prologue neoverse_n1
 
 workaround_reset_start neoverse_n1, ERRATUM(925373), ERRATA_N1_925373
-	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(33)
-	sysreg_bit_set NEOVERSE_N1_CPUACTLR3_EL1, BIT(34)
+	sysreg_lazy_start NEOVERSE_N1_CPUACTLR3_EL1
+	sysreg_lazy_set BIT(33)
+	sysreg_lazy_set BIT(34)
+	sysreg_lazy_commit NEOVERSE_N1_CPUACTLR3_EL1
 workaround_reset_end neoverse_n1, ERRATUM(925373)
 
 check_erratum_ls neoverse_n1, ERRATUM(925373), CPU_REV(0, 0)
@@ -79,8 +81,10 @@ workaround_reset_end neoverse_n1, ERRATUM(1130799)
 check_erratum_ls neoverse_n1, ERRATUM(1130799), CPU_REV(2, 0)
 
 workaround_reset_start neoverse_n1, ERRATUM(1165347), ERRATA_N1_1165347
-	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_0
-	sysreg_bit_set NEOVERSE_N1_CPUACTLR2_EL1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_15
+	sysreg_lazy_start NEOVERSE_N1_CPUACTLR2_EL1
+	sysreg_lazy_set NEOVERSE_N1_CPUACTLR2_EL1_BIT_0
+	sysreg_lazy_set NEOVERSE_N1_CPUACTLR2_EL1_BIT_15
+	sysreg_lazy_commit NEOVERSE_N1_CPUACTLR2_EL1
 workaround_reset_end neoverse_n1, ERRATUM(1165347)
 
 check_erratum_ls neoverse_n1, ERRATUM(1165347), CPU_REV(2, 0)

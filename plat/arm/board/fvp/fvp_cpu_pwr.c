@@ -28,7 +28,7 @@ bool check_cpupwrctrl_el1_is_available(void)
 		CORTEX_A57_MIDR,
 		CORTEX_A72_MIDR,
 		CORTEX_A73_MIDR,
-		CORTEX_A78_AE_MIDR,
+		CORTEX_A78AE_MIDR,
 		NEOVERSE_E1_MIDR
 	};
 	unsigned int midr = (unsigned int)read_midr();

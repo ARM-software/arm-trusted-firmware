@@ -212,6 +212,17 @@ workaround_reset_end cortex_a78, ERRATUM(2395406)
 
 check_erratum_ls cortex_a78, ERRATUM(2395406), CPU_REV(1, 2)
 
+add_erratum_entry cortex_a78, ERRATUM(2712571), ERRATUM_NO_EL3_WA
+
+check_erratum_custom_start cortex_a78, ERRATUM(2712571)
+#if ERRATA_NON_ARM_INTERCONNECT
+	cpu_rev_var_ls	CPU_REV(1, 2)
+#else
+	mov	x0, #ERRATA_NOT_APPLIES
+#endif
+	ret
+check_erratum_custom_end cortex_a78, ERRATUM(2712571)
+
 workaround_reset_start cortex_a78, ERRATUM(2742426), ERRATA_A78_2742426
 	/* Apply the workaround */
 	mrs	x1, CORTEX_A78_ACTLR5_EL1

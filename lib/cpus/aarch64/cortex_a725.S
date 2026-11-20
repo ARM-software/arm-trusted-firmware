@@ -5,7 +5,7 @@
  *
  * TRM: https://support.arm.com/documentation/107652/latest
  * SDEN: https://support.arm.com/documentation/SDEN-2832921/latest
- * MinRevision: r0p0
+ * MinRevision: r0p1
  */
 
 #include <arch.h>
@@ -32,8 +32,10 @@ cpu_reset_prologue cortex_a725
 
 #if ENABLE_SPE_FOR_NS
 workaround_reset_start cortex_a725, ERRATUM(2874943), ERRATA_A725_2874943
-	sysreg_bit_set CORTEX_A725_CPUACTLR_EL1, BIT(57)
-	sysreg_bit_set CORTEX_A725_CPUACTLR_EL1, BIT(58)
+	sysreg_lazy_start CORTEX_A725_CPUACTLR_EL1
+	sysreg_lazy_set BIT(57)
+	sysreg_lazy_set BIT(58)
+	sysreg_lazy_commit CORTEX_A725_CPUACTLR_EL1
 workaround_reset_end cortex_a725, ERRATUM(2874943)
 
 check_erratum_ls cortex_a725, ERRATUM(2874943), CPU_REV(0, 0)
