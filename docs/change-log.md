@@ -3,6 +3,30 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.53](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.52..refs/tags/lts-v2.8.53) (2026-11-20)
+
+### New Features
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for version 1.1 ([3597293](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3597293e8e4db36aaddb649343f8bd0ca8166cc0))
+
+### Resolved Issues
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - also reply to SMC64 calls ([561b0a9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/561b0a9c7932aa5994dd436d0e8df62caf4822ea))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - remove non Arm interconnect errata flags ([bd10472](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bd1047205ada4f615003fd47fc6e7549461a24f9))
+
 ## [lts-2.8.52](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.51..refs/tags/lts-v2.8.52) (2026-11-13)
 
 ### Build System
