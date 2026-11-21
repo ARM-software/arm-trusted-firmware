@@ -9,7 +9,10 @@
 #include <assert.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
+#include <arm_impdef_regs.h>
+#include <bl31/sync_handle.h>
 #include <c1_pro.h>
 #include <c1_ultra.h>
 #include <cortex_a510.h>
@@ -244,3 +247,133 @@ void apply_cve_2025_10263_wa(void)
 	dsbish();
 }
 #endif /* WORKAROUND_CVE_2025_10263 */
+
+#if WORKAROUND_CVE_2025_0647
+/*
+ * Perform the workaround procedure for the CPP RCTX bug. The CPP RCTX
+ * instruction usually takes an argument but that is unused by the workaround.
+ */
+int cve_2025_0647_cpp_wa(uint32_t iss)
+{
+	u_register_t scr_el3;
+	u_register_t cpuactlr;
+	u_register_t cpuectlr;
+
+	(void) iss;
+
+	psbcsync();
+	tsbcsync();
+	dsbosh();
+
+	scr_el3 = read_scr_el3();
+
+	/* Disable branch prediction. */
+	cpuactlr = read_cpuactlr_el1();
+	write_cpuactlr_el1(cpuactlr | BIT(0));
+
+	/* Disable hardware prefetch. */
+	cpuectlr = read_cpuectlr_el1();
+	write_cpuectlr_el1(cpuectlr | BIT(15));
+	isb();
+
+	/*
+	 * Execute CPP instruction for EL3 / root state
+	 * EL3_rt: {GVMID,NSE,NS,EL,GASID} = {1,1,0,11,1}
+	 */
+	cpp_rctx(0x000100000b010000ULL);
+
+	if (is_feat_rme_supported()) {
+		/*
+		 * Execute CPP instructions for realm state
+		 * RL-EL2: {GVMID,NSE,NS,EL,GASID} = {1,1,1,10,1}
+		 */
+		cpp_rctx(0x000100000e010000ULL);
+		/* RL-EL1: {GVMID,NSE,NS,EL,GASID} = {1,1,1,01,1} */
+		cpp_rctx(0x000100000d010000ULL);
+		/* RL-EL0: {GVMID,NSE,NS,EL,GASID} = {1,1,1,00,1} */
+		cpp_rctx(0x000100000c010000ULL);
+	}
+
+	/*
+	 * Execute CPP instructions for non-secure state
+	 * EL2_ns: {GVMID,NSE,NS,EL,GASID} = {1,0,1,10,1}
+	 */
+	cpp_rctx(0x0001000006010000ULL);
+	/* NS-EL1: {GVMID,NSE,NS,EL,GASID} = {1,0,1,01,1} */
+	cpp_rctx(0x0001000005010000ULL);
+	/* NS-EL0: {GVMID,NSE,NS,EL,GASID} = {1,0,1,00,1} */
+	cpp_rctx(0x0001000004010000ULL);
+
+	/*
+	 * Execute CPP instructions for secure state
+	 * EL1_s: {GVMID,NSE,NS,EL,GASID} = {1,0,0,01,1}
+	 */
+	cpp_rctx(0x0001000001010000ULL);
+	/* S-EL0: {GVMID,NSE,NS,EL,GASID} = {1,0,0,00,1} */
+	cpp_rctx(0x0001000000010000ULL);
+
+	if ((scr_el3 & SCR_EEL2_BIT) != 0U) {
+		/* S-EL2: {GVMID,NSE,NS,EL,GASID} = {1,0,0,10,1} */
+		cpp_rctx(0x0001000002010000ULL);
+	}
+
+	dsbsy();
+
+	/* EL3 / root state TLBI */
+	tlbialle3();
+
+	if (is_feat_rme_supported()) {
+		/* Realm state TLBI {NSE,NS} = {1,1} */
+		write_scr_el3(scr_el3 | SCR_NS_BIT | SCR_NSE_BIT);
+		isb();
+		tlbialle1();
+		tlbialle2();
+	}
+
+	/* Non-secure state TLBI {NSE,NS} = {0,1} */
+	write_scr_el3((scr_el3 | SCR_NS_BIT) & ~SCR_NSE_BIT);
+	isb();
+	tlbialle1();
+	tlbialle2();
+
+	/* Secure state TLBI {NSE,NS} = {0,0} */
+	write_scr_el3(scr_el3 & ~(SCR_NS_BIT | SCR_NSE_BIT));
+	isb();
+	tlbialle1();
+
+	if ((scr_el3 & SCR_EEL2_BIT) != 0U) {
+		tlbialle2();
+	}
+
+	/* Clean up and restore register values. */
+	dsbsy();
+	write_scr_el3(scr_el3);
+	write_cpuactlr_el1(cpuactlr);
+	write_cpuectlr_el1(cpuectlr);
+
+	isb();
+
+	return TRAP_RET_CONTINUE;
+}
+
+/*
+ * Performs the same workaround for the CPP RCTX bug except disables LS regional
+ * clock gating on cores that require it for their workaround.
+ */
+int cve_2025_0647_cpp_no_gating_wa(uint32_t iss)
+{
+	u_register_t cpuactlr2;
+	u_register_t ret;
+
+	cpuactlr2 = read_cpuactlr2_el1();
+	write_cpuactlr2_el1(cpuactlr2 | BIT(29));
+	isb();
+
+	ret = cve_2025_0647_cpp_wa(iss);
+
+	write_cpuactlr2_el1(cpuactlr2);
+	isb();
+
+	return ret;
+}
+#endif /* WORKAROUND_CVE_2025_0647 */

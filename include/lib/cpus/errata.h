@@ -40,6 +40,7 @@
 	WORKAROUND_CVE_2024_7881)
 
 #ifndef __ASSEMBLER__
+#include <arch_helpers.h>
 #include <lib/cassert.h>
 
 void print_errata_status(void);
@@ -99,16 +100,8 @@ int check_erratum_applies(uint32_t cve, int errata_id);
  * rather than the workaround procedure.
  */
 #if WORKAROUND_CVE_2025_0647
-void wa_cve_2025_0647_execute_cpp_el3(uint64_t arg);
-#else
-__attribute__((always_inline))
-static inline void wa_cve_2025_0647_execute_cpp_el3(uint64_t arg)
-{
-#ifdef __aarch64__
-	register uint64_t x0 __asm__("x0") = arg;
-	__asm__ volatile ("cpp rctx, x0" : : "r"(x0) : "memory");
-#endif /* __aarch64__ */
-}
+int cve_2025_0647_cpp_wa(uint32_t iss);
+int cve_2025_0647_cpp_no_gating_wa(uint32_t iss);
 #endif /* WORKAROUND_CVE_2025_0647 */
 
 #if WORKAROUND_CVE_2025_10263

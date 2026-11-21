@@ -1408,8 +1408,6 @@ behaviour. The categories are:
 
 #. Processor specific power down sequences.
 
-#. Processor specific register dumping as a part of crash reporting.
-
 #. Errata status reporting.
 
 Each of the above categories fulfils a different requirement.
@@ -1614,6 +1612,14 @@ erratum #1925769 like::
     workaround_reset_end cortex_a77, ERRATUM(1925769)
 
     check_erratum_ls cortex_a77, ERRATUM(1925769), CPU_REV(1, 1)
+
+Some errata workarounds use the CPU's instruction-patching mechanism to make
+selected instructions generate an implementation-defined exception to EL3, where
+the corresponding workaround is applied.
+
+Use setup_instruction_patch() with declare_cpu_ops_eh() for a single trap
+source, and setup_multiple_instruction_patch() with declare_cpu_ops_eh_traps()
+when multiple trap sources are required.
 
 Status reporting
 ^^^^^^^^^^^^^^^^

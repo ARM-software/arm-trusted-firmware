@@ -8,6 +8,7 @@
  */
 
 #include <arch.h>
+#include <arm_impdef_regs.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
 #include <cortex_x2.h>
@@ -15,7 +16,6 @@
 #include "wa_cve_2022_23960_bhb_vector.S"
 
 #include <dsu_macros.S>
-#include <wa_cve_2025_0647_cpprctx.h>
 
 #include <plat_macros.S>
 
@@ -317,24 +317,11 @@ check_erratum_chosen cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
  */
 workaround_reset_start cortex_x2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #ifdef IMAGE_BL31
-	mov	x0, #(WA_USE_T32_OPCODE | WA_PATCH_SLOT(0))
-	bl	wa_cve_2025_0647_instruction_patch
+	setup_instruction_patch 0 0xEE670DF3 0xFFFF0FFF 0x800002001FF
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x2, CVE(2025, 647)
 
 check_erratum_chosen cortex_x2, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-
-#if WORKAROUND_CVE_2025_0647
-func cortex_x2_impl_defined_el3_handler
-	mov	x0, #WA_LS_RCG_EN
-
-	/* See if this call came from trap handler. */
-	cmp	x1, #EC_IMP_DEF_EL3
-	bne	wa_cve_2025_0647_do_cpp_wa
-	orr	x0, x0, #WA_IS_TRAP_HANDLER
-	b	wa_cve_2025_0647_do_cpp_wa
-endfunc cortex_x2_impl_defined_el3_handler
-#endif
 
 add_erratum_entry cortex_x2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 check_erratum_chosen cortex_x2, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
@@ -366,10 +353,10 @@ cpu_reset_func_start cortex_x2
 cpu_reset_func_end cortex_x2
 
 
-#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2025_0647
 declare_cpu_ops_eh cortex_x2, CORTEX_X2_MIDR, \
 	cortex_x2_reset_func, \
-	cortex_x2_impl_defined_el3_handler, \
+	cve_2025_0647_cpp_no_gating_wa, \
 	cortex_x2_core_pwr_dwn
 #else
 declare_cpu_ops cortex_x2, CORTEX_X2_MIDR, \

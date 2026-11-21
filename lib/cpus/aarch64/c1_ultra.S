@@ -8,11 +8,11 @@
  */
 
 #include <arch.h>
+#include <arm_impdef_regs.h>
 #include <asm_macros.S>
 #include <c1_ultra.h>
 #include <common/bl_common.h>
 #include <cpu_macros.S>
-#include <wa_cve_2025_0647_cpprctx.h>
 
 #include <plat_macros.S>
 
@@ -146,24 +146,13 @@ check_erratum_ls c1_ultra, CVE(2024, 7881), CPU_REV(0, 0)
 	 */
 workaround_reset_start c1_ultra, CVE(2025, 647), WORKAROUND_CVE_2025_0647
 #ifdef IMAGE_BL31
-	mov	x0, #WA_PATCH_SLOT(3)
-	bl	wa_cve_2025_0647_instruction_patch
+	/* Set up instruction trap for CPP RCTX instruction. */
+	setup_multiple_instruction_patch c1_ultra, 3, 0xD50B73E0, 0xFFFFFFE0, 0x800002001FF, \
+		cve_2025_0647_cpp_no_gating_wa
 #endif /* IMAGE_BL31 */
 workaround_reset_end c1_ultra, CVE(2025, 647)
 
 check_erratum_chosen c1_ultra, CVE(2025, 647), WORKAROUND_CVE_2025_0647
-
-#if WORKAROUND_CVE_2025_0647
-func c1_ultra_impl_defined_el3_handler
-	mov	x0, #WA_LS_RCG_EN
-
-	/* See if this call came from trap handler. */
-	cmp	x1, #EC_IMP_DEF_EL3
-	bne	wa_cve_2025_0647_do_cpp_wa
-	orr	x0, x0, #WA_IS_TRAP_HANDLER
-	b	wa_cve_2025_0647_do_cpp_wa
-endfunc c1_ultra_impl_defined_el3_handler
-#endif
 
 add_erratum_entry c1_ultra, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
 check_erratum_chosen c1_ultra, CVE(2025, 10263), WORKAROUND_CVE_2025_10263
@@ -206,10 +195,10 @@ c1_ultra_skip_pwr_dwn:
 endfunc c1_ultra_core_pwr_dwn
 
 
-#if WORKAROUND_CVE_2025_0647 && defined(IMAGE_BL31)
-declare_cpu_ops_eh c1_ultra, C1_ULTRA_MIDR, \
+#if defined(IMAGE_BL31) && WORKAROUND_CVE_2025_0647
+declare_cpu_ops_eh_traps c1_ultra, C1_ULTRA_MIDR, \
 	c1_ultra_reset_func, \
-	c1_ultra_impl_defined_el3_handler, \
+	4, \
 	c1_ultra_core_pwr_dwn
 #else
 declare_cpu_ops c1_ultra, C1_ULTRA_MIDR, \
