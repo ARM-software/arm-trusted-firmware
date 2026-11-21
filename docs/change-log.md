@@ -3,6 +3,81 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.14.15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.14..refs/tags/lts-v2.14.15) (2026-11-21)
+
+### Build System
+
+- **Dependencies**
+
+  - add QCBOR submodule ([87e934c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/87e934cd0d4b4dbd18f444e80077763c95faa88a))
+
+### Documentation
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - better explain what SPLIT_WA means ([1c0a93c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1c0a93c579efa4d87c716a9e2d63879424a20e33))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - integrate ERRATA_NON_ARM_INTERCONNECT errata into the generic framework ([81c47a6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81c47a6202d746d29cc8cde6ad29f94b81173379))
+    - normalize Cortex-A65AE header macro names ([6f8e9d6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6f8e9d6e18c096b00e01b850c104ce1740a96915))
+    - normalize Cortex-A720AE header macro names ([10007c5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10007c5368c74bc4c3d0b490225dcaa45b96c7c8))
+    - normalize Cortex-A76AE header macro names ([8a4f579](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8a4f57950143355f867f2ef8d484489f2f636b5a))
+    - normalize Cortex-A78AE header macro names ([10dbe4b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10dbe4b2f1239d85edd0328dc461fc82356ec710))
+
+### New Features
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for version 1.1 ([2cc1b3d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2cc1b3da370a0f1a77ffc47639a3b375815e56f7))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add a header for Arm IMP DEF registers which share encodings ([dc47470](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dc4747014d33e8b5a36947730c53b47bc12d0750))
+    - introduce a framework for IMP_DEF EL3 trap handling ([a3be62b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a3be62bffcf1f9e64ff0aabca10264abf04d69b4))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - **TC**
+
+      - define common CPUECTLR_EL1 values directly ([7c66c52](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7c66c52cea25e4a0d50db2d09c47e842e3c258a3))
+
+  - **NXP**
+
+    - prefix CPUECTLR_EL1 definitions ([3f9b278](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3f9b278782c1dcbcb0c8ac2f0db5bc896a45f25b))
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - also reply to SMC64 calls ([5dab946](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5dab946fe12bfdfb2134a5c6c882d98cde283a46))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Cortex-X4 errata workarounds ([ce9aa06](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ce9aa061cb72011c0efc9a8e8bf81c020777ab53))
+    - add Neoverse N2 errata workarounds ([1ce3a97](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1ce3a97cf25a0d81d5d0f60799f4ac6ce69f3157))
+    - add Neoverse N3 errata workarounds ([3713b21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3713b21886d23bf0029eb7cafe58df955b982122))
+    - convert IMP DEF trap handling to C ([daebad6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/daebad60994fd9ca1cf9a572399b3adf1aa32435))
+    - fix workaround for Neoverse V2 erratum 3099206 ([b8ce025](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b8ce02554e1bc980f526b5656293dc0414ec239a))
+    - put erratum 2726228 for Cortex-X4 in order ([8d15d2d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d15d2d12f0f77e754d55c02d1dbdb614691764f))
+    - remove non Arm interconnect errata flags ([3ef8ff0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3ef8ff0890667717f2f4f3757403ba9dc0825640))
+
 ## [lts-2.14.14](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.14.13..refs/tags/lts-v2.14.14) (2026-11-13)
 
 ### Documentation
