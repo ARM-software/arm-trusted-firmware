@@ -130,6 +130,7 @@ subsections:
     deprecated:
       - plat/common
       - plat
+      - plat_hold_pen
 
     subsections:
       - title: Allwinner
@@ -245,6 +246,9 @@ subsections:
 
               - title: RD-Aspen
                 scope: rdaspen
+
+                deprecated:
+                  - rdaspen/ras
 
       - title: Aspeed
         scope: aspeed
@@ -592,6 +596,18 @@ subsections:
 
           - title: Arduino UNO Q
             scope: uno_q
+
+          - title: Bruin
+            scope: bruin
+
+          - title: Shikra
+            scope: shikra
+
+          - title: Shikra EVK
+            scope: shikra-evk
+
+            deprecated:
+              - shikra_evk
 
       - title: Raspberry Pi
         scope: rpi
@@ -1007,13 +1023,6 @@ subsections:
       - title: I/O
         scope: io
 
-        subsections:
-          - title: MTD
-            scope: mtd
-
-            deprecated:
-              - io_mtd
-
       - title: Measured Boot
         scope: measured-boot
 
@@ -1032,6 +1041,7 @@ subsections:
 
         deprecated:
           - drivers/mtd
+          - io_mtd
 
         subsections:
           - title: NAND
@@ -1063,6 +1073,9 @@ subsections:
 
       - title: UFS
         scope: ufs
+
+      - title: Mentor I2C
+        scope: mentor-i2c
 
       - title: Arm
         scope: arm-drivers
@@ -1375,6 +1388,15 @@ subsections:
           - title: Watchdog
             scope: st-iwdg
 
+      - title: Texas Instruments
+
+        subsections:
+          - title: Clock
+            scope: ti-clk
+
+            deprecated:
+              - ti/clk
+
       - title: USB
         scope: usb
 
@@ -1570,6 +1592,9 @@ subsections:
 
       - title: Firmware Image Package Tool
         scope: fiptool
+
+      - title: Errata Automation
+        scope: errata-automation
 
       - title: Secure Partition Tool
         scope: sptool
